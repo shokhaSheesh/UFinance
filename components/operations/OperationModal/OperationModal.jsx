@@ -1,14 +1,14 @@
 'use client'
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { cn } from '@/app/lib/utils'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 // import styles from './OperationModal.module.scss'
-import AccuralForm from './Forms/Accural'
-import IncomeForm from './Forms/Income'
-import TransferForm from './Forms/Transfer'
+import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { formatDateRu } from '../../../utils/helpers'
-import { Clock, X } from 'lucide-react'
+import AccuralForm from './Forms/Accural'
+import IncomeForm from './Forms/Income'
 import PaymentForm from './Forms/Payment'
+import TransferForm from './Forms/Transfer'
 
 const OperationModal = observer(({
 	operation,
@@ -95,7 +95,7 @@ const OperationModal = observer(({
 		<>
 			{/* Overlay and Modal Container */}
 			<div className={cn('fixed top-[60px] left-[80px] w-[calc(100%-80px)]  h-[calc(100%-60px)] right-0 bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300', isClosing ? 'opacity-0' : 'opacity-100')}>
-				<div className="w-[600px] h-full bg-white p-4 flex flex-col transition-transform duration-300">
+				<div className="min-w-[600px] max-w-[700px]! h-full bg-white p-4 flex flex-col transition-transform duration-300">
 					<div className="flex items-center justify-between mb-2">
 						<div className="flex items-center gap-2">
 							<h2 className="text-lg font-bold text-neutral-900">

@@ -1,15 +1,14 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import './style.scss'
-import MultipleSelect from '../../../shared/Selects/MultiSelect'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
-import { formatAmount, formatDateRu, formatNumber, returnNumber } from '../../../../utils/helpers'
+import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/helpers'
+import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import CustomCalendar from '../../../shared/Calendar'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
 import CustomModal from '../../../shared/CustomModal'
-import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
-import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import CustomMultipleSelect from '../../../shared/Selects/MultipleSelect'
+import './style.scss'
 
 
 const defaultOptions = [
@@ -272,9 +271,11 @@ const SplitAmount = ({ amount, onChange, rows,
 
                         {/* Сумма */}
                         <td className="split-td col-value">
-                          <div className="value-cell-wrapper">
-                            {isDebit && <DebitIcon />}
-                            {isCredit && <CreditIcon />}
+                          <div className="value-cell-wrapper relative">
+                            <span className="absolute top-1/2 -translate-y-1/2">
+                              {isDebit && <DebitIcon />}
+                              {isCredit && <CreditIcon />}
+                            </span>
 
                             <input
                               type="text"

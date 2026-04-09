@@ -3,23 +3,19 @@ import { makePersistable } from 'mobx-persist-store'
 
 class SealDeal {
   // single deal Методом начисления || Кассовым методом
-  accounting = 'accrual' // accrual || cash
-  // deals list page filter my method
+  accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method' // accrual_method || cash_method
-
   // deals page filters
-  filters = {
-    selectedCounterparties: [],
-    dateRange: { start: null, end: null },
-    operationDateStart: '',
-    operationDateEnd: '',
-    amountFrom: '',
-    amountTo: '',
-    profitFrom: '',
-    profitTo: '',
-    status: [],
-    isCalculation: false,
-  }
+  selectedCounterparties = []
+  dateRange = { start: null, end: null }
+  operationDateStart = ''
+  operationDateEnd = ''
+  amountFrom = ''
+  amountTo = ''
+  profitFrom = ''
+  profitTo = ''
+  status = []
+  isCalculation = false
 
   constructor() {
     makeAutoObservable(this)
@@ -28,8 +24,18 @@ class SealDeal {
       makePersistable(this, {
         name: "sale_deal",
         properties: [
-          "accounting", 
-          "filters",
+          "accounting",
+          "dealsMethod",
+          "selectedCounterparties",
+          "dateRange",
+          "operationDateStart",
+          "operationDateEnd",
+          "amountFrom",
+          "amountTo",
+          "profitFrom",
+          "profitTo",
+          "status",
+          "isCalculation",
         ],
         storage: window.localStorage,
         debugMode: true,
@@ -43,18 +49,18 @@ class SealDeal {
 
   resetFilters = () => {
     this.accounting = 'accrual'
-    this.filters = {
-      selectedCounterparties: [],
-      dateRange: { start: null, end: null },
-      operationDateStart: '',
-      operationDateEnd: '',
-      amountFrom: '',
-      amountTo: '',
-      profitFrom: '',
-      profitTo: '',
-      status: [],
-      isCalculation: false,
-    }
+    this.dealsMethod = 'accrual_method'
+    this.selectedCounterparties = []
+    this.dateRange = { start: null, end: null }
+    this.operationDateStart = ''
+    this.operationDateEnd = ''
+    this.amountFrom = ''
+    this.amountTo = ''
+    this.profitFrom = ''
+    this.profitTo = ''
+    this.status = []
+    this.isCalculation = false
+
   }
 }
 
