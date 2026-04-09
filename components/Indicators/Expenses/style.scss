@@ -1,3 +1,8 @@
-canvas{
-  position: relative !important;
+canvas {
+	position: static !important;
+  overflow: visible !important;
+}
+
+.echarts-for-react {
+  overflow: visible !important;
 }

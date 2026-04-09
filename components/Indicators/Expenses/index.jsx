@@ -28,14 +28,14 @@ const Expenses = () => {
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 0,
-                    borderColor: '#fff',
+                    borderColor: '#FFF',
                     borderWidth: 1
                 },
                 label: { show: false },
                 labelLine: { show: false },
                 data: [
-                    { value: 100, name: 'Амортизация', itemStyle: { color: '#eab308' } },
-                    { value: 80, name: 'Нераспределенный р', itemStyle: { color: '#f97316' } }
+                    { value: 100, name: 'Амортизация', itemStyle: { color: '#eab308', z: 10000 } },
+                    { value: 80, name: 'Нераспределенный р', itemStyle: { color: '#f97316', z: 10000 } }
                 ]
             }
         ],
@@ -183,7 +183,7 @@ const Expenses = () => {
                     <div className=" relative shrink-0">
                         <ReactECharts
                             option={donutOption}
-                            style={{ height: '300px', width: '300px' }}
+                            style={{ height: '400px', width: '400px' }}
                         />
                     </div>
                     <div className="flex-1 pl-6 space-y-4">
