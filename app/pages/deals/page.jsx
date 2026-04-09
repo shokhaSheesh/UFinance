@@ -7,7 +7,6 @@ import debounce from 'lodash/debounce'
 import { Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
-import { useQueryStates } from 'nuqs'
 import { useMemo, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
@@ -30,15 +29,7 @@ export default observer(function DealsPage() {
   const router = useRouter()
   // URL state — search (loca state for input, debounced write to URL)
   const [search, setSearch] = useState('')
-  const [queryParams, setQueryParams] = useQueryStates({
-    search: { defaultValue: '' },
-    dealsMethod: { defaultValue: 'accural_method' },
-  })
 
-
-  const debouncedSetSearch = useMemo(
-    () => debounce((val) => setSearch(val || null), 200),
-    [setSearch])
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [dealToDelete, setDealToDelete] = useState(null)
@@ -59,13 +50,14 @@ export default observer(function DealsPage() {
     profitFrom,
     profitTo,
     status,
+    search: searchValue,
     setState
   } = sealDeal
 
 
   const dealsFilters = {
     limit: 50,
-    search: search || null,
+    search: search,
     from_date: dateRange?.start || null,
     to_date: dateRange?.end || null,
     amount_from: Number(amountFrom) || null,
@@ -90,6 +82,16 @@ export default observer(function DealsPage() {
     data: dealsFilters,
     querySetting: { staleTime: 0 },
   })
+
+  const debouncedSetSearch = useMemo(
+    () => debounce((value) => setSearch(value || null), 400),
+    [setSearch])
+
+  const handleSearch = (value) => {
+    setState('search', value)
+    debouncedSetSearch(value)
+  }
+
 
   const allDeals = useMemo(() => {
     return infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
@@ -185,11 +187,6 @@ export default observer(function DealsPage() {
     setDealToCopy(null)
   }
 
-  const handleDealsMethodChange = (fieldName, newValue) => {
-    setState(fieldName, newValue)
-    setQueryParams({ [fieldName]: newValue })
-  }
-
   return (
     <div className='flex fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]'>
       <FilterSidebar onOpenChange={setIsFilterOpen} />
@@ -211,7 +208,7 @@ export default observer(function DealsPage() {
                 withSearch={false}
                 value={dealsMethod}
                 isClearable={false}
-                onChange={(value) => handleDealsMethodChange('dealsMethod', value)}
+                onChange={(value) => setState('dealsMethod', value)}
                 className='bg-white'
               />
             </div>
@@ -219,10 +216,8 @@ export default observer(function DealsPage() {
               <Input
                 type='text'
                 placeholder='Поиск по краткому названию'
-                value={search}
-                onChange={(e) => {
-                  debouncedSetSearch(e.target.value)
-                }}
+                value={searchValue}
+                onChange={(e) => handleSearch(e.target.value)}
                 leftIcon={<Search size={18} />}
               />
             </div>

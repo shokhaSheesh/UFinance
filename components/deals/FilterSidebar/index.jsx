@@ -3,8 +3,7 @@ import NewDateRangeComponent from '@/components/directories/NewDateRangeComponen
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import { observer } from 'mobx-react-lite'
-import { useQueryStates } from 'nuqs'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatNumber } from '../../../utils/helpers'
@@ -14,27 +13,6 @@ import MultiSelect from '../../shared/Selects/MultiSelect'
 
 const FilterSidebar = observer(({ onOpenChange }) => {
 	const [isOpen, setIsOpen] = useState(true)
-	const [queryParams, setQueryParams] = useQueryStates({
-		selectedCounterparties: { defaultValue: [] },
-		dateRange: { defaultValue: { start: null, end: null } },
-		amountFrom: { defaultValue: "" },
-		amountTo: { defaultValue: "" },
-		profitFrom: { defaultValue: "" },
-		profitTo: { defaultValue: "" },
-		status: { defaultValue: [] },
-	})
-
-	// Sync URL params to store on mount
-
-	useEffect(() => {
-		setState('selectedCounterparties', queryParams.selectedCounterparties)
-		setState('dateRange', queryParams.dateRange)
-		setState('amountFrom', queryParams.amountFrom)
-		setState('amountTo', queryParams.amountTo)
-		setState('profitFrom', queryParams.profitFrom)
-		setState('profitTo', queryParams.profitTo)
-		setState('status', queryParams.status)
-	}, [])
 
 	const toggleOpen = val => {
 		setIsOpen(val)
@@ -99,13 +77,11 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 	)
 
 	const handlePriceDebouce = (field, value) => {
-		setQueryParams({ [field]: value })
 		debounceSetParams(field, value)
 	}
 
 
-	const handleFilterChange = (field, value) => {
-		setQueryParams({ [field]: value })
+	const handleFilterChange = (field, value) => { 
 		setState(field, value)
 	}
 
@@ -153,7 +129,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<Input
 							type='text'
 							placeholder='От'
-							value={formatNumber(queryParams.amountFrom)}
+							value={formatNumber(amountFrom)}
 							onChange={e => handlePriceDebouce('amountFrom', e.target.value)}
 							className='h-8!'
 						/>
@@ -161,7 +137,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<Input
 							type='text'
 							placeholder='До'
-							value={formatNumber(queryParams.amountTo)}
+							value={formatNumber(amountTo)}
 							onChange={e => handlePriceDebouce('amountTo', e.target.value)}
 							className='h-8!'
 						/>
@@ -175,7 +151,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<Input
 							type='text'
 							placeholder='От'
-							value={formatNumber(queryParams.profitFrom)}
+							value={formatNumber(profitFrom)}
 							onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
 							className='h-8!'
 						/>
@@ -183,7 +159,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<Input
 							type='text'
 							placeholder='До'
-							value={formatNumber(queryParams.profitTo)}
+							value={formatNumber(profitTo)}
 							onChange={e => handlePriceDebouce('profitTo', e.target.value)}
 							className='h-8!'
 						/>
