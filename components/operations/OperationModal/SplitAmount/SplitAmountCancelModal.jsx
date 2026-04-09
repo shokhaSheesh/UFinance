@@ -1,15 +1,10 @@
 "use client"
-import { createPortal } from 'react-dom'
-import { useEffect, useState } from 'react'
-import styles from './SplitAmountCancelModal.module.scss'
 import { cn } from '@/app/lib/utils'
+import { createPortal } from 'react-dom'
+import useMounted from '../../../../hooks/useMounted'
+import styles from './SplitAmountCancelModal.module.scss'
 export function SplitAmountCancelModal({ isOpen, onConfirm, onCancel }) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
+  const mounted = useMounted()
 
   if (!isOpen || !mounted) return null
 

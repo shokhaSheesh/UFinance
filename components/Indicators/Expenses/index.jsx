@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 // Mock Data for Expenses
@@ -180,7 +180,7 @@ const Expenses = () => {
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Donut Pane */}
                 <div className="w-full lg:w-[600px] shrink-0 flex items-center justify-between">
-                    <div className="h-[400px] w-[400px] relative shrink-0">
+                    <div className=" relative shrink-0">
                         <ReactECharts
                             option={donutOption}
                             style={{ height: '300px', width: '300px' }}

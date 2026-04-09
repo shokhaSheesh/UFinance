@@ -87,7 +87,7 @@ const OperationModal = observer(({
 		<>
 			{/* Overlay and Modal Container */}
 			<div className={cn('fixed top-[60px] left-[80px] w-[calc(100%-80px)]  h-[calc(100%-60px)] right-0 bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300', isClosing ? 'opacity-0' : 'opacity-100')}>
-				<div className="min-w-[600px] max-w-[700px]! h-full bg-white p-4 flex flex-col transition-transform duration-300">
+				<div className="min-w-[600px]! max-w-[900px]! h-full bg-white p-4 flex flex-col transition-transform duration-300">
 					<div className="flex items-center justify-between mb-2">
 						<div className="flex items-center gap-2">
 							<h2 className="text-lg font-bold text-neutral-900">

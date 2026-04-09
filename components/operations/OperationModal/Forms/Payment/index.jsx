@@ -1,38 +1,37 @@
 'use client'
-import React, { useReducer, useState, useMemo, useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
 import { cn } from '@/app/lib/utils'
+import { useEffect, useMemo, useReducer, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { appStore } from '../../../../../store/app.store'
 
 // Hooks
-import {
-} from '@/hooks/useDashboard'
+import { } from '@/hooks/useDashboard'
 
 // Helpers
 import { formatDate, isFuture } from '@/utils/formatDate'
 
 // Components
+import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
+import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
 import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
-import TextArea from '../../../../shared/TextArea'
-import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import SingleSelect from '../../../../shared/Selects/SingleSelect'
+import TextArea from '../../../../shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
-import { DebitIcon, CreditIcon } from '../../../../../constants/icons'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { observer } from 'mobx-react-lite'
-import { authStore } from '../../../../../store/auth.store'
-import { queryClient } from '../../../../../lib/queryClient'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { CreditIcon, DebitIcon } from '../../../../../constants/icons'
+import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { queryClient } from '../../../../../lib/queryClient'
+import { authStore } from '../../../../../store/auth.store'
+import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 
 // ── Reducer Logic ──────────────────────────────────────────
 
@@ -214,15 +213,15 @@ function rowsReducer(state, action) {
     case 'DIVIDE_EQUAL': {
       const count = state.length
       if (count === 0) return state
-      const totalAmount = parseFloat(action.amount) || 0
-      const equalValue = Math.floor((totalAmount / count) * 100) / 100
-      const equalPercent = Math.floor((100 / count) * 100) / 100
-      const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
-      const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
+      const totalAmount = parseFloat(String(action?.amount)?.replace(/\s/g, '')) || 0
+      const equalValue = parseFloat((totalAmount / count).toFixed(2))
+      const equalPercent = Math.floor(100 / count)
+      const lastValue = parseFloat((totalAmount - equalValue * (count - 1)).toFixed(2))
+      const lastPercent = 100 - equalPercent * (count - 1)
       return state.map((row, i) => ({
         ...row,
-        value: i === count - 1 ? String(lastValue) : String(equalValue),
-        percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
+        value: i === count - 1 ? String(lastValue).replace('.00', '') : String(equalValue).replace('.00', ''),
+        percent: i === count - 1 ? String(lastPercent) : String(equalPercent),
       }))
     }
     case 'RESET':

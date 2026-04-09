@@ -66,14 +66,25 @@ export const isFuture = (dateString) => {
   if (!dateString) return false
   const date = new Date(dateString)
   const today = new Date()
-  today.setHours(23, 59, 59, 999)
-  return date > today
+
+  // Compare year, month, and day to check if date is in the future
+  if (date.getFullYear() > today.getFullYear()) return true
+  if (date.getFullYear() < today.getFullYear()) return false
+
+  if (date.getMonth() > today.getMonth()) return true
+  if (date.getMonth() < today.getMonth()) return false
+
+  if (date.getDate() > today.getDate()) return true
+
+  return false
 }
 
 export const isBefore = (dateString) => {
   if (!dateString) return false
   const date = new Date(dateString)
   const today = new Date()
+  console.log('date', date)
+  console.log('today', today)
   today.setHours(0, 0, 0, 0)
   return date < today
 }

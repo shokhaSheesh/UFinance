@@ -7,8 +7,8 @@ import Profit from '../../../components/Indicators/Profit'
 
 const IndicatorsPage = () => {
   return (
-    <div className='fixed left-[80px] w-[calc(100%-80px)] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible bg-neutral-50/30'>
-      <div className='w-full sticky top-0 z-100'>
+    <div className='fixed left-[80px] bg-white w-[calc(100%-80px)] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible'>
+      <div className='w-full sticky top-0 z-1000'>
         <IndicatorsNavbar />
       </div>
       <div className="max-w-[1600px] mx-auto p-4 space-y-6">

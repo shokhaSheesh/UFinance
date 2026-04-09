@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
+import { isFuture } from '../../../../utils/formatDate'
 import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/helpers'
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
@@ -205,8 +206,7 @@ const SplitAmount = ({ amount, onChange, rows,
 
                 <tbody>
                   {rows.map((row, i) => {
-                    const rowDate = row.calculationDate ? Number(row.calculationDate?.slice(-2)) : today;
-                    const isFutureDate = rowDate ? rowDate > today : false;
+                    const isFutureDate = isFuture(row.calculationDate)
 
                     const isDebit = ((modalType === 'income' && !confirmPayment && row.isCalculationCommitted) || (modalType === 'payment' && confirmPayment && !row.isCalculationCommitted)) && (showDate && !isFutureDate && !salesDeal)
 
@@ -298,9 +298,9 @@ const SplitAmount = ({ amount, onChange, rows,
                               className="percent-input"
                               placeholder="0"
                               maxLength={5}
-                              value={formatNumber(row.percent)}
+                              value={String(Math.floor(Number(row.percent) || 0))}
                               onChange={e => {
-                                const perc = formatNumber(e.target.value)
+                                const perc = (e.target.value)
                                 dispatch({ type: 'UPDATE', index: i, field: 'percent', value: perc, amount });
                               }}
                             />
@@ -338,11 +338,11 @@ const SplitAmount = ({ amount, onChange, rows,
                       {isExceeded && <div className="text-red-500 text-xs font-semibold text-right mt-3">Уменьшите на</div>}
                     </td>
                     <td className="footer-total align-top pt-3 border-none flex flex-col justify-start">
-                       <div>
-                         <span className="total-label text-xss text-gray-800" style={{ fontWeight: 'bold' }}>Итого:</span>
-                         <span className="total-value text-xss pl-1 text-gray-800" style={{ fontWeight: 'bold' }}>{formatAmount(String(rawValueSum))}</span>
-                       </div>
-                       {isExceeded && <div className="text-red-500 text-xs font-semibold mt-3 text-right pr-2">{formatAmount(String(difference))}</div>}
+                      <div>
+                        <span className="total-label text-xss text-gray-800" style={{ fontWeight: 'bold' }}>Итого:</span>
+                        <span className="total-value text-xss pl-1 text-gray-800" style={{ fontWeight: 'bold' }}>{formatAmount(String(rawValueSum))}</span>
+                      </div>
+                      {isExceeded && <div className="text-red-500 text-xs font-semibold mt-3 text-right pr-2">{formatAmount(String(difference))}</div>}
                     </td>
                     <td className="footer-percent align-top pt-3 border-none text-xss" style={{ fontWeight: 'bold' }}>
                       {formatNumber(totalPercent)} %

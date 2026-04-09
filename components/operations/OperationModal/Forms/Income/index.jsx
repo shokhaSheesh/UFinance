@@ -1,37 +1,36 @@
 'use client'
-import React, { useReducer, useState, useMemo, useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
 import { cn } from '@/app/lib/utils'
+import { useEffect, useMemo, useReducer, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { appStore } from '../../../../../store/app.store'
 
 // Hooks
-import {
-} from '@/hooks/useDashboard'
+import { } from '@/hooks/useDashboard'
 
 // Helpers
-import { formatDate, isFuture } from '@/utils/formatDate' 
+import { formatDate, isFuture } from '@/utils/formatDate'
 
 // Components
+import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
+import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
 import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
-import TextArea from '../../../../shared/TextArea'
-import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import SingleSelect from '../../../../shared/Selects/SingleSelect'
+import TextArea from '../../../../shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
-import { DebitIcon, CreditIcon } from '../../../../../constants/icons'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { observer } from 'mobx-react-lite'
-import { authStore } from '../../../../../store/auth.store'
-import { queryClient } from '../../../../../lib/queryClient'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { CreditIcon, DebitIcon } from '../../../../../constants/icons'
+import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { queryClient } from '../../../../../lib/queryClient'
+import { authStore } from '../../../../../store/auth.store'
+import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 
 // ── Reducer Logic ──────────────────────────────────────────
 
@@ -213,15 +212,15 @@ function rowsReducer(state, action) {
     case 'DIVIDE_EQUAL': {
       const count = state.length
       if (count === 0) return state
-      const totalAmount = parseFloat(action.amount) || 0
-      const equalValue = Math.floor((totalAmount / count) * 100) / 100
-      const equalPercent = Math.floor((100 / count) * 100) / 100
-      const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
-      const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
+      const totalAmount = parseFloat(String(action?.amount)?.replace(/\s/g, '')) || 0
+      const equalValue = parseFloat((totalAmount / count).toFixed(2))
+      const equalPercent = Math.floor(100 / count)
+      const lastValue = parseFloat((totalAmount - equalValue * (count - 1)).toFixed(2))
+      const lastPercent = 100 - equalPercent * (count - 1)
       return state.map((row, i) => ({
         ...row,
-        value: i === count - 1 ? String(lastValue) : String(equalValue),
-        percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
+        value: i === count - 1 ? String(lastValue).replace('.00', '') : String(equalValue).replace('.00', ''),
+        percent: i === count - 1 ? String(lastPercent) : String(equalPercent),
       }))
     }
     case 'RESET':
@@ -246,6 +245,7 @@ const IncomeForm = observer(({
 
   // Form State
   const isNew = initialData?.isNew
+  console.log('initialData', initialData)
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
@@ -255,17 +255,17 @@ const IncomeForm = observer(({
 
       return {
         paymentDate,
-        confirmPayment: raw.payment_confirmed !== undefined ? raw.payment_confirmed : !!raw.oplata_podtverzhdena,
-        accountAndLegalEntity: raw.my_accounts_id || raw.bank_accounts_id || null,
-        amount: raw.summa !== undefined && raw.summa !== null ? Math.abs(Number(raw.summa)) : (raw.rawData?.summa !== undefined && raw.rawData?.summa !== null ? Math.abs(Number(raw.rawData.summa)) : 0),
+        confirmPayment: raw?.payment_confirmed !== undefined ? raw?.payment_confirmed : !!raw?.oplata_podtverzhdena,
+        accountAndLegalEntity: raw?.my_accounts_id || raw?.bank_accounts_id || null,
+        amount: preselectedCounterparty ? (raw?.summa * raw?.operationParts?.length) || 0 : raw?.summa || 0,
         accrualDate,
-        confirmAccrual: raw.payment_accrual !== undefined ? raw.payment_accrual : false,
-        counterparty: raw.counterparties_id || preselectedCounterparty || null,
-        chartOfAccount: raw.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
+        confirmAccrual: raw?.payment_accrual !== undefined ? raw?.payment_accrual : false,
+        counterparty: raw?.counterparties_id || preselectedCounterparty || null,
+        chartOfAccount: raw?.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
         paymentType: 'transfer',
-        salesDeal: raw.selling_deal_id || defaultDealGuid || null,
-        purpose: raw.opisanie || '',
-        currency: raw.currenies_id || null,
+        salesDeal: raw?.selling_deal_id || defaultDealGuid || null,
+        purpose: raw?.opisanie || '',
+        currency: raw?.currenies_id || null,
       }
     }
 
