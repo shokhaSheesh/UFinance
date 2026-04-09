@@ -4,6 +4,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import './style.scss'
 
 // Mock Data for Expenses
 const months = ['янв', 'фев', 'мар', 'апр\n(факт)', 'апр\n(план)', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
@@ -18,13 +19,18 @@ const Expenses = () => {
     const donutOption = useMemo(() => ({
         tooltip: {
             trigger: 'item',
-            formatter: '{b}: {c} ({d}%)'
+            formatter: '{b}: {c} ({d}%)',
+            confine: false,
+            appendToBody: true,
+            textStyle: {
+                fontSize: 12
+            }
         },
         series: [
             {
                 name: 'Expense Breakdown',
                 type: 'pie',
-                radius: ['70%', '98%'],
+                radius: ['60%', '88%'],
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 0,
@@ -61,6 +67,8 @@ const Expenses = () => {
             borderColor: '#e5e7eb',
             borderWidth: 1,
             textStyle: { color: '#111827', fontSize: 12 },
+            confine: false,
+            appendToBody: true,
             formatter: (params) => {
                 let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name.replace('\n', ' ')}</div>`
                 params.forEach(item => {
@@ -94,9 +102,9 @@ const Expenses = () => {
             data: months,
             axisLine: { show: true, lineStyle: { color: '#e5e7eb' } },
             axisTick: { show: false },
-            axisLabel: { 
-                color: '#111827', 
-                fontSize: 12, 
+            axisLabel: {
+                color: '#111827',
+                fontSize: 12,
                 interval: (index, value) => {
                     const shownMonths = ['янв', 'мар', 'апр\n(план)', 'июн', 'авг', 'окт', 'дек']
                     return shownMonths.includes(value)
@@ -110,8 +118,8 @@ const Expenses = () => {
             axisLine: { show: false },
             axisTick: { show: false },
             splitLine: { lineStyle: { color: '#f3f4f6' } },
-            axisLabel: { 
-                color: '#111827', 
+            axisLabel: {
+                color: '#111827',
                 fontSize: 12,
                 formatter: (value) => value === 0 ? '0' : `${value / 1000} тыс`
             }
@@ -168,7 +176,7 @@ const Expenses = () => {
     }), [zoomRange])
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg shadow-sm border border-neutral-100 mt-6">
+        <div className="w-full bg-white p-6 rounded-lg  mt-6">
             <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-[14px] font-medium text-[#111827]">Расходы, $</h2>
                 <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
@@ -179,11 +187,11 @@ const Expenses = () => {
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Donut Pane */}
-                <div className="w-full lg:w-[600px] shrink-0 flex items-center justify-between">
-                    <div className=" relative shrink-0">
+                <div className="w-full lg:w-[600px] shrink-0 flex items-center justify-between relative z-10">
+                    <div className="relative shrink-0 overflow-visible">
                         <ReactECharts
                             option={donutOption}
-                            style={{ height: '400px', width: '400px' }}
+                            style={{ height: '300px', width: '300px' }}
                         />
                     </div>
                     <div className="flex-1 pl-6 space-y-4">
@@ -211,14 +219,14 @@ const Expenses = () => {
                 </div>
 
                 {/* Bar Chart Pane */}
-                <div className="flex-1">
+                <div className="flex-1 relative z-10">
                     <div className="mb-4 px-2">
-                        <CustomMonthSlider 
-                            value={zoomRange} 
+                        <CustomMonthSlider
+                            value={zoomRange}
                             onChange={setZoomRange}
                         />
                     </div>
-                    <div className="h-[300px] w-full">
+                    <div className="h-[300px] w-full overflow-visible">
                         <ReactECharts
                             ref={chartRef}
                             option={barOption}

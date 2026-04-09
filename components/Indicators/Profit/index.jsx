@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from 'react'
+import { cn } from '@/app/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
-import { cn } from '@/app/lib/utils'
+import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 // Static Mock Data based on the provided image
