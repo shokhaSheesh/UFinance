@@ -80,14 +80,6 @@ const OperationModal = observer(({
 		}
 	}, [])
 
-	// if (!isNew && isLoadingOperation) {
-	// 	return (
-	// 		<div className={styles.loadingOverlay}>
-	// 			<div className={styles.loadingSpinner}></div>
-	// 			<span>Загрузка операции...</span>
-	// 		</div>
-	// 	)
-	// }
 
 	if (!operationData && !isNew) return null
 
