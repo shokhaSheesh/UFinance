@@ -119,12 +119,11 @@ export default function LoginPage() {
           refresh_token: refreshToken,
           user_data: userData
         })
+        showSuccessNotification('Успешная регистрация!')
+        router.push('/pages/operations')
       } else {
-        console.error('Missing token or user data!')
+        showErrorNotification('Ошибка: токен или данные пользователя не получены')
       }
-
-      showSuccessNotification('Успешная регистрация!')
-      // router.push('/pages/operations')
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при регистрации'
@@ -227,7 +226,6 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const errors = {}
-
     if (fromType === 'register') {
       if (!formData.branchName.trim()) {
         errors.branchName = 'Введите название организации'
@@ -244,16 +242,6 @@ export default function LoginPage() {
       if (cleanPhone.length !== 12) {
         errors.phone = 'Введите полный номер телефона'
       }
-      if (!formData.password) {
-        errors.password = 'Введите пароль'
-      } else if (formData.password.length < 6) {
-        errors.password = 'Пароль должен быть не менее 6 символов'
-      }
-      if (!confirmPassword) {
-        errors.confirmPassword = 'Подтвердите пароль'
-      } else if (formData.password !== confirmPassword) {
-        errors.confirmPassword = 'Пароли не совпадают'
-      }
       if (!formData.checked) {
         errors.terms = 'Необходимо согласиться с условиями'
       }
@@ -265,10 +253,7 @@ export default function LoginPage() {
       }
       if (!formData.password) {
         errors.password = 'Введите пароль'
-      }
-      // if (!selectedBranch) {
-      //   errors.branch = 'Выберите филиал'
-      // }
+      } 
     }
 
     return errors
@@ -280,60 +265,32 @@ export default function LoginPage() {
     setFieldErrors({})
 
     const errors = validateForm()
+    console.log('Form validation errors:', errors)
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)
+      console.log('Validation failed, not submitting')
       return
     }
+    console.log('Form is valid, submitting...')
 
     try {
       if (fromType === 'login') {
-        loginMutation.mutateAsync({
+        await loginMutation.mutateAsync({
           email: formData.email,
           password: formData.password,
         })
-
       } else {
         const cleanPhone = getCleanPhoneNumber(formData.phone)
-
-        const response = await registerAsync({
+        await registerAsync({
           name: formData.name,
           email: formData.email,
-          phone: cleanPhone, 
+          phone: cleanPhone,
           legal_entity_name: formData.name,
           branch_name: formData.branchName,
-        }).catch((error) => {
-          if (error.message && (
-            error.message.includes('already exists') ||
-            error.message.includes('уже существует') ||
-            error.message.includes('already registered') ||
-            error.message.includes('уже зарегистрирован')
-          )) {
-            throw new Error('Пользователь с таким email уже существует')
-          }
-          throw error
         })
-
-        const innerData = response?.data?.data?.data || response?.data?.data
-        const tokenData = innerData?.token?.access_token || innerData?.token
-        const userData = innerData?.user_data || innerData?.userData || innerData?.user || {
-          email: formData.email,
-          name: formData.name,
-          phone: cleanPhone
-        }
-
-        if (tokenData) {
-          authStore.setAuthentication({
-            token: tokenData,
-            user_data: userData
-          })
-          router.push('/pages/operations')
-        } else {
-          console.error('❌ Token not found in response!')
-          console.log('Response structure:', JSON.stringify(response, null, 2))
-          throw new Error('Токен не получен от сервера')
-        }
       }
     } catch (error) {
+      // errors are handled by onError callbacks in each mutation
     }
   }
 
