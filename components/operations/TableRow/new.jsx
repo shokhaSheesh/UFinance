@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
 import { cn } from '@/app/lib/utils'
-import styles from './style.module.scss'
+import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
-import { ExpendClose, ExpendOpen, TypeIncomeIcon, TypeExpenseIcon, TypeTransferIcon, ShipmentIcon } from '../../../constants/icons'
 import { observer } from 'mobx-react-lite'
+import { useMemo, useState } from 'react'
+import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
 import { operationFilterStore } from '../../../store/operationFilter.store'
+import styles from './style.module.scss'
 
 const TableRow = observer(({
   op,
@@ -179,12 +179,12 @@ const TableRow = observer(({
         </div>
 
         {/* Counterparty */}
-        <div className={cn('w-52 flex px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('w-52 flex  px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
         </div>
 
         {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-0', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-48', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>

@@ -1,25 +1,25 @@
 'use client'
-import { useForm, Controller, } from 'react-hook-form'
-import { memo, useMemo, useState } from 'react'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { memo, useMemo, useState } from 'react'
+import { Controller, useForm, } from 'react-hook-form'
 
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import { formatDate } from '@/utils/formatDate'
 import { cn } from '@/app/lib/utils'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import CustomDatePicker from '../../../../shared/DatePicker'
-import { isFuture } from '../../../../../utils/formatDate'
-import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
-import { formatDecimal, formatNumber, getCurrencyIcon, returnNumber, StringtoNumber } from '../../../../../utils/helpers'
+import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
-import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
-import { queryClient } from '../../../../../lib/queryClient'
-import { observer } from 'mobx-react-lite'
-import { appStore } from '../../../../../store/app.store'
 import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { queryClient } from '../../../../../lib/queryClient'
+import { appStore } from '../../../../../store/app.store'
+import { isFuture } from '../../../../../utils/formatDate'
+import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
+import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
+import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import CustomDatePicker from '../../../../shared/DatePicker'
 
 const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
@@ -73,7 +73,6 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
     }
   }, [initialData, isNew])
 
-  console.log('initialData', initialData)
 
 
   const { getValues, control, handleSubmit, setValue, watch, formState: { errors, } } = useForm({
@@ -110,8 +109,8 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
         chart_of_accounts_id_2: data.chartOfAccountEnrollment,
-        sales_transactions_id: data.sellingDealId,
-        sales_transactions_id_2: data.sellingDealId2,
+        sales_transactions_id: data.sellingDealId || null,
+        sales_transactions_id_2: data.sellingDealId2 || null,
         // counterparties_id: data.counterpary_id,
         include_in_profit_and_loss_cash_method: data.canAllowOpiu,
         repeat_enabled: data.repeatEnabled,

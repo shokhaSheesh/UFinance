@@ -1,9 +1,8 @@
 'use client'
-import React, { useMemo } from 'react'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
-import SingleSelect from '../../shared/Selects/SingleSelect'
-import { cn } from '@/lib/utils'
 import { keepPreviousData } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const SingleZdelka = ({
   value,
@@ -25,12 +24,11 @@ const SingleZdelka = ({
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }
-  })
+  }) 
 
-  const options = useMemo(() => {
-    if (!deals || !Array.isArray(deals)) return []
+  const options = useMemo(() => { 
 
-    return deals.map(deal => ({
+    return deals?.map(deal => ({
       value: deal.guid,
       label: deal?.Nazvanie || 'Без названия'
     }))

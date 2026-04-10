@@ -29,7 +29,6 @@ const Branches = observer(() => {
 
   useEffect(() => {
     authStore.setBranches(branches)
-    authStore.setBranchId(branches?.[0]?.guid) 
   }, [branches])
 
   useEffect(() => {

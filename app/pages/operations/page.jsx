@@ -1,28 +1,28 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { observer } from 'mobx-react-lite'
-import { toJS } from 'mobx'
-import { formatDate } from '../../../utils/formatDate'
-import { operationFilterStore } from '../../../store/operationFilter.store'
-import {
-	useUcodeRequestInfinite,
-	useDeleteOperation,
-	useUcodeRequestMutation,
-} from '@/hooks/useDashboard'
-import { OperationsFiltersSidebar } from '@/components/operations/OperationsFiltersSidebar/OperationsFiltersSidebar'
-import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import CreateShipment from '@/components/deals/details/CreatingShipment'
+import OperationModal from '@/components/operations/OperationModal/OperationModal'
+import { OperationsFiltersSidebar } from '@/components/operations/OperationsFiltersSidebar/OperationsFiltersSidebar'
 import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
 import OperationTableRow from '@/components/operations/TableRow/new'
-import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
+import {
+	useDeleteOperation,
+	useUcodeRequestInfinite,
+	useUcodeRequestMutation,
+} from '@/hooks/useDashboard'
 import { useQueryClient } from '@tanstack/react-query'
-import operationsDto from '../../../lib/dtos/operationsDto'
-import { OperationsFooter } from '../../../components/operations/OperationsFooter/OperationsFooter'
-import ScreenLoader from '../../../components/shared/ScreenLoader'
-import Input from '../../../components/shared/Input'
-import { EllipsisVertical, Loader2, Search } from 'lucide-react'
+import { EllipsisVertical, Search } from 'lucide-react'
+import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { OperationsFooter } from '../../../components/operations/OperationsFooter/OperationsFooter'
+import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
+import Input from '../../../components/shared/Input'
+import ScreenLoader from '../../../components/shared/ScreenLoader'
+import operationsDto from '../../../lib/dtos/operationsDto'
+import { operationFilterStore } from '../../../store/operationFilter.store'
+import { formatDate } from '../../../utils/formatDate'
 
 
 
@@ -433,8 +433,8 @@ const OperationsPage = observer(() => {
 			/>
 
 			{/* Main Content */}
-			<div id="scrollableDiv" className="overflow-auto  h-full w-full px-2 bg-white">
-				<div className="sticky h-16 px-4 flex items-center justify-between top-0 z-40 bg-white ">
+			<div className="w-full">
+				<div className=" h-16 px-4 flex items-center justify-between bg-white ">
 					<div className="flex items-center gap-4 ">
 						<h1 className="text-xl font-semibold">Операции</h1>
 						<button
@@ -458,115 +458,117 @@ const OperationsPage = observer(() => {
 						</button>
 					</div>
 				</div>
-				<div className='flex h-12 sticky top-16 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-					<div className='w-10 flex items-center justify-center'>
-						<OperationCheckbox
-							checked={isAllSelected}
-							onChange={toggleSelectAll}
-						/>
-					</div>
-					{isAllSelected && selectedOperations.length > 0 && <div className="flex items-center gap-2">
-						<p>{selectedOperations.length}</p>
-						<button className="primary-btn">Удалить</button>
-						<button className="primary-btn">Экспорт</button>
-					</div>}
-					{!isAllSelected && <>
-						<div className='w-32 flex px-3 items-center justify-start '>
-							Дата
-						</div>
-						<div className='w-40 flex px-2 items-center justify-start '>
-							Счет
-						</div>
-						<div className='w-14  flex px-2 items-center justify-center '>
-							Тип
-						</div>
-						<div className='w-52 flex px-2 items-center justify-start '>
-							Контрагент
-						</div>
-						<div className='flex-1  text-start  px-2 items-center justify-start '>
-							Статья
-						</div>
-						<div className='flex-1 flex px-2 items-center justify-center '>
-							Сделка
-						</div>
-						<div className='w-40 flex px-2 items-center justify-end '>
-							Сумма
-						</div>
-						<div className='w-8 flex px-2 items-center justify-center'>
-							&nbsp;
-						</div>
-					</>}
-				</div>
-				{allOperations.length === 0 && !isLoadingOperations &&
-					<div className="py-20 text-center text-neutral-500 bg-white">
-						Нет данных
-					</div>
-				}
-				<InfiniteScroll
-					dataLength={allOperations.length}
-					hasMore={hasNextPage}
-					next={fetchNextPage}
-					scrollableTarget="scrollableDiv"
-				>
-
-					{<div className="flex flex-col pb-10">
-						{operationsList?.future?.map(op => (
-							<OperationTableRow
-								key={op.guid}
-								op={op}
-								selectedOperations={selectedOperations}
-								toggleOperation={toggleOperation}
-								openOperationModal={openOperationModal}
-								handleEditOperation={handleEditOperation}
-								handleDeleteOperation={handleDeleteOperation}
-								handleCopyOperation={handleCopyOperation}
+				<div id="scrollableDiv" className="overflow-auto  h-full w-full px-2 bg-white">
+					<div className='flex h-12 sticky top-0 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+						<div className='min-w-10 flex items-center justify-center'>
+							<OperationCheckbox
+								checked={isAllSelected}
+								onChange={toggleSelectAll}
 							/>
-						))}
-
-						{/* Сегодня - Section Header */}
-						{operationsList?.today?.length > 0 && (
-							<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
-								<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Сегодня</h3>
+						</div>
+						{isAllSelected && selectedOperations.length > 0 && <div className="flex items-center gap-2">
+							<p>{selectedOperations.length}</p>
+							<button className="primary-btn">Удалить</button>
+							<button className="primary-btn">Экспорт</button>
+						</div>}
+						{!isAllSelected && <>
+							<div className='min-w-32 flex px-3 items-center justify-start '>
+								Дата
 							</div>
-						)}
-
-						{operationsList?.today?.map(op => (
-							<OperationTableRow
-								key={op.guid}
-								op={op}
-								selectedOperations={selectedOperations}
-								toggleOperation={toggleOperation}
-								openOperationModal={openOperationModal}
-								handleEditOperation={handleEditOperation}
-								handleDeleteOperation={handleDeleteOperation}
-								handleCopyOperation={handleCopyOperation}
-							/>
-						))}
-
-						{/* Вчера и ранее - Section Header */}
-						{operationsList?.before?.length > 0 && (
-							<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
-								<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Вчера и ранее</h3>
+							<div className='min-w-40 flex px-2 items-center justify-start '>
+								Счет
 							</div>
-						)}
-						{operationsList?.before?.map(op => (
-							<OperationTableRow
-								key={op.guid}
-								op={op}
-								selectedOperations={selectedOperations}
-								toggleOperation={toggleOperation}
-								openOperationModal={openOperationModal}
-								handleEditOperation={handleEditOperation}
-								handleDeleteOperation={handleDeleteOperation}
-								handleCopyOperation={handleCopyOperation}
-							/>
-						))}
+							<div className='min-w-14  flex px-2 items-center justify-center '>
+								Тип
+							</div>
+							<div className='min-w-52 flex px-2 items-center justify-start '>
+								Контрагент
+							</div>
+							<div className='flex-1  text-start  px-2 items-center justify-start '>
+								Статья
+							</div>
+							<div className='flex-1 flex px-2 items-center justify-center '>
+								Сделка
+							</div>
+							<div className='min-w-40 flex px-2 items-center justify-end '>
+								Сумма
+							</div>
+							<div className='min-w-8 flex px-2 items-center justify-center'>
+								&nbsp;
+							</div>
+						</>}
 					</div>
+					{allOperations.length === 0 && !isLoadingOperations &&
+						<div className="py-20 text-center text-neutral-500 bg-white">
+							Нет данных
+						</div>
 					}
-				</InfiniteScroll>
+					<InfiniteScroll
+						dataLength={allOperations.length}
+						hasMore={hasNextPage}
+						next={fetchNextPage}
+						scrollableTarget="scrollableDiv"
+					>
 
-				<OperationsFooter totalSummary={totalSummary} isFilterOpen={isFilterOpen} />
+						{<div className="flex flex-col pb-10">
+							{operationsList?.future?.map(op => (
+								<OperationTableRow
+									key={op.guid}
+									op={op}
+									selectedOperations={selectedOperations}
+									toggleOperation={toggleOperation}
+									openOperationModal={openOperationModal}
+									handleEditOperation={handleEditOperation}
+									handleDeleteOperation={handleDeleteOperation}
+									handleCopyOperation={handleCopyOperation}
+								/>
+							))}
 
+							{/* Сегодня - Section Header */}
+							{operationsList?.today?.length > 0 && (
+								<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
+									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Сегодня</h3>
+								</div>
+							)}
+
+							{operationsList?.today?.map(op => (
+								<OperationTableRow
+									key={op.guid}
+									op={op}
+									selectedOperations={selectedOperations}
+									toggleOperation={toggleOperation}
+									openOperationModal={openOperationModal}
+									handleEditOperation={handleEditOperation}
+									handleDeleteOperation={handleDeleteOperation}
+									handleCopyOperation={handleCopyOperation}
+								/>
+							))}
+
+							{/* Вчера и ранее - Section Header */}
+							{operationsList?.before?.length > 0 && (
+								<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
+									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Вчера и ранее</h3>
+								</div>
+							)}
+							{operationsList?.before?.map(op => (
+								<OperationTableRow
+									key={op.guid}
+									op={op}
+									selectedOperations={selectedOperations}
+									toggleOperation={toggleOperation}
+									openOperationModal={openOperationModal}
+									handleEditOperation={handleEditOperation}
+									handleDeleteOperation={handleDeleteOperation}
+									handleCopyOperation={handleCopyOperation}
+								/>
+							))}
+						</div>
+						}
+					</InfiniteScroll>
+
+					<OperationsFooter totalSummary={totalSummary} isFilterOpen={isFilterOpen} />
+
+				</div>
 			</div>
 			{isLoadingOperations && allOperations.length === 0 && <ScreenLoader className={'left-0!'} />}
 			{(isFetchingNextPage || isFetchingOperations) && <ScreenLoader className={'left-0!'} />}
