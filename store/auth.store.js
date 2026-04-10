@@ -9,12 +9,13 @@ class AuthStore {
   refreshToken = '';
   branches = [];
   branch_id = ''
+  selectBranch = null
 
   constructor() {
     makeAutoObservable(this);
     makePersistable(this, {
       name: 'authStore',
-      properties: ['isAuthenticated', 'userEmail', 'userData', 'authToken', 'refreshToken', 'branches', 'branch_id'],
+      properties: ['isAuthenticated', 'userEmail', 'userData', 'authToken', 'refreshToken', 'branches', 'branch_id', 'selectBranch'],
       storage: typeof window !== 'undefined' ? window.localStorage : undefined
     });
   }
@@ -79,15 +80,19 @@ class AuthStore {
     this.branches = branches;
   }
 
+  setSelectBranch(branch) {
+    this.selectBranch = branch;
+  }
+
   logout() {
     this.isAuthenticated = false;
     this.userEmail = '';
     this.userData = null;
     this.authToken = '';
     this.refreshToken = '';
+    this.selectBranch = null;
     this.branch_id = '';
-    this.branches = [];
-    localStorage.clear();
+    this.branches = [];  
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('userEmail');

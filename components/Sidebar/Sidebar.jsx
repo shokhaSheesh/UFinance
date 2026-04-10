@@ -62,6 +62,11 @@ export function Sidebar() {
 
     const hasSavedUrl = !!appStore.localApiUrl
 
+    const handleClearApiUrl = () => {
+        appStore.setLocalApiUrl('')
+        setApiUrl('')
+    }
+
     return (
         <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full items-center justify-start fixed left-0 z-1000" ref={sidebarRef}>
             {/* <div className="flex items-center justify-center h-[60px] pl-1 pt-1"> */}
@@ -142,6 +147,7 @@ export function Sidebar() {
                         <h2 className="text-lg font-bold text-slate-900 mb-4">
                             Настройка локального API
                         </h2>
+
                         <div className="flex flex-col gap-1.5 mb-4">
                             <label className="text-sm font-medium text-slate-500">URL локального API</label>
                             <textarea
@@ -168,6 +174,12 @@ export function Sidebar() {
                             >
                                 Отмена
                             </button>
+                            {apiUrl && <button
+                                onClick={handleClearApiUrl}
+                                className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+                            >
+                                Clear
+                            </button>}
                             {!hasSavedUrl && (
                                 <button
                                     onClick={handleSaveApiUrl}

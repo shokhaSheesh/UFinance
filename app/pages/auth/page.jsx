@@ -95,7 +95,7 @@ export default function LoginPage() {
         authStore.setBranches(branches)
         authStore.setBranchId(branches[0]?.guid)
       }
-
+      authStore.selectBranch = branches[0]
 
       router.push('/pages/operations')
     },

@@ -9,7 +9,6 @@ import { authStore } from '../../../store/auth.store'
 import ScreenLoader from '../../shared/ScreenLoader'
 
 const Branches = observer(() => {
-  const [selectedBranch, setSelectedBranch] = useState(null)
   const [open, setOpen] = useState(false)
   const [reloading, setReloading] = useState(false)
   const containerRef = useRef(null)
@@ -21,21 +20,16 @@ const Branches = observer(() => {
   })
 
   const branches = useMemo(() => branchesData?.data?.data, [branchesData])
+  const selectedBranch = authStore.selectBranch
 
   const branchesList = useMemo(() => {
     return branches?.length <= 1 ? null : branches
   }, [branches])
 
-  console.log('branches header', branches)
 
   useEffect(() => {
-    const defaultBranch = branches?.find(
-      branch => branch.guid === authStore.branch_id
-    )
     authStore.setBranches(branches)
-    authStore.setBranchId(branches?.[0]?.guid)
-    setSelectedBranch(defaultBranch)
-
+    authStore.setBranchId(branches?.[0]?.guid) 
   }, [branches])
 
   useEffect(() => {
@@ -49,9 +43,9 @@ const Branches = observer(() => {
   }, [])
 
   function handleSelectBranch(branch) {
-    setSelectedBranch(branch)
     setOpen(false)
     authStore.setBranchId(branch.guid)
+    authStore.setSelectBranch(branch)
     setReloading(true)
     router.push('/pages/operations')
     window.location.reload()
