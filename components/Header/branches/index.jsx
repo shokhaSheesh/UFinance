@@ -1,0 +1,106 @@
+'use client'
+
+import { ChevronDown } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { authStore } from '../../../store/auth.store'
+import ScreenLoader from '../../shared/ScreenLoader'
+
+const Branches = observer(() => {
+  const [selectedBranch, setSelectedBranch] = useState(null)
+  const [open, setOpen] = useState(false)
+  const [reloading, setReloading] = useState(false)
+  const containerRef = useRef(null)
+  const router = useRouter()
+
+  const { data: branchesData } = useUcodeRequestQuery({
+    method: 'get_my_branches',
+    data: { page: 1, limit: 200 }
+  })
+
+  const branches = useMemo(() => branchesData?.data?.data, [branchesData])
+
+  const branchesList = useMemo(() => {
+    return branches?.length <= 1 ? null : branches
+  }, [branches])
+
+  console.log('branches header', branches)
+
+  useEffect(() => {
+    const defaultBranch = branches?.find(
+      branch => branch.guid === authStore.branch_id
+    )
+    authStore.setBranches(branches)
+    authStore.setBranchId(branches?.[0]?.guid)
+    setSelectedBranch(defaultBranch)
+
+  }, [branches])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function handleSelectBranch(branch) {
+    setSelectedBranch(branch)
+    setOpen(false)
+    authStore.setBranchId(branch.guid)
+    setReloading(true)
+    router.push('/pages/operations')
+    window.location.reload()
+  }
+
+  if (!branchesList) return null
+
+  return (
+    <div className="relative" ref={containerRef}>
+      {reloading && <ScreenLoader />}
+
+      <button
+        type="button"
+        onClick={() => branchesList && setOpen(prev => !prev)}
+        className="flex flex-col px-4 py-1 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
+      >
+        <span className="text-start line-clamp-1 w-full text-white/60 text-xs">Филиал</span>
+        <span className="flex items-center gap-1 text-start line-clamp-1 w-full font-medium">
+          {selectedBranch?.name || 'Выберите филиал'}
+          {branchesList && (
+            <ChevronDown
+              size={14}
+              className={`transition-transform shrink-0 ${open ? 'rotate-180' : ''}`}
+            />
+          )}
+        </span>
+      </button>
+
+      {open && branchesList && (
+        <div className="absolute right-0 top-[110%] mt-1 z-9999 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 overflow-hidden">
+          {branchesList.map(branch => (
+            <button
+              key={branch?.guid}
+              type="button"
+              onClick={() => handleSelectBranch(branch)}
+              className={[
+                'w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer border-none bg-transparent',
+                selectedBranch?.guid === branch?.guid
+                  ? 'text-[#0E73F6] font-semibold bg-blue-50'
+                  : 'text-slate-700 hover:bg-slate-50',
+              ].join(' ')}
+            >
+              {branch?.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+})
+
+export default Branches

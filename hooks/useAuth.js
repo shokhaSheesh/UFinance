@@ -1,7 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { apiConfig } from '@/lib/config/api'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { authStore } from '@/store/auth.store'
+import { useMutation } from '@tanstack/react-query'
 /**
  * Login mutation hook
  * Handles user authentication - direct call to u-code API
@@ -77,9 +77,9 @@ export function useLogin() {
           refresh_token: refreshToken,
           user_data: userData 
         })  
-        setTimeout(() => {
-          window.location.href = '/pages/operations'
-        }, 100)
+        // setTimeout(() => {
+        //   window.location.href = '/pages/operations'
+        // }, 100)
       } else {
         console.error('Missing token or user data!')
       }

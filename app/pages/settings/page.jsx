@@ -3,15 +3,12 @@
 import { useMemo, useState } from 'react'
 import { appStore } from '../../../store/app.store'
 import { observer } from 'mobx-react-lite'
-import styles from './settings.module.scss'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { queryClient } from '../../../lib/queryClient'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 
-/* ─── currency options ────────────────────────────────── */
 const SettingsPage = observer(() => {
-  /* ── general form state ──────────────────────────── */
   const [purposeOptional, setPurposeOptional] = useState(false)
 
   const { mutateAsync: updateSettings } = useUcodeRequestMutation()
@@ -19,12 +16,12 @@ const SettingsPage = observer(() => {
   const currenciesList = useMemo(() => {
     return appStore.currencies?.map(c => ({
       value: c.guid,
-      label: `${c.kod} (${c.nazvanie})`
+      label: `${c.kod} (${c.nazvanie})`,
     }))
   }, [appStore])
 
   function handleSwitchPayment() {
-    appStore.setIsPayment(!appStore.isPayment);
+    appStore.setIsPayment(!appStore.isPayment)
   }
 
   const handleSelectCurrency = async (value) => {
@@ -32,11 +29,10 @@ const SettingsPage = observer(() => {
     await updateSettings({
       method: 'update_general_settings',
       data: {
-        "default_currency_id": value,
-        "default_currency_code": name,
-      }
-    }).then((data) => {
-      // successToast('Настройки успешно обновлены')
+        default_currency_id: value,
+        default_currency_code: name,
+      },
+    }).then(() => {
       const response = appStore.currencies.find(c => c.guid === value)
       appStore.setCurrency({ name: response?.icon, guid: response?.guid, code: response?.code })
       queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
@@ -51,27 +47,24 @@ const SettingsPage = observer(() => {
       queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
       queryClient.invalidateQueries({ queryKey: ['get_legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-    }).catch(() => {
-      // errorToast('Ошибка при обновлении настроек')
     })
   }
 
   return (
-    <div className=" p-3">
-      <h1 className={styles.pageTitle}>Общие настройки</h1>
+    <div className="p-3">
+      <h1 className="text-xl font-bold text-slate-900 mb-7">Общие настройки</h1>
 
-      {/* ── Настройки аккаунта ─────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Настройки аккаунта</h2>
-
-        <div className={styles.fieldGroup}>
-          <label className={styles.fieldLabel}>Основная валюта</label>
-          <div className={styles.selectWrap}>
+      {/* Account settings */}
+      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+        <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки аккаунта</h2>
+        <div className="mb-2">
+          <label className="block text-sm font-medium text-slate-500 mb-1.5">Основная валюта</label>
+          <div className="relative w-[280px]">
             <SingleSelect
               data={currenciesList}
               value={appStore?.currency?.guid}
               onChange={handleSelectCurrency}
-              placeholder='Выберите валюту'
+              placeholder="Выберите валюту"
               isClearable={false}
               className="bg-white text-neutral-700"
             />
@@ -79,13 +72,23 @@ const SettingsPage = observer(() => {
         </div>
       </section>
 
-      {/* ── Настройки учета ────────────────── */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Настройки учета</h2>
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Создание и редактирование операций</h2>
-          <OperationCheckbox checked={appStore.isPayment} onChange={handleSwitchPayment} label='Тип платежа' />
-          <OperationCheckbox checked={purposeOptional} onChange={() => setPurposeOptional(v => !v)} label='Сделать поле «Назначение платежа» необязательным' />
+      {/* Accounting settings */}
+      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+        <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки учета</h2>
+        <section className="flex flex-col gap-1.5 items-start">
+          <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
+            Создание и редактирование операций
+          </h2>
+          <OperationCheckbox
+            checked={appStore.isPayment}
+            onChange={handleSwitchPayment}
+            label="Тип платежа"
+          />
+          <OperationCheckbox
+            checked={purposeOptional}
+            onChange={() => setPurposeOptional(v => !v)}
+            label="Сделать поле «Назначение платежа» необязательным"
+          />
         </section>
       </section>
     </div>

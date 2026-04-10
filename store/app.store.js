@@ -11,13 +11,14 @@ class AppStore {
 	}
 	currencies = []
 	myCurrencies = []
+	localApiUrl = ''
 
 	constructor() {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
 				name: 'plan_fact_app',
-				properties: ['isPayment', 'currency', 'currencies', 'myCurrencies'],
+				properties: ['isPayment', 'currency', 'currencies', 'myCurrencies', 'localApiUrl'],
 				storage: window.localStorage,
 				debugMode: true,
 			})
@@ -38,6 +39,10 @@ class AppStore {
 
 	setMyCurrencies(value) {
 		this.myCurrencies = value
+	}
+
+	setLocalApiUrl(value) {
+		this.localApiUrl = value
 	}
 
 	// Restore state from localStorage/cookies on init

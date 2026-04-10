@@ -1,18 +1,23 @@
 "use client"
-import React, { useState, useRef } from 'react'
 import { cn } from '@/app/lib/utils'
-import { useLogin } from '@/hooks/useAuth'
-import { Eye, EyeOff } from 'lucide-react'
-import { AuthLogo } from '@/constants/icons'
-import styles from './styles.module.scss'
 import Input from '@/components/shared/Input'
+import { AuthLogo } from '@/constants/icons'
+import { useMutation } from '@tanstack/react-query'
+import { Eye, EyeOff } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import React, { useRef, useState } from 'react'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
-import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
-import { authStore } from '@/store/auth.store'
 import Loader from '../../../components/shared/Loader'
+import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
+import { authStore } from '../../../store/auth.store'
+import styles from './styles.module.scss'
 
 export default function LoginPage() {
   const [fromType, setFromType] = useState('login')
+  const router = useRouter()
+  const [useFound, setUseFound] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,6 +37,10 @@ export default function LoginPage() {
   const phoneInputRef = useRef(null)
   const branchDropdownRef = useRef(null)
 
+
+  const { mutateAsync: getMyBranches, isPending: branchesLoading } = useUcodeRequestMutation()
+
+
   // Close branch dropdown when clicking outside
   React.useEffect(() => {
     function handleClickOutside(event) {
@@ -49,8 +58,79 @@ export default function LoginPage() {
   }, [branchDropdownOpen])
 
   // Login & Register mutations
-  const loginMutation = useLogin()
-  const { mutateAsync: registerAsync, isPending: isRegistering } = useUcodeRequestMutation()
+  const loginMutation = useMutation({
+    mutationKey: ['login'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_login', data }),
+    onSuccess: async (data) => {
+      const responseData = data?.data?.data
+
+      const tokenData = responseData?.token?.access_token
+      const refreshToken = responseData?.token?.refresh_token
+      const userData = responseData?.user_data || responseData?.userData || responseData?.user
+
+
+      // Set authentication state through MobX store
+      if (tokenData && userData) {
+        authStore.setAuthentication({
+          token: tokenData,
+          refresh_token: refreshToken,
+          user_data: userData
+        })
+      } else {
+        console.error('Missing token or user data!')
+      }
+
+      showSuccessNotification('Успешный вход!')
+      const useFound = responseData?.user_found
+      setUseFound(useFound)
+
+      const branchesResponse = await getMyBranches({
+        method: 'get_my_branches',
+        data: { page: 1, limit: 200 },
+      })
+
+      const branches = branchesResponse?.data?.data || []
+
+      if (branches.length > 0) {
+        authStore.setBranches(branches)
+        authStore.setBranchId(branches[0]?.guid)
+      }
+
+
+      router.push('/pages/operations')
+    },
+    onError: (error) => {
+      const errorMessage = error.message || 'Ошибка при входе'
+      showErrorNotification(errorMessage)
+    },
+  })
+  const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
+    mutationKey: ['register'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
+    onSuccess: (data) => {
+      const responseData = data?.data?.data
+      const tokenData = responseData?.token?.access_token
+      const refreshToken = responseData?.token?.refresh_token
+      const userData = responseData?.user_data || responseData?.userData || responseData?.user
+
+      if (tokenData && userData) {
+        authStore.setAuthentication({
+          token: tokenData,
+          refresh_token: refreshToken,
+          user_data: userData
+        })
+      } else {
+        console.error('Missing token or user data!')
+      }
+
+      showSuccessNotification('Успешная регистрация!')
+      // router.push('/pages/operations')
+    },
+    onError: (error) => {
+      const errorMessage = error.message || 'Ошибка при регистрации'
+      showErrorNotification(errorMessage)
+    },
+  })
 
   // Format phone number with mask
   const formatPhoneNumber = (value) => {
@@ -207,8 +287,7 @@ export default function LoginPage() {
 
     try {
       if (fromType === 'login') {
-
-        await loginMutation.mutateAsync({
+        loginMutation.mutateAsync({
           email: formData.email,
           password: formData.password,
         })
@@ -217,17 +296,12 @@ export default function LoginPage() {
         const cleanPhone = getCleanPhoneNumber(formData.phone)
 
         const response = await registerAsync({
-          method: 'auth_register_legal_entity',
-          data: {
-            name: formData.name,
-            email: formData.email,
-            phone: cleanPhone,
-            password: formData.password,
-            legal_entity_name: formData.name,
-            branch_name: formData.branchName,
-          }
+          name: formData.name,
+          email: formData.email,
+          phone: cleanPhone, 
+          legal_entity_name: formData.name,
+          branch_name: formData.branchName,
         }).catch((error) => {
-          // Handle specific "already exists" error
           if (error.message && (
             error.message.includes('already exists') ||
             error.message.includes('уже существует') ||
@@ -239,8 +313,6 @@ export default function LoginPage() {
           throw error
         })
 
-        // Сохраняем токен после успешной регистрации
-        // Структура может быть: response.data.data.data.token или response.data.data.token
         const innerData = response?.data?.data?.data || response?.data?.data
         const tokenData = innerData?.token?.access_token || innerData?.token
         const userData = innerData?.user_data || innerData?.userData || innerData?.user || {
@@ -249,20 +321,12 @@ export default function LoginPage() {
           phone: cleanPhone
         }
 
-
         if (tokenData) {
-          console.log('✅ Token found!')
-
-          // Используем authStore для сохранения 
-
           authStore.setAuthentication({
             token: tokenData,
             user_data: userData
           })
-
-          setTimeout(() => {
-            window.location.href = '/pages/operations'
-          }, 100)
+          router.push('/pages/operations')
         } else {
           console.error('❌ Token not found in response!')
           console.log('Response structure:', JSON.stringify(response, null, 2))
@@ -270,8 +334,6 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      const errorMessage = error.message || (fromType === 'login' ? 'Ошибка при входе' : 'Ошибка при регистрации')
-      setError(errorMessage)
     }
   }
 
@@ -430,7 +492,7 @@ export default function LoginPage() {
             )}
 
             {/* Password */}
-            <div className={styles.inputGroup}>
+            {fromType === 'login' && <div className={styles.inputGroup}>
               <div className={styles.inputWrapper}>
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -455,102 +517,7 @@ export default function LoginPage() {
               {fieldErrors.password && (
                 <div className={styles.fieldError}>{fieldErrors.password}</div>
               )}
-            </div>
-
-            {/* Branch Selector (Only on login) */}
-            {/* {fromType === 'login' && (
-              <div className={styles.inputGroup}>
-                <div className={styles.selectWrapper} ref={branchDropdownRef}>
-                  <div
-                    className={cn(
-                      styles.inputField,
-                      styles.selectField,
-                      branchDropdownOpen && styles.focused,
-                      fieldErrors.branch && styles.error
-                    )}
-                    onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
-                  >
-                    <span className={selectedBranch ? styles.selectedText : styles.placeholderText}>
-                      {selectedBranch
-                        ? mockBranches.find(b => b.id === selectedBranch)?.name
-                        : 'Выберите филиал'}
-                    </span>
-                    <div className={styles.selectIcons}>
-                      {selectedBranch && (
-                        <button
-                          type="button"
-                          className={styles.clearButton}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedBranch('')
-                            setFieldErrors({ ...fieldErrors, branch: '' })
-                          }}
-                        >
-                          <X size={16} />
-                        </button>
-                      )}
-                      <ChevronDown
-                        size={16}
-                        className={cn(styles.chevronIcon, branchDropdownOpen && styles.chevronOpen)}
-                      />
-                    </div>
-                  </div>
-                  {branchDropdownOpen && (
-                    <ul className={styles.selectDropdown}>
-                      {mockBranches.map(branch => (
-                        <li
-                          key={branch.id}
-                          className={cn(
-                            styles.selectOption,
-                            selectedBranch === branch.id && styles.selectOptionActive
-                          )}
-                          onClick={() => {
-                            setSelectedBranch(branch.id)
-                            setBranchDropdownOpen(false)
-                            setFieldErrors({ ...fieldErrors, branch: '' })
-                          }}
-                        >
-                          {branch.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                {fieldErrors.branch && (
-                  <div className={styles.fieldError}>{fieldErrors.branch}</div>
-                )}
-              </div>
-            )} */}
-
-            {/* Confirm Password (Only on register) */}
-            {fromType === 'register' && (
-              <div className={styles.inputGroup}>
-                <div className={styles.inputWrapper}>
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => handlePasswordChange(e, 'confirmPassword')}
-                    onFocus={() => setFocusedField('confirmPassword')}
-                    onBlur={() => setFocusedField(null)}
-                    className={cn('h-10! p-4!',
-                      focusedField === 'confirmPassword' && 'focus:border-primary',
-                    )}
-                    hasError={fieldErrors.confirmPassword}
-                    placeholder="Подтвердить пароль"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className={styles.eyeButton}
-                  >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-                {fieldErrors.confirmPassword && (
-                  <div className={styles.fieldError}>{fieldErrors.confirmPassword}</div>
-                )}
-              </div>
-            )}
+            </div>}
 
             {/* Checkbox (Only on register) */}
             {fromType === 'register' && (

@@ -1,14 +1,14 @@
 "use client"
 
-import { useRef } from 'react'
+import { cn } from '@/app/lib/utils'
+import { DealIcon, UsersIcon } from '@/constants/icons'
+import { ClipboardList, Library, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { RefreshCw, ClipboardList, Library, ChartLine } from 'lucide-react'
-import { cn } from '@/app/lib/utils'
-import { UsersIcon, DealIcon } from '@/constants/icons'
-import { AppLogo } from '../../constants/icons'
-
+import { useRef, useState } from 'react'
 import { IoSettingsOutline } from 'react-icons/io5'
+import { AppLogo } from '../../constants/icons'
+import { appStore } from '../../store/app.store'
 
 const navItems = [
     // { icon: ChartLine, label: 'Показатели', href: '/pages/indicators', hasPage: true },
@@ -50,7 +50,17 @@ const navItems = [
 export function Sidebar() {
     const pathname = usePathname()
     const sidebarRef = useRef(null)
+    const [modalOpen, setModalOpen] = useState(false)
+    const [apiUrl, setApiUrl] = useState(appStore.localApiUrl || '')
 
+    const handleSaveApiUrl = () => {
+        if (apiUrl.trim()) {
+            appStore.setLocalApiUrl(apiUrl.trim())
+            setModalOpen(false)
+        }
+    }
+
+    const hasSavedUrl = !!appStore.localApiUrl
 
     return (
         <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full items-center justify-start fixed left-0 z-1000" ref={sidebarRef}>
@@ -118,6 +128,59 @@ export function Sidebar() {
                         )
                     })}
             </nav>
+            <button
+                onClick={() => setModalOpen(true)}
+                className="flex flex-col h-[65px] items-center justify-center w-full rounded-md transition-all cursor-pointer text-white/60 hover:text-white justify-self-end"
+            >
+                &nbsp;
+            </button>
+
+            {/* Modal for setting local API URL */}
+            {modalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999">
+                    <div className="bg-white rounded-lg p-6 w-[500px] max-w-[95vw]">
+                        <h2 className="text-lg font-bold text-slate-900 mb-4">
+                            Настройка локального API
+                        </h2>
+                        <div className="flex flex-col gap-1.5 mb-4">
+                            <label className="text-sm font-medium text-slate-500">URL локального API</label>
+                            <textarea
+                                value={apiUrl}
+                                onChange={(e) => setApiUrl(e.target.value)}
+                                disabled={hasSavedUrl}
+                                placeholder="https://your-local-api-url.com"
+                                className={cn(
+                                    "w-full p-3 border border-gray-300 rounded-lg text-sm resize-none",
+                                    hasSavedUrl && "bg-gray-100 cursor-not-allowed"
+                                )}
+                                rows={4}
+                            />
+                            {hasSavedUrl && (
+                                <p className="text-xs text-gray-500">
+                                    URL уже сохранен и не может быть изменен
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex justify-end gap-2.5">
+                            <button
+                                onClick={() => setModalOpen(false)}
+                                className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+                            >
+                                Отмена
+                            </button>
+                            {!hasSavedUrl && (
+                                <button
+                                    onClick={handleSaveApiUrl}
+                                    disabled={!apiUrl.trim()}
+                                    className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                                >
+                                    Сохранить
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </aside>
     )
 }

@@ -1,26 +1,25 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
-import {
-  Trash2,
-  MoreVertical,
-  Pencil,
-  X,
-  Eye,
-  EyeOff,
-  Loader,
-} from 'lucide-react'
-import styles from '../settings.module.scss'
+import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { Loader, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { Controller, useForm } from 'react-hook-form'
+import { queryClient } from '../../../../lib/queryClient'
 import { formatDateTime } from '../../../../utils/formatDate'
 
-/* ─── validation helpers ──────────────────────────────── */
+function useDebounce(value, delay = 400) {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(t)
+  }, [value, delay])
+  return debounced
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const HAS_UPPER = /[A-Z]/
-const HAS_LOWER = /[a-z]/
-const HAS_DIGIT = /[0-9]/
 
 function formatPhone998(raw) {
   let digits = raw.replace(/\D/g, '')
@@ -36,229 +35,273 @@ function formatPhone998(raw) {
 }
 
 /* ═══════════════════════════════════════════════════════ */
-/*  DeleteBranchModal                                     */
-/* ═══════════════════════════════════════════════════════ */
-
-function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
-
-  if (!open || typeof window === 'undefined') return null 
-
-
-  return createPortal(
-    <>
-      <div
-        className={styles.deleteModalOverlay}
-        onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 9998,
-          background: 'rgba(0, 0, 0, 0.5)',
-        }}
-      />
-      <div
-        className={styles.deleteModal}
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
-          background: '#fff',
-          borderRadius: '14px',
-          padding: 0,
-          width: '480px',
-          maxWidth: '95vw',
-          boxShadow: '0 8px 40px rgba(0, 0, 0, 0.12)',
-        }}
-      >
-        <div className={styles.deleteModalHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 28px 16px', borderBottom: '1px solid #e5e7eb' }}>
-          <h3 className={styles.deleteModalTitle} style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Подтверждение удаления</h3>
-          <button className={styles.deleteModalClose} onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#94a3b8', borderRadius: '6px', display: 'flex', alignItems: 'center' }}>
-            <X size={18} />
-          </button>
-        </div>
-        <div className={styles.deleteModalBody} style={{ padding: '24px 28px' }}>
-          <p className={styles.deleteModalText} style={{ fontSize: '15px', color: '#334155', margin: '0 0 20px', lineHeight: 1.5 }}>
-            Вы уверены, что хотите удалить филиал?
-          </p>
-          {branch && (
-            <div className={styles.deleteModalInfo} style={{ background: '#f9fafb', borderRadius: '8px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div className={styles.deleteModalInfoItem} style={{ display: 'flex', gap: '8px', fontSize: '13.5px' }}>
-                <span className={styles.deleteModalInfoLabel} style={{ color: '#64748b', minWidth: '120px', fontWeight: 500 }}>Название:</span>
-                <span className={styles.deleteModalInfoValue} style={{ color: '#0f172a', fontWeight: 500 }}>{branch.branch_user?.branch_id_data?.name || '—'}</span>
-              </div>
-              <div className={styles.deleteModalInfoItem} style={{ display: 'flex', gap: '8px', fontSize: '13.5px' }}>
-                <span className={styles.deleteModalInfoLabel} style={{ color: '#64748b', minWidth: '120px', fontWeight: 500 }}>Email:</span>
-                <span className={styles.deleteModalInfoValue} style={{ color: '#0f172a', fontWeight: 500 }}>{branch.email || '—'}</span>
-              </div>
-              <div className={styles.deleteModalInfoItem} style={{ display: 'flex', gap: '8px', fontSize: '13.5px' }}>
-                <span className={styles.deleteModalInfoLabel} style={{ color: '#64748b', minWidth: '120px', fontWeight: 500 }}>Пользователь:</span>
-                <span className={styles.deleteModalInfoValue} style={{ color: '#0f172a', fontWeight: 500 }}>{branch.name || '—'}</span>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className={styles.deleteModalFooter} style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '16px 28px 24px' }}>
-          <button className={styles.deleteModalButtonCancel} onClick={onClose} style={{ padding: '9px 22px', background: '#fff', color: '#475569', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '13.5px', fontWeight: 500, cursor: 'pointer' }}>
-            Отмена
-          </button>
-          <button className={styles.deleteModalButtonConfirm} onClick={onConfirm} disabled={loading} style={{ padding: '9px 22px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13.5px', fontWeight: 600, cursor: 'pointer' }}>
-            {loading ? <Loader size={18} /> : 'Удалить'}
-          </button>
-        </div>
-      </div>
-    </>,
-    document.body
-  )
-}
-
-/* ═══════════════════════════════════════════════════════ */
-/*  BranchModal                                          */
+/*  BranchModal                                           */
 /* ═══════════════════════════════════════════════════════ */
 
 function BranchModal({ open, onClose, onSubmit, initial }) {
-  const [form, setForm] = useState(() => ({
-    name: initial?.branchName || initial?.name || '',
-    username: initial?.username || initial?.name || '',
-    email: initial?.email || '',
-    password: '',
-    phone: initial?.phone || '+998',
-  }))
-  const [errors, setErrors] = useState({})
-  const [showPassword, setShowPassword] = useState(false)
-
   const { mutateAsync: createBranchUser, isPending: isCreating } = useUcodeRequestMutation()
 
-  if (!open) return null
+  const [emailSearch, setEmailSearch] = useState('')
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
+  const debouncedEmail = useDebounce(emailSearch)
 
-  function handleChange(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }))
-  }
+  const { data: usersData, isFetching: usersLoading } = useUcodeRequestQuery({
+    method: 'get_company_users',
+    data: { page: 1, limit: 20, search: debouncedEmail },
+    skip: debouncedEmail.length < 2,
+  })
+  const usersList = usersData?.data?.data?.response ?? []
 
-  function handlePhoneChange(e) {
-    handleChange('phone', formatPhone998(e.target.value))
-  }
-
-  function validate() {
-    const errs = {}
-    if (!form.name.trim()) errs.name = 'Введите название филиала'
-    if (!form.username.trim()) errs.username = 'Введите имя пользователя'
-    if (!form.email.trim()) {
-      errs.email = 'Введите email'
-    } else if (!EMAIL_RE.test(form.email)) {
-      errs.email = 'Неверный формат email'
-    }
-    if (!initial) {
-      if (!form.password) {
-        errs.password = 'Введите пароль'
-      } else if (form.password.length < 8) {
-        errs.password = 'Минимум 8 символов'
-      } else if (!HAS_UPPER.test(form.password)) {
-        errs.password = 'Нужна заглавная буква (A-Z)'
-      } else if (!HAS_LOWER.test(form.password)) {
-        errs.password = 'Нужна строчная буква (a-z)'
-      } else if (!HAS_DIGIT.test(form.password)) {
-        errs.password = 'Нужна цифра (0-9)'
+  useEffect(() => {
+    function handler(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false)
       }
     }
-    const phoneDigits = form.phone.replace(/\D/g, '')
-    if (phoneDigits.length < 12) {
-      errs.phone = 'Введите полный номер (+998 XX XXX XX XX)'
-    }
-    return errs
-  }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
-  async function handleSubmit() {
-    const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: initial?.branchName || initial?.name || '',
+      username: initial?.username || initial?.name || '',
+      email: initial?.email || '',
+      phone: initial?.phone || '+998',
+    },
+  })
 
-    if (!initial) {
-      // Create new branch via API
-      await createBranchUser({
-        method: 'create_branch_user',
-        data: {
-          branch_name: form.name,
-          email: form.email,
-          password: form.password,
-          branch_user_name: form.username,
-          branch_user_phone: form.phone,
-        },
-      })
-    } else {
-      await createBranchUser({
-        method: 'update_branch_user',
-        data: {
-          branch_user_id: initial.branch_user_id,
-          branch_user_name: form.username,
-          branch_user_phone: form.phone,
-          default_branch_id: initial.defaultBranchId,
-          allowed_branch_ids: initial.id
-        }
-      })
-    }
-
-    onSubmit(form)
+  async function onFormSubmit(data) {
+    // if (!initial) {
+    await createBranchUser({
+      method: 'create_branch',
+      data: {
+        branch_name: data.name,
+        branch_user_id: selectedUser ? selectedUser.guid : null,
+        branch_user_email: data.email,
+        branch_user_name: data.username,
+        branch_user_phone: String(data.phone).replace(/\s/g, ''),
+      },
+    })
+    // } else {
+    // await createBranchUser({
+    //   method: 'update_branch_user',
+    //   data: {
+    //     company_id: authStore.userData?.company_id,
+    //     branch_user_id: selectedUser ? selectedUser.guid : null,
+    //     branch_user_name: data.username,
+    //     branch_user_phone: String(data.phone).replace(/\s/g, ''),
+    //     default_branch_id: initial.defaultBranchId,
+    //     allowed_branch_ids: initial.id,
+    //   },
+    // })
+    // }
+    queryClient.invalidateQueries({ queryKey: ['get_my_branches'] })
+    onSubmit(data)
     onClose()
   }
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <button className={styles.modalClose} onClick={onClose}>
-          <X size={18} />
-        </button>
-        <h2 className={styles.modalTitle}>{initial ? 'Редактировать филиал' : 'Добавить филиал'}</h2>
+    <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-7">
+      <h2 className="text-lg font-bold text-slate-900 mb-6">
+        {initial ? 'Редактировать филиал' : 'Добавить филиал'}
+      </h2>
 
-        <div className={styles.modalForm}>
-          <div className={styles.modalField}>
-            <label className={styles.modalLabel}>Название филиала</label>
-            <Input placeholder='Название филиала' value={form.name} onChange={e => handleChange('name', e.target.value)} error={!!errors.name} />
-            {errors.name && <span className={styles.fieldError}>{errors.name}</span>}
-          </div>
-
-          <div className={styles.modalField}>
-            <label className={styles.modalLabel}>Имя пользователя филиала</label>
-            <Input placeholder='Имя пользователя' value={form.username} onChange={e => handleChange('username', e.target.value)} error={!!errors.username} />
-            {errors.username && <span className={styles.fieldError}>{errors.username}</span>}
-          </div>
-
-          <div className={styles.modalField}>
-            <label className={styles.modalLabel}>Электронная почта</label>
-            <Input type='email' placeholder='example@mail.com' value={form.email} onChange={e => handleChange('email', e.target.value)} error={!!errors.email} />
-            {errors.email && <span className={styles.fieldError}>{errors.email}</span>}
-          </div>
-
-          <div className={styles.modalFieldRow}>
-            <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Пароль</label>
-              <div className={styles.passwordWrap}>
-                <Input type={showPassword ? 'text' : 'password'} placeholder='Пароль' value={form.password} onChange={e => handleChange('password', e.target.value)} error={!!errors.password} />
-                <button type='button' className={styles.eyeBtn} onClick={() => setShowPassword(p => !p)}>
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {errors.password && <span className={styles.fieldError}>{errors.password}</span>}
-            </div>
-            <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Телефон</label>
-              <Input type='tel' placeholder='+998 XX XXX XX XX' value={form.phone} onChange={handlePhoneChange} error={!!errors.phone} />
-              {errors.phone && <span className={styles.fieldError}>{errors.phone}</span>}
-            </div>
-          </div>
+      <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-4">
+        {/* Branch name */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-500">Название филиала</label>
+          <Input
+            placeholder="Название филиала"
+            error={!!errors.name}
+            {...register('name', { required: 'Введите название филиала' })}
+          />
+          {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
         </div>
 
-        <div className={styles.modalFooter}>
-          <button className={styles.modalCancelBtn} onClick={onClose} disabled={isCreating}>Отменить</button>
-          <button className={styles.modalSubmitBtn} onClick={handleSubmit} disabled={isCreating}>
-            {isCreating ? 'Создание...' : initial ? 'Сохранить' : 'Создать'}
+        {/* Email with user search */}
+        <div className="flex flex-col gap-1.5" ref={dropdownRef}>
+          <label className="text-sm font-medium text-slate-500">Электронная почта</label>
+          <div className="relative">
+            {(() => {
+              const { ref, name } = register('email', {
+                required: 'Введите email',
+                pattern: { value: EMAIL_RE, message: 'Неверный формат email' },
+              })
+              return (
+                <Input
+                  ref={ref}
+                  name={name}
+                  type="email"
+                  placeholder="example@mail.com"
+                  error={!!errors.email}
+                  value={emailSearch}
+                  onChange={e => {
+                    setEmailSearch(e.target.value)
+                    setValue('email', e.target.value)
+                    setSelectedUser(null)
+                    setDropdownOpen(true)
+                  }}
+                  onFocus={() => emailSearch.length >= 2 && setDropdownOpen(true)}
+                />
+              )
+            })()}
+            {usersLoading && emailSearch.length >= 2 && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Loader size={14} className="animate-spin text-slate-400" />
+              </span>
+            )}
+            {dropdownOpen && usersList.length > 0 && (
+              <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto py-1">
+                {usersList.map(user => (
+                  <li
+                    key={user.guid}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => {
+                      setSelectedUser(user)
+                      setEmailSearch(user.email || '')
+                      setValue('email', user.email || '', { shouldValidate: true })
+                      setValue('username', user.name || user.username || '')
+                      setValue('phone', user.phone ? formatPhone998(user.phone) : '+998')
+                      setDropdownOpen(false)
+                    }}
+                    className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex flex-col"
+                  >
+                    <span className="font-medium">{user.name || user.username || '—'}</span>
+                    <span className="text-xs text-slate-400">{user.email}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
+        </div>
+
+        {/* Username */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-500">Имя пользователя</label>
+          <Input
+            placeholder="Имя пользователя"
+            error={!!errors.username}
+            {...register('username', { required: 'Введите имя пользователя' })}
+          />
+          {errors.username && <span className="text-xs text-red-500">{errors.username.message}</span>}
+        </div>
+
+
+        {/* Phone */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-500">Телефон</label>
+          <Controller
+            name="phone"
+            control={control}
+            rules={{
+              validate: v =>
+                v.replace(/\D/g, '').length >= 12 || 'Введите полный номер (+998 XX XXX XX XX)',
+            }}
+            render={({ field }) => (
+              <Input
+                type="tel"
+                placeholder="+998 XX XXX XX XX"
+                error={!!errors.phone}
+                value={field.value}
+                onChange={e => field.onChange(formatPhone998(e.target.value))}
+              />
+            )}
+          />
+          {errors.phone && <span className="text-xs text-red-500">{errors.phone.message}</span>}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-2.5 mt-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isCreating}
+            className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Отменить
+          </button>
+          <button
+            type="submit"
+            disabled={isCreating}
+            className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
+          >
+            {isCreating && <Loader size={14} className="animate-spin" />}
+            {isCreating ? 'Сохранение...' : initial ? 'Сохранить' : 'Создать'}
           </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </CustomModal>
   )
 }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  DeleteBranchModal                                     */
+/* ═══════════════════════════════════════════════════════ */
+
+function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
+  return (
+    <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-0 overflow-hidden">
+      <div className="flex justify-between items-center px-7 pt-6 pb-4 border-b border-gray-200 pr-14">
+        <h3 className="text-lg font-bold text-slate-900">Подтверждение удаления</h3>
+      </div>
+
+      <div className="px-7 py-6">
+        <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+          Вы уверены, что хотите удалить филиал?
+        </p>
+        {branch && (
+          <div className="bg-gray-50 rounded-lg p-4 flex flex-col gap-2.5">
+            <div className="flex gap-2 text-sm">
+              <span className="text-slate-500 font-medium min-w-[120px]">Название:</span>
+              <span className="text-slate-900 font-medium">
+                {branch.branch_user?.branch_id_data?.name || '—'}
+              </span>
+            </div>
+            <div className="flex gap-2 text-sm">
+              <span className="text-slate-500 font-medium min-w-[120px]">Email:</span>
+              <span className="text-slate-900 font-medium">{branch.email || '—'}</span>
+            </div>
+            <div className="flex gap-2 text-sm">
+              <span className="text-slate-500 font-medium min-w-[120px]">Пользователь:</span>
+              <span className="text-slate-900 font-medium">{branch.name || '—'}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end gap-2.5 px-7 pb-6">
+        <button
+          onClick={onClose}
+          className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+        >
+          Отмена
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={loading}
+          className="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
+        >
+          {loading && <Loader size={14} className="animate-spin" />}
+          Удалить
+        </button>
+      </div>
+    </CustomModal>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  RowDropdown                                           */
+/* ═══════════════════════════════════════════════════════ */
 
 function RowDropdown({ onEdit, onDelete }) {
   const [open, setOpen] = useState(false)
@@ -287,20 +330,30 @@ function RowDropdown({ onEdit, onDelete }) {
 
   return (
     <>
-      <button className={styles.dotsBtn} ref={btnRef} onClick={handleToggle}>
+      <button
+        ref={btnRef}
+        onClick={handleToggle}
+        className="bg-transparent border-none cursor-pointer p-1 rounded-md text-slate-400 flex items-center hover:text-slate-700 hover:bg-slate-100 transition-colors"
+      >
         <MoreVertical size={18} />
       </button>
       {open && createPortal(
         <ul
-          className={styles.dropdownMenu}
           ref={menuRef}
           style={{ position: 'fixed', top: pos.top, left: pos.left }}
+          className="z-[9999] list-none m-0 p-1.5 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[200px]"
         >
-          <li className={styles.dropdownItem} onClick={() => { onEdit(); setOpen(false) }}>
+          <li
+            onClick={() => { onEdit(); setOpen(false) }}
+            className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
+          >
             <Pencil size={15} />
             <span>Редактировать</span>
           </li>
-          <li className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`} onClick={() => { onDelete(); setOpen(false) }}>
+          <li
+            onClick={() => { onDelete(); setOpen(false) }}
+            className="flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 rounded-lg cursor-pointer hover:bg-red-50 transition-colors"
+          >
             <Trash2 size={15} />
             <span>Удалить</span>
           </li>
@@ -311,11 +364,16 @@ function RowDropdown({ onEdit, onDelete }) {
   )
 }
 
+/* ═══════════════════════════════════════════════════════ */
+/*  BranchesPage                                          */
+/* ═══════════════════════════════════════════════════════ */
+
 export default function BranchesPage() {
-  const { data: branchesData, isLoading: branchesLoading, refetch: refetchBranches } = useUcodeRequestQuery({
-    method: 'get_branch_users',
-    data: { page: 1, limit: 50, search: '', include_owner: true },
-  })
+  const { data: branchesData, isLoading: branchesLoading, refetch: refetchBranches } =
+    useUcodeRequestQuery({
+      method: 'get_my_branches',
+      data: { page: 1, limit: 50, search: '' },
+    })
   const branches = branchesData?.data?.data ?? []
 
   const [branchModalOpen, setBranchModalOpen] = useState(false)
@@ -325,104 +383,94 @@ export default function BranchesPage() {
 
   const { mutateAsync: mutateBranch, isPending: mutateLoading } = useUcodeRequestMutation()
 
-  function handleAddBranch() {
-    refetchBranches()
-  }
-
-  function handleEditBranch() {
-    setEditingBranch(null)
-    refetchBranches()
-  }
-
   function handleDeleteBranch(branch) {
     setBranchToDelete(branch)
     setDeleteModalOpen(true)
   }
 
+
   async function confirmDeleteBranch() {
     if (branchToDelete) {
-      const id = typeof branchToDelete === 'object' ? branchToDelete.branch_user_id : branchToDelete
-      await mutateBranch({
-        method: 'delete_branch_user',
-        data: {
-          branch_user_id: id
-        }
-      })
+      const id = typeof branchToDelete === 'object'
+        ? branchToDelete.branch_user_id
+        : branchToDelete
+      await mutateBranch({ method: 'delete_branch_user', data: { branch_user_id: id } })
       setDeleteModalOpen(false)
       setBranchToDelete(null)
       refetchBranches()
     }
   }
 
-  function cancelDeleteBranch() {
-    setDeleteModalOpen(false)
-    setBranchToDelete(null)
-  }
-
-
-
-
   return (
-    <div className={styles.mainContent}>
-      <div className={styles.branchesHeader}>
-        <h1 className={styles.pageTitle}>Филиалы</h1>
+    <div className="flex-1 overflow-y-auto p-5 bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <h1 className="text-xl font-bold text-slate-900">Филиалы</h1>
         <button
-          className={styles.addBranchBtn}
           onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
+          className="px-5 py-2 bg-[#0E73F6] text-white border-none rounded-md text-sm font-semibold cursor-pointer hover:bg-[#0b5fd4] transition-colors whitespace-nowrap"
         >
           Добавить
         </button>
       </div>
 
+      {/* Table */}
       {branchesLoading ? (
-        <div className={styles.branchesTableWrap}>
-          <table className={styles.branchesTable}>
-            <thead>
+        <div className="flex-1 overflow-auto bg-white">
+          <table className="w-full border-collapse">
+            <thead className="sticky top-0 bg-gray-50 z-10">
               <tr>
-                <th>Email</th>
-                <th>Роль</th>
-                <th>ФИО / Должность</th>
-                <th>Последний вход</th>
-                <th>Дата создания</th>
-                <th></th>
+                {['Email', 'Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания', ''].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {[1, 2, 3].map(i => (
                 <tr key={i}>
                   {[1, 2, 3, 4, 5, 6].map(j => (
-                    <td key={j}><span style={{ opacity: 0.3 }}>—</span></td>
+                    <td key={j} className="px-4 py-2 text-xs text-[#344054] border-b border-gray-200">
+                      <span className="opacity-30">—</span>
+                    </td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      ) : branches?.data?.length > 0 ? (
-        <div className={styles.branchesTableWrap}>
-          <table className={styles.branchesTable}>
-            <thead>
+      ) : branches.length > 0 ? (
+        <div className="flex-1 overflow-auto bg-white">
+          <table className="w-full border-collapse">
+            <thead className="sticky top-0 bg-gray-50 z-10">
               <tr>
-                <th>Email</th>
-                <th>Роль</th>
-                <th>ФИО / Должность</th>
-                <th>Последний вход</th>
-                <th>Дата создания</th>
-                <th></th>
+                  {['Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания'].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
               </tr>
             </thead>
             <tbody>
-              {branches?.data?.map(branch => (
-                <tr key={branch?.guid}>
-                  <td>{branch?.email}</td>
-                  <td>{branch?.branch_user?.role_id_data?.name ?? 'Администратор'}</td>
-                  <td>
+                {branches?.map(branch => (
+                  <tr key={branch?.guid} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
+                      {branch?.branch_user?.role_id_data?.name ?? 'Администратор'}
+                    </td>
+                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
                     <div>{branch?.branch_user_name ?? branch?.name ?? '—'}</div>
-                    <div className={styles.cellSub}>{branch?.branch_name ?? '—'}</div>
+                      <div className="text-[11.5px] text-slate-400 mt-0.5">
+                        {branch?.company_id_data?.name ?? '—'}
+                      </div>
                   </td>
-                  <td>{formatDateTime(branch?.branch_user?.updated_at) ?? '—'}</td>
-                  <td>{formatDateTime(branch?.branch_user?.created_at) ?? '—'}</td>
-                  <td>
+                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
+                      {formatDateTime(branch?.updated_at) ?? '—'}
+                    </td>
+                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
+                      {formatDateTime(branch?.created_at) ?? '—'}
+                    </td>
+                    {/* <td className="px-4 py-1.5 text-xs border-b border-gray-200">
                     <RowDropdown
                       onEdit={() => {
                         setEditingBranch({
@@ -438,48 +486,53 @@ export default function BranchesPage() {
                       }}
                       onDelete={() => handleDeleteBranch(branch)}
                     />
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <div className={styles.emptyStateBranches}>
-          <h2 className={styles.emptyTitle}>Создайте филиал</h2>
-          <p className={styles.emptyDescription}>
+            <div className="flex flex-col items-center text-center py-10 px-5">
+              <h2 className="text-2xl font-semibold text-[#1a1a1a] mb-4">Создайте филиал</h2>
+              <p className="text-base text-[#666] leading-relaxed max-w-xl mb-4">
             Филиалы помогают сравнивать прибыль и рентабельность разных частей бизнеса.
             Например, заказов, направлений или каналов продаж.
           </p>
-          <p className={styles.emptyHint}>
+              <p className="text-sm text-[#999] leading-relaxed max-w-xl mb-8">
             Для удобства филиалы можно объединять в группы.<br />
-            Как ими пользоваться, <a href="#">посмотрите видео</a> или <a href="#">почитайте статью</a>.
+                Как ими пользоваться,{' '}
+                <a href="#" className="text-[#00b8d4] no-underline hover:underline">посмотрите видео</a>
+                {' '}или{' '}
+                <a href="#" className="text-[#00b8d4] no-underline hover:underline">почитайте статью</a>.
           </p>
-          <button
-            className={styles.addButtonLarge}
+              <button
             onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
             aria-label="Создать филиал"
+                className="bg-transparent border-none text-[#d0d0d0] cursor-pointer p-0 hover:text-[#00b8d4] transition-colors"
           >
             <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="55" cy="55" r="53" stroke="currentColor" strokeWidth="4"></circle>
-              <rect x="53" y="31" width="4" height="48" fill="currentColor"></rect>
-              <rect x="79" y="53" width="4" height="48" transform="rotate(90 79 53)" fill="currentColor"></rect>
+                  <circle cx="55" cy="55" r="53" stroke="currentColor" strokeWidth="4" />
+                  <rect x="53" y="31" width="4" height="48" fill="currentColor" />
+                  <rect x="79" y="53" width="4" height="48" transform="rotate(90 79 53)" fill="currentColor" />
             </svg>
           </button>
         </div>
       )}
 
+      {/* Create / Edit modal */}
       <BranchModal
         key={`${branchModalOpen}-${editingBranch?.id ?? 'new'}`}
         open={branchModalOpen}
         onClose={() => { setBranchModalOpen(false); setEditingBranch(null) }}
-        onSubmit={editingBranch ? handleEditBranch : handleAddBranch}
+        onSubmit={() => refetchBranches()}
         initial={editingBranch}
       />
 
+      {/* Delete modal */}
       <DeleteBranchModal
         open={deleteModalOpen}
-        onClose={cancelDeleteBranch}
+        onClose={() => { setDeleteModalOpen(false); setBranchToDelete(null) }}
         onConfirm={confirmDeleteBranch}
         loading={mutateLoading}
         branch={branchToDelete}
