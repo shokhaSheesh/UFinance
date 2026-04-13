@@ -30,7 +30,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
     method: "find_operations",
     data: {
       selling_deal_ids: sellingDealId,
-      tip: ['Поступление', "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"],
+      tip: ['Поступление'],
       accrualConfirmed: true,
       accrualNotConfirmed: true,
       paymentConfirmed: true,
