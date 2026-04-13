@@ -1,7 +1,7 @@
 'use client'
-import { useMemo, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
 import { cn } from '@/app/lib/utils'
+import { useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
 // Hooks
 import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
@@ -11,18 +11,18 @@ import { formatDate, isFuture } from '@/utils/formatDate'
 import { StringtoNumber } from '@/utils/helpers'
 
 // Components
+import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
+import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
 import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
 import TextArea from '../../../../shared/TextArea'
-import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 
-import { observer } from 'mobx-react-lite'
-import { authStore } from '../../../../../store/auth.store'
-import { queryClient } from '../../../../../lib/queryClient'
 import { Loader2 } from 'lucide-react'
-import { appStore } from '../../../../../store/app.store'
 import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { queryClient } from '../../../../../lib/queryClient'
+import { appStore } from '../../../../../store/app.store'
+import { authStore } from '../../../../../store/auth.store'
 import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
 
 const TransferForm = observer(({ initialData, onClose }) => {
@@ -138,6 +138,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 			queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
 			queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
 			queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+			queryClient.invalidateQueries({ queryKey: ['balance_report'] })
 			onClose?.()
 		} catch (error) {
 			console.error('TransferForm onSubmit error', error)

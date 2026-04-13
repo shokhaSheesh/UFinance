@@ -25,10 +25,8 @@ const OperationModal = observer(({
 }) => {
 	const isNew = operation?.isNew || false
 
-	const operationGuid = useMemo(() => {
-		if (isNew) return null
-		return operation?.guid || null
-	}, [isNew, operation])
+	console.log('operation', operation)
+
 
 	// Fetch full operation data if editing existing operation
 	// const { data: fullOperationData, isLoading: isLoadingOperation, refetch } = useOperation(operationGuid, {

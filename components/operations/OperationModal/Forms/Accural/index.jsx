@@ -29,6 +29,8 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
   const isNew = initialData?.isNew
   const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid)
 
+  console.log('initialData', initialData)
+
 
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
@@ -143,6 +145,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['balance_report'] })
       onClose()
     } catch (error) {
       console.error('Error in AccuralForm handleSubmit:', error)

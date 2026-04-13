@@ -1,19 +1,17 @@
 "use client"
 
-import React from 'react'
+import { monthlyData } from '@/app/lib/mock-data'
 import {
-    ComposedChart,
     Bar,
+    CartesianGrid,
+    ComposedChart,
+    Legend,
     Line,
+    ResponsiveContainer,
+    Tooltip,
     XAxis,
     YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Cell
 } from 'recharts'
-import { monthlyData } from '@/app/lib/mock-data'
 import styles from './ProfitChart.module.scss'
 
 export function ProfitChart() {

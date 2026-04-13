@@ -36,6 +36,7 @@ export default observer(function DealsPage() {
   const [dealToEdit, setDealToEdit] = useState(null)
   const [dealToCopy, setDealToCopy] = useState(null)
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false)
+
   const [isFilterOpen, setIsFilterOpen] = useState(true)
 
   const queryClient = useQueryClient()
@@ -196,6 +197,9 @@ export default observer(function DealsPage() {
             <h1 className={styles.title}>Сделки по продажам</h1>
             <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
               Создать
+            </button>
+            <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+              Создать студента
             </button>
           </div>
           <div className='flex items-center gap-2'>

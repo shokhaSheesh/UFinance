@@ -1,16 +1,16 @@
 "use client"
 
-import React, { useState, useRef, useEffect, useMemo } from 'react'
-import { ChevronDown, MoreVertical, Maximize2 } from 'lucide-react'
 import { cn } from '@/app/lib/utils'
-import styles from '../Header.module.scss'
-import { formatDateTime } from '../../../utils/formatDate'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import { formatAmount, formatNumber, formatTotalSumma } from '../../../utils/helpers'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
-import { observer } from 'mobx-react-lite'
 import { keepPreviousData } from '@tanstack/react-query'
+import { ChevronDown, Maximize2, MoreVertical } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { currencyInfo, GlobalCurrency } from '../../../constants/globalCurrency'
+import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { appStore } from '../../../store/app.store'
+import { formatDateTime } from '../../../utils/formatDate'
+import { formatAmount, formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import styles from '../Header.module.scss'
 
 const TotalPrice = observer(() => {
     const [isBalanceOpen, setIsBalanceOpen] = useState(false)
@@ -49,6 +49,10 @@ const TotalPrice = observer(() => {
         })
         const all = Array.from(result.entries()).map(([, label]) => ({ value: label, label }))
         appStore.setMyCurrencies(all)
+        appStore.setCompanyCurrencies(Array.from(result.entries()).map(([value, label]) => {
+            const title = currencyInfo[label]
+            return { value, label: title }
+        }))
     }, [myaccounts])
 
 

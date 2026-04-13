@@ -1,38 +1,12 @@
-import React, { useEffect, useMemo } from 'react'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import { currencyInfo } from '../../../constants/globalCurrency'
+import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
+import { appStore } from '../../../store/app.store'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const MyAccountCurrensies = ({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder = 'Выберите валюту', wrapperClassName, isClearable = true }) => {
-
-  const { data: myAccounts, isLoading } = useUcodeRequestQuery({
-    method: 'get_my_accounts',
-    data: {
-      legal_entity_id: guid
-    },
-    querySetting: {
-      enabled: !!guid,
-      select: (data) => data?.data?.data,
-      slateTime: 0,
-    }
-  })
+const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder = 'Выберите валюту', wrapperClassName, isClearable = true }) => {
 
 
-
-  const selectOptions = useMemo(() => {
-    if (!myAccounts) return []
-    const unique = new Map();
-    myAccounts.forEach((account) => {
-      const label = currencyInfo[account.currenies_kod] || account.currenies_kod;
-      if (label && !unique.has(label)) {
-        unique.set(label, {
-          value: account.currenies_id,
-          label: label,
-        });
-      }
-    });
-    return Array.from(unique.values());
-  }, [myAccounts])
+  const selectOptions = appStore.companyCurrencies
 
 
   useEffect(() => {
@@ -45,7 +19,6 @@ const MyAccountCurrensies = ({ value, onChange, guid, withSearch = false, classN
 
   if (!guid || selectOptions?.length < 2) return null
 
-  const actualPlaceholder = isLoading ? "Загрузка..." : placeholder;
 
   return (
     <SingleSelect
@@ -56,11 +29,10 @@ const MyAccountCurrensies = ({ value, onChange, guid, withSearch = false, classN
       isClearable={isClearable}
       className={className}
       dropDownClassName={dropDownClassName}
-      placeholder={actualPlaceholder}
+      placeholder={placeholder}
       wrapperClassName={wrapperClassName}
-      loading={isLoading}
     />
   )
-}
+})
 
 export default MyAccountCurrensies

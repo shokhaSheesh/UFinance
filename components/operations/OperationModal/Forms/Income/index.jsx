@@ -392,6 +392,7 @@ const IncomeForm = observer(({
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['balance_report'] })
       onClose?.()
     } catch (error) {
       console.error('IncomeForm onSubmit error', error)

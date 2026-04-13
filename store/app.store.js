@@ -11,6 +11,7 @@ class AppStore {
 	}
 	currencies = []
 	myCurrencies = []
+	companyCurrencies = []
 	localApiUrl = ''
 
 	constructor() {
@@ -18,7 +19,7 @@ class AppStore {
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
 				name: 'plan_fact_app',
-				properties: ['isPayment', 'currency', 'currencies', 'myCurrencies', 'localApiUrl'],
+				properties: ['isPayment', 'currency', 'currencies', 'myCurrencies', 'companyCurrencies', 'localApiUrl'],
 				storage: window.localStorage,
 				debugMode: true,
 			})
@@ -35,6 +36,10 @@ class AppStore {
 
 	setCurrencies(value) {
 		this.currencies = value
+	}
+
+	setCompanyCurrencies(value) {
+		this.companyCurrencies = value
 	}
 
 	setMyCurrencies(value) {

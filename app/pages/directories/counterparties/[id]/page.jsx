@@ -1,31 +1,30 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react'
-import { observer } from 'mobx-react-lite'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { cn } from '@/app/lib/utils'
+import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
+import { useDeleteOperation, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
-import { useUcodeRequestMutation } from '@/hooks/useDashboard'
-import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
-import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
-import { useDeleteOperation } from '@/hooks/useDashboard'
-import { cn } from '@/app/lib/utils'
+import { observer } from 'mobx-react-lite'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './counterparty-detail.module.scss'
 
 import Select from '@/components/common/Select'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
-import OperationModal from '../../../../../components/operations/OperationModal/OperationModal'
-import { useUcodeRequestQuery } from '../../../../../hooks/useDashboard'
-import { formatDate } from '../../../../../utils/formatDate'
-import OperationTableRow from '@/components/operations/TableRow/new' 
-import MultiSelectZdelka from '../../../../../components/ReadyComponents/MultiZdelka'
-import operationsDto from '../../../../../lib/dtos/operationsDto'
-import SelectMyAccounts from '../../../../../components/ReadyComponents/SelectMyAccounts'
-import MultiSelectStatiya from '../../../../../components/ReadyComponents/MultiSelectStatiya'
-import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
-import { GlobalCurrency } from '../../../../../constants/globalCurrency'
+import OperationTableRow from '@/components/operations/TableRow/new'
 import CreateShipment from '../../../../../components/deals/details/CreatingShipment'
+import OperationModal from '../../../../../components/operations/OperationModal/OperationModal'
+import MultiSelectStatiya from '../../../../../components/ReadyComponents/MultiSelectStatiya'
+import MultiSelectZdelka from '../../../../../components/ReadyComponents/MultiZdelka'
+import SelectMyAccounts from '../../../../../components/ReadyComponents/SelectMyAccounts'
+import { GlobalCurrency } from '../../../../../constants/globalCurrency'
+import { useUcodeRequestQuery } from '../../../../../hooks/useDashboard'
+import operationsDto from '../../../../../lib/dtos/operationsDto'
+import { formatDate } from '../../../../../utils/formatDate'
+import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
 
 const calculationOptions = [
   { value: "Cashflow", label: 'Учет по денежному потоку' },
@@ -303,7 +302,7 @@ const KontragentDetailPage = observer(() => {
     }
 
     setCreatingOperation({
-      ...copiedOperation,
+      ...operation,
       id: 'new',
       isNew: true,
       isCopy: true

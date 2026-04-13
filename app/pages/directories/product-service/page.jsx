@@ -1,25 +1,24 @@
 "use client"
-import React, { useState, useMemo, useEffect, useRef } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/app/lib/utils'
 import { useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
-import styles from './style.module.scss'
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { useQueryClient } from '@tanstack/react-query'
+import { ChevronDown, ChevronUp, MoreVertical, Search } from 'lucide-react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import CreateGroup from '../../../../components/directories/ProductServices/CreateGroup'
 import CreateSingle from '../../../../components/directories/ProductServices/CreateSingle'
-import { ChevronDown, ChevronUp, Search, MoreVertical } from 'lucide-react'
 import Input from '../../../../components/shared/Input'
-import { useUcodeDefaultApiQuery, useUcodeDefaultApiMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import { showSuccessNotification, showErrorNotification } from '@/lib/utils/notifications'
+import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 
-import { MdOutlineModeEdit } from "react-icons/md";
-import { GoTrash } from "react-icons/go";
-import { IoCopyOutline } from "react-icons/io5";
-import CustomModal from '../../../../components/shared/CustomModal';
-import Loader from '../../../../components/shared/Loader'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { GoTrash } from "react-icons/go"
+import { IoCopyOutline } from "react-icons/io5"
+import { MdOutlineModeEdit } from "react-icons/md"
 import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
+import CustomModal from '../../../../components/shared/CustomModal'
+import Loader from '../../../../components/shared/Loader'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
+import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 
 
 export default function LegalEntitiesPage() {
@@ -74,6 +73,8 @@ export default function LegalEntitiesPage() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+
 
   // Close row action menu on outside click
   useEffect(() => {
@@ -229,11 +230,6 @@ export default function LegalEntitiesPage() {
     ...(debouncedSearchQuery && { search: debouncedSearchQuery.toLowerCase() }),
   })
 
-  // Extract legal entities from response - correct path is data.data.data
-  const legalEntitiesItems = useMemo(() => {
-    const items = legalEntitiesData?.data?.data || []
-    return Array.isArray(items) ? items : []
-  }, [legalEntitiesData])
 
   const handleDeleteConfirm = async () => {
     if (!itemToDelete?.guid) return;
