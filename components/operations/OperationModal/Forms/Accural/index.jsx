@@ -171,7 +171,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">ОТКУДА</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Дебит</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -342,7 +342,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         <div className="flex flex-col gap-5 mt-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">КУДА</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Кредит</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 

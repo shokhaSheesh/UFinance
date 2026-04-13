@@ -1,19 +1,18 @@
 'use client'
+import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { formatAmount } from '@/utils/helpers'
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useMemo, useState } from 'react'
-import OperationModal from '@/components/operations/OperationModal/OperationModal'
-import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
-import { useUcodeRequestQuery, useDeleteOperation } from '../../../../hooks/useDashboard'
-import CustomModal from '../../../shared/CustomModal'
+import { useDeleteOperation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 import operationsDto from '../../../../lib/dtos/operationsDto'
-import { ReceiptsEmptyIcon } from '../../../../constants/icons'
-import { Loader2 } from 'lucide-react'
+import CustomModal from '../../../shared/CustomModal'
 
 
-import EmptyState from '../EmptyState'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
+import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
 const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
@@ -31,7 +30,11 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
     method: "find_operations",
     data: {
       selling_deal_ids: sellingDealId,
-      tip: ['Поступление'],
+      tip: ['Поступление', "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"],
+      accrualConfirmed: true,
+      accrualNotConfirmed: true,
+      paymentConfirmed: true,
+      paymentNotConfirmed: true,
     },
     querySetting: {
       select: (response) => response?.data,

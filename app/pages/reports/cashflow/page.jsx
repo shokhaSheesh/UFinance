@@ -1,19 +1,19 @@
 "use client"
 
-import React, { useMemo, useState, useEffect, useRef } from 'react'
-import { observer } from 'mobx-react-lite'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
-import '@/styles/report-filters.css'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
-import { appStore } from '../../../../store/app.store'
+import '@/styles/report-filters.css'
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../../../../lib/api/ucode/base'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { cashFlowStore } from '../../../../components/reports/cashflow/cashflow.store'
+import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { apiClient } from '../../../../lib/api/ucode/base'
+import { appStore } from '../../../../store/app.store'
 import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
 
 const groupingOptions = [
@@ -238,10 +238,13 @@ export default observer(function CashFlowReportPage() {
       requestData.paymentDateStart = startDate
       requestData.paymentDateEnd = endDate
     } else {
-      requestData.paymentDateStart = filters.periodStartDate
-      requestData.paymentDateEnd = filters.periodEndDate
+      requestData.paymentDateStart = moment(periodStartDate).format('YYYY-MM-DD')
+      requestData.paymentDateEnd = moment(periodEndDate).format('YYYY-MM-DD')
     }
     requestData.tip = nameMap[row.name] || nameMap[row.section]
+
+    console.log('row', row)
+    console.log('monthObj', monthObj)
 
     if (['Перемещения', 'Списания', 'Зачисления'].includes(row.name)) {
       requestData.paymentConfirmed = true
@@ -257,8 +260,10 @@ export default observer(function CashFlowReportPage() {
     }
 
     if (row?.subRows) {
-      requestData.chartOfAccounts = row?.subRows?.map(item => item.id)
+      requestData.chartOfAccounts = [row.id]
     }
+
+
 
     // const filters = cashFlowStore.filters
     // let dateRange = { start: filters.periodStartDate, end: filters.periodEndDate }
@@ -292,12 +297,19 @@ export default observer(function CashFlowReportPage() {
     //   paymentDateEnd: dateRange.end,
     // }
 
-    // const periodLabel = formatPeriod(dateRange.start, dateRange.end)
+    const periodLabel = moment(monthObj + '01').format("MMM, 'YY")
     const isTransfer = ['Зачисления', 'Списания', 'Перемещения'].includes(row.name)
+
+    requestData.limit = 10
 
     setModalConfig({
       filterData: requestData,
       title: row.name,
+      summaryData: {
+        periodLabel,
+        totalAmount: row.total,
+        currencyCode
+      },
       isTransfer
     })
     setIsModalOpen(true)

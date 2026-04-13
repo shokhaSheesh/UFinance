@@ -129,6 +129,8 @@ const KontragentDetailPage = observer(() => {
     return operationsDto(counterpartyOperations || [], 'all')
   }, [counterpartyOperations])
 
+  // implement find_operation. ["Поступление", "Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+
   const operationsList = useMemo(() => {
     return {
       future: operationsDto(counterpartyOperations || [], 'future'),
@@ -776,55 +778,52 @@ const KontragentDetailPage = observer(() => {
             ) : (
                 <div className="pb-56">
                   {/* Table Header */}
-                  <div className={cn(
-                    'flex h-10 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200 sticky z-10',
-                    isFiltersOpen ? 'top-[132px]' : 'top-[96px]'
-                  )}>
-                    <div className='w-32 flex px-3 items-center justify-start '>
+                  <div className='flex  sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+                    <div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
                       Дата
                     </div>
-                    <div className='w-40 flex px-2 items-center justify-start '>
+                    <div className='min-w-24 max-w-52 flex-1  flex p-3 items-center justify-start '>
                       Счет
                     </div>
-                    <div className='w-14  flex px-2 items-center justify-center '>
+                    <div className='min-w-14   flex p-3 items-center justify-center '>
                       Тип
                     </div>
-                    <div className='w-52 flex px-2 items-center justify-start '>
+                    <div className='min-w-36 flex-1  flex p-3 items-center justify-start '>
                       Контрагент
                     </div>
-                    <div className='flex-1  text-start  px-2 items-center justify-start '>
+                    <div className='min-w-32 flex-1   text-start  p-3 items-center justify-start '>
                       Статья
                     </div>
-                    <div className='flex-1 flex px-2 items-center justify-center '>
+                    <div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
                       Сделка
                     </div>
-                    <div className='w-40 flex px-2 items-center justify-end '>
+                    <div className='min-w-40  flex p-3 items-center justify-end '>
                       Сумма
                     </div>
-                    <div className='w-8 flex px-2 items-center justify-center'>
+                    <div className='min-w-8  flex p-3 items-center justify-center'>
                       &nbsp;
                     </div>
                   </div>
 
                   <div className={styles.tableBody}>
-                      {operationsList?.future?.length > 0 && (
+                    {operationsList?.future?.length > 0 && (
                       <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
                         <h3 className="font-medium">После</h3>
                       </div>
-                      )}
+                    )}
 
                     {operationsList?.future?.map((op) => (
-                        <OperationTableRow
-                          key={op.guid}
-                          op={op}
-                        selectedOperations={selectedOperations} 
-                          openOperationModal={handleEditOperation}
-                          counterpartyGuid={counterpartyInfo?.guid}
-                          handleEditOperation={handleEditOperation}
-                          handleDeleteOperation={handleDeleteOperation}
-                          handleCopyOperation={handleCopyOperation}
-                        />
-                      ))}
+                      <OperationTableRow
+                        key={op.guid}
+                        op={op}
+                        selectedOperations={selectedOperations}
+                        openOperationModal={handleEditOperation}
+                        counterpartyGuid={counterpartyInfo?.guid}
+                        handleEditOperation={handleEditOperation}
+                        handleDeleteOperation={handleDeleteOperation}
+                        handleCopyOperation={handleCopyOperation}
+                      />
+                    ))}
 
                     {/* Today — Section Header */}
                     {operationsList?.today?.length > 0 && (
@@ -837,7 +836,7 @@ const KontragentDetailPage = observer(() => {
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations} 
+                        selectedOperations={selectedOperations}
                         openOperationModal={handleEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={handleEditOperation}
@@ -856,7 +855,7 @@ const KontragentDetailPage = observer(() => {
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations} 
+                        selectedOperations={selectedOperations}
                         openOperationModal={handleEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={handleEditOperation}

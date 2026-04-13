@@ -1,22 +1,24 @@
-import { useMemo, useRef, useEffect, useCallback } from 'react'
+import { Loader2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment/moment'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeRequestInfinite } from '../../../hooks/useDashboard'
 import operationsDto from '../../../lib/dtos/operationsDto'
-import IncomePaymentTableRow from './CashFlowTablesRows/IncomePaymentRow'
-import { Loader2 } from 'lucide-react'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
-import { observer } from 'mobx-react-lite'
 import CustomModal from '../../shared/CustomModal'
-import moment from 'moment/moment'
+import IncomePaymentTableRow from './CashFlowTablesRows/IncomePaymentRow'
 
 const OperationCashFlowModal = observer(({
   isOpen,
   onClose,
   filterData,
   title,
-  isTransfer
+  isTransfer,
+  summaryData
 }) => {
   const tableRef = useRef(null)
+
 
   const {
     data: infiniteData,
@@ -26,21 +28,18 @@ const OperationCashFlowModal = observer(({
     fetchNextPage,
   } = useUcodeRequestInfinite({
     method: 'find_operations',
-    data: {
-      ...filterData,
-      limit: 50,
-    },
-    skip: !filterData || !isOpen,
+    data: filterData, 
     querySetting: {
       select: (response) => response,
       staleTime: 0,
       refetchOnMount: true,
+      refetchOnWindowFocus: true,
     }
   })
 
   // Flatten all pages into a single array
   const allOperations = useMemo(() => {
-    return infiniteData?.pages?.flatMap(page => page?.data?.data?.data || []) || []
+    return infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
   }, [infiniteData])
 
   const totalSummary = useMemo(() => {
@@ -66,12 +65,12 @@ const OperationCashFlowModal = observer(({
     return ''
   }, [filterData])
 
-  const totalAmount = useMemo(() => {
-    if (['Перемещения', 'Списания', 'Зачисления']?.includes(title)) {
-      return totalSummary?.by_type?.transfer?.total_summa
-    }
-    return totalSummary?.net_cash_flow
-  }, [totalSummary, title])
+  // const totalAmount = useMemo(() => {
+  //   if (['Перемещения', 'Списания', 'Зачисления']?.includes(title)) {
+  //     return totalSummary?.by_type?.transfer?.total_summa
+  //   }
+  //   return totalSummary?.net_cash_flow
+  // }, [totalSummary, title])
 
   // Infinite scroll handler
   const handleScroll = useCallback(() => {
@@ -92,6 +91,7 @@ const OperationCashFlowModal = observer(({
 
   return (
     <CustomModal isOpen={isOpen} onClose={onClose} className="w-[800px] p-0">
+
       {/* Header */}
       <div className="text-lg font-semibold p-6 border-b">
         {title || 'Операции'}
@@ -105,20 +105,22 @@ const OperationCashFlowModal = observer(({
         </div>
         <div className="flex text-sm items-center gap-10">
           <span className=" font-medium">Сумма операций</span>
-          {totalAmount && <div className="flex items-center gap-1">
-            <span>{title === 'Списания' ? "-" : ""}{totalAmount !== undefined ? formatNumber(formatTotalSumma(totalAmount)) : ''}</span>
-            <span>{GlobalCurrency.name}</span>
+          {summaryData && <div className="flex items-center gap-1">
+            <span>{title === 'Списания' ? "-" : ""}{summaryData?.totalAmount !== undefined ? formatNumber(formatTotalSumma(summaryData?.totalAmount)) : ''}</span>
+            <span>{summaryData?.currencyCode || GlobalCurrency.code}</span>
           </div>}
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-auto h-[400px]" ref={tableRef}>
-        {isLoading ? (
+        {(isLoading || isFetchingNextPage) && (
           <div className='w-full h-full flex items-center justify-center'>
             <Loader2 className='animate-spin text-primary' size={30} />
           </div>
-        ) : (
+        )
+        }
+        {allOperations?.length > 0 && (
           <table className="w-full relative">
             <thead className="sticky top-0 z-10 h-10 bg-neutral-50 border-b box-content border-gray-300">
               <tr className='text-xs text-neutral-600 '>
@@ -132,7 +134,7 @@ const OperationCashFlowModal = observer(({
             <tbody>
               {(!operationsList?.before?.length && !operationsList?.today?.length && !operationsList?.future?.length) ? (
                 <tr>
-                    <td colSpan={5} className="">Нет данных</td>
+                  <td colSpan={5} className="">Нет данных</td>
                 </tr>
               ) : (
                 <>
@@ -145,34 +147,34 @@ const OperationCashFlowModal = observer(({
                   )}
                   {operationsList?.future?.map(op => <IncomePaymentTableRow key={op.id} op={op} tip={title} />)}
 
-                      {operationsList?.today?.length > 0 && (
-                        <tr className=" border-y border-y-gray-100 bg-neutral-50">
-                          <td colSpan='5' className=" py-1 text-xs px-4">
-                            <h3 className="">Сегодня</h3>
-                          </td>
-                        </tr>
-                      )}
-                      {operationsList?.today?.map(op => <IncomePaymentTableRow key={op.id} op={op} tip={title} />)}
+                    {operationsList?.today?.length > 0 && (
+                      <tr className=" border-y border-y-gray-100 bg-neutral-50">
+                        <td colSpan='5' className=" py-1 text-xs px-4">
+                          <h3 className="">Сегодня</h3>
+                        </td>
+                      </tr>
+                    )}
+                    {operationsList?.today?.map(op => <IncomePaymentTableRow key={op.id} op={op} tip={title} />)}
 
-                      {operationsList?.before?.length > 0 && (
-                        <tr className=" border-y border-y-gray-100 bg-neutral-50">
-                          <td colSpan='5' className=" py-1 text-xs px-4">
-                            <h3 className="">До</h3>
-                          </td>
-                        </tr>
-                      )}
-                      {operationsList?.before?.map(op => <IncomePaymentTableRow key={op.id} op={op} tip={title} />)}
+                    {operationsList?.before?.length > 0 && (
+                      <tr className=" border-y border-y-gray-100 bg-neutral-50">
+                        <td colSpan='5' className=" py-1 text-xs px-4">
+                          <h3 className="">До</h3>
+                        </td>
+                      </tr>
+                    )}
+                    {operationsList?.before?.map(op => <IncomePaymentTableRow key={op.id} op={op} tip={title} />)}
 
-                      {/* Bottom loader for next page */}
-                      {isFetchingNextPage && (
-                        <tr>
-                          <td colSpan={5} className="py-4 text-center">
-                            <Loader2 className='animate-spin text-primary inline-block' size={22} />
-                          </td>
-                        </tr>
-                      )}
-                  </>
-                )}
+                  {/* Bottom loader for next page */}
+                  {isFetchingNextPage && (
+                    <tr>
+                      <td colSpan={5} className="py-4 text-center">
+                        <Loader2 className='animate-spin text-primary inline-block' size={22} />
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )}
 
             </tbody>
           </table>

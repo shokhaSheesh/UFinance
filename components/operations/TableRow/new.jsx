@@ -104,7 +104,7 @@ const TableRow = observer(({
       <div
         key={op.id}
         className={cn(
-          'flex text-mini gap-1 items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11',
+          'flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11',
           selectedOperations.includes(op.id) && styles.selected
         )}
         onClick={e => {
@@ -116,7 +116,7 @@ const TableRow = observer(({
         {/* Checkbox/Index */}
         {(toggleOperation || showIndex) && (
           <div
-            className="w-10 flex items-center justify-center px-1"
+            className="min-w-10 flex items-center justify-center px-1"
             onClick={e => e.stopPropagation()}
           >
             {toggleOperation ? (
@@ -131,15 +131,15 @@ const TableRow = observer(({
         )}
 
         {/* Date */}
-        <div className={cn('w-32 flex  py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-36 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <div className={cn(textPrimary, 'w-full')}>
             {op.operationParts?.length > 0 ? (
-              <div className={"flex items-center gap-1 px-1 relative"} onClick={(event) => { event.stopPropagation(); setOpen(!open) }}>
-                <span className=""> {open ? <ExpendClose /> : <ExpendOpen />}</span>
+              <div className={"flex items-center gap-1 pl-5 px-3 relative"} onClick={(event) => { event.stopPropagation(); setOpen(!open) }}>
+                <span className="absolute left-0.5"> {open ? <ExpendClose /> : <ExpendOpen />}</span>
                 <span className="text-sm flex-1">{op?.operationDate}</span>
               </div>
             ) : (
-                <div className='flex flex-col px-3 items-start leading-tight'>
+                <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
                 <span className='text-sm'>{op?.operationDate}</span>
                 {isDifferentDate && <span className="text-sm text-neutral-400">{op?.accrualDate}</span>}
               </div>
@@ -148,7 +148,7 @@ const TableRow = observer(({
         </div>
 
         {/* Account/Shot */}
-        <div className={cn('w-40 flex px-2 py-1 items-center justify-start', isActive && styles.activeRow)}>
+        <div className={cn('min-w-24 max-w-52 flex-1 flex px-2 py-1 items-center justify-start', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start leading-tight truncate', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -164,7 +164,7 @@ const TableRow = observer(({
         </div>
 
         {/* Type Icon */}
-        <div className="w-14 flex px-1 items-center justify-center">
+        <div className="min-w-14 flex px-1 items-center justify-center">
           {op.tip ? (
             <div className={cn(styles.typeIcon, 'scale-75')}>
               {op.tip === 'Поступление' ? (
@@ -179,12 +179,12 @@ const TableRow = observer(({
         </div>
 
         {/* Counterparty */}
-        <div className={cn('w-52 flex  px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-36 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
         </div>
 
         {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-48', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-32', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -208,7 +208,7 @@ const TableRow = observer(({
         </div>
 
         {/* Project/Deal */}
-        <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-0', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
           {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка") && (
             <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)} title={op?.selling_deal_name}>{op?.selling_deal_name || '-'}</p>
           )}
@@ -237,6 +237,8 @@ const TableRow = observer(({
             toAmount={op.to_amount}
             tab={op.tip}
             type={op?.tip}
+            debit={op?.debit}
+            kredit={op?.kredit}
             percent={op?.percent}
             confirmed={op.payment_confirmed}
             accrual={op.payment_accrual}

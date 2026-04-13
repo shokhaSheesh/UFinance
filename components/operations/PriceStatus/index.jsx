@@ -1,11 +1,11 @@
 import { cn } from '@/app/lib/utils'
-import styles from './style.module.scss'
-import { CreditIcon, DebitIcon } from '../../../constants/icons'
-import { formatAmount } from '../../../utils/helpers'
-import { operationFilterStore } from '../../../store/operationFilter.store'
 import { observer } from 'mobx-react-lite'
+import { CreditIcon, DebitIcon } from '../../../constants/icons'
+import { operationFilterStore } from '../../../store/operationFilter.store'
+import { formatAmount } from '../../../utils/helpers'
+import styles from './style.module.scss'
 
-const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, percent, toCurrency, toAmount }) => {
+const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, percent, toCurrency, toAmount, debit, kredit }) => {
   const isSpinasiya = !operationFilterStore.selectedFilters?.includes('Списание')
   const isZachisleniya = !operationFilterStore.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
@@ -48,8 +48,8 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
         }
         {tab == "Начисление" && <>
           <div className={` flex flex-1     flex-col `}>
-            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isDebit ? 'opacity-50' : ''}`}>-{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
-            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isCredit ? 'opacity-50' : ''}`}>+{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
+            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isDebit ? 'opacity-50' : ''}`}>{debit}{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
+            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isCredit ? 'opacity-50' : ''}`}>{kredit}{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
           </div>
         </>
         }

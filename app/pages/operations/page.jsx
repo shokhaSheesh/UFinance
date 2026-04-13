@@ -433,7 +433,7 @@ const OperationsPage = observer(() => {
 			/>
 
 			{/* Main Content */}
-			<div className="w-full">
+			<div className="w-full flex flex-col">
 				<div className=" h-16 px-4 flex items-center justify-between bg-white ">
 					<div className="flex items-center gap-4 ">
 						<h1 className="text-xl font-semibold">Операции</h1>
@@ -459,8 +459,8 @@ const OperationsPage = observer(() => {
 					</div>
 				</div>
 				<div id="scrollableDiv" className="overflow-auto  h-full w-full px-2 bg-white">
-					<div className='flex h-12 sticky top-0 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-						<div className='min-w-10 flex items-center justify-center'>
+					<div className='flex  sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+						<div className='min-w-10 py-3 flex items-center justify-center'>
 							<OperationCheckbox
 								checked={isAllSelected}
 								onChange={toggleSelectAll}
@@ -472,28 +472,28 @@ const OperationsPage = observer(() => {
 							<button className="primary-btn">Экспорт</button>
 						</div>}
 						{!isAllSelected && <>
-							<div className='min-w-32 flex px-3 items-center justify-start '>
+							<div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
 								Дата
 							</div>
-							<div className='min-w-40 flex px-2 items-center justify-start '>
+							<div className='min-w-24 max-w-52 flex-1  flex p-3 items-center justify-start '>
 								Счет
 							</div>
-							<div className='min-w-14  flex px-2 items-center justify-center '>
+							<div className='min-w-14   flex p-3 items-center justify-center '>
 								Тип
 							</div>
-							<div className='min-w-52 flex px-2 items-center justify-start '>
+							<div className='min-w-36 flex-1  flex p-3 items-center justify-start '>
 								Контрагент
 							</div>
-							<div className='flex-1  text-start  px-2 items-center justify-start '>
+							<div className='min-w-32 flex-1   text-start  p-3 items-center justify-start '>
 								Статья
 							</div>
-							<div className='flex-1 flex px-2 items-center justify-center '>
+							<div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
 								Сделка
 							</div>
-							<div className='min-w-40 flex px-2 items-center justify-end '>
+							<div className='min-w-40  flex p-3 items-center justify-end '>
 								Сумма
 							</div>
-							<div className='min-w-8 flex px-2 items-center justify-center'>
+							<div className='min-w-8  flex p-3 items-center justify-center'>
 								&nbsp;
 							</div>
 						</>}
@@ -510,7 +510,7 @@ const OperationsPage = observer(() => {
 						scrollableTarget="scrollableDiv"
 					>
 
-						{<div className="flex flex-col pb-10">
+						{<div className="flex flex-col overflow-auto pb-10">
 							{operationsList?.future?.map(op => (
 								<OperationTableRow
 									key={op.guid}

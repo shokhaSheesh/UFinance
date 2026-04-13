@@ -1,20 +1,20 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { observer } from 'mobx-react-lite'
-import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
-import '@/styles/report-filters.css'
-import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import { formatNumber, formatPeriod } from '../../../../utils/helpers'
 import { cn } from '@/app/lib/utils'
-import { appStore } from '../../../../store/app.store'
+import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
+import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import '@/styles/report-filters.css'
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../../../../lib/api/ucode/base'
-import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import React, { useEffect, useMemo, useState } from 'react'
+import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
+import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { apiClient } from '../../../../lib/api/ucode/base'
+import { appStore } from '../../../../store/app.store'
+import { formatNumber, formatPeriod } from '../../../../utils/helpers'
 
 const formatDateLocal = (date) => {
   if (!date) return null
@@ -183,6 +183,9 @@ const ProfitAndLossPage = observer(() => {
       dateRange = { start: startDate, end: endDate }
     }
 
+    console.log('item', item)
+    console.log('monthObj', monthObj)
+
     const collectIds = (node) => {
       let ids = []
       if (typeof node.id === 'string' && /\d/.test(node.id)) {
@@ -204,7 +207,8 @@ const ProfitAndLossPage = observer(() => {
       paymentNotAccural: false,
       paymentDateStart: dateRange.start,
       paymentDateEnd: dateRange.end,
-      ...(chartOfAccountIds.length > 0 ? { chart_of_accounts_ids: chartOfAccountIds } : {})
+      limit: 10,
+      chartOfAccounts: [item.id, ...chartOfAccountIds]
     }
 
     const periodLabel = formatPeriod(dateRange.start, dateRange.end)
@@ -213,7 +217,8 @@ const ProfitAndLossPage = observer(() => {
       filterData,
       summaryData: {
         periodLabel,
-        totalAmount: monthObj ? (item.values?.[monthObj.key] || 0) : item.totalValue
+        totalAmount: item.totalValue,
+        currencyCode: pnlStore.selectedCurrency
       },
       title: item.name
     })
@@ -333,11 +338,4 @@ const ProfitAndLossPage = observer(() => {
 
 export default ProfitAndLossPage
 
-// < div className = "flex px-4 h-16 items-center sticky top-0 z-20 bg-white justify-between" >
-
-
-
-//       </ >
-
-// {/* Table with loading overlay */ }
 

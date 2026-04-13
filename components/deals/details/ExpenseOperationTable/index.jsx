@@ -1,18 +1,18 @@
 'use client'
+import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { formatAmount } from '@/utils/helpers'
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useMemo, useState } from 'react'
-import OperationModal from '@/components/operations/OperationModal/OperationModal'
-import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
-import { useUcodeRequestQuery, useDeleteOperation } from '../../../../hooks/useDashboard'
-import CustomModal from '../../../shared/CustomModal'
+import { useDeleteOperation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 import operationsDto from '../../../../lib/dtos/operationsDto'
-import { Loader2 } from 'lucide-react'
+import CustomModal from '../../../shared/CustomModal'
 
-import EmptyState from '../EmptyState'
-import { CreditIcon, DebitIcon } from '../../../../constants/icons'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
+import { CreditIcon, DebitIcon } from '../../../../constants/icons'
+import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
 const ExpenseOperationsTable = ({ sellingDealId, onAdd }) => {
@@ -30,7 +30,11 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd }) => {
     method: "find_operations",
     data: {
       selling_deal_ids: [sellingDealId],
-      tip: ['Выплата'],
+      tip: ["Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"],
+      accrualConfirmed: true,
+      accrualNotConfirmed: true,
+      paymentConfirmed: true,
+      paymentNotConfirmed: true,
     },
     querySetting: {
       select: (response) => response?.data,
@@ -143,7 +147,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd }) => {
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.operationDate}</td>
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.my_account_name}</td>
-                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.counterparty}</td>
+                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item?.tip === "Начисление" ? '[Начисление]' : item.counterparty}</td>
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.chartOfAccounts}</td>
                     <td className={`p-3 text-right w-40`}>
                       <div className="flex items-center justify-end gap-2 h-6">
