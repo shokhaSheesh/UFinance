@@ -4,10 +4,12 @@ import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { useMutation } from '@tanstack/react-query'
 import { Loader, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Controller, useForm } from 'react-hook-form'
+import { apiClient } from '../../../../lib/api/ucode/base'
 import { queryClient } from '../../../../lib/queryClient'
 
 function useDebounce(value, delay = 400) {
@@ -47,7 +49,6 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
   const dropdownRef = useRef(null)
   const debouncedEmail = useDebounce(emailSearch)
 
-  console.log('initial', initial)
 
   const { data: usersData, isFetching: usersLoading } = useUcodeRequestQuery({
     method: 'get_company_users',
@@ -301,6 +302,35 @@ function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
 }
 
 /* ═══════════════════════════════════════════════════════ */
+/*  WarningModal                                          */
+/* ═══════════════════════════════════════════════════════ */
+
+function WarningModal({ open, onClose }) {
+  return (
+    <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-0 overflow-hidden">
+      <div className="flex justify-between items-center px-7 pt-6 pb-4 border-b border-gray-200 pr-14">
+        <h3 className="text-lg font-bold text-slate-900">Внимание</h3>
+      </div>
+
+      <div className="px-7 py-6">
+        <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+          У вас уже есть транзакции, сначала удалите их.
+        </p>
+      </div>
+
+      <div className="flex justify-end gap-2.5 px-7 pb-6">
+        <button
+          onClick={onClose}
+          className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors cursor-pointer"
+        >
+          Понятно
+        </button>
+      </div>
+    </CustomModal>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════ */
 /*  RowDropdown                                           */
 /* ═══════════════════════════════════════════════════════ */
 
@@ -381,8 +411,23 @@ export default function BranchesPage() {
   const [editingBranch, setEditingBranch] = useState(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [branchToDelete, setBranchToDelete] = useState(null)
+  const [warningModalOpen, setWarningModalOpen] = useState(false)
 
-  const { mutateAsync: mutateBranch, isPending: mutateLoading } = useUcodeRequestMutation()
+  const { mutateAsync: mutateBranch, isPending: mutateLoading } = useMutation({
+    mutationKey: ["delete_branch"],
+    mutationFn: (data) => apiClient.invokeFunction(data),
+    onError: (error) => {
+      const errorMessage = error?.data?.error || error?.message || ''
+      if (errorMessage.includes('has operations') || errorMessage.includes('транзакции')) {
+        setDeleteModalOpen(false)
+        setWarningModalOpen(true)
+      } else {
+        console.log('error', error)
+        setDeleteModalOpen(false)
+        setBranchToDelete(null)
+      }
+    }
+  })
 
   function handleDeleteBranch(branch) {
     setBranchToDelete(branch)
@@ -393,13 +438,23 @@ export default function BranchesPage() {
 
   async function confirmDeleteBranch() {
     if (branchToDelete) {
-      const branchId = typeof branchToDelete === 'object'
-        ? branchToDelete.branch_id
-        : branchToDelete
-      await mutateBranch({ method: 'delete_branch', data: { branch_id: branchId } })
-      setDeleteModalOpen(false)
-      setBranchToDelete(null)
-      refetchBranches()
+      try {
+        await mutateBranch({ method: 'delete_branch', data: { guid: branchToDelete.guid } })
+        setDeleteModalOpen(false)
+        setBranchToDelete(null)
+        refetchBranches()
+      } catch (error) {
+        console.log('error', error)
+
+        const errorMessage = error?.details?.data?.error || error?.message || ''
+        if (errorMessage.includes('has operations') || errorMessage.includes('транзакции')) {
+          setDeleteModalOpen(false)
+          setWarningModalOpen(true)
+        } else {
+          setDeleteModalOpen(false)
+          setBranchToDelete(null)
+        }
+      }
     }
   }
 
@@ -524,6 +579,12 @@ export default function BranchesPage() {
         onConfirm={confirmDeleteBranch}
         loading={mutateLoading}
         branch={branchToDelete}
+      />
+
+      {/* Warning modal for branches with operations */}
+      <WarningModal
+        open={warningModalOpen}
+        onClose={() => { setWarningModalOpen(false); setBranchToDelete(null) }}
       />
     </div>
   )
