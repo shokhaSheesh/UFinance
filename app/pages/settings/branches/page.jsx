@@ -2,13 +2,13 @@
 
 import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { Loader, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { queryClient } from '../../../../lib/queryClient'
-import { formatDateTime } from '../../../../utils/formatDate'
 
 function useDebounce(value, delay = 400) {
   const [debounced, setDebounced] = useState(value)
@@ -47,6 +47,8 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
   const dropdownRef = useRef(null)
   const debouncedEmail = useDebounce(emailSearch)
 
+  console.log('initial', initial)
+
   const { data: usersData, isFetching: usersLoading } = useUcodeRequestQuery({
     method: 'get_company_users',
     data: { page: 1, limit: 20, search: debouncedEmail },
@@ -73,9 +75,9 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
   } = useForm({
     defaultValues: {
       name: initial?.branchName || initial?.name || '',
-      username: initial?.username || initial?.name || '',
-      email: initial?.email || '',
-      phone: initial?.phone || '+998',
+      username: '',
+      email: '',
+      phone: '+998',
     },
   })
 
@@ -95,11 +97,8 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
       await createBranchUser({
         method: 'update_branch',
         data: {
-          branch_id: initial.branch_id,
+          guid: initial.branch_id,
           branch_name: data.name,
-          branch_user_name: data.username,
-          branch_user_email: data.email,
-          branch_user_phone: String(data.phone).replace(/\s/g, ''),
         },
       })
     }
@@ -126,98 +125,101 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
           {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
         </div>
 
-        {/* Email with user search */}
-        <div className="flex flex-col gap-1.5" ref={dropdownRef}>
-          <label className="text-sm font-medium text-slate-500">Электронная почта</label>
-          <div className="relative">
-            {(() => {
-              const { ref, name } = register('email', {
-                required: 'Введите email',
-                pattern: { value: EMAIL_RE, message: 'Неверный формат email' },
-              })
-              return (
-                <Input
-                  ref={ref}
-                  name={name}
-                  type="email"
-                  placeholder="example@mail.com"
-                  error={!!errors.email}
-                  value={emailSearch}
-                  onChange={e => {
-                    setEmailSearch(e.target.value)
-                    setValue('email', e.target.value)
-                    setSelectedUser(null)
-                    setDropdownOpen(true)
-                  }}
-                  onFocus={() => emailSearch.length >= 2 && setDropdownOpen(true)}
-                />
-              )
-            })()}
-            {usersLoading && emailSearch.length >= 2 && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Loader size={14} className="animate-spin text-slate-400" />
-              </span>
-            )}
-            {dropdownOpen && usersList.length > 0 && (
-              <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto py-1">
-                {usersList.map(user => (
-                  <li
-                    key={user.guid}
-                    onMouseDown={e => e.preventDefault()}
-                    onClick={() => {
-                      setSelectedUser(user)
-                      setEmailSearch(user.email || '')
-                      setValue('email', user.email || '', { shouldValidate: true })
-                      setValue('username', user.name || user.username || '')
-                      setValue('phone', user.phone ? formatPhone998(user.phone) : '+998')
-                      setDropdownOpen(false)
+        {!initial?.name && <>
+          {/* Email with user search */}
+          <div className="flex flex-col gap-1.5" ref={dropdownRef}>
+            <label className="text-sm font-medium text-slate-500">Электронная почта</label>
+            <div className="relative">
+              {(() => {
+                const { ref, name } = register('email', {
+                  required: 'Введите email',
+                  pattern: { value: EMAIL_RE, message: 'Неверный формат email' },
+                })
+                return (
+                  <Input
+                    ref={ref}
+                    name={name}
+                    type="email"
+                    placeholder="example@mail.com"
+                    error={!!errors.email}
+                    value={emailSearch}
+                    readOnly={!!initial?.email}
+                    onChange={e => {
+                      setEmailSearch(e.target.value)
+                      setValue('email', e.target.value)
+                      setSelectedUser(null)
+                      setDropdownOpen(true)
                     }}
-                    className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex flex-col"
-                  >
-                    <span className="font-medium">{user.name || user.username || '—'}</span>
-                    <span className="text-xs text-slate-400">{user.email}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    onFocus={() => emailSearch.length >= 2 && setDropdownOpen(true)}
+                  />
+                )
+              })()}
+              {usersLoading && emailSearch.length >= 2 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Loader size={14} className="animate-spin text-slate-400" />
+                </span>
+              )}
+              {dropdownOpen && usersList.length > 0 && (
+                <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto py-1">
+                  {usersList.map(user => (
+                    <li
+                      key={user.guid}
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => {
+                        setSelectedUser(user)
+                        setEmailSearch(user.email || '')
+                        setValue('email', user.email || '', { shouldValidate: true })
+                        setValue('username', user.name || user.username || '')
+                        setValue('phone', user.phone ? formatPhone998(user.phone) : '+998')
+                        setDropdownOpen(false)
+                      }}
+                      className="px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer flex flex-col"
+                    >
+                      <span className="font-medium">{user.name || user.username || '—'}</span>
+                      <span className="text-xs text-slate-400">{user.email}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
           </div>
-          {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
-        </div>
 
-        {/* Username */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">Имя пользователя</label>
-          <Input
-            placeholder="Имя пользователя"
-            error={!!errors.username}
-            {...register('username', { required: 'Введите имя пользователя' })}
-          />
-          {errors.username && <span className="text-xs text-red-500">{errors.username.message}</span>}
-        </div>
+          {/* Username */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-500">Имя пользователя</label>
+            <Input
+              placeholder="Имя пользователя"
+              error={!!errors.username}
+              {...register('username', { required: 'Введите имя пользователя' })}
+            />
+            {errors.username && <span className="text-xs text-red-500">{errors.username.message}</span>}
+          </div>
 
 
-        {/* Phone */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">Телефон</label>
-          <Controller
-            name="phone"
-            control={control}
-            rules={{
-              validate: v =>
-                v.replace(/\D/g, '').length >= 12 || 'Введите полный номер (+998 XX XXX XX XX)',
-            }}
-            render={({ field }) => (
-              <Input
-                type="tel"
-                placeholder="+998 XX XXX XX XX"
-                error={!!errors.phone}
-                value={field.value}
-                onChange={e => field.onChange(formatPhone998(e.target.value))}
-              />
-            )}
-          />
-          {errors.phone && <span className="text-xs text-red-500">{errors.phone.message}</span>}
-        </div>
+          {/* Phone */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-500">Телефон</label>
+            <Controller
+              name="phone"
+              control={control}
+              rules={{
+                validate: v =>
+                  v.replace(/\D/g, '').length >= 12 || 'Введите полный номер (+998 XX XXX XX XX)',
+              }}
+              render={({ field }) => (
+                <Input
+                  type="tel"
+                  placeholder="+998 XX XXX XX XX"
+                  error={!!errors.phone}
+                  value={field.value}
+                  onChange={e => field.onChange(formatPhone998(e.target.value))}
+                />
+              )}
+            />
+            {errors.phone && <span className="text-xs text-red-500">{errors.phone.message}</span>}
+          </div>
+        </>}
 
         {/* Footer */}
         <div className="flex justify-end gap-2.5 mt-3">
@@ -388,6 +390,7 @@ export default function BranchesPage() {
   }
 
 
+
   async function confirmDeleteBranch() {
     if (branchToDelete) {
       const branchId = typeof branchToDelete === 'object'
@@ -419,42 +422,35 @@ export default function BranchesPage() {
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-gray-50 z-10">
               <tr>
-                {['Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                  Название филиала
+                </th>
+                <th className="px-4 w-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                  &nbsp;
+                </th>
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3].map(i => (
-                <tr key={i}>
-                  {[1, 2, 3, 4, 5].map(j => (
-                    <td key={j} className="px-4 py-2 text-xs text-[#344054] border-b border-gray-200">
-                      <span className="opacity-30">—</span>
-                    </td>
-                  ))}
+              {[1, 2, 3, 4, 5].map(i => (
+                <tr key={i} className="border-b border-gray-200">
+                  <td className="px-4 py-3 text-xs">
+                    <Skeleton className="h-4 w-32" />
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    <Skeleton className="h-4 w-4" />
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      ) : branches.length > 0 ? (
+      ) : branches.length > 0 && !branchesLoading ? (
         <div className="flex-1 overflow-auto bg-white">
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-gray-50 z-10">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    Роль
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    ФИО / Должность
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    Последний вход
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    Дата создания
+                    Название филиала
                   </th>
                   <th className="px-4 w-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
                     &nbsp;
@@ -465,19 +461,7 @@ export default function BranchesPage() {
                 {branches?.map(branch => (
                   <tr key={branch?.guid} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
-                      {branch?.branch_user?.role_id_data?.name ?? 'Администратор'}
-                    </td>
-                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
-                    <div>{branch?.branch_user_name ?? branch?.name ?? '—'}</div>
-                      <div className="text-[11.5px] text-slate-400 mt-0.5">
-                        {branch?.company_id_data?.name ?? '—'}
-                      </div>
-                  </td>
-                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
-                      {formatDateTime(branch?.updated_at) ?? '—'}
-                    </td>
-                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
-                      {formatDateTime(branch?.created_at) ?? '—'}
+                      {branch?.name ?? 'Администратор'}
                     </td>
                     <td className="px-4 py-1.5 text-xs border-b border-gray-200">
                     <RowDropdown
@@ -485,9 +469,6 @@ export default function BranchesPage() {
                         setEditingBranch({
                           branch_id: branch?.guid,
                           name: branch?.name,
-                          username: branch?.branch_user_name ?? branch?.name,
-                          email: branch?.email,
-                          phone: branch?.branch_user_phone ?? branch?.phone,
                         })
                         setBranchModalOpen(true)
                       }}

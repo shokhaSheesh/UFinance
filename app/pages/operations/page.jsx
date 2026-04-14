@@ -126,7 +126,7 @@ const OperationsPage = observer(() => {
 				max: Number(amountRange.max),
 			},
 			chart_of_accounts_ids: toJS(selectedChartOfAccounts),
-			payment_type: paymentType,
+			payment_type: appStore.isPayment ? paymentType : null,
 			paymentConfirmed,
 			paymentNotConfirmed,
 			accrualConfirmed,
