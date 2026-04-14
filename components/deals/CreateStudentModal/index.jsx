@@ -1,8 +1,8 @@
 'use client'
 
-import { getSergeliContractHtml } from '@/constants/sergeli-contract'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
 import CustomModal from '../../shared/CustomModal'
 import CustomDatePicker from '../../shared/DatePicker'
 import Input from '../../shared/Input'
@@ -53,6 +53,7 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
     formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
+      contractNumber: '',
       contractDate: '',
       guardianName: '',
       branchName: '',
@@ -139,6 +140,14 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
           {/* Scrollable Form */}
           <div className="flex-1 overflow-auto p-4">
             <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-700">Номер договора</label>
+                <Input
+                  placeholder="Введите номер договора"
+                  {...register('contractNumber')}
+                />
+              </div>
               {/* Row 1 */}
               <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
                 <label className="text-xs font-medium text-gray-700">Дата договора</label>
@@ -147,8 +156,7 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
                   control={control}
                   render={({ field }) => (
                     <CustomDatePicker
-                      value={field.value}
-                      onChange={field.onChange}
+                      {...register('contractDate')}
                       placeholder="Выберите дату"
                       className={'w-full!'}
                     />
@@ -224,7 +232,10 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
                   <input
                     type="text"
                     placeholder="Введите номер"
-                    {...register('phone1')}
+                    {...register('phone1', {
+                      required: true,
+                      pattern: /^\d{3}\s\d{2}\s\d{2}$/,
+                    })}
                     className="w-full h-[36px] px-3 border border-gray-200 rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans"
                   />
                 </div>
@@ -496,7 +507,7 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
           {/* Contract Preview */}
           <div className="flex-1 overflow-hidden">
             <iframe
-              srcDoc={getSergeliContractHtml(getContractData())}
+                srcDoc={getIbnSinoContractHtml(getContractData())}
               className="w-full h-full border-0"
               title="Предпросмотр договора"
             />

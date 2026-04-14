@@ -93,7 +93,7 @@ const OperationModal = observer(({
 					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
 						{[
 							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add || operationPermissions?.income?.edit },
-							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payment?.add || operationPermissions?.payment?.edit },
+							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add || operationPermissions?.payout?.edit },
 							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add || operationPermissions?.transfer?.edit },
 							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add || operationPermissions?.accrual?.edit }
 						].filter(tab => tab.canShow).map(tab => (
