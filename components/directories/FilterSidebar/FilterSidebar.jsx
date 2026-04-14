@@ -1,8 +1,8 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
-import styles from './FilterSidebar.module.scss'
 import { ChevronsLeft, ChevronsRightIcon, Trash2 } from 'lucide-react'
+import styles from './FilterSidebar.module.scss'
 
 export function FilterSidebar({ isOpen, onClose, children, clearCount, onClear }) {
 

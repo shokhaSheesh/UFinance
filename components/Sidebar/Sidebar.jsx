@@ -83,7 +83,7 @@ export const Sidebar = observer(() => {
                     href: '/pages/reports/balance',
                     hasPage: true,
                     canShow: permissions?.reports?.balance?.read
-                }
+                }, 
             ]
         },
         {
@@ -98,6 +98,11 @@ export const Sidebar = observer(() => {
                     href: '/pages/directories/counterparties',
                     hasPage: true,
                     canShow: permissions?.directories?.counterparties?.read
+                },
+                {
+                    label: 'Студенты',
+                    href: '/pages/directories/students',
+                    hasPage: true,
                 },
                 {
                     label: 'Учетные статьи',

@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { queryClient } from '../../../../lib/queryClient'
+import { authStore } from '../../../../store/auth.store'
 
 function useDebounce(value, delay = 400) {
   const [debounced, setDebounced] = useState(value)
@@ -41,7 +42,30 @@ function formatPhone998(raw) {
 /* ═══════════════════════════════════════════════════════ */
 
 function BranchModal({ open, onClose, onSubmit, initial }) {
-  const { mutateAsync: createBranchUser, isPending: isCreating } = useUcodeRequestMutation()
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: initial?.branchName || initial?.name || '',
+      username: '',
+      email: '',
+      phone: '+998',
+    },
+  })
+  const { mutateAsync: createBranchUser, isPending: isCreating } = useUcodeRequestMutation({
+    mutationSetting: {
+      onSuccess: (response) => {
+        if (initial && initial?.branch_id === authStore.selectBranch?.guid) {
+          authStore.setSelectBranch(response?.data?.data?.branch)
+        }
+      },
+    },
+  })
 
   const [emailSearch, setEmailSearch] = useState('')
   const [selectedUser, setSelectedUser] = useState(null)
@@ -67,20 +91,7 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      name: initial?.branchName || initial?.name || '',
-      username: '',
-      email: '',
-      phone: '+998',
-    },
-  })
+
 
   async function onFormSubmit(data) {
     if (!initial) {
@@ -102,6 +113,7 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
           branch_name: data.name,
         },
       })
+
     }
     queryClient.invalidateQueries({ queryKey: ['get_my_branches'] })
     onSubmit(data)

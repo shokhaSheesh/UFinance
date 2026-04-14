@@ -1,8 +1,10 @@
 'use client'
 
+import { observer } from 'mobx-react-lite'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
+import { authStore } from '../../../store/auth.store'
 import CustomModal from '../../shared/CustomModal'
 import CustomDatePicker from '../../shared/DatePicker'
 import Input from '../../shared/Input'
@@ -43,8 +45,9 @@ const clientType = [
   { value: 'old', label: 'Eski' },
 ]
 
-const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
+const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
+  const branch = authStore.selectBranch
   const {
     register,
     handleSubmit,
@@ -56,7 +59,7 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
       contractNumber: '',
       contractDate: '',
       guardianName: '',
-      branchName: '',
+      branchName: branch?.name || '',
       guardianType: '',
       academicYear: '',
       phone1: '',
@@ -140,7 +143,6 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
           {/* Scrollable Form */}
           <div className="flex-1 overflow-auto p-4">
             <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
-
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Номер договора</label>
                 <Input
@@ -155,8 +157,9 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
                   name="contractDate"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker
-                      {...register('contractDate')}
+                    <CustomDatePicker 
+                      value={field.value}
+                      onChange={field.onChange}
                       placeholder="Выберите дату"
                       className={'w-full!'}
                     />
@@ -178,13 +181,10 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
                   name="branchName"
                   control={control}
                   render={({ field }) => (
-                    <SingleSelect
-                      placeholder="Введите название филиала"
+                    <Input
+                      placeholder="Название филиала"
                       value={field.value}
-                      onChange={field.onChange}
-                      data={[]}
-                      className='bg-white'
-                      withSearch={false}
+                      readOnly
                     />
                   )}
                 />
@@ -546,6 +546,6 @@ const CreateStudentModal = ({ isOpen, onClose, onSubmit }) => {
       )}
     </CustomModal>
   )
-}
+})
 
 export default CreateStudentModal

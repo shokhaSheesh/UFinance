@@ -478,7 +478,7 @@ const OperationsPage = observer(() => {
 							<button className="primary-btn">Экспорт</button>
 						</div>}
 						{!isAllSelected && <>
-							<div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
+							<div className='min-w-32  pl-5 flex p-3 items-center justify-start '>
 								Дата
 							</div>
 							<div className='min-w-24 max-w-52 flex-1  flex p-3 items-center justify-start '>
@@ -487,7 +487,7 @@ const OperationsPage = observer(() => {
 							<div className='min-w-14   flex p-3 items-center justify-center '>
 								Тип
 							</div>
-							<div className='min-w-36 flex-1  flex p-3 items-center justify-start '>
+							<div className='min-w-32 flex-1  flex p-3 items-center justify-start '>
 								Контрагент
 							</div>
 							<div className='min-w-32 flex-1   text-start  p-3 items-center justify-start '>
