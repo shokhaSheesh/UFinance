@@ -161,9 +161,9 @@ export default observer(function CashFlowReportPage() {
     queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
     select: (res) => res?.data?.data,
     staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])

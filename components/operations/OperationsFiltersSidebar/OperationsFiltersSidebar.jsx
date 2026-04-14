@@ -1,21 +1,21 @@
 "use client"
 
-import { useState, useRef, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import styles from './OperationsFiltersSidebar.module.scss'
-import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
-import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
-import { FaSortDown } from 'react-icons/fa'
-import Input from '../../shared/Input'
-import { appStore } from '../../../store/app.store'
 import { observer } from 'mobx-react-lite'
-import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
+import { useCallback, useRef, useState } from 'react'
+import { FaSortDown } from 'react-icons/fa'
+import { appStore } from '../../../store/app.store'
+import { allowedTip, operationFilterStore } from '../../../store/operationFilter.store'
 import MultiSelectStatiya from '../../ReadyComponents/MultiSelectStatiya'
-import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
-import { operationFilterStore } from '../../../store/operationFilter.store'
 import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
+import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
+import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
 import { FilterSection, FilterSidebar } from '../../directories/FilterSidebar/FilterSidebar'
+import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
+import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
+import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
+import styles from './OperationsFiltersSidebar.module.scss'
 
 export const OperationsFiltersSidebar = observer(({
   isOpen, onClose, clearCount, onClear
@@ -68,120 +68,124 @@ export const OperationsFiltersSidebar = observer(({
         <FilterSection title="Тип операции" className="mb-5">
           {/* Поступление */}
           <div className="flex flex-col gap-3 justify-start items-start">
-            <OperationCheckbox
+            {allowedTip.allowIncome && <OperationCheckbox
               checked={safeSelectedFilters.includes('Поступление')}
               onChange={() => {
                 operationFilterStore.toggleFilter('Поступление')
                 handleChangeFilter()
               }}
               label="Поступление"
-            />
+            />}
 
             {/* Выплата */}
-            <OperationCheckbox
+            {allowedTip.allowPayout && <OperationCheckbox
               checked={safeSelectedFilters.includes('Выплата')}
               onChange={() => {
                 operationFilterStore.toggleFilter('Выплата')
                 handleChangeFilter()
               }}
               label="Выплата"
-            />
+            />}
 
 
             {/* Перемещение */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes('Перемещение')}
-                onChange={() => {
-                  operationFilterStore.toggleComplexFilter('Перемещение')
-                  handleChangeFilter()
-                }}
-                label="Перемещение"
-              />
-              <FaSortDown
-                style={{
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s',
-                  transform: expandedFilters.peremescheniye ? 'rotate(0deg)' : 'rotate(-180deg)',
-                  marginBottom: expandedFilters.peremescheniye ? '10px' : '0',
-                  color: '#6b7280',
-                  fontSize: '12px'
-                }}
-                onClick={() => setExpandedFilters(prev => ({ ...prev, peremescheniye: !prev.peremescheniye }))}
-              />
-            </div>
-            {expandedFilters.peremescheniye && (
-              <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
+            {allowedTip.allowTransfer && <>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
                 <OperationCheckbox
-                  checked={safeSelectedFilters.includes('Списание')}
+                  checked={safeSelectedFilters.includes('Перемещение')}
                   onChange={() => {
-                    operationFilterStore.toggleFilter('Списание')
+                    operationFilterStore.toggleComplexFilter('Перемещение')
                     handleChangeFilter()
                   }}
-                  label="Списание"
+                  label="Перемещение"
                 />
-                <OperationCheckbox
-                  checked={safeSelectedFilters.includes('Зачисление')}
-                  onChange={() => {
-                    operationFilterStore.toggleFilter('Зачисление')
-                    handleChangeFilter()
+                <FaSortDown
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    transform: expandedFilters.peremescheniye ? 'rotate(0deg)' : 'rotate(-180deg)',
+                    marginBottom: expandedFilters.peremescheniye ? '10px' : '0',
+                    color: '#6b7280',
+                    fontSize: '12px'
                   }}
-                  label="Зачисление"
+                  onClick={() => setExpandedFilters(prev => ({ ...prev, peremescheniye: !prev.peremescheniye }))}
                 />
               </div>
-            )}
+              {expandedFilters.peremescheniye && (
+                <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
+                  <OperationCheckbox
+                    checked={safeSelectedFilters.includes('Списание')}
+                    onChange={() => {
+                      operationFilterStore.toggleFilter('Списание')
+                      handleChangeFilter()
+                    }}
+                    label="Списание"
+                  />
+                  <OperationCheckbox
+                    checked={safeSelectedFilters.includes('Зачисление')}
+                    onChange={() => {
+                      operationFilterStore.toggleFilter('Зачисление')
+                      handleChangeFilter()
+                    }}
+                    label="Зачисление"
+                  />
+                </div>
+              )}
+            </>}
 
             {/* Начисление */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes('Начисление')}
-                onChange={() => {
-                  operationFilterStore.toggleComplexFilter('Начисление')
-                  handleChangeFilter()
-                }}
-                label="Начисление"
-              />
-              <FaSortDown
-                style={{
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s',
-                  transform: expandedFilters.nachisleniye ? 'rotate(0deg)' : 'rotate(-180deg)',
-                  marginBottom: expandedFilters.nachisleniye ? '10px' : '0',
-                  color: '#6b7280',
-                  fontSize: '12px'
-                }}
-                onClick={() => setExpandedFilters(prev => ({ ...prev, nachisleniye: !prev.nachisleniye }))}
-              />
-            </div>
-            {expandedFilters.nachisleniye && (
-              <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
+            {allowedTip.allowAccrual && <>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
                 <OperationCheckbox
-                  checked={safeSelectedFilters.includes('Дебет')}
+                  checked={safeSelectedFilters.includes('Начисление')}
                   onChange={() => {
-                    operationFilterStore.toggleFilter('Дебет')
+                    operationFilterStore.toggleComplexFilter('Начисление')
                     handleChangeFilter()
                   }}
-                  label="Дебет"
+                  label="Начисление"
                 />
-                <OperationCheckbox
-                  checked={safeSelectedFilters.includes('Кредит')}
-                  onChange={() => {
-                    operationFilterStore.toggleFilter('Кредит')
-                    handleChangeFilter()
+                <FaSortDown
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    transform: expandedFilters.nachisleniye ? 'rotate(0deg)' : 'rotate(-180deg)',
+                    marginBottom: expandedFilters.nachisleniye ? '10px' : '0',
+                    color: '#6b7280',
+                    fontSize: '12px'
                   }}
-                  label="Кредит"
+                  onClick={() => setExpandedFilters(prev => ({ ...prev, nachisleniye: !prev.nachisleniye }))}
                 />
               </div>
-            )}
+              {expandedFilters.nachisleniye && (
+                <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
+                  <OperationCheckbox
+                    checked={safeSelectedFilters.includes('Дебет')}
+                    onChange={() => {
+                      operationFilterStore.toggleFilter('Дебет')
+                      handleChangeFilter()
+                    }}
+                    label="Дебет"
+                  />
+                  <OperationCheckbox
+                    checked={safeSelectedFilters.includes('Кредит')}
+                    onChange={() => {
+                      operationFilterStore.toggleFilter('Кредит')
+                      handleChangeFilter()
+                    }}
+                    label="Кредит"
+                  />
+                </div>
+              )}
+            </>}
             {/* Отгрузка */}
-            <OperationCheckbox
+            {allowedTip.allowShipment && <OperationCheckbox
               checked={safeSelectedFilters.includes('Отгрузка')}
               onChange={() => {
                 operationFilterStore.toggleFilter('Отгрузка')
                 handleChangeFilter()
               }}
               label="Отгрузка"
-            />
+            />}
           </div>
         </FilterSection>
 
@@ -214,7 +218,7 @@ export const OperationsFiltersSidebar = observer(({
             }}
           />
         </FilterSection>
- 
+
         <FilterSection title="Дата начисления" className="mb-5">
           <div className="space-y-3">
             {[
@@ -279,6 +283,7 @@ export const OperationsFiltersSidebar = observer(({
                 operationFilterStore.setPaymentType(val)
                 handleChangeFilter()
               }}
+              isClearable={false}
               placeholder='Выберите тип платежа...'
               className={'bg-gray-ucode-25'}
             />}

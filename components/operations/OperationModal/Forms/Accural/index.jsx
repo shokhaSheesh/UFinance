@@ -27,9 +27,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
   const [title, setTitle] = useState()
 
   const isNew = initialData?.isNew
-  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid)
-
-  console.log('initialData', initialData)
+  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid) 
 
 
   const defaultValues = useMemo(() => {
@@ -437,7 +435,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
       {/* Footer Actions */}
       <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
         <button type="button" onClick={onCancel} className="secondary-btn py-2!">Отмена</button>
-        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : 'Сохранить'}</button>
+        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}</button>
       </div>
     </form>
   )

@@ -21,6 +21,7 @@ import OperationCheckbox from '../../../components/shared/Checkbox/operationChec
 import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import operationsDto from '../../../lib/dtos/operationsDto'
+import { appStore } from '../../../store/app.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatDate } from '../../../utils/formatDate'
 
@@ -180,9 +181,12 @@ const OperationsPage = observer(() => {
 	}, [infiniteData])
 
 
+	const operationPermissions = appStore.permission.operations
 
 
 	const isAllSelected = allOperations.length > 0 && selectedOperations.length === allOperations.length
+	const canAdd = operationPermissions.income.add || operationPermissions.payout.add || operationPermissions.transfer.add || operationPermissions.accrual.add || operationPermissions.shipment.add
+
 
 	const toggleSelectAll = () => {
 		if (isAllSelected) {
@@ -232,6 +236,10 @@ const OperationsPage = observer(() => {
 	}
 
 	const openOperationModal = operation => {
+		const canEdit = operationPermissions.income.edit && operation.tip === 'Поступление' || operationPermissions.payout.edit && operation.tip === 'Выплата' || operationPermissions.transfer.edit && operation.tip === 'Перемещение' || operationPermissions.accrual.edit && operation.tip === 'Начисление' || operationPermissions.shipment.edit && operation.tip === 'Отгрузка'
+		if (!canEdit) {
+			return
+		}
 		if (operation.tip === 'Отгрузка') {
 			handleEditShipment(operation)
 			return
@@ -304,8 +312,6 @@ const OperationsPage = observer(() => {
 			isNew: false,
 		})
 	}
-
-
 
 	const handleDeleteOperation = operation => {
 		if (operation.tip === 'Отгрузка') {
@@ -437,12 +443,12 @@ const OperationsPage = observer(() => {
 				<div className=" h-16 px-4 flex items-center justify-between bg-white ">
 					<div className="flex items-center gap-4 ">
 						<h1 className="text-xl font-semibold">Операции</h1>
-						<button
+						{canAdd && <button
 							onClick={handleCreate}
 							className="primary-btn"
 						>
 							Создать
-						</button>
+						</button>}
 					</div>
 					<div className=" flex items-center justify-self-center gap-2">
 						<Input
@@ -493,7 +499,7 @@ const OperationsPage = observer(() => {
 							<div className='min-w-40  flex p-3 items-center justify-end '>
 								Сумма
 							</div>
-							<div className='min-w-8  flex p-3 items-center justify-center'>
+							<div className='min-w-5  flex p-3 items-center justify-center'>
 								&nbsp;
 							</div>
 						</>}

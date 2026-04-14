@@ -1,15 +1,23 @@
 "use client"
 
-import { cn } from '@/app/lib/utils' 
-import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { cn } from '@/app/lib/utils'
 import {
   DropdownMenu,
-  DropdownMenuContent, 
-  DropdownMenuItem,  
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { appStore } from '../../../store/app.store'
 
-export function OperationMenu({ operation, onEdit, onDelete, onCopy }) {
+export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) => {
+
+  const operationPermissions = appStore.permission.operations
+  const canAdd = operationPermissions.income.add && operation.operationType === 'income' || operationPermissions.payout.add && operation.operationType === 'payment' || operationPermissions.transfer.add && operation.operationType === 'transfer' || operationPermissions.accrual.add && operation.operationType === 'accrual' || operationPermissions.shipment.add && operation.operationType === 'shipment'
+  const canEdit = operationPermissions.income.edit && operation.operationType === 'income' || operationPermissions.payout.edit && operation.operationType === 'payment' || operationPermissions.transfer.edit && operation.operationType === 'transfer' || operationPermissions.accrual.edit && operation.operationType === 'accrual' || operationPermissions.shipment.edit && operation.operationType === 'shipment'
+  const canDelete = operationPermissions.income.delete && operation.operationType === 'income' || operationPermissions.payout.delete && operation.operationType === 'payment' || operationPermissions.transfer.delete && operation.operationType === 'transfer' || operationPermissions.accrual.delete && operation.operationType === 'accrual' || operationPermissions.shipment.delete && operation.operationType === 'shipment'
+
   const handleEdit = () => {
     onEdit(operation)
   }
@@ -22,42 +30,52 @@ export function OperationMenu({ operation, onEdit, onDelete, onCopy }) {
     if (onCopy) onCopy(operation)
   }
 
+  if (!canEdit && !canDelete && !canAdd) {
+    return null
+  }
+
   return (
     <DropdownMenu >
-      <DropdownMenuTrigger asChild >
+      <DropdownMenuTrigger>
         <div className="bg-transparent w-5 shadow-none cursor-pointer h-full flex items-center justify-center">
           <EllipsisVertical className='text-neutral-600' />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40 p-2" align="end">
-        <DropdownMenuItem asChild>
-          <button
-            className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start")}
-            onClick={handleEdit}
-          >
-            <Pencil size={16} />
-            <span>Редактировать</span>
-          </button>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <button
-            className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start")}
-            onClick={handleCopy}
-          >
-            <Copy size={16} />
-            <span>Копировать</span>
-          </button>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <button
-            className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start")}
-            onClick={handleDelete}
-          >
-            <Trash2 size={16} className='text-red-500' />
-            <span>Удалить</span>
-          </button>
-        </DropdownMenuItem>
+        {canEdit &&
+          <DropdownMenuItem>
+            <button
+              className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start")}
+              onClick={handleEdit}
+            >
+              <Pencil size={16} />
+              <span>Редактировать</span>
+            </button>
+          </DropdownMenuItem>
+        }
+        {canAdd &&
+          <DropdownMenuItem>
+            <button
+              className={cn("w-full flex items-center cursor-pointer text-sm gap-2  justify-start")}
+              onClick={handleCopy}
+            >
+              <Copy size={16} />
+              <span>Копировать</span>
+            </button>
+          </DropdownMenuItem>
+        }
+        {canDelete &&
+          <DropdownMenuItem>
+            <button
+              className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start")}
+              onClick={handleDelete}
+            >
+              <Trash2 size={16} className='text-red-500' />
+              <span>Удалить</span>
+            </button>
+          </DropdownMenuItem>
+        }
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})

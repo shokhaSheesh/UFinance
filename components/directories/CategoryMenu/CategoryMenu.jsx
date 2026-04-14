@@ -7,9 +7,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { appStore } from "../../../store/app.store"
 
-export function CategoryMenu({ category, onEdit, onDelete, onAddChild }) {
+export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }) => {
   const isStatic = category?.isStatic === true
+
+  const categoriesPermissions = appStore.permission.directories.transactionCategories
 
   const handleEdit = () => {
     // DropdownMenuItem handles click and close automatically if propagation is not stopped
@@ -33,6 +37,10 @@ export function CategoryMenu({ category, onEdit, onDelete, onAddChild }) {
     if (onAddChild) {
       onAddChild(category)
     }
+  }
+
+  if (!categoriesPermissions.add || !categoriesPermissions.delete || !categoriesPermissions.edit) {
+    return null
   }
 
   return (
@@ -87,4 +95,4 @@ export function CategoryMenu({ category, onEdit, onDelete, onAddChild }) {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})

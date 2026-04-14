@@ -61,7 +61,6 @@ const Branches = observer(() => {
         onClick={() => branchesList && setOpen(prev => !prev)}
         className="flex flex-col px-4 py-1 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
       >
-        <span className="text-start line-clamp-1 w-full text-white/60 text-xs">Филиал</span>
         <span className="flex items-center gap-1 text-start line-clamp-1 w-full font-medium">
           {selectedBranch?.name || 'Выберите филиал'}
           {branchesList && (
@@ -71,6 +70,7 @@ const Branches = observer(() => {
             />
           )}
         </span>
+        <span className="text-start line-clamp-1 w-full text-white/60 text-xs">&nbsp;</span>
       </button>
 
       {open && branchesList && (

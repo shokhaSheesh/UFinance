@@ -1,5 +1,18 @@
-import { makeAutoObservable } from 'mobx'
-import { makePersistable } from 'mobx-persist-store'
+import { makeAutoObservable } from 'mobx';
+import { makePersistable } from 'mobx-persist-store';
+import { appStore } from './app.store';
+
+
+export const allowedTip = {
+	allowIncome: appStore.permission.operations.income.read,
+	allowAccrual: appStore.permission.operations.accrual.read,
+	allowTransfer: appStore.permission.operations.transfer.read,
+	allowPayout: appStore.permission.operations.payout.read,
+	allowShipment: appStore.permission.operations.shipment.read,
+}
+
+const tips = [(allowedTip.allowAccrual ? 'Начисление' : ''), (allowedTip.allowAccrual ? 'Дебет' : ''), (allowedTip.allowAccrual ? 'Кредит' : ''), (allowedTip.allowShipment ? 'Отгрузка' : ''), (allowedTip.allowIncome ? 'Поступление' : ''), (allowedTip.allowPayout ? 'Выплата' : ''), (allowedTip.allowTransfer ? 'Списание' : ''), (allowedTip.allowTransfer ? 'Зачисление' : ''), (allowedTip.allowTransfer ? 'Перемещение' : '')].filter(Boolean)
+
 
 class OperationFilterStore {
 	limit = 10
@@ -9,20 +22,10 @@ class OperationFilterStore {
 	selectedDateStartRange = null
 	selectedCounterAgents = []
 	selectedLegalEntities = []
-	selectedFilters = [
-		'Поступление',
-		'Выплата',
-		'Списание',
-		'Зачисление',
-		'Перемещение',
-		'Дебет',
-		'Кредит',
-		'Начисление',
-		'Отгрузка',
-	] // types like 'Поступление', etc.
+	selectedFilters = tips
 	amountRange = { min: '', max: '' }
 	selectedChartOfAccounts = []
-	paymentType = null
+	paymentType = 'cash'
 	dateFilters = {
 		podtverzhdena: true,
 		nePodtverzhdena: true,
@@ -36,39 +39,6 @@ class OperationFilterStore {
 	accrualDateStart = ''
 	accrualDateEnd = ''
 	deals = []
-	//  my new filters fields
-	limit = 20
-	search = ''
-	tip = [
-		'Поступление',
-		'Выплата',
-		'Списание',
-		'Зачисление',
-		'Перемещение',
-		'Дебет',
-		'Кредит',
-		'Начисление',
-		'Отгрузка',
-	]
-	//  date payment filters
-	paymentConfirmed = true
-	paymentUnconfirmed = true
-	paymentStartDate = ''
-	paymentEndDate = ''
-
-	//  date accrual filters
-	accrualConfirmed = true
-	accrualUnconfirmed = true
-	accrualStartDate = ''
-	accrualEndDate = ''
-
-	legal_entites = []
-	counterparties = []
-	chart_of_accounts = []
-	deals = []
-	fromAmount = ''
-	toAmount = ''
-	paymentType = null
 
 	constructor() {
 		makeAutoObservable(this)
@@ -83,7 +53,7 @@ class OperationFilterStore {
 					'selectedDateStartRange',
 					'selectedCounterAgents',
 					'selectedLegalEntities',
-					'selectedFilters',
+					// 'selectedFilters',
 					'amountRange',
 					'selectedChartOfAccounts',
 					'paymentType',
@@ -135,6 +105,24 @@ class OperationFilterStore {
 	}
 
 	toggleFilter(key, forceValue) {
+		// Permission check - map filter keys to their required permissions
+		const permissionMap = {
+			'Поступление': 'allowIncome',
+			'Начисление': 'allowAccrual',
+			'Дебет': 'allowAccrual',
+			'Кредит': 'allowAccrual',
+			'Отгрузка': 'allowShipment',
+			'Выплата': 'allowPayout',
+			'Списание': 'allowTransfer',
+			'Зачисление': 'allowTransfer',
+			'Перемещение': 'allowTransfer',
+		}
+
+		const requiredPermission = permissionMap[key]
+		if (requiredPermission && !allowedTip[requiredPermission]) {
+			return
+		}
+
 		const arr = [...this.selectedFilters]
 		const shouldAdd = forceValue !== undefined ? forceValue : !arr.includes(key)
 

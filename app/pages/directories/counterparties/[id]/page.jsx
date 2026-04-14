@@ -23,6 +23,7 @@ import SelectMyAccounts from '../../../../../components/ReadyComponents/SelectMy
 import { GlobalCurrency } from '../../../../../constants/globalCurrency'
 import { useUcodeRequestQuery } from '../../../../../hooks/useDashboard'
 import operationsDto from '../../../../../lib/dtos/operationsDto'
+import { appStore } from '../../../../../store/app.store'
 import { formatDate } from '../../../../../utils/formatDate'
 import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
 
@@ -106,6 +107,11 @@ const KontragentDetailPage = observer(() => {
     }
   }, [counterpartyGuid, filters.operationDateStart, filters.operationDateEnd, filters.calculationMethod, selectedLegalEntities, selectedChartOfAccounts, filters.deals])
 
+  const directoryPermissions = appStore.permission.directories
+  const canEdit = directoryPermissions.counterparties.edit
+  const canDelete = directoryPermissions.counterparties.delete
+
+
   // Fetch counterparty data by GUID using get_counterparty_by_id
   const { data: counterpartyData, isPending: isLoadingCounterparty } = useUcodeRequestQuery({
     method: 'get_counterparty_by_id',
@@ -129,7 +135,6 @@ const KontragentDetailPage = observer(() => {
     return operationsDto(counterpartyOperations || [], 'all')
   }, [counterpartyOperations])
 
-  // implement find_operation. ["Поступление", "Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"]
 
   const operationsList = useMemo(() => {
     return {
@@ -527,10 +532,10 @@ const KontragentDetailPage = observer(() => {
         </div>
 
         {/* Header with kontragent info */}
-        <div className={styles.header}>
-          <div className={styles.headerTop}>
-            <h1 className={styles.title}>{counterpartyInfo?.name || 'Контрагент'}</h1>
-            <div className={styles.headerFilters}>
+        <div className="bg-slate-50 px-6 py-5 flex-shrink-0">
+          <div className="flex items-center gap-6 mb-5">
+            <h1 className="text-2xl font-bold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
+            <div className="flex items-center gap-3 flex-1">
               <div style={{ width: '250px' }}>
                 <NewDateRangeComponent
                   value={filters.dateRange}
@@ -560,30 +565,28 @@ const KontragentDetailPage = observer(() => {
               </div>
             </div>
             {/* dots button */}
-            <div className={styles.headerActions} ref={dropdownRef}>
-              <button
-                className={cn(styles.dotsButton, isDropdownOpen && styles.dotsButtonActive)}
+            <div className="relative" ref={dropdownRef}>
+              {canEdit && canDelete && <button
+                className={cn(
+                  'flex items-center justify-center w-[38px] h-[38px] rounded border border-gray-300 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400',
+                  isDropdownOpen && 'bg-slate-100 border-gray-400'
+                )}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <MoreHorizontal size={20} />
-              </button>
+              </button>}
 
               {isDropdownOpen && (
-                <div className={styles.dropdownMenu}>
-                  <button className={styles.dropdownItem} onClick={() => {
+                <div className="absolute top-full right-0 w-[220px] bg-white border border-gray-300 rounded shadow-md z-50 py-1 flex flex-col">
+                  {canEdit && <button className="flex items-center px-4 py-3 text-sm text-slate-900 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-slate-100" onClick={() => {
                     setIsDropdownOpen(false)
                     setIsEditCounterpartyModalOpen(true)
                   }}>
-                    <PenLine size={18} className={styles.dropdownIcon} />
+                    <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
                     Редактировать
-                  </button>
-                  {/* <button className={styles.dropdownItem} onClick={() => setIsDropdownOpen(false)}>
-                    <Archive size={18} className={styles.dropdownIcon} />
-                    Убрать в архив
-                  </button> */}
-                  <div className={styles.dropdownDivider} />
-                  <button className={cn(styles.dropdownItem, styles.dropdownItemDelete)} onClick={handleDeleteCounterparty}>
-                    <Trash2 size={18} className={styles.dropdownIcon} />
+                  </button>}
+                  <button className="flex items-center px-4 py-3 text-sm text-red-500 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-red-50" onClick={handleDeleteCounterparty}>
+                    <Trash2 size={18} className="mr-3 text-red-500" />
                     Удалить
                   </button>
                 </div>
@@ -592,38 +595,38 @@ const KontragentDetailPage = observer(() => {
           </div>
 
           {/* Stats Grid */}
-          <div className={styles.statsGrid}>
+          <div className="flex gap-4">
             {/* Left Card - Financial Stats */}
-            <div className={styles.financialCard}>
-              <div className={styles.financialCardContent}>
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: '#5dade2' }}></div>
-                    <span className={styles.financialItemLabel}>Поступления</span>
+            <div className="bg-white rounded border border-gray-300 p-4 min-w-[200px]">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: '#5dade2' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Поступления</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.income)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: '#f39c6b' }}></div>
-                    <span className={styles.financialItemLabel}>Выплаты</span>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: '#f39c6b' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Выплаты</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.expense)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: stats.difference >= 0 ? '#52c41a' : '#ff4d4f' }}></div>
-                    <span className={styles.financialItemLabel}>Разница</span>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: stats.difference >= 0 ? '#52c41a' : '#ff4d4f' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Разница</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo.difference)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
@@ -632,35 +635,35 @@ const KontragentDetailPage = observer(() => {
             </div>
 
             {/* Middle Column - Debit and Credit stacked */}
-            <div className={styles.debitCreditColumn}>
+            <div className="flex flex-col gap-4 min-w-[180px]">
               {/* Debit Card */}
-              <div className={styles.debitCreditCard}>
-                <div className={styles.debitCreditTitle}>Дебиторка</div>
-                <div className={styles.debitCreditValue}>
+              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
+                <div className="text-sm text-slate-700 mb-1.5">Дебиторка</div>
+                <div className="text-xs text-slate-400">
                   {counterpartyInfo?.debitorka ? formatNumber(formatTotalSumma(counterpartyInfo.debitorka)) : 'Нет задолженности'}
                 </div>
               </div>
 
               {/* Credit Card */}
-              <div className={styles.debitCreditCard}>
-                <div className={styles.debitCreditTitle}>Кредиторка</div>
-                <div className={styles.debitCreditValue}>
+              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
+                <div className="text-sm text-slate-700 mb-1.5">Кредиторка</div>
+                <div className="text-xs text-slate-400">
                   {counterpartyInfo?.kreditorka ? formatNumber(formatTotalSumma(counterpartyInfo.kreditorka)) : 'Нет задолженности'}
                 </div>
               </div>
             </div>
 
             {/* Right Card - Additional Info in two-column format */}
-            <div className={styles.infoCard}>
-              <div className={styles.headerTitle}>
-                <h1 className={styles.infoCardTitle}>{counterpartyInfo?.name || 'Контрагент'}</h1>
-                <PenLine size={12} className={styles.dropdownIcon} onClick={() => setIsEditCounterpartyModalOpen(true)} />
+            <div className="bg-white rounded border border-gray-300 p-5 flex-1 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <h1 className="text-base font-semibold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
+                <PenLine size={12} className="text-slate-700 cursor-pointer" onClick={() => setIsEditCounterpartyModalOpen(true)} />
               </div>
-              <div className={styles.infoCardDivider}></div>
+              <div className="h-px bg-gray-300 mb-4"></div>
               {hasInfo ? (
-                <div className={styles.infoCardEmpty}>
-                  <span className={styles.infoCardEmptyText}>Реквизиты контрагента отсутствуют</span>
-                  <button className={styles.infoCardEmptyButton} onClick={() => setIsEditCounterpartyModalOpen(true)}>
+                <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+                  <span className="text-xs text-slate-400 text-center">Реквизиты контрагента отсутствуют</span>
+                  <button className="flex items-center gap-2 px-5 py-2 text-xs text-slate-600 bg-white border border-gray-300 rounded cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-400" onClick={() => setIsEditCounterpartyModalOpen(true)}>
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="9" cy="9" r="8" stroke="#6b7280" strokeWidth="1.2" />
                       <path d="M9 5.5V12.5M5.5 9H12.5" stroke="#6b7280" strokeWidth="1.2" strokeLinecap="round" />
@@ -670,30 +673,30 @@ const KontragentDetailPage = observer(() => {
                 </div>
               ) : (
                 <>
-                  <div className={styles.infoCardDetails}>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>ИНН</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.inn || '–'}</span>
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">ИНН</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.inn || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Статья для поступлений</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.receiptArticle || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для поступлений</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.receiptArticle || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>КПП</span>
-                      <span className={styles.infoCardValue}>{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">КПП</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Статья для выплат</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.paymentArticle || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для выплат</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.paymentArticle || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>№ счета</span>
-                      <span className={styles.infoCardValue}>{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">№ счета</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Комментарий</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.comment || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Комментарий</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.comment || '–'}</span>
                     </div>
                   </div>
                 </>

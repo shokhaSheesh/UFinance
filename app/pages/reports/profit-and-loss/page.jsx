@@ -71,15 +71,26 @@ const ProfitAndLossPage = observer(() => {
     queryKey: ["profit_and_loss", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
     select: (res) => res?.data?.data,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
   const loading = isLoadingProfitAndLoss || isFetchingProfitAndLoss
 
 
   const legend = useMemo(() => profitAndLossDataList?.legend || [], [profitAndLossDataList])
-  const rows = useMemo(() => profitAndLossDataList?.rows || [], [profitAndLossDataList])
+  const rows = useMemo(() => {
+    return profitAndLossDataList?.rows?.map(item => ({
+      ...item,
+      details: item.details?.map(detail => ({
+        ...detail,
+        tip: item?.name === "income" || item?.id === "income" || item?.type === "income" ? ["Списание", "Зачисление", "Перемещение", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"] : item?.name === "expenses" || item?.id === "expenses" || item?.type === "expenses" ? ["Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"] : ["Выплата", "Поступление", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+      }))
+    })) || []
+  }, [profitAndLossDataList])
+
 
   // Auto-expand first level on initial load
   useEffect(() => {
@@ -199,16 +210,15 @@ const ProfitAndLossPage = observer(() => {
       return ids
     }
 
-    const chartOfAccountIds = collectIds(item)
 
     const filterData = {
-      tip: ["Списание", "Зачисление", "Перемещение", "Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"],
+      tip: item.tip,
       paymentAccural: true,
       paymentNotAccural: false,
       paymentDateStart: dateRange.start,
       paymentDateEnd: dateRange.end,
       limit: 10,
-      chartOfAccounts: [item.id, ...chartOfAccountIds]
+      chartOfAccounts: [item.id]
     }
 
     const periodLabel = formatPeriod(dateRange.start, dateRange.end)

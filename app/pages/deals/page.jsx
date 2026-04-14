@@ -20,6 +20,7 @@ import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
+import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatDateFormat } from '../../../utils/formatDate'
 import { formatAmount } from '../../../utils/helpers'
@@ -27,7 +28,6 @@ import styles from './deals.module.scss'
 
 export default observer(function DealsPage() {
   const router = useRouter()
-  // URL state — search (loca state for input, debounced write to URL)
   const [search, setSearch] = useState('')
 
 
@@ -41,6 +41,8 @@ export default observer(function DealsPage() {
 
   const queryClient = useQueryClient()
   const [selectedDeals, setSelectedDeals] = useState(new Set())
+
+  const dealPermission = appStore.permission.deals
 
   const {
     selectedCounterparties,
@@ -195,12 +197,14 @@ export default observer(function DealsPage() {
         <header className='flex items-center justify-between px-3 h-[60px] sticky top-0 bg-white z-20'>
           <div className='flex items-center gap-2 flex-1'>
             <h1 className={styles.title}>Сделки по продажам</h1>
-            <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
-              Создать
-            </button>
-            <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
-              Создать студента
-            </button>
+            {dealPermission.add && <>
+              <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
+                Создать
+              </button>
+              <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+                Создать студента
+              </button>
+            </>}
           </div>
           <div className='flex items-center gap-2'>
             <div className='w-44'>
@@ -306,15 +310,15 @@ export default observer(function DealsPage() {
                     </div>
                     <div className='hidden group-hover:flex justify-end'>
                       <div className='flex items-center'>
-                        <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Редактировать' onClick={(e) => handleEditClick(deal, e)}>
+                        {dealPermission.edit && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Редактировать' onClick={(e) => handleEditClick(deal, e)}>
                           <MdOutlineModeEdit size={14} color='#686868' />
-                        </button>
-                        <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скопировать' onClick={(e) => handleCopyClick(deal, e)}>
+                        </button>}
+                        {dealPermission.add && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скопировать' onClick={(e) => handleCopyClick(deal, e)}>
                           <IoCopyOutline size={14} color='#686868' />
-                        </button>
-                        <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Удалить' onClick={(e) => handleDeleteClick(deal, e)}>
+                        </button>}
+                        {dealPermission.delete && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Удалить' onClick={(e) => handleDeleteClick(deal, e)}>
                           <IoCloseOutline size={14} color='#686868' />
-                        </button>
+                        </button>}
                       </div>
                     </div>
                   </div>

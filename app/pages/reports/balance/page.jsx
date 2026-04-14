@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { observer } from 'mobx-react-lite'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
-import styles from './balance.module.scss'
-import { ExpendOpen, ExpendClose } from '@/constants/icons'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useQuery } from '@tanstack/react-query'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import React, { useEffect, useState } from 'react'
+import { balanceStore } from '../../../../components/reports/balance/balance.store'
+import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { appStore } from '../../../../store/app.store'
-import { balanceStore } from '../../../../components/reports/balance/balance.store'
+import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
+import styles from './balance.module.scss'
 
 export default observer(function BalancePage() {
   const [expandedRows, setExpandedRows] = useState(new Set())
@@ -33,10 +33,10 @@ export default observer(function BalancePage() {
     queryKey: ["balance_report", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "balance_report", data: filterData }),
     select: (res) => res?.data,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
     staleTime: 0,
-    gcTime: 0
+    cacheTime: 0
   })
 
   useEffect(() => {

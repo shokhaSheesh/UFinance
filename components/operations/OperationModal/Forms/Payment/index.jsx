@@ -698,7 +698,7 @@ const PaymentForm = observer(({
 
         <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
           <button type="button" onClick={() => onClose?.()} className="secondary-btn py-2!">Отмена</button>
-          <button type="submit" disabled={isPending || !canSubmit} className={cn("primary-btn py-2!", (!canSubmit || isPending) && 'opacity-60 cursor-not-allowed')}>{isPending ? <Loader2 className='animate-spin' /> : 'Сохранить'}</button>
+          <button type="submit" disabled={isPending || !canSubmit} className={cn("primary-btn py-2!", (!canSubmit || isPending) && 'opacity-60 cursor-not-allowed')}>{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}</button>
         </div>
       </form>
 

@@ -24,15 +24,18 @@ const OperationCashFlowModal = observer(({
     data: infiniteData,
     isLoading,
     isFetchingNextPage,
+    isFetching,
+    isPending,
     hasNextPage,
     fetchNextPage,
   } = useUcodeRequestInfinite({
     method: 'find_operations',
     data: filterData, 
     querySetting: {
+      enabled: isOpen,
       select: (response) => response,
       staleTime: 0,
-      refetchOnMount: true,
+      refetchOnMount: 'always',
       refetchOnWindowFocus: true,
     }
   })
@@ -114,7 +117,7 @@ const OperationCashFlowModal = observer(({
 
       {/* Table */}
       <div className="overflow-auto h-[400px]" ref={tableRef}>
-        {(isLoading || isFetchingNextPage) && (
+        {(isLoading || isFetching || isPending) && (
           <div className='w-full h-full flex items-center justify-center'>
             <Loader2 className='animate-spin text-primary' size={30} />
           </div>

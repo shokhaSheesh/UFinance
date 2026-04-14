@@ -250,7 +250,7 @@ const TableRow = observer(({
 
         {/* Menu (Actions) */}
         <div
-          className="w-8 flex items-center justify-center px-1"
+          className="w-5 flex items-center justify-center px-1"
           onClick={e => e.stopPropagation()}
         >
           <OperationMenu

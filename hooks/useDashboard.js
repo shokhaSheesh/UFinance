@@ -1326,7 +1326,7 @@ export const useUcodeRequestQuery = ({
 			)
 		},
     refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+		refetchOnWindowFocus: false,
 		staleTime: 0,
 		...querySetting,
 	})

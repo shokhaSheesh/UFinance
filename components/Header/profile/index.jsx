@@ -43,7 +43,7 @@ export const Profile = observer(() => {
             </span>
             <ChevronDown size={14} className={cn(styles.chevron, isOpen && styles.open)} />
           </div>
-          <span className={styles.accessText}>Доступ истекает 02.03.26</span>
+          <span className={styles.accessText}>&nbsp;</span>
         </div>
       </button>
 

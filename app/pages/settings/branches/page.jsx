@@ -80,30 +80,29 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
   })
 
   async function onFormSubmit(data) {
-    // if (!initial) {
-    await createBranchUser({
-      method: 'create_branch',
-      data: {
-        branch_name: data.name,
-        branch_user_id: selectedUser ? selectedUser.guid : null,
-        branch_user_email: data.email,
-        branch_user_name: data.username,
-        branch_user_phone: String(data.phone).replace(/\s/g, ''),
-      },
-    })
-    // } else {
-    // await createBranchUser({
-    //   method: 'update_branch_user',
-    //   data: {
-    //     company_id: authStore.userData?.company_id,
-    //     branch_user_id: selectedUser ? selectedUser.guid : null,
-    //     branch_user_name: data.username,
-    //     branch_user_phone: String(data.phone).replace(/\s/g, ''),
-    //     default_branch_id: initial.defaultBranchId,
-    //     allowed_branch_ids: initial.id,
-    //   },
-    // })
-    // }
+    if (!initial) {
+      await createBranchUser({
+        method: 'create_branch',
+        data: {
+          branch_name: data.name,
+          branch_user_id: selectedUser ? selectedUser.guid : null,
+          branch_user_email: data.email,
+          branch_user_name: data.username,
+          branch_user_phone: String(data.phone).replace(/\s/g, ''),
+        },
+      })
+    } else {
+      await createBranchUser({
+        method: 'update_branch',
+        data: {
+          branch_id: initial.branch_id,
+          branch_name: data.name,
+          branch_user_name: data.username,
+          branch_user_email: data.email,
+          branch_user_phone: String(data.phone).replace(/\s/g, ''),
+        },
+      })
+    }
     queryClient.invalidateQueries({ queryKey: ['get_my_branches'] })
     onSubmit(data)
     onClose()
@@ -391,10 +390,10 @@ export default function BranchesPage() {
 
   async function confirmDeleteBranch() {
     if (branchToDelete) {
-      const id = typeof branchToDelete === 'object'
-        ? branchToDelete.branch_user_id
+      const branchId = typeof branchToDelete === 'object'
+        ? branchToDelete.branch_id
         : branchToDelete
-      await mutateBranch({ method: 'delete_branch_user', data: { branch_user_id: id } })
+      await mutateBranch({ method: 'delete_branch', data: { branch_id: branchId } })
       setDeleteModalOpen(false)
       setBranchToDelete(null)
       refetchBranches()
@@ -420,7 +419,7 @@ export default function BranchesPage() {
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-gray-50 z-10">
               <tr>
-                {['Email', 'Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания', ''].map(h => (
+                {['Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
                     {h}
                   </th>
@@ -430,7 +429,7 @@ export default function BranchesPage() {
             <tbody>
               {[1, 2, 3].map(i => (
                 <tr key={i}>
-                  {[1, 2, 3, 4, 5, 6].map(j => (
+                  {[1, 2, 3, 4, 5].map(j => (
                     <td key={j} className="px-4 py-2 text-xs text-[#344054] border-b border-gray-200">
                       <span className="opacity-30">—</span>
                     </td>
@@ -444,12 +443,22 @@ export default function BranchesPage() {
         <div className="flex-1 overflow-auto bg-white">
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-gray-50 z-10">
-              <tr>
-                  {['Роль', 'ФИО / Должность', 'Последний вход', 'Дата создания'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                      {h}
-                    </th>
-                  ))}
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    Роль
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    ФИО / Должность
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    Последний вход
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    Дата создания
+                  </th>
+                  <th className="px-4 w-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
+                    &nbsp;
+                  </th>
               </tr>
             </thead>
             <tbody>
@@ -470,23 +479,21 @@ export default function BranchesPage() {
                     <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
                       {formatDateTime(branch?.created_at) ?? '—'}
                     </td>
-                    {/* <td className="px-4 py-1.5 text-xs border-b border-gray-200">
+                    <td className="px-4 py-1.5 text-xs border-b border-gray-200">
                     <RowDropdown
                       onEdit={() => {
                         setEditingBranch({
-                          id: branch?.allowed_branch_ids,
-                          branch_user_id: branch?.branch_user_id,
-                          branchName: branch?.branch_user?.branch_id_data?.name,
+                          branch_id: branch?.guid,
+                          name: branch?.name,
                           username: branch?.branch_user_name ?? branch?.name,
                           email: branch?.email,
-                          defaultBranchId: branch?.default_branch_id,
                           phone: branch?.branch_user_phone ?? branch?.phone,
                         })
                         setBranchModalOpen(true)
                       }}
                       onDelete={() => handleDeleteBranch(branch)}
                     />
-                  </td> */}
+                    </td>
                 </tr>
               ))}
             </tbody>

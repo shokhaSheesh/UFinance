@@ -2,7 +2,9 @@
 
 import { cn } from '@/app/lib/utils'
 import { DealIcon, UsersIcon } from '@/constants/icons'
-import { ClipboardList, Library, RefreshCw } from 'lucide-react'
+import { ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
+import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRef, useState } from 'react'
@@ -10,44 +12,9 @@ import { IoSettingsOutline } from 'react-icons/io5'
 import { AppLogo } from '../../constants/icons'
 import { appStore } from '../../store/app.store'
 
-const navItems = [
-    // { icon: ChartLine, label: 'Показатели', href: '/pages/indicators', hasPage: true },
-    { icon: RefreshCw, label: 'Операции', href: '/pages/operations', hasPage: true },
-    { icon: UsersIcon, label: 'Контрагенты', href: '/pages/directories/counterparties', hasPage: true },
-    { icon: DealIcon, label: 'Сделки', href: '/pages/deals', hasPage: true },
-    {
-        icon: ClipboardList,
-        label: 'Отчёты',
-        href: '/pages/reports',
-        hasPage: true,
-        submenu: [
-            { label: 'Движение денег (ДДС)', href: '/pages/reports/cashflow', hasPage: true },
-            { label: 'Прибыли и убытки (ОПУ)', href: '/pages/reports/profit-and-loss', hasPage: true },
-            { label: 'Баланс', href: '/pages/reports/balance', hasPage: true }
-        ]
-    },
-    {
-        icon: Library,
-        label: 'Справочники',
-        href: '/pages/directories',
-        hasPage: true,
-        submenu: [
-            { label: 'Контрагенты', href: '/pages/directories/counterparties', hasPage: true },
-            { label: 'Учетные статьи', href: '/pages/directories/transaction-categories', hasPage: true },
-            { label: 'Мои счета', href: '/pages/directories/accounts', hasPage: true },
-            { label: 'Мои юрлица', href: '/pages/directories/legal-entities', hasPage: true },
-            { label: 'Товары & Услуги', href: '/pages/directories/product-service', hasPage: true }
-        ]
-    },
-    {
-        icon: IoSettingsOutline,
-        label: 'Настройки',
-        href: '/pages/settings',
-        hasPage: true,
-    },
-]
 
-export function Sidebar() {
+
+export const Sidebar = observer(() => {
     const pathname = usePathname()
     const sidebarRef = useRef(null)
     const [modalOpen, setModalOpen] = useState(false)
@@ -67,6 +34,107 @@ export function Sidebar() {
         setApiUrl('')
     }
 
+    const permissions = toJS(appStore.permission)
+
+    const navItems = [
+        { icon: ChartLine, label: 'Показатели', href: '/pages/indicators', hasPage: true, canShow: permissions?.indicators?.read },
+        {
+            icon: RefreshCw,
+            label: 'Операции',
+            href: '/pages/operations',
+            hasPage: true,
+            canShow: permissions?.operations?.income?.read || permissions?.operations?.payout?.read || permissions?.operations?.transfer?.read || permissions?.operations?.accrual?.read || permissions?.operations?.shipment?.read
+        },
+        {
+            icon: UsersIcon,
+            label: 'Контрагенты',
+            href: '/pages/directories/counterparties',
+            hasPage: true,
+            canShow: permissions?.directories?.counterparties?.read
+        },
+        {
+            icon: DealIcon,
+            label: 'Сделки',
+            href: '/pages/deals',
+            hasPage: true,
+            canShow: permissions?.deals?.read
+        },
+        {
+            icon: ClipboardList,
+            label: 'Отчёты',
+            href: '/pages/reports',
+            hasPage: true,
+            canShow: (permissions?.reports?.cashflow?.read || permissions?.reports?.pnl?.read || permissions?.reports?.balance?.read),
+            submenu: [
+                {
+                    label: 'Движение денег (ДДС)',
+                    href: '/pages/reports/cashflow',
+                    hasPage: true,
+                    canShow: permissions?.reports?.cashflow?.read
+                },
+                {
+                    label: 'Прибыли и убытки (ОПУ)',
+                    href: '/pages/reports/profit-and-loss',
+                    hasPage: true,
+                    canShow: permissions?.reports?.pnl?.read
+                },
+                {
+                    label: 'Баланс',
+                    href: '/pages/reports/balance',
+                    hasPage: true,
+                    canShow: permissions?.reports?.balance?.read
+                }
+            ]
+        },
+        {
+            icon: Library,
+            label: 'Справочники',
+            href: '/pages/directories',
+            hasPage: true,
+            canShow: (permissions?.directories?.counterparties?.read || permissions?.directories?.transactionCategories?.read || permissions?.directories?.accounts?.read || permissions?.directories?.legalentities?.read || permissions?.directories?.productsServices?.read),
+            submenu: [
+                {
+                    label: 'Контрагенты',
+                    href: '/pages/directories/counterparties',
+                    hasPage: true,
+                    canShow: permissions?.directories?.counterparties?.read
+                },
+                {
+                    label: 'Учетные статьи',
+                    href: '/pages/directories/transaction-categories',
+                    hasPage: true,
+                    canShow: permissions?.directories?.transactionCategories?.read
+                },
+                {
+                    label: 'Мои счета',
+                    href: '/pages/directories/accounts',
+                    hasPage: true,
+                    canShow: permissions?.directories?.accounts?.read
+                },
+                {
+                    label: 'Мои юрлица',
+                    href: '/pages/directories/legal-entities',
+                    hasPage: true,
+                    canShow: permissions?.directories?.legalentities?.read
+                },
+                {
+                    label: 'Товары & Услуги',
+                    href: '/pages/directories/product-service',
+                    hasPage: true,
+                    canShow: permissions?.directories?.productsServices?.read
+                }
+            ]
+        },
+        {
+            icon: IoSettingsOutline,
+            label: 'Настройки',
+            href: '/pages/settings',
+            hasPage: true,
+            canShow: (permissions?.settings?.general?.read || permissions?.settings?.users?.read || permissions?.settings?.profile?.read || permissions?.settings?.exchangerates?.read),
+        },
+    ]
+
+
     return (
         <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full items-center justify-start fixed left-0 z-1000" ref={sidebarRef}>
             {/* <div className="flex items-center justify-center h-[60px] pl-1 pt-1"> */}
@@ -74,10 +142,9 @@ export function Sidebar() {
             {/* </div> */}
 
             <nav className="flex flex-col   w-full">
-                {navItems
-                    .filter(item => item.hasPage)
+                {navItems.filter(item => item.hasPage && item.canShow)
                     .map((item, index) => {
-                        const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href))
+                        const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
                         const hasSubmenu = item.submenu && item.submenu.length > 0
                         const isSubmenuActive = hasSubmenu && item.submenu.some(sub => pathname === sub.href)
 
@@ -103,8 +170,8 @@ export function Sidebar() {
                                     </div>
                                     <div className="bg-blue-950 -top-1/2 left-[80px]  absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
                                         <div className="flex flex-col gap-1">
-                                            {item.submenu
-                                                .filter(sub => sub.hasPage)
+                                            {(item.submenu || [])
+                                                .filter(sub => sub.hasPage && sub.canShow !== false)
                                                 .map((sub, subIndex) => {
                                                     const isSubActive = pathname === sub.href
                                                     return (
@@ -195,4 +262,4 @@ export function Sidebar() {
             )}
         </aside>
     )
-}
+})

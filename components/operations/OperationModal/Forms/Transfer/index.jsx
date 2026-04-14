@@ -395,7 +395,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 					Отмена
 				</button>
 				<button type='submit' className='primary-btn py-2!'>
-					{isPending ? <Loader2 className='animate-spin' /> : 'Сохранить'}
+					{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}
 				</button>
 			</div>
 		</form>

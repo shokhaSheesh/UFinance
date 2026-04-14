@@ -1,13 +1,13 @@
 'use client'
 
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import Input from '@/components/shared/Input'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import Input from '@/components/shared/Input'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 
 const PERMISSIONS_DATA = [
-  { id: 'indicators', label: 'Показатели', hasSubmenu: false, allowedActions: ['read', 'add', 'edit', 'delete'] },
+  { id: 'indicators', label: 'Показатели', hasSubmenu: false, allowedActions: ['read'] },
   {
     id: 'operations',
     label: 'Операции',
@@ -18,8 +18,7 @@ const PERMISSIONS_DATA = [
       { id: 'payout', label: 'Выплата' },
       { id: 'transfer', label: 'Перемещение' },
       { id: 'accrual', label: 'Начисление' },
-      { id: 'shipment', label: 'Отгрузка' },
-      { id: 'delivery', label: 'Поставка' },
+      { id: 'shipment', label: 'Отгрузка' }, 
     ],
   },
   { id: 'deals', label: 'Сделки', hasSubmenu: false, allowedActions: ['read', 'add', 'edit', 'delete'] },
@@ -44,8 +43,7 @@ const PERMISSIONS_DATA = [
       { id: 'categories', label: 'Учётные статьи' },
       { id: 'accounts', label: 'Мои счета' },
       { id: 'legalentities', label: 'Мои юрлица' },
-      { id: 'products', label: 'Товары' },
-      { id: 'services', label: 'Услуги' },
+      { id: 'productsServices', label: 'Товары и услуги' },
     ],
   },
   {
@@ -67,27 +65,60 @@ const CreateRole = () => {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
       roleName: '',
-      permissions: {}
+      permissions: {
+        indicators: { read: false },
+        operations: {
+          income: { read: false, add: false, edit: false, delete: false },
+          payout: { read: false, add: false, edit: false, delete: false },
+          transfer: { read: false, add: false, edit: false, delete: false },
+          accrual: { read: false, add: false, edit: false, delete: false },
+          shipment: { read: false, add: false, edit: false, delete: false },
+        },
+        deals: { read: false, add: false, edit: false, delete: false },
+        reports: {
+          cashflow: { read: false, add: false, edit: false, delete: false },
+          pnl: { read: false, add: false, edit: false, delete: false },
+          balance: { read: false, add: false, edit: false, delete: false },
+        },
+        directories: {
+          counterparties: { read: false, add: false, edit: false, delete: false },
+          transactionCategories: { read: false, add: false, edit: false, delete: false },
+          accounts: { read: false, add: false, edit: false, delete: false },
+          legalentities: { read: false, add: false, edit: false, delete: false },
+          productsServices: { read: false, add: false, edit: false, delete: false },
+        },
+        settings: {
+          general: { read: false, add: false, edit: false, delete: false },
+          users: { read: false, add: false, edit: false, delete: false },
+          profile: { read: false, add: false, edit: false, delete: false },
+          exchangerates: { read: false, add: false, edit: false, delete: false },
+        },
+      }
     }
   })
 
   // Watch permissions to update checkbox UI
   const permissions = watch('permissions') || {}
 
-  const handleCheckboxChange = (id, action) => {
-    const key = `permissions.${id}_${action}`
-    setValue(key, !permissions[`${id}_${action}`])
+  const handleCheckboxChange = (id, action, parentId = null) => {
+    if (parentId) {
+      const currentValue = permissions[parentId]?.[id]?.[action] || false
+      setValue(`permissions.${parentId}.${id}.${action}`, !currentValue)
+    } else {
+      const currentValue = permissions[id]?.[action] || false
+      setValue(`permissions.${id}.${action}`, !currentValue)
+    }
   }
 
   const handleParentCheckboxChange = (parent, action) => {
-    const key = `permissions.${parent.id}_${action}`
-    const newValue = !permissions[`${parent.id}_${action}`]
+    const currentValue = permissions[parent.id]?.[action] || false
+    const newValue = !currentValue
 
-    setValue(key, newValue)
+    setValue(`permissions.${parent.id}.${action}`, newValue)
 
     if (parent.children) {
       parent.children.forEach((child) => {
-        setValue(`permissions.${child.id}_${action}`, newValue)
+        setValue(`permissions.${parent.id}.${child.id}.${action}`, newValue)
       })
     }
   }
@@ -105,10 +136,21 @@ const CreateRole = () => {
     }
 
     const isActionDisabled = (action) => {
+      // Operations children edit column is always disabled
+      if (isChild && parent?.id === 'operations' && action === 'edit') {
+        return true
+      }
       if (!isChild) return false
       if (!parent) return false
       // Child is disabled if parent column is not checked
-      return !permissions[`${parent.id}_${action}`]
+      return !permissions[parent.id]?.[action]
+    }
+
+    const getCheckedValue = (action) => {
+      if (isChild && parent) {
+        return !!permissions[parent.id]?.[id]?.[action]
+      }
+      return !!permissions[id]?.[action]
     }
 
     return (
@@ -125,12 +167,14 @@ const CreateRole = () => {
               <div className="flex justify-center items-center">
                 <OperationCheckbox
                   disabled={isActionDisabled(action)}
-                  checked={!!permissions[`${id}_${action}`]}
+                  checked={getCheckedValue(action)}
                   onChange={() => {
                     if (isActionDisabled(action)) return
 
                     if (item.children) {
                       handleParentCheckboxChange(item, action)
+                    } else if (isChild && parent) {
+                      handleCheckboxChange(id, action, parent.id)
                     } else {
                       handleCheckboxChange(id, action)
                     }
