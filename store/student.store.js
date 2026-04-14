@@ -1,10 +1,12 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
+import { GlobalCurrency } from '../constants/globalCurrency'
 
 class Student {
   accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method'
   selectedLegelEntities = []
+  currenyCode = GlobalCurrency.code
   dateRange = { start: null, end: null }
 
   constructor() {
@@ -17,6 +19,7 @@ class Student {
           "accounting",
           "dealsMethod",
           "selectedLegelEntities",
+          "currenyCode",
           "dateRange",
         ],
         storage: window.localStorage,
@@ -33,6 +36,7 @@ class Student {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
     this.selectedLegelEntities = []
+    this.currenyCode = GlobalCurrency.code
     this.dateRange = { start: null, end: null }
   }
 }

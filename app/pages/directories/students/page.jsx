@@ -3,7 +3,19 @@ import { useState } from "react"
 import { FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import NewDateRangeComponent from '../../../../components/directories/NewDateRangeComponent'
 import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
+import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
+import { appStore } from "../../../../store/app.store"
+import { student } from "../../../../store/student.store"
+
+// Sample months data - can be dynamic
+const monthsData = [
+  { key: 'sept', label: 'Sept 2026' },
+  { key: 'oct', label: 'Oct 2026' },
+  { key: 'nov', label: 'Nov 2026' },
+  // Add more months to test overflow behavior
+  // { key: 'dec', label: 'Dec 2026' },
+  // { key: 'jan', label: 'Jan 2027' },
+]
 
 const studentsData = [
   { id: 1, name: "Firdavs Ibrokhimov", sept: { plan: 145, fact: 145, planFact: 145 }, oct: { plan: 145, fact: 145, planFact: 145 }, nov: { plan: 145, fact: 145, planFact: 145 }, totalPlan: 145, totalFact: 145 },
@@ -26,6 +38,10 @@ const studentsData = [
 const Students = () => {
   const [open, setOpen] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
+
+  // Determine if we need overflow based on month count
+  const needsOverflow = monthsData.length > 3
+  const tableMinWidth = needsOverflow ? `${320 + monthsData.length * 180 + 200}px` : '100%'
 
   const handleScroll = (direction) => {
     const container = document.getElementById('table-scroll-container')
@@ -52,108 +68,104 @@ const Students = () => {
         <NewDateRangeComponent />
         <SelectLegelEntitties />
       </FilterSidebar>
-      <div className="flex-1 overflow-auto bg-gray-50 p-4">
+      <div className="flex-1 overflow-auto relative bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-gray-900">Отчет о движении денежных средств</h1>
-          <div className="flex items-center gap-2">
-            <SingleSelect />
-
+        <div className="flex items-center top-0 sticky z-100  p-4 bg-white justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-gray-900">Отчет о движении денежных средств</h1>
+            <SingleSelect
+              data={appStore.myCurrencies}
+              value={student.currenyCode}
+              onChange={(value) => {
+                student.setState('currenyCode', value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              className={'bg-white w-28'}
+              dropdownClassName={'w-28'}
+            />
           </div>
+          {/* <div className="flex items-center gap-2">
+            <SingleSelect />
+          </div> */}
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        {/* Table Container - Div based layout */}
+        <div className="bg-white px-4 overflow-hidden">
           <div
             id="table-scroll-container"
             onScroll={onScroll}
-            className="overflow-x-auto"
+            className={needsOverflow ? 'overflow-x-auto' : 'overflow-x-visible'}
             style={{ maxWidth: '100%' }}
           >
-            <table className="w-full border-collapse min-w-[1000px]">
-              <thead>
-                <tr className="bg-gray-50">
-                  {/* Sticky Name Column */}
-                  <th
-                    className="sticky left-0 z-20 bg-gray-50 border border-gray-200 px-4 py-3 text-left font-medium text-gray-700 min-w-[200px]"
+            <div style={{ minWidth: tableMinWidth }}>
+              {/* Header Row - Sticky at top */}
+              <div className="sticky top-0 z-20 flex bg-gray-50">
+                {/* Sticky FIO Header */}
+                <div
+                  className="sticky left-0 z-30 bg-gray-50 border border-gray-200 px-4 py-3 text-left font-medium text-gray-700 min-w-[200px] flex items-center whitespace-nowrap"
+                  style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}
+                >
+                  FIO
+                </div>
+
+                {/* Month Headers */}
+                <div className="flex">
+                  {monthsData.map((month) => (
+                    <div key={month.key} className="flex flex-col border-t border-b border-gray-200 flex-1 min-w-96 max-w-96  ">
+                      <div className="border-r border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
+                        {month.label}
+                      </div>
+                      <div className="flex">
+                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan</div>
+                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Fact</div>
+                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan-Fact</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total Headers */}
+                <div className="flex ">
+                  <div className="border min-w-96 max-w-96 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px] flex items-center justify-center whitespace-nowrap">
+                    Total Plan
+                  </div>
+                  <div className="border min-w-96 max-w-96 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px] flex items-center justify-center whitespace-nowrap">
+                    Total Fact
+                  </div>
+                </div>
+              </div>
+
+              {/* Body Rows */}
+              {studentsData.map((studentItem) => (
+                <div key={studentItem.id} className="flex hover:bg-gray-50">
+                  {/* Sticky FIO Cell */}
+                  <div
+                    className="sticky left-0 z-10 bg-white border border-gray-200 px-4 py-3 text-sm text-gray-900 min-w-[200px] flex items-center whitespace-nowrap"
                     style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}
                   >
-                    FIO
-                  </th>
+                    {studentItem.name}
+                  </div>
 
-                  {/* Sept 2026 */}
-                  <th colSpan={3} className="border border-gray-200 px-4 py-2 text-center font-medium text-gray-700">
-                    <div>Sept 2026</div>
-                  </th>
+                  {/* Data Cells */}
+                  <div className="flex ">
+                    {monthsData.map((month) => (
+                      <div key={month.key} className="flex flex-1  min-w-96 max-w-96 ">
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.plan || '-'}</div>
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.fact || '-'}</div>
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.planFact || '-'}</div>
+                      </div>
+                    ))}
+                  </div>
 
-                  {/* Oct 2026 */}
-                  <th colSpan={3} className="border border-gray-200 px-4 py-2 text-center font-medium text-gray-700">
-                    <div>Oct 2026</div>
-                  </th>
-
-                  {/* Nov 2026 */}
-                  <th colSpan={3} className="border border-gray-200 px-4 py-2 text-center font-medium text-gray-700">
-                    <div>Nov 2026</div>
-                  </th>
-
-                  {/* Totals */}
-                  <th rowSpan={2} className="border border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px]">
-                    Total<br />Plan
-                  </th>
-                  <th rowSpan={2} className="border border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px]">
-                    Total<br />Fact
-                  </th>
-                </tr>
-                <tr className="bg-gray-50">
-                  {/* Sub-headers for Sept */}
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Fact</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan-Fact</th>
-
-                  {/* Sub-headers for Oct */}
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Fact</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan-Fact</th>
-
-                  {/* Sub-headers for Nov */}
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Fact</th>
-                  <th className="border border-gray-200 px-2 py-2 text-xs font-medium text-gray-600">Plan-Fact</th>
-                </tr>
-              </thead>
-              <tbody>
-                {studentsData.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    {/* Sticky Name Column */}
-                    <td
-                      className="sticky left-0 z-10 bg-white border border-gray-200 px-4 py-3 text-sm text-gray-900 min-w-[200px]"
-                      style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}
-                    >
-                      {student.name}
-                    </td>
-
-                    {/* Sept Data */}
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.sept.plan}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.sept.fact}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.sept.planFact}</td>
-
-                    {/* Oct Data */}
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.oct.plan}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.oct.fact}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.oct.planFact}</td>
-
-                    {/* Nov Data */}
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.nov.plan}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.nov.fact}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center text-gray-700">{student.nov.planFact}</td>
-
-                    {/* Totals */}
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900">{student.totalPlan}</td>
-                    <td className="border border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900">{student.totalFact}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  {/* Total Cells */}
+                  <div className="flex min-w-44 max-w-44">
+                    <div className="border-b border-r border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900 min-w-[100px] flex items-center justify-center">{studentItem.totalPlan}</div>
+                    <div className="border-b border-r border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900 min-w-[100px] flex items-center justify-center">{studentItem.totalFact}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
