@@ -23,6 +23,11 @@ const accountingMethodOptions = [
 
 const Students = observer(() => {
   const [open, setOpen] = useState(true)
+  const [totalTotal, setTotalTotal] = useState({
+    totalPlan: 0,
+    totalFact: 0,
+    totalPlanFact: 0
+  })
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
@@ -32,7 +37,10 @@ const Students = observer(() => {
     method: accounting,
     currency_code: "UZS",
     company_id: authStore.userData?.company_id,
-    limit: LIMIT
+    limit: LIMIT,
+    // there are not filter by month on backend 
+    // start_month: rangeMonth?.[0] ? `${rangeMonth[0].year}-${String(rangeMonth[0].month).padStart(2, '0')}` : null,
+    // end_month: rangeMonth?.[1] ? `${rangeMonth[1].year}-${String(rangeMonth[1].month).padStart(2, '0')}` : null,
   }
 
   const {
@@ -40,7 +48,10 @@ const Students = observer(() => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading: isLoadingStudents
+    isPending,
+    isFetching: isFetchingStudents,
+    isLoading: isLoadingStudents,
+    refetch
   } = useUcodeRequestInfinite({
     method: 'get_counterparties_data',
     data: filterData
@@ -63,7 +74,7 @@ const Students = observer(() => {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const studentList = useMemo(() => {
-    return infiniteData?.pages?.flatMap(page => page?.data?.data?.counterparties || []) || []
+    return infiniteData?.pages?.flatMap(page => page?.data?.data?.counterparties?.items || []) || []
   }, [infiniteData])
 
 
@@ -75,10 +86,15 @@ const Students = observer(() => {
     // Get unique months from first student's data
     const firstStudent = dataSource[0]
     const months = firstStudent.months || []
+    console.log('firstStudent', firstStudent)
+
 
     return months.map(m => ({
       key: m.month,
-      label: formatStudentTableDate(m.month) // You can format this if needed, e.g., '04.2026' -> 'April 2026'
+      label: formatStudentTableDate(m.month), // You can format this if needed, e.g., '04.2026' -> 'April 2026'
+      total_plan: firstStudent.total_plan,
+      total_fact: firstStudent.total_fact,
+      total_plan_fact: firstStudent.total_plan_fact
     }))
   }, [studentList])
 
@@ -99,6 +115,11 @@ const Students = observer(() => {
           { key: `${month.key}-plan`, type: 'data', label: 'Plan' },
           { key: `${month.key}-fact`, type: 'data', label: 'Fact' },
           { key: `${month.key}-planFact`, type: 'data', label: 'Plan-Fact' }
+        ],
+        totalPrices: [
+          { total: month.total_plan },
+          { total: month.total_fact },
+          { total: month.total_plan_fact }
         ]
       })
     })
@@ -106,7 +127,8 @@ const Students = observer(() => {
     // Add total columns
     cols.push(
       { key: 'totalPlan', type: 'total', label: 'Total Plan', width: 'min-w-44 max-w-44' },
-      { key: 'totalFact', type: 'total', label: 'Total Fact', width: 'min-w-44 max-w-44' }
+      { key: 'totalFact', type: 'total', label: 'Total Fact', width: 'min-w-44 max-w-44' },
+      { key: 'totalPlanFact', type: 'total', label: 'Total Plan-Fact', width: 'min-w-44 max-w-44' }
     )
 
     return cols
@@ -114,7 +136,7 @@ const Students = observer(() => {
 
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
-      {isLoadingStudents || isFetchingNextPage && <ScreenLoader />}
+      {(isLoadingStudents || isFetchingNextPage || isFetchingStudents || isPending) && <ScreenLoader />}
       <FilterSidebar
         isOpen={open}
         onClose={() => setOpen(prev => !prev)}
@@ -158,6 +180,7 @@ const Students = observer(() => {
                 value={student.accounting}
                 onChange={(value) => {
                   student.setState('accounting', value)
+                  refetch()
                 }}
                 isClearable={false}
                 withSearch={false}
@@ -196,12 +219,21 @@ const Students = observer(() => {
                           </div>
                         ))}
                       </div>
+                      <div className="flex text-sm">
+                        {col.totalPrices.map((child) => (
+                          <div key={child.key} className="border-t border-r border-gray-200 px-2 py-2 font-medium text-gray-600 flex-1 text-center whitespace-nowrap">
+                            {formatNumber(child.total)}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )
                 }
 
+
+
                 return (
-                  <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : ''} ${col.width} bg-neutral-100 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 flex items-center justify-center whitespace-nowrap text-sm`}>
+                  <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : col.key === 'totalFact' ? 'border-r' : ''} ${col.width} bg-neutral-100 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 flex items-center justify-center whitespace-nowrap text-sm`}>
                     {col.label}
                   </div>
                 )
@@ -212,6 +244,7 @@ const Students = observer(() => {
             <StudentsBody
               studentList={studentList}
               columns={columns}
+              setTotalTotal={setTotalTotal}
               isFetchingNextPage={isFetchingNextPage}
             />
           </div>
@@ -222,7 +255,7 @@ const Students = observer(() => {
 })
 
 // Body rows component - no separate scroll container, sticky works with parent
-const StudentsBody = ({ studentList, columns, isFetchingNextPage }) => {
+const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage }) => {
   return (
     <div>
       {studentList.map((studentItem) => (
@@ -261,11 +294,15 @@ const StudentsBody = ({ studentList, columns, isFetchingNextPage }) => {
             }
 
             // Total columns
-            const value = col.key === 'totalPlan' ? studentItem.total_plan : studentItem.total_fact
+            const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact
+            setTotalTotal(prev => ({
+              ...prev,
+              [col.key]: prev[col.key] + value
+            }))
             return (
               <div
                 key={col.key}
-                className={`border-b ${col.key === 'totalPlan' ? 'border-r' : ''} ${col.width} border-gray-200 px-2 py-3 text-center font-medium text-gray-900 flex items-center justify-center text-sm line-clamp-1`}
+                className={`border-b ${col.key === 'totalPlan' || col.key === 'totalFact' ? 'border-r' : ''} ${col.width} border-gray-200 px-2 py-3 text-center font-medium text-gray-900 flex items-center justify-center text-sm line-clamp-1`}
               >
                 {formatNumber(value)}
               </div>
