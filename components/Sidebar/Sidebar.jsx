@@ -99,11 +99,11 @@ export const Sidebar = observer(() => {
                     hasPage: true,
                     canShow: permissions?.directories?.counterparties?.read
                 },
-                {
-                    label: 'Студенты',
-                    href: '/pages/directories/students',
-                    hasPage: true,
-                },
+                // {
+                //     label: 'Студенты',
+                //     href: '/pages/directories/students',
+                //     hasPage: true,
+                // },
                 {
                     label: 'Учетные статьи',
                     href: '/pages/directories/transaction-categories',
