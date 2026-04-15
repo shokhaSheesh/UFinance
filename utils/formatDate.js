@@ -88,7 +88,29 @@ export const isBefore = (dateString) => {
 }
 
 export function isPastDate(date) {
-  return new Date(date).getTime() < Date.now()
+  if (!date) return false
+
+  // Parse YYYY-MM-DD format
+  const parsed = new Date(date)
+  if (isNaN(parsed.getTime())) return false
+
+  // Get year, month, day from input date (using local time to match input intent)
+  const inputYear = parsed.getFullYear()
+  const inputMonth = parsed.getMonth()
+  const inputDay = parsed.getDate()
+
+  // Get today's year, month, day
+  const today = new Date()
+  const todayYear = today.getFullYear()
+  const todayMonth = today.getMonth()
+  const todayDay = today.getDate()
+
+  // Compare year first, then month, then day
+  if (inputYear < todayYear) return true
+  if (inputYear > todayYear) return false
+  if (inputMonth < todayMonth) return true
+  if (inputMonth > todayMonth) return false
+  return inputDay < todayDay
 }
 
 

@@ -179,12 +179,12 @@ const TableRow = observer(({
         </div>
 
         {/* Counterparty */}
-        <div className={cn('min-w-24 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-20 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
         </div>
 
         {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-24', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -237,6 +237,7 @@ const TableRow = observer(({
             toAmount={op.to_amount}
             tab={op.tip}
             type={op?.tip}
+            op={op}
             debit={op?.debit}
             kredit={op?.kredit}
             percent={op?.percent}

@@ -27,10 +27,11 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { CreditIcon, DebitIcon } from '../../../../../constants/icons'
+import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 
 // ── Reducer Logic ──────────────────────────────────────────
@@ -421,7 +422,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
               <label className="w-[150px] text-xss!">Дата оплаты</label>
-              <div className="flex-1 flex gap-2 max-w-[600px]">
+              <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                 <Controller
                   name="paymentDate"
                   control={control}
@@ -441,6 +442,7 @@ const PaymentForm = observer(({
                     />
                   )}
                 />
+                <span className="flex items-center w-5">{isPastDate(watchPaymentDate) && !watchConfirmPayment && <WarnIcon />}</span>
                 <Controller
                   name="confirmPayment"
                   control={control}
@@ -542,7 +544,7 @@ const PaymentForm = observer(({
             {!showDate && (
               <div className={cn("flex items-center gap-4", watchSalesDeal && "opacity-50")}>
                 <label className="w-[150px] text-xss!">Дата начисления</label>
-                <div className="flex-1 flex gap-2 max-w-[600px]">
+                <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
                     name="accrualDate"
                     control={control}
@@ -561,6 +563,7 @@ const PaymentForm = observer(({
                       />
                     )}
                   />
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}

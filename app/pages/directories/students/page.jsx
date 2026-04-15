@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import SelectCounterParties from "../../../../components/ReadyComponents/SelectCounterParties"
-import CustomDatePicker from "../../../../components/shared/DatePicker"
+import CustomRangeMonthPicker from "../../../../components/shared/CustomRangeMonthPicker"
 import ScreenLoader from "../../../../components/shared/ScreenLoader"
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
 import { useUcodeRequestInfinite } from "../../../../hooks/useDashboard"
@@ -14,7 +14,7 @@ import { formatStudentTableDate } from "../../../../utils/formatDate"
 import { formatNumber } from "../../../../utils/helpers"
 
 
-const LIMIT = 10
+const LIMIT = 200
 
 const accountingMethodOptions = [
   { value: 'accrual', label: 'Метод начисления' },
@@ -22,7 +22,7 @@ const accountingMethodOptions = [
 ]
 
 const Students = observer(() => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
@@ -121,11 +121,27 @@ const Students = observer(() => {
       >
         <FilterSection title="Дата">
           <div className="w-full">
-            <CustomDatePicker type={'month'} format="MMMM 'YYYY" className={' w-full! bg-gray-ucode-25!'} />
+            <CustomRangeMonthPicker
+              value={{
+                start: student.rangeMonth?.[0] ? new Date(student.rangeMonth[0].year, student.rangeMonth[0].month - 1, 1) : null,
+                end: student.rangeMonth?.[1] ? new Date(student.rangeMonth[1].year, student.rangeMonth[1].month - 1, 1) : null
+              }}
+              onChange={({ start, end }) => {
+                const rangeMonth = [
+                  start ? { year: start.getFullYear(), month: start.getMonth() + 1 } : { year: new Date().getFullYear(), month: 1 },
+                  end ? { year: end.getFullYear(), month: end.getMonth() + 1 } : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 }
+                ]
+                student.setState('rangeMonth', rangeMonth)
+              }}
+              clearable={false}
+            />
           </div>
         </FilterSection>
         <FilterSection title="Контрагент">
-          <SelectCounterParties />
+          <SelectCounterParties
+            value={student.selectedCounterParties}
+            onChange={(value) => student.setState('selectedCounterParties', value)}
+          />
         </FilterSection>
       </FilterSidebar>
       <div className="flex-1 flex flex-col overflow-hidden relative bg-white px-4">
@@ -152,7 +168,7 @@ const Students = observer(() => {
         </div>
 
         {/* Table Container - Div based layout */}
-        <div ref={scrollContainerRef} className="overflow-auto mb-5 max-h-[calc(100vh-180px)]">
+        <div ref={scrollContainerRef} className="overflow-auto mb-5 ">
           <div className="bg-white min-w-max">
             <div className="sticky top-0 z-20 flex ">
               {columns.map((col) => {
@@ -169,7 +185,7 @@ const Students = observer(() => {
 
                 if (col.type === 'month-group') {
                   return (
-                    <div key={col.key} className={`flex flex-col border-b border-gray-200 flex-1 ${col.width} max-w-[500px]`}>
+                    <div key={col.key} className={`flex flex-col border-b border-gray-200 flex-1 ${col.width} max-w-[500px] bg-neutral-100`}>
                       <div className="border-r text-base border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
                         {col.label}
                       </div>

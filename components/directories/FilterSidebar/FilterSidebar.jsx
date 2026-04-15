@@ -40,7 +40,7 @@ export function FilterSidebar({ isOpen, onClose, children, clearCount, onClear }
             <ChevronsLeft size={24} className='text-primary' />
           </button>
         </div>
-        <div className="flex-1 px-3 pb-3 overflow-auto">
+        <div className="flex-1 px-3 pb-3 overflow-y-auto overflow-x-visible!">
           {children}
         </div>
 

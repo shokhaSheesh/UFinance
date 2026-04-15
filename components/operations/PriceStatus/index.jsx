@@ -1,11 +1,12 @@
 import { cn } from '@/app/lib/utils'
 import { observer } from 'mobx-react-lite'
-import { CreditIcon, DebitIcon } from '../../../constants/icons'
+import { CreditIcon, DebitIcon, WarnIcon } from '../../../constants/icons'
 import { operationFilterStore } from '../../../store/operationFilter.store'
+import { isPastDate } from '../../../utils/formatDate'
 import { formatAmount } from '../../../utils/helpers'
 import styles from './style.module.scss'
 
-const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, percent, toCurrency, toAmount, debit, kredit }) => {
+const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, op, percent, toCurrency, toAmount, debit, kredit }) => {
   const isSpinasiya = !operationFilterStore.selectedFilters?.includes('Списание')
   const isZachisleniya = !operationFilterStore.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
@@ -33,6 +34,13 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
       {!confirmed && accrual && (tab === 'Выплата') && (
         <CreditIcon />
       )}
+
+      {isPastDate(op?.operationDate) && ((tab === 'Начисление' && !accrual) || ((tab === 'Выплата' || tab === 'Поступление' || tab ===
+        'Перемещение'
+      ) && !confirmed) || (tab === 'Отгрузка' && !op?.payment_shipment)) && (
+          <WarnIcon />
+        )}
+
       <div className={styles.amountText}>
         {tab == "Перемещение" && <>
           <div className={`${styles.doubleAccount} flex flex-col `}>

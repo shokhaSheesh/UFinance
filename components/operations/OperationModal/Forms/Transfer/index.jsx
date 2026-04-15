@@ -20,9 +20,11 @@ import TextArea from '../../../../shared/TextArea'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import { WarnIcon } from '../../../../../constants/icons'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
 import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
 
 const TransferForm = observer(({ initialData, onClose }) => {
@@ -83,6 +85,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 	const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 
 	const watchFromAccount = watch('fromAccount')
+	const watchConfirmPayment = watch('confirmPayment')
 	const watchToAccount = watch('toAccount')
 	const watchFromDate = watch('fromDate')
 	const watchCurrency1 = watch('currency_1')
@@ -172,7 +175,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 
 					<div className='flex items-center gap-4'>
 						<label className='w-[150px] text-xss!'>Дата оплаты</label>
-						<div className='flex-1 flex gap-2 max-w-[600px]'>
+						<div className='flex-1 flex gap-2 items-center max-w-[600px]'>
 							<Controller
 								name='fromDate'
 								control={control}
@@ -189,6 +192,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 									/>
 								)}
 							/>
+							<span className="flex items-center w-5">{isPastDate(watchFromDate) && !watchConfirmPayment && <WarnIcon />}</span>
 							<Controller
 								name='confirmPayment'
 								control={control}

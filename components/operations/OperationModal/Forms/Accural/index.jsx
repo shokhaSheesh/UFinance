@@ -10,10 +10,11 @@ import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import { WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
-import { isFuture } from '../../../../../utils/formatDate'
+import { isFuture, isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
 import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
@@ -97,6 +98,8 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
 
 
   const legalEntityGuid = watch('legalEntity')
+  const watchAccuralDate = watch('accuralDate')
+  const watchConfirmAccrual = watch('confirmAccrual')
   const currency = watch('currency')
   const currencyTitle = legalEntityGuid ? title : ``
 
@@ -194,6 +197,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
                 )}
               />
               {/* Подтвердить начисление */}
+              <span className="flex items-center w-5">{isPastDate(watchAccuralDate) && !watchConfirmAccrual && <WarnIcon />}</span>
               <Controller
                 name="confirmAccrual"
                 control={control}

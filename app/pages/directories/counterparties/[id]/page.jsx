@@ -791,10 +791,10 @@ const KontragentDetailPage = observer(() => {
                     <div className='min-w-14   flex p-3 items-center justify-center '>
                       Тип
                     </div>
-                    <div className='min-w-24 flex-1  flex p-3 items-center justify-start '>
+                    <div className='min-w-20 flex-1  flex p-3 items-center justify-start '>
                       Контрагент
                     </div>
-                    <div className='min-w-24 flex-1   text-start  p-3 items-center justify-start '>
+                    <div className='min-w-20 flex-1   text-start  p-3 items-center justify-start '>
                       Статья
                     </div>
                     <div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
