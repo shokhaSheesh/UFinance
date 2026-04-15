@@ -148,7 +148,7 @@ const TableRow = observer(({
         </div>
 
         {/* Account/Shot */}
-        <div className={cn('min-w-24 max-w-52 flex-1 flex px-2 py-1 items-center justify-start', isActive && styles.activeRow)}>
+        <div className={cn('min-w-18 line-clamp-1 max-w-52 flex-1 flex px-2 py-1 items-center justify-start', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start leading-tight truncate', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -179,12 +179,12 @@ const TableRow = observer(({
         </div>
 
         {/* Counterparty */}
-        <div className={cn('min-w-32 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-24 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
         </div>
 
         {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-32', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-24', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -231,7 +231,7 @@ const TableRow = observer(({
         </div>
 
         {/* Price/Amount */}
-        <div className="w-40 flex px-2 py-1 items-center justify-end " onClick={e => e.stopPropagation()}>
+        <div className="min-w-36 flex px-2 py-1 items-center justify-end " onClick={e => e.stopPropagation()}>
           <PriceStatus
             amount={op.summa}
             toAmount={op.to_amount}
