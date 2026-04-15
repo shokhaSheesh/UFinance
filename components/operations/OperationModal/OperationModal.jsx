@@ -1,14 +1,16 @@
 'use client'
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
+
 import { cn } from '@/app/lib/utils'
-// import styles from './OperationModal.module.scss'
+import { Clock, X } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import useMounted from '../../../hooks/useMounted'
+import { appStore } from '../../../store/app.store'
+import { formatDateRu } from '../../../utils/helpers'
 import AccuralForm from './Forms/Accural'
 import IncomeForm from './Forms/Income'
-import TransferForm from './Forms/Transfer'
-import { observer } from 'mobx-react-lite'
-import { formatDateRu } from '../../../utils/helpers'
-import { Clock, X } from 'lucide-react'
 import PaymentForm from './Forms/Payment'
+import TransferForm from './Forms/Transfer'
 
 const OperationModal = observer(({
 	operation,
@@ -23,34 +25,14 @@ const OperationModal = observer(({
 	chart_of_accounts_id = null,
 	chart_of_accounts_id_2 = null
 }) => {
+	const mounted = useMounted()
 	const isNew = operation?.isNew || false
 
-	const operationGuid = useMemo(() => {
-		if (isNew) return null
-		return operation?.guid || null
-	}, [isNew, operation])
+	const operationPermissions = appStore.permission?.operations || {}
 
-	// Fetch full operation data if editing existing operation
-	// const { data: fullOperationData, isLoading: isLoadingOperation, refetch } = useOperation(operationGuid, {
-	// 	enabled: !isNew && !!operationGuid
-	// })
 
-	// Refetch operation data when modal opens
-	// useEffect(() => {
-	// 	if (!isNew && operationGuid && isOpening) {
-	// 		refetch()
-	// 	}
-	// }, [isOpening, operationGuid, isNew, refetch])
-
-	// Use full operation data if available, otherwise use passed operation
 	const operationData = useMemo(() => {
 		if (isNew) return operation
-		// if (fullOperationData?.data?.data?.data) {
-		// 	return {
-		// 		...operation,
-		// 		// rawData: fullOperationData.data.data.data
-		// 	}
-		// }
 		return operation
 	}, [isNew, operation])
 
@@ -80,22 +62,16 @@ const OperationModal = observer(({
 		}
 	}, [])
 
-	// if (!isNew && isLoadingOperation) {
-	// 	return (
-	// 		<div className={styles.loadingOverlay}>
-	// 			<div className={styles.loadingSpinner}></div>
-	// 			<span>Загрузка операции...</span>
-	// 		</div>
-	// 	)
-	// }
 
 	if (!operationData && !isNew) return null
+
+	if (!mounted) return null
 
 	return (
 		<>
 			{/* Overlay and Modal Container */}
 			<div className={cn('fixed top-[60px] left-[80px] w-[calc(100%-80px)]  h-[calc(100%-60px)] right-0 bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300', isClosing ? 'opacity-0' : 'opacity-100')}>
-				<div className="w-[600px] h-full bg-white p-4 flex flex-col transition-transform duration-300">
+				<div className="min-w-[600px]! max-w-[900px]! h-full bg-white p-4 flex flex-col transition-transform duration-300">
 					<div className="flex items-center justify-between mb-2">
 						<div className="flex items-center gap-2">
 							<h2 className="text-lg font-bold text-neutral-900">
@@ -116,11 +92,11 @@ const OperationModal = observer(({
 					{/* Tabs */}
 					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
 						{[
-							{ id: 'income', label: 'Поступление', color: 'bg-green-600' },
-							{ id: 'payment', label: 'Выплата', color: 'bg-red-600' },
-							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600' },
-							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500' }
-						].map(tab => (
+							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add || operationPermissions?.income?.edit },
+							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add || operationPermissions?.payout?.edit },
+							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add || operationPermissions?.transfer?.edit },
+							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add || operationPermissions?.accrual?.edit }
+						].filter(tab => tab.canShow).map(tab => (
 							<button
 								key={tab.id}
 								className={cn(

@@ -27,7 +27,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
       groupBy: "legal_entities"
     },
     querySetting: {
-      select: (response) => response?.data?.data?.data,
+      select: (response) => response?.data?.data,
       placeholderData: keepPreviousData,
     }
   })
@@ -50,7 +50,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
   })
 
   const { data: groups } = useUcodeDefaultApiQuery({
-    queryKey: "get_product_services_groups",
+    queryKey: "product_services_groups",
     urlMethod: "GET",
     urlParams: "/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A100%7D",
     querySetting: {
@@ -142,10 +142,11 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
       setOpen(false)
       queryClient.invalidateQueries({ queryKey: ['get_product_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['list_products_and_services'] })
+      queryClient.invalidateQueries({ queryKey: ['get_product_services_groups'] })
     } catch (error) {
       console.error('mutateProductService', error?.message)
     }
-  }
+  } 
 
   return (
     <Modal
@@ -260,7 +261,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
                       data={groupsList}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите группу" 
+                      placeholder="Выберите группу"
                       className={'bg-white'}
                     />
                   )}

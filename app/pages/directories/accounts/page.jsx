@@ -118,7 +118,7 @@ export default observer(function AccountsPage() {
   })
 
   const summary = useMemo(() => {
-    return bankAccountsData?.data?.summary
+    return bankAccountsData?.summary
   }, [bankAccountsData])
 
 
@@ -549,10 +549,7 @@ export default observer(function AccountsPage() {
                             })}
                           </React.Fragment>
                         )
-                      }
-
-                      console.log('item', item)
-
+                      } 
                     // Non-grouped (flat list)
                     return (
                       <tr key={item.guid} className="hover:bg-neutral-50 border-b  border-gray-100 transition-colors h-14">
@@ -582,7 +579,7 @@ export default observer(function AccountsPage() {
         </div> 
 
         {/* Footer - Always visible at bottom */}
-        <div className={cn("absolute bottom-0 z-10 bg-neutral-100  p-2 w-full ")}>
+        <div className={cn("absolute flex gap-2 items-center bottom-0 z-10 bg-neutral-100  p-2 w-full ")}>
           <div className={styles.footerText}>
             <span className={styles.footerTextBold}>
               {summary?.accounts_count} {'счетов'}

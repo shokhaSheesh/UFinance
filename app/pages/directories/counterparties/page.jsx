@@ -1,36 +1,37 @@
 "use client"
-import React, { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
-import { FilterSidebar, FilterSection } from '@/components/directories/FilterSidebar/FilterSidebar'
-import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
-import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
-import { SearchBar } from '@/components/directories/SearchBar/SearchBar'
-import { useDeleteCounterparties, useDeleteCounterpartiesGroups } from '@/hooks/useDashboard'
-import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
-import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
+import { cn } from '@/app/lib/utils'
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
-import { GroupMenu } from '@/components/directories/GroupMenu/GroupMenu'
+import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import { DeleteCounterpartyConfirmModal } from '@/components/directories/DeleteCounterpartyConfirmModal/DeleteCounterpartyConfirmModal'
 import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
-import { cn } from '@/app/lib/utils'
-import { formatDate } from '@/utils/formatDate'
+import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
+import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import { GroupMenu } from '@/components/directories/GroupMenu/GroupMenu'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { SearchBar } from '@/components/directories/SearchBar/SearchBar'
+import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
+import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import { useDeleteCounterparties, useDeleteCounterpartiesGroups } from '@/hooks/useDashboard'
 import counterpartiesStore from '@/store/counterparties.store'
+import { formatDate } from '@/utils/formatDate'
+import { useQueryClient } from '@tanstack/react-query'
+import { ChevronDown } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useMemo, useState } from 'react'
+import { BsList } from 'react-icons/bs'
+import { LuListTree } from 'react-icons/lu'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import MultiSelectZdelka from '../../../../components/ReadyComponents/MultiZdelka'
 import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
-import { formatAmount } from '../../../../utils/helpers'
-import { ChevronDown } from 'lucide-react'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
+import { GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestInfinite } from '../../../../hooks/useDashboard'
-import { BsList } from 'react-icons/bs'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { LuListTree } from 'react-icons/lu'
-import { ExpendClose, ExpendOpen } from '@/constants/icons'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import { appStore } from '../../../../store/app.store'
+import { formatAmount } from '../../../../utils/helpers'
 
 const calculationOptions = [
   { value: "Cashflow", label: 'Учет по денежному потоку' },
@@ -52,6 +53,9 @@ const CounterpartiesPage = observer(() => {
   const [editingGroup, setEditingGroup] = useState(null)
   const [deletingGroup, setDeletingGroup] = useState(null)
   const [preselectedGroupId, setPreselectedGroupId] = useState(null)
+
+  const directoryPermissions = appStore.permission.directories
+  const canAdd = directoryPermissions.counterparties.add
 
   const filters = counterpartiesStore.filters
   const setFilters = (updater) => {
@@ -107,17 +111,17 @@ const CounterpartiesPage = observer(() => {
   })
 
   const allCounterparties = useMemo(() => {
-    return infiniteData?.pages?.flatMap(page => page?.data?.data?.data || []) || []
+    return infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
   }, [infiniteData])
 
   const totalCountData = useMemo(() => {
-    return infiniteData?.pages?.[0]?.data?.data?.pagination?.total || allCounterparties.length
+    return infiniteData?.pages?.[0]?.data?.pagination?.total || allCounterparties.length
   }, [infiniteData, allCounterparties])
 
 
 
   const SummaryTotal = useMemo(() => {
-    return infiniteData?.pages?.[0]?.data?.data?.summary || {}
+    return infiniteData?.pages?.[0]?.data?.summary || {}
   }, [infiniteData])
 
   useEffect(() => {
@@ -344,12 +348,12 @@ const CounterpartiesPage = observer(() => {
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex items-center gap-4 '>
             <h1 className="text-xl font-semibold">Контрагенты</h1>
-            <button
+            {canAdd && <button
               onClick={() => setIsCreateModalOpen(true)}
               className="primary-btn"
             >
               Создать
-            </button>
+            </button>}
           </div>
           <div className="flex items-center gap-2">
             <div className='w-[250px]'>
@@ -393,7 +397,7 @@ const CounterpartiesPage = observer(() => {
 
         {/* Column Headers */}
         <div className='flex h-12 sticky top-16 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-          <div className='w-10 flex items-center justify-center'>
+          <div className='w-12 flex items-center justify-center'>
             <OperationCheckbox checked={allSelected()} onChange={toggleSelectAll} />
           </div>
           {selectedRows.length > 0 && <>
@@ -453,7 +457,7 @@ const CounterpartiesPage = observer(() => {
                       className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
                       onClick={() => toggleGroup(item.guid)}
                     >
-                      <div className="w-10 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                      <div className="w-12 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
                         <OperationCheckbox checked={isRowSelected(item.id)} onChange={() => toggleRowSelection(item.id)} />
                       </div>
                       <div className="flex-1 min-w-[200px] flex px-3 items-center gap-2 font-medium">
@@ -577,7 +581,7 @@ const CounterpartiesPage = observer(() => {
                     )}
                     onClick={() => router.push(`/pages/directories/counterparties/${item.guid}`)}
                   >
-                    <div className="w-10 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-12 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
                       <OperationCheckbox checked={isRowSelected(item.id)} onChange={() => toggleRowSelection(item.id)} />
                     </div>
                     <div className="flex-1 min-w-[200px] flex flex-col px-2 justify-center">

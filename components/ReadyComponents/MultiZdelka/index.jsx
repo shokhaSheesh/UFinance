@@ -19,7 +19,7 @@ const MultiSelectZdelka = ({
       limit: 100,
     },
     querySetting: {
-      select: (response) => response?.data?.data?.data,
+      select: (response) => response?.data?.data,
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }

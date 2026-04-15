@@ -11,7 +11,7 @@ import { queryClient } from '../../../lib/queryClient'
 const CreateGroup = ({ open = true, setOpen, initialData }) => {
 
   const { mutateAsync: createProductServiceGroup, isPending } = useUcodeDefaultApiMutation({
-    mutationKey: "product_service_group"
+    mutationKey: 'product_services_groups'
   })
 
   const [formData, setFormData] = useState({
@@ -45,11 +45,12 @@ const CreateGroup = ({ open = true, setOpen, initialData }) => {
       await createProductServiceGroup({
         urlMethod: initialData?.guid ? "PUT" : "POST",
         urlParams: "/items/group_product_and_service?from-ofs=true",
-        data: payload
+        data: payload,
+      }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["product_services_groups"] })
+        queryClient.invalidateQueries({ queryKey: ["get_product_services_list"] })
+        queryClient.invalidateQueries({ queryKey: ["product-services-grouped"] })
       })
-      queryClient.invalidateQueries({ queryKey: "get_product_services_groups" })
-      queryClient.invalidateQueries({ queryKey: "get_product_services_list" })
-      queryClient.invalidateQueries({ queryKey: "product-services-grouped" })
 
       setOpen(false)
       setFormData({ name: "", commentary: "" })

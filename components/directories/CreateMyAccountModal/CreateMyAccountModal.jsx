@@ -41,18 +41,17 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   const [isVisible, setIsVisible] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
 
-  // Fetch currencies
-  const { data: currenciesData } = useCurrencies({ limit: 100 })
+
 
   // Transform currencies data
   const currencies = useMemo(() => {
-    return (currenciesData?.data?.data?.data || []).map(item => ({
+    return appStore.currencies.map(item => ({
       value: item.guid,
       label: `${item.kod || ''} (${item.nazvanie || ''})`.trim(),
       kod: item.kod || '',
       nazvanie: item.nazvanie || ''
     }))
-  }, [currenciesData])
+  }, [])
 
 
   // Account types
@@ -145,7 +144,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   const handleSubmit = async () => {
     if (!validateForm()) return
 
-    setIsSubmitting(true) 
+    setIsSubmitting(true)
     try {
       const submitData = {
         nazvanie: formData.nazvanie.trim(),

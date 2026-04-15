@@ -1,14 +1,14 @@
-import {
-	useQuery,
-	useMutation,
-	useQueryClient,
-	useInfiniteQuery,
-	keepPreviousData,
-} from '@tanstack/react-query'
 import { dashboardAPI } from '@/lib/api/dashboard'
+import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
-import { ucodeRequest, defaultUcodeApiRequest } from '@/lib/api/ucode/base'
-import { showSuccessNotification, showErrorNotification } from '@/lib/utils/notifications'
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import {
+	keepPreviousData,
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query'
 
 // Get dashboard data
 export const useDashboardData = params => {
@@ -1297,6 +1297,8 @@ export const useUcodeRequestMutation = ({ mutationSetting = {} } = {}) => {
 				return
 			}
 
+			// console.log('error', error)
+
 			showErrorNotification(
 				error.message || error.details?.description || 'Ошибка при выполнении запроса',
 			)
@@ -1325,8 +1327,8 @@ export const useUcodeRequestQuery = ({
 				error.details?.description || error.message || 'Ошибка при выполнении запроса',
 			)
 		},
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+		refetchOnMount: 'always',
+		refetchOnWindowFocus: false,
 		staleTime: 0,
 		...querySetting,
 	})
@@ -1343,14 +1345,14 @@ export const useUcodeRequestInfinite = ({ method, data, skip = false, querySetti
 			// Support both nested data.data.pagination and flat data.pagination structures
 			const pagination = lastPage?.data?.data?.pagination ||
 				lastPage?.data?.pagination || {
-					page: lastPage?.data?.data?.page || lastPage?.data?.page,
-					totalPages:
-						lastPage?.data?.data?.totalPages ||
-						lastPage?.data?.data?.total_pages ||
-						lastPage?.data?.data?.page_count ||
-						lastPage?.data?.totalPages ||
-						lastPage?.data?.total_pages,
-				}
+				page: lastPage?.data?.data?.page || lastPage?.data?.page,
+				totalPages:
+					lastPage?.data?.data?.totalPages ||
+					lastPage?.data?.data?.total_pages ||
+					lastPage?.data?.data?.page_count ||
+					lastPage?.data?.totalPages ||
+					lastPage?.data?.total_pages,
+			}
 
 			if (!pagination || pagination.page === undefined) return undefined
 

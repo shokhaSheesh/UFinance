@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react';
 import { HiOutlinePause } from "react-icons/hi2";
 
 const CustomMonthSlider = ({ value, onChange }) => {
@@ -66,7 +66,7 @@ const CustomMonthSlider = ({ value, onChange }) => {
   return (
     <div
       ref={trackRef}
-      className="relative w-full h-3 bg-[#0a0f17db] border border-neutral-200 rounded-full cursor-pointer select-none group"
+      className="relative w-full h-3 bg-gray-ucode-25 border border-neutral-200 rounded-full cursor-pointer select-none group"
       onPointerDown={handleTrackDown}
     >
       {/* Track highlighted portion */}

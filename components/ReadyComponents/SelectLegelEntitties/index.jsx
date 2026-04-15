@@ -9,7 +9,7 @@ const SelectLegelEntitties = ({ value, onChange, placeholder = "Выберите
   const { data: legalEntitiesData, isLoading } = useUcodeRequestQuery({
     method: "get_legal_entities",
     querySetting: {
-      select: (response) => response?.data?.data?.data || [],
+      select: (response) => response?.data?.data || [],
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }

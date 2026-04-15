@@ -11,14 +11,14 @@ const AppProvider = ({ children }) => {
   const { data } = useUcodeRequestQuery({
     method: 'get_general_settings',
     querySetting: {
-      select: (response) => response?.data?.data?.data,
+      select: (response) => response?.data?.data,
     },
     skip: !authStore.isAuthenticated
   })
   const { data: currencies } = useUcodeRequestQuery({
     method: 'get_currencies',
     querySetting: {
-      select: (response) => response?.data?.data?.data,
+      select: (response) => response?.data?.data,
     },
     skip: !authStore.isAuthenticated
   })

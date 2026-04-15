@@ -1,32 +1,31 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react'
-import { observer } from 'mobx-react-lite'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { cn } from '@/app/lib/utils'
+import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
+import { useDeleteOperation, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronRight, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
-import { useUcodeRequestMutation } from '@/hooks/useDashboard'
-import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
-import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
-import { useDeleteOperation } from '@/hooks/useDashboard'
-import { cn } from '@/app/lib/utils'
+import { observer } from 'mobx-react-lite'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './counterparty-detail.module.scss'
 
 import Select from '@/components/common/Select'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
-import OperationModal from '../../../../../components/operations/OperationModal/OperationModal'
-import { useUcodeRequestQuery } from '../../../../../hooks/useDashboard'
-import { formatDate } from '../../../../../utils/formatDate'
 import OperationTableRow from '@/components/operations/TableRow/new'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import MultiSelectZdelka from '../../../../../components/ReadyComponents/MultiZdelka'
-import operationsDto from '../../../../../lib/dtos/operationsDto'
-import SelectMyAccounts from '../../../../../components/ReadyComponents/SelectMyAccounts'
-import MultiSelectStatiya from '../../../../../components/ReadyComponents/MultiSelectStatiya'
-import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
-import { GlobalCurrency } from '../../../../../constants/globalCurrency'
 import CreateShipment from '../../../../../components/deals/details/CreatingShipment'
+import OperationModal from '../../../../../components/operations/OperationModal/OperationModal'
+import MultiSelectStatiya from '../../../../../components/ReadyComponents/MultiSelectStatiya'
+import MultiSelectZdelka from '../../../../../components/ReadyComponents/MultiZdelka'
+import SelectMyAccounts from '../../../../../components/ReadyComponents/SelectMyAccounts'
+import { GlobalCurrency } from '../../../../../constants/globalCurrency'
+import { useUcodeRequestQuery } from '../../../../../hooks/useDashboard'
+import operationsDto from '../../../../../lib/dtos/operationsDto'
+import { appStore } from '../../../../../store/app.store'
+import { formatDate } from '../../../../../utils/formatDate'
+import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
 
 const calculationOptions = [
   { value: "Cashflow", label: 'Учет по денежному потоку' },
@@ -108,6 +107,11 @@ const KontragentDetailPage = observer(() => {
     }
   }, [counterpartyGuid, filters.operationDateStart, filters.operationDateEnd, filters.calculationMethod, selectedLegalEntities, selectedChartOfAccounts, filters.deals])
 
+  const directoryPermissions = appStore.permission.directories
+  const canEdit = directoryPermissions.counterparties.edit
+  const canDelete = directoryPermissions.counterparties.delete
+
+
   // Fetch counterparty data by GUID using get_counterparty_by_id
   const { data: counterpartyData, isPending: isLoadingCounterparty } = useUcodeRequestQuery({
     method: 'get_counterparty_by_id',
@@ -120,7 +124,7 @@ const KontragentDetailPage = observer(() => {
   })
 
   // Response structure: { data: { data: { data: { counterparty: {...}, operations: [...] } } } }
-  const responseData = counterpartyData?.data?.data?.data
+  const responseData = counterpartyData?.data?.data
   const counterparty = responseData?.counterparty || null
   const summary = responseData?.summary || null
   const counterpartyOperations = useMemo(() => {
@@ -130,6 +134,7 @@ const KontragentDetailPage = observer(() => {
   const operations = useMemo(() => {
     return operationsDto(counterpartyOperations || [], 'all')
   }, [counterpartyOperations])
+
 
   const operationsList = useMemo(() => {
     return {
@@ -304,7 +309,7 @@ const KontragentDetailPage = observer(() => {
     }
 
     setCreatingOperation({
-      ...copiedOperation,
+      ...operation,
       id: 'new',
       isNew: true,
       isCopy: true
@@ -527,10 +532,10 @@ const KontragentDetailPage = observer(() => {
         </div>
 
         {/* Header with kontragent info */}
-        <div className={styles.header}>
-          <div className={styles.headerTop}>
-            <h1 className={styles.title}>{counterpartyInfo?.name || 'Контрагент'}</h1>
-            <div className={styles.headerFilters}>
+        <div className="bg-slate-50 px-6 py-5 flex-shrink-0">
+          <div className="flex items-center gap-6 mb-5">
+            <h1 className="text-2xl font-bold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
+            <div className="flex items-center gap-3 flex-1">
               <div style={{ width: '250px' }}>
                 <NewDateRangeComponent
                   value={filters.dateRange}
@@ -560,30 +565,28 @@ const KontragentDetailPage = observer(() => {
               </div>
             </div>
             {/* dots button */}
-            <div className={styles.headerActions} ref={dropdownRef}>
-              <button
-                className={cn(styles.dotsButton, isDropdownOpen && styles.dotsButtonActive)}
+            <div className="relative" ref={dropdownRef}>
+              {canEdit && canDelete && <button
+                className={cn(
+                  'flex items-center justify-center w-[38px] h-[38px] rounded border border-gray-300 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400',
+                  isDropdownOpen && 'bg-slate-100 border-gray-400'
+                )}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <MoreHorizontal size={20} />
-              </button>
+              </button>}
 
               {isDropdownOpen && (
-                <div className={styles.dropdownMenu}>
-                  <button className={styles.dropdownItem} onClick={() => {
+                <div className="absolute top-full right-0 w-[220px] bg-white border border-gray-300 rounded shadow-md z-50 py-1 flex flex-col">
+                  {canEdit && <button className="flex items-center px-4 py-3 text-sm text-slate-900 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-slate-100" onClick={() => {
                     setIsDropdownOpen(false)
                     setIsEditCounterpartyModalOpen(true)
                   }}>
-                    <PenLine size={18} className={styles.dropdownIcon} />
+                    <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
                     Редактировать
-                  </button>
-                  {/* <button className={styles.dropdownItem} onClick={() => setIsDropdownOpen(false)}>
-                    <Archive size={18} className={styles.dropdownIcon} />
-                    Убрать в архив
-                  </button> */}
-                  <div className={styles.dropdownDivider} />
-                  <button className={cn(styles.dropdownItem, styles.dropdownItemDelete)} onClick={handleDeleteCounterparty}>
-                    <Trash2 size={18} className={styles.dropdownIcon} />
+                  </button>}
+                  <button className="flex items-center px-4 py-3 text-sm text-red-500 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-red-50" onClick={handleDeleteCounterparty}>
+                    <Trash2 size={18} className="mr-3 text-red-500" />
                     Удалить
                   </button>
                 </div>
@@ -592,38 +595,38 @@ const KontragentDetailPage = observer(() => {
           </div>
 
           {/* Stats Grid */}
-          <div className={styles.statsGrid}>
+          <div className="flex gap-4">
             {/* Left Card - Financial Stats */}
-            <div className={styles.financialCard}>
-              <div className={styles.financialCardContent}>
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: '#5dade2' }}></div>
-                    <span className={styles.financialItemLabel}>Поступления</span>
+            <div className="bg-white rounded border border-gray-300 p-4 min-w-[200px]">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: '#5dade2' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Поступления</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.income)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: '#f39c6b' }}></div>
-                    <span className={styles.financialItemLabel}>Выплаты</span>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: '#f39c6b' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Выплаты</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.expense)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
-                <div className={styles.financialItem}>
-                  <div className={styles.financialItemHeader}>
-                    <div className={cn(styles.financialItemDot)} style={{ backgroundColor: stats.difference >= 0 ? '#52c41a' : '#ff4d4f' }}></div>
-                    <span className={styles.financialItemLabel}>Разница</span>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div style={{ backgroundColor: stats.difference >= 0 ? '#52c41a' : '#ff4d4f' }} className="w-1.5 h-1.5 rounded-full"></div>
+                    <span className="text-xs text-slate-700">Разница</span>
                   </div>
-                  <div className={styles.financialItemValue}>
+                  <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo.difference)}
                     <span className="text-base ml-2">{GlobalCurrency.name}</span>
                   </div>
@@ -632,35 +635,35 @@ const KontragentDetailPage = observer(() => {
             </div>
 
             {/* Middle Column - Debit and Credit stacked */}
-            <div className={styles.debitCreditColumn}>
+            <div className="flex flex-col gap-4 min-w-[180px]">
               {/* Debit Card */}
-              <div className={styles.debitCreditCard}>
-                <div className={styles.debitCreditTitle}>Дебиторка</div>
-                <div className={styles.debitCreditValue}>
+              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
+                <div className="text-sm text-slate-700 mb-1.5">Дебиторка</div>
+                <div className="text-xs text-slate-400">
                   {counterpartyInfo?.debitorka ? formatNumber(formatTotalSumma(counterpartyInfo.debitorka)) : 'Нет задолженности'}
                 </div>
               </div>
 
               {/* Credit Card */}
-              <div className={styles.debitCreditCard}>
-                <div className={styles.debitCreditTitle}>Кредиторка</div>
-                <div className={styles.debitCreditValue}>
+              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
+                <div className="text-sm text-slate-700 mb-1.5">Кредиторка</div>
+                <div className="text-xs text-slate-400">
                   {counterpartyInfo?.kreditorka ? formatNumber(formatTotalSumma(counterpartyInfo.kreditorka)) : 'Нет задолженности'}
                 </div>
               </div>
             </div>
 
             {/* Right Card - Additional Info in two-column format */}
-            <div className={styles.infoCard}>
-              <div className={styles.headerTitle}>
-                <h1 className={styles.infoCardTitle}>{counterpartyInfo?.name || 'Контрагент'}</h1>
-                <PenLine size={12} className={styles.dropdownIcon} onClick={() => setIsEditCounterpartyModalOpen(true)} />
+            <div className="bg-white rounded border border-gray-300 p-5 flex-1 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <h1 className="text-base font-semibold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
+                <PenLine size={12} className="text-slate-700 cursor-pointer" onClick={() => setIsEditCounterpartyModalOpen(true)} />
               </div>
-              <div className={styles.infoCardDivider}></div>
+              <div className="h-px bg-gray-300 mb-4"></div>
               {hasInfo ? (
-                <div className={styles.infoCardEmpty}>
-                  <span className={styles.infoCardEmptyText}>Реквизиты контрагента отсутствуют</span>
-                  <button className={styles.infoCardEmptyButton} onClick={() => setIsEditCounterpartyModalOpen(true)}>
+                <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+                  <span className="text-xs text-slate-400 text-center">Реквизиты контрагента отсутствуют</span>
+                  <button className="flex items-center gap-2 px-5 py-2 text-xs text-slate-600 bg-white border border-gray-300 rounded cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-400" onClick={() => setIsEditCounterpartyModalOpen(true)}>
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="9" cy="9" r="8" stroke="#6b7280" strokeWidth="1.2" />
                       <path d="M9 5.5V12.5M5.5 9H12.5" stroke="#6b7280" strokeWidth="1.2" strokeLinecap="round" />
@@ -670,30 +673,30 @@ const KontragentDetailPage = observer(() => {
                 </div>
               ) : (
                 <>
-                  <div className={styles.infoCardDetails}>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>ИНН</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.inn || '–'}</span>
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">ИНН</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.inn || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Статья для поступлений</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.receiptArticle || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для поступлений</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.receiptArticle || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>КПП</span>
-                      <span className={styles.infoCardValue}>{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">КПП</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Статья для выплат</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.paymentArticle || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для выплат</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.paymentArticle || '–'}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>№ счета</span>
-                      <span className={styles.infoCardValue}>{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">№ счета</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
                     </div>
-                    <div className={styles.infoCardRow}>
-                      <span className={styles.infoCardLabel}>Комментарий</span>
-                      <span className={styles.infoCardValue}>{counterpartyInfo?.comment || '–'}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Комментарий</span>
+                      <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.comment || '–'}</span>
                     </div>
                   </div>
                 </>
@@ -778,55 +781,52 @@ const KontragentDetailPage = observer(() => {
             ) : (
                 <div className="pb-56">
                   {/* Table Header */}
-                  <div className={cn(
-                    'flex h-10 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200 sticky z-10',
-                    isFiltersOpen ? 'top-[132px]' : 'top-[96px]'
-                  )}>
-                    <div className='w-32 flex px-3 items-center justify-start '>
+                  <div className='flex  sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+                    <div className='min-w-32  pl-5 flex p-3 items-center justify-start '>
                       Дата
                     </div>
-                    <div className='w-40 flex px-2 items-center justify-start '>
+                    <div className='min-w-24 max-w-52 flex-1  flex p-3 items-center justify-start '>
                       Счет
                     </div>
-                    <div className='w-14  flex px-2 items-center justify-center '>
+                    <div className='min-w-14   flex p-3 items-center justify-center '>
                       Тип
                     </div>
-                    <div className='w-52 flex px-2 items-center justify-start '>
+                    <div className='min-w-32 flex-1  flex p-3 items-center justify-start '>
                       Контрагент
                     </div>
-                    <div className='flex-1  text-start  px-2 items-center justify-start '>
+                    <div className='min-w-32 flex-1   text-start  p-3 items-center justify-start '>
                       Статья
                     </div>
-                    <div className='flex-1 flex px-2 items-center justify-center '>
+                    <div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
                       Сделка
                     </div>
-                    <div className='w-40 flex px-2 items-center justify-end '>
+                    <div className='min-w-40  flex p-3 items-center justify-end '>
                       Сумма
                     </div>
-                    <div className='w-8 flex px-2 items-center justify-center'>
+                    <div className='min-w-8  flex p-3 items-center justify-center'>
                       &nbsp;
                     </div>
                   </div>
 
                   <div className={styles.tableBody}>
-                      {operationsList?.future?.length > 0 && (
+                    {operationsList?.future?.length > 0 && (
                       <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
                         <h3 className="font-medium">После</h3>
                       </div>
-                      )}
+                    )}
 
                     {operationsList?.future?.map((op) => (
-                        <OperationTableRow
-                          key={op.guid}
-                          op={op}
-                        selectedOperations={selectedOperations} 
-                          openOperationModal={handleEditOperation}
-                          counterpartyGuid={counterpartyInfo?.guid}
-                          handleEditOperation={handleEditOperation}
-                          handleDeleteOperation={handleDeleteOperation}
-                          handleCopyOperation={handleCopyOperation}
-                        />
-                      ))}
+                      <OperationTableRow
+                        key={op.guid}
+                        op={op}
+                        selectedOperations={selectedOperations}
+                        openOperationModal={handleEditOperation}
+                        counterpartyGuid={counterpartyInfo?.guid}
+                        handleEditOperation={handleEditOperation}
+                        handleDeleteOperation={handleDeleteOperation}
+                        handleCopyOperation={handleCopyOperation}
+                      />
+                    ))}
 
                     {/* Today — Section Header */}
                     {operationsList?.today?.length > 0 && (
@@ -839,7 +839,7 @@ const KontragentDetailPage = observer(() => {
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations} 
+                        selectedOperations={selectedOperations}
                         openOperationModal={handleEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={handleEditOperation}
@@ -858,7 +858,7 @@ const KontragentDetailPage = observer(() => {
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations} 
+                        selectedOperations={selectedOperations}
                         openOperationModal={handleEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={handleEditOperation}

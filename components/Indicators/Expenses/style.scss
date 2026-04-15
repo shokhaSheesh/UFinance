@@ -1,0 +1,12 @@
+canvas {
+	position: relative !important;
+  overflow: visible !important;
+  width: 300px !important;
+  height: 300px !important; 
+}
+
+.echarts-for-react {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 50 !important;
+}

@@ -1,25 +1,25 @@
 'use client'
-import { useForm, Controller, } from 'react-hook-form'
-import { memo, useMemo, useState } from 'react'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { memo, useMemo, useState } from 'react'
+import { Controller, useForm, } from 'react-hook-form'
 
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import { formatDate } from '@/utils/formatDate'
 import { cn } from '@/app/lib/utils'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import CustomDatePicker from '../../../../shared/DatePicker'
-import { isFuture } from '../../../../../utils/formatDate'
-import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
-import { formatDecimal, formatNumber, getCurrencyIcon, returnNumber, StringtoNumber } from '../../../../../utils/helpers'
+import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
-import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
-import { queryClient } from '../../../../../lib/queryClient'
-import { observer } from 'mobx-react-lite'
-import { appStore } from '../../../../../store/app.store'
 import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { queryClient } from '../../../../../lib/queryClient'
+import { appStore } from '../../../../../store/app.store'
+import { isFuture } from '../../../../../utils/formatDate'
+import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
+import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
+import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import CustomDatePicker from '../../../../shared/DatePicker'
 
 const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
@@ -27,7 +27,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
   const [title, setTitle] = useState()
 
   const isNew = initialData?.isNew
-  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid)
+  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid) 
 
 
   const defaultValues = useMemo(() => {
@@ -73,7 +73,6 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
     }
   }, [initialData, isNew])
 
-  console.log('initialData', initialData)
 
 
   const { getValues, control, handleSubmit, setValue, watch, formState: { errors, } } = useForm({
@@ -110,8 +109,8 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
         chart_of_accounts_id_2: data.chartOfAccountEnrollment,
-        sales_transactions_id: data.sellingDealId,
-        sales_transactions_id_2: data.sellingDealId2,
+        sales_transactions_id: data.sellingDealId || null,
+        sales_transactions_id_2: data.sellingDealId2 || null,
         // counterparties_id: data.counterpary_id,
         include_in_profit_and_loss_cash_method: data.canAllowOpiu,
         repeat_enabled: data.repeatEnabled,
@@ -144,6 +143,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['balance_report'] })
       onClose()
     } catch (error) {
       console.error('Error in AccuralForm handleSubmit:', error)
@@ -169,7 +169,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">ОТКУДА</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Дебит</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -340,7 +340,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         <div className="flex flex-col gap-5 mt-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">КУДА</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Кредит</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
@@ -435,7 +435,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
       {/* Footer Actions */}
       <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
         <button type="button" onClick={onCancel} className="secondary-btn py-2!">Отмена</button>
-        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : 'Сохранить'}</button>
+        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}</button>
       </div>
     </form>
   )

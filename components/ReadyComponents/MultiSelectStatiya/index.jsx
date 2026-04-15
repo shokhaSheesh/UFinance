@@ -49,7 +49,7 @@ const MultiSelectStatiya = ({ value = [], onChange, placeholder = 'Выбери�
       limit: 100,
     },
     querySetting: {
-      select: (res) => res?.data?.data?.data,
+      select: (res) => res?.data?.data,
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }

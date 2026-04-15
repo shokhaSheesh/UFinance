@@ -1,7 +1,8 @@
 "use client"
 
-import TotalPrice from './total-prices'
+import Branches from './branches'
 import { Profile } from './profile'
+import TotalPrice from './total-prices'
 
 export function Header() {
 
@@ -11,6 +12,7 @@ export function Header() {
                 <div className="flex items-center">
                     <TotalPrice />
                     <Profile />
+                    <Branches />
                 </div>
             </header>
         </>

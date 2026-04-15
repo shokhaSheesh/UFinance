@@ -10,7 +10,7 @@ const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите с�
   const { data: accountsData, isLoading } = useUcodeRequestQuery({
     method: "get_my_accounts",
     querySetting: {
-      select: (response) => response?.data?.data?.data || [],
+      select: (response) => response?.data?.data || [],
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }

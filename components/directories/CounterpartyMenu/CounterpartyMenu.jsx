@@ -1,21 +1,31 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { appStore } from '../../../store/app.store'
 
-export function CounterpartyMenu({ counterparty, onEdit, onDelete }) {
+export const CounterpartyMenu = observer(({ counterparty, onEdit, onDelete }) => {
+
+  const directoryPermissions = appStore.permission.directories
+  const canEdit = directoryPermissions.counterparties.edit
+  const canDelete = directoryPermissions.counterparties.delete
   const handleEdit = () => {
     if (onEdit) onEdit(counterparty)
   }
 
   const handleDelete = () => {
     if (onDelete) onDelete(counterparty)
+  }
+
+  if (!canEdit && !canDelete) {
+    return null
   }
 
   return (
@@ -26,7 +36,7 @@ export function CounterpartyMenu({ counterparty, onEdit, onDelete }) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40 p-2" align="end">
-        <DropdownMenuItem asChild>
+        {canEdit && <DropdownMenuItem asChild>
           <button
             className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
             onClick={handleEdit}
@@ -34,8 +44,8 @@ export function CounterpartyMenu({ counterparty, onEdit, onDelete }) {
             <Pencil size={16} />
             <span>Редактировать</span>
           </button>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        </DropdownMenuItem>}
+        {canDelete && <DropdownMenuItem asChild>
           <button
             className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none")}
             onClick={handleDelete}
@@ -43,8 +53,9 @@ export function CounterpartyMenu({ counterparty, onEdit, onDelete }) {
             <Trash2 size={16} className='text-red-500' />
             <span>Удалить</span>
           </button>
-        </DropdownMenuItem>
+        </DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})
+

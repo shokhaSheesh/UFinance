@@ -191,7 +191,7 @@ const TreeSelect = ({
         ref={buttonRef}
         type="button"
         className={cn(
-          'flex items-center cursor-pointer h-[36px]! bg-neutral-50 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
+          'flex items-center cursor-pointer h-[36px]! bg-gray-ucode-25 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
           className,
           hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
         )}

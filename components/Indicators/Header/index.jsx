@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
 import { X } from 'lucide-react'
+import moment from 'moment/moment'
+import { useState } from 'react'
+import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts"
+import SingleZdelka from "../../ReadyComponents/SingleZdelka"
 import RangeMonthPicker from "../../shared/RangeMonthPicker"
 import SingleSelect from "../../shared/Selects/SingleSelect"
-import SingleZdelka from "../../ReadyComponents/SingleZdelka"
-import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts"
-import moment from 'moment/moment'
+import './style.scss'
 
 const IndicatorsNavbar = () => {
     const [displayMode, setDisplayMode] = useState('monthly')
@@ -29,7 +30,7 @@ const IndicatorsNavbar = () => {
     const hasFilters = selectedAccount || selectedDeal || displayMode !== 'monthly'
 
     return (
-        <div className="flex items-center justify-between bg-white h-18 px-4 border-b border-neutral-200">
+        <div id="indicator_header" className="flex items-center justify-between bg-white h-18 px-4 border-b border-neutral-200">
             <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
                 <div>
                     <h1 className='text-2xl font-semibold whitespace-nowrap overflow-hidden text-ellipsis'>Моя компания</h1>

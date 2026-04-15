@@ -25,7 +25,6 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
   const createGroupMutation = useCreateCounterpartiesGroup()
   const deleteGroupMutation = useDeleteCounterpartiesGroups()
 
-  console.log('counterpartyData', counterpartyData)
 
   const [activeTab, setActiveTab] = useState('counterparty') // 'counterparty' or 'group'
   const [details, setDetails] = useState(false)
@@ -115,8 +114,8 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
   // Get counterparties groups for dropdown
   const { data: counterpartiesGroupsData } = useCounterpartiesGroupsPlanFact({ page: 1, limit: 100 })
   const counterpartiesGroups = useMemo(() => {
-    if (!counterpartiesGroupsData?.data?.data?.data) return []
-    return counterpartiesGroupsData?.data?.data?.data
+    if (!counterpartiesGroupsData?.data?.data) return []
+    return counterpartiesGroupsData?.data?.data
   }, [counterpartiesGroupsData])
 
   // Transform counterparties groups for GroupedSelect

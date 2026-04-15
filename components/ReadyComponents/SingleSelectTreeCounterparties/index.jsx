@@ -11,7 +11,7 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
   })
 
   const result = useMemo(() => {
-    const groups = counterpartiesGroupsData?.data?.data?.data || []
+    const groups = counterpartiesGroupsData?.data?.data || []
 
     if (groups.length === 0) return []
 

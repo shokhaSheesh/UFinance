@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 // Mock Data for Step Chart
@@ -139,7 +139,7 @@ const AccountBalance = () => {
     }), [zoomRange])
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg mt-6 shadow-sm border border-neutral-100">
+        <div className="w-full bg-white p-6 rounded-lg mt-6 ">
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                     <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, $</h2>

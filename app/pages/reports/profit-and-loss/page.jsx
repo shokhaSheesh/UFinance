@@ -1,24 +1,20 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { observer } from 'mobx-react-lite'
-import { GroupedSelect } from '@/components/common/GroupedSelect/GroupedSelect'
-import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
-import '@/styles/report-filters.css'
-import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import { toJS } from 'mobx'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import { formatNumber, formatPeriod, formatTotalSumma } from '../../../../utils/helpers'
 import { cn } from '@/app/lib/utils'
-import { appStore } from '../../../../store/app.store'
-import { balanceStore } from '../../../../components/reports/balance/balance.store'
+import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
+import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import '@/styles/report-filters.css'
 import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../../../../lib/api/ucode/base'
-import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import React, { useEffect, useMemo, useState } from 'react'
+import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
+import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { apiClient } from '../../../../lib/api/ucode/base'
+import { appStore } from '../../../../store/app.store'
+import { formatNumber, formatPeriod } from '../../../../utils/helpers'
 
 const formatDateLocal = (date) => {
   if (!date) return null
@@ -74,16 +70,27 @@ const ProfitAndLossPage = observer(() => {
   const { data: profitAndLossDataList, isLoading: isLoadingProfitAndLoss, isFetching: isFetchingProfitAndLoss } = useQuery({
     queryKey: ["profit_and_loss", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
-    select: (res) => res?.data?.data?.data,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    select: (res) => res?.data?.data,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
   const loading = isLoadingProfitAndLoss || isFetchingProfitAndLoss
 
 
   const legend = useMemo(() => profitAndLossDataList?.legend || [], [profitAndLossDataList])
-  const rows = useMemo(() => profitAndLossDataList?.rows || [], [profitAndLossDataList])
+  const rows = useMemo(() => {
+    return profitAndLossDataList?.rows?.map(item => ({
+      ...item,
+      details: item.details?.map(detail => ({
+        ...detail,
+        tip: item?.name === "income" || item?.id === "income" || item?.type === "income" ? ["Списание", "Зачисление", "Перемещение", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"] : item?.name === "expenses" || item?.id === "expenses" || item?.type === "expenses" ? ["Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"] : ["Выплата", "Поступление", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+      }))
+    })) || []
+  }, [profitAndLossDataList])
+
 
   // Auto-expand first level on initial load
   useEffect(() => {
@@ -187,6 +194,9 @@ const ProfitAndLossPage = observer(() => {
       dateRange = { start: startDate, end: endDate }
     }
 
+    console.log('item', item)
+    console.log('monthObj', monthObj)
+
     const collectIds = (node) => {
       let ids = []
       if (typeof node.id === 'string' && /\d/.test(node.id)) {
@@ -200,15 +210,15 @@ const ProfitAndLossPage = observer(() => {
       return ids
     }
 
-    const chartOfAccountIds = collectIds(item)
 
     const filterData = {
-      tip: ["Списание", "Зачисление", "Перемещение", "Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"],
+      tip: item.tip,
       paymentAccural: true,
       paymentNotAccural: false,
       paymentDateStart: dateRange.start,
       paymentDateEnd: dateRange.end,
-      ...(chartOfAccountIds.length > 0 ? { chart_of_accounts_ids: chartOfAccountIds } : {})
+      limit: 10,
+      chartOfAccounts: [item.id]
     }
 
     const periodLabel = formatPeriod(dateRange.start, dateRange.end)
@@ -217,7 +227,8 @@ const ProfitAndLossPage = observer(() => {
       filterData,
       summaryData: {
         periodLabel,
-        totalAmount: monthObj ? (item.values?.[monthObj.key] || 0) : item.totalValue
+        totalAmount: item.totalValue,
+        currencyCode: pnlStore.selectedCurrency
       },
       title: item.name
     })
@@ -337,11 +348,4 @@ const ProfitAndLossPage = observer(() => {
 
 export default ProfitAndLossPage
 
-// < div className = "flex px-4 h-16 items-center sticky top-0 z-20 bg-white justify-between" >
-
-
-
-//       </ >
-
-// {/* Table with loading overlay */ }
 

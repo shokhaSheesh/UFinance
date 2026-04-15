@@ -42,7 +42,7 @@ const CreateProductService = ({
   const { data: productServices } = useUcodeRequestQuery({
     method: 'list_products_and_services',
     querySetting: {
-      select: data => data?.data?.data?.data,
+      select: data => data?.data?.data,
       placeholderData: keepPreviousData,
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 5, // 5 minutes

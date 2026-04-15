@@ -23,7 +23,7 @@ const SelectProductService = ({
       sales_transaction_id: sellingDealId,
     },
     querySetting: {
-      select: (response) => productServiceDto(response?.data?.data?.data) || [],
+      select: (response) => productServiceDto(response?.data?.data) || [],
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }

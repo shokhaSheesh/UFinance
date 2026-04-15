@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/app/lib/utils'
-import { useLegalEntitiesV2, useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
+import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
 import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
 import LegalEntityMenu from '@/components/directories/LegalEntityMenu/LegalEntityMenu'
 import DeleteLegalEntityConfirmModal from '@/components/directories/DeleteLegalEntityConfirmModal/DeleteLegalEntityConfirmModal'
@@ -38,11 +38,10 @@ export default function LegalEntitiesPage() {
     ...(debouncedSearchQuery && { search: debouncedSearchQuery.toLowerCase() }),
   })
 
-  console.log('Legal entities data:', legalEntitiesData)
 
   // Extract legal entities from response - correct path is data.data.data
   const legalEntitiesItems = useMemo(() => {
-    const items = legalEntitiesData?.data?.data?.data || []
+    const items = legalEntitiesData?.data?.data || []
     console.log('Legal entities items:', items)
     return Array.isArray(items) ? items : []
   }, [legalEntitiesData])

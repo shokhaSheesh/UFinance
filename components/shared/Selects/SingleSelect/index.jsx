@@ -98,7 +98,7 @@ const SingleSelect = ({
         type="button"
         disabled={disabled}
         className={cn(
-          'flex items-center bg-neutral-50 h-[36px]! transition-all duration-200 justify-between w-full rounded-md px-3 py-2 outline-none',
+          'flex items-center bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md px-3 py-2 outline-none',
           disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
           className,
           hasError ? 'border-red-ucode! border!' : "border border-neutral-200"

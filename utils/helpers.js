@@ -103,7 +103,7 @@ export const getCurrencyIcon = (currency) => {
 }
 
 export const formatTotalSumma = (summa) => {
-  if (isNaN(summa)) return ''
+  if (isNaN(summa) || summa == 0) return ''
   const num = Number(summa).toFixed(2)
   return num.toLocaleString('ru-RU')
 }

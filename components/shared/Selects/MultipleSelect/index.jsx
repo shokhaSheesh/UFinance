@@ -98,7 +98,7 @@ const CustomMultipleSelect = ({
             <div
                 ref={buttonRef}
                 className={cn(
-                    'flex items-center cursor-pointer bg-neutral-50 transition-all duration-200 min-h-[36px]! w-full rounded-md border px-3 py-2 outline-none focus-within:border-primary/80',
+                    'flex items-center cursor-pointer bg-gray-ucode-25 transition-all duration-200 min-h-[36px]! w-full rounded-md border px-3 py-2 outline-none focus-within:border-primary/80',
                     className,
                     hasError ? 'border-red-500 border!' : "border-neutral-200"
                 )}

@@ -21,7 +21,7 @@ const SingleCounterParty = ({
   })
 
   const result = useMemo(() => {
-    const groups = counterpartiesGroupsData?.data?.data?.data || []
+    const groups = counterpartiesGroupsData?.data?.data || []
     if (groups.length === 0) return []
 
     const buildTree = item => {

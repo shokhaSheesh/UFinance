@@ -52,7 +52,7 @@ export default observer(function DealDetailPage() {
       guid: dealId
     },
     querySetting: {
-      select: (response) => response?.data?.data?.data,
+      select: (response) => response?.data?.data,
       placeholderData: keepPreviousData,
     }
   })

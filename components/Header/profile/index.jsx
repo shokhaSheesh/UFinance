@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Settings, HelpCircle, Handshake, Gift, Percent, Clock, FileText, LogOut } from 'lucide-react'
 import { cn } from '@/app/lib/utils'
+import { ChevronDown, LogOut } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
-import { authStore } from '@/store/auth.store'
+import { useEffect, useRef, useState } from 'react'
+import { authStore } from '../../../store/auth.store'
 import styles from './Profile.module.scss'
 
 export const Profile = observer(() => {
@@ -43,7 +43,7 @@ export const Profile = observer(() => {
             </span>
             <ChevronDown size={14} className={cn(styles.chevron, isOpen && styles.open)} />
           </div>
-          <span className={styles.accessText}>Доступ истекает 02.03.26</span>
+          <span className={styles.accessText}>&nbsp;</span>
         </div>
       </button>
 

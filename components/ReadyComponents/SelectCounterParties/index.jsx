@@ -24,7 +24,7 @@ const SelectCounterParties = ({ value = [], onChange, placeholder = "Выбер�
   })
 
   const counterpartiesOptions = useMemo(() => {
-    const items = counterpartiesFilterData?.data?.data?.data || []
+    const items = counterpartiesFilterData?.data?.data || []
     if (!items || items.length === 0) return []
     return items.map(item => ({
       value: item.guid,

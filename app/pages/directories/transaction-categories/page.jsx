@@ -1,15 +1,18 @@
 'use client'
 
-import { useState, useCallback } from 'react'
 import { cn } from '@/app/lib/utils'
-import { useDeleteChartOfAccounts } from '@/hooks/useDashboard'
-import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { CategoryMenu } from '@/components/directories/CategoryMenu/CategoryMenu'
+import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { DeleteCategoryConfirmModal } from '@/components/directories/DeleteCategoryConfirmModal/DeleteCategoryConfirmModal'
+import { useDeleteChartOfAccounts } from '@/hooks/useDashboard'
 import { showErrorNotification } from '@/lib/utils/notifications'
-import { useChartOfAccountsPlanFact } from '../../../../hooks/useDashboard'
-import Input from '../../../../components/shared/Input'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useCallback, useState } from 'react'
+import Input from '../../../../components/shared/Input'
+import { apiClient } from '../../../../lib/api/ucode/base'
+import { appStore } from '../../../../store/app.store'
 
 // Map tab keys to root category names from API
 const TABS_TO_ROOT_NAME = {
@@ -214,7 +217,7 @@ function CategoryTreeItem({
 	)
 }
 
-export default function TransactionCategoriesPage() {
+export default observer(function TransactionCategoriesPage() {
 	const [activeTab, setActiveTab] = useState('income')
 	const [expandedCategories, setExpandedCategories] = useState([])
 	const [closingCategories, setClosingCategories] = useState([])
@@ -226,22 +229,28 @@ export default function TransactionCategoriesPage() {
 	const [categoryToDelete, setCategoryToDelete] = useState(null)
 	const [searchQuery, setSearchQuery] = useState('')
 
-	const {
-		data: chartOfAccountsData,
-		isLoading: isLoadingChartOfAccounts,
-		error: chartOfAccountsError,
-	} = useChartOfAccountsPlanFact({
-		page: 1,
-		limit: 100,
-		search: searchQuery.trim() || undefined,
+	// get_chart_of_accounts
+	const { data: chartOfAccountsData, isLoading: isLoadingChartOfAccounts, error: chartOfAccountsError } = useQuery({
+		queryKey: ['get_chart_of_accounts'],
+		queryFn: () => apiClient.invokeFunction({
+			method: 'get_chart_of_accounts', data: {
+				page: 1,
+				limit: 100,
+				search: searchQuery.trim() || undefined,
+			}
+		}),
+		placeholderData: keepPreviousData,
+		select: (response) => response?.data?.data
 	})
 
 	const isLoadingChartOfAccountsV2 = isLoadingChartOfAccounts
 	const chartOfAccountsErrorV2 = chartOfAccountsError
 
-	const chartOfAccountsTree = chartOfAccountsData?.data?.data?.data || []
+	const chartOfAccountsTree = chartOfAccountsData || []
 
-	// Get the root node for active tab and convert its children to display format
+	const categoriesPermissions = appStore.permission.directories.transactionCategories
+
+
 	const categories = (() => {
 		if (!Array.isArray(chartOfAccountsTree) || chartOfAccountsTree.length === 0) {
 			return []
@@ -321,9 +330,9 @@ export default function TransactionCategoriesPage() {
 				<div className="flex items-center justify-between mb-4">
 					<div className="flex items-center gap-4">
 						<h1 className="text-xl font-semibold text-slate-900">Учетные статьи</h1>
-						<button onClick={() => setIsCreateModalOpen(true)} className="primary-btn px-5 py-2 text-sm font-medium">
+						{categoriesPermissions.add && <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn px-5 py-2 text-sm font-medium">
 							Создать
-						</button>
+						</button>}
 					</div>
 					<div className="relative">
 						<Input
@@ -682,4 +691,4 @@ export default function TransactionCategoriesPage() {
 			/>
 		</div>
 	)
-}
+})

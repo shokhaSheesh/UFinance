@@ -28,7 +28,7 @@ const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выб�
       limit: 100,
     },
     querySetting: {
-      select: (res) => res?.data?.data?.data,
+      select: (res) => res?.data?.data,
       staleTime: 1000 * 60 * 60, // 1 hour
       placeholder: keepPreviousData
     }

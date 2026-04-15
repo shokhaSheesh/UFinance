@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 // Mock Data for Income
@@ -16,13 +16,18 @@ const Income = () => {
   const donutOption = useMemo(() => ({
     tooltip: {
       trigger: 'item',
-      formatter: '{b}: {c} ({d}%)'
+      formatter: '{b}: {c} ({d}%)',
+      confine: false,
+      appendToBody: true,
+      textStyle: {
+        fontSize: 12
+      }
     },
     series: [
       {
         name: 'Income Breakdown',
         type: 'pie',
-        radius: ['70%', '98%'],
+        radius: ['60%', '88%'],
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 0,
@@ -42,8 +47,9 @@ const Income = () => {
           show: false
         },
         data: [
-          { value: 250, name: 'Нераспределенный д', itemStyle: { color: '#3b82f6' } }
-        ]
+          { value: 250, name: 'Нераспределенный д', itemStyle: { color: '#3b82f6', z: 10000 }, }
+        ],
+
       }
     ],
     graphic: [{
@@ -57,7 +63,6 @@ const Income = () => {
         fontSize: 28,
         fontWeight: 'bold',
         lineHeight: 34
-
       }
     }]
   }), [])
@@ -152,7 +157,7 @@ const Income = () => {
   }), [zoomRange])
 
   return (
-    <div className="w-full bg-white p-6 rounded-lg shadow-sm border border-neutral-100 mt-6">
+    <div className="w-full p-6 rounded-lg  mt-6">
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-[14px] font-medium text-[#111827]">Доходы, $</h2>
         <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
@@ -163,8 +168,8 @@ const Income = () => {
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Donut Pane */}
-        <div className="w-full lg:w-[600px] shrink-0 flex items-center justify-between">
-          <div className="h-[400px] w-[400px] relative shrink-0">
+        <div className="w-full lg:w-[600px] shrink-0 flex items-center justify-between relative z-10">
+          <div className=" relative shrink-0">
             <ReactECharts
               option={donutOption}
               style={{ height: '300px', width: '300px' }}
