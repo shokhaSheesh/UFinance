@@ -1,4 +1,5 @@
 'use client'
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { observer } from "mobx-react-lite"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
@@ -6,15 +7,15 @@ import SelectCounterParties from "../../../../components/ReadyComponents/SelectC
 import CustomRangeMonthPicker from "../../../../components/shared/CustomRangeMonthPicker"
 import ScreenLoader from "../../../../components/shared/ScreenLoader"
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
-import { useUcodeRequestInfinite } from "../../../../hooks/useDashboard"
 import useMounted from "../../../../hooks/useMounted"
+import { apiClient } from "../../../../lib/api/ucode/base"
 import { authStore } from "../../../../store/auth.store"
 import { student } from "../../../../store/student.store"
 import { formatStudentTableDate } from "../../../../utils/formatDate"
 import { formatNumber } from "../../../../utils/helpers"
 
 
-const LIMIT = 200
+const LIMIT = 30
 
 const accountingMethodOptions = [
   { value: 'accrual', label: 'Метод начисления' },
@@ -52,10 +53,22 @@ const Students = observer(() => {
     isFetching: isFetchingStudents,
     isLoading: isLoadingStudents,
     refetch
-  } = useUcodeRequestInfinite({
-    method: 'get_counterparties_data',
-    data: filterData
+  } = useInfiniteQuery({
+    queryKey: ['students', filterData],
+    queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
+      method: 'get_counterparties_data',
+      data: { ...filterData, page: pageParam }
+    }),
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage?.data?.data?.counterparties?.pagination
+      if (!pagination) return undefined
+      const { page, totalPages } = pagination
+      return page < totalPages ? page + 1 : undefined
+    },
+    initialPageParam: 1
   })
+
+  console.log('infiniteData', infiniteData)
 
   // Infinite scroll detection on main container
   useEffect(() => {
@@ -86,7 +99,6 @@ const Students = observer(() => {
     // Get unique months from first student's data
     const firstStudent = dataSource[0]
     const months = firstStudent.months || []
-    console.log('firstStudent', firstStudent)
 
 
     return months.map(m => ({
@@ -133,6 +145,16 @@ const Students = observer(() => {
 
     return cols
   }, [monthsData])
+
+  const handleScroll = () => {
+    const container = scrollContainerRef.current
+    if (!container || !hasNextPage || isFetchingNextPage) return
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+    if (scrollHeight - scrollTop - clientHeight < 100) {
+      fetchNextPage()
+    }
+  }
 
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
@@ -191,7 +213,7 @@ const Students = observer(() => {
         </div>
 
         {/* Table Container - Div based layout */}
-        <div ref={scrollContainerRef} className="overflow-auto mb-5 ">
+        <div ref={scrollContainerRef} onScroll={handleScroll} id="scrollableDiv" className="overflow-auto mb-5 relative ">
           <div className="bg-white min-w-max">
             <div className="sticky top-0 z-20 flex ">
               {columns.map((col) => {
@@ -209,7 +231,7 @@ const Students = observer(() => {
                 if (col.type === 'month-group') {
                   return (
                     <div key={col.key} className={`flex flex-col border-b border-gray-200 flex-1 ${col.width} max-w-[500px] bg-neutral-100`}>
-                      <div className="border-r text-base border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
+                      <div className="border-r text-sm border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
                         {col.label}
                       </div>
                       <div className="flex text-sm">
@@ -239,8 +261,6 @@ const Students = observer(() => {
                 )
               })}
             </div>
-
-            {/* Body Rows */}
             <StudentsBody
               studentList={studentList}
               columns={columns}
@@ -259,15 +279,17 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
   return (
     <div>
       {studentList.map((studentItem) => (
-        <div key={studentItem.counterparty_id} className="flex hover:bg-neutral-100">
+        <div key={studentItem.counterparty_id} className="flex hover:bg-neutral-100 h-9">
           {columns.map((col) => {
             if (col.type === 'sticky') {
               return (
                 <div
                   key={col.key}
-                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200 px-4 py-3 text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
+                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
                 >
-                  {studentItem.counterparty_name}
+                  <span className="px-4 py-3 w-full">
+                    {studentItem.counterparty_name}
+                  </span>
                 </div>
               )
             }
@@ -283,7 +305,7 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
                     return (
                       <div
                         key={child.key}
-                        className="border-r border-b box-border border-gray-200 px-2 py-3 text-center text-gray-700 flex-1 flex items-center justify-center"
+                        className="border-r border-b box-border border-gray-200 px-2 py-2 text-center text-gray-700 flex-1 flex items-center justify-center"
                       >
                         {formatNumber(value) || '-'}
                       </div>
@@ -295,10 +317,10 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
 
             // Total columns
             const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact
-            setTotalTotal(prev => ({
-              ...prev,
-              [col.key]: prev[col.key] + value
-            }))
+            // setTotalTotal(prev => ({
+            //   ...prev,
+            //   [col.key]: prev[col.key] + value
+            // }))
             return (
               <div
                 key={col.key}
@@ -310,9 +332,6 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
           })}
         </div>
       ))}
-      {isFetchingNextPage && (
-        <div className="py-4 text-center text-gray-500">Загрузка...</div>
-      )}
     </div>
   )
 }
