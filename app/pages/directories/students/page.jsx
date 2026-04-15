@@ -1,10 +1,13 @@
 'use client'
-import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
 import { FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import NewDateRangeComponent from '../../../../components/directories/NewDateRangeComponent'
 import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
+import { apiClient } from "../../../../lib/api/ucode/base"
 import { appStore } from "../../../../store/app.store"
+import { authStore } from "../../../../store/auth.store"
 import { student } from "../../../../store/student.store"
 
 // Sample months data - can be dynamic
@@ -39,9 +42,28 @@ const Students = () => {
   const [open, setOpen] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
 
+  const { data: students } = useQuery({
+    queryKey: ['students'],
+    queryFn: () => apiClient.invokeFunction({
+      method: "get_counterparties_data",
+      data: {
+        "method": "cash",
+        "currency_code": "UZS",
+        "company_id": authStore.userData?.company_id   // Kompaniya ID
+      }
+    }),
+    select: (data) => data?.data?.data || []
+  })
+
+
+  const studentList = useMemo(() => {
+    return students?.counterparties || []
+  }, [students])
+
+  console.log('studentList', studentList)
+
   // Determine if we need overflow based on month count
   const needsOverflow = monthsData.length > 3
-  const tableMinWidth = needsOverflow ? `${320 + monthsData.length * 180 + 200}px` : '100%'
 
   const handleScroll = (direction) => {
     const container = document.getElementById('table-scroll-container')
@@ -68,9 +90,9 @@ const Students = () => {
         <NewDateRangeComponent />
         <SelectLegelEntitties />
       </FilterSidebar>
-      <div className="flex-1 overflow-auto relative bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden relative bg-white px-4">
         {/* Header */}
-        <div className="flex items-center top-0 sticky z-100  p-4 bg-white justify-between">
+        <div className="flex items-center top-0 sticky z-100  py-4 bg-white justify-between">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Отчет о движении денежных средств</h1>
             <SingleSelect
@@ -91,77 +113,66 @@ const Students = () => {
         </div>
 
         {/* Table Container - Div based layout */}
-        <div className="bg-white px-4 overflow-hidden">
-          <div
-            id="table-scroll-container"
-            onScroll={onScroll}
-            className={needsOverflow ? 'overflow-x-auto' : 'overflow-x-visible'}
-            style={{ maxWidth: '100%' }}
-          >
-            <div style={{ minWidth: tableMinWidth }}>
-              {/* Header Row - Sticky at top */}
-              <div className="sticky top-0 z-20 flex bg-gray-50">
-                {/* Sticky FIO Header */}
-                <div
-                  className="sticky left-0 z-30 bg-gray-50 border border-gray-200 px-4 py-3 text-left font-medium text-gray-700 min-w-[200px] flex items-center whitespace-nowrap"
-                  style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}
-                >
-                  FIO
-                </div>
-
-                {/* Month Headers */}
-                <div className="flex">
-                  {monthsData.map((month) => (
-                    <div key={month.key} className="flex flex-col border-t border-b border-gray-200 flex-1 min-w-96 max-w-96  ">
-                      <div className="border-r border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
-                        {month.label}
-                      </div>
-                      <div className="flex">
-                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan</div>
-                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Fact</div>
-                        <div className="border-t border-r border-gray-200 px-2 py-2 text-xs font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan-Fact</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Total Headers */}
-                <div className="flex ">
-                  <div className="border min-w-96 max-w-96 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px] flex items-center justify-center whitespace-nowrap">
-                    Total Plan
-                  </div>
-                  <div className="border min-w-96 max-w-96 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 min-w-[100px] flex items-center justify-center whitespace-nowrap">
-                    Total Fact
-                  </div>
-                </div>
+        <div className="overflow-y-auto mb-5">
+          <div className="bg-white  ">
+            <div className="sticky top-0 z-20 flex bg-neutral-100">
+              {/* Sticky FIO Header */}
+              <div className="sticky left-0 z-30 bg-neutral-100 border-b border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-700 min-w-96 max-w-96 flex items-center whitespace-nowrap">
+                FIO
               </div>
 
+              {/* Month Headers */}
+              <div className="flex ">
+                {monthsData.map((month) => (
+                  <div key={month.key} className="flex flex-col  border-b border-gray-200 flex-1 min-w-72 max-w-72  ">
+                    <div className="border-r text-base border-gray-200 px-4 py-2 text-center font-medium text-gray-700 whitespace-nowrap">
+                      {month.label}
+                    </div>
+                    <div className="flex text-sm">
+                      <div className="border-t border-r border-gray-200 px-2 py-2 font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan</div>
+                      <div className="border-t border-r border-gray-200 px-2 py-2 font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Fact</div>
+                      <div className="border-t border-r border-gray-200 px-2 py-2 font-medium text-gray-600 flex-1 text-center whitespace-nowrap">Plan-Fact</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total Headers */}
+              <div className="flex text-sm min-w-44 max-w-44 bg-neutral-100">
+                <div className="border-b border-r min-w-44 max-w-44 border-gray-200 px-4 py-3 text-center font-medium text-gray-700  flex items-center justify-center whitespace-nowrap">
+                  Total Plan
+                </div>
+                <div className="border-b min-w-44 max-w-44 bg-neutral-100 border-gray-200 px-4 py-3 text-center font-medium text-gray-700  flex items-center justify-center whitespace-nowrap">
+                  Total Fact
+                </div>
+              </div>
+            </div>
+            <div className="">
               {/* Body Rows */}
               {studentsData.map((studentItem) => (
-                <div key={studentItem.id} className="flex hover:bg-gray-50">
+                <div key={studentItem.id} className="flex hover:bg-neutral-100">
                   {/* Sticky FIO Cell */}
                   <div
-                    className="sticky left-0 z-10 bg-white border border-gray-200 px-4 py-3 text-sm text-gray-900 min-w-[200px] flex items-center whitespace-nowrap"
-                    style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}
+                    className="sticky left-0 z-10 bg-white border-b border-r border-l border-gray-200 px-4 py-3 text-sm text-gray-900 min-w-96 max-w-96 flex items-center whitespace-nowrap"
                   >
                     {studentItem.name}
                   </div>
 
                   {/* Data Cells */}
-                  <div className="flex ">
+                  <div className="flex text-sm">
                     {monthsData.map((month) => (
-                      <div key={month.key} className="flex flex-1  min-w-96 max-w-96 ">
-                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.plan || '-'}</div>
-                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.fact || '-'}</div>
-                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-sm text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.planFact || '-'}</div>
+                      <div key={month.key} className="flex flex-1  min-w-72 max-w-72 ">
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.plan || '-'}</div>
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.fact || '-'}</div>
+                        <div className="border-r border-b box-border border-gray-200 px-2 py-3 text-center text-gray-700 flex-1 flex items-center justify-center">{studentItem[month.key]?.planFact || '-'}</div>
                       </div>
                     ))}
                   </div>
 
                   {/* Total Cells */}
-                  <div className="flex min-w-44 max-w-44">
-                    <div className="border-b border-r border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900 min-w-[100px] flex items-center justify-center">{studentItem.totalPlan}</div>
-                    <div className="border-b border-r border-gray-200 px-2 py-3 text-sm text-center font-medium text-gray-900 min-w-[100px] flex items-center justify-center">{studentItem.totalFact}</div>
+                  <div className="flex text-sm ">
+                    <div className="border-b border-r min-w-44 max-w-44 border-gray-200 px-2 py-3 text-center font-medium text-gray-900  flex items-center justify-center">{studentItem.totalPlan}</div>
+                    <div className="border-b border-r min-w-44 max-w-44 border-gray-200 px-2 py-3 text-center font-medium text-gray-900  flex items-center justify-center">{studentItem.totalFact}</div>
                   </div>
                 </div>
               ))}
