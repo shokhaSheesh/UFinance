@@ -82,12 +82,29 @@ export const isFuture = (dateString) => {
 export const isBefore = (dateString) => {
   if (!dateString) return false
   const date = new Date(dateString)
-  const today = new Date()
-  console.log('date', date)
-  console.log('today', today)
+  const today = new Date() 
   today.setHours(0, 0, 0, 0)
   return date < today
 }
 
+export function isPastDate(date) {
+  return new Date(date).getTime() < Date.now()
+}
 
 
+export const formatStudentTableDate = (monthString) => {
+  if (!monthString) return ''
+
+  const [month, year] = monthString.split('.')
+  if (!month || !year) return monthString
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+
+  const monthIndex = parseInt(month, 10) - 1
+  if (monthIndex < 0 || monthIndex > 11) return monthString
+
+  return `${monthNames[monthIndex]} ${year}`
+}
