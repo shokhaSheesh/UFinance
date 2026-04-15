@@ -1,9 +1,9 @@
 'use client'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { CalendarRange } from 'lucide-react'
 import moment from 'moment/moment'
 import { useRef, useState } from 'react'
 import { CgClose } from 'react-icons/cg'
-import { DesignCalenderIcon } from '../../../constants/icons'
 import { formatDate } from '../../../utils/formatDate'
 import CustomCalendar from '../../shared/Calendar'
 
@@ -137,8 +137,8 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
     <div className="flex flex-col gap-3 w-full relative" ref={wrapperRef}>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger>
-          <div className="flex items-center gap-2 font-normal p-2 border border-gray-ucode-200 rounded-md bg-gray-ucode-25 relative cursor-pointer">
-            <DesignCalenderIcon strokeWidth={1} />
+          <div className="flex items-center gap-2 font-normal p-1.5 border border-neutrak-300 rounded-md bg-gray-ucode-25 relative cursor-pointer">
+            <CalendarRange strokeWidth={1} className='text-neutral-400' />
             <input
               type="text"
               value={singleDateMode
@@ -175,7 +175,7 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
           {/* Date pickers row */}
           <div className="flex items-center gap-2 my-2 border-t border-gray-100 pt-2">
             <div className="flex items-center gap-2 p-1.5 border border-gray-200 rounded-md bg-gray-50/50 w-full">
-              <DesignCalenderIcon />
+              <CalendarRange strokeWidth={1} className='text-neutral-400' />
               <input
                 type="text"
                 value={startDate ? formatDate(startDate) : (singleDateMode ? 'Выберите дату' : 'Начало')}
@@ -186,7 +186,7 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
             </div>
             {!singleDateMode && (
               <div className="flex items-center gap-2 p-1.5 border border-gray-200 rounded-md bg-gray-50/50 w-full">
-                <DesignCalenderIcon />
+                <CalendarRange strokeWidth={1} className='text-neutral-400' />
                 <input
                   type="text"
                   value={endDate ? formatDate(endDate) : 'Конец'}

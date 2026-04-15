@@ -2,12 +2,14 @@ import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
 import { GlobalCurrency } from '../constants/globalCurrency'
 
+const currentYear = new Date().getFullYear()
+
 class Student {
   accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method'
-  selectedLegelEntities = []
+  selectedCounterParties = []
   currenyCode = GlobalCurrency.code
-  dateRange = { start: null, end: null }
+  dateRange = { start: new Date(currentYear, 0, 1), end: new Date() }
 
   constructor() {
     makeAutoObservable(this)
@@ -18,7 +20,7 @@ class Student {
         properties: [
           "accounting",
           "dealsMethod",
-          "selectedLegelEntities",
+          "selectedCounterParties",
           "currenyCode",
           "dateRange",
         ],
@@ -35,9 +37,9 @@ class Student {
   resetFilters = () => {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
-    this.selectedLegelEntities = []
+    this.selectedCounterParties = []
     this.currenyCode = GlobalCurrency.code
-    this.dateRange = { start: null, end: null }
+    this.dateRange = { start: new Date(currentYear, 0, 1), end: new Date() }
   }
 }
 

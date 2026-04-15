@@ -1,6 +1,5 @@
+export { IoCloseOutline, IoCopyOutline } from "react-icons/io5";
 export { MdOutlineModeEdit } from "react-icons/md";
-export { IoCloseOutline } from "react-icons/io5";
-export { IoCopyOutline } from "react-icons/io5";
 
 
 export const AppLogo = ({ size = 22, strokeWidth = 1.5, ...props }) => {
@@ -46,6 +45,9 @@ export const DebitIcon = () => (
     <rect width="16" height="16" fill="#1F98AD" rx="3"></rect>
     <path fill="#fff" d="M4.7 12.267v-2.54h.886V3.732h4.936v5.993h.778v2.53h-.993v-1.65H5.693v1.66H4.7Zm1.922-2.54h2.906V4.625H6.634v1.878c0 .513-.012.856-.012 1.392V9.726Z"></path>
   </svg>
+)
+export const WarnIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="14" height="14" rx="3" fill="#F88600"></rect><path fill-rule="evenodd" clip-rule="evenodd" d="M7.75 3.21289C7.75 2.79868 7.41421 2.46289 7 2.46289C6.58579 2.46289 6.25 2.79868 6.25 3.21289L6.25 7.99043C6.25 8.40465 6.58579 8.74043 7 8.74043C7.41421 8.74043 7.75 8.40465 7.75 7.99043L7.75 3.21289ZM7.00004 11.5367C7.50272 11.5367 7.91023 11.1292 7.91023 10.6265C7.91023 10.1238 7.50272 9.71631 7.00004 9.71631C6.49735 9.71631 6.08984 10.1238 6.08984 10.6265C6.08984 11.1292 6.49735 11.5367 7.00004 11.5367Z" fill="white"></path></svg>
 )
 
 export const ExclamationIcon = () => (

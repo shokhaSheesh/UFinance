@@ -25,7 +25,7 @@ class OperationFilterStore {
 	selectedFilters = tips
 	amountRange = { min: '', max: '' }
 	selectedChartOfAccounts = []
-	paymentType = 'cash'
+	paymentType = null
 	dateFilters = {
 		podtverzhdena: true,
 		nePodtverzhdena: true,

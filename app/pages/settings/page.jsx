@@ -1,15 +1,14 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { appStore } from '../../../store/app.store'
 import { observer } from 'mobx-react-lite'
+import { useMemo } from 'react'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
-import { queryClient } from '../../../lib/queryClient'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
+import { queryClient } from '../../../lib/queryClient'
+import { appStore } from '../../../store/app.store'
 
-const SettingsPage = observer(() => {
-  const [purposeOptional, setPurposeOptional] = useState(false)
+const SettingsPage = observer(() => { 
 
   const { mutateAsync: updateSettings } = useUcodeRequestMutation()
 
@@ -83,12 +82,7 @@ const SettingsPage = observer(() => {
             checked={appStore.isPayment}
             onChange={handleSwitchPayment}
             label="Тип платежа"
-          />
-          <OperationCheckbox
-            checked={purposeOptional}
-            onChange={() => setPurposeOptional(v => !v)}
-            label="Сделать поле «Назначение платежа» необязательным"
-          />
+          /> 
         </section>
       </section>
     </div>
