@@ -8,6 +8,8 @@ import { Controller, useForm } from 'react-hook-form'
 import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
+import { queryClient } from '../../../lib/queryClient'
+import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { authStore } from '../../../store/auth.store'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../ReadyComponents/SelectProductService'
@@ -84,11 +86,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
   const { mutate: createStudent } = useMutation({
     mutationKey: ['create-student'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'create_contract_with_counterparty', data })
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'create_contract_with_counterparty', data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
+    }
   })
 
   // Fetch statuses
-  const { data: clasess, isLoading: loadingClasess } = useUcodeDefaultApiQuery({
+  const { data: clasess } = useUcodeDefaultApiQuery({
     queryKey: 'classes',
     urlMethod: 'GET',
     urlParams: '/items/classes?from-ofs=true',
@@ -99,7 +104,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     }
   })
   // Fetch statuses
-  const { data: language_classes, isLoading: languageClassesLoading } = useUcodeDefaultApiQuery({
+  const { data: language_classes } = useUcodeDefaultApiQuery({
     queryKey: 'language_classes',
     urlMethod: 'GET',
     urlParams: '/items/language_classes?from-ofs=true',
@@ -124,10 +129,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       value: item.guid,
       label: item.name
     })) || []
-  }, [language_classes])
-
-
-
+  }, [language_classes]) 
 
 
 
@@ -140,10 +142,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   }
 
   const getContractData = () => {
-    const values = getValues()
-    console.log('vlues', values)
+    const values = getValues() 
     return {
-      contractNumber: '___',
+      contractNumber: values.contractNumber || '___',
       contractDate: values.contractDate || '____-__-__',
       academicYear: values.academicYear || '2025-2026',
       guardianName: values.guardianName || '________________________',
@@ -175,7 +176,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
     // Generate contract HTML with filled data
     const contractData = getContractData()
-    const htmlContent = getIbnSinoContractHtml(contractData)
+    const htmlContent = getIbnSinoContractHtml(contractData).replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
 
     let contractFileLink = ''
 
@@ -262,7 +263,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     createStudent(requestData, {
       onSuccess: () => {
         showSuccessNotification('Ученик успешно создан')
-        onClose?.()
+        setStep('form')
+        onClose()
       },
       onError: (error) => {
         showErrorNotification(error?.message || 'Ошибка при создании ученика')
@@ -289,18 +291,21 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
           <div className="flex-1 overflow-auto p-4">
             <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Номер договора</label>
+                <label className="text-xs font-medium text-gray-700">Номер договора *</label>
                 <Input
                   placeholder="Введите номер договора"
-                  {...register('contractNumber')}
+                  error={!!errors.contractNumber}
+                  {...register('contractNumber', { required: 'Введите номер договора' })}
                 />
+                {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>}
               </div>
               {/* Row 1 */}
               <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
-                <label className="text-xs font-medium text-gray-700">Дата договора</label>
+                <label className="text-xs font-medium text-gray-700">Дата договора *</label>
                 <Controller
                   name="contractDate"
                   control={control}
+                  rules={{ required: 'Выберите дату договора' }}
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
@@ -311,14 +316,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна</label>
+                <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
                 <Input
                   placeholder="Введите Ф.И.О. опекуна"
-                  {...register('guardianName')}
+                  error={!!errors.guardianName}
+                  {...register('guardianName', { required: 'Введите Ф.И.О. опекуна' })}
                 />
+                {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -336,36 +344,36 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                 />
               </div>
 
-              {/* Row 2 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Выберите тип опекуна</label>
+                <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
                 <Controller
                   name="guardianType"
                   control={control}
+                  rules={{ required: 'Выберите тип опекуна' }}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Выберите тип опекуна"
                       value={field.value}
                       onChange={field.onChange}
                       data={[
-                        { value: 'Dadasi', label: 'Dadasi' },
-                        { value: 'Onasi', label: 'Onasi' },
-                        { value: 'Akasi', label: 'Akasi' },
-                        { value: 'Opasi', label: 'Opasi' },
-                        { value: "To'gasi", label: "To'gasi" }
+                        { value: 'ota', label: 'Ota' },
+                        { value: 'ona', label: 'Ona' },
+                        { value: 'aka-uka', label: 'Akasi-Ukasi' }, 
                       ]}
                       className='bg-white'
                       isClearable={false}
                     />
                   )}
                 />
+                {errors.guardianType && <span className="text-xs text-red-500">{errors.guardianType.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Выберите учебный год</label>
+                <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
                 <Controller
                   name="academicYear"
                   control={control}
+                  rules={{ required: 'Выберите учебный год' }}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Выберите учебный год"
@@ -377,30 +385,33 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Телефон 1</label>
+                <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm rounded-l-md font-sans">+998</span>
                   <input
                     type="text"
                     placeholder="Введите номер"
                     {...register('phone1', {
-                      required: true,
-                      pattern: /^\d{3}\s\d{2}\s\d{2}$/,
+                      required: 'Введите номер телефона',
+                      pattern: { value: /^\d{3}\s?\d{2}\s?\d{2}$/, message: 'Неверный формат номера' },
                     })}
-                    className="w-full h-[36px] px-3 border border-gray-200 rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans"
+                    className={`w-full h-[36px] px-3 border rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
                   />
                 </div>
+                {errors.phone1 && <span className="text-xs text-red-500">{errors.phone1.message}</span>}
               </div>
 
               {/* Row 3 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика</label>
+                <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
                 <Controller
                   name="counterparties_id"
                   control={control}
+                  rules={{ required: 'Выберите ученика' }}
                   render={({ field }) => (
                     <SingleCounterParty
                       placeholder="Введите Ф.И.О. ученика"
@@ -413,6 +424,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -429,28 +441,37 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Серия и номер паспорта</label>
+                <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
                 <Input
                   placeholder="Введите серию и номер паспорта"
-                  {...register('passport')}
+                  error={!!errors.passport}
+                  {...register('passport', { required: 'Введите серию и номер паспорта' })}
                 />
+                {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>}
               </div>
 
               {/* Row 4 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна</label>
+                <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
                 <Input
                   placeholder="Введите ПИНФЛ опекуна"
-                  {...register('pinf')}
+                  error={!!errors.pinf}
+                  {...register('pinf', {
+                    required: 'Введите ПИНФЛ опекуна',
+                    pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
+                  })}
                 />
+                {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Место выдачи</label>
+                <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
                 <Input
                   placeholder="Введите место выдачи"
-                  {...register('issuedBy')}
+                  error={!!errors.issuedBy}
+                  {...register('issuedBy', { required: 'Введите место выдачи' })}
                 />
+                {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -471,10 +492,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               {/* Row 5 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Дата рождения ученика</label>
+                <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
                 <Controller
                   name="birthDate"
                   control={control}
+                  rules={{ required: 'Выберите дату рождения' }}
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
@@ -485,19 +507,20 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Срок действия договора от</label>
+                <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
                 <Controller
                   name="validFrom"
                   control={control}
+                  rules={{ required: 'Выберите дату начала' }}
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value)
-                        console.log('validFrom', value)
                         setValue('the_contract_period_is_from', value)
                       }}
                       placeholder="Выберите дату"
@@ -506,13 +529,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Выберите пол</label>
+                <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
                 <Controller
                   name="gender"
                   control={control}
+                  rules={{ required: 'Выберите пол' }}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Выберите пол"
@@ -524,13 +549,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>}
               </div>
               {/* Row 6 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Срок действия договора до</label>
+                <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
                 <Controller
                   name="validTo"
                   control={control}
+                  rules={{ required: 'Выберите дату окончания' }}
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
@@ -544,12 +571,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>}
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Введите класс</label>
+                <label className="text-xs font-medium text-gray-700">Введите класс *</label>
                 <Controller
                   name="classes_id"
                   control={control}
+                  rules={{ required: 'Выберите класс' }}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Введите класс"
@@ -565,6 +594,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.classes_id && <span className="text-xs text-red-500">{errors.classes_id.message}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -622,19 +652,22 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Адрес</label>
+                <label className="text-xs font-medium text-gray-700">Адрес *</label>
                 <Input
                   placeholder="Адрес"
-                  {...register('address')}
+                  error={!!errors.address}
+                  {...register('address', { required: 'Введите адрес' })}
                 />
+                {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>}
               </div>
 
               {/* Row 8 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Выберите язык</label>
+                <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
                 <Controller
                   name="language_classes_id"
                   control={control}
+                  rules={{ required: 'Выберите язык' }}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Выберите язык"
@@ -650,6 +683,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>}
               </div>
               {/* Row 9 */}
               <div className="flex flex-col gap-1.5">
@@ -670,10 +704,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               </div>
               {/* Row 10 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Юрлица</label>
+                <label className="text-xs font-medium text-gray-700">Юрлица *</label>
                 <Controller
                   name="legal_entity_id"
                   control={control}
+                  rules={{ required: 'Выберите юрлицо' }}
                   render={({ field }) => (
                     <SelectLegelEntitties
                       value={field.value}
@@ -684,6 +719,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
+                {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>}
               </div>
 
               {/* Uchinchi shaxs section */}

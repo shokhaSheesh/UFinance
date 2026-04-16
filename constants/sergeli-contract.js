@@ -175,8 +175,8 @@ export const getSergeliContractHtml = (data = {}) => {
 <p class="intro-text">
   Nizom asosida ish olib boruvchi "FAIR SCHOOL" MCHJ maktabi nomidan direktori
   <span class="bold">${directorName}</span> bir tomondan (keyingi o'rinlarda "Bajaruvchi"
-  xamda "Maktab" deb ataladi), o'quvchining qonuniy vakili <span class="bold highlight">${guardianName}</span> Ikkinchi
-  tomondan (keyingi o'rinlarda "Buyurtmachi" deb ataladi), o'quvchi <span class="bold highlight">${studentName}</span>ni
+  xamda "Maktab" deb ataladi), o'quvchining qonuniy vakili <span class="bold highlight ">${guardianName}</span> Ikkinchi
+  tomondan (keyingi o'rinlarda "Buyurtmachi" deb ataladi), o'quvchi <span class="bold highlight ">${studentName}</span>ni
   (keyingi o'rinlarda "o'quvchi" deb ataladi) davlat standartlari asosida o'rta
   maktab ta'limini olishi uchun mazkur shartnomani tuzdilar.
 </p>
@@ -184,14 +184,14 @@ export const getSergeliContractHtml = (data = {}) => {
 <div class="section-title">1. SHARTNOMA PREDMETI</div>
 
 <p class="article">
-  1.1. "Bajaruvchi" o'quvchini <span class="bold highlight">${className} ${language}</span>-sinfga o'qishga qabul qiladi va davlat
+  1.1. "Bajaruvchi" o'quvchini <span class="bold highlight ">${className} ${language}</span>-sinfga o'qishga qabul qiladi va davlat
   ta'lim standartlariga mos bo'lgan sifatli ta'lim xizmatlarini ko'rsatadi. "Buyurtmachi" esa,
   ushbu ta'lim xizmatlari uchun haq to'laydi.
 </p>
 
 <p class="article">
   1.2. O'quvchining maktabda ta'lim olish muddati o'quv dasturi va maktab Nizomiga
-  muvofiq (1 oy sinov muddati bilan) <span class="highlight">${validFrom}</span> dan <span class="highlight">${validTo}</span> yilgacha tashkil etiladi.
+  muvofiq (1 oy sinov muddati bilan) <span class=" highlight ">${validFrom}</span> dan <span class=" highlight ">${validTo}</span> yilgacha tashkil etiladi.
   Shartnoma uchun to'lov haqiqiy xizmat ko'rsatish muddatiga mos ravishda hisob-kitob qilinadi.
 </p>
 
@@ -366,7 +366,7 @@ export const getSergeliContractHtml = (data = {}) => {
 
 <p class="article">
   7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili
-  har oy uchun <span class="bold highlight">${monthlyPayment} so'm</span> to'lovni tashkil qiladi. To'lovni har oy to'lashga yo'l qo'yiladi.
+  har oy uchun <span class="bold highlight ">${monthlyPayment} so'm</span> to'lovni tashkil qiladi. To'lovni har oy to'lashga yo'l qo'yiladi.
 </p>
 
 <p class="article">
@@ -440,12 +440,12 @@ export const getSergeliContractHtml = (data = {}) => {
     </td>
     <td>
       <div class="label">BUYURTMACHI</div>
-      <div><span class="label">Yashash manzili:</span> <span class="highlight">${guardianAddress}</span></div>
-      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="highlight">${guardianPassport}</span></div>
-      <div><span class="label">Kim tomonidan berilgan:</span> <span class="highlight">${guardianPassportIssuedBy}</span></div> 
-      <div><span class="label">Tel. raqami:</span> <span class="highlight">${guardianPhone1}</span> ; <span class="highlight">${guardianPhone2}</span></div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight ">${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class=" highlight ">${guardianPassport}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class=" highlight ">${guardianPassportIssuedBy}</span></div> 
+      <div><span class="label">Tel. raqami:</span> <span class=" highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
       <br/>
-      <div>Fuqaro: <span class="bold highlight">${studentName}</span></div>
+      <div>Fuqaro: <span class="bold highlight ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>
@@ -454,8 +454,8 @@ export const getSergeliContractHtml = (data = {}) => {
 <div style="margin-top: 30px; padding-top: 16px; border-top: 1px solid #ccc;">
   <div class="label" style="font-size: 13.5px; margin-bottom: 10px;">Uchinchi shaxs:</div>
   <div style="font-size: 12.5px; line-height: 1.7;">
-    <div>Fuqaro: <span class="bold highlight">${thirdPartyName}</span></div>
-    <div>PINFL: <span class="highlight">${thirdPartyPinfl}</span></div>
+    <div>Fuqaro: <span class="bold highlight ">${thirdPartyName}</span></div>
+    <div>PINFL: <span class=" highlight ">${thirdPartyPinfl}</span></div>
     <div style="margin-top: 20px;" class="signature-line"></div>
   </div>
 </div>

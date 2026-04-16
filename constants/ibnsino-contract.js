@@ -119,8 +119,8 @@ export const getIbnSinoContractHtml = (data = {}) => {
 <p class="intro">
   Nizom asosida ish olib boruvchi <span class="bold">"UNION SCHOOL SINO" MCHJ</span> maktabi direktori
   <span class="bold">${directorName}</span> bir tomondan ("Bajaruvchi"), o'quvchining qonuniy vakili
-  <span class="bold highlight">${guardianName}</span> ikkinchi tomondan ("Buyurtmachi"), o'quvchi
-  <span class="bold highlight">${studentName}</span>ning ta'lim olishi uchun mazkur shartnomani tuzdilar.
+  <span class="bold highlight ">${guardianName}</span> ikkinchi tomondan ("Buyurtmachi"), o'quvchi
+  <span class="bold highlight ">${studentName}</span> ning ta'lim olishi uchun mazkur shartnomani tuzdilar.
 </p>
 
 <div class="section-title">1. Shartnoma predmeti</div>
@@ -141,12 +141,12 @@ moddiy-texnik bazani takomillashtirish va rivojlantirish, Qabul komissiyasi tomo
 va boshqa tashkiliy tadbirlarni amalga oshirish hamda ta’lim sifatini yaxshilash maqsadida, Mijoz
 (abituriyent yoki uning vakili) tomonidan 1 000 000 (bir million) so‘m miqdorida oldindan to‘lov amalga
 oshiriladi..
-   Ta'lim muddati: <span class="highlight">${validFrom}</span> dan <span class="highlight">${validTo}</span> gacha.
+   Ta'lim muddati: <span class=" highlight ">${validFrom}</span> dan <span class=" highlight ">${validTo}</span> gacha.
   Shartnoma uchun to'lov: Qabul uchun to'lov va haqiqiy xizmat muddatiga mos ravishda amalga oshiriladi.
 </p>
 
 <p class="article">
-  1.3. Qabul uchun oldindan to'lov — <span class="bold highlight">${admissionPayment} so'm</span>. Ushbu to'lov
+  1.3. Qabul uchun oldindan to'lov — <span class="bold highlight ">${admissionPayment} so'm</span>. Ushbu to'lov
   shartnoma imzolanishi bilan kuchga kiradi va qaytarib berilmaydi.
 </p>
 
@@ -226,8 +226,8 @@ oshiriladi..
 
 <div class="section-title">7. XISOB-KITOB QILISH TARTIBI</div>
 
-<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="bold highlight">${admissionPayment} so'm</span>ni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi.</p>
-<p class="article">7.2. Maktabga o'quvchini qabul qilish jarayonida mazkur Shartnoma uchun oldindan <span class="bold highlight">${admissionPayment} so'm</span> miqdorida mijozlar tomonidan to'lanadi. Mazkur summa joriy o'quv yili sentyabr oyi uchun qo'shimcha to'lov bo'ladi (Shartnoma predmetining 1.2-bandi: Qabul uchun to'lovning maqsadi va miqdori).</p>
+<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="bold highlight ">${admissionPayment} so'm</span>ni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi.</p>
+<p class="article">7.2. Maktabga o'quvchini qabul qilish jarayonida mazkur Shartnoma uchun oldindan <span class="bold highlight ">${admissionPayment} so'm</span> miqdorida mijozlar tomonidan to'lanadi. Mazkur summa joriy o'quv yili sentyabr oyi uchun qo'shimcha to'lov bo'ladi (Shartnoma predmetining 1.2-bandi: Qabul uchun to'lovning maqsadi va miqdori).</p>
 <p class="article">7.3. Mazkur Shartnomaning 7.1-bandiga asosan Ota-ona (Vasiy/Homiy)lar tomonidan o'quvchining ta'lim olishi uchun to'qqiz oylik to'lov amalga oshiriladi.</p>
 <p class="article">7.4. "Buyurtmachi" har oy uchun to'lovni, oy boshlanishidan kamida 5 (besh) kun avval to'lashni o'z zimmasiga oladi. (bunda keyingi oy uchun to'lovlar joriy oyning 25 sanasigacha avvaldan to'lanishi lozim — misol uchun: oktyabr oyi uchun to'lovlar o'tgan sentyabr oyining 25 sanasigacha to'liq to'langan bo'lishi nazarda tutiladi).</p>
 <p class="article">7.5. "Buyurtmachi" tomonidan ushbu shartnomaning 7.4-bandida ko'rsatilgan muddat buzilsa, o'quvchini darslarga kiritmaslik yoki maktabdan chetlashtirish choralari ko'rilishiga sabab bo'ladi.</p>
@@ -279,14 +279,14 @@ oshiriladi..
     </td>
     <td>
       <div class="bold">Buyurtmachi:</div>
-      <div>F.I.Sh.: <span class="bold highlight">${guardianName}</span></div>
-      <div>Manzil: <span class="highlight">${guardianAddress}</span></div>
-      <div>Pasport: <span class="highlight">${guardianPassport}</span></div>
-      <div>Berilgan: <span class="highlight">${guardianPassportIssuedBy}</span></div>
-      <div>PINFL: <span class="highlight">${guardianPinfl}</span></div>
-      <div>Tel: <span class="highlight">${guardianPhone1}</span> ; <span class="highlight">${guardianPhone2}</span></div>
+      <div>F.I.Sh.: <span class="bold highlight ">${guardianName}</span></div>
+      <div>Manzil: <span class="highlight ">${guardianAddress}</span></div>
+      <div>Pasport: <span class="highlight ">${guardianPassport}</span></div>
+      <div>Berilgan: <span class="highlight ">${guardianPassportIssuedBy}</span></div>
+      <div>PINFL: <span class="highlight ">${guardianPinfl}</span></div>
+      <div>Tel: <span class="highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
       <br/>
-      <div>O'quvchi: <span class="bold highlight">${studentName}</span></div>
+      <div>O'quvchi: <span class="bold highlight ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>
@@ -321,11 +321,11 @@ oshiriladi..
     <tr>
       <td style="text-align: center; border-top: 1px solid #333; padding-top: 6px;">
         <em>To'liq ismi sharifi</em><br/>
-        <span class="bold highlight">${guardianName}</span>
+        <span class="bold highlight ">${guardianName}</span>
       </td>
       <td style="text-align: center; border-top: 1px solid #333; padding-top: 6px;">
         <em>Sana</em><br/>
-        <span class="highlight">${contractDate}</span>
+        <span class=" highlight ">${contractDate}</span>
       </td>
       <td style="text-align: center; border-top: 1px solid #333; padding-top: 6px;">
         <em>Imzo</em>

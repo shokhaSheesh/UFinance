@@ -1,13 +1,14 @@
 'use client'
 
+import { Banknote, GitBranch, Settings as SettingsIcon, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Settings as SettingsIcon, GitBranch, Banknote } from 'lucide-react'
 
 const sidebarItems = [
-  { id: 'general',    label: 'Общие настройки', icon: SettingsIcon, href: '/pages/settings' },
-  { id: 'branches',   label: 'Филиалы',          icon: GitBranch,    href: '/pages/settings/branches' },
-  { id: 'currencies', label: 'Валюты',            icon: Banknote,     href: '/pages/settings/currencies' },
+  { id: 'general', label: 'Общие настройки', icon: SettingsIcon, href: '/pages/settings' },
+  { id: 'branches', label: 'Филиалы', icon: GitBranch, href: '/pages/settings/branches' },
+  { id: 'currencies', label: 'Валюты', icon: Banknote, href: '/pages/settings/currencies' },
+  { id: 'roles', label: 'Роли', icon: Shield, href: '/pages/settings/role' },
 ]
 
 export default function SettingLayouts({ children }) {

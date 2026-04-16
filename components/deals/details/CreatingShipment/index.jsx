@@ -1,24 +1,24 @@
-import { useState, useEffect, useMemo } from 'react'
-import { X, TrashIcon } from 'lucide-react'
-import styles from './style.module.scss'
-import { DatePicker } from '@/components/common/DatePicker/DatePicker'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../utils/helpers'
-import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import Loader from '../../../shared/Loader'
-import { queryClient } from '../../../../lib/queryClient'
-import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
-import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
-import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
-import SelectProductService from '../../../ReadyComponents/SelectProductService'
-import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
-import MyAccountCurrensies from '../../../ReadyComponents/MyAccountCurrensies'
-import { appStore } from '../../../../store/app.store'
-import { observer } from 'mobx-react-lite'
 import { cn } from '@/app/lib/utils'
-import { toJS } from 'mobx'
+import { DatePicker } from '@/components/common/DatePicker/DatePicker'
 import { keepPreviousData } from '@tanstack/react-query'
+import { TrashIcon, X } from 'lucide-react'
+import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useMemo, useState } from 'react'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
+import { queryClient } from '../../../../lib/queryClient'
+import { appStore } from '../../../../store/app.store'
+import { formatDecimal, formatNumber, StringtoNumber } from '../../../../utils/helpers'
+import MyAccountCurrensies from '../../../ReadyComponents/MyAccountCurrensies'
+import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
+import SelectProductService from '../../../ReadyComponents/SelectProductService'
+import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
+import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
+import Loader from '../../../shared/Loader'
+import styles from './style.module.scss'
 
 const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragentId, initialData = null, isEditing = false, isCopying = false, onSuccess }) => {
   const today = useMemo(() => new Date(), [])
@@ -216,8 +216,6 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       if (isEditing && initialData?.guid) {
         payload.transaction_guid = initialData.guid
       }
-
-      console.log('payload', payload)
 
       await createShipment({
         method: isEditing ? "update_shipment_transaction" : "create_shipment_transaction",
