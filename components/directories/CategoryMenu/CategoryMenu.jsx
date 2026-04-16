@@ -39,7 +39,11 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
     }
   }
 
-  if (!categoriesPermissions.add || !categoriesPermissions.delete || !categoriesPermissions.edit) {
+  if (!categoriesPermissions.add && !categoriesPermissions.delete && !categoriesPermissions.edit) {
+    return null
+  }
+
+  if (!categoriesPermissions.add && isStatic) {
     return null
   }
 
@@ -63,7 +67,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
           </DropdownMenuItem>
         ) : (
             <>
-              <DropdownMenuItem asChild>
+              {categoriesPermissions.add && <DropdownMenuItem asChild>
               <button
                   className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
                 onClick={handleAddChild}
@@ -71,8 +75,8 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                   <Plus size={16} />
                   <span className='flex-1 text-left'>Создать подстатью</span>
               </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              </DropdownMenuItem>}
+              {categoriesPermissions.edit && <DropdownMenuItem asChild>
               <button
                   className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
                 onClick={handleEdit}
@@ -80,8 +84,8 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                   <Pencil size={16} />
                   <span className='flex-1 text-left'>Редактировать</span>
               </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              </DropdownMenuItem>}
+              {categoriesPermissions.delete && <DropdownMenuItem asChild>
               <button
                   className="flex w-full gap-2 items-center p-2 text-red-500 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
                 onClick={handleDelete}
@@ -89,7 +93,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                   <Trash2 size={16} />
                   <span className='flex-1 text-left'>Удалить</span>
               </button>
-              </DropdownMenuItem>
+              </DropdownMenuItem>}
           </>
         )}
       </DropdownMenuContent>

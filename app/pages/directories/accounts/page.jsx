@@ -1,47 +1,37 @@
 "use client"
 
-import React, { useState, useRef, useEffect, useMemo } from 'react'
-import { observer } from 'mobx-react-lite'
-import { accountsStore } from '@/store/accounts.store'
-import { useQueryClient } from '@tanstack/react-query'
-import { FilterSidebar, FilterSection } from '@/components/directories/FilterSidebar/FilterSidebar'
-import { useDeleteMyAccounts } from '@/hooks/useDashboard'
-import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
-import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
+import { cn } from '@/app/lib/utils'
 import { AccountMenu } from '@/components/directories/AccountMenu/AccountMenu'
+import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
+import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
+import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
 import { DeleteAccountConfirmModal } from '@/components/directories/DeleteAccountConfirmModal/DeleteAccountConfirmModal'
 import DeleteAccountGroupModal from '@/components/directories/DeleteAccountGroupModal/DeleteAccountGroupModal'
-import { cn } from '@/app/lib/utils'
-import styles from './accounts.module.scss'
-import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
+import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import { useDeleteMyAccounts } from '@/hooks/useDashboard'
+import { accountsStore } from '@/store/accounts.store'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
-import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import Input from '../../../../components/shared/Input'
+import { observer } from 'mobx-react-lite'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import GroupMyAccounts from '../../../../components/ReadyComponents/GroupMyAccouts'
+import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
+import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
+import Input from '../../../../components/shared/Input'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
+import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
+import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import useMounted from '../../../../hooks/useMounted'
+import { appStore } from '../../../../store/app.store'
 import { formatAmount } from '../../../../utils/helpers'
+import styles from './accounts.module.scss'
 
 export default observer(function AccountsPage() {
-  // Block body scroll for this page only
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    document.body.style.height = '100vh'
-
-    return () => {
-      document.body.style.overflow = ''
-      document.body.style.height = ''
-    }
-  }, [])
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Block body scroll for this page only 
+  const mounted = useMounted()
+  const accountPermissions = appStore.permission.directories.accounts
 
   const {
     searchQuery, setSearchQuery,
@@ -286,7 +276,7 @@ export default observer(function AccountsPage() {
         return value
     }
   }
- 
+
   // Handle click outside menu
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -373,14 +363,14 @@ export default observer(function AccountsPage() {
             <div className={styles.titleRow}>
               <h1 className={styles.title}>Мои счета</h1>
               <div ref={menuRef} className="flex items-center gap-2 relative">
-                <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
+                {accountPermissions.add && <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
                   Создать
                   {isMenuOpen ? (
                     <ChevronUp size={16} />
                   ) : (
                     <ChevronDown size={16} />
                   )}
-                </button>
+                </button>}
                 {isMenuOpen && (
                   <div className="absolute top-full w-40 p-2 flex flex-col justify-start items-start left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <button
@@ -549,7 +539,7 @@ export default observer(function AccountsPage() {
                             })}
                           </React.Fragment>
                         )
-                      } 
+                      }
                     // Non-grouped (flat list)
                     return (
                       <tr key={item.guid} className="hover:bg-neutral-50 border-b  border-gray-100 transition-colors h-14">
@@ -576,7 +566,7 @@ export default observer(function AccountsPage() {
               </tbody>
             </table>
           </div>
-        </div> 
+        </div>
 
         {/* Footer - Always visible at bottom */}
         <div className={cn("absolute flex gap-2 items-center bottom-0 z-10 bg-neutral-100  p-2 w-full ")}>

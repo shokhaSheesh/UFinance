@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react'
+import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
+import { useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { productServiceDto } from '../../../lib/dtos/productServiceDto'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import { productServiceDto } from '../../../lib/dtos/productServiceDto'
-import { keepPreviousData } from '@tanstack/react-query'
 
 const SelectProductService = ({
   value,
@@ -14,13 +15,26 @@ const SelectProductService = ({
   multi = false,
   selected,
   sellingDealId,
-  hasError
+  hasError,
+  isClearable = false,
+  name = '',
+  returnFieldValue
 }) => {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Debounced search update
+  const debouncedSetSearch = useMemo(
+    () => debounce((value) => {
+      setSearchQuery(value)
+    }, 300),
+    []
+  )
 
   const { data: productsData, isLoading } = useUcodeRequestQuery({
     method: "list_products_and_services",
     data: {
       sales_transaction_id: sellingDealId,
+      search: searchQuery
     },
     querySetting: {
       select: (response) => productServiceDto(response?.data?.data) || [],
@@ -28,6 +42,16 @@ const SelectProductService = ({
       placeholder: keepPreviousData
     }
   })
+
+
+  // Create lookup map for raw data by guid
+  const rawDataMap = useMemo(() => {
+    const map = new Map()
+      ; (productsData || []).forEach(item => {
+        map.set(item.guid, item)
+      })
+    return map
+  }, [productsData])
 
   const mappedData = useMemo(() => {
     const data = (productsData || []).map(item => ({
@@ -43,6 +67,26 @@ const SelectProductService = ({
     return data;
   }, [productsData, selected])
 
+  // Handle selection and return field value
+  const handleChange = (val) => {
+    onChange(val)
+
+    if (name && val && returnFieldValue) {
+      // For multi-select, use the last selected value
+      const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
+      const rawItem = rawDataMap.get(lookupValue)
+      if (rawItem) {
+        const fieldValue = rawItem[name]
+        returnFieldValue(fieldValue ?? null)
+      }
+    }
+  }
+
+  // Handle search input with debounce
+  const handleSearch = (value) => {
+    debouncedSetSearch(value)
+  }
+
   if (isLoading) {
     return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">Загрузка...</div>
   }
@@ -53,11 +97,13 @@ const SelectProductService = ({
     <Component
       data={mappedData}
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
+      onSearch={handleSearch}
       placeholder={placeholder}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      isClearable={isClearable}
     />
   )
 }

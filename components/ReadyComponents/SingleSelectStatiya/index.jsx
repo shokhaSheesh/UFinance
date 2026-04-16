@@ -1,7 +1,7 @@
+import { keepPreviousData } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
-import { keepPreviousData } from '@tanstack/react-query'
 
 const NOT_SELECTABLE = new Set([
   'Доходы',
@@ -45,12 +45,12 @@ const mapNode = (item, type, hiddenValue) => {
 
 const mapTree = (data, type, hiddenValue) => {
   return data
-    ?.filter(item => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie)) // 👈 filter root
+    ?.filter(item => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie)) // 
     .map(item => mapNode(item, type, hiddenValue))
     .filter(Boolean)
 }
 
-const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true }) => {
+const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName }) => {
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
@@ -84,6 +84,18 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
     return flat;
   }, [result])
 
+  // Find label by value from tree data
+  const findLabelByValue = (nodes, value) => {
+    for (const node of nodes) {
+      if (node.value === value) return node.label
+      if (node.children) {
+        const found = findLabelByValue(node.children, value)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
   useEffect(() => {
     if (selectedValue && returnIsChild) {
       const ancestors = flattenedAncestry[selectedValue] || [];
@@ -94,6 +106,25 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
     }
   }, [selectedValue, flattenedAncestry, parent, returnIsChild])
 
+  // Return selected item label when value changes
+  useEffect(() => {
+    if (handleReturnName && result) {
+      // Inline label lookup to avoid dependency issues
+      const findLabel = (nodes, val) => {
+        for (const node of nodes) {
+          if (node.value === val) return node.label
+          if (node.children) {
+            const found = findLabel(node.children, val)
+            if (found) return found
+          }
+        }
+        return null
+      }
+      const label = selectedValue ? findLabel(result, selectedValue) : ''
+      handleReturnName(label || '')
+    }
+  }, [selectedValue, result, handleReturnName])
+
   const handleSelect = (val) => {
     setSelectedValue?.(val);
     if (parent && returnIsChild) {
@@ -102,6 +133,11 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
       // Check if any ancestor matches any of the parent names
       const isDescendant = ancestors.some(name => parentArray.includes(name));
       returnIsChild(isDescendant);
+    }
+    // Return label of selected item
+    if (handleReturnName && result) {
+      const label = val ? findLabelByValue(result, val) : ''
+      handleReturnName(label || '')
     }
   }
 

@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const SingleSelect = ({
   data = [],
@@ -15,7 +15,8 @@ const SingleSelect = ({
   dropdownClassName,
   hasError,
   wrapperClassName,
-  disabled = false
+  disabled = false,
+  onSearch = () => { }
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -163,7 +164,10 @@ const SingleSelect = ({
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                 placeholder='Поиск по списку'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  onSearch(e.target.value)
+                }}
               />
             </div>}
 

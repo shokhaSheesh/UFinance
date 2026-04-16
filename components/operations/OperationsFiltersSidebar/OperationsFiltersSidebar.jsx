@@ -13,6 +13,7 @@ import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
 import { FilterSection, FilterSidebar } from '../../directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
 import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
+import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 import styles from './OperationsFiltersSidebar.module.scss'
@@ -20,6 +21,7 @@ import styles from './OperationsFiltersSidebar.module.scss'
 export const OperationsFiltersSidebar = observer(({
   isOpen, onClose, clearCount, onClear
 }) => {
+  const [date, setDate] = useState(new Date())
   const queryClient = useQueryClient()
   const {
     selectedFilters,
@@ -246,6 +248,11 @@ export const OperationsFiltersSidebar = observer(({
               handleChangeFilter()
             }}
           />
+          <FormDatepicker
+            value={date}
+            onChange={setDate}
+            inputClass="w-full"
+          />
         </FilterSection>
 
         {/* Параметры */}
@@ -262,7 +269,6 @@ export const OperationsFiltersSidebar = observer(({
               className={'bg-gray-ucode-25'}
             />
 
-
             {/* Контрагенты */}
             <SelectCounterParties
               value={selectedCounterAgents}
@@ -272,7 +278,6 @@ export const OperationsFiltersSidebar = observer(({
               }}
               placeholder="Контрагенты"
               className={'bg-gray-ucode-25'}
-
             />
 
             {/* Payment filter  */}
@@ -284,7 +289,7 @@ export const OperationsFiltersSidebar = observer(({
                 handleChangeFilter()
               }}
               isClearable={false}
-              placeholder='Выберите тип платежа...'
+              placeholder='Тип платежа'
               className={'bg-gray-ucode-25'}
             />}
 

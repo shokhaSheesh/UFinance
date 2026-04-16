@@ -484,6 +484,9 @@ const OperationsPage = observer(() => {
 							<div className='min-w-18 max-w-52 flex-1  flex p-3 items-center justify-start '>
 								Счет
 							</div>
+							{appStore.isPayment && <div className='min-w-14   flex p-3 items-center justify-center '>
+								Тип платежа
+							</div>}
 							<div className='min-w-14   flex p-3 items-center justify-center '>
 								Тип
 							</div>

@@ -31,7 +31,7 @@ class AppStore {
 		directories: {
 			counterparties: { read: true, add: true, edit: true, delete: true },
 			transactionCategories: { read: true, add: true, edit: true, delete: true },
-			accounts: { read: true, add: true, edit: true, delete: true },
+			accounts: { read: true, add: true, edit: false, delete: true },
 			legalentities: { read: true, add: true, edit: true, delete: true },
 			productsServices: { read: true, add: true, edit: true, delete: true },
 		},

@@ -1,5 +1,7 @@
+
 import { toJS } from "mobx"
 import { appStore } from "../store/app.store"
+
 
 // ── Format helpers ──────────────────────────────────────────
 export const formatDateRu = (dateStr) => {
@@ -149,4 +151,15 @@ export function handleInput(e) {
 
 export function formatDecimal(num, decimalPlaces = 2) {
 	return parseFloat(Number(num).toFixed(decimalPlaces))
+}
+
+export const handleDownload = (pdfurl, name) => {
+  return new Promise((resolve, reject) => {
+    const link = document.createElement('a')
+    link.href = pdfurl
+    link.target = '_blank'
+    link.download = name || 'contract.pdf'
+    link.click()
+    resolve(true)
+  })
 }

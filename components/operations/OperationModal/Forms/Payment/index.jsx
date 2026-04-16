@@ -263,7 +263,7 @@ const PaymentForm = observer(({
         confirmAccrual: raw.payment_accrual !== undefined ? raw.payment_accrual : false,
         counterparty: raw.counterparties_id || preselectedCounterparty || null,
         chartOfAccount: raw.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
-        paymentType: 'transfer',
+        paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.selling_deal_id || defaultDealGuid || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || 'RUB',
@@ -279,7 +279,7 @@ const PaymentForm = observer(({
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
-      paymentType: 'transfer',
+      paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
       purpose: '',
       currency: '',
@@ -644,6 +644,7 @@ const PaymentForm = observer(({
                         onChange={field.onChange}
                         placeholder='Выберите тип платежа...'
                         withSearch={false}
+                        isClearable={false}
                         className='bg-white border rounded-md'
                       />
                     )}

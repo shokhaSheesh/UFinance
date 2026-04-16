@@ -3654,6 +3654,11 @@ hono@^4.11.4:
   resolved "https://registry.yarnpkg.com/hono/-/hono-4.12.8.tgz#5f3a9c0d5339ff460b2c652a4c64dd79059930ad"
   integrity sha512-VJCEvtrezO1IAR+kqEYnxUOoStaQPGrCmX3j4wDTNOcD1uRPFpGlwQUIW8niPuvHXaTUxeOUl5MMDGrl+tmO9A==
 
+html2pdf@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/html2pdf/-/html2pdf-0.0.11.tgz#1359156fbdeac0ec6fc8a781b05e8747ded19769"
+  integrity sha512-Kx3I5r7lazHZzZv5lDk59jQoTxqaEGlf2BcGNvzWGPQVu0hE8jYCk4hboksuaCvmMJPa0S0A+156ZbE71Wdo2w==
+
 http-errors@^2.0.0, http-errors@^2.0.1, http-errors@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-2.0.1.tgz#36d2f65bc909c8790018dd36fb4d93da6caae06b"

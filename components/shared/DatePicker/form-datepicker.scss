@@ -6,7 +6,7 @@
 
 .rmdp-container {
 	flex: 1;
-
+	// position: fixed;
 	.rmdp-input {
 		width: 100% !important;
 		border-color: transparent !important;
@@ -27,7 +27,7 @@
 
 	.rmdp-wrapper {
 		box-shadow: 0 0 0px #8798ad !important;
-		border: 1px solid $gray-200 !important;
+		border: 1px solid $gray-200 !important; 
 
 		.rmdp-selected {
 			background-color: $gray-300 !important;

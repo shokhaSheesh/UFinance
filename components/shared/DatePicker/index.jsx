@@ -13,8 +13,10 @@ export default function CustomDatePicker({ value, onChange, format = "DD MMM, YY
         {...(type === 'month' ? { onlyMonthPicker: true } : {})}
         onChange={(dataObj => onChange(dataObj.format(format)))}
         {...props}
+        inputMode="none"
       />
-      <CalendarRange className="date-picker-icon" strokeWidth={1.2} />
+      <CalendarRange
+        className="date-picker-icon" strokeWidth={1.2} />
     </div>
   );
 }

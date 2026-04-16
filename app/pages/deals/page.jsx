@@ -4,7 +4,7 @@ import { cn } from '@/app/lib/utils'
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
-import { Search } from 'lucide-react'
+import { Download, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -23,7 +23,7 @@ import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../ho
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatDateFormat } from '../../../utils/formatDate'
-import { formatAmount } from '../../../utils/helpers'
+import { formatAmount, handleDownload } from '../../../utils/helpers'
 import styles from './deals.module.scss'
 
 export default observer(function DealsPage() {
@@ -310,6 +310,9 @@ export default observer(function DealsPage() {
                     </div>
                     <div className='hidden group-hover:flex justify-end'>
                       <div className='flex items-center'>
+                        {deal.contract_file && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скачать договор' onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}>
+                          <Download size={14} color='#686868' />
+                        </button>}
                         {dealPermission.edit && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Редактировать' onClick={(e) => handleEditClick(deal, e)}>
                           <MdOutlineModeEdit size={14} color='#686868' />
                         </button>}

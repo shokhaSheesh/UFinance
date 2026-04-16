@@ -5,6 +5,7 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
 import { useMemo, useState } from 'react'
 import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
+import { appStore } from '../../../store/app.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import styles from './style.module.scss'
 
@@ -162,6 +163,12 @@ const TableRow = observer(({
             ) : null}
           </div>
         </div>
+
+        {op?.paymentType && appStore.isPayment && <div className="min-w-14 flex px-1 items-center justify-center">
+          <div className={cn(styles.typeIcon, 'scale-75')}>
+            {op?.paymentType}
+          </div>
+        </div>}
 
         {/* Type Icon */}
         <div className="min-w-14 flex px-1 items-center justify-center">

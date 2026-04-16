@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/app/lib/utils'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import styles from './AccountMenu.module.scss'
 
-export function AccountMenu({ account, onEdit, onDelete }) {
+export const AccountMenu = observer(({ account, onEdit, onDelete }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const menuRef = useRef(null)
@@ -37,11 +38,11 @@ export function AccountMenu({ account, onEdit, onDelete }) {
 
     function handleClickOutside(event) {
       const target = event.target
-      
+
       if (buttonClickedRef.current) {
         return
       }
-      
+
       if (buttonRef.current && (
         buttonRef.current === target ||
         buttonRef.current.contains(target)
@@ -64,9 +65,9 @@ export function AccountMenu({ account, onEdit, onDelete }) {
     }
 
     justOpenedRef.current = true
-    
+
     let timeoutId = null
-    
+
     const rafId = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         timeoutId = setTimeout(() => {
@@ -109,7 +110,7 @@ export function AccountMenu({ account, onEdit, onDelete }) {
   }
 
   return (
-    <div 
+    <div
       ref={menuRef}
       className={styles.menuContainer}
       onClick={(e) => e.stopPropagation()}
@@ -124,9 +125,9 @@ export function AccountMenu({ account, onEdit, onDelete }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
         </svg>
       </button>
-      
+
       {isOpen && typeof window !== 'undefined' && createPortal(
-        <div 
+        <div
           ref={dropdownRef}
           className={styles.menuDropdown}
           style={{
@@ -168,4 +169,4 @@ export function AccountMenu({ account, onEdit, onDelete }) {
       )}
     </div>
   )
-}
+})

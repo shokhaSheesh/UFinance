@@ -1,3 +1,4 @@
+
 export const formatDate = (date) => {
   // Handle null/undefined
   if (!date) return ''
@@ -129,4 +130,9 @@ export const formatStudentTableDate = (monthString) => {
   if (monthIndex < 0 || monthIndex > 11) return monthString
 
   return `${monthNames[monthIndex]} ${year}`
+}
+
+export function toISOStringFromDate(dateStr) {
+  console.log('dateStr', dateStr)
+  return new Date(dateStr).toISOString();
 }

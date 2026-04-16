@@ -1,10 +1,18 @@
 'use client'
 
+import { keepPreviousData, useMutation } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
-import { useState } from 'react'
+import moment from 'moment'
+import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
+import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
+import { apiClient } from '../../../lib/api/ucode/base'
 import { authStore } from '../../../store/auth.store'
+import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
+import SelectProductService from '../../ReadyComponents/SelectProductService'
+import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../ReadyComponents/SingleSelectStatiya'
 import CustomModal from '../../shared/CustomModal'
 import CustomDatePicker from '../../shared/DatePicker'
 import Input from '../../shared/Input'
@@ -15,25 +23,8 @@ const academicYears = Array.from({ length: 16 }, (_, i) => {
   return { value: `${start}-${start + 1}`, label: `${start}-${start + 1}` }
 })
 
-const classOptions = Array.from({ length: 11 }, (_, i) => {
-  const num = i + 1
-  return { value: String(num), label: `${num}-sinf` }
-}).flatMap((cls) => ['A', 'B', 'C', 'D'].map((letter) => ({
-  value: `${cls.value} ${letter}`,
-  label: `${cls.value.replace('-sinf', '')} ${letter}`,
-})))
+const today = moment(new Date()).format('YYYY-MM-DD')
 
-const languageOptions = [
-  { value: 'uz', label: "O'zbek tili" },
-  { value: 'eng', label: 'Engliz tili' },
-  { value: 'ru', label: 'Rus tili' },
-]
-
-const languageLabelMap = {
-  uz: "O'zbek tili",
-  eng: 'Engliz tili',
-  ru: 'Rus tili',
-}
 
 const sostayaniya = [
   { value: 'active', label: 'Faol' },
@@ -53,11 +44,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     handleSubmit,
     control,
     getValues,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
       contractNumber: '',
-      contractDate: '',
+      contractDate: today,
       guardianName: '',
       branchName: branch?.name || '',
       guardianType: '',
@@ -69,24 +61,75 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       pinf: '',
       issuedBy: '',
       tariffName: '',
-      birthDate: '',
-      validFrom: '',
+      birthDate: today,
+      validFrom: today,
       gender: '',
-      validTo: '',
+      validTo: today,
       className: '',
       clientType: '',
       language: '',
       status: '',
       address: '',
-      passiveDate: '',
+      passiveDate: today,
       thirdPartyName: '',
-      thirdPartyPinfl: ''
+      thirdPartyPinfl: '',
+      counterparties_id: '',
+      product_and_service_id: '',
+      chart_of_accounts_id: '',
+      classes_id: '',
+      language_classes_id: '',
+      legal_entity_id: ''
     }
   })
 
-  const handleFormSubmit = (data) => {
-    onSubmit?.(data)
-  }
+  const { mutate: createStudent } = useMutation({
+    mutationKey: ['create-student'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'create_contract_with_counterparty', data })
+  })
+
+  // Fetch statuses
+  const { data: clasess, isLoading: loadingClasess } = useUcodeDefaultApiQuery({
+    queryKey: 'classes',
+    urlMethod: 'GET',
+    urlParams: '/items/classes?from-ofs=true',
+    querySetting: {
+      select: (response) => response?.data?.data?.response,
+      placeholder: keepPreviousData,
+      staleTime: 1000 * 60 * 60
+    }
+  })
+  // Fetch statuses
+  const { data: language_classes, isLoading: languageClassesLoading } = useUcodeDefaultApiQuery({
+    queryKey: 'language_classes',
+    urlMethod: 'GET',
+    urlParams: '/items/language_classes?from-ofs=true',
+    querySetting: {
+      select: (response) => response?.data?.data?.response,
+      staleTime: 1000 * 60 * 60,
+      placeholder: keepPreviousData
+    }
+  })
+
+  const classeList = useMemo(() => {
+    return clasess?.map((item) => ({
+      value: item.guid,
+      label: item.name
+    })) || []
+  }, [clasess])
+
+
+
+  const languageClassList = useMemo(() => {
+    return language_classes?.map((item) => ({
+      value: item.guid,
+      label: item.name
+    })) || []
+  }, [language_classes])
+
+
+
+
+
 
   const handlePreview = () => {
     setStep('preview')
@@ -98,6 +141,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
   const getContractData = () => {
     const values = getValues()
+    console.log('vlues', values)
     return {
       contractNumber: '___',
       contractDate: values.contractDate || '____-__-__',
@@ -105,9 +149,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       guardianName: values.guardianName || '________________________',
       studentName: values.studentName || '________________________',
       className: values.className || '___',
-      language: languageLabelMap[values.language] || "O'zbek tili",
-      validFrom: values.validFrom || '____-__-__',
-      validTo: values.validTo || '____-__-__',
+      language: values.language || "O'zbek tili",
+      validFrom: moment(values.validFrom).format('MMM, DD YYYY') || '____-__-__',
+      validTo: moment(values.validTo).format('MMM, DD YYYY') || '____-__-__',
       monthlyPayment: '3,600,000',
       guardianPassport: values.passport || '________________________',
       guardianPassportIssuedBy: values.issuedBy || '________________________',
@@ -123,6 +167,107 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   const handleClose = () => {
     setStep('form')
     onClose()
+  }
+
+  const handleFormSubmit = async (data) => {
+    // Helper to wrap value in array or return empty array
+    const toArray = (val) => val ? [val] : []
+
+    // Generate contract HTML with filled data
+    const contractData = getContractData()
+    const htmlContent = getIbnSinoContractHtml(contractData)
+
+    let contractFileLink = ''
+
+    try {
+      // Step 1: Convert HTML to PDF
+      const convertResponse = await fetch('https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${authStore.authToken}`,
+        },
+        body: JSON.stringify({
+          html_content: htmlContent,
+          output_format: 'pdf'
+        })
+      })
+
+      if (!convertResponse.ok) {
+        throw new Error('Failed to convert HTML to PDF')
+      }
+
+      const pdfBlob = await convertResponse.blob()
+
+      // Step 2: Upload PDF file
+      const formData = new FormData()
+      formData.append('file', pdfBlob, 'contract.pdf')
+
+      const uploadResponse = await fetch('https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png', {
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${authStore.authToken}`,
+        },
+        body: formData
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload PDF file')
+      }
+
+      const uploadData = await uploadResponse.json()
+      const fileLink = uploadData?.data?.link
+
+      if (fileLink) {
+        contractFileLink = `https://cdn.u-code.io/${fileLink}`
+      }
+    } catch (error) {
+      console.error('Error processing contract file:', error)
+      showErrorNotification('Ошибка при обработке договора: ' + error.message)
+      return
+    }
+
+    const requestData = {
+      object_data: {
+        name: data.contractNumber || '',
+        number_contract: data.contractNumber || '',
+        date_contract: (data.contractDate),
+        deal_date: (data.contractDate),
+        the_contract_period_is_from: (data.validFrom),
+        the_contract_period_is_to: (data.validTo),
+        counterparties_id: data.counterparties_id || '',
+        product_and_service_id: data.product_and_service_id, // TODO: get from tariff lookup
+        chart_of_accounts_id: data.chart_of_accounts_id, // TODO: get from settings
+        legal_entity_id: data?.legal_entity_id || null,
+        full_name_guardian: data.guardianName || '',
+        type_guardian: toArray(data.guardianType),
+        address: data.address || '',
+        first_phone_number: data.phone1 ? `+998${data.phone1}` : '',
+        second_phone_number: data.phone2 ? `+998${data.phone2}` : '',
+        number_passport: data.passport || '',
+        jshshr_guardian: data.pinf || '',
+        place_of_issue: data.issuedBy || '',
+        html: htmlContent,
+        contract_file: contractFileLink,
+        birthday_pupil: (data.birthDate),
+        select_gender: toArray(data.gender),
+        classes_id: data.classes_id, // TODO: get from class lookup
+        pupil_type: toArray(data.clientType),
+        language_classes_id: data.language_classes_id, // TODO: get from language lookup
+        status: toArray(data.status),
+        passive_date: (data.passiveDate)
+      }
+    }
+
+    createStudent(requestData, {
+      onSuccess: () => {
+        showSuccessNotification('Ученик успешно создан')
+        onClose?.()
+      },
+      onError: (error) => {
+        showErrorNotification(error?.message || 'Ошибка при создании ученика')
+      }
+    })
   }
 
   return (
@@ -157,9 +302,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   name="contractDate"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker 
+                    <CustomDatePicker
                       value={field.value}
                       onChange={field.onChange}
+                      format='YYYY-MM-DD'
                       placeholder="Выберите дату"
                       className={'w-full!'}
                     />
@@ -201,8 +347,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       placeholder="Выберите тип опекуна"
                       value={field.value}
                       onChange={field.onChange}
-                      data={[]}
+                      data={[
+                        { value: 'Dadasi', label: 'Dadasi' },
+                        { value: 'Onasi', label: 'Onasi' },
+                        { value: 'Akasi', label: 'Akasi' },
+                        { value: 'Opasi', label: 'Opasi' },
+                        { value: "To'gasi", label: "To'gasi" }
+                      ]}
                       className='bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
@@ -220,6 +373,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       onChange={field.onChange}
                       data={academicYears}
                       className='bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
@@ -244,9 +398,20 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               {/* Row 3 */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика</label>
-                <Input
-                  placeholder="Введите Ф.И.О. ученика"
-                  {...register('studentName')}
+                <Controller
+                  name="counterparties_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SingleCounterParty
+                      placeholder="Введите Ф.И.О. ученика"
+                      value={field.value}
+                      name='nazvanie'
+                      returnChartOfAccount={(value) => setValue('studentName', value)}
+                      onChange={field.onChange}
+                      className={'bg-white'}
+                      isClearable={false}
+                    />
+                  )}
                 />
               </div>
 
@@ -290,9 +455,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Название тарифа</label>
-                <Input
-                  placeholder="Введите название тарифа"
-                  {...register('tariffName')}
+                <Controller
+                  name="product_and_service_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectProductService
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Выберите тариф"
+                      className={'w-full! bg-white'}
+                    />
+                  )}
                 />
               </div>
 
@@ -307,6 +480,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Выберите дату"
+                      format='YYYY-MM-DD'
                       className={'w-full!'}
                     />
                   )}
@@ -321,8 +495,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        console.log('validFrom', value)
+                        setValue('the_contract_period_is_from', value)
+                      }}
                       placeholder="Выберите дату"
+                      format='YYYY-MM-DD'
                       className={'w-full!'}
                     />
                   )}
@@ -339,13 +518,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       placeholder="Выберите пол"
                       value={field.value}
                       onChange={field.onChange}
-                      data={[{ value: 'm', label: 'Мужской' }, { value: 'f', label: 'Женский' }]}
+                      data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
                       className='bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
               </div>
-
               {/* Row 6 */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Срок действия договора до</label>
@@ -355,25 +534,33 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   render={({ field }) => (
                     <CustomDatePicker
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        setValue('the_contract_period_is_to', value)
+                      }}
                       placeholder="Выберите дату"
+                      format='YYYY-MM-DD'
                       className={'w-full!'}
                     />
                   )}
                 />
               </div>
-
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Введите класс</label>
                 <Controller
-                  name="className"
+                  name="classes_id"
                   control={control}
                   render={({ field }) => (
                     <SingleSelect
                       placeholder="Введите класс"
                       value={field.value}
-                      onChange={field.onChange}
-                      data={classOptions}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        const name = clasess.find(l => l.guid === value)?.name
+                        setValue('className', name)
+                      }}
+                      data={classeList}
+                      isClearable={false}
                       className='bg-white'
                     />
                   )}
@@ -392,6 +579,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       onChange={field.onChange}
                       data={clientType}
                       className='bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
@@ -399,17 +587,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               {/* Row 7 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Выберите язык</label>
+                <label className="text-xs font-medium text-gray-700">Пассивная дата</label>
                 <Controller
-                  name="language"
+                  name="passiveDate"
                   control={control}
                   render={({ field }) => (
-                    <SingleSelect
-                      placeholder="Выберите язык"
+                    <CustomDatePicker
                       value={field.value}
                       onChange={field.onChange}
-                      data={languageOptions}
-                      className='bg-white'
+                      placeholder="Выберите дату"
+                      format='YYYY-MM-DD'
+                      className={'w-full! bg-white px-2 py-1 border border-gray-ucode-200!'}
                     />
                   )}
                 />
@@ -427,6 +615,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       onChange={field.onChange}
                       data={sostayaniya}
                       className='bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
@@ -442,16 +631,56 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               {/* Row 8 */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-700">Пассивная дата</label>
+                <label className="text-xs font-medium text-gray-700">Выберите язык</label>
                 <Controller
-                  name="passiveDate"
+                  name="language_classes_id"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <SingleSelect
+                      placeholder="Выберите язык"
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        const name = language_classes.find(l => l.guid === value)?.name
+                        setValue('language', String(name).toUpperCase())
+                      }}
+                      data={languageClassList}
+                      className='bg-white'
+                      isClearable={false}
+                    />
+                  )}
+                />
+              </div>
+              {/* Row 9 */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-700">Статья</label>
+                <Controller
+                  name="chart_of_accounts_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SinglSelectStatiya
+                      selectedValue={field.value}
+                      setSelectedValue={field.onChange}
+                      placeholder='Нераспределенный доход'
+                      className=' bg-white'
+                      isClearable={false}
+                    />
+                  )}
+                />
+              </div>
+              {/* Row 10 */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-gray-700">Юрлица</label>
+                <Controller
+                  name="legal_entity_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectLegelEntitties
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите дату"
-                      className={'w-full!'}
+                      placeholder='Выберите юрлицо'
+                      className=' bg-white'
+                      isClearable={false}
                     />
                   )}
                 />
@@ -482,13 +711,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
-            <button type="button" className="px-5 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors" onClick={handleClose}>
+            <button type="button" className="px-5 py-2 border cursor-pointer border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors" onClick={handleClose}>
               Отменить
             </button>
             <button
               type="button"
               onClick={handlePreview}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+              className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
             >
               Предпросмотр
             </button>
@@ -496,7 +725,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               type="submit"
               form="student-form"
               disabled={isSubmitting}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Сохранение...' : 'Добавить'}
             </button>
@@ -518,7 +747,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               <button
                 type="button"
                 onClick={handleBackToForm}
-                className="px-5 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 Назад к форме
               </button>
@@ -528,7 +757,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
                   if (iframe) iframe.contentWindow.print()
                 }}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
               >
                 Печать
               </button>
@@ -537,7 +766,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                 form="student-form"
                 disabled={isSubmitting}
                 onClick={handleSubmit(handleFormSubmit)}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Сохранение...' : 'Добавить'}
               </button>

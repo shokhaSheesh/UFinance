@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const TreeNode = ({ node, level = 0, selectedValue, onSelect, multi }) => {
   const isSelected = multi ? selectedValue?.includes(node.value) : selectedValue === node.value;
@@ -44,7 +44,9 @@ const TreeNode = ({ node, level = 0, selectedValue, onSelect, multi }) => {
 const TreeSelect = ({
   data = [],
   value,
+  search = "",
   onChange = () => { },
+  onSearch = () => { },
   placeholder = "Выберите",
   multi = false,
   isClearable = true,
@@ -54,6 +56,7 @@ const TreeSelect = ({
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [openUpwards, setOpenUpwards] = useState(false)
+  const searchTimeoutRef = useRef(null)
   const buttonRef = useRef(null)
   const containerRef = useRef(null)
   const dropdownRef = useRef(null)
@@ -69,6 +72,15 @@ const TreeSelect = ({
       return () => clearTimeout(timer)
     }
   }, [open])
+
+  // Cleanup search timeout
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (open && buttonRef.current) {
@@ -252,7 +264,17 @@ const TreeSelect = ({
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                 placeholder='Поиск по списку'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setSearchQuery(value)
+                  // Debounce search callback
+                  if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current)
+                  }
+                  searchTimeoutRef.current = setTimeout(() => {
+                    onSearch(value)
+                  }, 300)
+                }}
               />
             </div>
 

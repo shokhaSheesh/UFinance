@@ -6,64 +6,7 @@ import { useRef, useState } from 'react'
 import { CgClose } from 'react-icons/cg'
 import CustomCalendar from '../Calendar'
 
-const getPresetRange = (key) => {
-  const today = new Date()
-  const y = today.getFullYear()
-  const m = today.getMonth() // 0-11
 
-  switch (key) {
-    case 'this_month':
-      return [new Date(y, m, 1), new Date(y, m, 1)]
-    case 'last_month': {
-      const lastM = m === 0 ? 11 : m - 1
-      const lastY = m === 0 ? y - 1 : y
-      return [new Date(lastY, lastM, 1), new Date(lastY, lastM, 1)]
-    }
-    case 'this_quarter': {
-      const q = Math.floor(m / 3)
-      return [new Date(y, q * 3, 1), new Date(y, q * 3 + 2, 1)]
-    }
-    case 'last_quarter': {
-      const q = Math.floor(m / 3)
-      let lastQ = q - 1
-      let lastQY = y
-      if (lastQ < 0) {
-        lastQ = 3
-        lastQY = y - 1
-      }
-      return [new Date(lastQY, lastQ * 3, 1), new Date(lastQY, lastQ * 3 + 2, 1)]
-    }
-    case 'this_year':
-      return [new Date(y, 0, 1), new Date(y, 11, 1)]
-    case 'last_year':
-      return [new Date(y - 1, 0, 1), new Date(y - 1, 11, 1)]
-    case 'last_3_months':
-      return [new Date(y, m - 2, 1), new Date(y, m, 1)]
-    case 'last_6_months':
-      return [new Date(y, m - 5, 1), new Date(y, m, 1)]
-    default:
-      return [null, null]
-  }
-}
-
-const PRESETS = {
-  quick: [
-    { key: 'this_month', label: 'Этот месяц' },
-    { key: 'last_month', label: 'Прошлый месяц' },
-  ],
-  quarter: [
-    { key: 'this_quarter', label: 'Этот квартал' },
-    { key: 'last_quarter', label: 'Прошлый квартал' },
-  ],
-  year: [
-    { key: 'this_year', label: 'Этот год' },
-    { key: 'last_year', label: 'Прошлый год' },
-  ],
-  range: [
-    { key: 'last_3_months', label: 'Последние 3 мес' },
-    { key: 'last_6_months', label: 'Последние 6 мес' },
-  ]
-}
 
 const formatMonth = (date) => {
   if (!date) return ''
