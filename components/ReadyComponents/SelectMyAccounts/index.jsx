@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react'
+import { keepPreviousData } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
-import { keepPreviousData } from '@tanstack/react-query'
 
-const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите счет", className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue }) => {
+const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите счет", className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable }) => {
 
   const { data: accountsData, isLoading } = useUcodeRequestQuery({
     method: "get_my_accounts",
@@ -55,6 +55,7 @@ const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите с�
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      isClearable={isClearable}
     />
   )
 }

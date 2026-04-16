@@ -13,7 +13,6 @@ import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
 import { FilterSection, FilterSidebar } from '../../directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
 import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
-import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 import styles from './OperationsFiltersSidebar.module.scss'
@@ -61,6 +60,7 @@ export const OperationsFiltersSidebar = observer(({
 
 
 
+  console.log('date', date)
 
 
   return (
@@ -247,12 +247,7 @@ export const OperationsFiltersSidebar = observer(({
               operationFilterStore.setSelectedDateStartRange(val)
               handleChangeFilter()
             }}
-          />
-          <FormDatepicker
-            value={date}
-            onChange={setDate}
-            inputClass="w-full"
-          />
+          /> 
         </FilterSection>
 
         {/* Параметры */}

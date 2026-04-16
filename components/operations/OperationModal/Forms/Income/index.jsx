@@ -16,7 +16,6 @@ import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
 import SingleSelect from '../../../../shared/Selects/SingleSelect'
 import TextArea from '../../../../shared/TextArea'
@@ -32,6 +31,7 @@ import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // ── Reducer Logic ──────────────────────────────────────────
 
@@ -425,7 +425,7 @@ const IncomeForm = observer(({
                   name="paymentDate"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={(val) => {
                         field.onChange(val)
@@ -436,7 +436,7 @@ const IncomeForm = observer(({
                       }}
                       placeholder="Выберите дату"
                       format='YYYY-MM-DD'
-                      className={cn("w-[180px]!", errors.paymentDate && "border-red-500")}
+                      inputClass={cn("bg-white border", errors.paymentDate && "border-red-500")}
                     />
                   )}
                 />
@@ -474,6 +474,7 @@ const IncomeForm = observer(({
                       }}
                       multi={false}
                       type="show"
+                      isClearable={false}
                       extraValue="currenies_id"
                       returnValue={handleSelectMyAccount}
                       placeholder="Юрлица и счета"
@@ -548,7 +549,7 @@ const IncomeForm = observer(({
                     name="accrualDate"
                     control={control}
                     render={({ field }) => (
-                      <CustomDatePicker
+                      <FormDatepicker
                         value={watchSalesDeal ? watchPaymentDate : field.value}
                         disabled={!!watchSalesDeal}
                         onChange={(val) => {
@@ -558,7 +559,7 @@ const IncomeForm = observer(({
                         }}
                         placeholder="Выберите дату"
                         format='YYYY-MM-DD'
-                        className={cn("w-[180px]!", errors.accrualDate && "border-red-500")}
+                        inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
                       />
                     )}
                   />

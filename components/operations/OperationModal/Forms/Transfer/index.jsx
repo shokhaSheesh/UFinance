@@ -13,7 +13,6 @@ import { StringtoNumber } from '@/utils/helpers'
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
 import TextArea from '../../../../shared/TextArea'
 
@@ -26,6 +25,7 @@ import { appStore } from '../../../../../store/app.store'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 const TransferForm = observer(({ initialData, onClose }) => {
 	const [title, setTitle] = useState({
@@ -180,7 +180,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 								name='fromDate'
 								control={control}
 								render={({ field }) => (
-									<CustomDatePicker
+									<FormDatepicker
 										value={field.value}
 										onChange={val => {
 											field.onChange(val)
@@ -188,7 +188,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 										}}
 										placeholder='Выберите дату'
 										format='YYYY-MM-DD'
-										className={cn('w-[180px]!', errors.fromDate && 'border-red-500')}
+										inputClass={cn('bg-white border', errors.fromDate && 'border-red-500')}
 									/>
 								)}
 							/>
@@ -287,12 +287,12 @@ const TransferForm = observer(({ initialData, onClose }) => {
 								name='toDate'
 								control={control}
 								render={({ field }) => (
-									<CustomDatePicker
+									<FormDatepicker
 										value={field.value}
 										onChange={field.onChange}
 										placeholder='Выберите дату'
 										format='YYYY-MM-DD'
-										className={cn('w-[180px]!', errors.toDate && 'border-red-500')}
+										inputClass={cn('bg-white w-52! border', errors.toDate && 'border-red-500')}
 									/>
 								)}
 							/>

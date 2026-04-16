@@ -382,3 +382,121 @@
 .active-row {
 	@apply text-primary-dark!;
 }
+
+.form_date_picker_corner:after {
+	display: none !important;
+}
+.form_date_picker_corner.ep-arrow {
+	transform: none !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper {
+	box-shadow: 0px 1px 52px -27px rgba(34, 60, 80, 0.2) !important;
+	border-radius: 10px !important;
+	border: 1px solid #eaecf0 !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-selected .sd {
+	background-color: #2f3c67 !important;
+	box-shadow: none !important;
+	border-radius: 0px !important;
+}
+.form_date_picker_corner.rmdp-wrapper .rmdp-selected .sd,
+.form_date_picker_corner.rmdp-wrapper .rmdp-today .sd {
+	border: none;
+	border-radius: 4px !important;
+}
+.form_date_picker_corner.rmdp-wrapper .rmdp-range {
+	background-color: #d0d5dd !important;
+	box-shadow: none !important;
+	border-radius: 0px !important;
+	color: #475467 !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-week {
+	gap: 1px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-today .sd {
+	background-color: #0e73f6 !important;
+	box-shadow: none !important;
+	border-radius: 4px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym span {
+	background-color: transparent !important;
+	box-shadow: none !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-day {
+	margin: 1px 0px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-day:hover .sd {
+	box-shadow: none !important;
+	border-radius: 0px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-arrow {
+	display: none !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-left:before {
+	content: '«' !important;
+	font-size: 18px !important;
+	position: absolute !important;
+	z-index: 100 !important;
+	color: #667085 !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-right:before {
+	content: '»' !important;
+	font-size: 18px !important;
+	position: absolute !important;
+	z-index: 100 !important;
+	color: #667085 !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-header-values span {
+	padding: 2px 5px !important;
+	border-radius: 0px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-header-values span:hover {
+	background-color: #98a2b3 !important;
+	box-shadow: none !important;
+	border-radius: 0px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-header {
+	padding: 0px 0px !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-header .rmdp-arrow-container {
+	border: 1px solid #d0d5dd !important;
+	border-radius: 4px !important;
+	display: flex !important;
+	width: 25px !important;
+	height: 25px !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-header .rmdp-arrow-container:hover {
+	background-color: #f3f4f6 !important;
+	box-shadow: none !important;
+	border-radius: 0px !important;
+	overflow: hidden !important;
+	border-radius: 4px !important;
+}
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-selected,
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-day {
+	height: 100% !important;
+	flex: 1 !important;
+}
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-day .sd:hover {
+	color: #0e73f6 !important;
+}
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-selected .sd:hover {
+	color: white !important;
+}
