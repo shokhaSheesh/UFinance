@@ -16,7 +16,7 @@ import { getBrightChildrensContractHtml } from '../../../constants/zenit'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
-import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
+import { showErrorNotification } from '../../../lib/utils/notifications'
 import { authStore } from '../../../store/auth.store'
 import { formatPhoneNumber } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
@@ -96,11 +96,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     }
   })
 
-  const { mutate: createStudent } = useMutation({
+  const { mutate: createStudent, isPending } = useMutation({
     mutationKey: ['create-student'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'create_contract_with_counterparty', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
+      handleClose()
     }
   })
 
@@ -401,8 +402,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
         number_contract: data.contractNumber || '',
         date_contract: (data.contractDate),
         deal_date: (data.contractDate),
-        the_contract_period_is_from: (data.validFrom),
-        the_contract_period_is_to: (data.validTo),
+        the_contract_period_is_from: moment(data.validFrom).format('YYYY-MM-DD'),
+        the_contract_period_is_to: moment(data.validTo).format('YYYY-MM-DD'),
         counterparties_id: data.counterparties_id || '',
         product_and_service_id: data.product_and_service_id, // TODO: get from tariff lookup
         chart_of_accounts_id: data.chart_of_accounts_id, // TODO: get from settings
@@ -432,6 +433,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
         showSuccessNotification('Ученик успешно создан')
         setStep('form')
         onClose()
+        handleClose()
       },
       onError: (error) => {
         showErrorNotification(error?.message || 'Ошибка при создании ученика')
@@ -923,7 +925,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
               disabled={isSubmitting}
               className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Сохранение...' : 'Добавить'}
+              {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
             </button>
           </div>
         </>
@@ -992,7 +994,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                 onClick={handleSubmit(handleFormSubmit)}
                 className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Сохранение...' : 'Добавить'}
+                {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
               </button>
             </div>
         </>

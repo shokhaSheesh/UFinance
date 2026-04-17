@@ -2,7 +2,7 @@ import { formatNumber } from "../utils/helpers"
 
 export const getIbnSinoContractHtml = (data = {}) => {
   const {
-    contractNumber = '___',
+    contractNumber = '',
     contractDate = '____-__-__',
     academicYear = '2025-2026',
     directorName = 'Ganiyeva Guzalhon Batirovna',
