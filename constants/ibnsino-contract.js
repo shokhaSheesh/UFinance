@@ -63,7 +63,7 @@ export const getIbnSinoContractHtml = (data = {}) => {
   p.article { text-align: justify; margin-bottom: 6px; text-indent: 5px; }
 
   .bold { font-weight: 700; }
-  .highlight { background: #fffde7; padding: 1px 4px; border-radius: 2px; }
+  .highlight  { background: #fffde7; padding: 1px 4px; border-radius: 2px; }
 
   ul { margin: 10px 0 10px 40px; }
   ul li { margin-bottom: 8px; line-height: 3; }
@@ -108,18 +108,18 @@ export const getIbnSinoContractHtml = (data = {}) => {
 
 <h1>PULLIK TA'LIM XIZMATLARINI KO'RSATISH HAQIDA</h1>
 <h2 >№ ${contractNumber}-SHARTNOMA</h2>
-<div class="subtitle ">(<span class="highlight">${academicYear}</span> o'quv yili uchun)</div>
+<div class="subtitle ">(<span class="  highlight  ">${academicYear}</span> o'quv yili uchun)</div>
 
 <div class="header-line">
   <span>Toshkent sh.</span>
-  <span class="highlight">${contractDate}</span>
+  <span class=" highlight ">${contractDate}</span>
 </div>
 
 <p class="intro">
   Nizom asosida ish olib boruvchi <span class="bold">"UNION SCHOOL SINO" MCHJ</span> maktabi direktori
   <span class="bold">Ganiyeva Guzalhon Batirovna</span> bir tomondan ("Bajaruvchi"), o'quvchining qonuniy vakili
-  <span class="bold highlight ">${guardianName}</span> ikkinchi tomondan ("Buyurtmachi"), o'quvchi
-  <span class="bold highlight ">${studentName}</span> ning ta'lim olishi uchun mazkur shartnomani tuzdilar.
+  <span class="bold  highlight  ">${guardianName}</span> ikkinchi tomondan ("Buyurtmachi"), o'quvchi
+  <span class="bold  highlight  ">${studentName}</span> ning ta'lim olishi uchun mazkur shartnomani tuzdilar.
 </p>
 
 <div class="section-title">1. Shartnoma predmeti</div>
@@ -294,7 +294,7 @@ mumkin.
 
 <div class="section-title">7. XISOB-KITOB QILISH TARTIBI</div>
 
-<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class=" highlight ">${monthlyPayment}</span> so'mni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class=" highlight ">${monthlyPayment}</span> so'mni tashkil qiladi.</p>
+<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="  highlight  ">${monthlyPayment}</span> so'mni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class="  highlight  ">${monthlyPayment}</span> so'mni tashkil qiladi.</p>
 <p class="article">7.2. Maktabga o'quvchini qabul qilish jarayonida mazkur Shartnoma uchun oldindan 1 000 000 so'm miqdorida mijozlar tomonidan to'lanadi. Mazkur summa joriy o'quv yili sentyabr oyi uchun qo'shimcha to'lov bo'ladi (Shartnoma predmetining 1.2. bandi :Qabul uchun to'lovning maqsadi va miqdori).</p>
 <p class="article">7.3 Mazkur Shartnomaning 7.1-bandiga asosan Ota-ona (Vasiy/Homiy)lar tomonidan o'quvchining ta'lim olishi uchun to'qqiz oylik to'lov amalga oshiriladi.</p>
 <p class="article">7.4. "Buyurtmachi" har oy uchun to'lovni, oy boshlanishidan kamida 5 (besh) kun avval to'lashni o'z zimmasiga oladi. (bunda keyingi oy uchun to'lovlar joriy oyning 25 sanasigacha avvaldan to'lanishi lozim "misol uchun - oktyabr oyi uchun to'lovlar o'tgan sentyabr oyining 25 sanasigacha to'liq to'langan bo'lishi nazarda tutilada").</p>
@@ -347,14 +347,14 @@ mumkin.
     </td>
     <td>
       <div class="bold">Buyurtmachi:</div>
-      <div>F.I.Sh.: <span class="bold highlight ">${guardianName}</span></div>
-      <div>Manzil: <span class="highlight ">${guardianAddress}</span></div>
-      <div>Pasport: <span class="highlight ">${guardianPassport}</span></div>
-      <div>Berilgan: <span class="highlight ">${guardianPassportIssuedBy}</span></div>
-      <div>PINFL: <span class="highlight ">${guardianPinfl}</span></div>
-      <div>Tel: <span class="highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
+      <div>F.I.Sh.: <span class="bold  highlight  ">${guardianName}</span></div>
+      <div>Manzil: <span class=" highlight  ">${guardianAddress}</span></div>
+      <div>Pasport: <span class=" highlight  ">${guardianPassport}</span></div>
+      <div>Berilgan: <span class=" highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div>PINFL: <span class=" highlight  ">${guardianPinfl}</span></div>
+      <div>Tel: <span class=" highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
       <br/>
-      <div>O'quvchi: <span class="bold highlight ">${studentName}</span></div>
+      <div>O'quvchi: <span class="bold  highlight  ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
     
@@ -370,7 +370,7 @@ mumkin.
     Union School'da sifatli ta'lim, zamonaviy muhit va farzandingizning har tomonlama rivoji uchun katta resurslar va tayyorgarlik talab etiladi.
   </p>
   <p>
-    Shu sababli, biz o'quvchini ro'yxatdan o'tkazishda shartnomaning 7.2. bandiga asosan 2025 – 2026 o'quv yili uchun shartnoma summasini 1.000.000 (bir million so'm) deb belgiladik.
+    Shu sababli, biz o'quvchini ro'yxatdan o'tkazishda shartnomaning 7.2. bandiga asosan ${academicYear} o'quv yili uchun shartnoma summasini 1.000.000 (bir million so'm) deb belgiladik.
   </p>
   <p>
     Bu to'lov, umumiy farzandingiz uchun joyni kafolatlaydi yani, o'qituvchilar, dars materiallari va boshqa zarur tayyorgarlik xarajatlarini qoplashga yordam beradi. Shartnoma bekor qilingan taqdirda ham, bu mablag' sarflanib bo'lgani uchun qaytarilmaydi. Bu xalqaro amaliyotda ham keng qo'llaniladi va maktabda sifatni barqaror saqlash imkonini beradi.
@@ -388,19 +388,19 @@ mumkin.
     <tr>
       <td style="text-align: center;  padding-top: 6px;">
         <em>To'liq ismi sharifi</em><br/>
-        <span class="bold highlight ">${guardianName}</span>
+        <span class="bold  highlight  ">${guardianName}</span>
       </td>
       <td style="text-align: center;  padding-top: 6px;">
         <em>Sana</em><br/>
-        <span class=" highlight ">${contractDate}</span>
-      </td> 
+        <span class="  highlight  ">${contractDate}</span>
+      </td>
     </tr>
     <tr>
       <td style="text-align: center;  padding-top: 6px;">
-        
+
       </td>
       <td style="text-align: center;  padding-top: 6px;">
-         
+
       </td>
       <td style="text-align: center; border-top: 1px solid #333; padding-top: 6px;">
         <em>Imzo</em>
