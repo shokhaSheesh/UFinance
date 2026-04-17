@@ -18,15 +18,15 @@ export default function ClientLayout({ children }) {
       <QueryClientProvider client={queryClient}>
         <AppProvider>
           <Toaster position="top-right" />
-          <div className="flex max-h-full overflow-hidden max-w-full">
-            {!isLoginPage && <Sidebar />}
-            <div className="flex flex-col flex-1 max-h-screen overflow-hidden">
-              {!isLoginPage && <Header />}
-              <main className={isLoginPage ? "" : "flex-1 overflow-hidden bg-white"}>
-                {children}
-              </main>
-            </div>
-          </div>
+          {!isLoginPage && <Sidebar />}
+          {!isLoginPage && <Header />}
+          {/* <div className="flex max-h-full overflow-hidden max-w-full">
+            <div className="flex flex-col flex-1 max-h-screen overflow-hidden"> */}
+          <main className={isLoginPage ? "" : " bg-white"}>
+            {children}
+          </main>
+          {/* </div>
+          </div> */}
         </AppProvider>
       </QueryClientProvider>
     </NuqsAdapter>

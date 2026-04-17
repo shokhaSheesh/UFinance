@@ -20,6 +20,7 @@ import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
+import useMounted from '../../../hooks/useMounted'
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatDateFormat } from '../../../utils/formatDate'
@@ -29,6 +30,7 @@ import styles from './deals.module.scss'
 export default observer(function DealsPage() {
   const router = useRouter()
   const [search, setSearch] = useState('')
+  const mounted = useMounted()
 
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -189,6 +191,8 @@ export default observer(function DealsPage() {
     setDealToEdit(null)
     setDealToCopy(null)
   }
+
+  if (!mounted) return null
 
   return (
     <div className='flex fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]'>

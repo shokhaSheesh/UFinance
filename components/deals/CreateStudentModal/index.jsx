@@ -6,6 +6,13 @@ import moment from 'moment'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
+import { getAdStellasContractHtml } from '../../../constants/nabiyev'
+import { getDonoAvlodContractHtml } from '../../../constants/nurobod'
+import { getBigMoneyContractHtml } from '../../../constants/pasolstva'
+import { getSergeliContractHtml } from '../../../constants/sergeli-contract'
+import { getDonoSchoolContractHtml } from '../../../constants/uzodov-contract'
+import { getKidsShukranContractHtml } from '../../../constants/yakkasaroy'
+import { getBrightChildrensContractHtml } from '../../../constants/zenit'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
@@ -16,7 +23,7 @@ import SelectProductService from '../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../ReadyComponents/SingleSelectStatiya'
 import CustomModal from '../../shared/CustomModal'
-import CustomDatePicker from '../../shared/DatePicker'
+import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
@@ -40,6 +47,7 @@ const clientType = [
 
 const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
+  const [activeContract, setActiveContract] = useState('ibnSino') // 'ibnSino' | 'sergeli' | 'donoSchool' | 'bigMoney' | 'kidsShukran' | 'donoAvlod' | 'adStellas' | 'brightChildrens'
   const branch = authStore.selectBranch
   const {
     register,
@@ -129,7 +137,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       value: item.guid,
       label: item.name
     })) || []
-  }, [language_classes]) 
+  }, [language_classes])
 
 
 
@@ -141,28 +149,185 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     setStep('form')
   }
 
-  const getContractData = () => {
-    const values = getValues() 
-    return {
+  // Contract data mapper for different contract types
+  const getContractDataForType = (type) => {
+    const values = getValues()
+    const baseData = {
       contractNumber: values.contractNumber || '___',
-      contractDate: values.contractDate || '____-__-__',
-      academicYear: values.academicYear || '2025-2026',
-      guardianName: values.guardianName || '________________________',
-      studentName: values.studentName || '________________________',
-      className: values.className || '___',
-      language: values.language || "O'zbek tili",
-      validFrom: moment(values.validFrom).format('MMM, DD YYYY') || '____-__-__',
-      validTo: moment(values.validTo).format('MMM, DD YYYY') || '____-__-__',
-      monthlyPayment: '3,600,000',
+      contractDate: moment(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
+      contractEndDate: values.validTo ? moment(values.validTo).format('DD.MM.YYYY') : '____-__-__',
       guardianPassport: values.passport || '________________________',
       guardianPassportIssuedBy: values.issuedBy || '________________________',
       guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
       guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
       guardianAddress: values.address || '________________________',
       guardianPinfl: values.pinf || '________________________',
-      thirdPartyName: values.guardianName || '________________________',
-      thirdPartyPinfl: values.pinf || '________________________',
+      studentName: values.studentName || '________________________',
+      guardianType: values.guardianType || '________________________'
     }
+
+    switch (type) {
+      case 'ibnSino':
+        return {
+          ...baseData,
+          academicYear: values.academicYear || '2025-2026',
+          directorName: 'Tursunova D.S.',
+          guardianName: values.guardianName || '________________________',
+          studentName: values.studentName || '________________________',
+          className: values.className || '___',
+          language: values.language || "O'zbek tili",
+          validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
+          validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
+          monthlyPayment: '3,600,000',
+          admissionPayment: '5,800,000',
+          guardianPassport: values.passport || '________________________',
+          guardianPassportIssuedBy: values.issuedBy || '________________________',
+          guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
+          guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
+          guardianAddress: values.address || '________________________',
+          guardianPinfl: values.pinf || '________________________',
+        }
+      case 'sergeli':
+        return {
+          ...baseData,
+          academicYear: values.academicYear || '2025-2026',
+          directorName: 'Berdiyeva G.T.',
+          guardianName: values.guardianName || '________________________',
+          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
+          studentName: values.studentName || '________________________',
+          className: values.className || '___',
+          language: values.language || "O'zbek tili",
+          validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
+          validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
+          monthlyPayment: '3,600,000',
+
+          thirdPartyName: '',
+          thirdPartyPinfl: '',
+        }
+      case 'donoSchool':
+        return {
+          ...baseData,
+          academicYear: values.academicYear || '2026-2027',
+          directorName: 'Sharipova D.A',
+          guardianName: values.guardianName || '________________________',
+          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
+          studentName: values.studentName || '________________________',
+          className: values.className || '___',
+          language: values.language || "Rus tili",
+          validFrom: values.validFrom ? moment(values.validFrom).format('YYYY-MM-DD') : '____-__-__',
+          validTo: values.validTo ? moment(values.validTo).format('YYYY-MM-DD') : '____-__-__',
+          yearlyPayment: '38 070 000',
+          monthlyPayment: '3 807 000',
+          maxStudents: '22',
+          guardianPassport: values.passport || '________________________',
+          guardianAddress: values.address || '________________________',
+          guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
+          guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
+          thirdPartyName: '',
+          thirdPartyAddress: '',
+          thirdPartyPhone: '',
+          thirdPartyBank: '',
+          thirdPartyAccount: '',
+          thirdPartyMfo: '',
+          thirdPartyStir: '',
+          thirdPartyDirector: '',
+        }
+      case 'bigMoney':
+        return {
+          ...baseData,
+          directorName: 'Baymuxammedova Lola Mirakbarovna',
+          childName: values.studentName || '________________________',
+          parentName: values.guardianName || '________________________',
+          parentRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
+          parentPassport: values.passport || '________________________',
+          parentPinfl: values.pinf || '________________________',
+          parentAddress: values.address || '________________________',
+          monthlyPayment: '________________________',
+        }
+      case 'kidsShukran':
+        return {
+          ...baseData,
+          directorName: 'Mirzokulova Nafisa Meliboyevna',
+          childName: values.studentName || '________________________',
+          guardianName: values.guardianName || '________________________',
+          guardianRelation: values.guardianType === 'ota' ? 'Ota' : values.guardianType === 'ona' ? 'Ona' : 'Vasiy',
+          monthlyPayment: '3 200 000',
+          siblingDiscount: '200 000',
+        }
+      case 'donoAvlod':
+        return {
+          ...baseData,
+          directorName: 'Sharipova Dilafruz Abidjanovna',
+          childName: values.studentName || '________________________',
+          guardianName: values.guardianName || '________________________',
+          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
+          guardianPassport: values.passport || '________________________',
+          premiumPayment: '3 400 000',
+          standardPayment: '3 200 000',
+          siblingDiscount: '200 000',
+        }
+      case 'adStellas':
+        return {
+          ...baseData,
+          directorName: 'Rizayeva S.X',
+          childName: values.studentName || '________________________',
+          childBirthDate: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
+          parentName: values.guardianName || '________________________',
+          parentPassport: values.passport || '________________________',
+          parentAddress: values.address || '________________________',
+          monthlyPayment: '4 050 000',
+        }
+      case 'brightChildrens':
+        return {
+          ...baseData,
+          directorName: 'Fayziyeva Sh.N',
+          childName: values.studentName || '________________________',
+          childBirthDate: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
+          parentName: values.guardianName || '________________________',
+          parentPassport: values.passport || '________________________',
+          parentAddress: values.address || '________________________',
+          basePayment: '4 700 000',
+          actualPayment: '4 230 000',
+        }
+      default:
+        return baseData
+    }
+  }
+
+  // Get HTML content based on active contract type
+  const getContractHtml = () => {
+    const data = getContractDataForType(activeContract)
+    let html = ''
+    switch (activeContract) {
+      case 'ibnSino':
+        html = getIbnSinoContractHtml(data)
+        break
+      case 'sergeli':
+        html = getSergeliContractHtml(data)
+        break
+      case 'donoSchool':
+        html = getDonoSchoolContractHtml(data)
+        break
+      case 'bigMoney':
+        html = getBigMoneyContractHtml(data)
+        break
+      case 'kidsShukran':
+        html = getKidsShukranContractHtml(data)
+        break
+      case 'donoAvlod':
+        html = getDonoAvlodContractHtml(data)
+        break
+      case 'adStellas':
+        html = getAdStellasContractHtml(data)
+        break
+      case 'brightChildrens':
+        html = getBrightChildrensContractHtml(data)
+        break
+      default:
+        html = getIbnSinoContractHtml(data)
+    }
+    // Remove highlight class for PDF generation
+    return html
   }
 
   const handleClose = () => {
@@ -174,9 +339,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     // Helper to wrap value in array or return empty array
     const toArray = (val) => val ? [val] : []
 
-    // Generate contract HTML with filled data
-    const contractData = getContractData()
-    const htmlContent = getIbnSinoContractHtml(contractData).replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
+    // Generate contract HTML with filled data based on active contract type
+    const htmlContent = getContractHtml().replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
 
     let contractFileLink = ''
 
@@ -307,7 +471,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   control={control}
                   rules={{ required: 'Выберите дату договора' }}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={field.onChange}
                       format='YYYY-MM-DD'
@@ -358,7 +522,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                       data={[
                         { value: 'ota', label: 'Ota' },
                         { value: 'ona', label: 'Ona' },
-                        { value: 'aka-uka', label: 'Akasi-Ukasi' }, 
+                        { value: 'aka-uka', label: 'Akasi-Ukasi' },
                       ]}
                       className='bg-white'
                       isClearable={false}
@@ -498,7 +662,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   control={control}
                   rules={{ required: 'Выберите дату рождения' }}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Выберите дату"
@@ -517,7 +681,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   control={control}
                   rules={{ required: 'Выберите дату начала' }}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value)
@@ -559,7 +723,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   control={control}
                   rules={{ required: 'Выберите дату окончания' }}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={(value) => {
                         field.onChange(value)
@@ -622,7 +786,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   name="passiveDate"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Выберите дату"
@@ -721,27 +885,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                 />
                 {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>}
               </div>
-
-              {/* Uchinchi shaxs section */}
-              {/* <div className="col-span-3 mt-4 border-t border-gray-200 pt-4">
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Uchinchi shaxs</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-gray-700">Fuqaro (Ф.И.О.)</label>
-                    <Input
-                      placeholder="Введите Ф.И.О."
-                      {...register('thirdPartyName')}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-gray-700">ПИНФЛ</label>
-                    <Input
-                      placeholder="Введите ПИНФЛ"
-                      {...register('thirdPartyPinfl')}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </form>
           </div>
 
@@ -770,12 +913,40 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       ) : (
         <>
           {/* Contract Preview */}
-          <div className="flex-1 overflow-hidden">
-            <iframe
-                srcDoc={getIbnSinoContractHtml(getContractData())}
-              className="w-full h-full border-0"
-              title="Предпросмотр договора"
-            />
+            <div className="flex-1 overflow-hidden flex flex-col">
+              {/* Contract Type Tabs */}
+              <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
+                {[
+                  { id: 'ibnSino', label: 'Ibn Sino' },
+                  { id: 'sergeli', label: 'Sergeli' },
+                  { id: 'donoSchool', label: 'Dono School' },
+                  { id: 'bigMoney', label: 'Big Money' },
+                  { id: 'kidsShukran', label: 'Kids Shukran' },
+                  { id: 'donoAvlod', label: 'Dono Avlod' },
+                  { id: 'adStellas', label: 'Ad Stellas' },
+                  { id: 'brightChildrens', label: 'Bright Childrens' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveContract(tab.id)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${activeContract === tab.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Contract Content */}
+              <div className="flex-1 overflow-hidden">
+                <iframe
+                  srcDoc={getContractHtml()}
+                  className="w-full h-full border-0"
+                  title="Предпросмотр договора"
+                />
+            </div>
             </div>
 
             {/* Preview Footer */}

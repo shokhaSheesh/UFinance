@@ -141,12 +141,9 @@ export const Sidebar = observer(() => {
 
 
     return (
-        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full items-center justify-start fixed left-0 z-1000" ref={sidebarRef}>
-            {/* <div className="flex items-center justify-center h-[60px] pl-1 pt-1"> */}
-            <AppLogo size={44} strokeWidth={1.5} className='mt-2' />
-            {/* </div> */}
-
+        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0" ref={sidebarRef}> 
             <nav className="flex flex-col   w-full">
+                <AppLogo size={44} strokeWidth={1.5} className='mt-2 mx-auto ml-5 mb-4' />
                 {navItems.filter(item => item.hasPage && item.canShow)
                     .map((item, index) => {
                         const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
@@ -169,11 +166,11 @@ export const Sidebar = observer(() => {
 
                         if (hasSubmenu) {
                             return (
-                                <div key={index} className='relative group'>
+                                <div key={index} className='relative  group'>
                                     <div className='relative'>
                                         {LinkContent}
                                     </div>
-                                    <div className="bg-blue-950 -top-1/2 left-[80px]  absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
+                                    <div className="bg-blue-950 -top-1/2 left-[80px] z-30! absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
                                         <div className="flex flex-col gap-1">
                                             {(item.submenu || [])
                                                 .filter(sub => sub.hasPage && sub.canShow !== false)

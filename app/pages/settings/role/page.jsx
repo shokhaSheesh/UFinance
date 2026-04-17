@@ -2,11 +2,13 @@
 
 import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader, Pencil, Plus, Shield, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { apiClient } from '../../../../lib/api/ucode/base'
 
 /* ═══════════════════════════════════════════════════════ */
 /*  RoleModal - Create/Edit                              */
@@ -25,14 +27,14 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
     },
   })
 
-  const { mutateAsync: saveRole, isPending: isSaving } = useUcodeRequestMutation({
-    mutationSetting: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['get_roles'] })
-        onSuccess?.()
-        onClose()
-        reset()
-      },
+  const { mutateAsync: saveRole, isPending: isSaving } = useMutation({
+    mutationKey: ['role_control'],
+    mutationFn: ({ method, data }) => apiClient.invokeFunction({ method, data, type: 'role' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get_roles'] })
+      onSuccess?.()
+      onClose()
+      reset()
     },
   })
 
@@ -40,18 +42,16 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
     const method = initialRole ? 'update_role' : 'create_role'
     const payload = {
       method,
-      data: {
-        object_data: initialRole
-          ? {
-            guid: initialRole.guid,
-            name: data.name,
-            description: data.description,
-          }
-          : {
-            name: data.name,
-            description: data.description,
-          },
-      },
+      data: initialRole
+        ? {
+          guid: initialRole.guid,
+          name: data.name,
+          description: data.description,
+        }
+        : {
+          name: data.name,
+          description: data.description,
+        },
     }
     await saveRole(payload)
   }
@@ -169,9 +169,14 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
 /* ═══════════════════════════════════════════════════════ */
 
 export default function RolePage() {
-  const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useUcodeRequestQuery({
-    method: 'get_roles',
-    data: { page: 1, limit: 50 },
+  const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useQuery({
+    queryKey: ['get_roles_list'],
+    queryFn: () => apiClient.invokeFunction({
+      method: 'get_roles',
+      data: { page: 1, limit: 50 },
+      type: "role"
+    }),
+    refetchOnMount: true,
   })
   const roles = rolesData?.data?.data?.response || []
 
