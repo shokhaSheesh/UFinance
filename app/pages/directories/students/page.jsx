@@ -32,16 +32,16 @@ const Students = observer(() => {
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
-  const { accounting } = student
+  const { accounting, rangeMonth } = student
 
   const filterData = {
     method: accounting,
     currency_code: "UZS",
     company_id: authStore.userData?.company_id,
     limit: LIMIT,
-    // there are not filter by month on backend 
-    // start_month: rangeMonth?.[0] ? `${rangeMonth[0].year}-${String(rangeMonth[0].month).padStart(2, '0')}` : null,
-    // end_month: rangeMonth?.[1] ? `${rangeMonth[1].year}-${String(rangeMonth[1].month).padStart(2, '0')}` : null,
+    counterparties_ids: student.selectedCounterParties,
+    from_date: rangeMonth?.[0] ? `${rangeMonth[0].year}-${String(rangeMonth[0].month).padStart(2, '0')}-${String(rangeMonth[0].day || 1).padStart(2, '0')}` : null,
+    to_date: rangeMonth?.[1] ? `${rangeMonth[1].year}-${String(rangeMonth[1].month).padStart(2, '0')}-${String(rangeMonth[1].day || new Date(rangeMonth[1].year, rangeMonth[1].month, 0).getDate()).padStart(2, '0')}` : null,
   }
 
   const {
@@ -67,8 +67,6 @@ const Students = observer(() => {
     },
     initialPageParam: 1
   })
-
-  console.log('infiniteData', infiniteData)
 
   // Infinite scroll detection on main container
   useEffect(() => {
@@ -167,15 +165,24 @@ const Students = observer(() => {
           <div className="w-full">
             <CustomRangeMonthPicker
               value={{
-                start: student.rangeMonth?.[0] ? new Date(student.rangeMonth[0].year, student.rangeMonth[0].month - 1, 1) : null,
-                end: student.rangeMonth?.[1] ? new Date(student.rangeMonth[1].year, student.rangeMonth[1].month - 1, 1) : null
+                start: student.rangeMonth?.[0],
+                end: student.rangeMonth?.[1]
               }}
               onChange={({ start, end }) => {
+                const getLastDayOfMonth = (year, month) => new Date(year, month, 0).getDate()
+
                 const rangeMonth = [
-                  start ? { year: start.getFullYear(), month: start.getMonth() + 1 } : { year: new Date().getFullYear(), month: 1 },
-                  end ? { year: end.getFullYear(), month: end.getMonth() + 1 } : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 }
+                  start ? { year: start.getFullYear(), month: start.getMonth() + 1, day: 1 } : { year: new Date().getFullYear(), month: 1, day: 1 },
+                  end ? { year: end.getFullYear(), month: end.getMonth() + 1, day: getLastDayOfMonth(end.getFullYear(), end.getMonth() + 1) } : { year: new Date().getFullYear(), month: new Date().getMonth() + 1, day: getLastDayOfMonth(new Date().getFullYear(), new Date().getMonth() + 1) }
                 ]
                 student.setState('rangeMonth', rangeMonth)
+                // Refetch when second value (end) is selected
+                if (end) {
+                  setTimeout(() => refetch(), 0)
+                }
+              }}
+              handleSubmit={() => {
+                refetch()
               }}
               clearable={false}
             />

@@ -13,17 +13,18 @@ const formatMonth = (date) => {
   return moment(date).format('MM.YYYY')
 }
 
-const CustomRangeMonthPicker = ({ value, onChange, clearable = true }) => {
+const CustomRangeMonthPicker = ({ value, onChange, clearable = true, handleSubmit }) => {
   const [rangeMonth, setRangeMonth] = useState(value || null)
 
   const wrapperRef = useRef(null)
   const [open, setOpen] = useState(false)
 
 
-  const handleReset = () => {
+  const handleReset = () => { 
     setRangeMonth(null)
     onChange?.({ start: null, end: null })
     setOpen(false)
+    handleSubmit?.()
   }
 
 
@@ -33,6 +34,11 @@ const CustomRangeMonthPicker = ({ value, onChange, clearable = true }) => {
     const end = rangeMonth[1] ? formatMonth(rangeMonth[1]) : ''
     if (start === end) return start
     return `${start} - ${end}`
+  }
+
+  const handleApply = () => {
+    handleSubmit?.()
+    setOpen(false)
   }
 
   return (
@@ -68,6 +74,8 @@ const CustomRangeMonthPicker = ({ value, onChange, clearable = true }) => {
             }}
             range
           />
+          <div className='flex items-center gap-2 justify-end p-2'><button onClick={handleReset} className="secondary-btn">Сбросить</button>
+            <button onClick={handleApply} className="primary-btn">Применить</button></div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
