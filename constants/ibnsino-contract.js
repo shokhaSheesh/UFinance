@@ -356,6 +356,7 @@ mumkin.
       <div>O'quvchi: <span class="bold highlight ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
+    
   </tr>
 </table>
 <br/>
