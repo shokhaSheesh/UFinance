@@ -4,11 +4,18 @@ export const getKidsShukranContractHtml = (data = {}) => {
     contractDate = '____-__-__',
     contractEndDate = '31.12.2026',
     directorName = 'Mirzokulova Nafisa Meliboyevna',
-    childName = '________________________',
+    studentName = '________________________',
     guardianName = '________________________',
     guardianRelation = 'Vasiy',
     monthlyPayment = '3 200 000',
     siblingDiscount = '200 000',
+    guardianPassport = '________________________',
+    guardianPassportIssuedBy = '________________________',
+    guardianPhone1 = '________________________',
+    guardianPhone2 = '________________________',
+    guardianAddress = '________________________',
+    guardianPinfl = '________________________',
+    guardianType = ""
   } = data
 
   return `<!DOCTYPE html>
@@ -89,7 +96,7 @@ export const getKidsShukranContractHtml = (data = {}) => {
 <p class="intro">
   <span class="bold">"KIDS SHUKRAN" OILAVIY KORXONASI</span> (bundan buyon – "Muassasa" deb
   ataladi) nomidan ustav asosida harakat qiluvchi direktor <span class="bold">${directorName}</span>,
-  bir tomondan, Muassasa tarbiyalanuvchi <span class="bold highlight">${childName}</span>ning
+  bir tomondan, Muassasa tarbiyalanuvchi <span class="bold highlight">${studentName}</span>ning
   qonuniy vakili <span class="bold highlight">${guardianName}</span> (bundan buyon –
   "Buyurtmachi" yoki "Qonuniy vakil" deb ataladi) nomidan harakat qiluvchi ikkinchi
   tomondan birgalikda "Taraflar", alohida esa "Taraf" deb ataluvchilar, mazkur shartnomani
@@ -223,15 +230,28 @@ export const getKidsShukranContractHtml = (data = {}) => {
       <div>Direktor: ${directorName}</div>
       <div class="signature-line"></div>
     </td>
-    <td>
-      <div class="bold">Buyurtmachi (tarbiyalanuvchining qonuniy vakili)</div>
-      <div>${guardianRelation}: <span class="bold highlight">${guardianName}</span></div>
-      <br/><br/><br/>
-      <div>${guardianRelation}: <span class="bold highlight">${guardianName}</span></div>
+     <td>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> ${guardianAddress}</div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class=" highlight ">${guardianPassport}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class=" highlight ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class=" highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
+      <br/>
+      <div>Fuqaro: <span class="bold highlight ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>
 </table>
+
+<div style="margin-top: 30px; padding-top: 16px;">
+  <div class="label" style="font-size: 13.5px; margin-bottom: 10px;">Uchinchi shaxs:</div>
+  <div style="font-size: 12.5px; line-height: 1.7;">
+    <div>Fuqaro: <span class="bold highlight ">${guardianName}</span></div>
+    <div>PINFL: <span class=" highlight ">${guardianPinfl}</span></div>
+    <div>Vasiy turi: <span class=" highlight ">${guardianType}</span></div>
+    <div style="margin-top: 20px;" class="signature-line"></div>
+  </div>
+</div>
 
 </body>
 </html>`

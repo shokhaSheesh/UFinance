@@ -1,3 +1,5 @@
+import { formatNumber } from "../utils/helpers"
+
 export const getSergeliContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
@@ -10,7 +12,7 @@ export const getSergeliContractHtml = (data = {}) => {
     language = "O'zbek tili",
     validFrom = '____-__-__',
     validTo = '____-__-__',
-    monthlyPayment = '3,600,000',
+    monthlyPayment,
     guardianPassport = '________________________',
     guardianPassportIssuedBy = '________________________',
     guardianPhone1 = '________________________',
@@ -19,6 +21,8 @@ export const getSergeliContractHtml = (data = {}) => {
     guardianPinfl = '________________________',
     guardianType = ""
   } = data
+
+  console.log('monthPayment', monthlyPayment)
 
   return `<!DOCTYPE html>
 <html lang="uz">
@@ -508,8 +512,8 @@ export const getSergeliContractHtml = (data = {}) => {
 
 <p class="article">
   7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili
-  har oy uchun 3,600,000 so'm to'lovni tashkil qiladi. To'lovni har oy to'lashga yo'l qo'yiladi.
-  Bunda bir oy uchun to'lov miqdori 3,600,000 so'mni tashkil qiladi.
+  har oy uchun <span class=" highlight ">${formatNumber(monthlyPayment)}</span> so'm to'lovni tashkil qiladi. To'lovni har oy to'lashga yo'l qo'yiladi.
+  Bunda bir oy uchun to'lov miqdori <span class=" highlight ">${formatNumber(monthlyPayment)}</span> so'mni tashkil qiladi.
 </p>
 
 <p class="article">

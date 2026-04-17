@@ -57,6 +57,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     setValue,
     formState: { errors, isSubmitting }
   } = useForm({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: {
       contractNumber: '',
       contractDate: today,
@@ -88,7 +90,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       chart_of_accounts_id: '',
       classes_id: '',
       language_classes_id: '',
-      legal_entity_id: ''
+      legal_entity_id: '',
+      monthlyPayment: ""
     }
   })
 
@@ -163,7 +166,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       guardianAddress: values.address || '________________________',
       guardianPinfl: values.pinf || '________________________',
       studentName: values.studentName || '________________________',
-      guardianType: values.guardianType || '________________________'
+      guardianType: values.guardianType || '________________________',
+      monthlyPayment: values.monthlyPayment
     }
 
     switch (type) {
@@ -178,7 +182,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
           language: values.language || "O'zbek tili",
           validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
           validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-          monthlyPayment: '3,600,000',
           admissionPayment: '5,800,000',
           guardianPassport: values.passport || '________________________',
           guardianPassportIssuedBy: values.issuedBy || '________________________',
@@ -199,7 +202,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
           language: values.language || "O'zbek tili",
           validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
           validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-          monthlyPayment: '3,600,000',
 
           thirdPartyName: '',
           thirdPartyPinfl: '',
@@ -461,7 +463,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   error={!!errors.contractNumber}
                   {...register('contractNumber', { required: 'Введите номер договора' })}
                 />
-                {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>}
+                {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
               </div>
               {/* Row 1 */}
               <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
@@ -480,7 +482,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>}
+                {/* {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -490,7 +492,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   error={!!errors.guardianName}
                   {...register('guardianName', { required: 'Введите Ф.И.О. опекуна' })}
                 />
-                {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>}
+                {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -529,7 +531,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.guardianType && <span className="text-xs text-red-500">{errors.guardianType.message}</span>}
+                {/* {errors.guardianType && <span className="text-xs text-red-500">{errors.guardianType.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -549,7 +551,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>}
+                {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -566,7 +568,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     className={`w-full h-[36px] px-3 border rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
                   />
                 </div>
-                {errors.phone1 && <span className="text-xs text-red-500">{errors.phone1.message}</span>}
+                {/* {errors.phone1 && <span className="text-xs text-red-500">{errors.phone1.message}</span>} */}
               </div>
 
               {/* Row 3 */}
@@ -588,7 +590,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>}
+                {/* {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -611,7 +613,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   error={!!errors.passport}
                   {...register('passport', { required: 'Введите серию и номер паспорта' })}
                 />
-                {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>}
+                {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
               </div>
 
               {/* Row 4 */}
@@ -625,7 +627,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
                   })}
                 />
-                {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>}
+                {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -635,7 +637,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   error={!!errors.issuedBy}
                   {...register('issuedBy', { required: 'Введите место выдачи' })}
                 />
-                {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>}
+                {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -647,6 +649,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     <SelectProductService
                       value={field.value}
                       onChange={field.onChange}
+                      name='summa'
+                      returnFieldValue={(value) => {
+                        setValue('monthlyPayment', value)
+                      }}
                       placeholder="Выберите тариф"
                       className={'w-full! bg-white'}
                     />
@@ -671,7 +677,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>}
+                {/* {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -693,7 +699,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>}
+                {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -713,7 +719,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>}
+                {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
               </div>
               {/* Row 6 */}
               <div className="flex flex-col gap-1.5">
@@ -735,7 +741,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>}
+                {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Введите класс *</label>
@@ -758,7 +764,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.classes_id && <span className="text-xs text-red-500">{errors.classes_id.message}</span>}
+                {/* {errors.classes_id && <span className="text-xs text-red-500">{errors.classes_id.message}</span>} */}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -822,7 +828,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                   error={!!errors.address}
                   {...register('address', { required: 'Введите адрес' })}
                 />
-                {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>}
+                {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
               </div>
 
               {/* Row 8 */}
@@ -847,7 +853,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>}
+                {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
               </div>
               {/* Row 9 */}
               <div className="flex flex-col gap-1.5">
@@ -883,7 +889,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     />
                   )}
                 />
-                {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>}
+                {/* {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>} */}
               </div>
             </form>
           </div>

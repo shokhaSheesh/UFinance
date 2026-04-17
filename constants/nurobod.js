@@ -4,14 +4,14 @@ export const getDonoAvlodContractHtml = (data = {}) => {
     contractDate = '____-__-__',
     contractEndDate = '31.08.2026',
     directorName = 'Sharipova Dilafruz Abidjanovna',
-    childName = '________________________',
+    studentName = '________________________',
     guardianName = '________________________',
     guardianRelation = 'qonuniy vakili',
     guardianPassport = '________________________',
     premiumPayment = '3 400 000',
     standardPayment = '3 200 000',
     siblingDiscount = '200 000',
-     guardianPassportIssuedBy = '________________________',
+    guardianPassportIssuedBy = '________________________',
     guardianPhone1 = '________________________',
     guardianPhone2 = '________________________',
     guardianAddress = '________________________',
@@ -93,8 +93,7 @@ export const getDonoAvlodContractHtml = (data = {}) => {
 <p class="intro">
   <span class="bold">"DONO A VLOD MAKTABI" MCHJ</span> (bundan buyon –
   "Muassasa" deb ataladi) nomidan ustav asosida harakat
-  qiluvchi direktor SHARIPOV A DILAFRUZ ABIDJANOVNA, bir tomondan, Muassasa tarbiyalanuvchisi Bobirov
-  Mustafo Bosit ning qonuniy vakili Botirov Bosit Bobir o'g'li (bundan buyon –
+  qiluvchi direktor SHARIPOV A DILAFRUZ ABIDJANOVNA, bir tomondan, Muassasa tarbiyalanuvchisi <span class=" highlight ">${studentName}</span> ning qonuniy vakili <span class=" highlight ">${guardianName}</span> (bundan buyon –
   "Buyurtmachi" yoki "Qonuniy vakil" deb
   ataladi) nomidan harakat qiluvchi ikkinchi tomondan birgalikda "Taraflar"
   , alohida esa "Таraf" deb ataluvchilar, mazkur
@@ -252,16 +251,14 @@ export const getDonoAvlodContractHtml = (data = {}) => {
       <div>Botirov Bosit Bobir o'g'li</div>
       <div class="signature-line"></div>
     </td>
-   <td>
-      <div class="bold">Buyurtmachi:</div>
-      <div>F.I.Sh.: <span class="bold highlight ">${guardianName}</span></div>
-      <div>Manzil: <span class="highlight ">${guardianAddress}</span></div>
-      <div>Pasport: <span class="highlight ">${guardianPassport}</span></div>
-      <div>Berilgan: <span class="highlight ">${guardianPassportIssuedBy}</span></div>
-      <div>PINFL: <span class="highlight ">${guardianPinfl}</span></div>
-      <div>Tel: <span class="highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
+    <td>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> ${guardianAddress}</div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class=" highlight ">${guardianPassport}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class=" highlight ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class=" highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
       <br/>
-      <div>O'quvchi: <span class="bold highlight ">${childName}</span></div>
+      <div>Fuqaro: <span class="bold highlight ">${studentName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>

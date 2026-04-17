@@ -41,7 +41,9 @@ const SelectProductService = ({
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }
+
   })
+
 
 
   // Create lookup map for raw data by guid
@@ -71,7 +73,7 @@ const SelectProductService = ({
   const handleChange = (val) => {
     onChange(val)
 
-    if (name && val && returnFieldValue) {
+    if (name && returnFieldValue) {
       // For multi-select, use the last selected value
       const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
       const rawItem = rawDataMap.get(lookupValue)
