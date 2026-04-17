@@ -1,3 +1,5 @@
+import { formatNumber } from "../utils/helpers"
+
 export const getIbnSinoContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
@@ -294,7 +296,7 @@ mumkin.
 
 <div class="section-title">7. XISOB-KITOB QILISH TARTIBI</div>
 
-<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="  highlight  ">${monthlyPayment}</span> so'mni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class="  highlight  ">${monthlyPayment}</span> so'mni tashkil qiladi.</p>
+<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="  highlight  ">${formatNumber(monthlyPayment)}</span> so'mni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class="  highlight  ">${formatNumber(monthlyPayment)}</span> so'mni tashkil qiladi.</p>
 <p class="article">7.2. Maktabga o'quvchini qabul qilish jarayonida mazkur Shartnoma uchun oldindan 1 000 000 so'm miqdorida mijozlar tomonidan to'lanadi. Mazkur summa joriy o'quv yili sentyabr oyi uchun qo'shimcha to'lov bo'ladi (Shartnoma predmetining 1.2. bandi :Qabul uchun to'lovning maqsadi va miqdori).</p>
 <p class="article">7.3 Mazkur Shartnomaning 7.1-bandiga asosan Ota-ona (Vasiy/Homiy)lar tomonidan o'quvchining ta'lim olishi uchun to'qqiz oylik to'lov amalga oshiriladi.</p>
 <p class="article">7.4. "Buyurtmachi" har oy uchun to'lovni, oy boshlanishidan kamida 5 (besh) kun avval to'lashni o'z zimmasiga oladi. (bunda keyingi oy uchun to'lovlar joriy oyning 25 sanasigacha avvaldan to'lanishi lozim "misol uchun - oktyabr oyi uchun to'lovlar o'tgan sentyabr oyining 25 sanasigacha to'liq to'langan bo'lishi nazarda tutilada").</p>

@@ -163,3 +163,28 @@ export const handleDownload = (pdfurl, name) => {
     resolve(true)
   })
 }
+export const formatPhoneNumber = (value) => {
+  // Remove all non-digits except the leading +
+  const digits = value.replace(/[^\d]/g, '')
+
+  // Always start with +998
+  if (!value.startsWith('+998')) {
+    return '+998'
+  }
+
+  // Limit to 12 digits total (+998 + 9 digits)
+  const limitedDigits = digits.slice(0, 12)
+
+  // Apply mask: +998 XX XXX XX XX
+  if (limitedDigits.length <= 3) {
+    return '+998'
+  } else if (limitedDigits.length <= 5) {
+    return `+998 ${limitedDigits.slice(3)}`
+  } else if (limitedDigits.length <= 8) {
+    return `+998 ${limitedDigits.slice(3, 5)} ${limitedDigits.slice(5)}`
+  } else if (limitedDigits.length <= 10) {
+    return `+998 ${limitedDigits.slice(3, 5)} ${limitedDigits.slice(5, 8)} ${limitedDigits.slice(8)}`
+  } else {
+    return `+998 ${limitedDigits.slice(3, 5)} ${limitedDigits.slice(5, 8)} ${limitedDigits.slice(8, 10)} ${limitedDigits.slice(10)}`
+  }
+}

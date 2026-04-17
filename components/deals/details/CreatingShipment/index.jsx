@@ -5,11 +5,12 @@ import { TrashIcon, X } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useEffect, useMemo, useState } from 'react'
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
+import { donoSchool, GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
 import { queryClient } from '../../../../lib/queryClient'
 import { appStore } from '../../../../store/app.store'
+import { authStore } from '../../../../store/auth.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../utils/helpers'
 import MyAccountCurrensies from '../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
@@ -179,6 +180,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       return
     }
 
+    const productCurrency = donoSchool === authStore.userData?.company_id ? "31b10867-8169-464e-8d3f-e3bec976fdbb" : currency
+
     try {
       const payload = {
         legal_entity_id: legalEntity,
@@ -190,7 +193,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
         summa: totalSum,
         data_nachislenie: shipmentDate,
         data_oplaty: shipmentDate,
-        currencies_id: currency,
+        currencies_id: productCurrency,
         description: "Shipment",
         chart_of_accounts_id: chartOfAccounts,
         product_and_service_data: productData.map(row => {

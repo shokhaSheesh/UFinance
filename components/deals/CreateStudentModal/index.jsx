@@ -18,6 +18,7 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { authStore } from '../../../store/auth.store'
+import { formatPhoneNumber } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
@@ -161,8 +162,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       contractEndDate: values.validTo ? moment(values.validTo).format('DD.MM.YYYY') : '____-__-__',
       guardianPassport: values.passport || '________________________',
       guardianPassportIssuedBy: values.issuedBy || '________________________',
-      guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
-      guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
+      guardianPhone1: values.phone1 || '________________________',
+      guardianPhone2: values.phone2 || '________________________',
       guardianAddress: values.address || '________________________',
       guardianPinfl: values.pinf || '________________________',
       studentName: values.studentName || '________________________',
@@ -185,8 +186,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
           admissionPayment: '5,800,000',
           guardianPassport: values.passport || '________________________',
           guardianPassportIssuedBy: values.issuedBy || '________________________',
-          guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
-          guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
+          guardianPhone1: values.phone1 || '________________________',
+          guardianPhone2: values.phone2 || '________________________',
           guardianAddress: values.address || '________________________',
           guardianPinfl: values.pinf || '________________________',
         }
@@ -223,8 +224,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
           maxStudents: '22',
           guardianPassport: values.passport || '________________________',
           guardianAddress: values.address || '________________________',
-          guardianPhone1: values.phone1 ? `+998${values.phone1}` : '________________________',
-          guardianPhone2: values.phone2 ? `+998${values.phone2}` : '________________________',
+          guardianPhone1: values.phone1 || '________________________',
+          guardianPhone2: values.phone2 || '________________________',
           thirdPartyName: '',
           thirdPartyAddress: '',
           thirdPartyPhone: '',
@@ -409,8 +410,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
         full_name_guardian: data.guardianName || '',
         type_guardian: toArray(data.guardianType),
         address: data.address || '',
-        first_phone_number: data.phone1 ? `+998${data.phone1}` : '',
-        second_phone_number: data.phone2 ? `+998${data.phone2}` : '',
+        first_phone_number: String(data.phone1).replace(/\s/, '') || '',
+        second_phone_number: String(data.phone2).replace(/\s/, '') || '',
         number_passport: data.passport || '',
         jshshr_guardian: data.pinf || '',
         place_of_issue: data.issuedBy || '',
@@ -556,19 +557,22 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm rounded-l-md font-sans">+998</span>
-                  <input
-                    type="text"
-                    placeholder="Введите номер"
-                    {...register('phone1', {
-                      required: 'Введите номер телефона',
-                      pattern: { value: /^\d{3}\s?\d{2}\s?\d{2}$/, message: 'Неверный формат номера' },
-                    })}
-                    className={`w-full h-[36px] px-3 border rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
-                  />
-                </div>
-                {/* {errors.phone1 && <span className="text-xs text-red-500">{errors.phone1.message}</span>} */}
+                <Controller
+                  name="phone1"
+                  control={control}
+                  rules={{ required: 'Введите номер телефона' }}
+                  render={({ field }) => (
+                    <div className="flex">
+                      <input
+                        type="text"
+                        placeholder="XX XXX XX XX"
+                        value={field.value}
+                        onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                        className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
+                      />
+                    </div>
+                  )}
+                />
               </div>
 
               {/* Row 3 */}
@@ -595,15 +599,21 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-gray-700">Телефон 2</label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-3 border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm rounded-l-md font-sans">+998</span>
-                  <input
-                    type="text"
-                    placeholder="Введите номер"
-                    {...register('phone2')}
-                    className="w-full h-[36px] px-3 border border-gray-200 rounded-r-md outline-none text-sm focus:border-cyan-500 font-sans"
-                  />
-                </div>
+                <Controller
+                  name="phone2"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex">
+                      <input
+                        type="text"
+                        placeholder="XX XXX XX XX"
+                        value={field.value}
+                        onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                        className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
+                      />
+                    </div>
+                  )}
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -621,6 +631,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                 <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
                 <Input
                   placeholder="Введите ПИНФЛ опекуна"
+                  maxLength={14}
                   error={!!errors.pinf}
                   {...register('pinf', {
                     required: 'Введите ПИНФЛ опекуна',
@@ -649,7 +660,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
                     <SelectProductService
                       value={field.value}
                       onChange={field.onChange}
-                      name='summa'
+                      name='tsena_za_ed'
                       returnFieldValue={(value) => {
                         setValue('monthlyPayment', value)
                       }}

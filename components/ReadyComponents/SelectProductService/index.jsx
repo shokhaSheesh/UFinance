@@ -44,6 +44,8 @@ const SelectProductService = ({
 
   })
 
+  console.log('productsData', productsData)
+
 
 
   // Create lookup map for raw data by guid
