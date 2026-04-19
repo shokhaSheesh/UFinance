@@ -23,7 +23,7 @@ import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../ReadyComponents/SingleSelectStatiya'
-import CustomModal from '../../shared/CustomModal'
+import CustomDialog from '../../shared/CustomDialog'
 import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
@@ -442,9 +442,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   }
 
   return (
-    <CustomModal
-      className={`h-[80vh] ${step === 'preview' ? 'w-[900px]' : 'w-[1200px]'} p-0 overflow-hidden flex flex-col`}
-      isOpen={isOpen}
+    <CustomDialog
+      contentClass={`h-[80vh] ${step === 'preview' ? 'min-w-[900px]!' : 'min-w-[1000px]!'} p-0 overflow-hidden flex flex-col`}
+      open={isOpen}
       onClose={handleClose}
     >
       {/* Header */}
@@ -999,7 +999,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
             </div>
         </>
       )}
-    </CustomModal>
+    </CustomDialog>
   )
 })
 

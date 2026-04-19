@@ -500,3 +500,66 @@
 .form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-selected .sd:hover {
 	color: white !important;
 }
+
+.custom_month_picker,
+.form_date_picker_corner {
+	padding: 0px 4px !important;
+}
+
+.custom_month_picker .rmdp-container {
+	width: 100% !important;
+}
+
+.custom_month_picker .rmdp-calendar {
+	width: 100% !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day {
+	margin: 0px !important;
+	padding: 0px !important;
+	height: 100% !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day.rmdp-range {
+	background-color: #172457 !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day .sd {
+	margin: 0px !important;
+	padding: 0px !important;
+	height: 100% !important;
+	border-radius: 0px !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day.rmdp-today .sd {
+	background-color: transparent !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day.rmdp-today {
+	margin: 0px !important;
+	padding: 0px !important;
+	height: 100% !important;
+	border-radius: 0px !important;
+	background-color: #1058f5 !important;
+}
+
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day:hover .sd {
+	background-color: transparent !important;
+}
+.custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day:hover {
+	background-color: #0f55ea !important;
+}
+
+.custom_month_picker.rmdp-wrapper.max-300 {
+	width: 300px !important;
+}
+.custom_month_picker.rmdp-wrapper.max-600 {
+	width: 600px !important;
+}
+
+.custom_month_picker.rmdp-wrapper .rmdp-container .only.rmdp-month-picker {
+	width: 100% !important;
+}
+.only.rmdp-month-picker {
+	width: 100% !important;
+}

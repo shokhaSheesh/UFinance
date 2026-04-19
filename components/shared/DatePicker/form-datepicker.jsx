@@ -16,8 +16,15 @@ const FormDatepicker = ({ inputClass, className, value, onChange, format = "DD M
         onChange(dataObj)
       }
     }}
+    shadow={false}
+    arrow={false}
     containerClassName='date_picker_container'
     className={`form_date_picker_corner ${className}`}
+    renderButton={(direction, handleClick) => (
+      <button className='border p-2 h-7  w-7 rounded-sm! text-lg flex items-center justify-center' onClick={handleClick}>
+        {direction === "right" ? "»" : "«"}
+      </button>
+    )}
     render={(value, openCalendar) => {
       return (
         <button className={`border bg-gray-ucode-25 rounded-md cursor-pointer border-gray-ucode-200 px-1.5 py-1 h-[36px] w-full gap-2 flex items-center ${inputClass}`} onClick={openCalendar}>

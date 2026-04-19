@@ -37,7 +37,7 @@ export const getIbnSinoContractHtml = (data = {}) => {
     color: #1a1a1a;
     max-width: 210mm;
     margin: 0 auto;
-    padding: 20px 0px;
+    padding: 20px 20px;
   }
 
   h1 { text-align: center; font-size: 15px; text-transform: uppercase; margin-bottom: 6px; }
@@ -99,10 +99,12 @@ export const getIbnSinoContractHtml = (data = {}) => {
   /* Hide browser default print headers/footers */
   @page :first {
     margin-top: 10px;
+
   }
 
   @page {
     margin: 10px;
+
   }
 </style>
 </head>

@@ -1,12 +1,20 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
+import moment from 'moment'
+
+const now = new Date()
+
+export const defaultRangeMonth = {
+  start: moment(new Date(now.getFullYear(), now.getMonth(), 1)).format('YYYY-MM-DD'),        // Joriy oyning 1-kuni
+  end: moment(new Date(now.getFullYear(), now.getMonth() + 1, 0)).format('YYYY-MM-DD'),    // Joriy oyning oxirgi kuni
+}
 
 
 class Student {
   accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method'
   selectedCounterParties = []
-  rangeMonth = [{ year: new Date().getFullYear(), month: 1 }, { year: new Date().getFullYear(), month: new Date().getMonth() }]
+  rangeMonth = defaultRangeMonth
 
   constructor() {
     makeAutoObservable(this)
@@ -34,7 +42,7 @@ class Student {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
     this.selectedCounterParties = []
-    this.rangeMonth = [{ year: new Date().getFullYear(), month: 1 }, { year: new Date().getFullYear(), month: new Date().getMonth() }]
+    this.rangeMonth = defaultRangeMonth
   }
 }
 
