@@ -2,7 +2,6 @@
 
 import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
-import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader, Pencil, Plus, Shield, Trash2 } from 'lucide-react'
@@ -178,21 +177,21 @@ export default function RolePage() {
     }),
     refetchOnMount: true,
   })
-  const roles = rolesData?.data?.data?.response || []
+  const roles = rolesData?.data?.data?.items || []
 
   const [roleModalOpen, setRoleModalOpen] = useState(false)
   const [editingRole, setEditingRole] = useState(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [roleToDelete, setRoleToDelete] = useState(null)
 
-  const { mutateAsync: deleteRole, isPending: isDeleting } = useUcodeRequestMutation({
-    mutationSetting: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['get_roles'] })
-        setDeleteModalOpen(false)
-        setRoleToDelete(null)
-      },
-    },
+  const { mutateAsync: deleteRole, isPending: isDeleting } = useMutation({
+    mutationKey: ['delete_role'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'delete_role', data, type: 'role' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get_roles_list'] })
+      setDeleteModalOpen(false)
+      setRoleToDelete(null)
+    }
   })
 
   const handleEdit = (role) => {
@@ -208,12 +207,7 @@ export default function RolePage() {
   const confirmDelete = async () => {
     if (roleToDelete) {
       await deleteRole({
-        method: 'delete_role',
-        data: {
-          object_data: {
-            guid: roleToDelete.guid,
-          },
-        },
+        guid: roleToDelete.guid,
       })
     }
   }

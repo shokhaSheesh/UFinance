@@ -3,12 +3,14 @@
 import { Banknote, GitBranch, Settings as SettingsIcon, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { TbContract } from 'react-icons/tb'
 
 const sidebarItems = [
   { id: 'general', label: 'Общие настройки', icon: SettingsIcon, href: '/pages/settings' },
   { id: 'branches', label: 'Филиалы', icon: GitBranch, href: '/pages/settings/branches' },
   { id: 'currencies', label: 'Валюты', icon: Banknote, href: '/pages/settings/currencies' },
   { id: 'roles', label: 'Роли', icon: Shield, href: '/pages/settings/role' },
+  { id: 'contract', label: 'Договор', icon: TbContract, href: '/pages/settings/contract' },
 ]
 
 export default function SettingLayouts({ children }) {

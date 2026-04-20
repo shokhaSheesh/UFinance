@@ -2,6 +2,7 @@
 import { CalendarRange } from 'lucide-react'
 import { toJS } from 'mobx'
 import moment from 'moment'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import DatePicker from 'react-multi-date-picker'
 import { defaultRangeMonth } from '../../../store/student.store'
@@ -9,11 +10,12 @@ import { defaultRangeMonth } from '../../../store/student.store'
 
 const CustomRangeMonthPicker = ({ value, onChange: onSelect, inputClass, handleSubmit, numberOfMonths = 1, ...props }) => {
   const formatedValues = toJS(value)
+  const router = useRouter()
   const [rangeMonth, setRangeMonth] = useState([new Date(formatedValues.start), new Date(formatedValues.end)])
 
-  const handleReset = () => {
-    setRangeMonth(null)
+  const handleReset = () => { 
     onSelect?.(defaultRangeMonth)
+    router.refresh()
     handleSubmit?.()
   }
 
@@ -48,7 +50,7 @@ const CustomRangeMonthPicker = ({ value, onChange: onSelect, inputClass, handleS
     className={`custom_month_picker rounded-md! mt-4! max-${numberOfMonths * 300}`}
     shadow={false}
     arrow={true}
-    format='DD.MM.YYYY'
+    format='MMM, YYYY'
     value={rangeMonth}
     numberOfMonths={numberOfMonths}
     onChange={(month) => setRangeMonth(month)}

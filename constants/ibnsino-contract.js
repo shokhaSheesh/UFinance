@@ -19,7 +19,8 @@ export const getIbnSinoContractHtml = (data = {}) => {
     guardianPhone2 = '________________________',
     guardianAddress = '________________________',
     guardianPinfl = '________________________',
-    monthlyPayment
+    monthlyPayment,
+    guardianType = '________________________'
   } = data
 
   return `<!DOCTYPE html>
@@ -100,6 +101,9 @@ export const getIbnSinoContractHtml = (data = {}) => {
   @page :first {
     margin-top: 10px;
 
+  }
+    .requisites .label {
+    font-weight: 700;
   }
 
   @page {
@@ -349,16 +353,16 @@ mumkin.
       <div class="signature-line"></div>
       <div style="margin-top: 6px;">M.O'</div>
     </td>
-    <td>
-      <div class="bold">Buyurtmachi:</div>
-      <div>F.I.Sh.: <span class="bold  highlight  ">${guardianName}</span></div>
-      <div>Manzil: <span class=" highlight  ">${guardianAddress}</span></div>
-      <div>Pasport: <span class=" highlight  ">${guardianPassport}</span></div>
-      <div>Berilgan: <span class=" highlight  ">${guardianPassportIssuedBy}</span></div>
-      <div>PINFL: <span class=" highlight  ">${guardianPinfl}</span></div>
-      <div>Tel: <span class=" highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
-      <br/>
-      <div>O'quvchi: <span class="bold  highlight  ">${studentName}</span></div>
+     <td>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight" >${guardianAddress}</span> </div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
     

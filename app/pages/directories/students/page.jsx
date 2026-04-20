@@ -56,7 +56,7 @@ const Students = observer(() => {
   } = useInfiniteQuery({
     queryKey: ['students', filterData],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
-      method: 'get_counterparties_data',
+      method: 'get_counterparties_data_by_query',
       data: { ...filterData, page: pageParam }
     }),
     getNextPageParam: (lastPage) => {

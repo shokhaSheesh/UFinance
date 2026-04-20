@@ -1,6 +1,6 @@
 'use client'
 
-import { keepPreviousData, useMutation } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useMemo, useState } from 'react'
@@ -95,6 +95,18 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       monthlyPayment: ""
     }
   })
+
+  const { data: contractData, isLoading: contractLoading } = useQuery({
+    queryKey: ['get_contract', authStore.branch_id],
+    queryFn: () =>
+      apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true&data=${encodeURIComponent(JSON.stringify({ branch_id: authStore.branch_id }))}` }),
+    placeholderData: keepPreviousData,
+    enabled: !!authStore.branch_id,
+    refetchOnMount: true,
+    select: (data) => data?.data?.data?.response,
+  })
+
+  console.log('contractData', contractData)
 
   const { mutate: createStudent, isPending } = useMutation({
     mutationKey: ['create-student'],
