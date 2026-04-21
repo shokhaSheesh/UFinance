@@ -1,21 +1,17 @@
 export const getDonoAvlodContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
-    contractDate = '____-__-__',
-    contractEndDate = '31.08.2026',
-    directorName = 'Sharipova Dilafruz Abidjanovna',
-    studentName = '________________________',
-    guardianName = '________________________',
-    guardianRelation = 'qonuniy vakili',
+    contractDate = '____-__-__', 
+    studentName = '________________________', 
     guardianPassport = '________________________',
-    premiumPayment = '3 400 000',
-    standardPayment = '3 200 000',
-    siblingDiscount = '200 000',
+    guardianName = '________________________',
     guardianPassportIssuedBy = '________________________',
     guardianPhone1 = '________________________',
     guardianPhone2 = '________________________',
     guardianAddress = '________________________',
     guardianPinfl = '________________________',
+    guardianType = '',
+    studentBirthday
   } = data
 
   return `<!DOCTYPE html>
@@ -69,6 +65,9 @@ export const getDonoAvlodContractHtml = (data = {}) => {
     width: 200px;
     display: inline-block;
   }
+  .requisites .label {
+    font-weight: 700;
+  }
 
   @page {
     size: A4;
@@ -83,17 +82,17 @@ export const getDonoAvlodContractHtml = (data = {}) => {
 <body>
 
 <h1>Maktabgacha ta'lim xizmat ko'rsatish shartnomasi</h1>
-<h2>№ ${contractNumber}</h2>
+<h2 class=" highlight ">№ ${contractNumber}</h2>
 
 <div class="header-line">
-  <span>${contractDate}</span>
+  <span class=" highlight ">${contractDate}</span>
   <span>Toshkent sh.</span>
 </div>
 
 <p class="intro">
   <span class="bold">"DONO A VLOD MAKTABI" MCHJ</span> (bundan buyon –
   "Muassasa" deb ataladi) nomidan ustav asosida harakat
-  qiluvchi direktor SHARIPOV A DILAFRUZ ABIDJANOVNA, bir tomondan, Muassasa tarbiyalanuvchisi <span class=" highlight ">${studentName}</span> ning qonuniy vakili <span class=" highlight ">${guardianName}</span> (bundan buyon –
+  qiluvchi direktor SHARIPOV A DILAFRUZ ABIDJANOVNA, bir tomondan, Muassasa tarbiyalanuvchisi <span class=" highlight ">${studentName} (${studentBirthday})</span> ning qonuniy vakili <span class=" highlight ">${guardianName}</span> (bundan buyon –
   "Buyurtmachi" yoki "Qonuniy vakil" deb
   ataladi) nomidan harakat qiluvchi ikkinchi tomondan birgalikda "Taraflar"
   , alohida esa "Таraf" deb ataluvchilar, mazkur
@@ -251,14 +250,16 @@ export const getDonoAvlodContractHtml = (data = {}) => {
       <div>Botirov Bosit Bobir o'g'li</div>
       <div class="signature-line"></div>
     </td>
-    <td>
+   <td>
       <div class="label">BUYURTMACHI</div>
-      <div><span class="label">Yashash manzili:</span> ${guardianAddress}</div>
-      <div><span class="label">Pasport seriyasi va raqami:</span> <span class=" highlight ">${guardianPassport}</span></div>
-      <div><span class="label">Kim tomonidan berilgan:</span> <span class=" highlight ">${guardianPassportIssuedBy}</span></div>
-      <div><span class="label">Tel. raqami:</span> <span class=" highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
-      <br/>
-      <div>Fuqaro: <span class="bold highlight ">${studentName}</span></div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>

@@ -19,7 +19,8 @@ export const getDonoSchoolContractHtml = (data = {}) => {
     guardianType = '',
     yearlyPayment = "38070000",
     monthlyPayment = "3,807,000",
-    studentName=""
+    studentName = "",
+    studentBirthday
   } = data
 
   return `<!DOCTYPE html>
@@ -71,6 +72,10 @@ export const getDonoSchoolContractHtml = (data = {}) => {
   table.requisites { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #333; }
   table.requisites td { vertical-align: top; padding: 6px 10px; border: 1px solid #333; }
 
+  .requisites label {
+   font-weight:600
+  }
+
   .signature-line {
     margin-top: 24px;
     border-top: 1px solid #333;
@@ -91,15 +96,15 @@ export const getDonoSchoolContractHtml = (data = {}) => {
 <body>
 
 <h1>Maktabgacha ta'lim xizmat ko'rsatish shartnomasi</h1>
-<h2>№ ${contractNumber}</h2>
+<h2 class=" highlight ">№ ${contractNumber}</h2>
 
 <div class="header-line">
-  <span>${contractDate}</span>
+  <span class=" highlight ">${contractDate}</span>
   <span>Toshkent sh.</span>
 </div>
 
 <p class="intro">
-  Nizom asosida ish olib boruvchi "DONO SCHOOL" MCHJ maktabi direktori SHARIPOVA D.A bir tomondan (keyingi o'rinlarda "Bajaruvchi" hamda "Maktab" deb ataladi), o'quvchining qonuniy vakili (otasi yoki onasi) NADJIMIDDINOV FAZLIDDIN KUDRATILLAYEVICH ikkinchi tomondan (keyingi o'rinlarda "Buyurtmachi" deb ataladi), o'quvchi QUDRATILLAYEVA ROBIYAXON FAZLIDDIN QIZI ni (keyingi o'rinlarda "o'quvchi" deb ataladi) davlat standartlari asosida o'rta maktab ta'limini olishi uchun mazkur shartnomani tuzdilar.
+  Nizom asosida ish olib boruvchi "DONO SCHOOL" MCHJ maktabi direktori SHARIPOVA D.A bir tomondan (keyingi o'rinlarda "Bajaruvchi" hamda "Maktab" deb ataladi), o'quvchining qonuniy vakili <span class=" highlight ">${guardianType}</span> <span class=" highlight "> ${guardianName}</span>  ikkinchi tomondan (keyingi o'rinlarda "Buyurtmachi" deb ataladi), o'quvchi <span class=" highlight "> ${studentName} (${studentBirthday})</span> ni (keyingi o'rinlarda "o'quvchi" deb ataladi) davlat standartlari asosida o'rta maktab ta'limini olishi uchun mazkur shartnomani tuzdilar.
 </p>
 
 <!-- ==================== 1. SHARTNOMA PREDMETI ==================== -->
@@ -191,7 +196,7 @@ export const getDonoSchoolContractHtml = (data = {}) => {
 <!-- ==================== 7. HISOB-KITOB ==================== -->
 <div class="section-title">7. Hisob-kitob qilish tartibi</div>
 
-<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="bold highlight">${yearlyPayment} so'm</span>ni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class="bold highlight">${monthlyPayment} so'm</span>ni tashkil qiladi.</p>
+<p class="article">7.1. Shartnomaga muvofiq (ta'lim xizmatlariga) kelishilgan to'lov miqdori bir o'quv yili uchun <span class="bold highlight ">${yearlyPayment} so'm</span>ni tashkil qiladi. To'lovni oyma-oy bo'lib to'lashga yo'l qo'yiladi. Bunda bir oy uchun to'lov miqdori <span class="bold highlight ">${monthlyPayment} so'm</span>ni tashkil qiladi.</p>
 <p class="article">7.2. Maktabga o'quvchini qabul qilish jarayonida mazkur Shartnoma uchun oldindan kelasi oy uchun mijoz tomonidan to'lanadi.</p>
 <p class="article">7.3. Mazkur Shartnomaning 7.1-bandiga asosan Ota-ona (Vasiy/Homiy)lar tomonidan o'quvchining ta'lim olishi uchun o'n oylik to'lov amalga oshiriladi.</p>
 <p class="article">7.4. "Buyurtmachi" har oy uchun to'lovni, oy boshlanishidan kamida 5 (besh) kun avval to'lashni o'z zimmasiga oladi. (bunda keyingi oy uchun to'lovlar joriy oyning 25 sanasigacha avvaldan to'lanishi lozim — misol uchun: oktyabr oyi uchun to'lovlar o'tgan sentyabr oyining 25 sanasigacha to'liq to'langan bo'lishi nazarda tutiladi).</p>
@@ -249,28 +254,19 @@ export const getDonoSchoolContractHtml = (data = {}) => {
       <div class="signature-line"></div>
     </td>
     <td>
-      <div class="bold">BUYURTMACHI</div>
-      <div><span class="label">Yashash manzili:</span> <span class="highlight">${guardianAddress}</span></div>
-      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="highlight">${guardianPassport}</span></div>
-      <div><span class="label">Kim tomonidan berilgan:</span> <span class="highlight">${guardianPassportIssuedBy}</span></div>
-      <div><span class="label">Tel. raqami:</span> <span class="highlight">${guardianPhone1}</span> ; <span class="highlight">${guardianPhone2}</span></div>
-      <br/>
-      <div>Fuqaro: <span class="bold highlight">${studentName}</span></div>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>
 </table>
-
-<div style="margin-top: 30px; padding-top: 16px; border-top: 1px solid #ccc;">
-  <div class="label" style="font-size: 13.5px; margin-bottom: 10px;">Uchinchi shaxs:</div>
-  <div style="font-size: 12.5px; line-height: 1.7;">
-    <div>Fuqaro: <span class="bold highlight">${guardianName}</span></div>
-    <div>PINFL: <span class="highlight">${guardianPinfl}</span></div>
-    <div>Vasiy turi: <span class="highlight">${guardianType}</span></div>
-    <div style="margin-top: 20px;" class="signature-line"></div>
-  </div>
-</div>
-
 </body>
 </html>`
 }

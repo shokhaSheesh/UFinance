@@ -3,16 +3,8 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { getIbnSinoContractHtml } from '../../../constants/ibnsino-contract'
-import { getAdStellasContractHtml } from '../../../constants/nabiyev'
-import { getDonoAvlodContractHtml } from '../../../constants/nurobod'
-import { getBigMoneyContractHtml } from '../../../constants/pasolstva'
-import { getSergeliContractHtml } from '../../../constants/sergeli-contract'
-import { getDonoSchoolContractHtml } from '../../../constants/uzodov-contract'
-import { getKidsShukranContractHtml } from '../../../constants/yakkasaroy'
-import { getBrightChildrensContractHtml } from '../../../constants/zenit'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
@@ -48,7 +40,7 @@ const clientType = [
 
 const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
-  const [activeContract, setActiveContract] = useState('ibnSino') // 'ibnSino' | 'sergeli' | 'donoSchool' | 'bigMoney' | 'kidsShukran' | 'donoAvlod' | 'adStellas' | 'brightChildrens'
+  const [contractTemplate, setContractTemplate] = useState('')
   const branch = authStore.selectBranch
   const {
     register,
@@ -96,17 +88,34 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
     }
   })
 
-  const { data: contractData, isLoading: contractLoading } = useQuery({
+  const { data: contract, isLoading: contractLoading } = useQuery({
     queryKey: ['get_contract', authStore.branch_id],
     queryFn: () =>
       apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true&data=${encodeURIComponent(JSON.stringify({ branch_id: authStore.branch_id }))}` }),
-    placeholderData: keepPreviousData,
     enabled: !!authStore.branch_id,
     refetchOnMount: true,
-    select: (data) => data?.data?.data?.response,
+    staleTime: 0,
+    cacheTime: 0,
+    select: (data) => data?.data?.data?.response?.[0],
   })
 
-  console.log('contractData', contractData)
+  console.log('contractdata', contract)
+
+  const contractData = useMemo(() => ({
+    branch_id: contract?.branch_id,
+    guid: contract?.guid,
+    file: contract?.file,
+    company_id: contract?.company_id,
+    branchName: contract?.branch_id_data?.name
+  }), [contract])
+
+  useEffect(() => {
+    if (!contractData.file) return
+    fetch(contractData.file)
+      .then((r) => r.text())
+      .then(setContractTemplate)
+      .catch(() => { })
+  }, [contractData.file])
 
   const { mutate: createStudent, isPending } = useMutation({
     mutationKey: ['create-student'],
@@ -167,8 +176,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
   }
 
   // Contract data mapper for different contract types
-  const getContractDataForType = (type) => {
+  const getContractDataForType = () => {
     const values = getValues()
+    // Calculate yearly payment: months between dates * monthly payment
+    const startDate = moment(values.contractDate)
+    const endDate = moment(values.validTo)
+    const monthsDiff = endDate.diff(startDate, 'months') + 1
+    const monthlyAmount = parseInt(String(values.monthlyPayment ?? '').replace(/\s/g, '') || 0)
+    const yearlyPayment = (monthsDiff * monthlyAmount).toLocaleString('ru-RU')
     const baseData = {
       contractNumber: values.contractNumber || '___',
       contractDate: moment(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
@@ -181,169 +196,27 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       guardianPinfl: values.pinf || '________________________',
       studentName: values.studentName || '________________________',
       guardianType: values.guardianType || '________________________',
-      monthlyPayment: values.monthlyPayment
+      monthlyPayment: values.monthlyPayment,
+      yearlyPayment,
+      guardianName: values.guardianName,
+      academicYear: values.academicYear || '2025-2026',
+      className: values.className || '___',
+      language: values.language || "O'zbek tili",
+      studentBirthday: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
+      validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
+      validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
     }
 
-    switch (type) {
-      case 'ibnSino':
-        return {
-          ...baseData,
-          academicYear: values.academicYear || '2025-2026',
-          directorName: 'Tursunova D.S.',
-          guardianName: values.guardianName || '________________________',
-          studentName: values.studentName || '________________________',
-          className: values.className || '___',
-          language: values.language || "O'zbek tili",
-          validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
-          validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-          admissionPayment: '5,800,000',
-          guardianPassport: values.passport || '________________________',
-          guardianPassportIssuedBy: values.issuedBy || '________________________',
-          guardianPhone1: values.phone1 || '________________________',
-          guardianPhone2: values.phone2 || '________________________',
-          guardianAddress: values.address || '________________________',
-          guardianPinfl: values.pinf || '________________________',
-        }
-      case 'sergeli':
-        return {
-          ...baseData,
-          academicYear: values.academicYear || '2025-2026',
-          directorName: 'Berdiyeva G.T.',
-          guardianName: values.guardianName || '________________________',
-          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
-          studentName: values.studentName || '________________________',
-          className: values.className || '___',
-          language: values.language || "O'zbek tili",
-          validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
-          validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-
-          thirdPartyName: '',
-          thirdPartyPinfl: '',
-        }
-      case 'donoSchool':
-        return {
-          ...baseData,
-          academicYear: values.academicYear || '2026-2027',
-          directorName: 'Sharipova D.A',
-          guardianName: values.guardianName || '________________________',
-          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
-          studentName: values.studentName || '________________________',
-          className: values.className || '___',
-          language: values.language || "Rus tili",
-          validFrom: values.validFrom ? moment(values.validFrom).format('YYYY-MM-DD') : '____-__-__',
-          validTo: values.validTo ? moment(values.validTo).format('YYYY-MM-DD') : '____-__-__',
-          yearlyPayment: '38 070 000',
-          monthlyPayment: '3 807 000',
-          maxStudents: '22',
-          guardianPassport: values.passport || '________________________',
-          guardianAddress: values.address || '________________________',
-          guardianPhone1: values.phone1 || '________________________',
-          guardianPhone2: values.phone2 || '________________________',
-          thirdPartyName: '',
-          thirdPartyAddress: '',
-          thirdPartyPhone: '',
-          thirdPartyBank: '',
-          thirdPartyAccount: '',
-          thirdPartyMfo: '',
-          thirdPartyStir: '',
-          thirdPartyDirector: '',
-        }
-      case 'bigMoney':
-        return {
-          ...baseData,
-          directorName: 'Baymuxammedova Lola Mirakbarovna',
-          childName: values.studentName || '________________________',
-          parentName: values.guardianName || '________________________',
-          parentRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
-          parentPassport: values.passport || '________________________',
-          parentPinfl: values.pinf || '________________________',
-          parentAddress: values.address || '________________________',
-          monthlyPayment: '________________________',
-        }
-      case 'kidsShukran':
-        return {
-          ...baseData,
-          directorName: 'Mirzokulova Nafisa Meliboyevna',
-          childName: values.studentName || '________________________',
-          guardianName: values.guardianName || '________________________',
-          guardianRelation: values.guardianType === 'ota' ? 'Ota' : values.guardianType === 'ona' ? 'Ona' : 'Vasiy',
-          monthlyPayment: '3 200 000',
-          siblingDiscount: '200 000',
-        }
-      case 'donoAvlod':
-        return {
-          ...baseData,
-          directorName: 'Sharipova Dilafruz Abidjanovna',
-          childName: values.studentName || '________________________',
-          guardianName: values.guardianName || '________________________',
-          guardianRelation: values.guardianType === 'ota' ? 'otasi' : values.guardianType === 'ona' ? 'onasi' : 'qonuniy vakili',
-          guardianPassport: values.passport || '________________________',
-          premiumPayment: '3 400 000',
-          standardPayment: '3 200 000',
-          siblingDiscount: '200 000',
-        }
-      case 'adStellas':
-        return {
-          ...baseData,
-          directorName: 'Rizayeva S.X',
-          childName: values.studentName || '________________________',
-          childBirthDate: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
-          parentName: values.guardianName || '________________________',
-          parentPassport: values.passport || '________________________',
-          parentAddress: values.address || '________________________',
-          monthlyPayment: '4 050 000',
-        }
-      case 'brightChildrens':
-        return {
-          ...baseData,
-          directorName: 'Fayziyeva Sh.N',
-          childName: values.studentName || '________________________',
-          childBirthDate: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
-          parentName: values.guardianName || '________________________',
-          parentPassport: values.passport || '________________________',
-          parentAddress: values.address || '________________________',
-          basePayment: '4 700 000',
-          actualPayment: '4 230 000',
-        }
-      default:
-        return baseData
-    }
+    return baseData
   }
 
-  // Get HTML content based on active contract type
   const getContractHtml = () => {
-    const data = getContractDataForType(activeContract)
-    let html = ''
-    switch (activeContract) {
-      case 'ibnSino':
-        html = getIbnSinoContractHtml(data)
-        break
-      case 'sergeli':
-        html = getSergeliContractHtml(data)
-        break
-      case 'donoSchool':
-        html = getDonoSchoolContractHtml(data)
-        break
-      case 'bigMoney':
-        html = getBigMoneyContractHtml(data)
-        break
-      case 'kidsShukran':
-        html = getKidsShukranContractHtml(data)
-        break
-      case 'donoAvlod':
-        html = getDonoAvlodContractHtml(data)
-        break
-      case 'adStellas':
-        html = getAdStellasContractHtml(data)
-        break
-      case 'brightChildrens':
-        html = getBrightChildrensContractHtml(data)
-        break
-      default:
-        html = getIbnSinoContractHtml(data)
-    }
-    // Remove highlight class for PDF generation
-    return html
+    if (!contractTemplate) return '<p style="padding:20px;font-family:sans-serif">Загрузка шаблона договора...</p>'
+    const data = getContractDataForType()
+    return Object.entries(data).reduce(
+      (html, [key, value]) => html.replaceAll(`\${${key}}`, String(value ?? '')),
+      contractTemplate,
+    )
   }
 
   const handleClose = () => {
@@ -452,6 +325,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
       }
     })
   }
+
+  const html = getContractHtml()
+  console.log('html', html)
 
   return (
     <CustomDialog
@@ -945,39 +821,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit }) => {
         <>
           {/* Contract Preview */}
             <div className="flex-1 overflow-hidden flex flex-col">
-              {/* Contract Type Tabs */}
-              <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
-                {[
-                  { id: 'ibnSino', label: 'Ibn Sino' },
-                  { id: 'sergeli', label: 'Sergeli' },
-                  { id: 'donoSchool', label: 'Dono School' },
-                  { id: 'bigMoney', label: 'Big Money' },
-                  { id: 'kidsShukran', label: 'Kids Shukran' },
-                  { id: 'donoAvlod', label: 'Dono Avlod' },
-                  { id: 'adStellas', label: 'Ad Stellas' },
-                  { id: 'brightChildrens', label: 'Bright Childrens' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveContract(tab.id)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${activeContract === tab.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                      }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Contract Content */}
               <div className="flex-1 overflow-hidden">
                 <iframe
                   srcDoc={getContractHtml()}
-                  className="w-full h-full border-0"
+                  className="w-full h-full border-0 px-2"
                   title="Предпросмотр договора"
                 />
-            </div>
+              </div>
             </div>
 
             {/* Preview Footer */}

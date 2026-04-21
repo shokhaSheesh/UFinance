@@ -2,14 +2,18 @@ export const getAdStellasContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
     contractDate = '____-__-__',
-    contractEndDate = '____-__-__',
-    directorName = 'Rizayeva S.X',
-    childName = '________________________',
-    childBirthDate = '____-__-__',
-    parentName = '________________________',
-    parentPassport = '________________________',
-    parentAddress = '________________________',
-    monthlyPayment = '4 050 000',
+    contractEndDate = '____-__-__', 
+    studentName = '________________________',
+    studentBirthday = '____-__-__',
+    guardianPassportIssuedBy = '________________________',
+    guardianPhone1 = '________________________',
+    guardianPhone2 = '________________________',
+    guardianAddress = '________________________',
+    guardianPinfl = '________________________',
+    guardianName = '________________________',
+    guardianPassport = '________________________',
+    guardianType = '',
+    monthlyPayment = '',
   } = data
 
   return `<!DOCTYPE html>
@@ -90,17 +94,17 @@ export const getAdStellasContractHtml = (data = {}) => {
 
 <h1>"AD STELLAS" MCHJ<br/>
 maktabgacha ta'lim tashkiloti va ota-ona o'rtasidagi tuzilgan</h1>
-<h2>SHARTNOMA № ${contractNumber}</h2>
+<h2 class=" highlight ">SHARTNOMA № ${contractNumber}</h2>
 
 <div class="header-line">
-  <span>${contractDate}</span>
+  <span class=" highlight ">${contractDate}</span>
   <span>Toshkent shahar</span>
 </div>
 
 <p class="intro">
   <span class="bold">"AD STELLAS" MCHJ</span> maktabgacha ta'lim tashkiloti (keyingi o'rinlarda —
-  Bajaruvchi) nomidan ustav asosida faoliyat yurituvchi direktor <span class="bold">${directorName}</span> bir
-  tarafdan va <span class="bold highlight">${parentName}</span> (keyingi o'rinlarda – Buyurtmachi)
+  Bajaruvchi) nomidan ustav asosida faoliyat yurituvchi direktor <span class="bold"> Rizayeva S.X </span> bir
+  tarafdan va <span class="bold highlight ">${guardianName}</span> (keyingi o'rinlarda – Buyurtmachi)
   ikkinchi tarafdan mazkur shartnoma quyidagilar haqida tuzildi.
 </p>
 
@@ -108,8 +112,8 @@ maktabgacha ta'lim tashkiloti va ota-ona o'rtasidagi tuzilgan</h1>
 <div class="section-title">1. Shartnoma predmeti</div>
 
 <p class="article">
-  1.1. Tashkilot mazkur shartnoma shartlariga asosan <span class="highlight">${childBirthDate}</span> sanada tug'ilgan
-  <span class="bold highlight">${childName}</span> (keyingi o'rinlarda — Tarbiyalanuvchi)ning barcha huquqlarini ta'minlagan
+  1.1. Tashkilot mazkur shartnoma shartlariga asosan <span class=" highlight ">${studentBirthday}</span> sanada tug'ilgan
+  <span class="bold highlight ">${studentName}</span> (keyingi o'rinlarda — Tarbiyalanuvchi) ning barcha huquqlarini ta'minlagan
   holda unga sifatli ta'lim-tarbiya berish, sog'liqni muhofaza qilish va mustahkamlash,
   intellektual, axloqiy, estetik va jismoniy rivojlanishi uchun shart-sharoit yaratib berish
   majburiyatini oladi.
@@ -183,7 +187,7 @@ maktabgacha ta'lim tashkiloti va ota-ona o'rtasidagi tuzilgan</h1>
 <!-- ==================== 3. TO'LOV TARTIBI ==================== -->
 <div class="section-title">3. To'lov (hisob-kitob) tartibi</div>
 
-<p class="article">3.1. Shartnomaga asosan 1 oylik xizmat ko'rsatish bahosi <span class="bold highlight">${monthlyPayment} so'm</span>ni tashkil qiladi. Oylik xizmat ko'rsatish vaqti har oyning birinchi kunidan oxirgi kunigacha bo'lgan muddatni qamrab oladi.</p>
+<p class="article">3.1. Shartnomaga asosan 1 oylik xizmat ko'rsatish bahosi <span class="bold highlight ">${monthlyPayment} so'm</span> ni tashkil qiladi. Oylik xizmat ko'rsatish vaqti har oyning birinchi kunidan oxirgi kunigacha bo'lgan muddatni qamrab oladi.</p>
 <p class="article">3.2. Tarbiyalanuvchining Tashkilotdagi ta'minoti uchun to'lovni har bir kelasi oy uchun joriy oyning oxirgi sanasigacha amalga oshirish lozim (masalan, 2025 yil aprel oyi uchun 2025 yil 31 martga qadar to'lanadi).</p>
 <p class="article">3.3. Bir yil (12 oy) uchun oldindan to'lov qilinganda umumiy summaga nisbatan <span class="bold">10 foiz chegirma beriladi.</span></p>
 <p class="article">3.4. Yarim yil (6 oy) uchun oldindan to'lov qilinganda umumiy summaga nisbatan <span class="bold">5 foiz chegirma beriladi.</span></p>
@@ -223,7 +227,7 @@ Tarbiyalanuvchining boshqa sabablar bilan (chet el safariga chiqishi, qarindoshi
 <!-- ==================== 8. YAKUNIY QOIDALAR ==================== -->
 <div class="section-title">8. Yakuniy qoidalar</div>
 
-<p class="article">8.1. Mazkur shartnoma imzolagan kundan boshlab kuchga kiradi va ${contractEndDate} sanaga qadar amal qiladi.</p>
+<p class="article">8.1. Mazkur shartnoma imzolagan kundan boshlab kuchga kiradi va <span class="bold highlight ">${contractEndDate} so'm</span>  sanaga qadar amal qiladi.</p>
 <p class="article">8.2. Mazkur shartnoma ikki nusxada tuziladi, ikkala nusxa ham bir xil yuridik kuchga ega, tashkilot hamda Buyurtmachida bir nusxadan saqlanadi.</p>
 
 <!-- ==================== 9. REKVIZITLAR ==================== -->
@@ -240,31 +244,25 @@ Tarbiyalanuvchining boshqa sabablar bilan (chet el safariga chiqishi, qarindoshi
       <div>MFO: 00083</div>
       <div>STIR: 312 563 360</div>
       <br/>
-      <div>Direktor: ${directorName}</div>
+      <div>Direktor: Rizayeva S.X</div>
       <div style="margin-top: 6px;">M.O'</div>
       <div class="signature-line"></div>
-      <div>${directorName}</div>
+      <div>Rizayeva S.X</div>
     </td>
     <td>
-      <div class="bold">Ota-ona</div>
-      <div>Yashash manzil: <span class="highlight">${parentAddress}</span></div>
-      <br/>
-      <div>Pasport seriyasi: <span class="highlight">${parentPassport}</span></div>
-      <br/><br/>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
-      <div><span class="bold highlight">${parentName}</span></div>
     </td>
   </tr>
 </table>
-
-<div class="acknowledgement">
-  <p class="article">Shaxsan shartnomaning 1-nusxasini oldim va Tashkilot ichki tartib qoidalari bilan tanishdim</p>
-  <p style="margin-top: 16px;">
-    <span class="bold highlight">${parentName}</span>
-    <span class="signature-line" style="margin-left: 20px;"></span> (imzo)
-  </p>
-</div>
-
 </body>
 </html>`
 }

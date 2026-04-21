@@ -15,7 +15,8 @@ export const getKidsShukranContractHtml = (data = {}) => {
     guardianPhone2 = '________________________',
     guardianAddress = '________________________',
     guardianPinfl = '________________________',
-    guardianType = ""
+    guardianType = "",
+    studentBirthday
   } = data
 
   return `<!DOCTYPE html>
@@ -66,6 +67,10 @@ export const getKidsShukranContractHtml = (data = {}) => {
   table.requisites { width: 100%; border-collapse: collapse; margin-top: 20px; }
   table.requisites td { vertical-align: top; padding: 6px 10px; width: 50%; }
 
+  .requisites label {
+   font-weight: 600
+  }
+
   .signature-line {
     margin-top: 24px;
     border-top: 1px solid #333;
@@ -86,18 +91,18 @@ export const getKidsShukranContractHtml = (data = {}) => {
 <body>
 
 <h1>Maktabgacha ta'lim xizmat ko'rsatish shartnomasi</h1>
-<h2>№ ${contractNumber}</h2>
+<h2 class=" highlight ">№ ${contractNumber}</h2>
 
 <div class="header-line">
-  <span>${contractDate}</span>
+  <span class="bold highlight " >${contractDate}</span>
   <span>Toshkent sh.</span>
 </div>
 
 <p class="intro">
   <span class="bold">"KIDS SHUKRAN" OILAVIY KORXONASI</span> (bundan buyon – "Muassasa" deb
-  ataladi) nomidan ustav asosida harakat qiluvchi direktor <span class="bold">${directorName}</span>,
-  bir tomondan, Muassasa tarbiyalanuvchi <span class="bold highlight">${studentName}</span>ning
-  qonuniy vakili <span class="bold highlight">${guardianName}</span> (bundan buyon –
+  ataladi) nomidan ustav asosida harakat qiluvchi direktor Mirzokulova Nafisa Meliboyevna,
+  bir tomondan, Muassasa tarbiyalanuvchi <span class="bold highlight ">${studentName} (${studentBirthday}) </span> ning
+  qonuniy vakili <span class="bold highlight ">${guardianName}</span> (bundan buyon –
   "Buyurtmachi" yoki "Qonuniy vakil" deb ataladi) nomidan harakat qiluvchi ikkinchi
   tomondan birgalikda "Taraflar", alohida esa "Taraf" deb ataluvchilar, mazkur shartnomani
   quyidagilar haqida tuzdilar:
@@ -175,7 +180,7 @@ export const getKidsShukranContractHtml = (data = {}) => {
 <p class="article">3.1. Muassasa bolalar ta'minoti uchun to'lanadigan tushumlar nazarda tutilgan mablag'lari maqsadli tartibda tarbiyalanuvchilarni oziq-ovqat bilan ta'minlashni hamda Muassasaning moddiy-texnik bazasini yaxshilashga, tarbiya jarayonini tashkillashtirishga, sanitariya-gigiena vositalari va yumshoq inventarlar xarid qilishga maqsadli tartibda yo'naltiriladi.</p>
 <p class="article">3.2. Shartnomaga asosan oylik to'lov miqdori ikki xil tarifda to'lov amalga oshirish mumkin:<br/>
 — "Standart" tarifi — bir haftada besh kunlik tarif bo'lib, <span class="bold highlight">${monthlyPayment} so'm</span>ni tashkil etadi.<br/>
-"Standart" tariflarida: bir ota-onaning ikki va undan ortiq farzandlari muassasaga qatnasa, har bir bola uchun <span class="bold highlight">${siblingDiscount} so'm</span> chegirma belgilandi.</p>
+"Standart" tariflarida: bir ota-onaning ikki va undan ortiq farzandlari muassasaga qatnasa, har bir bola uchun 200 000 so'm chegirma belgilandi.</p>
 <p class="article">3.3. Tarbiyalanuvchining Muassasadagi ta'minoti uchun to'lovni — har oyning 10-sanasigacha kechiktirmasdan amalga oshirilishi lozim.</p>
 <p class="article">3.4. Tarbiyalanuvchi sababsiz uyda qolgan holatlarda ota-ona tarafidan to'lovlar umumiy asoslarda to'lanadi.</p>
 <p class="article">3.5. Tarbiyalanuvchining Muassasadagi ta'minoti uchun to'lovlar oyning to'lov hisoblanish sanasidan boshlab 10 kun mobaynida to'lov uzrli sabablarsiz to'lanmagan taqdirda, shartnoma bir tomonlama bekor qilinib, tarbiyalanuvchi Muassasadan chetlashtiriladi.</p>
@@ -217,42 +222,33 @@ export const getKidsShukranContractHtml = (data = {}) => {
 
 <table class="requisites">
   <tr>
-    <td>
+    <td>  
       <div class="bold">Muassasa (Ijrochi)</div>
       <div class="bold">"KIDS SHUKRAN" OILAVIY KORXONASI</div>
       <div>Toshkent shahar, Yakkasaroy tumani, Spitamen ko'chasi 20-20A uy</div>
-      <div>STIR: 309 258 709</div>
+      <div>STIR: 309258709</div>
       <div>TEL: +99895 460 0008</div>
-      <div>X/R: 2020 8000 6055 3087 3001</div>
+      <div>X/R: 20208000605530873001</div>
       <div>MFO: 01095</div>
       <div>Bank: Toshkent sh., "ASIA ALLIANCE BANK" AT BANKI</div>
       <br/>
-      <div>Direktor: ${directorName}</div>
+      <div>Direktor: Mirzokulova Nafisa Meliboyevna</div>
       <div class="signature-line"></div>
     </td>
-     <td>
+    <td>
       <div class="label">BUYURTMACHI</div>
-      <div><span class="label">Yashash manzili:</span> ${guardianAddress}</div>
-      <div><span class="label">Pasport seriyasi va raqami:</span> <span class=" highlight ">${guardianPassport}</span></div>
-      <div><span class="label">Kim tomonidan berilgan:</span> <span class=" highlight ">${guardianPassportIssuedBy}</span></div>
-      <div><span class="label">Tel. raqami:</span> <span class=" highlight ">${guardianPhone1}</span> ; <span class=" highlight ">${guardianPhone2}</span></div>
-      <br/>
-      <div>Fuqaro: <span class="bold highlight ">${studentName}</span></div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>
 </table>
-
-<div style="margin-top: 30px; padding-top: 16px;">
-  <div class="label" style="font-size: 13.5px; margin-bottom: 10px;">Uchinchi shaxs:</div>
-  <div style="font-size: 12.5px; line-height: 1.7;">
-    <div>Fuqaro: <span class="bold highlight ">${guardianName}</span></div>
-    <div>PINFL: <span class=" highlight ">${guardianPinfl}</span></div>
-    <div>Vasiy turi: <span class=" highlight ">${guardianType}</span></div>
-    <div style="margin-top: 20px;" class="signature-line"></div>
-  </div>
-</div>
-
 </body>
 </html>`
 }

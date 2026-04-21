@@ -2,15 +2,19 @@ export const getBrightChildrensContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
     contractDate = '____-__-__',
-    contractEndDate = '____-__-__',
-    directorName = 'Fayziyeva Sh.N',
-    childName = '________________________',
-    childBirthDate = '____-__-__',
-    parentName = '________________________',
-    parentPassport = '________________________',
-    parentAddress = '________________________',
-    basePayment = '4 700 000',
-    actualPayment = '4 230 000',
+    contractEndDate = '____-__-__', 
+    studentName = '________________________',
+    guardianName = '________________________',
+    guardianPassport = '________________________',
+    guardianPassportIssuedBy = '________________________',
+    guardianPhone1 = '________________________',
+    guardianPhone2 = '________________________',
+    guardianAddress = '________________________',
+    guardianPinfl = '________________________',
+    guardianType = "",
+    studentBirthday,
+    monthlyPayment,
+    yearlyPayment
   } = data
 
   return `<!DOCTYPE html>
@@ -92,17 +96,17 @@ export const getBrightChildrensContractHtml = (data = {}) => {
 <h1>"BRIGHT CHILDRENS" MCHJ<br/>
 maktabgacha ta'lim tashkiloti va ota-ona o'rtasidagi<br/>
 tuzilgan</h1>
-<h2>SHARTNOMA № ${contractNumber}</h2>
+<h2 class=" highlight ">SHARTNOMA № ${contractNumber}</h2>
 
 <div class="header-line">
-  <span>${contractDate}</span>
+  <span class=" highlight ">${contractDate}</span>
   <span>Toshkent shahar</span>
 </div>
 
 <p class="intro">
   <span class="bold">"BRIGHT CHILDRENS" MCHJ</span> maktabgacha ta'lim tashkiloti (keyingi o'rinlarda —
-  Bajaruvchi) nomidan ustav asosida faoliyat yurituvchi direktor <span class="bold">${directorName}</span> bir
-  tarafdan va <span class="bold highlight">${parentName}</span> (keyingi o'rinlarda – Buyurtmachi)
+  Bajaruvchi) nomidan ustav asosida faoliyat yurituvchi direktor <span class="bold"> Fayziyeva Sh.N </span> bir
+  tarafdan va <span class="bold highlight">${guardianName}</span> (keyingi o'rinlarda – Buyurtmachi)
   ikkinchi tarafdan mazkur shartnoma quyidagilar haqida tuzildi.
 </p>
 
@@ -110,8 +114,8 @@ tuzilgan</h1>
 <div class="section-title">1. Shartnoma predmeti</div>
 
 <p class="article">
-  1.1. Tashkilot mazkur shartnoma shartlariga asosan <span class="highlight">${childBirthDate}</span> sanada tug'ilgan
-  <span class="bold highlight">${childName}</span> (keyingi o'rinlarda — Tarbiyalanuvchi)ning barcha huquqlarini ta'minlagan
+  1.1. Tashkilot mazkur shartnoma shartlariga asosan <span class="highlight">${studentBirthday}</span> sanada tug'ilgan
+  <span class="bold highlight">${studentName}</span> (keyingi o'rinlarda — Tarbiyalanuvchi)ning barcha huquqlarini ta'minlagan
   holda unga sifatli ta'lim-tarbiya berish, sog'liqni muhofaza qilish va mustahkamlash,
   intellektual, axloqiy, estetik va jismoniy rivojlanishi uchun shart-sharoit yaratib berish
   majburiyatini oladi.
@@ -185,7 +189,7 @@ tuzilgan</h1>
 <!-- ==================== 3. TO'LOV TARTIBI ==================== -->
 <div class="section-title">3. To'lov (hisob-kitob) tartibi</div>
 
-<p class="article">3.1. Shartnomaga asosan bir oylik xizmat ko'rsatish bahosi bazaviy hisoblash sistemasiga ko'ra, <span class="bold">${basePayment} so'm</span>ni tashkil qiladi. Sizning shartnomangizdagi summa <span class="bold highlight">${actualPayment} so'm</span>ni tashkil qiladi.<br/>
+<p class="article">3.1. Shartnomaga asosan bir oylik xizmat ko'rsatish bahosi bazaviy hisoblash sistemasiga ko'ra, <span class="bold highlight ">${monthlyPayment} so'm</span> tashkil qiladi. Sizning shartnomangizdagi summa <span class="bold highlight ">${yearlyPayment} so'm</span> ni tashkil qiladi.<br/>
 Oylik xizmat ko'rsatish vaqti har oyning birinchi kunidan oxirgi kunigacha bo'lgan muddatni qamrab oladi.</p>
 <p class="article">3.2. To'lov har bir kelasi oy uchun joriy oyning oxirgi sanasigacha amalga oshirilishi lozim (masalan, 2025 yil oktabr oyi uchun 2025 yil 31 sentabr oyiga qadar).</p>
 <p class="article">3.3. Bir yil (12 oy) uchun oldindan to'lov qilinganda umumiy summaga nisbatan <span class="bold">10 foiz chegirma beriladi.</span></p>
@@ -244,17 +248,20 @@ Tarbiyalanuvchining boshqa sabablar bilan (chet el safariga chiqishi, qarindoshi
       <div>MFO: 01095</div>
       <div>STIR: 207 018 693</div>
       <br/>
-      <div>Direktor: ${directorName}</div>
-      <div style="margin-top: 6px;">M.O'</div>
+      <div>Direktor: Fayziyeva Sh.N</div>
+      <div style="margin-top: 6px;">M.U</div>
       <div class="signature-line"></div>
     </td>
     <td>
-      <div class="bold">Ota-ona</div>
-      <div>Yashash manzil: <span class="highlight">${parentAddress}</span></div>
-      <br/>
-      <div>Pasport seriyasi: <span class="highlight">${parentPassport}</span></div>
-      <br/><br/>
-      <div>Ota-ona: <span class="bold highlight">${parentName}</span></div>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>

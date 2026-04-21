@@ -1,15 +1,18 @@
 export const getBigMoneyContractHtml = (data = {}) => {
   const {
     contractNumber = '___',
-    contractDate = '____-__-__',
-    directorName = 'Baymuxammedova Lola Mirakbarovna',
-    childName = '________________________',
-    parentName = '________________________',
-    parentRelation = 'otasi (onasi)',
-    parentPassport = '________________________',
-    parentPinfl = '________________________',
-    parentAddress = '________________________',
+    contractDate = '____-__-__', 
+    studentName = '________________________',
+    guardianPassport = '________________________',
+    guardianName = '________________________',
+    guardianPassportIssuedBy = '________________________',
+    guardianPhone1 = '________________________',
+    guardianPhone2 = '________________________',
+    guardianAddress = '________________________',
+    guardianPinfl = '________________________',
+    guardianType = '',
     monthlyPayment = '________________________',
+    studentBirthday
   } = data
 
   return `<!DOCTYPE html>
@@ -61,6 +64,10 @@ export const getBigMoneyContractHtml = (data = {}) => {
   table.requisites { width: 100%; border-collapse: collapse; margin-top: 20px; }
   table.requisites td { vertical-align: top; padding: 6px 10px; width: 50%; }
 
+  .requisites label {
+    font-weight: 600;
+  }
+
 
   .signature-line {
     margin-top: 24px;
@@ -92,9 +99,9 @@ tuzilgan</h1>
 <p class="intro">
   <span class="bold">"BIG MONEY ESTATE" MCHJ</span> nodavlat maktabgacha ta'lim tashkiloti (bundan buyon
   matnda Tashkilot deb yuritiladi) nomidan Ustav asosida ish yurituvchi rahbar
-  <span class="bold">${directorName}</span> bir tarafdan va <span class="bold highlight">${childName}</span> ning
-  (bundan buyon matnda Tarbiyalanuvchi deb yuritiladi) ${parentRelation} yoki ularning o'rnini
-  bosuvchi shaxs <span class="bold highlight">${parentName}</span> (bundan buyon matnda Ota-ona deb
+  <span class="bold"> Baymuxammedova Lola Mirakbarovna </span> bir tarafdan va <span class="bold highlight ">${studentName}</span> (<span class="bold highlight ">${studentBirthday}</span>) ning
+  (bundan buyon matnda Tarbiyalanuvchi deb yuritiladi) ${guardianType} yoki ularning o'rnini
+  bosuvchi shaxs <span class="bold highlight ">${guardianName}</span> (bundan buyon matnda Ota-ona deb
   yuritiladi) ikkinchi tarafdan, birgalikda taraflar deb yuritiladi, mazkur shartnomani quyidagi
   mazmunda tuzdilar:
 </p>
@@ -173,7 +180,7 @@ tuzilgan</h1>
 <!-- ==================== VI. TO'LOV TARTIBI ==================== -->
 <div class="section-title">VI. To'lov (hisob-kitob) tartibi</div>
 
-<p class="article">3.1. Tashkilotda tarbiyalanuvchining bo'lgan davri uchun bir oylik badal to'lovi <span class="bold highlight">${monthlyPayment}</span> so'mni tashkil etadi.</p>
+<p class="article">3.1. Tashkilotda tarbiyalanuvchining bo'lgan davri uchun bir oylik badal to'lovi <span class="bold highlight ">${monthlyPayment}</span> so'mni tashkil etadi.</p>
 <p class="article">3.2. Agar tashkilotga bir oiladan ikki nafar yoki undan ortiq farzand qatnashsa, har bir bola uchun oylik to'lovga 5% chegirma beriladi. Chegirma faqat bir oydan ortiq davomiy ishtirok etilganda va farzandlar rasmiy ro'yxatdan o'tkazilgan taqdirda qo'llaniladi.</p>
 <p class="article">3.3. Bir yil (12 oy) uchun oldindan to'lov qilinganda umumiy summaga nisbatan 10 foiz chegirma beriladi.</p>
 <p class="article">3.4. Tarbiyalanuvchining tashkilotga uzrli sabablarga ko'ra kelmagan kunlariga to'lovni qayta hisoblash faqatgina yuqoridagi (2.14) holatlarni tasdiqlovchi hujjat taqdim etilganda amalga oshiriladi.</p>
@@ -227,16 +234,19 @@ tuzilgan</h1>
       <div>R/s: 20208000007001121002</div>
       <div>Manzil: Toshkent sh., Yunusobod tumani, MFY Turkiston, Moyqo'rg'on ko'chasi, 5-uy</div>
       <br/>
-      <div>Direktor: ${directorName}</div>
+      <div>Direktor: Baymuxammedova Lola Mirakbarovna</div>
       <div class="signature-line"></div>
     </td>
     <td>
-      <div class="bold">Ota-ona</div>
-      <div>Yashash manzil: <span class="highlight">${parentAddress}</span></div>
-      <div>Pasport seriyasi: <span class="highlight">${parentPassport}</span></div>
-      <div>JSHSHR: <span class="highlight">${parentPinfl}</span></div>
-      <div>Ota-ona: <span class="bold highlight">${parentName}</span></div>
-      <br/>
+      <div class="label">BUYURTMACHI</div>
+      <div><span class="label">Yashash manzili:</span> <span class=" highlight " >${guardianAddress}</span></div>
+      <div><span class="label">Pasport seriyasi va raqami:</span> <span class="  highlight  ">${guardianPassport}</span></div>
+      <div><span class="label">PINFL:</span> <span class="  highlight  ">${guardianPinfl}</span></div>
+      <div><span class="label">Kim tomonidan berilgan:</span> <span class="  highlight  ">${guardianPassportIssuedBy}</span></div>
+      <div><span class="label">Tel. raqami:</span> <span class="  highlight  ">${guardianPhone1}</span> ; <span class="  highlight  ">${guardianPhone2}</span></div>
+      <br/> 
+      <div><span class="label">Vasiy turi:</span> <span class="  highlight  ">${guardianType}</span></div>
+      <div><span class="label">Vasiy:</span> <span class="bold  highlight  ">${guardianName}</span></div>
       <div class="signature-line"></div>
     </td>
   </tr>

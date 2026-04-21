@@ -4,8 +4,7 @@ export const getSergeliContractHtml = (data = {}) => {
   const {
     contractNumber = '',
     contractDate = '____-__-__',
-    academicYear = '2025-2026',
-    directorName = 'DADASHEVA ZIYODAOY SHAVKAT QIZI',
+    academicYear = '2025-2026', 
     guardianName = '________________________',
     studentName = '________________________',
     className = '___',
