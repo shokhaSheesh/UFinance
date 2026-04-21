@@ -357,6 +357,7 @@ const IncomeForm = observer(({
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
+      paymentType: data?.paymentType
     }
 
     if (divivedAmounts.length > 0) {

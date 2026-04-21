@@ -6,6 +6,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { useMutation } from '@tanstack/react-query'
 import { Loader, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Controller, useForm } from 'react-hook-form'
@@ -411,7 +413,8 @@ function RowDropdown({ onEdit, onDelete }) {
 /*  BranchesPage                                          */
 /* ═══════════════════════════════════════════════════════ */
 
-export default function BranchesPage() {
+export default observer(function BranchesPage() {
+  const router = useRouter()
   const { data: branchesData, isLoading: branchesLoading, refetch: refetchBranches } =
     useUcodeRequestQuery({
       method: 'get_my_branches',
@@ -456,7 +459,6 @@ export default function BranchesPage() {
         setBranchToDelete(null)
         refetchBranches()
       } catch (error) {
-        console.log('error', error)
 
         const errorMessage = error?.details?.data?.error || error?.message || ''
         if (errorMessage.includes('has operations') || errorMessage.includes('транзакции')) {
@@ -477,7 +479,7 @@ export default function BranchesPage() {
         <h1 className="text-xl font-bold text-slate-900">Филиалы</h1>
         <button
           onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
-          className="px-5 py-2 bg-[#0E73F6] text-white border-none rounded-md text-sm font-semibold cursor-pointer hover:bg-[#0b5fd4] transition-colors whitespace-nowrap"
+          className="px-5 py-2 primary-btn"
         >
           Добавить
         </button>
@@ -526,11 +528,11 @@ export default function BranchesPage() {
             </thead>
             <tbody>
                 {branches?.map(branch => (
-                  <tr key={branch?.guid} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-1.5 text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
-                      {branch?.name ?? 'Администратор'}
-                    </td>
-                    <td className="px-4 py-1.5 text-xs border-b border-gray-200">
+                <tr key={branch?.guid} onClick={() => router.push(`/pages/settings/branches/${branch?.guid}`)} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-1.5 cursor-pointer text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
+                    {branch?.name ?? 'Администратор'}
+                  </td>
+                  <td className="px-4 py-1.5 text-xs border-b border-gray-200">
                     <RowDropdown
                       onEdit={() => {
                         setEditingBranch({
@@ -541,7 +543,7 @@ export default function BranchesPage() {
                       }}
                       onDelete={() => handleDeleteBranch(branch)}
                     />
-                    </td>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -600,4 +602,4 @@ export default function BranchesPage() {
       />
     </div>
   )
-}
+})

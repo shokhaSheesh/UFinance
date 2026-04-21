@@ -89,6 +89,11 @@ const Students = observer(() => {
   }, [infiniteData])
 
 
+  const totalMonths = useMemo(() => {
+    return infiniteData?.pages?.flatMap(page => page?.data?.data?.total_by_months || []) || []
+  }, [infiniteData])
+
+
   // Extract unique months from student data (use first student as reference)
   const monthsData = useMemo(() => {
     const dataSource = studentList.length > 0 ? studentList : []
@@ -99,14 +104,14 @@ const Students = observer(() => {
     const months = firstStudent.months || []
 
 
-    return months.map(m => ({
+    return months.map((m, index) => ({
       key: m.month,
       label: formatStudentTableDate(m.month), // You can format this if needed, e.g., '04.2026' -> 'April 2026'
-      total_plan: firstStudent.total_plan,
-      total_fact: firstStudent.total_fact,
-      total_plan_fact: firstStudent.total_plan_fact
+      total_plan: totalMonths?.[index]?.total_plan,
+      total_fact: totalMonths?.[index]?.total_fact,
+      total_plan_fact: totalMonths?.[index]?.total_plan_fact
     }))
-  }, [studentList])
+  }, [studentList, totalMonths])
 
 
   // Build unified columns array - nested structure for months
