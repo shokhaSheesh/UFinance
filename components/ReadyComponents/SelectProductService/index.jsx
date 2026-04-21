@@ -18,7 +18,8 @@ const SelectProductService = ({
   hasError,
   isClearable = false,
   name = '',
-  returnFieldValue
+  returnFieldValue,
+  disabled = false
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -106,6 +107,7 @@ const SelectProductService = ({
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isClearable={isClearable}
+      disabled={disabled}
     />
   )
 }

@@ -51,7 +51,8 @@ const TreeSelect = ({
   multi = false,
   isClearable = true,
   className, dropdownClassName,
-  hasError
+  hasError,
+  disabled = false
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -202,12 +203,15 @@ const TreeSelect = ({
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         className={cn(
-          'flex items-center cursor-pointer h-[36px]! bg-gray-ucode-25 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
+          'flex items-center h-[36px]! bg-gray-ucode-25 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none',
+          disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
           className,
           hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
         )}
         onClick={() => {
+          if (disabled) return;
           if (!open && buttonRef.current) {
             const rect = getZoomAwareRect(buttonRef.current)
             const spaceBelow = window.innerHeight - rect.bottom
@@ -219,13 +223,13 @@ const TreeSelect = ({
       >
         <span className={cn('text-gray-ucode-400 text-start line-clamp-1 font-normal text-xss!', (multi && value?.length > 0) || (!multi && value) && 'text-gray-ucode-800', isPlaceholder && 'text-gray-ucode-400')}>{getSelectedLabel()}</span>
         <div className="flex items-center">
-          {isClearable && ((multi && value?.length > 0) || (!multi && value)) && (
+          {isClearable && ((multi && value?.length > 0) || (!multi && value)) && !disabled && (
             <div
               role="button"
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
-                onChange(multi ? [] : null);
+                if (!disabled) onChange(multi ? [] : null);
               }}
               className=" cursor-pointer"
             >

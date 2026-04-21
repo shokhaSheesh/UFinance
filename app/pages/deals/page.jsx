@@ -209,7 +209,10 @@ export default observer(function DealsPage() {
               {!appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
                 Создать
               </button>}
-              {appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+              {appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => {
+                setShowCreateStudentModal(true)
+                setDealToEdit(null)
+              }}>
                 Создать студента
               </button>}
             </>}

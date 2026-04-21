@@ -20,7 +20,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
     { value: 'product', label: 'Товары' },
     { value: 'service', label: 'Услуги' }
   ] : [
-    { value: 'product', label: 'Товары' }
+      { value: 'service', label: 'Услуги' }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
@@ -94,7 +94,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
       }
     }
     return {
-      viewMode: 'product',
+      viewMode: appStore.isDonoSchool ? 'service' : 'product',
       name: '',
       article: '',
       unit: apiOptions?.[0].value || null,

@@ -50,7 +50,7 @@ const mapTree = (data, type, hiddenValue) => {
     .filter(Boolean)
 }
 
-const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName }) => {
+const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false }) => {
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
@@ -151,6 +151,7 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
     className={className}
     dropdownClassName={dropdownClassName}
     hasError={hasError}
+    disabled={disabled}
   />
 }
 

@@ -1,5 +1,4 @@
 'use client'
-
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { Edit2, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -28,11 +27,9 @@ const academicYears = Array.from({ length: 16 }, (_, i) => {
 })
 
 const today = moment(new Date()).format('YYYY-MM-DD')
-
-
 const sostayaniya = [
   { value: 'active', label: 'Faol' },
-  { value: 'passive', label: 'Passiv' },
+  { value: 'passive', label: 'Faol emas' },
 ]
 
 const clientType = [
@@ -42,6 +39,7 @@ const clientType = [
 
 const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
+  const [isSaving, setIsSaving] = useState(false)
   const [contractTemplate, setContractTemplate] = useState('')
   const [openClassModal, setOpenClassModal] = useState(false)
   const [classModalMode, setClassModalMode] = useState('create') // 'create' | 'edit' | 'delete'
@@ -55,34 +53,60 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const [guardianTypeInput, setGuardianTypeInput] = useState('')
   const [deleteGuardianItem, setDeleteGuardianItem] = useState(null)
   const branch = authStore.selectBranch
+  const isEditing = !!dealGuid
 
   const {
     data: initialData,
     isLoading,
   } = useUcodeRequestQuery({
-    method: 'get_sales_list_simple',
+    method: 'get_contract_with_counterparty',
     data: {
       guid: dealGuid,
     },
     querySetting: {
       enabled: !!dealGuid,
-      staleTime: 0
+      staleTime: 0,
+      cacheTime: 0,
+      select: (res) => res?.data?.data
     },
   })
 
-  console.log('dealGuid', dealGuid)
-  console.log('initialData', initialData)
-  const {
-    register,
-    handleSubmit,
-    control,
-    getValues,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
-    defaultValues: {
+  const defaultValues = useMemo(() => {
+    if (initialData && dealGuid) {
+      return {
+        contractNumber: initialData?.number_contract || '',
+        contractDate: moment(initialData?.date_contract || today).format('YYYY-MM-DD'),
+        guardianName: initialData?.full_name_guardian || '',
+        branchName: branch?.name || '',
+        guardianType: initialData?.type_guardian?.[0] || null,
+        academicYear: '',
+        phone1: initialData?.first_phone_number || '',
+        studentName: initialData?.counterparties_id_data?.nazvanie || '',
+        phone2: initialData?.second_phone_number || '',
+        passport: initialData?.number_passport || '',
+        pinf: initialData?.jshshr_guardian || null,
+        issuedBy: initialData?.place_of_issue || '',
+        tariffName: initialData?.product_and_service_id?.name || '',
+        birthDate: initialData?.birthday_pupil ? new Date(initialData.birthday_pupil) : today,
+        validFrom: initialData?.the_contract_period_is_from ? new Date(initialData.the_contract_period_is_from) : today,
+        gender: initialData?.select_gender?.[0] || '',
+        validTo: initialData?.the_contract_period_is_to ? new Date(initialData.the_contract_period_is_to) : today,
+        className: initialData?.classes_id_data?.name || '',
+        clientType: initialData?.pupil_type?.[0] || '',
+        language: initialData?.language_classes_id_data?.name || '',
+        status: 'passive',
+        address: initialData?.address || '',
+        passiveDate: initialData?.passive_date ? new Date(initialData.passive_date) : today,
+        counterparties_id: initialData?.counterparties_id || null,
+        product_and_service_id: initialData?.product_and_service_id || null,
+        chart_of_accounts_id: initialData?.chart_of_accounts_id || null,
+        classes_id: initialData?.classes_id || null,
+        language_classes_id: initialData?.language_classes_id || null,
+        legal_entity_id: initialData?.legal_entity_id || null,
+        monthlyPayment: ""
+      }
+    }
+    return {
       contractNumber: '',
       contractDate: today,
       guardianName: '',
@@ -103,11 +127,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
       className: '',
       clientType: '',
       language: '',
-      status: '',
+      status: 'active',
       address: '',
       passiveDate: today,
-      thirdPartyName: '',
-      thirdPartyPinfl: '',
       counterparties_id: '',
       product_and_service_id: '',
       chart_of_accounts_id: '',
@@ -116,9 +138,25 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
       legal_entity_id: '',
       monthlyPayment: ""
     }
+  }, [initialData, dealGuid, branch?.name])
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    getValues,
+    setValue,
+    formState: { errors, isSubmitting }
+  } = useForm({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    defaultValues: defaultValues,
+    values: defaultValues
   })
 
-  const { data: contract, isLoading: contractLoading } = useQuery({
+
+
+  const { data: contract } = useQuery({
     queryKey: ['get_contract', authStore.branch_id],
     queryFn: () =>
       apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true&data=${encodeURIComponent(JSON.stringify({ branch_id: authStore.branch_id }))}` }),
@@ -148,7 +186,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
 
   const { mutate: createStudent, isPending } = useMutation({
     mutationKey: ['create-student'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'create_contract_with_counterparty', data }),
+    mutationFn: (data) => apiClient.invokeFunction({ method: isEditing ? 'update_contract_with_counterparty_passive' : 'create_contract_with_counterparty', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
       handleClose()
@@ -175,7 +213,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const { data: guardianTypes } = useUcodeDefaultApiQuery({
     queryKey: 'guardian_types',
     urlMethod: 'GET',
-    urlParams: '/items/vasiy_turi?from-ofs=true',
+    urlParams: '/items/guardian_type?from-ofs=true',
     querySetting: {
       select: (response) => response?.data?.data?.response,
       staleTime: 1000 * 60 * 60,
@@ -185,7 +223,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
 
   const guardianTypeList = useMemo(() => {
     return guardianTypes?.map((item) => ({
-      value: item.guid,
+      value: item.name,
       label: item.name,
       guid: item.guid
     })) || []
@@ -268,6 +306,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   }
 
   const getContractHtml = () => {
+    if (initialData) return initialData?.contract_file
     if (!contractTemplate) return '<p style="padding:20px;font-family:sans-serif">Загрузка шаблона договора...</p>'
     const data = getContractDataForType()
     return Object.entries(data).reduce(
@@ -286,60 +325,66 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
     const toArray = (val) => val ? [val] : []
 
     // Generate contract HTML with filled data based on active contract type
-    const htmlContent = getContractHtml().replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
 
     let contractFileLink = ''
+    setIsSaving(true)
 
-    try {
-      // Step 1: Convert HTML to PDF
-      const convertResponse = await fetch('https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${authStore.authToken}`,
-        },
-        body: JSON.stringify({
-          html_content: htmlContent,
-          output_format: 'pdf'
+
+    let requestData = {}
+
+    if (!isEditing) {
+      const htmlContent = getContractHtml().replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
+      try {
+        // Step 1: Convert HTML to PDF
+        const convertResponse = await fetch('https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${authStore.authToken}`,
+          },
+          body: JSON.stringify({
+            html_content: htmlContent,
+            output_format: 'pdf'
+          })
         })
-      })
 
-      if (!convertResponse.ok) {
-        throw new Error('Failed to convert HTML to PDF')
+        if (!convertResponse.ok) {
+          throw new Error('Failed to convert HTML to PDF')
+        }
+
+        const pdfBlob = await convertResponse.blob()
+
+        // Step 2: Upload PDF file
+        const formData = new FormData()
+        formData.append('file', pdfBlob, 'contract.pdf')
+
+        const uploadResponse = await fetch('https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png', {
+          method: 'POST',
+          headers: {
+            "Authorization": `Bearer ${authStore.authToken}`,
+          },
+          body: formData
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload PDF file')
+        }
+
+        const uploadData = await uploadResponse.json()
+        const fileLink = uploadData?.data?.link
+
+        if (fileLink) {
+          contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        }
+      } catch (error) {
+        console.error('Error processing contract file:', error)
+        showErrorNotification('Ошибка при обработке договора: ' + error.message)
+        return
+      } finally {
+        setIsSaving(false)
       }
 
-      const pdfBlob = await convertResponse.blob()
-
-      // Step 2: Upload PDF file
-      const formData = new FormData()
-      formData.append('file', pdfBlob, 'contract.pdf')
-
-      const uploadResponse = await fetch('https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png', {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${authStore.authToken}`,
-        },
-        body: formData
-      })
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload PDF file')
-      }
-
-      const uploadData = await uploadResponse.json()
-      const fileLink = uploadData?.data?.link
-
-      if (fileLink) {
-        contractFileLink = `https://cdn.u-code.io/${fileLink}`
-      }
-    } catch (error) {
-      console.error('Error processing contract file:', error)
-      showErrorNotification('Ошибка при обработке договора: ' + error.message)
-      return
-    }
-
-    const requestData = {
-      object_data: {
+      requestData = {
         name: data.contractNumber || '',
         number_contract: data.contractNumber || '',
         date_contract: (data.contractDate),
@@ -367,6 +412,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
         language_classes_id: data.language_classes_id, // TODO: get from language lookup
         status: toArray(data.status),
         passive_date: (data.passiveDate)
+      }
+    } else {
+      requestData = {
+        guid: initialData.guid,
+        passive_date: moment(data.passiveDate).format('YYYY-MM-DD')
       }
     }
 
@@ -477,7 +527,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
       // POST - Create new
       createGuardian({
         urlMethod: 'POST',
-        urlParams: '/items/vasiy_turi',
+        urlParams: '/items/guardian_type',
         data: {
           name: guardianTypeInput,
           branch_id: authStore.branch_id
@@ -497,7 +547,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
       // PUT - Update existing
       createGuardian({
         urlMethod: 'PUT',
-        urlParams: `/items/vasiy_turi/${editingGuardian.value}`,
+        urlParams: `/items/guardian_type/${editingGuardian.value}`,
         data: {
           name: guardianTypeInput,
           branch_id: authStore.branch_id,
@@ -523,7 +573,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
 
     createGuardian({
       urlMethod: 'DELETE',
-      urlParams: `/items/vasiy_turi/${deleteGuardianItem.value}`,
+      urlParams: `/items/guardian_type/${deleteGuardianItem.value}`,
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['guardian_types'] })
@@ -554,6 +604,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
     setDeleteGuardianItem(item)
   }
 
+  console.log('defaultValues', defaultValues)
+
+
   return (
     <>
       <CustomDialog
@@ -564,7 +617,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-3 py-4">
           <h2 className="text-lg font-bold text-gray-900 font-sans">
-            {step === 'form' ? 'Новая продажа' : 'Предварительный просмотр договора'}
+            {step === 'form' ? (initialData ? 'Редактирование продажи' : 'Новая продажа') : 'Предварительный просмотр договора'}
           </h2>
         </div>
         {isLoading ? (
@@ -578,468 +631,501 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                 {/* Scrollable Form */}
                 <div className="flex-1 overflow-auto p-4">
                   <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Номер договора *</label>
-                      <Input
-                        placeholder="Введите номер договора"
-                        error={!!errors.contractNumber}
-                        {...register('contractNumber', { required: 'Введите номер договора' })}
-                      />
-                      {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
-                    </div>
-                    {/* Row 1 */}
-                    <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
-                      <label className="text-xs font-medium text-gray-700">Дата договора *</label>
-                      <Controller
-                        name="contractDate"
-                        control={control}
-                        rules={{ required: 'Выберите дату договора' }}
-                        render={({ field }) => (
-                          <FormDatepicker
-                            value={field.value}
-                            onChange={field.onChange}
-                            format='YYYY-MM-DD'
-                            placeholder="Выберите дату"
-                            className={'w-full!'}
-                            inputClass={'bg-white!'}
-                          />
-                        )}
-                      />
-                      {/* {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>} */}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
-                      <Input
-                        placeholder="Введите Ф.И.О. опекуна"
-                        error={!!errors.guardianName}
-                        {...register('guardianName', { required: 'Введите Ф.И.О. опекуна' })}
-                      />
-                      {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Название филиала</label>
-                      <Controller
-                        name="branchName"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            placeholder="Название филиала"
-                            value={field.value}
-                            readOnly
-                          />
-                        )}
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
-                      <Controller
-                        name="guardianType"
-                        control={control}
-                        rules={{ required: 'Выберите тип опекуна' }}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Выберите тип опекуна"
-                            value={field.value}
-                            customButton={<div onClick={openCreateGuardianModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                              <span className='text-sm text-primary'>Добавить тип опекуна</span>
-                            </div>}
-                            onChange={field.onChange}
-                            elementAfter={(item) => (
-                              <div className='flex items-center gap-2'>
-                                <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditGuardianModal(item)} />
-                                <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteGuardianModal(item)} />
-                              </div>
-                            )}
-                            data={guardianTypeList}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
-                      <Controller
-                        name="academicYear"
-                        control={control}
-                        rules={{ required: 'Выберите учебный год' }}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Выберите учебный год"
-                            value={field.value}
-                            onChange={field.onChange}
-                            data={academicYears}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
-                      <Controller
-                        name="phone1"
-                        control={control}
-                        rules={{ required: 'Введите номер телефона' }}
-                        render={({ field }) => (
-                          <div className="flex">
-                            <input
-                              type="text"
-                              placeholder="XX XXX XX XX"
+                    <fieldset disabled={isEditing} className={`contents ${isEditing ? 'pointer-events-none opacity-70' : ''}`}>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Номер договора *</label>
+                        <Input
+                          placeholder="Введите номер договора"
+                          error={!!errors.contractNumber}
+                          {...register('contractNumber', { required: !isEditing ? 'Введите номер договора' : false })}
+                        />
+                        {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
+                      </div>
+                      {/* Row 1 */}
+                      <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
+                        <label className="text-xs font-medium text-gray-700">Дата договора *</label>
+                        <Controller
+                          name="contractDate"
+                          control={control}
+                          rules={{ required: isEditing ? false : 'Выберите дату договора' }}
+                          render={({ field }) => {
+                            console.log('contractDate', field)
+                            return <FormDatepicker
                               value={field.value}
-                              onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                              className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
+                              onChange={field.onChange}
+                              format='YYYY-MM-DD'
+                              placeholder="Выберите дату"
+                              className={'w-full!'}
+                              inputClass={'bg-white!'}
+                              disabled={isEditing}
                             />
-                          </div>
-                        )}
-                      />
-                    </div>
+                          }}
+                        />
+                        {/* {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>} */}
+                      </div>
 
-                    {/* Row 3 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
-                      <Controller
-                        name="counterparties_id"
-                        control={control}
-                        rules={{ required: 'Выберите ученика' }}
-                        render={({ field }) => (
-                          <SingleCounterParty
-                            placeholder="Введите Ф.И.О. ученика"
-                            value={field.value}
-                            name='nazvanie'
-                            returnChartOfAccount={(value) => setValue('studentName', value)}
-                            onChange={field.onChange}
-                            className={'bg-white'}
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      {/* {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>} */}
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
+                        <Input
+                          placeholder="Введите Ф.И.О. опекуна"
+                          error={!!errors.guardianName}
+                          {...register('guardianName', { required: !isEditing ? 'Введите Ф.И.О. опекуна' : false })}
+                        />
+                        {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Телефон 2</label>
-                      <Controller
-                        name="phone2"
-                        control={control}
-                        render={({ field }) => (
-                          <div className="flex">
-                            <input
-                              type="text"
-                              placeholder="XX XXX XX XX"
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Название филиала</label>
+                        <Controller
+                          name="branchName"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              placeholder="Название филиала"
                               value={field.value}
-                              onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                              className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
+                              disabled
                             />
-                          </div>
-                        )}
-                      />
-                    </div>
+                          )}
+                        />
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
-                      <Input
-                        placeholder="Введите серию и номер паспорта"
-                        error={!!errors.passport}
-                        {...register('passport', { required: 'Введите серию и номер паспорта' })}
-                      />
-                      {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
+                        <Controller
+                          name="guardianType"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите тип опекуна' : false }}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Выберите тип опекуна"
+                              value={field.value}
+                              customButton={<div onClick={openCreateGuardianModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
+                                <span className='text-sm text-primary'>Добавить тип опекуна</span>
+                              </div>}
+                              onChange={field.onChange}
+                              elementAfter={(item) => (
+                                <div className='flex items-center gap-2'>
+                                  <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditGuardianModal(item)} />
+                                  <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteGuardianModal(item)} />
+                                </div>
+                              )}
 
-                    {/* Row 4 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
-                      <Input
-                        placeholder="Введите ПИНФЛ опекуна"
-                        maxLength={14}
-                        error={!!errors.pinf}
-                        {...register('pinf', {
-                          required: 'Введите ПИНФЛ опекуна',
-                          pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
-                        })}
-                      />
-                      {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
-                    </div>
+                              data={guardianTypeList}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
-                      <Input
-                        placeholder="Введите место выдачи"
-                        error={!!errors.issuedBy}
-                        {...register('issuedBy', { required: 'Введите место выдачи' })}
-                      />
-                      {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
+                        <Controller
+                          name="academicYear"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите учебный год' : false }}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Выберите учебный год"
+                              value={field.value}
+                              onChange={field.onChange}
+                              data={academicYears}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Название тарифа</label>
-                      <Controller
-                        name="product_and_service_id"
-                        control={control}
-                        render={({ field }) => (
-                          <SelectProductService
-                            value={field.value}
-                            onChange={field.onChange}
-                            name='tsena_za_ed'
-                            returnFieldValue={(value) => {
-                              setValue('monthlyPayment', value)
-                            }}
-                            placeholder="Выберите тариф"
-                            className={'w-full! bg-white'}
-                          />
-                        )}
-                      />
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
+                        <Controller
+                          name="phone1"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Введите номер телефона' : false }}
+                          render={({ field }) => (
+                            <div className="flex">
+                              <input
+                                type="text"
+                                placeholder="XX XXX XX XX"
+                                value={field.value}
+                                onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
 
-                    {/* Row 5 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
-                      <Controller
-                        name="birthDate"
-                        control={control}
-                        rules={{ required: 'Выберите дату рождения' }}
-                        render={({ field }) => (
-                          <FormDatepicker
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Выберите дату"
-                            format='YYYY-MM-DD'
-                            className={'w-full!'}
-                            inputClass={'bg-white!'}
-                          />
-                        )}
-                      />
-                      {/* {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>} */}
-                    </div>
+                      {/* Row 3 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
+                        <Controller
+                          name="counterparties_id"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите ученика' : false }}
+                          render={({ field }) => (
+                            <SingleCounterParty
+                              placeholder="Введите Ф.И.О. ученика"
+                              value={field.value}
+                              name='nazvanie'
+                              returnChartOfAccount={(value) => setValue('studentName', value)}
+                              onChange={field.onChange}
+                              className={'bg-white'}
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>} */}
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
-                      <Controller
-                        name="validFrom"
-                        control={control}
-                        rules={{ required: 'Выберите дату начала' }}
-                        render={({ field }) => (
-                          <FormDatepicker
-                            value={field.value}
-                            onChange={(value) => {
-                              field.onChange(value)
-                              setValue('the_contract_period_is_from', value)
-                            }}
-                            placeholder="Выберите дату"
-                            format='YYYY-MM-DD'
-                            className={'w-full!'}
-                            inputClass={'bg-white!'}
-                          />
-                        )}
-                      />
-                      {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Телефон 2</label>
+                        <Controller
+                          name="phone2"
+                          control={control}
+                          render={({ field }) => (
+                            <div className="flex">
+                              <input
+                                type="text"
+                                placeholder="XX XXX XX XX"
+                                value={field.value}
+                                onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                                className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
-                      <Controller
-                        name="gender"
-                        control={control}
-                        rules={{ required: 'Выберите пол' }}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Выберите пол"
-                            value={field.value}
-                            onChange={field.onChange}
-                            data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
-                    </div>
-                    {/* Row 6 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
-                      <Controller
-                        name="validTo"
-                        control={control}
-                        rules={{ required: 'Выберите дату окончания' }}
-                        render={({ field }) => (
-                          <FormDatepicker
-                            value={field.value}
-                            onChange={(value) => {
-                              field.onChange(value)
-                              setValue('the_contract_period_is_to', value)
-                            }}
-                            placeholder="Выберите дату"
-                            format='YYYY-MM-DD'
-                            className={'w-full!'}
-                            inputClass={'bg-white!'}
-                          />
-                        )}
-                      />
-                      {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Введите класс *</label>
-                      <Controller
-                        name="classes_id"
-                        control={control}
-                        rules={{ required: 'Выберите класс' }}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Введите класс"
-                            value={field.value}
-                            customButton={<div onClick={openCreateModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                              <span className='text-sm text-primary'>Добавить класс</span>
-                            </div>}
-                            onChange={(value) => {
-                              field.onChange(value)
-                              const name = clasess.find(l => l.guid === value)?.name
-                              setValue('className', name)
-                            }}
-                            elementAfter={(item) => (
-                              <div className='flex items-center gap-2'>
-                                <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditModal(item)} />
-                                <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteModal(item)} />
-                              </div>
-                            )}
-                            data={classeList}
-                            isClearable={false}
-                            className='bg-white'
-                          />
-                        )}
-                      />
-                    </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
+                        <Input
+                          placeholder="Введите серию и номер паспорта"
+                          error={!!errors.passport}
+                          {...register('passport', { required: !isEditing ? 'Введите серию и номер паспорта' : false })}
+                          disabled={isEditing}
+                        />
+                        {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
+                      </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Тип клиента</label>
-                      <Controller
-                        name="clientType"
-                        control={control}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Тип клиента"
-                            value={field.value}
-                            onChange={field.onChange}
-                            data={clientType}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                    </div>
+                      {/* Row 4 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
+                        <Input
+                          placeholder="Введите ПИНФЛ опекуна"
+                          maxLength={14}
+                          disabled={isEditing}
+                          error={!!errors.pinf}
+                          {...register('pinf', {
+                            required: !isEditing ? 'Введите ПИНФЛ опекуна' : false,
+                            pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
+                          })}
+                        />
+                        {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
+                        <Input
+                          placeholder="Введите место выдачи"
+                          disabled={isEditing}
+                          error={!!errors.issuedBy}
+                          {...register('issuedBy', { required: !isEditing ? 'Введите место выдачи' : false })}
+                        />
+                        {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Название тарифа</label>
+                        <Controller
+                          name="product_and_service_id"
+                          control={control}
+                          render={({ field }) => (
+                            <SelectProductService
+                              value={field.value}
+                              onChange={field.onChange}
+                              name='tsena_za_ed'
+                              returnFieldValue={(value) => {
+                                setValue('monthlyPayment', value)
+                              }}
+                              placeholder="Выберите тариф"
+                              className={'w-full! bg-white'}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
+
+                      {/* Row 5 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
+                        <Controller
+                          name="birthDate"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите дату рождения' : false }}
+                          render={({ field }) => (
+                            <FormDatepicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Выберите дату"
+                              format='YYYY-MM-DD'
+                              className={'w-full!'}
+                              inputClass={'bg-white!'}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>} */}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
+                        <Controller
+                          name="validFrom"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите дату начала' : false }}
+                          render={({ field }) => (
+                            <FormDatepicker
+                              value={field.value}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                setValue('the_contract_period_is_from', value)
+                              }}
+                              placeholder="Выберите дату"
+                              format='YYYY-MM-DD'
+                              className={'w-full!'}
+                              inputClass={'bg-white!'}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
+                        <Controller
+                          name="gender"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите пол' : false }}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Выберите пол"
+                              value={field.value}
+                              onChange={field.onChange}
+                              data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
+                      </div>
+                      {/* Row 6 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
+                        <Controller
+                          name="validTo"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите дату окончания' : false }}
+                          render={({ field }) => (
+                            <FormDatepicker
+                              value={field.value}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                setValue('the_contract_period_is_to', value)
+                              }}
+                              placeholder="Выберите дату"
+                              format='YYYY-MM-DD'
+                              className={'w-full!'}
+                              inputClass={'bg-white!'}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Введите класс *</label>
+                        <Controller
+                          name="classes_id"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите класс' : false }}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Введите класс"
+                              value={field.value}
+                              customButton={<div onClick={openCreateModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
+                                <span className='text-sm text-primary'>Добавить класс</span>
+                              </div>}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                const name = clasess.find(l => l.guid === value)?.name
+                                setValue('className', name)
+                              }}
+                              elementAfter={(item) => (
+                                <div className='flex items-center gap-2'>
+                                  <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditModal(item)} />
+                                  <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteModal(item)} />
+                                </div>
+                              )}
+                              data={classeList}
+                              isClearable={false}
+                              className='bg-white'
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Тип клиента</label>
+                        <Controller
+                          name="clientType"
+                          control={control}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Тип клиента"
+                              value={field.value}
+                              onChange={field.onChange}
+                              data={clientType}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
+
+                    </fieldset>
 
                     {/* Row 7 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Пассивная дата</label>
-                      <Controller
-                        name="passiveDate"
-                        control={control}
-                        render={({ field }) => (
-                          <FormDatepicker
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Выберите дату"
-                            format='YYYY-MM-DD'
-                            className={'w-full! bg-white px-2 py-1 border border-gray-ucode-200!'}
-                            inputClass={'bg-white!'}
-                          />
-                        )}
-                      />
-                    </div>
+                    {isEditing && (
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Пассивная дата *</label>
+                        <Controller
+                          name="passiveDate"
+                          control={control}
+                          rules={{ required: 'Выберите пассивную дату' }}
+                          render={({ field }) => (
+                            <FormDatepicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              minDate={new Date(defaultValues.validFrom)}
+                              maxDate={new Date(defaultValues.validTo)}
+                              placeholder="Выберите дату"
+                              format='YYYY-MM-DD'
+                              className={'w-full! bg-white px-2  py-1 border border-gray-ucode-200!'}
+                              inputClass={`bg-white! ${errors?.passiveDate?.message && ' border border-red-ucode!'}`}
+                            />
+                          )}
+                        />
+                      </div>
+                    )}
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Состояние</label>
-                      <Controller
-                        name="status"
-                        control={control}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Состояние"
-                            value={field.value}
-                            onChange={field.onChange}
-                            data={sostayaniya}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                    </div>
+                    <fieldset disabled className="contents pointer-events-none opacity-70">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Состояние</label>
+                        <Controller
+                          name="status"
+                          control={control}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Состояние"
+                              value={field.value}
+                              onChange={field.onChange}
+                              data={sostayaniya}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
+                    </fieldset>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Адрес *</label>
-                      <Input
-                        placeholder="Адрес"
-                        error={!!errors.address}
-                        {...register('address', { required: 'Введите адрес' })}
-                      />
-                      {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
-                    </div>
+                    <fieldset disabled={isEditing} className={`contents ${isEditing ? 'pointer-events-none opacity-70' : ''}`}>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Адрес *</label>
+                        <Input
+                          placeholder="Адрес"
+                          error={!!errors.address}
+                          disabled={isEditing}
+                          {...register('address', { required: !isEditing ? 'Введите адрес' : false })}
+                        />
+                        {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
+                      </div>
 
-                    {/* Row 8 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
-                      <Controller
-                        name="language_classes_id"
-                        control={control}
-                        rules={{ required: 'Выберите язык' }}
-                        render={({ field }) => (
-                          <SingleSelect
-                            placeholder="Выберите язык"
-                            value={field.value}
-                            onChange={(value) => {
-                              field.onChange(value)
-                              const name = language_classes.find(l => l.guid === value)?.name
-                              setValue('language', String(name).toUpperCase())
-                            }}
-                            data={languageClassList}
-                            className='bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
-                    </div>
-                    {/* Row 9 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Статья</label>
-                      <Controller
-                        name="chart_of_accounts_id"
-                        control={control}
-                        render={({ field }) => (
-                          <SinglSelectStatiya
-                            selectedValue={field.value}
-                            setSelectedValue={field.onChange}
-                            placeholder='Нераспределенный доход'
-                            className=' bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                    </div>
-                    {/* Row 10 */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-medium text-gray-700">Юрлица *</label>
-                      <Controller
-                        name="legal_entity_id"
-                        control={control}
-                        rules={{ required: 'Выберите юрлицо' }}
-                        render={({ field }) => (
-                          <SelectLegelEntitties
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder='Выберите юрлицо'
-                            className=' bg-white'
-                            isClearable={false}
-                          />
-                        )}
-                      />
-                      {/* {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>} */}
-                    </div>
+                      {/* Row 8 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
+                        <Controller
+                          name="language_classes_id"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите язык' : false }}
+                          render={({ field }) => (
+                            <SingleSelect
+                              placeholder="Выберите язык"
+                              value={field.value}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                const name = language_classes.find(l => l.guid === value)?.name
+                                setValue('language', String(name).toUpperCase())
+                              }}
+                              data={languageClassList}
+                              className='bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
+                      </div>
+                      {/* Row 9 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Статья</label>
+                        <Controller
+                          name="chart_of_accounts_id"
+                          control={control}
+                          render={({ field }) => (
+                            <SinglSelectStatiya
+                              selectedValue={field.value}
+                              setSelectedValue={field.onChange}
+                              placeholder='Нераспределенный доход'
+                              className=' bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                      </div>
+                      {/* Row 10 */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-gray-700">Юрлица *</label>
+                        <Controller
+                          name="legal_entity_id"
+                          control={control}
+                          rules={{ required: !isEditing ? 'Выберите юрлицо' : false }}
+                          render={({ field }) => (
+                            <SelectLegelEntitties
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder='Выберите юрлицо'
+                              className=' bg-white'
+                              isClearable={false}
+                              disabled={isEditing}
+                            />
+                          )}
+                        />
+                        {/* {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>} */}
+                      </div>
+                    </fieldset>
                   </form>
                 </div>
 
@@ -1061,7 +1147,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                     disabled={isSubmitting}
                     className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
+                    {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}
                   </button>
                 </div>
               </>
@@ -1104,7 +1190,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                     onClick={handleSubmit(handleFormSubmit)}
                     className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
+                      {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}
                   </button>
                 </div>
               </>
@@ -1248,3 +1334,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
 })
 
 export default CreateStudentModal
+
+
+
+

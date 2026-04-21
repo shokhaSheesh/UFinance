@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const MultiSelect = ({
     data = [],
@@ -14,7 +14,8 @@ const MultiSelect = ({
     className,
     dropdownClassName,
     hasError,
-    onSearch = () => { }
+    onSearch = () => { },
+    disabled = false
 }) => {
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -101,12 +102,15 @@ const MultiSelect = ({
             <button
                 ref={buttonRef}
                 type="button"
+                disabled={disabled}
                 className={cn(
-                    'flex items-center cursor-pointer bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
+                    'flex items-center bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none',
+                    disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
                     className,
                     hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
                 )}
                 onClick={() => {
+                    if (disabled) return;
                     if (!open && buttonRef.current) {
                         const rect = getZoomAwareRect(buttonRef.current)
                         const spaceBelow = window.innerHeight - rect.bottom
@@ -118,13 +122,13 @@ const MultiSelect = ({
             >
                 <span className={cn('text-gray-ucode-400 text-start line-clamp-1 font-normal text-xss!', value.length > 0 && 'text-gray-ucode-800')}>{getSelectedLabel()}</span>
                 <div className="flex items-center">
-                    {isClearable && value?.length > 0 && (
+                    {isClearable && value?.length > 0 && !disabled && (
                         <div
                             role="button"
                             tabIndex={0}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onChange([]);
+                                if (!disabled) onChange([]);
                             }}
                             className=" cursor-pointer"
                         >

@@ -96,20 +96,19 @@ const SingleCounterParty = ({
   }
 
   return (
-    <div className={disabled ? 'opacity-50 pointer-events-none w-full' : 'w-full'}>
-      <TreeSelect
-        data={result}
-        multi={false}
-        placeholder={isLoading ? "Загрузка..." : placeholder}
-        value={value}
-        onChange={handleSelect}
-        onSearch={setSearchQuery}
-        isClearable={isClearable}
-        className={className}
-        dropdownClassName={dropdownClassName}
-        hasError={hasError}
-      />
-    </div>
+    <TreeSelect
+      data={result}
+      multi={false}
+      placeholder={isLoading ? "Загрузка..." : placeholder}
+      value={value}
+      onChange={handleSelect}
+      onSearch={setSearchQuery}
+      isClearable={isClearable}
+      className={className}
+      dropdownClassName={dropdownClassName}
+      hasError={hasError}
+      disabled={disabled}
+    />
   )
 }
 

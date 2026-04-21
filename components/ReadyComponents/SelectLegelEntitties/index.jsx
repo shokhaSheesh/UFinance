@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react'
+import { keepPreviousData } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import { keepPreviousData } from '@tanstack/react-query'
 
-const SelectLegelEntitties = ({ value, onChange, placeholder = "Выберите юрлицо", className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true }) => {
+const SelectLegelEntitties = ({ value, onChange, placeholder = "Выберите юрлицо", className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false }) => {
 
   const { data: legalEntitiesData, isLoading } = useUcodeRequestQuery({
     method: "get_legal_entities",
@@ -39,6 +39,7 @@ const SelectLegelEntitties = ({ value, onChange, placeholder = "Выберите
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isClearable={isClearable}
+      disabled={disabled}
     />
   )
 }

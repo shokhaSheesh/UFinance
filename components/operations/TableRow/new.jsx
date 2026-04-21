@@ -132,7 +132,7 @@ const TableRow = observer(({
         )}
 
         {/* Date */}
-        <div className={cn('min-w-32 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-36 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <div className={cn(textPrimary, 'w-full')}>
             {op.operationParts?.length > 0 ? (
               <div className={"flex items-center gap-1 pl-5 px-3 relative"} onClick={(event) => { event.stopPropagation(); setOpen(!open) }}>
