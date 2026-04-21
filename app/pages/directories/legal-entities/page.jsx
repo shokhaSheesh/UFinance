@@ -1,26 +1,28 @@
 "use client"
 
-import { useState, useMemo, useEffect } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/app/lib/utils'
-import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
 import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
-import LegalEntityMenu from '@/components/directories/LegalEntityMenu/LegalEntityMenu'
 import DeleteLegalEntityConfirmModal from '@/components/directories/DeleteLegalEntityConfirmModal/DeleteLegalEntityConfirmModal'
-import styles from './legal-entities.module.scss'
-import Input from '../../../../components/shared/Input'
+import LegalEntityMenu from '@/components/directories/LegalEntityMenu/LegalEntityMenu'
+import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
+import { useQueryClient } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useMemo, useState } from 'react'
+import Input from '../../../../components/shared/Input'
+import { appStore } from '../../../../store/app.store'
+import styles from './legal-entities.module.scss'
 
-export default function LegalEntitiesPage() {
+export default observer(function LegalEntitiesPage() {
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
-  const [selectedRows, setSelectedRows] = useState([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingLegalEntity, setEditingLegalEntity] = useState(null)
   const [deletingLegalEntity, setDeletingLegalEntity] = useState(null)
 
   const deleteMutation = useDeleteLegalEntities()
+  const legelEntityPermissions = appStore.permission.directories.legalentities
 
   // Debounce search query
   useEffect(() => {
@@ -58,26 +60,6 @@ export default function LegalEntitiesPage() {
       rawData: item // Store raw data for editing
     }))
   }, [legalEntitiesItems])
-
-  const isRowSelected = (id) => selectedRows.includes(id)
-
-  const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(prev => prev.filter(rid => rid !== id))
-    } else {
-      setSelectedRows(prev => [...prev, id])
-    }
-  }
-
-  const allSelected = selectedRows.length === entities.length && entities.length > 0
-
-  const toggleSelectAll = () => {
-    if (allSelected) {
-      setSelectedRows([])
-    } else {
-      setSelectedRows(entities.map(e => e.id))
-    }
-  }
 
   const filteredData = useMemo(() => {
     // Search is now handled by API, so just return entities
@@ -122,12 +104,12 @@ export default function LegalEntitiesPage() {
           <div className={styles.headerInner}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>Мои юрлица</h1>
-              <button
+              {legelEntityPermissions.add && <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className={styles.createButton}
               >
                 Создать
-              </button>
+              </button>}
             </div>
 
             {/* Search */}
@@ -138,7 +120,7 @@ export default function LegalEntitiesPage() {
                 className={""}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-              /> 
+              />
             </div>
           </div>
         </div>
@@ -212,7 +194,7 @@ export default function LegalEntitiesPage() {
               {isLoadingLegalEntities ? 'Загрузка...' : `${legalEntitiesItems.length} ${legalEntitiesItems.length === 1 ? 'юрлицо' : legalEntitiesItems.length < 5 ? 'юрлица' : 'юрлиц'}`}
             </span>
           </div>
-        </div> 
+        </div>
       </div>
 
       {/* Create Legal Entity Modal */}
@@ -254,4 +236,4 @@ export default function LegalEntitiesPage() {
       )}
     </div>
   )
-}
+})

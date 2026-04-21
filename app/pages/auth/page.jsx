@@ -11,6 +11,7 @@ import Loader from '../../../components/shared/Loader'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
+import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
 import styles from './styles.module.scss'
 
@@ -39,6 +40,10 @@ export default function LoginPage() {
 
 
   const { mutateAsync: getMyBranches, isPending: branchesLoading } = useUcodeRequestMutation()
+  const { mutateAsync: getMyPermissions, isPending: permissionsLoading } = useMutation({
+    mutationKey: ['get_my_permissions'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_my_permissions', data, type: 'role' })
+  })
 
 
   // Close branch dropdown when clicking outside
@@ -89,21 +94,35 @@ export default function LoginPage() {
         data: { page: 1, limit: 200 },
       })
 
+
       const branches = branchesResponse?.data?.data || []
 
       if (branches.length > 0) {
         authStore.setBranches(branches)
         authStore.setBranchId(branches[0]?.guid)
-      }
-      authStore.selectBranch = branches[0]
 
-      router.push('/pages/operations')
+        if (responseData?.role?.id) {
+          const permissions = await getMyPermissions({
+            branches_id: branches[0]?.guid,
+            role_id: responseData?.role?.id
+          })
+          appStore.setPlanfactPermission(permissions)
+        } else if (branches[0]?.is_employee && (responseData?.role?.name === 'employees' || responseData?.role === 'employees')) {
+          appStore.setEmployerPermission()
+        } else {
+          appStore.setPlanfactPermission()
+        }
+      }
+
+      authStore.selectBranch = branches[0]
+      // router.push('/pages/operations')
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при входе'
       showErrorNotification(errorMessage)
     },
   })
+
   const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
     mutationKey: ['register'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
@@ -113,6 +132,10 @@ export default function LoginPage() {
       const refreshToken = responseData?.token?.refresh_token
       const userData = responseData?.user_data || responseData?.userData || responseData?.user
 
+      if (responseData?.role === "plan_fakt_admins") {
+        appStore.setPlanfactPermission()
+      }
+
       if (tokenData && userData) {
         authStore.setAuthentication({
           token: tokenData,
@@ -120,7 +143,7 @@ export default function LoginPage() {
           user_data: userData
         })
         showSuccessNotification('Успешная регистрация!')
-        router.push('/pages/operations')
+        // router.push('/pages/operations')
       } else {
         showErrorNotification('Ошибка: токен или данные пользователя не получены')
       }
@@ -253,7 +276,7 @@ export default function LoginPage() {
       }
       if (!formData.password) {
         errors.password = 'Введите пароль'
-      } 
+      }
     }
 
     return errors
@@ -265,13 +288,10 @@ export default function LoginPage() {
     setFieldErrors({})
 
     const errors = validateForm()
-    console.log('Form validation errors:', errors)
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)
-      console.log('Validation failed, not submitting')
       return
     }
-    console.log('Form is valid, submitting...')
 
     try {
       if (fromType === 'login') {

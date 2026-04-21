@@ -88,6 +88,7 @@ export const Sidebar = observer(() => {
                     label: 'Студенты',
                     href: '/pages/directories/students',
                     hasPage: true,
+                    canShow: appStore.isDonoSchool
                 },
             ]
         },

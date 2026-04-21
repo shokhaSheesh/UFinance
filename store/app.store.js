@@ -32,7 +32,7 @@ class AppStore {
 		directories: {
 			counterparties: { read: true, add: true, edit: true, delete: true },
 			transactionCategories: { read: true, add: true, edit: true, delete: true },
-			accounts: { read: true, add: true, edit: false, delete: true },
+			accounts: { read: true, add: true, edit: true, delete: true },
 			legalentities: { read: true, add: true, edit: true, delete: true },
 			productsServices: { read: true, add: true, edit: true, delete: true },
 		},
@@ -106,6 +106,69 @@ class AppStore {
 
 	setPermission(value) {
 		this.permission = value
+	}
+	setPlanfactPermission() {
+		// this.permission = {
+		// 	indicators: { read: false },
+		// 	operations: {
+		// 		income: { read: true, add: false, edit: false, delete: false },
+		// 		payout: { read: true, add: false, edit: false, delete: false },
+		// 		transfer: { read: true, add: false, edit: false, delete: false },
+		// 		accrual: { read: true, add: false, edit: false, delete: false },
+		// 		shipment: { read: true, add: false, edit: false, delete: false },
+		// 	},
+		// 	deals: { read: true, add: false, edit: false, delete: false },
+		// 	reports: {
+		// 		cashflow: { read: true },
+		// 		pnl: { read: true },
+		// 		balance: { read: true },
+		// 	},
+		// 	directories: {
+		// 		counterparties: { read: true, add: false, edit: false, delete: false },
+		// 		transactionCategories: { read: true, add: false, edit: false, delete: false },
+		// 		accounts: { read: true, add: false, edit: false, delete: false },
+		// 		legalentities: { read: true, add: false, edit: false, delete: false },
+		// 		productsServices: { read: true, add: false, edit: false, delete: false },
+		// 	},
+		// 	settings: {
+		// 		general: { read: true, add: false, edit: false, delete: false },
+		// 		users: { read: true, add: false, edit: false, delete: false },
+		// 		profile: { read: true, add: false, edit: false, delete: false },
+		// 		exchangerates: { read: true, add: false, edit: false, delete: false },
+		// 	},
+		// }
+	}
+
+	setEmployerPermission() {
+		// this.permission = {
+		// 	indicators: { read: false },
+		// 	operations: {
+		// 		income: { read: true, add: true, edit: true, delete: true },
+		// 		payout: { read: true, add: true, edit: true, delete: true },
+		// 		transfer: { read: true, add: true, edit: true, delete: true },
+		// 		accrual: { read: true, add: true, edit: true, delete: true },
+		// 		shipment: { read: true, add: true, edit: true, delete: true },
+		// 	},
+		// 	deals: { read: true, add: true, edit: true, delete: true },
+		// 	reports: {
+		// 		cashflow: { read: true },
+		// 		pnl: { read: true },
+		// 		balance: { read: true },
+		// 	},
+		// 	directories: {
+		// 		counterparties: { read: true, add: true, edit: true, delete: true },
+		// 		transactionCategories: { read: true, add: true, edit: true, delete: true },
+		// 		accounts: { read: true, add: true, edit: true, delete: true },
+		// 		legalentities: { read: true, add: true, edit: true, delete: true },
+		// 		productsServices: { read: true, add: true, edit: true, delete: true },
+		// 	},
+		// 	settings: {
+		// 		general: { read: true, add: true, edit: true, delete: true },
+		// 		users: { read: true, add: true, edit: true, delete: true },
+		// 		profile: { read: true, add: true, edit: true, delete: true },
+		// 		exchangerates: { read: true, add: true, edit: true, delete: true },
+		// 	},
+		// }
 	}
 
 	// Restore state from localStorage/cookies on init

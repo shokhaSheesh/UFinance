@@ -1,27 +1,32 @@
 "use client"
 import { cn } from '@/app/lib/utils'
-import { useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, ChevronUp, MoreVertical, Search } from 'lucide-react'
+import { ChevronDown, ChevronUp, MoreVertical, Pencil, Search, Trash2 } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import CreateGroup from '../../../../components/directories/ProductServices/CreateGroup'
 import CreateSingle from '../../../../components/directories/ProductServices/CreateSingle'
 import Input from '../../../../components/shared/Input'
 import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 
-import { GoTrash } from "react-icons/go"
+import { observer } from 'mobx-react-lite'
 import { IoCopyOutline } from "react-icons/io5"
-import { MdOutlineModeEdit } from "react-icons/md"
 import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
 import CustomModal from '../../../../components/shared/CustomModal'
 import Loader from '../../../../components/shared/Loader'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
+import { appStore } from '../../../../store/app.store'
 
 
-export default function LegalEntitiesPage() {
+export default observer(function LegalEntitiesPage() {
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
@@ -33,7 +38,6 @@ export default function LegalEntitiesPage() {
   })
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [openRowMenuId, setOpenRowMenuId] = useState(null)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [errorGroup, setErrorGroup] = useState(null)
@@ -74,7 +78,7 @@ export default function LegalEntitiesPage() {
     }
   }, [])
 
-
+  const productsServicesPermissions = appStore.permission.directories.productsServices
 
   // Close row action menu on outside click
   useEffect(() => {
@@ -223,12 +227,6 @@ export default function LegalEntitiesPage() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-  // Fetch legal entities using new invoke_function API
-  const { data: legalEntitiesData, isLoading: isLoadingLegalEntities } = useLegalEntitiesPlanFact({
-    page: 1,
-    limit: 100,
-    ...(debouncedSearchQuery && { search: debouncedSearchQuery.toLowerCase() }),
-  })
 
 
   const handleDeleteConfirm = async () => {
@@ -350,7 +348,7 @@ export default function LegalEntitiesPage() {
         <div className="flex items-center sticky top-0 bg-white z-10 p-3 justify-between">
           <div className="flex items-center gap-3">
             <h1 className="h1 text-xl text-neutral-700 font-semibold">Товары & Услуги</h1>
-            <div ref={menuRef} className="flex items-center z-20 gap-2 relative">
+            {productsServicesPermissions.add && <div ref={menuRef} className="flex items-center z-20 gap-2 relative">
               <button onClick={handleMenuClick} className="primary-btn flex items-center gap-2 ">
                 Создать
                 {isMenuOpen ? (
@@ -375,7 +373,7 @@ export default function LegalEntitiesPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </div>}
           </div>
           <div className="flex items-center gap-2 ">
             <div className="w-32 h-10">
@@ -434,13 +432,13 @@ export default function LegalEntitiesPage() {
                     <div className='flex items-center gap-6'>
                       <span className='font-semibold text-sm text-neutral-700'>Выбрано: {selectedItems.size}</span>
                       <div className='flex items-center gap-4'>
-                        <button
+                        {productsServicesPermissions.delete && <button
                           onClick={() => setIsBulkDeleteModalOpen(true)}
                           className='flex items-center gap-1.5 text-red-500 hover:text-red-600 font-medium cursor-pointer'
                         >
-                          <GoTrash size={16} />
+                          <Trash2 size={16} />
                           <span>Удалить</span>
-                        </button>
+                        </button>}
                       </div>
                     </div>
                   </th>
@@ -514,28 +512,37 @@ export default function LegalEntitiesPage() {
                             <p className='text-xs font-normal text-neutral-500'>{item.commentary}</p>
                           </td>
                           <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
-                            {item.guid !== 'no-group' && (
-                              <div className="relative inline-block" ref={openRowMenuId === item.guid ? rowMenuRef : null}>
-                                <button
-                                  className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full"
-                                  onClick={() => setOpenRowMenuId(openRowMenuId === item.guid ? null : item.guid)}
-                                >
-                                  <MoreVertical size={16} />
-                                </button>
-                                {openRowMenuId === item.guid && (
-                                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-36 p-1 flex flex-col font-normal text-sm">
-                                    <button className="flex items-center gap-2 p-1.5 text-neutral-700 hover:bg-neutral-100 rounded cursor-pointer" onClick={() => {
-                                      setOpenRowMenuId(null); setItemToEdit(item.raw || item); setIsCopying(false); setIsCreateGroupOpen(true);
-                                      setEditGroup(item)
-                                    }}>
-                                      <MdOutlineModeEdit size={14} className="text-neutral-500" /> Редактировать
-                                    </button>
-                                    <button className="flex items-center gap-2 p-1.5 text-red-600 hover:bg-red-50 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToDelete(item); }}>
-                                      <GoTrash size={14} className="text-red-500" /> Удалить
-                                    </button>
+                            {item.guid !== 'no-group' && (productsServicesPermissions.edit || productsServicesPermissions.delete) && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <div className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full inline-flex items-center justify-center">
+                                    <MoreVertical size={16} />
                                   </div>
-                                )}
-                              </div>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-40 p-2" align="end">
+                                  {productsServicesPermissions.edit && <DropdownMenuItem asChild>
+                                    <button
+                                      className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
+                                      onClick={() => {
+                                        setItemToEdit(item.raw || item); setIsCopying(false); setIsCreateGroupOpen(true);
+                                        setEditGroup(item)
+                                      }}
+                                    >
+                                      <Pencil size={16} />
+                                      <span>Редактировать</span>
+                                    </button>
+                                  </DropdownMenuItem>}
+                                  {productsServicesPermissions.delete && <DropdownMenuItem asChild>
+                                    <button
+                                      className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none")}
+                                      onClick={() => { setItemToDelete(item); }}
+                                    >
+                                      <Trash2 size={16} className='text-red-500' />
+                                      <span>Удалить</span>
+                                    </button>
+                                  </DropdownMenuItem>}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             )}
                           </td>
                         </tr>
@@ -566,27 +573,44 @@ export default function LegalEntitiesPage() {
                             <td className="p-3 text-end text-neutral-700">{child.priceWithVat ? `${child.priceWithVat.toLocaleString('ru-RU')} ${child.currency}` : '—'}</td>
                             <td className="p-3 text-start text-neutral-500 max-w-[160px] overflow-hidden text-overflow-ellipsis whitespace-nowrap">{child.comment || '—'}</td>
                             <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
-                              <div className="relative inline-block" ref={openRowMenuId === child.guid ? rowMenuRef : null}>
-                                <button
-                                  className="p-1 hover:bg-neutral-200 rounded-full"
-                                  onClick={() => setOpenRowMenuId(openRowMenuId === child.guid ? null : child.guid)}
-                                >
-                                  <MoreVertical size={16} />
-                                </button>
-                                {openRowMenuId === child.guid && (
-                                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-36 p-1 flex flex-col">
-                                    <button className="flex items-center gap-2 p-1.5 text-sm text-neutral-700 hover:bg-neutral-100 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToEdit(child.raw); setIsCopying(false); setIsCreateSingleOpen(true); }}>
-                                      <MdOutlineModeEdit size={14} className="text-neutral-500" /> Редактировать
-                                    </button>
-                                    <button className="flex items-center gap-2 p-1.5 text-sm text-neutral-700 hover:bg-neutral-100 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToEdit(child.raw); setIsCopying(true); setIsCreateSingleOpen(true); }}>
-                                      <IoCopyOutline size={14} className="text-neutral-500" /> Копировать
-                                    </button>
-                                    <button className="flex items-center gap-2 p-1.5 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToDelete(child); }}>
-                                      <GoTrash size={14} className="text-red-500" /> Удалить
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              {(productsServicesPermissions.edit || productsServicesPermissions.delete || productsServicesPermissions.add) && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <div className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full inline-flex items-center justify-center">
+                                      <MoreVertical size={16} />
+                                    </div>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="w-40 p-2" align="end">
+                                    {productsServicesPermissions.edit && <DropdownMenuItem asChild>
+                                      <button
+                                        className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
+                                        onClick={() => { setItemToEdit(child.raw); setIsCopying(false); setIsCreateSingleOpen(true); }}
+                                      >
+                                        <Pencil size={16} />
+                                        <span>Редактировать</span>
+                                      </button>
+                                    </DropdownMenuItem>}
+                                    {productsServicesPermissions.add && <DropdownMenuItem asChild>
+                                      <button
+                                        className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
+                                        onClick={() => { setItemToEdit(child.raw); setIsCopying(true); setIsCreateSingleOpen(true); }}
+                                      >
+                                        <IoCopyOutline size={16} />
+                                        <span>Копировать</span>
+                                      </button>
+                                    </DropdownMenuItem>}
+                                    {productsServicesPermissions.delete && <DropdownMenuItem asChild>
+                                      <button
+                                        className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none")}
+                                        onClick={() => { setItemToDelete(child); }}
+                                      >
+                                        <Trash2 size={16} className='text-red-500' />
+                                        <span>Удалить</span>
+                                      </button>
+                                    </DropdownMenuItem>}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -609,27 +633,44 @@ export default function LegalEntitiesPage() {
                         <td className="p-3 text-end text-neutral-700">{item.priceWithVat ? `${item.priceWithVat.toLocaleString('ru-RU')} ${item.currency}` : '—'}</td>
                         <td className="p-3 text-start text-neutral-500 max-w-[160px] overflow-hidden text-overflow-ellipsis whitespace-nowrap">{item.comment || '—'}</td>
                         <td className="p-3 text-center w-10 " onClick={(e) => e.stopPropagation()}>
-                          <div className="relative  inline-block" ref={openRowMenuId === item.guid ? rowMenuRef : null}>
-                            <button
-                              className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full"
-                              onClick={() => setOpenRowMenuId(openRowMenuId === item.guid ? null : item.guid)}
-                            >
-                              <MoreVertical size={16} />
-                            </button>
-                            {openRowMenuId === item.guid && (
-                              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-36 p-1 flex flex-col">
-                                <button className="flex items-center gap-2 p-1.5 text-sm text-neutral-700 hover:bg-neutral-100 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToEdit(item.raw); setIsCopying(false); setIsCreateSingleOpen(true); }}>
-                                  <MdOutlineModeEdit size={14} className="text-neutral-500" /> Редактировать
-                                </button>
-                                <button className="flex items-center gap-2 p-1.5 text-sm text-neutral-700 hover:bg-neutral-100 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToEdit(item.raw); setIsCopying(true); setIsCreateSingleOpen(true); }}>
-                                  <IoCopyOutline size={14} className="text-neutral-500" /> Копировать
-                                </button>
-                                <button className="flex items-center  gap-2 p-1.5 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer" onClick={() => { setOpenRowMenuId(null); setItemToDelete(item); }}>
-                                  <GoTrash size={14} className="text-red-500" /> Удалить
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          {(productsServicesPermissions.edit || productsServicesPermissions.delete || productsServicesPermissions.add) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <div className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full inline-flex items-center justify-center">
+                                  <MoreVertical size={16} />
+                                </div>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-40 p-2" align="end">
+                                {productsServicesPermissions.edit && <DropdownMenuItem asChild>
+                                  <button
+                                    className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
+                                    onClick={() => { setItemToEdit(item.raw); setIsCopying(false); setIsCreateSingleOpen(true); }}
+                                  >
+                                    <Pencil size={16} />
+                                    <span>Редактировать</span>
+                                  </button>
+                                </DropdownMenuItem>}
+                                {productsServicesPermissions.add && <DropdownMenuItem asChild>
+                                  <button
+                                    className={cn("w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none")}
+                                    onClick={() => { setItemToEdit(item.raw); setIsCopying(true); setIsCreateSingleOpen(true); }}
+                                  >
+                                    <IoCopyOutline size={16} />
+                                    <span>Копировать</span>
+                                  </button>
+                                </DropdownMenuItem>}
+                                {productsServicesPermissions.delete && <DropdownMenuItem asChild>
+                                  <button
+                                    className={cn("w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none")}
+                                    onClick={() => { setItemToDelete(item); }}
+                                  >
+                                    <Trash2 size={16} className='text-red-500' />
+                                    <span>Удалить</span>
+                                  </button>
+                                </DropdownMenuItem>}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </td>
                       </tr>
                     )
@@ -639,7 +680,7 @@ export default function LegalEntitiesPage() {
             </tbody>
           </table>
         </div>
-      </div> 
+      </div>
       <div className="fixed bottom-0 left-[80px] py-4 px-3 right-0 bg-white border-t border-gray-200">
         <span className={' lowercase'}>
           {totalItemsCount} Товары & Услуги
@@ -753,4 +794,4 @@ export default function LegalEntitiesPage() {
       </CustomModal>
     </>
   )
-}
+})

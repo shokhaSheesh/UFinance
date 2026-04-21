@@ -200,12 +200,12 @@ const BranchStuffList = () => {
   const isPending = createUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 flex-1 bg-white">
+      <div className="flex justify-start gap-2 items-center mb-6">
         <h1 className="text-xl font-bold text-slate-900">Сотрудники филиала</h1>
         <button
           onClick={handleCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0E73F6] text-white rounded-md text-sm font-semibold hover:bg-primary-dark transition-colors"
+          className="flex items-center primary-btn"
         >
           <Plus size={18} />
           Добавить
