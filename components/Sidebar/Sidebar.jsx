@@ -201,13 +201,7 @@ export const Sidebar = observer(() => {
                             </Link>
                         )
                     })}
-            </nav>
-            <button
-                onClick={() => setModalOpen(true)}
-                className="flex flex-col h-[65px] items-center justify-center w-full rounded-md transition-all cursor-pointer text-white/60 hover:text-white justify-self-end"
-            >
-                &nbsp;
-            </button>
+            </nav> 
 
             {/* Modal for setting local API URL */}
             {modalOpen && (

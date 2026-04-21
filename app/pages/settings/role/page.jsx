@@ -4,7 +4,8 @@ import CustomModal from '@/components/shared/CustomModal'
 import Input from '@/components/shared/Input'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Loader, Pencil, Plus, Shield, Trash2 } from 'lucide-react'
+import { Loader, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiClient } from '../../../../lib/api/ucode/base'
@@ -168,6 +169,7 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
 /* ═══════════════════════════════════════════════════════ */
 
 export default function RolePage() {
+  const router = useRouter()
   const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useQuery({
     queryKey: ['get_roles_list'],
     queryFn: () => apiClient.invokeFunction({
@@ -240,12 +242,12 @@ export default function RolePage() {
         <table className="w-full table-fixed">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-12">#</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Название</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Описание</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Пользователей</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Дата создания</th>
-              <th className="w-24 px-6 py-3"></th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide w-12">#</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">Название</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">Описание</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Пользователей</th>
+              <th className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Дата создания</th>
+              <th className="w-24 px-3 py-2"></th>
             </tr>
           </thead>
         </table>
@@ -258,27 +260,21 @@ export default function RolePage() {
             </div>
           ) : (
               <table className="w-full table-fixed">
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 ">
                   {roles.map((role, index) => (
-                    <tr
-                    key={role.guid || role.id}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer group"
-                  >
-                    <td className="px-6 py-4 text-sm text-gray-400 w-12">{index + 1}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                          <Shield size={15} className="text-primary" />
-                        </div>
+                    <tr key={role.guid || role.id} onClick={() => router.push(`/pages/settings/role/${role.guid}`)} className="hover:bg-gray-50 transition-colors cursor-pointer group">
+                      <td className="px-3 py-2 text-sm text-gray-400 w-12">{index + 1}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2.5">
                         <span className="text-sm font-medium text-gray-900">{role.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 truncate">{role.description || '—'}</td>
-                    <td className="px-6 py-4 w-36">
+                      <td className="px-3 py-2 text-sm text-gray-500 truncate">{role.description || '—'}</td>
+                      <td className="px-3 py-2 w-36">
                       <span className="text-sm text-gray-700">{role.users_count || 0}</span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 w-36">{formatDate(role.created_at)}</td>
-                    <td className="px-6 py-4 w-24">
+                      <td className="px-3 py-2 text-sm text-gray-500 w-36">{formatDate(role.created_at)}</td>
+                      <td className="px-3 py-2 w-24">
                       <div
                         className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => e.stopPropagation()}
@@ -302,7 +298,7 @@ export default function RolePage() {
 
                   {roles.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-16 text-center text-sm text-gray-400">
+                      <td colSpan={6} className="p-16 text-center text-sm text-gray-400">
                         Нет ролей
                       </td>
                     </tr>

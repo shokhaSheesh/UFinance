@@ -18,7 +18,7 @@ import OperationCheckbox from '../../../components/shared/Checkbox/operationChec
 import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { GlobalCurrency, isDonoSchool } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
 import useMounted from '../../../hooks/useMounted'
 import { appStore } from '../../../store/app.store'
@@ -202,12 +202,12 @@ export default observer(function DealsPage() {
           <div className='flex items-center gap-2 flex-1'>
             <h1 className={styles.title}>Сделки по продажам</h1>
             {dealPermission.add && <>
-              <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
+              {!isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
                 Создать
-              </button>
-              <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+              </button>}
+              {isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
                 Создать студента
-              </button>
+              </button>}
             </>}
           </div>
           <div className='flex items-center gap-2'>

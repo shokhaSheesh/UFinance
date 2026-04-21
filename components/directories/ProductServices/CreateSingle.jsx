@@ -2,6 +2,7 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { isDonoSchool } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
@@ -14,9 +15,11 @@ import TextArea from '../../shared/TextArea'
 import styles from './style.module.scss'
 
 const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = false }) => {
-  const viewOptions = [
+  const viewOptions = !isDonoSchool ? [
     { value: 'product', label: 'Товары' },
     { value: 'service', label: 'Услуги' }
+  ] : [
+    { value: 'product', label: 'Товары' }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
@@ -118,7 +121,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
     const payload = {
       Naimenovanie: data.name,
       TSena_za_ed: formatDecimal(StringtoNumber(data.price)),
-      amount: formatDecimal(StringtoNumber(data.price)), 
+      amount: formatDecimal(StringtoNumber(data.price)),
       unit_of_measurement_id: data.unit,
       NDS: parseInt((data.vat || '').toString().replace('%', '')) || 0,
       product_and_service_group_id: data.group,
@@ -147,7 +150,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
     } catch (error) {
       console.error('mutateProductService', error?.message)
     }
-  } 
+  }
 
   return (
     <Modal

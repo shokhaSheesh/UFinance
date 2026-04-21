@@ -1,4 +1,5 @@
 import { appStore } from "../store/app.store";
+import { authStore } from "../store/auth.store";
 
 export const GlobalCurrency = {
   get name() {
@@ -18,7 +19,9 @@ export const GlobalCurrency = {
   }
 };
 
-export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b"
+export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b";
+
+export const isDonoSchool = authStore.userData?.company_id === donoSchool ? true : false;
 
 
 export const currencyInfo = {

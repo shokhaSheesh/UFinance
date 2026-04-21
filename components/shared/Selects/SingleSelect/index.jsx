@@ -16,7 +16,10 @@ const SingleSelect = ({
   hasError,
   wrapperClassName,
   disabled = false,
-  onSearch = () => { }
+  onSearch = () => { },
+  customButton,
+  customRenderItem,
+  elementAfter
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -171,29 +174,72 @@ const SingleSelect = ({
               />
             </div>}
 
+            {/* Custom Button at Top */}
+            {customButton && (
+              <div onClick={() => setOpen(false)} className='border-b border-gray-100'>
+                {customButton}
+              </div>
+            )}
+
             {/* List Items */}
             <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
+
               {filteredData.length === 0 ? (
                 <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
               ) : (
                 filteredData.map(node => {
                   const isSelected = value === node.value;
 
+                  if (customRenderItem) {
+                    return (
+                      <div
+                        key={node.value}
+                        className={cn(
+                          "w-full hover:bg-neutral-50 transition-colors cursor-pointer",
+                          isSelected && "bg-neutral-100/60"
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChange(node.value);
+                          setOpen(false);
+                        }}
+                      >
+                        {customRenderItem(node, isSelected)}
+                      </div>
+                    )
+                  }
+
                   return (
                     <div
                       key={node.value}
                       className={cn(
-                        "w-full px-4 py-2 hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
+                        "w-full  hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
                         isSelected && "bg-neutral-100/60"
                       )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onChange(node.value);
-                        setOpen(false);
-                      }}
+
                     >
-                      <span>{node.label}</span>
-                      {isSelected && <Check size={16} className="text-primary" />}
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChange(node.value);
+                          setOpen(false);
+                        }}
+                        className="flex-1 px-4 py-2"
+                      >
+                        {node.label}
+                      </span>
+                      <div
+                        className="flex items-center gap-2 px-2"
+                        onClick={() => {
+                          setOpen(false);
+                        }}
+                      >
+                        {isSelected && <Check size={16} className="text-primary" />}
+                        {elementAfter && <div onClick={(e) => {
+                          e.stopPropagation()
+                          setOpen(false)
+                        }}>{elementAfter(node)}</div>}
+                      </div>
                     </div>
                   )
                 })
