@@ -13,6 +13,7 @@ class AppStore {
 	myCurrencies = []
 	companyCurrencies = []
 	localApiUrl = ''
+	isDonoSchool = false
 	permission = {
 		indicators: { read: false },
 		operations: {
@@ -48,7 +49,7 @@ class AppStore {
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
 				name: 'plan_fact_app',
-				properties: ['isPayment', 'currency', 'currencies', 'myCurrencies', 'companyCurrencies', 'localApiUrl'],
+				properties: ['isPayment', 'currency', 'currencies', 'isDonoSchool', 'myCurrencies', 'companyCurrencies', 'localApiUrl'],
 				storage: window.localStorage,
 				debugMode: true,
 				version: 1,
@@ -73,6 +74,10 @@ class AppStore {
 			}
 		}
 		return result
+	}
+
+	setisDonoschool(value) {
+		this.isDonoSchool = value
 	}
 
 	setIsPayment(value) {

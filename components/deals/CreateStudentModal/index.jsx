@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
+import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
@@ -40,7 +40,7 @@ const clientType = [
   { value: 'old', label: 'Eski' },
 ]
 
-const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, initialData }) => {
+const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
   const [contractTemplate, setContractTemplate] = useState('')
   const [openClassModal, setOpenClassModal] = useState(false)
@@ -55,6 +55,23 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, initialData })
   const [guardianTypeInput, setGuardianTypeInput] = useState('')
   const [deleteGuardianItem, setDeleteGuardianItem] = useState(null)
   const branch = authStore.selectBranch
+
+  const {
+    data: initialData,
+    isLoading,
+  } = useUcodeRequestQuery({
+    method: 'get_sales_list_simple',
+    data: {
+      guid: dealGuid,
+    },
+    querySetting: {
+      enabled: !!dealGuid,
+      staleTime: 0
+    },
+  })
+
+  console.log('dealGuid', dealGuid)
+  console.log('initialData', initialData)
   const {
     register,
     handleSubmit,
@@ -550,543 +567,549 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, initialData })
             {step === 'form' ? 'Новая продажа' : 'Предварительный просмотр договора'}
           </h2>
         </div>
-
-        {step === 'form' ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader />
+          </div>
+        ) :
           <>
-            {/* Scrollable Form */}
-            <div className="flex-1 overflow-auto p-4">
-              <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Номер договора *</label>
-                  <Input
-                    placeholder="Введите номер договора"
-                    error={!!errors.contractNumber}
-                    {...register('contractNumber', { required: 'Введите номер договора' })}
-                  />
-                  {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
-                </div>
-                {/* Row 1 */}
-                <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
-                  <label className="text-xs font-medium text-gray-700">Дата договора *</label>
-                  <Controller
-                    name="contractDate"
-                    control={control}
-                    rules={{ required: 'Выберите дату договора' }}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        format='YYYY-MM-DD'
-                        placeholder="Выберите дату"
-                        className={'w-full!'}
-                        inputClass={'bg-white!'}
-                      />
-                    )}
-                  />
-                  {/* {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
-                  <Input
-                    placeholder="Введите Ф.И.О. опекуна"
-                    error={!!errors.guardianName}
-                    {...register('guardianName', { required: 'Введите Ф.И.О. опекуна' })}
-                  />
-                  {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Название филиала</label>
-                  <Controller
-                    name="branchName"
-                    control={control}
-                    render={({ field }) => (
+            {step === 'form' ? (
+              <>
+                {/* Scrollable Form */}
+                <div className="flex-1 overflow-auto p-4">
+                  <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Номер договора *</label>
                       <Input
-                        placeholder="Название филиала"
-                        value={field.value}
-                        readOnly
+                        placeholder="Введите номер договора"
+                        error={!!errors.contractNumber}
+                        {...register('contractNumber', { required: 'Введите номер договора' })}
                       />
-                    )}
-                  />
-                </div>
+                      {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
+                    </div>
+                    {/* Row 1 */}
+                    <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
+                      <label className="text-xs font-medium text-gray-700">Дата договора *</label>
+                      <Controller
+                        name="contractDate"
+                        control={control}
+                        rules={{ required: 'Выберите дату договора' }}
+                        render={({ field }) => (
+                          <FormDatepicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            format='YYYY-MM-DD'
+                            placeholder="Выберите дату"
+                            className={'w-full!'}
+                            inputClass={'bg-white!'}
+                          />
+                        )}
+                      />
+                      {/* {errors.contractDate && <span className="text-xs text-red-500">{errors.contractDate.message}</span>} */}
+                    </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
-                  <Controller
-                    name="guardianType"
-                    control={control}
-                    rules={{ required: 'Выберите тип опекуна' }}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Выберите тип опекуна"
-                        value={field.value}
-                        customButton={<div onClick={openCreateGuardianModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                          <span className='text-sm text-primary'>Добавить тип опекуна</span>
-                        </div>}
-                        onChange={field.onChange}
-                        elementAfter={(item) => (
-                          <div className='flex items-center gap-2'>
-                            <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditGuardianModal(item)} />
-                            <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteGuardianModal(item)} />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
+                      <Input
+                        placeholder="Введите Ф.И.О. опекуна"
+                        error={!!errors.guardianName}
+                        {...register('guardianName', { required: 'Введите Ф.И.О. опекуна' })}
+                      />
+                      {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Название филиала</label>
+                      <Controller
+                        name="branchName"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            placeholder="Название филиала"
+                            value={field.value}
+                            readOnly
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
+                      <Controller
+                        name="guardianType"
+                        control={control}
+                        rules={{ required: 'Выберите тип опекуна' }}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Выберите тип опекуна"
+                            value={field.value}
+                            customButton={<div onClick={openCreateGuardianModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
+                              <span className='text-sm text-primary'>Добавить тип опекуна</span>
+                            </div>}
+                            onChange={field.onChange}
+                            elementAfter={(item) => (
+                              <div className='flex items-center gap-2'>
+                                <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditGuardianModal(item)} />
+                                <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteGuardianModal(item)} />
+                              </div>
+                            )}
+                            data={guardianTypeList}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
+                      <Controller
+                        name="academicYear"
+                        control={control}
+                        rules={{ required: 'Выберите учебный год' }}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Выберите учебный год"
+                            value={field.value}
+                            onChange={field.onChange}
+                            data={academicYears}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                      {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
+                      <Controller
+                        name="phone1"
+                        control={control}
+                        rules={{ required: 'Введите номер телефона' }}
+                        render={({ field }) => (
+                          <div className="flex">
+                            <input
+                              type="text"
+                              placeholder="XX XXX XX XX"
+                              value={field.value}
+                              onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                              className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
+                            />
                           </div>
                         )}
-                        data={guardianTypeList}
-                        className='bg-white'
-                        isClearable={false}
                       />
-                    )}
-                  />
-                </div>
+                    </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
-                  <Controller
-                    name="academicYear"
-                    control={control}
-                    rules={{ required: 'Выберите учебный год' }}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Выберите учебный год"
-                        value={field.value}
-                        onChange={field.onChange}
-                        data={academicYears}
-                        className='bg-white'
-                        isClearable={false}
+                    {/* Row 3 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
+                      <Controller
+                        name="counterparties_id"
+                        control={control}
+                        rules={{ required: 'Выберите ученика' }}
+                        render={({ field }) => (
+                          <SingleCounterParty
+                            placeholder="Введите Ф.И.О. ученика"
+                            value={field.value}
+                            name='nazvanie'
+                            returnChartOfAccount={(value) => setValue('studentName', value)}
+                            onChange={field.onChange}
+                            className={'bg-white'}
+                            isClearable={false}
+                          />
+                        )}
                       />
-                    )}
-                  />
-                  {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
-                </div>
+                      {/* {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>} */}
+                    </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
-                  <Controller
-                    name="phone1"
-                    control={control}
-                    rules={{ required: 'Введите номер телефона' }}
-                    render={({ field }) => (
-                      <div className="flex">
-                        <input
-                          type="text"
-                          placeholder="XX XXX XX XX"
-                          value={field.value}
-                          onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                          className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
-                        />
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {/* Row 3 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
-                  <Controller
-                    name="counterparties_id"
-                    control={control}
-                    rules={{ required: 'Выберите ученика' }}
-                    render={({ field }) => (
-                      <SingleCounterParty
-                        placeholder="Введите Ф.И.О. ученика"
-                        value={field.value}
-                        name='nazvanie'
-                        returnChartOfAccount={(value) => setValue('studentName', value)}
-                        onChange={field.onChange}
-                        className={'bg-white'}
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                  {/* {errors.counterparties_id && <span className="text-xs text-red-500">{errors.counterparties_id.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Телефон 2</label>
-                  <Controller
-                    name="phone2"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="flex">
-                        <input
-                          type="text"
-                          placeholder="XX XXX XX XX"
-                          value={field.value}
-                          onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                          className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
-                        />
-                      </div>
-                    )}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
-                  <Input
-                    placeholder="Введите серию и номер паспорта"
-                    error={!!errors.passport}
-                    {...register('passport', { required: 'Введите серию и номер паспорта' })}
-                  />
-                  {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
-                </div>
-
-                {/* Row 4 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
-                  <Input
-                    placeholder="Введите ПИНФЛ опекуна"
-                    maxLength={14}
-                    error={!!errors.pinf}
-                    {...register('pinf', {
-                      required: 'Введите ПИНФЛ опекуна',
-                      pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
-                    })}
-                  />
-                  {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
-                  <Input
-                    placeholder="Введите место выдачи"
-                    error={!!errors.issuedBy}
-                    {...register('issuedBy', { required: 'Введите место выдачи' })}
-                  />
-                  {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Название тарифа</label>
-                  <Controller
-                    name="product_and_service_id"
-                    control={control}
-                    render={({ field }) => (
-                      <SelectProductService
-                        value={field.value}
-                        onChange={field.onChange}
-                        name='tsena_za_ed'
-                        returnFieldValue={(value) => {
-                          setValue('monthlyPayment', value)
-                        }}
-                        placeholder="Выберите тариф"
-                        className={'w-full! bg-white'}
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Row 5 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
-                  <Controller
-                    name="birthDate"
-                    control={control}
-                    rules={{ required: 'Выберите дату рождения' }}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Выберите дату"
-                        format='YYYY-MM-DD'
-                        className={'w-full!'}
-                        inputClass={'bg-white!'}
-                      />
-                    )}
-                  />
-                  {/* {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
-                  <Controller
-                    name="validFrom"
-                    control={control}
-                    rules={{ required: 'Выберите дату начала' }}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value)
-                          setValue('the_contract_period_is_from', value)
-                        }}
-                        placeholder="Выберите дату"
-                        format='YYYY-MM-DD'
-                        className={'w-full!'}
-                        inputClass={'bg-white!'}
-                      />
-                    )}
-                  />
-                  {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
-                  <Controller
-                    name="gender"
-                    control={control}
-                    rules={{ required: 'Выберите пол' }}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Выберите пол"
-                        value={field.value}
-                        onChange={field.onChange}
-                        data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
-                        className='bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                  {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
-                </div>
-                {/* Row 6 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
-                  <Controller
-                    name="validTo"
-                    control={control}
-                    rules={{ required: 'Выберите дату окончания' }}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value)
-                          setValue('the_contract_period_is_to', value)
-                        }}
-                        placeholder="Выберите дату"
-                        format='YYYY-MM-DD'
-                        className={'w-full!'}
-                        inputClass={'bg-white!'}
-                      />
-                    )}
-                  />
-                  {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Введите класс *</label>
-                  <Controller
-                    name="classes_id"
-                    control={control}
-                    rules={{ required: 'Выберите класс' }}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Введите класс"
-                        value={field.value}
-                        customButton={<div onClick={openCreateModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                          <span className='text-sm text-primary'>Добавить класс</span>
-                        </div>}
-                        onChange={(value) => {
-                          field.onChange(value)
-                          const name = clasess.find(l => l.guid === value)?.name
-                          setValue('className', name)
-                        }}
-                        elementAfter={(item) => (
-                          <div className='flex items-center gap-2'>
-                            <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditModal(item)} />
-                            <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteModal(item)} />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Телефон 2</label>
+                      <Controller
+                        name="phone2"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="flex">
+                            <input
+                              type="text"
+                              placeholder="XX XXX XX XX"
+                              value={field.value}
+                              onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                              className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
+                            />
                           </div>
                         )}
-                        data={classeList}
-                        isClearable={false}
-                        className='bg-white'
                       />
-                    )}
-                  />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
+                      <Input
+                        placeholder="Введите серию и номер паспорта"
+                        error={!!errors.passport}
+                        {...register('passport', { required: 'Введите серию и номер паспорта' })}
+                      />
+                      {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
+                    </div>
+
+                    {/* Row 4 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
+                      <Input
+                        placeholder="Введите ПИНФЛ опекуна"
+                        maxLength={14}
+                        error={!!errors.pinf}
+                        {...register('pinf', {
+                          required: 'Введите ПИНФЛ опекуна',
+                          pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
+                        })}
+                      />
+                      {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
+                      <Input
+                        placeholder="Введите место выдачи"
+                        error={!!errors.issuedBy}
+                        {...register('issuedBy', { required: 'Введите место выдачи' })}
+                      />
+                      {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Название тарифа</label>
+                      <Controller
+                        name="product_and_service_id"
+                        control={control}
+                        render={({ field }) => (
+                          <SelectProductService
+                            value={field.value}
+                            onChange={field.onChange}
+                            name='tsena_za_ed'
+                            returnFieldValue={(value) => {
+                              setValue('monthlyPayment', value)
+                            }}
+                            placeholder="Выберите тариф"
+                            className={'w-full! bg-white'}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    {/* Row 5 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
+                      <Controller
+                        name="birthDate"
+                        control={control}
+                        rules={{ required: 'Выберите дату рождения' }}
+                        render={({ field }) => (
+                          <FormDatepicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Выберите дату"
+                            format='YYYY-MM-DD'
+                            className={'w-full!'}
+                            inputClass={'bg-white!'}
+                          />
+                        )}
+                      />
+                      {/* {errors.birthDate && <span className="text-xs text-red-500">{errors.birthDate.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
+                      <Controller
+                        name="validFrom"
+                        control={control}
+                        rules={{ required: 'Выберите дату начала' }}
+                        render={({ field }) => (
+                          <FormDatepicker
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              setValue('the_contract_period_is_from', value)
+                            }}
+                            placeholder="Выберите дату"
+                            format='YYYY-MM-DD'
+                            className={'w-full!'}
+                            inputClass={'bg-white!'}
+                          />
+                        )}
+                      />
+                      {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
+                      <Controller
+                        name="gender"
+                        control={control}
+                        rules={{ required: 'Выберите пол' }}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Выберите пол"
+                            value={field.value}
+                            onChange={field.onChange}
+                            data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                      {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
+                    </div>
+                    {/* Row 6 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
+                      <Controller
+                        name="validTo"
+                        control={control}
+                        rules={{ required: 'Выберите дату окончания' }}
+                        render={({ field }) => (
+                          <FormDatepicker
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              setValue('the_contract_period_is_to', value)
+                            }}
+                            placeholder="Выберите дату"
+                            format='YYYY-MM-DD'
+                            className={'w-full!'}
+                            inputClass={'bg-white!'}
+                          />
+                        )}
+                      />
+                      {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Введите класс *</label>
+                      <Controller
+                        name="classes_id"
+                        control={control}
+                        rules={{ required: 'Выберите класс' }}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Введите класс"
+                            value={field.value}
+                            customButton={<div onClick={openCreateModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
+                              <span className='text-sm text-primary'>Добавить класс</span>
+                            </div>}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              const name = clasess.find(l => l.guid === value)?.name
+                              setValue('className', name)
+                            }}
+                            elementAfter={(item) => (
+                              <div className='flex items-center gap-2'>
+                                <Edit2 size={18} className='cursor-pointer hover:text-blue-600' onClick={() => openEditModal(item)} />
+                                <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteModal(item)} />
+                              </div>
+                            )}
+                            data={classeList}
+                            isClearable={false}
+                            className='bg-white'
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Тип клиента</label>
+                      <Controller
+                        name="clientType"
+                        control={control}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Тип клиента"
+                            value={field.value}
+                            onChange={field.onChange}
+                            data={clientType}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    {/* Row 7 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Пассивная дата</label>
+                      <Controller
+                        name="passiveDate"
+                        control={control}
+                        render={({ field }) => (
+                          <FormDatepicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Выберите дату"
+                            format='YYYY-MM-DD'
+                            className={'w-full! bg-white px-2 py-1 border border-gray-ucode-200!'}
+                            inputClass={'bg-white!'}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Состояние</label>
+                      <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Состояние"
+                            value={field.value}
+                            onChange={field.onChange}
+                            data={sostayaniya}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Адрес *</label>
+                      <Input
+                        placeholder="Адрес"
+                        error={!!errors.address}
+                        {...register('address', { required: 'Введите адрес' })}
+                      />
+                      {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
+                    </div>
+
+                    {/* Row 8 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
+                      <Controller
+                        name="language_classes_id"
+                        control={control}
+                        rules={{ required: 'Выберите язык' }}
+                        render={({ field }) => (
+                          <SingleSelect
+                            placeholder="Выберите язык"
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              const name = language_classes.find(l => l.guid === value)?.name
+                              setValue('language', String(name).toUpperCase())
+                            }}
+                            data={languageClassList}
+                            className='bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                      {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
+                    </div>
+                    {/* Row 9 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Статья</label>
+                      <Controller
+                        name="chart_of_accounts_id"
+                        control={control}
+                        render={({ field }) => (
+                          <SinglSelectStatiya
+                            selectedValue={field.value}
+                            setSelectedValue={field.onChange}
+                            placeholder='Нераспределенный доход'
+                            className=' bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                    </div>
+                    {/* Row 10 */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-gray-700">Юрлица *</label>
+                      <Controller
+                        name="legal_entity_id"
+                        control={control}
+                        rules={{ required: 'Выберите юрлицо' }}
+                        render={({ field }) => (
+                          <SelectLegelEntitties
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder='Выберите юрлицо'
+                            className=' bg-white'
+                            isClearable={false}
+                          />
+                        )}
+                      />
+                      {/* {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>} */}
+                    </div>
+                  </form>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Тип клиента</label>
-                  <Controller
-                    name="clientType"
-                    control={control}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Тип клиента"
-                        value={field.value}
-                        onChange={field.onChange}
-                        data={clientType}
-                        className='bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                  <button type="button" className="px-5 py-2 border cursor-pointer border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors" onClick={handleClose}>
+                    Отменить
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePreview}
+                    className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                  >
+                    Предпросмотр
+                  </button>
+                  <button
+                    type="submit"
+                    form="student-form"
+                    disabled={isSubmitting}
+                    className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Contract Preview */}
+                <div className="flex-1 overflow-hidden flex flex-col">
+                  <div className="flex-1 overflow-hidden">
+                    <iframe
+                      srcDoc={getContractHtml()}
+                      className="w-full h-full border-0 px-2"
+                      title="Предпросмотр договора"
+                    />
+                  </div>
                 </div>
 
-                {/* Row 7 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Пассивная дата</label>
-                  <Controller
-                    name="passiveDate"
-                    control={control}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Выберите дату"
-                        format='YYYY-MM-DD'
-                        className={'w-full! bg-white px-2 py-1 border border-gray-ucode-200!'}
-                        inputClass={'bg-white!'}
-                      />
-                    )}
-                  />
+                {/* Preview Footer */}
+                <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                  <button
+                    type="button"
+                    onClick={handleBackToForm}
+                    className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    Назад к форме
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
+                      if (iframe) iframe.contentWindow.print()
+                    }}
+                    className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                  >
+                    Печать
+                  </button>
+                  <button
+                    type="submit"
+                    form="student-form"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(handleFormSubmit)}
+                    className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
+                  </button>
                 </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Состояние</label>
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Состояние"
-                        value={field.value}
-                        onChange={field.onChange}
-                        data={sostayaniya}
-                        className='bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Адрес *</label>
-                  <Input
-                    placeholder="Адрес"
-                    error={!!errors.address}
-                    {...register('address', { required: 'Введите адрес' })}
-                  />
-                  {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
-                </div>
-
-                {/* Row 8 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
-                  <Controller
-                    name="language_classes_id"
-                    control={control}
-                    rules={{ required: 'Выберите язык' }}
-                    render={({ field }) => (
-                      <SingleSelect
-                        placeholder="Выберите язык"
-                        value={field.value}
-                        onChange={(value) => {
-                          field.onChange(value)
-                          const name = language_classes.find(l => l.guid === value)?.name
-                          setValue('language', String(name).toUpperCase())
-                        }}
-                        data={languageClassList}
-                        className='bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                  {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
-                </div>
-                {/* Row 9 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Статья</label>
-                  <Controller
-                    name="chart_of_accounts_id"
-                    control={control}
-                    render={({ field }) => (
-                      <SinglSelectStatiya
-                        selectedValue={field.value}
-                        setSelectedValue={field.onChange}
-                        placeholder='Нераспределенный доход'
-                        className=' bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                </div>
-                {/* Row 10 */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-700">Юрлица *</label>
-                  <Controller
-                    name="legal_entity_id"
-                    control={control}
-                    rules={{ required: 'Выберите юрлицо' }}
-                    render={({ field }) => (
-                      <SelectLegelEntitties
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder='Выберите юрлицо'
-                        className=' bg-white'
-                        isClearable={false}
-                      />
-                    )}
-                  />
-                  {/* {errors.legal_entity_id && <span className="text-xs text-red-500">{errors.legal_entity_id.message}</span>} */}
-                </div>
-              </form>
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
-              <button type="button" className="px-5 py-2 border cursor-pointer border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors" onClick={handleClose}>
-                Отменить
-              </button>
-              <button
-                type="button"
-                onClick={handlePreview}
-                className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-              >
-                Предпросмотр
-              </button>
-              <button
-                type="submit"
-                form="student-form"
-                disabled={isSubmitting}
-                className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Contract Preview */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <div className="flex-1 overflow-hidden">
-                <iframe
-                  srcDoc={getContractHtml()}
-                  className="w-full h-full border-0 px-2"
-                  title="Предпросмотр договора"
-                />
-              </div>
-            </div>
-
-            {/* Preview Footer */}
-            <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
-              <button
-                type="button"
-                onClick={handleBackToForm}
-                className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-              >
-                Назад к форме
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
-                  if (iframe) iframe.contentWindow.print()
-                }}
-                className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-              >
-                Печать
-              </button>
-              <button
-                type="submit"
-                form="student-form"
-                disabled={isSubmitting}
-                onClick={handleSubmit(handleFormSubmit)}
-                className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting || isPending ? 'Сохранение...' : 'Добавить'}
-              </button>
-            </div>
-          </>
-        )}
+              </>
+            )}
+          </>}
       </CustomDialog>
 
       {/* Class Create/Edit Modal */}

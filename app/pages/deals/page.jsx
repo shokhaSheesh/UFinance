@@ -18,7 +18,7 @@ import OperationCheckbox from '../../../components/shared/Checkbox/operationChec
 import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
-import { GlobalCurrency, isDonoSchool } from '../../../constants/globalCurrency'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
 import useMounted from '../../../hooks/useMounted'
 import { appStore } from '../../../store/app.store'
@@ -177,6 +177,10 @@ export default observer(function DealsPage() {
   const handleEditClick = (deal, e) => {
     e.stopPropagation()
     setDealToEdit(deal)
+    if (deal?.contract_file) {
+      setShowCreateStudentModal(true)
+      return
+    }
     setIsCreateModalOpen(true)
   }
 
@@ -202,10 +206,10 @@ export default observer(function DealsPage() {
           <div className='flex items-center gap-2 flex-1'>
             <h1 className={styles.title}>Сделки по продажам</h1>
             {dealPermission.add && <>
-              {!isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
+              {!appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
                 Создать
               </button>}
-              {isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+              {appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
                 Создать студента
               </button>}
             </>}
@@ -361,6 +365,7 @@ export default observer(function DealsPage() {
       </footer>
 
       <CreateStudentModal
+        dealGuid={dealToEdit?.guid || null}
         isOpen={showCreateStudentModal}
         onClose={() => setShowCreateStudentModal(false)}
       />

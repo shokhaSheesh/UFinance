@@ -5,9 +5,10 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { ChevronDown, Maximize2, MoreVertical } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { currencyInfo, GlobalCurrency } from '../../../constants/globalCurrency'
+import { currencyInfo, donoSchool, GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { appStore } from '../../../store/app.store'
+import { authStore } from '../../../store/auth.store'
 import { formatDateTime } from '../../../utils/formatDate'
 import { formatAmount, formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import styles from '../Header.module.scss'
@@ -59,6 +60,7 @@ const TotalPrice = observer(() => {
 
     const Summary = myaccounts?.summary
     const Compactlist = useMemo(() => {
+        appStore.setisDonoschool(authStore.userData?.company_id === donoSchool ? true : false)
         return myaccounts?.data?.map((item) => {
             return [...item.children]?.map((child) => ({
                 name: child?.nazvanie,

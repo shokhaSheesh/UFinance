@@ -1,10 +1,11 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { X } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { isDonoSchool } from '../../../constants/globalCurrency'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
+import { appStore } from '../../../store/app.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
 import Modal from '../../common/Modal/Modal'
 import Input from '../../shared/Input'
@@ -14,8 +15,8 @@ import SingleSelect from '../../shared/Selects/SingleSelect'
 import TextArea from '../../shared/TextArea'
 import styles from './style.module.scss'
 
-const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = false }) => {
-  const viewOptions = !isDonoSchool ? [
+const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false }) => {
+  const viewOptions = !appStore.isDonoSchool ? [
     { value: 'product', label: 'Товары' },
     { value: 'service', label: 'Услуги' }
   ] : [
@@ -372,6 +373,6 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
       </div>
     </Modal>
   )
-}
+})
 
 export default CreateSingle

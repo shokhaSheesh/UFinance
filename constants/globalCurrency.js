@@ -19,7 +19,7 @@ export const GlobalCurrency = {
   }
 };
 
-export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b";
+export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b"; 
 
 export const isDonoSchool = authStore.userData?.company_id === donoSchool ? true : false;
 
