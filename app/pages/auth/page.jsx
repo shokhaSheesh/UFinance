@@ -115,7 +115,7 @@ export default function LoginPage() {
       }
 
       authStore.selectBranch = branches[0]
-      // router.push('/pages/operations')
+      router.push('/pages/operations')
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при входе'
@@ -143,7 +143,7 @@ export default function LoginPage() {
           user_data: userData
         })
         showSuccessNotification('Успешная регистрация!')
-        // router.push('/pages/operations')
+        router.push('/pages/operations')
       } else {
         showErrorNotification('Ошибка: токен или данные пользователя не получены')
       }
