@@ -1,6 +1,6 @@
 'use client'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
-import { Edit2, Trash2 } from 'lucide-react'
+import { Edit2, Loader2, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
@@ -21,8 +21,8 @@ import Input from '../../shared/Input'
 import Loader from '../../shared/Loader'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const academicYears = Array.from({ length: 16 }, (_, i) => {
-  const start = 2025 + i
+const academicYears = Array.from({ length: 20 }, (_, i) => {
+  const start = 2020 + i
   return { value: `${start}-${start + 1}`, label: `${start}-${start + 1}` }
 })
 
@@ -37,7 +37,7 @@ const clientType = [
   { value: 'old', label: 'Eski' },
 ]
 
-const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) => {
+const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canUpdateForms }) => {
   const [step, setStep] = useState('form') // 'form' | 'preview'
   const [isSaving, setIsSaving] = useState(false)
   const [contractTemplate, setContractTemplate] = useState('')
@@ -46,14 +46,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const [editingClass, setEditingClass] = useState(null)
   const [classNameInput, setClassNameInput] = useState('')
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null)
-  // Guardian type modal states
   const [openGuardianModal, setOpenGuardianModal] = useState(false)
   const [guardianModalMode, setGuardianModalMode] = useState('create')
   const [editingGuardian, setEditingGuardian] = useState(null)
   const [guardianTypeInput, setGuardianTypeInput] = useState('')
   const [deleteGuardianItem, setDeleteGuardianItem] = useState(null)
   const branch = authStore.selectBranch
-  const isEditing = !!dealGuid
+  const isEditing = dealGuid && !canUpdateForms
 
   const {
     data: initialData,
@@ -79,7 +78,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
         guardianName: initialData?.full_name_guardian || '',
         branchName: branch?.name || '',
         guardianType: initialData?.type_guardian?.[0] || null,
-        academicYear: '',
+        academicYear: initialData?.school_year,
         phone1: initialData?.first_phone_number || '',
         studentName: initialData?.counterparties_id_data?.nazvanie || '',
         phone2: initialData?.second_phone_number || '',
@@ -188,6 +187,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const { mutate: createStudent, isPending } = useMutation({
     mutationKey: ['create-student'],
     mutationFn: (data) => apiClient.invokeFunction({ method: isEditing ? 'update_contract_with_counterparty_passive' : 'create_contract_with_counterparty', data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
+      handleClose()
+      reset()
+    }
+  })
+  const { mutate: updateStudent, isPending: updateingStudent } = useMutation({
+    mutationKey: ['update-student'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'update_contract_with_counterparty_file', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
       handleClose()
@@ -308,7 +316,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   }
 
   const getContractHtml = () => {
-    if (initialData) return initialData?.contract_file
+    if (initialData && !canUpdateForms) return initialData?.contract_file
     if (!contractTemplate) return '<p style="padding:20px;font-family:sans-serif">Загрузка шаблона договора...</p>'
     const data = getContractDataForType()
     return Object.entries(data).reduce(
@@ -389,6 +397,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
       requestData = {
         name: data.contractNumber || '',
         number_contract: data.contractNumber || '',
+        school_year: data.academicYear,
         date_contract: (data.contractDate),
         deal_date: (data.contractDate),
         the_contract_period_is_from: moment(data.validFrom).format('YYYY-MM-DD'),
@@ -433,6 +442,82 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
         showErrorNotification(error?.message || 'Ошибка при создании ученика')
       }
     })
+  }
+
+  const handleFormUpdateSubmit = async () => {
+    let contractFileLink = ''
+
+    try {
+      // Generate new contract HTML with updated values
+      const htmlContent = getContractHtml().replace(/\s*highlight\s*/g, ' ').replace(/\s+/g, ' ')
+
+      // Step 1: Convert HTML to PDF
+      const convertResponse = await fetch('https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.authToken}`,
+        },
+        body: JSON.stringify({
+          html_content: htmlContent,
+          output_format: 'pdf'
+        })
+      })
+
+      if (!convertResponse.ok) {
+        throw new Error('Failed to convert HTML to PDF')
+      }
+
+      const pdfBlob = await convertResponse.blob()
+
+      // Step 2: Upload PDF file
+      const formData = new FormData()
+      formData.append('file', pdfBlob, 'contract.pdf')
+
+      const uploadResponse = await fetch('https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authStore.authToken}`,
+        },
+        body: formData
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload PDF file')
+      }
+
+      const uploadData = await uploadResponse.json()
+      const fileLink = uploadData?.data?.link
+
+      if (fileLink) {
+        contractFileLink = `https://cdn.u-code.io/${fileLink}`
+      }
+    } catch (error) {
+      console.error('Error processing contract file:', error)
+      showErrorNotification('Ошибка при обработке договора: ' + error.message)
+      setIsSaving(false)
+      return
+    }
+
+    const requestData = {
+      guid: initialData?.guid,
+      sales_transactions_id: initialData?.sales_transactions_id,
+      contract_file: contractFileLink,
+    }
+
+    updateStudent(requestData, {
+      onSuccess: () => {
+        showSuccessNotification('Договор успешно обновлен')
+        setStep('form')
+        onClose()
+        handleClose()
+      },
+      onError: (error) => {
+        showErrorNotification(error?.message || 'Ошибка при обновлении договора')
+      }
+    })
+
+    setIsSaving(false)
   }
 
   const html = getContractHtml()
@@ -630,14 +715,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
               <>
                 {/* Scrollable Form */}
                 <div className="flex-1 overflow-auto p-4">
-                  <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
-                    <fieldset disabled={isEditing} className={`contents ${isEditing ? 'pointer-events-none opacity-70' : ''}`}>
+                  <form id="student-form" onSubmit={handleSubmit(isEditing ? handleFormUpdateSubmit : handleFormSubmit)} className="grid grid-cols-3 gap-3">
+                    <fieldset className="contents">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-medium text-gray-700">Номер договора *</label>
                         <Input
                           placeholder="Введите номер договора"
                           error={!!errors.contractNumber}
-                          {...register('contractNumber', { required: !isEditing ? 'Введите номер договора' : false })}
+                          {...register('contractNumber', { required: 'Введите номер договора' })}
+                          disabled={isEditing}
                         />
                         {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
                       </div>
@@ -669,6 +755,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                           placeholder="Введите Ф.И.О. опекуна"
                           error={!!errors.guardianName}
                           {...register('guardianName', { required: !isEditing ? 'Введите Ф.И.О. опекуна' : false })}
+                          disabled={isEditing}
                         />
                         {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
                       </div>
@@ -751,6 +838,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                                 type="text"
                                 placeholder="XX XXX XX XX"
                                 value={field.value}
+                                disabled={isEditing}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                                 className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
                               />
@@ -793,6 +881,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                                 type="text"
                                 placeholder="XX XXX XX XX"
                                 value={field.value}
+                                disabled={isEditing}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                                 className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
                               />
@@ -1164,32 +1253,41 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                 </div>
 
                 {/* Preview Footer */}
-                <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
-                  <button
-                    type="button"
-                    onClick={handleBackToForm}
-                    className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    Назад к форме
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
-                      if (iframe) iframe.contentWindow.print()
-                    }}
-                    className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-                  >
-                    Печать
-                  </button>
-                  <button
-                    type="submit"
-                    form="student-form"
+                  <div className="flex items-center justify-between gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                    <button
+                      type="button"
+                      onClick={handleFormUpdateSubmit}
+                      className="px-5 py-2 hover:border hover:border-gray-400 cursor-pointer rounded-md text-sm font-medium text-gray-700  hover:bg-gray-50 transition-colors"
+                    >
+                      &nbsp; {updateingStudent && <Loader2 className="animate-spin" />}
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleBackToForm}
+                        className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                      >
+                        Назад к форме
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
+                          if (iframe) iframe.contentWindow.print()
+                        }}
+                        className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                      >
+                        Печать
+                      </button>
+                      <button
+                        type="submit"
+                        form="student-form"
                       disabled={isSubmitting}
-                    className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                        className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                       {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}
-                  </button>
+                      </button>
+                    </div>
                 </div>
               </>
             )}

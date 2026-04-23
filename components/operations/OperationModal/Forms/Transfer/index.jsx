@@ -27,7 +27,7 @@ import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
-const TransferForm = observer(({ initialData, onClose }) => {
+const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const [title, setTitle] = useState({
 		currency_1: '',
 		currency_2: '',
@@ -126,7 +126,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 		}
 
 		try {
-			await createOperation({
+			const res = await createOperation({
 				method: isNew ? 'create_operation' : 'update_operation',
 				data: payload,
 			})
@@ -138,11 +138,13 @@ const TransferForm = observer(({ initialData, onClose }) => {
 			queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
 			queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
 			queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
-			queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
 			queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
 			queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
 			queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-			onClose?.()
+			const operationId = isNew
+				? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+				: initialData.guid
+			await onSuccess?.(operationId)
 		} catch (error) {
 			console.error('TransferForm onSubmit error', error)
 		}

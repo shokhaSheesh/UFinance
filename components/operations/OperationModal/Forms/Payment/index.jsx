@@ -239,6 +239,7 @@ function rowsReducer(state, action) {
 const PaymentForm = observer(({
   initialData,
   onClose,
+  onSuccess,
   preselectedCounterparty = null,
   defaultDealGuid = null,
   chart_of_accounts_id = null
@@ -381,7 +382,7 @@ const PaymentForm = observer(({
 
     try {
 
-      await createOperation({
+      const res = await createOperation({
         method: isNew ? 'create_operation' : 'update_operation',
         data: payload
       })
@@ -394,12 +395,14 @@ const PaymentForm = observer(({
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      onClose?.()
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+      await onSuccess?.(operationId)
     } catch (error) {
-      console.error('IncomeForm onSubmit error', error)
+      console.error('PaymentForm onSubmit error', error)
     }
   }
 

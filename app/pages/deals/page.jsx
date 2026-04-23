@@ -19,7 +19,7 @@ import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
-import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
+import { useUcodeRequestInfinite, useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import useMounted from '../../../hooks/useMounted'
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
@@ -38,6 +38,8 @@ export default observer(function DealsPage() {
   const [dealToEdit, setDealToEdit] = useState(null)
   const [dealToCopy, setDealToCopy] = useState(null)
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false)
+  const [studentToEdit, setStudentToEdit] = useState(null)
+  const [canUpdateForms, setCanUpdateForms] = useState(false)
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
 
@@ -108,7 +110,7 @@ export default observer(function DealsPage() {
 
   const totalProfit = dealsMethod === 'accrual_method' ? summary?.accrual_profit : summary?.cash_profit
 
-  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeDefaultApiMutation({ mutationKey: 'delete-deal' })
+  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeRequestMutation()
 
   const formattedDeals = useMemo(() => {
     return allDeals?.map(deal => ({
@@ -159,7 +161,7 @@ export default observer(function DealsPage() {
   const confirmDelete = () => {
     if (!dealToDelete) return
     deleteDeal(
-      { urlMethod: 'DELETE', urlParams: `/items/sales_transactions/${dealToDelete.guid}?from-ofs=true` },
+      { method: 'delete_sales_transaction', data: { guid: dealToDelete.guid } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
@@ -177,6 +179,7 @@ export default observer(function DealsPage() {
   const handleEditClick = (deal, e) => {
     e.stopPropagation()
     setDealToEdit(deal)
+    setStudentToEdit(deal)
     if (deal?.contract_file) {
       setShowCreateStudentModal(true)
       return
@@ -190,10 +193,22 @@ export default observer(function DealsPage() {
     setIsCreateModalOpen(true)
   }
 
+  const handleUpdate = (deal, e) => {
+    e?.stopPropagation()
+    setStudentToEdit(deal)
+    setShowCreateStudentModal(true)
+    setCanUpdateForms(true)
+  }
+
   const closeCreateModal = () => {
     setIsCreateModalOpen(false)
     setDealToEdit(null)
     setDealToCopy(null)
+  }
+
+  const closeStudentModal = () => {
+    setShowCreateStudentModal(false)
+    setStudentToEdit(null)
   }
 
   if (!mounted) return null
@@ -319,8 +334,13 @@ export default observer(function DealsPage() {
                     <div className='group-hover:hidden'>
                       <p className={price < 0 ? 'text-red-600' : 'text-green-600'}>{formatAmount(price)}</p>
                     </div>
-                    <div className='hidden group-hover:flex justify-end'>
-                      <div className='flex items-center'>
+                    <div className='hidden group-hover:flex justify-between'>
+
+                      <button className='hover:bg-neutral-100 rounded-full justify-self-start p-2 cursor-pointer' title='Редактировать договор' onClick={(e) => handleUpdate(deal, e)}>
+                        &nbsp;
+                      </button>
+
+                      <div className='flex items-center justify-end'>
                         {deal.contract_file && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скачать договор' onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}>
                           <Download size={14} color='#686868' />
                         </button>}
@@ -370,7 +390,8 @@ export default observer(function DealsPage() {
       <CreateStudentModal
         dealGuid={dealToEdit?.guid || null}
         isOpen={showCreateStudentModal}
-        onClose={() => setShowCreateStudentModal(false)}
+        onClose={closeStudentModal}
+        canUpdateForms={canUpdateForms}
       />
       <CreateDealModal
         isOpen={isCreateModalOpen}

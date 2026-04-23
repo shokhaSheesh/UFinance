@@ -1,44 +1,41 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import styles from './deal-detail.module.scss';
-import { useUcodeRequestQuery } from '@/hooks/useDashboard';
-import { keepPreviousData } from '@tanstack/react-query';
-import DealStatus from '@/components/deals/details/Status';
-import CreateShipment from '@/components/deals/details/CreatingShipment';
-import { ChevronUp, CirclePlus, Ellipsis, Search } from 'lucide-react';
-import { HiOutlineDatabase } from "react-icons/hi";
-import { HiOutlineCreditCard } from "react-icons/hi2";
-import { PiDatabaseFill } from "react-icons/pi";
-import { ShipmentPlusIcon, BoxIcon } from '@/constants/icons';
-import Input from '@/components/shared/Input';
-import OperationModal from '@/components/operations/OperationModal/OperationModal';
+import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal';
+import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealModal';
 import CreateProductService from '@/components/deals/details/CreateProductService';
+import CreateShipment from '@/components/deals/details/CreatingShipment';
+import DealStatus from '@/components/deals/details/Status';
+import OperationModal from '@/components/operations/OperationModal/OperationModal';
+import Input from '@/components/shared/Input';
 import Loader from '@/components/shared/Loader';
-import { formatAmount } from '@/utils/helpers';
-import ShipmenTable from '../../../../components/deals/details/ShipmenTable';
-import ProductServiceTable from '../../../../components/deals/details/ProductServiceTable';
-import CustomRadio from '../../../../components/shared/Radio';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import CustomProgress from '../../../../components/shared/Progress';
+} from "@/components/ui/popover";
+import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
+import { useUcodeRequestQuery } from '@/hooks/useDashboard';
+import { formatAmount } from '@/utils/helpers';
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
+import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+import { useParams, useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { HiOutlineDatabase } from "react-icons/hi";
+import { HiOutlineCreditCard } from "react-icons/hi2";
+import { PiDatabaseFill } from "react-icons/pi";
 import CommentChat from '../../../../components/deals/details/CommentChat';
-import { sealDeal } from '../../../../store/saleDeal.store';
 import ExpenseOperationsTable from '../../../../components/deals/details/ExpenseOperationTable';
 import IncomeOperationsTable from '../../../../components/deals/details/IncomeOperationsTable';
-import { calculatePercent, formatDateRu, formatNumber, formatTotalSumma } from '../../../../utils/helpers';
-import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal';
-import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealModal';
-import { useUcodeDefaultApiMutation } from '@/hooks/useDashboard';
-import { useQueryClient } from '@tanstack/react-query';
-import { Pencil, Trash } from 'lucide-react';
-import { useUcodeRequestMutation } from '../../../../hooks/useDashboard';
+import ProductServiceTable from '../../../../components/deals/details/ProductServiceTable';
+import ShipmenTable from '../../../../components/deals/details/ShipmenTable';
+import CustomProgress from '../../../../components/shared/Progress';
+import CustomRadio from '../../../../components/shared/Radio';
 import { GlobalCurrency } from '../../../../constants/globalCurrency';
+import { useUcodeRequestMutation } from '../../../../hooks/useDashboard';
+import { sealDeal } from '../../../../store/saleDeal.store';
+import { calculatePercent, formatDateRu, formatNumber, formatTotalSumma } from '../../../../utils/helpers';
+import styles from './deal-detail.module.scss';
 
 
 export default observer(function DealDetailPage() {
@@ -107,16 +104,13 @@ export default observer(function DealDetailPage() {
   const [dealToEdit, setDealToEdit] = useState(null);
 
   const queryClient = useQueryClient();
-  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeDefaultApiMutation({ mutationKey: 'delete-deal' });
+  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeRequestMutation();
 
   const confirmDelete = () => {
     if (!dealToDelete) return;
 
     deleteDeal(
-      {
-        urlMethod: 'DELETE',
-        urlParams: `/items/sales_transactions/${dealToDelete.guid}?from-ofs=true`
-      },
+      { method: 'delete_sales_transaction', data: { guid: dealToDelete.guid } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['deals'] });

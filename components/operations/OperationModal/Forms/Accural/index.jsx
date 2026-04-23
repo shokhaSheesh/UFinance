@@ -22,7 +22,7 @@ import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
-const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
+const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => {
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
   const [isToRasxodChild, setIsToRasxodChild] = useState(false)
   const [title, setTitle] = useState()
@@ -130,24 +130,25 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         requestData.guid = initialData.guid
       }
 
-      await createAccural({
+      const res = await createAccural({
         method: isNew ? 'create_operation' : 'update_operation',
         data: requestData
       })
-      // onSuccess?.(data)
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })
       queryClient.invalidateQueries({ queryKey: ['operations'] })
       queryClient.invalidateQueries({ queryKey: ['find_operations'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      onClose()
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+      await onSuccess?.(operationId)
     } catch (error) {
       console.error('Error in AccuralForm handleSubmit:', error)
     }
