@@ -28,15 +28,12 @@ const Branches = observer(() => {
     data: { page: 1, limit: 200 }
   })
 
-  useQuery({
+  const { data: permission, isSuccess } = useQuery({
     queryKey: ['get_userPermissions'],
     queryFn: async () => getMyPermissions({
       branches_id: authStore.branch_id,
     }),
-    onSuccess: (data) => {
-      const permission = data?.data?.data?.role_permissions
-      appStore.setNewPermission(permission)
-    },
+    select: (data) => data?.data?.data?.role_permissions,
     enabled: userData?.role === 'employees',
     staleTime: 1000 * 60 * 60,
     refetchOnMount: true
@@ -48,6 +45,11 @@ const Branches = observer(() => {
   const branchesList = useMemo(() => {
     return branches?.length <= 1 ? null : branches
   }, [branches])
+
+
+  if (isSuccess) {
+    appStore.setNewPermission(permission)
+  }
 
 
   useEffect(() => {

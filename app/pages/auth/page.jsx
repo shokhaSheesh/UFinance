@@ -171,7 +171,7 @@ export default function LoginPage() {
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при регистрации'
-      showErrorNotification(errorMessage)
+      showErrorNotification('Error while registeration')
     },
   })
 

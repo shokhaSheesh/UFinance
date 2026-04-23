@@ -135,6 +135,7 @@ class AppStore {
 				general: { read: true, add: false, edit: false, delete: false },
 				users: { read: true, add: false, edit: false, delete: false },
 				profile: { read: true, add: false, edit: false, delete: false },
+				branches: { read: true, add: false, edit: false, delete: false },
 				exchangerates: { read: true, add: false, edit: false, delete: false },
 			},
 		}
@@ -167,6 +168,7 @@ class AppStore {
 				general: { read: true, add: true, edit: true, delete: true },
 				users: { read: true, add: true, edit: true, delete: true },
 				profile: { read: true, add: true, edit: true, delete: true },
+				branches: { read: true, add: true, edit: true, delete: true },
 				exchangerates: { read: true, add: true, edit: true, delete: true },
 			},
 		}
@@ -215,6 +217,7 @@ class AppStore {
 				general: { read: false, add: false, edit: false, delete: false },
 				users: { read: false, add: false, edit: false, delete: false },
 				profile: { read: false, add: false, edit: false, delete: false },
+				branches: { read: false, add: false, edit: false, delete: false },
 				exchangerates: { read: false, add: false, edit: false, delete: false },
 			},
 		}
@@ -301,6 +304,9 @@ class AppStore {
 								break
 							case 'my_profile':
 								newPermission.settings.profile = convertPermissions(child)
+								break
+							case 'branches':
+								newPermission.settings.branches = convertPermissions(child)
 								break
 							case 'exchange_rates':
 								newPermission.settings.exchangerates = convertPermissions(child)

@@ -213,7 +213,7 @@ function MessageCard({ msg, isEditing, editText, editFile, onEditChange, onEditF
 
 // ─── SentMessages (main) ─────────────────────────────────────────────────────
 
-const SentMessages = ({ onSend }) => {
+const SentMessages = ({ onSend, operationId }) => {
 	const [messages, setMessages] = useState([])
 	const [text, setText] = useState('')
 	const [attachedFiles, setAttachedFiles] = useState([])
