@@ -502,7 +502,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     const requestData = {
       guid: initialData?.guid,
       sales_transactions_id: initialData?.sales_transactions_id,
-      contract_file: contractFileLink,
+      file: contractFileLink,
     }
 
     updateStudent(requestData, {
