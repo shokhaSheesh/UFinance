@@ -325,7 +325,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const handleFormSubmit = async (data) => {
     // Helper to wrap value in array or return empty array
     const toArray = (val) => val ? [val] : []
-    reset()
 
     // Generate contract HTML with filled data based on active contract type
 

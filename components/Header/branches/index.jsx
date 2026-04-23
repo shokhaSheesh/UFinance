@@ -34,7 +34,7 @@ const Branches = observer(() => {
       branches_id: authStore.branch_id,
     }),
     select: (data) => data?.data?.data?.role_permissions,
-    enabled: userData?.role === 'employees',
+    enabled: userData?.role === 'employees' && appStore.branches?.length > 0,
     staleTime: 1000 * 60 * 60,
     refetchOnMount: true
   })

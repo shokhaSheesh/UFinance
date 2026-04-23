@@ -111,7 +111,7 @@ export default function LoginPage() {
         authStore.setBranchId(branch?.guid || branches[0]?.guid)
       }
 
-      if (responseData?.role?.name !== 'plan_fakt_admins') {
+      if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
         permissions = await getMyPermissions({
           branches_id: branch?.guid || branches[0]?.guid,
           role_id: responseData?.role?.id
