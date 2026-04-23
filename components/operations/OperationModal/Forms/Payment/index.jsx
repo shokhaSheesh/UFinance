@@ -334,7 +334,6 @@ const PaymentForm = observer(({
   const watchSalesDeal = watch('salesDeal')
   const watchPaymentDate = watch('paymentDate')
 
-  console.log(!!watchSalesDeal, 'watchSalesDeal')
   const watchAccrualDate = watch('accrualDate')
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
@@ -540,7 +539,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4", watchSalesDeal && "opacity-50")}>
+              <div className={cn("flex items-center gap-4")}>
                 <label className="w-[150px] text-xss!">Дата начисления</label>
                 <div className="flex-1 flex gap-2 max-w-[600px]">
                   <Controller
@@ -548,10 +547,8 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <CustomDatePicker
-                        value={watchSalesDeal ? watchPaymentDate : field.value}
-                        disabled={!!watchSalesDeal}
+                        value={field.value} 
                         onChange={(val) => {
-                          if (watchSalesDeal) return
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
@@ -566,11 +563,10 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={watchSalesDeal ? false : field.value}
-                        disabled={!!watchSalesDeal}
+                        checked={field.value} 
                         label="Подтвердить начисление"
                         onChange={(e) => {
-                          if (watchSalesDeal || isFuture(watchAccrualDate)) return
+                          if (isFuture(watchAccrualDate)) return
                           field.onChange(e.target.checked)
                         }}
                       />
