@@ -1,16 +1,24 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from 'react'
+import { cn } from '@/app/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
-import { cn } from '@/app/lib/utils'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { indicators } from '../../../store/indicatos.store'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-// Static Mock Data for CashFlow
-const months = ['янв', 'фев', 'мар', 'апр', 'апр\n(план)', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const receiptsData = [25000, 30000, 28000, 35000, 55000, 40000, 42000, 45000, 43000, 48000, 50000, 55000, 58000]
-const paymentsData = [18000, 22000, 20000, 25000, 5000, 28000, 30000, 32000, 31000, 34000, 36000, 38000, 40000]
-const differenceData = receiptsData.map((val, idx) => val - paymentsData[idx])
+const formatValue = (val) => {
+  if (!val && val !== 0) return '0'
+  const abs = Math.abs(val)
+  if (abs >= 1_000_000_000) return `${(abs / 1_000_000_000).toFixed(1)} млрд`
+  if (abs >= 1_000_000) return `${(Math.round(abs / 1_000_000)).toLocaleString('ru-RU')} млн`
+  return abs.toLocaleString('ru-RU')
+}
 
 const CashFlow = () => {
   const chartRef = useRef(null)
@@ -18,6 +26,48 @@ const CashFlow = () => {
   const [activeTab, setActiveTab] = useState('Общий')
 
   const tabs = ['Общий', 'Операционный', 'Инвестиционный', 'Финансовый']
+
+  const { rangeMonth, periodType, deals, accounts } = indicators
+
+
+  const filterData = {
+    periodStartDate: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
+    periodEndDate: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
+    periodType: periodType,
+    currencyCode: GlobalCurrency.code, // Defaulting to RUB as seen in page
+    sellingDealId: deals, // these are same values
+    contrAgentId: accounts,
+  }
+
+
+  const { data: cashFlowDataList, isLoading: isLoadingCashFlow, } = useQuery({
+    queryKey: ["cash_flow", filterData],
+    queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
+    select: (res) => res?.data?.data,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
+  })
+
+  const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
+  const months = useMemo(() => legend.map(l => l.title), [legend])
+  const monthKeys = useMemo(() => legend.map(l => l.key), [legend])
+
+  const receiptsRow = useMemo(() => cashFlowDataList?.rows?.find(r => r.name === 'Поступления'), [cashFlowDataList])
+  const paymentsRow = useMemo(() => cashFlowDataList?.rows?.find(r => r.name === 'Выплаты'), [cashFlowDataList])
+
+  const receiptsData = useMemo(() => monthKeys.map(key => receiptsRow?.values?.[key] ?? 0), [monthKeys, receiptsRow])
+  const paymentsData = useMemo(() => monthKeys.map(key => Math.abs(paymentsRow?.values?.[key] ?? 0)), [monthKeys, paymentsRow])
+  const differenceData = useMemo(() => receiptsData.map((val, idx) => val - paymentsData[idx]), [receiptsData, paymentsData])
+
+  const yAxisMax = useMemo(() => {
+    const allVals = [...receiptsData, ...paymentsData, ...differenceData.map(Math.abs)]
+    const max = Math.max(...allVals, 0)
+    if (max === 0) return 1000
+    const magnitude = Math.pow(10, Math.floor(Math.log10(max)))
+    return Math.ceil(max / magnitude) * magnitude
+  }, [receiptsData, paymentsData, differenceData])
 
   const options = useMemo(() => ({
     tooltip: {
@@ -36,7 +86,7 @@ const CashFlow = () => {
                       <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${item.value.toLocaleString('ru-RU')} $</div>
+                    <div class="font-medium text-slate-900">${formatValue(item.value)}</div>
                   </div>`
         })
         return res
@@ -73,15 +123,14 @@ const CashFlow = () => {
     },
     yAxis: {
       type: 'value',
-      max: 60000,
-      interval: 10000,
+      max: yAxisMax,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#f3f4f6' } },
       axisLabel: {
         color: '#9ca3af',
         fontSize: 11,
-        formatter: (value) => value === 0 ? '0' : `${value / 1000} тыс`
+        formatter: (value) => value === 0 ? '0' : formatValue(value)
       }
     },
     series: [
@@ -94,14 +143,6 @@ const CashFlow = () => {
           borderRadius: [4, 4, 0, 0],
           color: '#3b82f6'
         },
-        markArea: {
-          data: [[{
-            xAxis: 'апр\n(план)',
-            itemStyle: { color: 'rgba(59, 130, 246, 0.1)' }
-          }, {
-            xAxis: 'апр\n(план)'
-          }]]
-        }
       },
       {
         name: 'Выплаты',
@@ -124,12 +165,14 @@ const CashFlow = () => {
         itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange])
+  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax])
 
+  const receiptTotal = receiptsRow?.totalValue ?? 0
+  const paymentTotal = Math.abs(paymentsRow?.totalValue ?? 0)
   const stats = [
-    { label: 'Поступления', value: '100', plan: '50 793', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Выплаты', value: '40', plan: '180', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Разница', value: '60', plan: '50 613', color: 'text-slate-900', planColor: 'text-blue-500' },
+    { label: 'Поступления', value: formatValue(receiptTotal), color: 'text-slate-900' },
+    { label: 'Выплаты', value: formatValue(paymentTotal), color: 'text-slate-900' },
+    { label: 'Разница', value: formatValue(receiptTotal - paymentTotal), color: 'text-slate-900' },
   ]
 
   return (
@@ -143,13 +186,13 @@ const CashFlow = () => {
         </div>
         <div className="flex flex-wrap bg-[#f3f4f624] border border-neutral-200 rounded-md p-1">
           {tabs.map(tab => (
-            <button 
+            <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
                 "px-4 py-1.5 text-sm font-medium transition-all rounded whitespace-nowrap",
-                activeTab === tab 
-                  ? "bg-white text-[#38bdf8] shadow-sm border border-neutral-200" 
+                activeTab === tab
+                  ? "bg-white text-[#38bdf8] shadow-sm border border-neutral-200"
                   : "text-neutral-500 hover:text-slate-900"
               )}
             >
@@ -168,13 +211,9 @@ const CashFlow = () => {
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-[28px] font-bold leading-none mb-1", stat.color)}>
+                <span className={cn("text-[28px] font-bold leading-none", stat.color)}>
                   {stat.value}
                 </span>
-                <div className="flex items-center gap-1.5 text-xss">
-                  <span className={cn("font-semibold", stat.planColor)}>{stat.plan}</span>
-                  <span className="text-neutral-400">— по плану</span>
-                </div>
               </div>
             </div>
           ))}
@@ -183,8 +222,8 @@ const CashFlow = () => {
         {/* Chart container */}
         <div className="flex-1 ">
           <div className="mb-4 pt-4 px-2">
-            <CustomMonthSlider 
-              value={zoomRange} 
+            <CustomMonthSlider
+              value={zoomRange}
               onChange={setZoomRange}
             />
           </div>
@@ -202,4 +241,4 @@ const CashFlow = () => {
   )
 }
 
-export default CashFlow
+export default observer(CashFlow)

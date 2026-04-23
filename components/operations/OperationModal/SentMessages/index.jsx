@@ -1,9 +1,9 @@
 'use client'
-import React, { useState, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import './style.scss'
-import { FilesPlugIcon } from '../../../../constants/icons'
 import { authStore } from '@/store/auth.store'
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { FilesPlugIcon } from '../../../../constants/icons'
+import './style.scss'
 // ─── constants ────────────────────────────────────────────────────────────────
 
 const MAX_FILES = 10
@@ -337,6 +337,8 @@ const SentMessages = ({ onSend }) => {
 	}
 
 	// ── render ────────────────────────────────────────────────────────────────
+
+
 
 
 	return (

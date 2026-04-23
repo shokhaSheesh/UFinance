@@ -35,6 +35,9 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [selectedBranch, setSelectedBranch] = useState('')
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false)
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [forgotPasswordError, setForgotPasswordError] = useState('')
   const phoneInputRef = useRef(null)
   const branchDropdownRef = useRef(null)
 
@@ -42,7 +45,11 @@ export default function LoginPage() {
   const { mutateAsync: getMyBranches, isPending: branchesLoading } = useUcodeRequestMutation()
   const { mutateAsync: getMyPermissions, isPending: permissionsLoading } = useMutation({
     mutationKey: ['get_my_permissions'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_my_permissions', data, type: 'role' })
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_user_role_permissions', data, type: 'role' })
+  })
+  const { mutateAsync: forgotPasswordMutation, isPending: isForgotPasswordLoading } = useMutation({
+    mutationKey: ['auth_forgot_password'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data })
   })
 
 
@@ -68,6 +75,7 @@ export default function LoginPage() {
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_login', data }),
     onSuccess: async (data) => {
       const responseData = data?.data?.data
+      let permissions = 0
 
       const tokenData = responseData?.token?.access_token
       const refreshToken = responseData?.token?.refresh_token
@@ -96,26 +104,39 @@ export default function LoginPage() {
 
 
       const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
 
       if (branches.length > 0) {
         authStore.setBranches(branches)
-        authStore.setBranchId(branches[0]?.guid)
+        authStore.setBranchId(branch?.guid || branches[0]?.guid)
+      }
 
-        if (responseData?.role?.id) {
-          const permissions = await getMyPermissions({
-            branches_id: branches[0]?.guid,
-            role_id: responseData?.role?.id
-          })
-          appStore.setPlanfactPermission(permissions)
-        } else if (branches[0]?.is_employee && (responseData?.role?.name === 'employees' || responseData?.role === 'employees')) {
-          appStore.setEmployerPermission()
+      if (responseData?.role?.name !== 'plan_fakt_admins') {
+        permissions = await getMyPermissions({
+          branches_id: branch?.guid || branches[0]?.guid,
+          role_id: responseData?.role?.id
+        })
+      } else {
+        appStore.setEmployerPermission()
+        console.log('for finance')
+      }
+
+
+      if (responseData?.role?.name === 'employees') {
+        if (permissions?.data?.message === 'error') {
+          appStore.setPlanfactPermission()
+        } else if (permissions?.data?.data?.role_permissions) {
+          console.log('change permissions', permissions?.data?.data?.role_permissions)
+          appStore.setNewPermission(permissions?.data?.data?.role_permissions)
         } else {
           appStore.setPlanfactPermission()
         }
+      } else if (responseData?.role?.name === 'plan_fakt_admins') {
+        appStore.setEmployerPermission()
       }
 
       authStore.selectBranch = branches[0]
-      router.push('/pages/operations')
+      router.push('/pages/operations') // 7445
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при входе'
@@ -133,7 +154,7 @@ export default function LoginPage() {
       const userData = responseData?.user_data || responseData?.userData || responseData?.user
 
       if (responseData?.role === "plan_fakt_admins") {
-        appStore.setPlanfactPermission()
+        appStore.setEmployerPermission()
       }
 
       if (tokenData && userData) {
@@ -496,6 +517,18 @@ export default function LoginPage() {
               )}
             </div>}
 
+            {/* Forgot Password Link */}
+            {fromType === 'login' && (
+              <div className="text-right mb-2">
+                <span
+                  onClick={() => setIsForgotPasswordOpen(true)}
+                  className="text-sm text-[#0E73F6] hover:text-[#0b5fd4] cursor-pointer"
+                >
+                  Забыли пароль?
+                </span>
+              </div>
+            )}
+
             {/* Checkbox (Only on register) */}
             {fromType === 'register' && (
               <div className={styles.checkboxGroup}>
@@ -559,6 +592,69 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {isForgotPasswordOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h2 className="text-xl font-semibold mb-4 text-neutral-800">Восстановление пароля</h2>
+            <p className="text-sm text-neutral-600 mb-4">
+              Введите email, указанный при регистрации. Мы отправим вам инструкции по восстановлению пароля.
+            </p>
+            <div className="mb-4">
+              <Input
+                type="email"
+                value={forgotPasswordEmail}
+                onChange={(e) => {
+                  setForgotPasswordEmail(e.target.value)
+                  setForgotPasswordError('')
+                }}
+                placeholder="Email"
+                hasError={forgotPasswordError}
+                className="h-10! p-4!"
+              />
+              {forgotPasswordError && (
+                <div className="text-red-500 text-sm mt-1">{forgotPasswordError}</div>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsForgotPasswordOpen(false)
+                  setForgotPasswordEmail('')
+                  setForgotPasswordError('')
+                }}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={async () => {
+                  if (!forgotPasswordEmail) {
+                    setForgotPasswordError('Введите email')
+                    return
+                  }
+                  try {
+                    await forgotPasswordMutation({
+                      email: forgotPasswordEmail
+                    })
+                    showSuccessNotification('Инструкции по восстановлению пароля отправлены на ваш email')
+                    setIsForgotPasswordOpen(false)
+                    setForgotPasswordEmail('')
+                    setForgotPasswordError('')
+                  } catch (error) {
+                    showErrorNotification(error?.message || 'Ошибка при отправке запроса')
+                  }
+                }}
+                disabled={isForgotPasswordLoading}
+                className="flex-1 px-4 py-2 bg-[#0E73F6] text-white rounded-md hover:bg-[#0b5fd4] transition-colors disabled:opacity-50"
+              >
+                {isForgotPasswordLoading ? <Loader size={16} /> : 'Отправить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

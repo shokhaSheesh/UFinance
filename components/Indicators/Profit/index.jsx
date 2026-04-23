@@ -1,21 +1,89 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { indicators } from '../../../store/indicatos.store'
+import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-// Static Mock Data based on the provided image
-const months = ['янв', 'фев', 'мар', 'апр', 'апр\n(план)', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const incomeData = [20000, 25000, 22000, 30000, 50000, 35000, 38000, 42000, 40000, 45000, 48000, 52000, 55000]
-const expenseData = [15000, 18000, 16000, 20000, 5000, 25000, 26000, 28000, 27000, 30000, 32000, 35000, 38000]
-const netProfitData = incomeData.map((val, idx) => val - expenseData[idx])
-const dividendData = [0, 0, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 10000]
 
-const Profit = () => {
+const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
+
+const Profit = observer(() => {
   const chartRef = useRef(null);
   const [zoomRange, setZoomRange] = useState([0, 50]); // [start, end] percentage
+
+  const filterData = {
+    periodStartDate: moment(indicators.rangeMonth.start).format('YYYY-MM-DD'),
+    periodEndDate: moment(indicators.rangeMonth.end).format('YYYY-MM-DD'),
+    periodType: indicators.periodType,
+    userCurrencyCode: GlobalCurrency.code,
+    accounting_method: indicators.accounting,
+    isEbitda: false,
+    isEbit: false,
+    isEbt: false,
+    limit: 100,
+    page: 1,
+  }
+
+  const { data: profitAndLossDataList, isLoading: profitAndLossLoading } = useQuery({
+    queryKey: ["profit_and_loss", filterData],
+    queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
+    select: (res) => res?.data?.data,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
+  })
+
+  const { months, incomeData, expenseData, netProfitData, dividendData } = useMemo(() => {
+    const legend = profitAndLossDataList?.legend || []
+    const rows = profitAndLossDataList?.rows || []
+
+    const keys = legend.map((l) => l?.key).filter(Boolean)
+    const titles = legend.map((l) => l?.title || l?.key || '')
+
+    const revenueRow = findRowById(rows, 'revenue')
+    const expensesRow = findRowById(rows, 'expenses')
+    const netProfitRow = findRowById(rows, 'net-profit')
+    const dividendsRow = findRowById(rows, 'dividends')
+
+    const readValues = (row) => {
+      const src = row?.values || row?.months || {}
+      return keys.map((k) => Number(src?.[k] ?? 0))
+    }
+
+    return {
+      months: titles,
+      incomeData: readValues(revenueRow),
+      expenseData: readValues(expensesRow),
+      netProfitData: readValues(netProfitRow),
+      dividendData: readValues(dividendsRow),
+    }
+  }, [profitAndLossDataList])
+
+  const stats = useMemo(() => {
+    const revenueTotal = incomeData.reduce((a, b) => a + b, 0)
+    const expenseTotal = expenseData.reduce((a, b) => a + b, 0)
+    const netProfitTotal = profitAndLossDataList?.netProfit ?? (revenueTotal - expenseTotal)
+    const dividendTotal = dividendData.reduce((a, b) => a + b, 0)
+    const margin = revenueTotal ? (netProfitTotal / revenueTotal) * 100 : 0
+
+    return [
+      { label: 'Доходы', value: formatNumber(formatTotalSumma(revenueTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Рентабельность, %', value: `${formatNumber(margin)}%`, plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+    ]
+  }, [incomeData, expenseData, dividendData, profitAndLossDataList])
 
   const options = useMemo(() => ({
     tooltip: {
@@ -34,7 +102,7 @@ const Profit = () => {
                       <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${item.value.toLocaleString('ru-RU')} $</div>
+                    <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
                   </div>`
         })
         return res
@@ -71,15 +139,20 @@ const Profit = () => {
     },
     yAxis: {
       type: 'value',
-      max: 60000,
-      interval: 10000,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#f3f4f6' } },
       axisLabel: {
         color: '#9ca3af',
         fontSize: 11,
-        formatter: (value) => value === 0 ? '0' : `${value / 1000} тыс`
+        formatter: (value) => {
+          if (value === 0) return '0'
+          const abs = Math.abs(value)
+          if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
+          if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
+          if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+          return `${value}`
+        }
       }
     },
     series: [
@@ -90,16 +163,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#38bdf8' // Cyan-blue
-        },
-        // Special highlighting for "Apr (plan)"
-        markArea: {
-          data: [[{
-            xAxis: 'апр\n(план)',
-            itemStyle: { color: 'rgba(56, 189, 248, 0.1)' }
-          }, {
-            xAxis: 'апр\n(план)'
-          }]]
+          color: '#38bdf8'
         }
       },
       {
@@ -109,7 +173,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#fbab7e' // Orange
+          color: '#fbab7e'
         }
       },
       {
@@ -133,15 +197,8 @@ const Profit = () => {
         itemStyle: { color: '#920DF8', borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange])
+  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData])
 
-  const stats = [
-    { label: 'Доходы', value: '100', plan: '50 793', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Расходы', value: '40', plan: '180', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Чистая прибыль', value: '60', plan: '50 613', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Рентабельность, %', value: '60%', plan: '99.65%', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Дивиденды', value: '0', plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-  ]
 
   return (
     <div className="w-full bg-white p-6">
@@ -162,7 +219,17 @@ const Profit = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto">
+      <div className="flex flex-col lg:flex-row gap-6 overflow-auto relative">
+        {/* Loading Overlay */}
+        {profitAndLossLoading && (
+          <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
+              <span className="text-sm text-neutral-600">Загрузка...</span>
+            </div>
+          </div>
+        )}
+
         {/* Statistics panel */}
         <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
           {stats.map((stat, idx) => (
@@ -171,10 +238,10 @@ const Profit = () => {
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-[28px] font-bold leading-none mb-1", stat.color)}>
+                <span className={cn("text-base font-bold leading-none mb-1", stat.color)}>
                   {stat.value}
                 </span>
-                <div className="flex items-center gap-1.5 text-[13px]">
+                <div className="flex items-center gap-1.5 text-sm">
                   <span className={cn("font-semibold", stat.planColor)}>{stat.plan}</span>
                   <span className="text-neutral-400">— по плану</span>
                 </div>
@@ -203,6 +270,6 @@ const Profit = () => {
       </div>
     </div>
   )
-}
+})
 
 export default Profit

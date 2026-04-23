@@ -5,10 +5,12 @@ import Input from '@/components/shared/Input'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader, Pencil, Plus, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { appStore } from '../../../../store/app.store'
 
 /* ═══════════════════════════════════════════════════════ */
 /*  RoleModal - Create/Edit                              */
@@ -168,8 +170,9 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
 /*  RolePage                                              */
 /* ═══════════════════════════════════════════════════════ */
 
-export default function RolePage() {
+const RolesPage = observer(() => {
   const router = useRouter()
+  const rolePermissions = appStore.permission?.settings?.users || { read: true, add: true, edit: true, delete: true }
   const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useQuery({
     queryKey: ['get_roles_list'],
     queryFn: () => apiClient.invokeFunction({
@@ -225,16 +228,18 @@ export default function RolePage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
         <h1 className="text-xl font-semibold text-gray-900">Роли</h1>
-        <button
-          onClick={() => {
-            setEditingRole(null)
-            setRoleModalOpen(true)
-          }}
-          className="primary-btn flex items-center gap-1.5"
-        >
-          <Plus size={16} />
-          Добавить
-        </button>
+        {rolePermissions.add && (
+          <button
+            onClick={() => {
+              setEditingRole(null)
+              setRoleModalOpen(true)
+            }}
+            className="primary-btn flex items-center gap-1.5"
+          >
+            <Plus size={16} />
+            Добавить
+          </button>
+        )}
       </div>
 
       {/* Table container — only tbody scrolls */}
@@ -262,7 +267,7 @@ export default function RolePage() {
               <table className="w-full table-fixed">
                 <tbody className="divide-y divide-gray-50 ">
                   {roles.map((role, index) => (
-                    <tr key={role.guid || role.id} onClick={() => router.push(`/pages/settings/role/${role.guid}`)} className="hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <tr key={role.guid || role.id} onClick={() => router.push(`/pages/settings/role/${role.guid}?role_name=${role.name}`)} className="hover:bg-gray-50 transition-colors cursor-pointer group">
                       <td className="px-3 py-2 text-sm text-gray-400 w-12">{index + 1}</td>
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2.5">
@@ -275,23 +280,29 @@ export default function RolePage() {
                     </td>
                       <td className="px-3 py-2 text-sm text-gray-500 w-36">{formatDate(role.created_at)}</td>
                       <td className="px-3 py-2 w-24">
-                      <div
-                        className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
-                          onClick={() => handleEdit(role)}
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                          onClick={() => handleDelete(role)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                        {(rolePermissions.edit || rolePermissions.delete) && (
+                          <div
+                            className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {rolePermissions.edit && (
+                              <button
+                                className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                                onClick={() => handleEdit(role)}
+                              >
+                                <Pencil size={14} />
+                              </button>
+                            )}
+                            {rolePermissions.delete && (
+                              <button
+                                className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                onClick={() => handleDelete(role)}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        )}
                     </td>
                   </tr>
                 ))}
@@ -334,4 +345,6 @@ export default function RolePage() {
       />
     </div>
   )
-}
+})
+
+export default RolesPage

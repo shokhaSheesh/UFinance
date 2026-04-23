@@ -1,11 +1,10 @@
 'use client'
 
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import Input from '@/components/shared/Input'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader } from 'lucide-react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiClient } from '../../../../../lib/api/ucode/base'
@@ -62,10 +61,10 @@ const PERMISSIONS_DATA = [
     menuId: null,
     children: [
       { id: 'general_settings', label: 'Общие настройки', menuId: null },
-      { id: 'users', label: 'Пользователи', menuId: null },
       { id: 'my_profile', label: 'Мой профиль', menuId: null },
-      { id: 'exchange_rates', label: 'Курсы валют', menuId: null },
       { id: 'branches', label: 'Филиалы', menuId: null },
+      { id: 'exchange_rates', label: 'Курсы валют', menuId: null },
+      { id: 'users', label: 'Роли', menuId: null },
     ],
   },
 ]
@@ -73,8 +72,12 @@ const PERMISSIONS_DATA = [
 const CreateRole = () => {
   const router = useRouter()
   const { guid } = useParams()
+  const searchParams = useSearchParams()
+  const roleName = searchParams.get('role_name') || ''
   // Store menu_id mapping from fetched permissions
   const [menuIdMap, setMenuIdMap] = React.useState({})
+  const pathName = usePathname()
+  console.log('param', pathName)
 
   const { data: rolePermission, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ['get_role_permissions', guid],
@@ -103,8 +106,13 @@ const CreateRole = () => {
     rolePermission?.forEach((perm) => {
       const menuSlug = perm.menu_slug
 
-      // Store menu_id for parent
-      menuMap[menuSlug] = perm.menu_id
+      // Store menu_id, guid, menu_slug, menu_name for parent
+      menuMap[menuSlug] = {
+        menu_id: perm.menu_id,
+        guid: perm.guid,
+        menu_slug: perm.menu_slug,
+        menu_name: perm.menu_name
+      }
 
       if (perm.children && perm.children.length > 0) {
         // Parent with children - store parent permissions AND children
@@ -115,7 +123,12 @@ const CreateRole = () => {
           delete: perm.delete || false,
         }
         perm.children.forEach((child) => {
-          menuMap[`${menuSlug}.${child.menu_slug}`] = child.menu_id
+          menuMap[`${menuSlug}.${child.menu_slug}`] = {
+            menu_id: child.menu_id,
+            guid: child.guid,
+            menu_slug: child.menu_slug,
+            menu_name: child.menu_name
+          }
 
           formPermissions[menuSlug][child.menu_slug] = {
             read: child.read || false,
@@ -137,7 +150,6 @@ const CreateRole = () => {
 
     return {
       defaultValues: {
-        roleName: '',
         permissions: formPermissions
       },
       menuIdMap: menuMap
@@ -154,7 +166,6 @@ const CreateRole = () => {
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: defaultValues || {
-      roleName: '',
       permissions: {}
     },
     values: defaultValues
@@ -220,7 +231,7 @@ const CreateRole = () => {
             // Get actual menu_id for child from fetched data
             const childMenuId = menuIdMap[`${parent.id}.${child.id}`] || null
             return {
-              menu_id: childMenuId,
+              ...childMenuId,
               read: childPerm.read || false,
               write: childPerm.add || false,
               update: childPerm.edit || false,
@@ -229,7 +240,7 @@ const CreateRole = () => {
           })
 
           return {
-            menu_id: parentMenuId,
+            ...parentMenuId,
             read: parentPerm?.read || false,
             write: parentPerm?.add || false,
             update: parentPerm?.edit || false,
@@ -239,7 +250,7 @@ const CreateRole = () => {
         } else {
           // Single permission (no children)
           return {
-            menu_id: parentMenuId,
+            ...parentMenuId,
             read: parentPerm?.read || false,
             write: parentPerm?.add || false,
             update: parentPerm?.edit || false,
@@ -251,8 +262,7 @@ const CreateRole = () => {
     }
 
     const payload = {
-      role_id: guid,
-      role_name: data.roleName,
+      role_id: guid, 
       role_permissions: buildPermissionsPayload(data.permissions),
     }
 
@@ -327,19 +337,9 @@ const CreateRole = () => {
       className=" bg-white w-full h-full flex flex-col overflow-auto"
     >
       {/* Header Section */}
-      <h1 className="text-[18px] p-4 font-semibold text-[#1a1a1a] m-0 sticky top-0 z-10 bg-white">Добавить новую должность</h1>
-      <div className="flex items-center gap-5 mb-[30px] p-4">
-        <h1 className="text-sm  text-[#1a1a1a] m-0">Должности</h1>
-        <div className="w-[320px]">
-          <Input
-            placeholder="Введите название"
-            hasError={!!errors.roleName}
-            {...register('roleName', { required: true })}
-          />
-          {errors.roleName && <span className="text-xs text-red-500">Это поле обязательно</span>}
-        </div>
-      </div>
-
+      <h1 className="text-[18px] p-4 font-semibold text-[#1a1a1a] m-0 sticky top-0 z-10 bg-white">
+        Обновить права доступа {roleName}
+      </h1>
       {/* Permissions Table — Scrollable Table Wrapper */}
       <div className="w-fit rounded-[8px] mx-4 mb-[30px]">
         {isLoadingPermissions && (
@@ -382,10 +382,10 @@ const CreateRole = () => {
             disabled={isUpdating}
           >
             {isUpdating ? (
-              <>
+              <div className='flex items-center gap-2'>
                 <Loader size={14} className="animate-spin" />
                 Сохранение...
-              </>
+              </div>
             ) : (
               'Сохранить'
             )}

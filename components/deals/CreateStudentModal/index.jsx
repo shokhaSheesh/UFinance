@@ -146,6 +146,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
     control,
     getValues,
     setValue,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm({
     mode: 'onSubmit',
@@ -159,7 +160,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const { data: contract } = useQuery({
     queryKey: ['get_contract', authStore.branch_id],
     queryFn: () =>
-      apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true&data=${encodeURIComponent(JSON.stringify({ branch_id: authStore.branch_id }))}` }),
+      apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true` }),
     enabled: !!authStore.branch_id,
     refetchOnMount: true,
     staleTime: 0,
@@ -190,6 +191,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
       handleClose()
+      reset()
     }
   })
 
@@ -323,6 +325,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
   const handleFormSubmit = async (data) => {
     // Helper to wrap value in array or return empty array
     const toArray = (val) => val ? [val] : []
+    reset()
 
     // Generate contract HTML with filled data based on active contract type
 
@@ -604,8 +607,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
     setDeleteGuardianItem(item)
   }
 
-  console.log('defaultValues', defaultValues)
-
 
   return (
     <>
@@ -649,7 +650,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                           control={control}
                           rules={{ required: isEditing ? false : 'Выберите дату договора' }}
                           render={({ field }) => {
-                            console.log('contractDate', field)
                             return <FormDatepicker
                               value={field.value}
                               onChange={field.onChange}
@@ -1186,8 +1186,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid }) =>
                   <button
                     type="submit"
                     form="student-form"
-                    disabled={isSubmitting}
-                    onClick={handleSubmit(handleFormSubmit)}
+                      disabled={isSubmitting}
                     className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                       {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}

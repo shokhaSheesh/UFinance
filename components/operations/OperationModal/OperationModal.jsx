@@ -11,6 +11,7 @@ import AccuralForm from './Forms/Accural'
 import IncomeForm from './Forms/Income'
 import PaymentForm from './Forms/Payment'
 import TransferForm from './Forms/Transfer'
+import SentMessages from './SentMessages'
 
 const OperationModal = observer(({
 	operation,
@@ -92,10 +93,10 @@ const OperationModal = observer(({
 					{/* Tabs */}
 					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
 						{[
-							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add || operationPermissions?.income?.edit },
-							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add || operationPermissions?.payout?.edit },
-							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add || operationPermissions?.transfer?.edit },
-							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add || operationPermissions?.accrual?.edit }
+							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
+							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
+							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
+							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew }
 						].filter(tab => tab.canShow).map(tab => (
 							<button
 								key={tab.id}
@@ -149,6 +150,7 @@ const OperationModal = observer(({
 						)}
 					</div>
 				</div>
+				<SentMessages />
 			</div>
 		</>
 	)
