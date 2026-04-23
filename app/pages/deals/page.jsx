@@ -178,8 +178,7 @@ export default observer(function DealsPage() {
 
   const handleEditClick = (deal, e) => {
     e.stopPropagation()
-    setDealToEdit(deal)
-    setStudentToEdit(deal)
+    setDealToEdit(deal) 
     if (deal?.contract_file) {
       setShowCreateStudentModal(true)
       return
@@ -195,7 +194,7 @@ export default observer(function DealsPage() {
 
   const handleUpdate = (deal, e) => {
     e?.stopPropagation()
-    setStudentToEdit(deal)
+    setDealToEdit(deal)
     setShowCreateStudentModal(true)
     setCanUpdateForms(true)
   }
