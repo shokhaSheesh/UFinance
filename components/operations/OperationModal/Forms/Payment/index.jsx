@@ -385,6 +385,10 @@ const PaymentForm = observer(({
       const res = await createOperation({
         method: isNew ? 'create_operation' : 'update_operation',
         data: payload
+      }, {
+        onSuccess: () => {
+          onClose()
+        }
       })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })

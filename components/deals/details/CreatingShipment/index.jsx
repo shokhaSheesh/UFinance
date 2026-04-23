@@ -223,6 +223,10 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       await createShipment({
         method: isEditing ? "update_shipment_transaction" : "create_shipment_transaction",
         data: payload
+      }, {
+        onSuccess: () => {
+          onClose()
+        }
       })
 
       // Clear fields on success

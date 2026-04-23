@@ -133,6 +133,10 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       const res = await createAccural({
         method: isNew ? 'create_operation' : 'update_operation',
         data: requestData
+      }, {
+        onSuccess: () => {
+          onClose()
+        }
       })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })

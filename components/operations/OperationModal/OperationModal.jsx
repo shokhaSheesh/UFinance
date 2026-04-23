@@ -33,9 +33,9 @@ const OperationModal = observer(({
 	// const comments = useOperationComments({ isNew, operationId: operation?.guid })
 
 	const handleFormSuccess = async (operationId) => {
-		await comments.flushPending(operationId)
-		onSuccess?.()
-		onClose()
+		// await comments.flushPending(operationId)
+		// onSuccess?.()
+		// onClose()
 	}
 
 
