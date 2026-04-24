@@ -287,7 +287,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     const endDate = moment(values.validTo)
 
     // Get years and months difference
-    const totalMonths = endDate.diff(moment(values.contractDate), 'months')
+    const totalMonths = endDate.diff(moment(values.contractDate), 'months') + 1
 
     const monthlyAmount = parseInt(String(values.monthlyPayment ?? '').replace(/\s/g, '') || 0)
 
@@ -307,7 +307,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       studentName: values.studentName || '________________________',
       guardianType: values.guardianType || '________________________',
       monthlyPayment: values.monthlyPayment,
-      yearlyPayment: totalContractPayment, 
+      yearlyPayment: totalContractPayment,
       guardianName: values.guardianName,
       academicYear: values.academicYear || '2025-2026',
       className: values.className || '___',
@@ -315,7 +315,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       studentBirthday: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
       validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
       validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-    } 
+    }
 
     return baseData
   }
