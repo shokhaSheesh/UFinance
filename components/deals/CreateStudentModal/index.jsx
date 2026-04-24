@@ -287,7 +287,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     const endDate = moment(values.validTo)
 
     // Get years and months difference
-    const totalMonths = endDate.diff(moment(values.contractDate), 'months') + 1
+    const totalMonths = endDate.diff(moment(values.validFrom), 'months') + 1
+
 
     const monthlyAmount = parseInt(String(values.monthlyPayment ?? '').replace(/\s/g, '') || 0)
 

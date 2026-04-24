@@ -1,39 +1,103 @@
 "use client"
 
+import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useMemo, useRef, useState } from 'react'
+import useMounted from '../../../hooks/useMounted'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { indicators } from '../../../store/indicatos.store'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-// Mock Data for Step Chart
-const generateDateRange = () => {
-    const dates = []
-    const baseDate = new Date(2026, 0, 1)
-    for (let i = 0; i < 365; i++) {
-        const d = new Date(baseDate)
-        d.setDate(baseDate.getDate() + i)
-        const day = d.getDate().toString().padStart(2, '0')
-        const monthNames = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-        const month = monthNames[d.getMonth()]
-        const year = d.getFullYear().toString().slice(-2)
-        dates.push(`${day} ${month} ${year}`)
-    }
-    return dates
+const formatValue = (val) => {
+    if (!val && val !== 0) return '0'
+    const abs = Math.abs(val)
+    if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} млрд`
+    if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} млн`
+    return val.toLocaleString('ru-RU')
 }
 
-const dates = generateDateRange()
-const balanceData = new Array(365).fill(0).map((_, i) => {
-    if (i < 90) return 0
-    if (i < 100) return 40
-    if (i < 110) return 210
-    return 105
-})
+const MONTH_NAMES = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+
+const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308']
 
 const AccountBalance = () => {
     const chartRef = useRef(null)
-    const [zoomRange, setZoomRange] = useState([20, 60]) // Focused on Apr/May for visual impact
+    const [zoomRange, setZoomRange] = useState([0, 50])
+    const mounted = useMounted()
 
+    const { rangeMonth, deals, accounts } = indicators
 
+    const filterData = {
+        from_date: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
+        to_date: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
+    }
+
+    const { data: accountBalanceList } = useQuery({
+        queryKey: ["get_my_accounts_daily_balances", filterData],
+        queryFn: () => apiClient.invokeFunction({ method: "get_my_accounts_daily_balances", data: filterData }),
+        select: (res) => res?.data?.data?.items,
+        staleTime: 0,
+        cacheTime: 0,
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+    })
+
+    // Build dates array from first account's totalValuesByDays
+    const dates = useMemo(() => {
+        if (!accountBalanceList?.length) return []
+        const days = accountBalanceList[0].totalValuesByDays || []
+        return days.map(d => {
+            const dt = new Date(d.date)
+            const day = dt.getDate().toString().padStart(2, '0')
+            const month = MONTH_NAMES[dt.getMonth()]
+            const year = dt.getFullYear().toString().slice(-2)
+            return `${day} ${month} ${year}`
+        })
+    }, [accountBalanceList])
+
+    // Compute total balance (sum of all accounts per day) and per-account data
+    const { totalBalanceData, accountSeries, legendData } = useMemo(() => {
+        if (!accountBalanceList?.length) {
+            return { totalBalanceData: [], accountSeries: [], legendData: ['Общий остаток'] }
+        }
+
+        const dayCount = accountBalanceList[0].totalValuesByDays?.length || 0
+
+        // Sum all accounts per day for total
+        const total = new Array(dayCount).fill(0)
+        accountBalanceList.forEach(acc => {
+            acc.totalValuesByDays?.forEach((day, i) => {
+                total[i] += day.totalInUserCurrency ?? 0
+            })
+        })
+
+        const series = accountBalanceList.map((acc, idx) => ({
+            name: acc.account.title,
+            type: 'line',
+            step: 'end',
+            data: acc.totalValuesByDays?.map(d => d.totalInUserCurrency ?? 0) || [],
+            symbol: 'circle',
+            symbolSize: 0,
+            showSymbol: false,
+            lineStyle: { width: 1.5, color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length] },
+            itemStyle: { color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length] },
+        }))
+
+        const names = ['Общий остаток', ...accountBalanceList.map(a => a.account.title)]
+
+        return { totalBalanceData: total, accountSeries: series, legendData: names }
+    }, [accountBalanceList])
+
+    // Find today's index
+    const todayIndex = useMemo(() => {
+        if (!accountBalanceList?.length) return -1
+        const today = moment().startOf('day')
+        const days = accountBalanceList[0].totalValuesByDays || []
+        return days.findIndex(d => moment(d.date).isSame(today, 'day'))
+    }, [accountBalanceList])
 
     const options = useMemo(() => ({
         tooltip: {
@@ -46,23 +110,17 @@ const AccountBalance = () => {
                 let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
                 params.forEach(item => {
                     res += `<div class="flex items-center justify-between gap-4 py-0.5">
-                    <div class="flex items-center gap-2 text-gray-500">
-                      <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
-                      ${item.seriesName}
-                    </div>
-                    <div class="font-medium text-slate-900">${item.value.toLocaleString('ru-RU')} $</div>
-                  </div>`
+            <div class="flex items-center gap-2 text-gray-500">
+              <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
+              ${item.seriesName}
+            </div>
+            <div class="font-medium text-slate-900">${formatValue(item.value)}</div>
+          </div>`
                 })
                 return res
             }
         },
-        grid: {
-            left: '2%',
-            right: '2%',
-            bottom: '10%',
-            top: '10%',
-            containLabel: true
-        },
+        grid: { left: '2%', right: '2%', bottom: '10%', top: '10%', containLabel: true },
         legend: {
             bottom: 0,
             left: 'left',
@@ -70,78 +128,72 @@ const AccountBalance = () => {
             itemWidth: 14,
             itemHeight: 14,
             textStyle: { color: '#6b7280', fontSize: 11 },
-            data: ['Общий остаток', 'Xalq bank [765]', 'kapital bank [765]', 'nhgbhfdv [() ]']
+            data: legendData,
         },
-        dataZoom: [{
-            type: 'slider',
-            show: false,
-            start: zoomRange[0],
-            end: zoomRange[1],
-        }],
+        dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
         xAxis: {
             type: 'category',
             data: dates,
             axisLine: { show: false },
             axisTick: { show: false },
-            axisLabel: { color: '#9ca3af', fontSize: 10, interval: 30 }
+            axisLabel: { color: '#9ca3af', fontSize: 10, interval: 30 },
         },
         yAxis: {
             type: 'value',
-            max: 250,
-            interval: 50,
             axisLine: { show: false },
             axisTick: { show: false },
             splitLine: { lineStyle: { color: '#f3f4f6' } },
-            axisLabel: { color: '#9ca3af', fontSize: 10 }
+            axisLabel: { color: '#9ca3af', fontSize: 10, formatter: (v) => v === 0 ? '0' : formatValue(v) },
         },
         series: [
             {
                 name: 'Общий остаток',
                 type: 'line',
                 step: 'end',
-                data: balanceData,
+                data: totalBalanceData,
                 symbol: 'circle',
                 symbolSize: 0,
                 showSymbol: false,
                 lineStyle: { width: 2, color: '#22c55e' },
                 areaStyle: {
                     color: {
-                        type: 'linear',
-                        x: 0, y: 0, x2: 0, y2: 1,
+                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
                         colorStops: [
                             { offset: 0, color: 'rgba(34, 197, 94, 0.2)' },
-                            { offset: 1, color: 'rgba(34, 197, 94, 0.02)' }
-                        ]
-                    }
+                            { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
+                        ],
+                    },
                 },
                 itemStyle: { color: '#22c55e' },
-                markLine: {
-                    symbol: 'none',
-                    data: [{
-                        xAxis: dates[105], // Approx "Сегодня" in this mock setup
-                        lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
-                        label: { show: true, formatter: 'Сегодня', position: 'start', color: '#3b82f6', fontSize: 11, fontWeight: 'bold' }
-                    }]
-                },
-                markPoint: {
-                    data: [{
-                        xAxis: dates[105],
-                        yAxis: balanceData[105],
-                        symbol: 'circle',
-                        symbolSize: 8,
-                        itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2 }
-                    }],
-                    label: { show: false }
-                }
+                ...(todayIndex >= 0 ? {
+                    markLine: {
+                        symbol: 'none',
+                        data: [{
+                            xAxis: dates[todayIndex],
+                            lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
+                            label: { show: true, formatter: 'Сегодня', position: 'start', color: '#3b82f6', fontSize: 11, fontWeight: 'bold' },
+                        }],
+                    },
+                    markPoint: {
+                        data: [{
+                            xAxis: dates[todayIndex],
+                            yAxis: totalBalanceData[todayIndex],
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2 },
+                        }],
+                        label: { show: false },
+                    },
+                } : {}),
             },
-            { name: 'Xalq bank [765]', type: 'line', data: [] },
-            { name: 'kapital bank [765]', type: 'line', data: [] },
-            { name: 'nhgbhfdv [() ]', type: 'line', data: [] }
-        ]
-    }), [zoomRange])
+            ...accountSeries,
+        ],
+    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex])
+
+    // if (!mounted) return null
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg mt-6 ">
+        <div className="w-full bg-white p-6 rounded-lg mt-6">
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                     <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, $</h2>
@@ -153,10 +205,7 @@ const AccountBalance = () => {
 
             <div className="space-y-4">
                 <div className="px-2">
-                    <CustomMonthSlider 
-                        value={zoomRange} 
-                        onChange={setZoomRange}
-                    />
+                    <CustomMonthSlider value={zoomRange} onChange={setZoomRange} />
                 </div>
                 <div className="h-[400px] w-full">
                     <ReactECharts
@@ -171,4 +220,4 @@ const AccountBalance = () => {
     )
 }
 
-export default AccountBalance
+export default observer(AccountBalance)
