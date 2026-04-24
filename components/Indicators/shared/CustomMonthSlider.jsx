@@ -66,7 +66,7 @@ const CustomMonthSlider = ({ value, onChange }) => {
   return (
     <div
       ref={trackRef}
-      className="relative w-full h-3 bg-gray-ucode-25 border border-neutral-200 rounded-full cursor-pointer select-none group"
+      className="relative w-full overflow-visible! h-3 bg-gray-ucode-25 border border-neutral-200 rounded-full cursor-pointer select-none group"
       onPointerDown={handleTrackDown}
     >
       {/* Track highlighted portion */}
@@ -76,7 +76,7 @@ const CustomMonthSlider = ({ value, onChange }) => {
       />
       {/* Left Thumb */}
       <div
-        className="absolute top-1/2 -translate-y-1/2 -ml-[12px] w-8 h-8  rounded-full shadow-sm flex items-center justify-center cursor-grab transition-shadow hover:shadow-lg z-20 text-white"
+        className="absolute top-1/2 overflow-visible! -translate-y-1/2 -ml-[12px] w-8 h-8  rounded-full shadow-sm flex items-center justify-center cursor-grab transition-shadow hover:shadow-lg z-20 text-white"
         style={{ left: `${value[0]}%`, backgroundColor: '#B4B4B4' }}
         onPointerDown={(e) => handleThumbDown(e, 'start')}
       >
@@ -84,7 +84,7 @@ const CustomMonthSlider = ({ value, onChange }) => {
       </div>
       {/* Right Thumb */}
       <div
-        className="absolute top-1/2 -translate-y-1/2 -ml-[12px] w-8 h-8  rounded-full shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing transition-shadow hover:shadow-lg z-20 text-white"
+        className="absolute top-1/2 overflow-visible! -translate-y-1/2 -ml-[12px] w-8 h-8  rounded-full shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing transition-shadow hover:shadow-lg z-20 text-white"
         style={{ left: `${value[1]}%`, backgroundColor: '#B4B4B4' }}
         onPointerDown={(e) => handleThumbDown(e, 'end')}
       >

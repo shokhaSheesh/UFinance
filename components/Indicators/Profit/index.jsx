@@ -8,6 +8,7 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
@@ -16,16 +17,18 @@ import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
-const Profit = observer(() => {
+const Profit = () => {
   const chartRef = useRef(null);
+  const mounted = useMounted()
   const [zoomRange, setZoomRange] = useState([0, 50]); // [start, end] percentage
+  const indicatorsStore = indicators
 
   const filterData = {
-    periodStartDate: moment(indicators.rangeMonth.start).format('YYYY-MM-DD'),
-    periodEndDate: moment(indicators.rangeMonth.end).format('YYYY-MM-DD'),
-    periodType: indicators.periodType,
+    periodStartDate: moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD'),
+    periodEndDate: moment(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD'),
+    periodType: indicatorsStore.periodType,
     userCurrencyCode: GlobalCurrency.code,
-    accounting_method: indicators.accounting,
+    accounting_method: indicatorsStore.method,
     isEbitda: false,
     isEbit: false,
     isEbt: false,
@@ -77,11 +80,11 @@ const Profit = observer(() => {
     const margin = revenueTotal ? (netProfitTotal / revenueTotal) * 100 : 0
 
     return [
-      { label: 'Доходы', value: formatNumber(formatTotalSumma(revenueTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Рентабельность, %', value: `${formatNumber(margin)}%`, plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Доходы', value: formatNumber(formatTotalSumma(revenueTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Рентабельность, %', value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
   }, [incomeData, expenseData, dividendData, profitAndLossDataList])
 
@@ -199,6 +202,7 @@ const Profit = observer(() => {
     ]
   }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData])
 
+  if (!mounted) return null
 
   return (
     <div className="w-full bg-white p-6">
@@ -210,10 +214,10 @@ const Profit = observer(() => {
           </div>
         </div>
         <div className="flex bg-[#f3f4f624] border border-neutral-200 rounded-md p-[3px]">
-          <button className="px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-slate-900 rounded transition-colors whitespace-nowrap">
+          <button onClick={() => indicatorsStore.setState('accrual')} className="px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-slate-900 rounded transition-colors whitespace-nowrap">
             Метод начисления
           </button>
-          <button className="px-4 py-1.5 text-sm font-medium bg-white text-[#38bdf8] shadow-sm border border-neutral-200 rounded transition-colors whitespace-nowrap">
+          <button onClick={() => indicatorsStore.setState('cash')} className="px-4 py-1.5 text-sm font-medium bg-white text-[#38bdf8] shadow-sm border border-neutral-200 rounded transition-colors whitespace-nowrap">
             Кассовый метод
           </button>
         </div>
@@ -238,21 +242,17 @@ const Profit = observer(() => {
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-base font-bold leading-none mb-1", stat.color)}>
-                  {stat.value}
+                <span className={cn("text-base font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
+                  {stat.value} {stat.symbol}
                 </span>
-                <div className="flex items-center gap-1.5 text-sm">
-                  <span className={cn("font-semibold", stat.planColor)}>{stat.plan}</span>
-                  <span className="text-neutral-400">— по плану</span>
-                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Chart container */}
-        <div className="flex-1">
-          <div className="mb-4 pt-4 px-2">
+        <div className="flex-1 overflow-visible!">
+          <div className="mb-4 pt-4 px-2 overflow-visible!">
             <CustomMonthSlider
               value={zoomRange}
               onChange={setZoomRange}
@@ -270,6 +270,6 @@ const Profit = observer(() => {
       </div>
     </div>
   )
-})
+}
 
-export default Profit
+export default observer(Profit)

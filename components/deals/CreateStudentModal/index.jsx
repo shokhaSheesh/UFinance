@@ -283,12 +283,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   // Contract data mapper for different contract types
   const getContractDataForType = () => {
     const values = getValues()
-    // Calculate yearly payment: months between dates * monthly payment
-    const startDate = moment(values.contractDate)
+    // Calculate contract duration and total payment
     const endDate = moment(values.validTo)
-    const monthsDiff = endDate.diff(startDate, 'months') + 1
+
+    // Get years and months difference
+    const totalMonths = endDate.diff(moment(values.contractDate), 'months')
+
     const monthlyAmount = parseInt(String(values.monthlyPayment ?? '').replace(/\s/g, '') || 0)
-    const yearlyPayment = (monthsDiff * monthlyAmount).toLocaleString('ru-RU')
+
+    // totalContractPayment = total months * monthly amount
+    const totalContractPayment = (totalMonths * monthlyAmount).toLocaleString('ru-RU')
+
     const baseData = {
       contractNumber: values.contractNumber || '___',
       contractDate: moment(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
@@ -302,7 +307,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       studentName: values.studentName || '________________________',
       guardianType: values.guardianType || '________________________',
       monthlyPayment: values.monthlyPayment,
-      yearlyPayment,
+      yearlyPayment: totalContractPayment, 
       guardianName: values.guardianName,
       academicYear: values.academicYear || '2025-2026',
       className: values.className || '___',
@@ -310,7 +315,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       studentBirthday: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
       validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
       validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
-    }
+    } 
 
     return baseData
   }

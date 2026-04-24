@@ -33,6 +33,8 @@ const AccountBalance = () => {
     const chartRef = useRef(null)
     const [zoomRange, setZoomRange] = useState([20, 60]) // Focused on Apr/May for visual impact
 
+
+
     const options = useMemo(() => ({
         tooltip: {
             trigger: 'axis',

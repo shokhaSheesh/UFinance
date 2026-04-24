@@ -10,6 +10,7 @@ import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
+import { formatNumber } from '../../../utils/helpers'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const formatValue = (val) => {
@@ -20,46 +21,88 @@ const formatValue = (val) => {
   return abs.toLocaleString('ru-RU')
 }
 
+// Constants outside component — never recreated
+const TABS = ['Общий', 'Операционный', 'Инвестиционный', 'Финансовый']
+
+const TAB_TO_POTOK = {
+  'Общий': ['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'],
+  'Операционный': ['Операционный поток'],
+  'Инвестиционный': ['Инвестиционный поток'],
+  'Финансовый': ['Финансовый поток'],
+}
+
 const CashFlow = () => {
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 50])
   const [activeTab, setActiveTab] = useState('Общий')
 
-  const tabs = ['Общий', 'Операционный', 'Инвестиционный', 'Финансовый']
-
   const { rangeMonth, periodType, deals, accounts } = indicators
-
 
   const filterData = {
     periodStartDate: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
     periodEndDate: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
     periodType: periodType,
-    currencyCode: GlobalCurrency.code, // Defaulting to RUB as seen in page
-    sellingDealId: deals, // these are same values
+    currencyCode: GlobalCurrency.code,
+    sellingDealId: deals,
     contrAgentId: accounts,
   }
 
-
-  const { data: cashFlowDataList, isLoading: isLoadingCashFlow, } = useQuery({
+  const { data: cashFlowDataList, isLoading: isLoadingCashFlow } = useQuery({
     queryKey: ["cash_flow", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,
-    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
-    refetchOnMount: true,          // page ga qaytganda ON ✅
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   })
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.title), [legend])
   const monthKeys = useMemo(() => legend.map(l => l.key), [legend])
+  const rows = useMemo(() => cashFlowDataList?.rows || [], [cashFlowDataList])
 
-  const receiptsRow = useMemo(() => cashFlowDataList?.rows?.find(r => r.name === 'Поступления'), [cashFlowDataList])
-  const paymentsRow = useMemo(() => cashFlowDataList?.rows?.find(r => r.name === 'Выплаты'), [cashFlowDataList])
+  // ✅ Core fix: extract Поступления/Выплаты from INSIDE each поток
+  const { receiptsData, paymentsData, receiptTotal, paymentTotal } = useMemo(() => {
+    const potokNames = TAB_TO_POTOK[activeTab] || []
 
-  const receiptsData = useMemo(() => monthKeys.map(key => receiptsRow?.values?.[key] ?? 0), [monthKeys, receiptsRow])
-  const paymentsData = useMemo(() => monthKeys.map(key => Math.abs(paymentsRow?.values?.[key] ?? 0)), [monthKeys, paymentsRow])
-  const differenceData = useMemo(() => receiptsData.map((val, idx) => val - paymentsData[idx]), [receiptsData, paymentsData])
+    // Find the relevant поток rows (level 0)
+    const potoks = rows.filter(r => potokNames.includes(r.name))
+
+    // Collect all Поступления children across selected потоки
+    const allReceipts = potoks.flatMap(p =>
+      p.details?.filter(d => d.name === 'Поступления') || []
+    )
+
+    // Collect all Выплаты children across selected потоки
+    const allPayments = potoks.flatMap(p =>
+      p.details?.filter(d => d.name === 'Выплаты') || []
+    )
+
+    // Sum month by month
+    const receipts = monthKeys.map(key =>
+      allReceipts.reduce((sum, r) => sum + (r.values?.[key] ?? 0), 0)
+    )
+
+    const payments = monthKeys.map(key =>
+      allPayments.reduce((sum, p) => sum + Math.abs(p.values?.[key] ?? 0), 0)
+    )
+
+    const rTotal = allReceipts.reduce((sum, r) => sum + (r.totalValue ?? 0), 0)
+    const pTotal = allPayments.reduce((sum, p) => sum + Math.abs(p.totalValue ?? 0), 0)
+
+    return {
+      receiptsData: receipts,
+      paymentsData: payments,
+      receiptTotal: rTotal,
+      paymentTotal: pTotal,
+    }
+  }, [activeTab, monthKeys, rows])
+
+  const differenceData = useMemo(() =>
+    receiptsData.map((val, idx) => val - paymentsData[idx]),
+    [receiptsData, paymentsData]
+  )
 
   const yAxisMax = useMemo(() => {
     const allVals = [...receiptsData, ...paymentsData, ...differenceData.map(Math.abs)]
@@ -92,13 +135,7 @@ const CashFlow = () => {
         return res
       }
     },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '15%',
-      containLabel: true
-    },
+    grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
     legend: {
       bottom: 0,
       left: 'center',
@@ -108,12 +145,7 @@ const CashFlow = () => {
       textStyle: { color: '#6b7280', fontSize: 12 },
       data: ['Поступления', 'Выплаты', 'Разница']
     },
-    dataZoom: [{
-      type: 'slider',
-      show: false,
-      start: zoomRange[0],
-      end: zoomRange[1],
-    }],
+    dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
     xAxis: {
       type: 'category',
       data: months,
@@ -139,20 +171,14 @@ const CashFlow = () => {
         type: 'bar',
         data: receiptsData,
         barWidth: 20,
-        itemStyle: {
-          borderRadius: [4, 4, 0, 0],
-          color: '#3b82f6'
-        },
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#3b82f6' },
       },
       {
         name: 'Выплаты',
         type: 'bar',
         data: paymentsData,
         barWidth: 20,
-        itemStyle: {
-          borderRadius: [4, 4, 0, 0],
-          color: '#fb923c'
-        }
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#fb923c' },
       },
       {
         name: 'Разница',
@@ -162,18 +188,17 @@ const CashFlow = () => {
         showSymbol: true,
         symbolSize: 8,
         lineStyle: { width: 3, color: '#10b981', type: 'dashed' },
-        itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' }
+        itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' },
       }
     ]
   }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax])
 
-  const receiptTotal = receiptsRow?.totalValue ?? 0
-  const paymentTotal = Math.abs(paymentsRow?.totalValue ?? 0)
   const stats = [
-    { label: 'Поступления', value: formatValue(receiptTotal), color: 'text-slate-900' },
-    { label: 'Выплаты', value: formatValue(paymentTotal), color: 'text-slate-900' },
-    { label: 'Разница', value: formatValue(receiptTotal - paymentTotal), color: 'text-slate-900' },
+    { label: 'Поступления', value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
+    { label: 'Выплаты', value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
+    { label: 'Разница', value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
   ]
+
 
   return (
     <div className="w-full bg-white p-6 mt-6">
@@ -185,7 +210,7 @@ const CashFlow = () => {
           </div>
         </div>
         <div className="flex flex-wrap bg-[#f3f4f624] border border-neutral-200 rounded-md p-1">
-          {tabs.map(tab => (
+          {TABS.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -203,7 +228,6 @@ const CashFlow = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Statistics panel */}
         <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
           {stats.map((stat, idx) => (
             <div key={idx} className="flex items-center justify-between group">
@@ -211,21 +235,17 @@ const CashFlow = () => {
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-[28px] font-bold leading-none", stat.color)}>
-                  {stat.value}
+                <span className={cn("text-base font-medium leading-none", stat.color)}>
+                  {stat.value} {stat.symbol}
                 </span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Chart container */}
-        <div className="flex-1 ">
+        <div className="flex-1">
           <div className="mb-4 pt-4 px-2">
-            <CustomMonthSlider
-              value={zoomRange}
-              onChange={setZoomRange}
-            />
+            <CustomMonthSlider value={zoomRange} onChange={setZoomRange} />
           </div>
           <div className="h-[450px] w-full">
             <ReactECharts

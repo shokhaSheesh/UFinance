@@ -14,6 +14,12 @@ class Indicators {
   accounts = []
   rangeMonth = defaultDateRange
 
+  // Profit filters
+  method = 'cash' // 'accrual'
+
+  // profitable clients
+  profitableclientsMethod = 'accural'
+
   constructor() {
     makeAutoObservable(this)
 

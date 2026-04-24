@@ -4,6 +4,7 @@ import Expenses from '../../../components/Indicators/Expenses'
 import IndicatorsNavbar from '../../../components/Indicators/Header'
 import Income from '../../../components/Indicators/Income'
 import Profit from '../../../components/Indicators/Profit'
+import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 const IndicatorsPage = () => {
   return (
@@ -17,6 +18,7 @@ const IndicatorsPage = () => {
         <AccountBalance />
         <Income />
         <Expenses />
+        <ProfitableClients />
       </div>
     </div>
   )

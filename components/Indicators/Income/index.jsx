@@ -1,17 +1,78 @@
 "use client"
 
+import { cn } from '@/app/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { indicators } from '../../../store/indicatos.store'
+import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-// Mock Data for Income
-const months = ['янв', 'фев', 'мар', 'апр\n(факт)', 'апр\n(план)', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const monthlyIncome = [0, 0, 0, 1000, 50000, 0, 0, 0, 0, 0, 0, 0, 0]
+const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
-const Income = () => {
+const Income = observer(() => {
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 100])
+
+  const filterData = {
+    periodStartDate: moment(indicators.rangeMonth.start).format('YYYY-MM-DD'),
+    periodEndDate: moment(indicators.rangeMonth.end).format('YYYY-MM-DD'),
+    periodType: indicators.periodType,
+    userCurrencyCode: GlobalCurrency.code,
+    accounting_method: indicators.accounting,
+    isEbitda: false,
+    isEbit: false,
+    isEbt: false,
+    limit: 100,
+    page: 1,
+  }
+
+  const { data: profitAndLossDataList, isLoading: profitAndLossLoading } = useQuery({
+    queryKey: ['profit_and_loss_income', filterData],
+    queryFn: () => apiClient.invokeFunction({ method: 'profit_and_loss', data: filterData }),
+    select: (res) => res?.data?.data,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+  })
+
+  const { months, incomeData, expenseData } = useMemo(() => {
+    const legend = profitAndLossDataList?.legend || []
+    const rows = profitAndLossDataList?.rows || []
+
+    const keys = legend.map((l) => l?.key).filter(Boolean)
+    const titles = legend.map((l) => l?.title || l?.key || '')
+
+    const revenueRow = findRowById(rows, 'revenue')
+    const expensesRow = findRowById(rows, 'expenses')
+
+    const readValues = (row) => {
+      const src = row?.values || row?.months || {}
+      return keys.map((k) => Number(src?.[k] ?? 0))
+    }
+
+    return {
+      months: titles,
+      incomeData: readValues(revenueRow),
+      expenseData: readValues(expensesRow),
+    }
+  }, [profitAndLossDataList])
+
+  const stats = useMemo(() => {
+    const revenueTotal = incomeData.reduce((a, b) => a + b, 0)
+    const expenseTotal = expenseData.reduce((a, b) => a + b, 0)
+
+    return {
+      income: { label: 'Доходы', value: formatNumber(formatTotalSumma(revenueTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      expense: { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+    }
+  }, [incomeData, expenseData])
 
   const donutOption = useMemo(() => ({
     tooltip: {
@@ -47,7 +108,7 @@ const Income = () => {
           show: false
         },
         data: [
-          { value: 250, name: 'Нераспределенный д', itemStyle: { color: '#3b82f6', z: 10000 }, }
+          { value: Number(stats.income.value.replace(/\s/g, '')) || 250, name: 'Доходы', itemStyle: { color: '#3b82f6', z: 10000 } }
         ],
 
       }
@@ -57,15 +118,15 @@ const Income = () => {
       left: 'center',
       top: 'center',
       style: {
-        text: 'Доходы:\n250',
+        text: `Доходы:\n${stats.income.value}`,
         textAlign: 'center',
         fill: '#111827',
-        fontSize: 28,
+        fontSize: 18,
         fontWeight: 'bold',
         lineHeight: 34
       }
     }]
-  }), [])
+  }), [stats])
 
   const barOption = useMemo(() => ({
     tooltip: {
@@ -75,14 +136,14 @@ const Income = () => {
       borderWidth: 1,
       textStyle: { color: '#111827', fontSize: 12 },
       formatter: (params) => {
-        let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name.replace('\n', ' ')}</div>`
+        let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
         params.forEach(item => {
           res += `<div class="flex items-center justify-between gap-4 py-0.5">
                     <div class="flex items-center gap-2 text-gray-500">
-                      <span class="w-2 h-2 rounded-full" style="background-color: ${item.color.color || item.color}"></span>
+                      <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${item.value.toLocaleString('ru-RU')} $</div>
+                    <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
                   </div>`
         })
         return res
@@ -109,55 +170,41 @@ const Income = () => {
       axisLabel: {
         color: '#111827',
         fontSize: 12,
-        interval: (index, value) => {
-          // Show jan, mar, apr (plan), jun, aug, oct, dec
-          const shownMonths = ['янв', 'мар', 'апр\n(план)', 'июн', 'авг', 'окт', 'дек']
-          return shownMonths.includes(value)
-        }
+        interval: 0
       }
     },
     yAxis: {
       type: 'value',
-      max: 60000,
-      interval: 10000,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#f3f4f6' } },
       axisLabel: {
         color: '#111827',
         fontSize: 12,
-        formatter: (value) => value === 0 ? '0' : `${value / 1000} тыс`
+        formatter: (value) => {
+          if (value === 0) return '0'
+          const abs = Math.abs(value)
+          if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
+          if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
+          if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+          return `${value}`
+        }
       }
     },
     series: [
       {
         name: 'Доходы',
         type: 'bar',
-        data: monthlyIncome.map((val, idx) => {
-          if (months[idx].includes('план')) {
-            return {
-              value: val,
-              itemStyle: {
-                color: 'rgba(59, 130, 246, 0.2)',
-                borderColor: '#3b82f6',
-                borderType: 'dashed',
-                borderWidth: 1
-              }
-            }
-          }
-          return {
-            value: val,
-            itemStyle: { color: '#3b82f6' }
-          }
-        }),
+        data: incomeData,
         barWidth: 30,
-        borderRadius: [4, 4, 0, 0]
+        borderRadius: [4, 4, 0, 0],
+        itemStyle: { color: '#3b82f6' }
       }
     ]
-  }), [zoomRange])
+  }), [zoomRange, months, incomeData])
 
   return (
-    <div className="w-full p-6 rounded-lg  mt-6">
+    <div className="w-full p-6 rounded-lg mt-6 relative">
       <div className="flex items-center gap-2 mb-4">
         <h2 className="text-[14px] font-medium text-[#111827]">Доходы, $</h2>
         <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
@@ -165,6 +212,16 @@ const Income = () => {
         </div>
       </div>
       <div className="w-full h-px bg-neutral-100 mb-8" />
+
+      {/* Loading Overlay */}
+      {profitAndLossLoading && (
+        <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
+            <span className="text-sm text-neutral-600">Загрузка...</span>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Donut Pane */}
@@ -179,11 +236,21 @@ const Income = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="size-3 bg-blue-500 rounded-sm"></div>
-                <span className="text-xx text-gray-600">Нераспределенный д</span>
+                <span className="text-xx text-gray-600">{stats.income.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xx font-bold text-gray-900">250</span>
-                <span className="text-xx text-gray-400">(100.00%)</span>
+                <span className={cn("text-xx font-bold", stats.income.color)}>{stats.income.value}</span>
+                <span className="text-xx text-gray-400" suppressHydrationWarning>{GlobalCurrency.name}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="size-3 bg-orange-400 rounded-sm"></div>
+                <span className="text-xx text-gray-600">{stats.expense.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={cn("text-xx font-bold", stats.expense.color)}>{stats.expense.value}</span>
+                <span className="text-xx text-gray-400" suppressHydrationWarning>{GlobalCurrency.name}</span>
               </div>
             </div>
           </div>
@@ -209,6 +276,6 @@ const Income = () => {
       </div>
     </div>
   )
-}
+})
 
 export default Income
