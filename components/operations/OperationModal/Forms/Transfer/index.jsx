@@ -94,7 +94,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const isSameCurrency = useMemo(() => {
 		if (!watchFromAccount || !watchToAccount) return false
 		return watchCurrency1 && watchCurrency2 && watchCurrency1 === watchCurrency2
-	}, [watchFromAccount, watchToAccount, bankAccounts])
+	}, [watchFromAccount, watchToAccount, watchCurrency1, watchCurrency2])
 
 	const onSubmit = async data => {
 		const payload = {
