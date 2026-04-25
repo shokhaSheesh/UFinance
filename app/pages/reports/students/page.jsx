@@ -42,6 +42,7 @@ const Students = observer(() => {
     counterparties_ids: student.selectedCounterParties,
     from_date: rangeMonth?.start,
     to_date: rangeMonth?.end,
+    counterparties_group_id: []
   }
 
   const {

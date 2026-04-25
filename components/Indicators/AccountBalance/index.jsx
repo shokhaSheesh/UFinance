@@ -6,6 +6,7 @@ import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
@@ -102,6 +103,8 @@ const AccountBalance = () => {
         return days.findIndex(d => moment(d.date).isSame(today, 'day'))
     }, [accountBalanceList])
 
+    const inteval = dates?.length > 5000 ? 400 : dates?.length > 1500 ? 300 : dates?.length > 1000 ? 100 : dates?.length > 500 ? 50 : 10
+
     const options = useMemo(() => ({
         tooltip: {
             trigger: 'axis',
@@ -140,8 +143,14 @@ const AccountBalance = () => {
             type: 'category',
             data: dates,
             axisLine: { show: false },
+
             axisTick: { show: false },
-            axisLabel: { color: '#9ca3af', fontSize: 12, interval: 30 },
+            axisLabel: {
+                color: '#9ca3af',
+                fontSize: 12,
+                interval: inteval,
+                rotate: 45,
+            },
         },
         yAxis: {
             type: 'value',
@@ -193,7 +202,7 @@ const AccountBalance = () => {
             },
             ...accountSeries,
         ],
-    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex])
+    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval])
 
     // if (!mounted) return null
 
@@ -210,7 +219,7 @@ const AccountBalance = () => {
             )}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, $</h2>
+                    <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, {GlobalCurrency?.name}</h2>
                     <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
                         <HelpCircle className="size-3 text-neutral-400" />
                     </div>

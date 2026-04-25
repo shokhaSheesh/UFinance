@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import { findByName } from '../Income'
@@ -76,8 +77,8 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             return activeKeys.map((k) => Number(src?.[k] ?? 0))
         }
 
-        const titles = profitAndLossDataList?.legend.map((item) => item.title)
-        const cashTitles = cashFlowLegend?.map((item) => item.title)
+        const titles = profitAndLossDataList?.legend.map((item) => String(item.title)?.replace(/\d/g, ''))
+        const cashTitles = cashFlowLegend?.map((item) => String(item.title)?.replace(/\d/g, ''))
 
         const childrens = method === 'income_expenses'
             ? (profit?.details?.filter(i => i?.total !== 0).map(i => ({ ...i, values: readValues(i) })) || [])
@@ -163,90 +164,95 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
         }]
     }), [stats])
 
+    const inteval = months?.length > 5000 ? 400 : months?.length > 1500 ? 300 : months?.length > 1000 ? 100 : months?.length > 500 ? 50 : 10
 
-    const barOption = useMemo(() => ({
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            borderColor: '#e5e7eb',
-            borderWidth: 1,
-            textStyle: { color: '#111827', fontSize: 12 },
-            formatter: (params) => {
-                let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
-                params.forEach(item => {
-                    res += `<div class="flex items-center justify-between gap-4 py-0.5">
+    const barOption = useMemo(() => {
+        return {
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e5e7eb',
+                borderWidth: 1,
+                textStyle: { color: '#111827', fontSize: 12 },
+                formatter: (params) => {
+                    let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
+                    params.forEach(item => {
+                        res += `<div class="flex items-center justify-between gap-4 py-0.5">
                         <div class="flex items-center gap-2 text-gray-500">
                           <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                           ${item.seriesName}
                         </div>
                         <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
                       </div>`
-                })
-                return res
-            }
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '5%',
-            top: '10%',
-            containLabel: true
-        },
-        dataZoom: [{
-            type: 'slider',
-            show: false,
-            start: zoomRange[0],
-            end: zoomRange[1],
-        }],
-        xAxis: {
-            type: 'category',
-            data: months,
-            axisLine: { show: true, lineStyle: { color: '#e5e7eb' } },
-            axisTick: { show: false },
-            axisLabel: {
-                color: '#111827',
-                fontSize: 12,
-                interval: 0
-            }
-        },
-        yAxis: {
-            type: 'value',
-            axisLine: { show: false },
-            axisTick: { show: false },
-            splitLine: { lineStyle: { color: '#f3f4f6' } },
-            axisLabel: {
-                color: '#111827',
-                fontSize: 12,
-                formatter: (value) => {
-                    if (value === 0) return '0'
-                    const abs = Math.abs(value)
-                    if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
-                    if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
-                    if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
-                    return `${formatTotalSumma(value, 0)}`
+                    })
+                    return res
                 }
-            }
-        },
-        series: stats?.details?.map((child, index) => ({
-            name: child?.label,
-            type: 'bar',
-            stack: 'total',
-            stackStrategy: 'samesign',
-            data: child?.values.map((value) => ({ value: Number(formatTotalSumma(value, 0)?.replace(/\-/, '')) })),
-            barWidth: 30,
-            itemStyle: {
-                color: stats?.details?.[index]?.color || getRandomColor('#D69B42'),
-                borderColor: '#fff',
-                borderWidth: 1
-            }
-        })) || []
-    }), [zoomRange, months, stats])
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '5%',
+                top: '10%',
+                containLabel: true
+            },
+            dataZoom: [{
+                type: 'slider',
+                show: false,
+                start: zoomRange[0],
+                end: zoomRange[1],
+            }],
+            xAxis: {
+                type: 'category',
+                data: months,
+                axisLine: { show: true, lineStyle: { color: '#e5e7eb' } },
+                axisTick: { show: false },
+                axisLabel: {
+                    color: '#111827',
+                    fontSize: 12,
+                    interval: inteval,   // ← stop forcing every label
+                    rotate: 40,         // ← tilt when crowded
+                    hideOverlap: true
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { lineStyle: { color: '#f3f4f6' } },
+                axisLabel: {
+                    color: '#111827',
+                    fontSize: 12,
+                    formatter: (value) => {
+                        if (value === 0) return '0'
+                        const abs = Math.abs(value)
+                        if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
+                        if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
+                        if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+                        return `${formatTotalSumma(value, 0)}`
+                    }
+                }
+            },
+            series: stats?.details?.map((child, index) => ({
+                name: child?.label,
+                type: 'bar',
+                stack: 'total',
+                stackStrategy: 'samesign',
+                data: child?.values.map((value) => ({ value: Number(formatTotalSumma(value, 0)?.replace(/\-/, '')) })),
+                barWidth: 30,
+                itemStyle: {
+                    color: stats?.details?.[index]?.color || getRandomColor('#D69B42'),
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }
+            })) || []
+        }
+    }, [zoomRange, months, stats, inteval])
 
 
     return (
         <div className="w-full bg-white p-6 rounded-lg  mt-6">
             <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-[14px] font-medium text-[#111827]">Расходы, $</h2>
+                <h2 className="text-[14px] font-medium text-[#111827]">Расходы, {GlobalCurrency?.name}</h2>
                 <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
                     <HelpCircle className="size-2.5 text-neutral-400" />
                 </div>

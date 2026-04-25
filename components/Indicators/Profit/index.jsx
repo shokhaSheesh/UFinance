@@ -81,7 +81,7 @@ const Profit = () => {
         expenseTotal: expensesRow?.totalValue,
         dividendsTotal: dividendsRow?.totalValue
       }
-    }, [profitAndLossDataList]) 
+    }, [profitAndLossDataList])
   const stats = useMemo(() => {
     const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)
     const dividendTotal = dividendsTotal
@@ -95,6 +95,7 @@ const Profit = () => {
       { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal])
+  const inteval = months?.length > 50 ? 100 : months?.length > 10 ? 100 : 40
 
   const options = useMemo(() => ({
     tooltip: {
@@ -146,7 +147,7 @@ const Profit = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#9ca3af', fontSize: 11, interval: 0 }
+      axisLabel: { color: '#9ca3af', fontSize: 11, interval: inteval, rotate: 40 }
     },
     yAxis: {
       type: 'value',
@@ -208,7 +209,7 @@ const Profit = () => {
         itemStyle: { color: '#920DF8', borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData])
+  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval])
 
   if (!mounted) return null
 
@@ -227,7 +228,7 @@ const Profit = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 overflow-auto relative">
+      <div className="flex flex-col lg:flex-row gap-6  relative">
         {/* Loading Overlay */}
         {(isLoading || isFetching || isPending) && (
           <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
@@ -239,14 +240,14 @@ const Profit = () => {
         )}
 
         {/* Statistics panel */}
-        <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
+        <div className="w-full lg:w-[420px] shrink-0 space-y-7 pr-4 mt-4">
           {stats.map((stat, idx) => (
             <div key={idx} className="flex items-center justify-between group">
-              <span className="text-sm font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
+              <span className=" text-xs 2xl:text-sm font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
+                <span className={cn(" text-xl xl:text-2xl 2xl:text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
                   {stat.value}
                 </span>
               </div>
@@ -266,7 +267,7 @@ const Profit = () => {
             <ReactECharts
               ref={chartRef}
               option={options}
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: '100%', width: 'fit' }}
               opts={{ renderer: 'svg' }}
             />
           </div>

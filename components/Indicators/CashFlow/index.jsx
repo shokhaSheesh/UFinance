@@ -112,6 +112,9 @@ const CashFlow = () => {
     return Math.ceil(max / magnitude) * magnitude
   }, [receiptsData, paymentsData, differenceData])
 
+
+  const inteval = months?.length > 50 ? 30 : months?.length > 10 ? 15 : 5
+
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
@@ -151,7 +154,7 @@ const CashFlow = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#9ca3af', fontSize: 11, interval: 0 }
+      axisLabel: { color: '#9ca3af', fontSize: 11, interval: inteval, rotate: 40 }
     },
     yAxis: {
       type: 'value',
@@ -191,7 +194,7 @@ const CashFlow = () => {
         itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' },
       }
     ]
-  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax])
+  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval])
 
   const stats = [
     { label: 'Поступления', value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
@@ -212,7 +215,7 @@ const CashFlow = () => {
       )}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">Денежный поток, $</h2>
+          <h2 className="text-[22px] font-bold text-[#111827]">Денежный поток, {GlobalCurrency?.name}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HelpCircle className="size-3 text-neutral-400" />
           </div>

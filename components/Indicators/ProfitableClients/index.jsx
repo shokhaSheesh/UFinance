@@ -63,6 +63,7 @@ const ProfitableClients = observer(() => {
   }, [profitableClientsData])
 
   // option — ikkita alohida series, har biri o'z joyida
+  const inteval = chartData?.names?.length > 100 ? 30 : chartData?.names?.length > 50 ? 10 : chartData?.names?.length > 20 ? 4 : 0
   const option = useMemo(() => {
     if (!chartData) return {}
 
@@ -138,7 +139,7 @@ const ProfitableClients = observer(() => {
       xAxis: {
         type: 'category',
         data: names,
-        axisLabel: { interval: 0, rotate: 30, fontSize: 16, color: '#64748b' },
+        axisLabel: { interval: inteval, rotate: 30, fontSize: 16, color: '#64748b' },
         axisLine: { lineStyle: { color: '#e2e8f0' } },
       },
       yAxis: [
