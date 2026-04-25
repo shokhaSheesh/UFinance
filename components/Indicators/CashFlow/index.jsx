@@ -33,7 +33,7 @@ const TAB_TO_POTOK = {
 
 const CashFlow = () => {
   const chartRef = useRef(null)
-  const [zoomRange, setZoomRange] = useState([0, 50])
+  const [zoomRange, setZoomRange] = useState([0, 100])
   const [activeTab, setActiveTab] = useState('Общий')
 
   const { rangeMonth, periodType, deals, accounts } = indicators
@@ -44,10 +44,10 @@ const CashFlow = () => {
     periodType: periodType,
     currencyCode: GlobalCurrency.code,
     sellingDealId: deals,
-    contrAgentId: accounts,
+    accountId: accounts,
   }
 
-  const { data: cashFlowDataList, isLoading: isLoadingCashFlow } = useQuery({
+  const { data: cashFlowDataList, isLoading, isPending, isFetching } = useQuery({
     queryKey: ["cash_flow", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
     select: (res) => res?.data?.data,
@@ -194,14 +194,22 @@ const CashFlow = () => {
   }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax])
 
   const stats = [
-    { label: 'Поступления', value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
-    { label: 'Выплаты', value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
-    { label: 'Разница', value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name },
+    { label: 'Поступления', value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: 'Выплаты', value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: 'Разница', value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
   ]
 
 
   return (
-    <div className="w-full bg-white p-6 mt-6">
+    <div className="w-full bg-white p-6 mt-6 relative">
+      {(isLoading || isPending || isFetching) && (
+        <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
+            <span className="text-sm text-neutral-600">Загрузка...</span>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8">
         <div className="flex items-center gap-2">
           <h2 className="text-[22px] font-bold text-[#111827]">Денежный поток, $</h2>
@@ -209,17 +217,14 @@ const CashFlow = () => {
             <HelpCircle className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="flex flex-wrap bg-[#f3f4f624] border border-neutral-200 rounded-md p-1">
-          {TABS.map(tab => (
+        <div className="flex flex-wrap bg-[#f3f4f624]  rounded-md p-1">
+          {TABS.map((tab, idx) => (
             <button
               key={tab}
+              type="button"
               onClick={() => setActiveTab(tab)}
-              className={cn(
-                "px-4 py-1.5 text-sm font-medium transition-all rounded whitespace-nowrap",
-                activeTab === tab
-                  ? "bg-white text-[#38bdf8] shadow-sm border border-neutral-200"
-                  : "text-neutral-500 hover:text-slate-900"
-              )}
+              className={`text-neutral-700 border cursor-pointer text-sm p-2 w-32 ${idx === 0 ? 'rounded-l-md' : idx === TABS.length - 1 ? 'rounded-r-md' : ''
+                } ${activeTab === tab ? 'border-primary' : ''}`}
             >
               {tab}
             </button>
@@ -236,7 +241,7 @@ const CashFlow = () => {
               </span>
               <div className="flex flex-col items-end">
                 <span className={cn("text-base font-medium leading-none", stat.color)}>
-                  {stat.value} {stat.symbol}
+                  {stat.value} <span suppressHydrationWarning>{stat.symbol}</span>
                 </span>
               </div>
             </div>

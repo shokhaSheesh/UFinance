@@ -104,9 +104,9 @@ export const getCurrencyIcon = (currency) => {
   return toJS(appStore.currencies.find(c => c.guid === currency))
 }
 
-export const formatTotalSumma = (summa) => {
+export const formatTotalSumma = (summa, fixed = 2) => {
   if (isNaN(summa) || summa == 0) return ''
-  const num = Number(summa).toFixed(2)
+  const num = Number(summa).toFixed(fixed)
   return num.toLocaleString('ru-RU')
 }
 
@@ -187,4 +187,33 @@ export const formatPhoneNumber = (value) => {
   } else {
     return `+998 ${limitedDigits.slice(3, 5)} ${limitedDigits.slice(5, 8)} ${limitedDigits.slice(8, 10)} ${limitedDigits.slice(10)}`
   }
+}
+
+
+export const getMonthPeriods = (startDate, endDate) => {
+  const months = []
+  const start = new Date(startDate + 'T00:00:00')
+  const end = new Date(endDate + 'T00:00:00')
+
+  const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+
+  const current = new Date(start.getFullYear(), start.getMonth(), 1)
+
+  while (current <= end) {
+    const year = current.getFullYear()
+    const month = current.getMonth()
+    const key = `${year}-${String(month + 1).padStart(2, '0')}`
+    const lastDay = new Date(year, month + 1, 0).getDate()
+
+    months.push({
+      key,
+      title: `${monthNames[month]} ${year}`,
+      startDate: `${year}-${String(month + 1).padStart(2, '0')}-01`,
+      endDate: `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+    })
+
+    current.setMonth(current.getMonth() + 1)
+  }
+
+  return months
 }

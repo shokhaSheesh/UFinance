@@ -1,8 +1,7 @@
 import AccountBalance from '../../../components/Indicators/AccountBalance'
 import CashFlow from '../../../components/Indicators/CashFlow'
-import Expenses from '../../../components/Indicators/Expenses'
 import IndicatorsNavbar from '../../../components/Indicators/Header'
-import Income from '../../../components/Indicators/Income'
+import PaymentStructure from '../../../components/Indicators/PaymentStructure'
 import Profit from '../../../components/Indicators/Profit'
 import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
@@ -12,12 +11,11 @@ const IndicatorsPage = () => {
       <div className='w-full sticky top-0 z-1000'>
         <IndicatorsNavbar />
       </div>
-      <div className="max-w-[1600px] mx-auto p-4 space-y-6">
+      <div className="  p-4 space-y-6">
         <Profit />
         <CashFlow />
         <AccountBalance />
-        <Income />
-        <Expenses />
+        <PaymentStructure />
         <ProfitableClients />
       </div>
     </div>

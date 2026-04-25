@@ -20,7 +20,7 @@ const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 const Profit = () => {
   const chartRef = useRef(null);
   const mounted = useMounted()
-  const [zoomRange, setZoomRange] = useState([0, 50]); // [start, end] percentage
+  const [zoomRange, setZoomRange] = useState([0, 100]); // [start, end] percentage
   const indicatorsStore = indicators
 
   const filterData = {
@@ -28,7 +28,10 @@ const Profit = () => {
     periodEndDate: moment(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD'),
     periodType: indicatorsStore.periodType,
     userCurrencyCode: GlobalCurrency.code,
-    accounting_method: indicatorsStore.method,
+    accounting_method: indicatorsStore.profitableclientsMethod,
+    currencyCode: indicators?.currencyCode,
+    accountId: indicatorsStore.accounts,
+    sellingDealId: indicatorsStore?.deals,
     isEbitda: false,
     isEbit: false,
     isEbt: false,
@@ -36,8 +39,8 @@ const Profit = () => {
     page: 1,
   }
 
-  const { data: profitAndLossDataList, isLoading: profitAndLossLoading } = useQuery({
-    queryKey: ["profit_and_loss", filterData],
+  const { data: profitAndLossDataList, isLoading, isFetching, isPending } = useQuery({
+    queryKey: ["profit_indicators", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
     select: (res) => res?.data?.data,
     staleTime: 0,
@@ -46,47 +49,52 @@ const Profit = () => {
     refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
-  const { months, incomeData, expenseData, netProfitData, dividendData } = useMemo(() => {
-    const legend = profitAndLossDataList?.legend || []
-    const rows = profitAndLossDataList?.rows || []
 
-    const keys = legend.map((l) => l?.key).filter(Boolean)
-    const titles = legend.map((l) => l?.title || l?.key || '')
 
-    const revenueRow = findRowById(rows, 'revenue')
-    const expensesRow = findRowById(rows, 'expenses')
-    const netProfitRow = findRowById(rows, 'net-profit')
-    const dividendsRow = findRowById(rows, 'dividends')
+  const { months, incomeData, expenseData, netProfitData, dividendData, incomeTotal,
+    expenseTotal,
+    dividendsTotal } = useMemo(() => {
+      const legend = profitAndLossDataList?.legend || []
+      const rows = profitAndLossDataList?.rows || []
 
-    const readValues = (row) => {
-      const src = row?.values || row?.months || {}
-      return keys.map((k) => Number(src?.[k] ?? 0))
-    }
+      const keys = legend.map((l) => l?.key).filter(Boolean)
+      const titles = legend.map((l) => l?.title || l?.key || '')
 
-    return {
-      months: titles,
-      incomeData: readValues(revenueRow),
-      expenseData: readValues(expensesRow),
-      netProfitData: readValues(netProfitRow),
-      dividendData: readValues(dividendsRow),
-    }
-  }, [profitAndLossDataList])
+      const revenueRow = findRowById(rows, 'revenue')
+      const expensesRow = findRowById(rows, 'expenses')
+      const netProfitRow = findRowById(rows, 'net-profit')
+      const dividendsRow = findRowById(rows, 'dividends')
+
+      const readValues = (row) => {
+        const src = row?.values || row?.months || {}
+        return keys.map((k) => Number(src?.[k] ?? 0))
+      }
+
+      return {
+        months: titles,
+        incomeData: readValues(revenueRow),
+        expenseData: readValues(expensesRow),
+        netProfitData: readValues(netProfitRow),
+        dividendData: readValues(dividendsRow),
+        incomeTotal: revenueRow?.totalValue,
+        expenseTotal: expensesRow?.totalValue,
+        dividendsTotal: dividendsRow?.totalValue
+      }
+    }, [profitAndLossDataList])
 
   const stats = useMemo(() => {
-    const revenueTotal = incomeData.reduce((a, b) => a + b, 0)
-    const expenseTotal = expenseData.reduce((a, b) => a + b, 0)
-    const netProfitTotal = profitAndLossDataList?.netProfit ?? (revenueTotal - expenseTotal)
-    const dividendTotal = dividendData.reduce((a, b) => a + b, 0)
-    const margin = revenueTotal ? (netProfitTotal / revenueTotal) * 100 : 0
+    const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)
+    const dividendTotal = dividendsTotal
+    const margin = incomeTotal ? (netProfitTotal / incomeTotal) * 100 : 0
 
     return [
-      { label: 'Доходы', value: formatNumber(formatTotalSumma(revenueTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Доходы', value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
       { label: 'Рентабельность, %', value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
-  }, [incomeData, expenseData, dividendData, profitAndLossDataList])
+  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal])
 
   const options = useMemo(() => ({
     tooltip: {
@@ -208,25 +216,21 @@ const Profit = () => {
     <div className="w-full bg-white p-6">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">Прибыль, $</h2>
+          <h2 className="text-[22px] font-bold text-[#111827]">Прибыль, {GlobalCurrency?.name || ''}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HelpCircle className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="flex bg-[#f3f4f624] border border-neutral-200 rounded-md p-[3px]">
-          <button onClick={() => indicatorsStore.setState('accrual')} className="px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-slate-900 rounded transition-colors whitespace-nowrap">
-            Метод начисления
-          </button>
-          <button onClick={() => indicatorsStore.setState('cash')} className="px-4 py-1.5 text-sm font-medium bg-white text-[#38bdf8] shadow-sm border border-neutral-200 rounded transition-colors whitespace-nowrap">
-            Кассовый метод
-          </button>
+        <div className="items-center rounded-md">
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accural')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accural' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
         </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 overflow-auto relative">
         {/* Loading Overlay */}
-        {profitAndLossLoading && (
-          <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
+        {(isLoading || isFetching || isPending) && (
+          <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
               <span className="text-sm text-neutral-600">Загрузка...</span>
@@ -238,12 +242,12 @@ const Profit = () => {
         <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
           {stats.map((stat, idx) => (
             <div key={idx} className="flex items-center justify-between group">
-              <span className="text-[14px] font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
+              <span className="text-sm font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-base font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
-                  {stat.value} {stat.symbol}
+                <span className={cn("text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
+                  {stat.value}
                 </span>
               </div>
             </div>

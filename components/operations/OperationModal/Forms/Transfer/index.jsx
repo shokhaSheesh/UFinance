@@ -19,6 +19,7 @@ import TextArea from '../../../../shared/TextArea'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { WarnIcon } from '../../../../../constants/icons'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
@@ -99,8 +100,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: data.fromDate,
-			data_nachisleniya: data.toDate,
+			data_operatsii: moment(data?.fromDate).format('YYYY-MM-DD'),
+			data_nachisleniya: moment(data?.toDate).format('YYYY-MM-DD'),
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,

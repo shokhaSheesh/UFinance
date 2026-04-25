@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
+import { GlobalCurrency } from '../constants/globalCurrency'
 
 const defaultDateRange = {
   start: new Date(new Date().getFullYear(), 0, 1),
@@ -13,12 +14,14 @@ class Indicators {
   deals = []
   accounts = []
   rangeMonth = defaultDateRange
+  currencyCode = GlobalCurrency.code
 
   // Profit filters
   method = 'cash' // 'accrual'
 
   // profitable clients
   profitableclientsMethod = 'accural'
+  paymentStructureMethod = 'income_expenses' // receipts_payments | income_expenses
 
   constructor() {
     makeAutoObservable(this)
@@ -33,6 +36,7 @@ class Indicators {
           "deals",
           'accounts',
           "rangeMonth",
+          "paymentStructureMethod"
         ],
         storage: window.localStorage,
         debugMode: true,

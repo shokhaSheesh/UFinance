@@ -7,7 +7,7 @@ import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IoSettingsOutline } from 'react-icons/io5'
 import { AppLogo } from '../../constants/icons'
 import { appStore } from '../../store/app.store'
@@ -19,6 +19,12 @@ export const Sidebar = observer(() => {
     const sidebarRef = useRef(null)
     const [modalOpen, setModalOpen] = useState(false)
     const [apiUrl, setApiUrl] = useState(appStore.localApiUrl || '')
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
 
     const handleSaveApiUrl = () => {
         if (apiUrl.trim()) {
@@ -140,6 +146,18 @@ export const Sidebar = observer(() => {
         },
     ]
 
+
+
+
+    if (!mounted) {
+        return (
+            <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0">
+                <nav className="flex flex-col w-full">
+                    <div className="mt-2 mx-auto ml-5 mb-4 w-11 h-11" />
+                </nav>
+            </aside>
+        )
+    }
 
     return (
         <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0" ref={sidebarRef}> 

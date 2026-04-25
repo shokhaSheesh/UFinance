@@ -10,7 +10,7 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { authStore } from '../../../store/auth.store'
-import { formatPhoneNumber } from '../../../utils/helpers'
+import { formatNumber, formatPhoneNumber, getMonthPeriods } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
@@ -287,13 +287,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     const endDate = moment(values.validTo)
 
     // Get years and months difference
-    const totalMonths = endDate.diff(moment(values.validFrom), 'months') + 1
+    const totalMonths = getMonthPeriods(values.validFrom, values.validTo)
 
-
-    const monthlyAmount = parseInt(String(values.monthlyPayment ?? '').replace(/\s/g, '') || 0)
+    const monthlyAmount = formatNumber(values.monthlyPayment)
 
     // totalContractPayment = total months * monthly amount
-    const totalContractPayment = (totalMonths * monthlyAmount).toLocaleString('ru-RU')
+    const totalContractPayment = (totalMonths.length * monthlyAmount).toLocaleString('ru-RU')
 
     const baseData = {
       contractNumber: values.contractNumber || '___',
@@ -435,7 +434,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         guid: initialData.guid,
         passive_date: moment(data.passiveDate).format('YYYY-MM-DD')
       }
-    }
+    } 
 
     createStudent(requestData, {
       onSuccess: () => {

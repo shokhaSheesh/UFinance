@@ -10,6 +10,7 @@ import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
@@ -107,7 +108,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: data.accuralDate,
+        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'), 
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,

@@ -5,8 +5,8 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment/moment'
 import { useState } from 'react'
 import { indicators } from '../../../store/indicatos.store'
+import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts"
-import SingleZdelka from "../../ReadyComponents/SingleZdelka"
 import CustomRangeMonthPicker from '../../shared/CustomRangeMonthPicker'
 import SingleSelect from "../../shared/Selects/SingleSelect"
 import './style.scss'
@@ -52,8 +52,8 @@ const IndicatorsNavbar = () => {
                 <div className="w-[140px] shrink-0">
                     <SingleSelect
                         data={displayOptions}
-                        value={displayMode}
-                        onChange={setDisplayMode}
+                        value={indicators.periodType}
+                        onChange={(value) => indicators.setState('periodType', value)}
                         isClearable={false}
                         withSearch={false}
                         placeholder="Отображение"
@@ -63,18 +63,17 @@ const IndicatorsNavbar = () => {
 
                 <div className="w-[200px] shrink-0">
                     <SelectMyAccounts
-                        multi={false}
-                        value={selectedAccount}
-                        onChange={setSelectedAccount}
+                        value={indicators.accounts}
+                        onChange={(value) => indicators.setState('accounts', value)}
                         placeholder="Счет"
                         className="bg-neutral-50/50"
                     />
                 </div>
 
                 <div className="w-[200px] shrink-0">
-                    <SingleZdelka
-                        value={selectedDeal}
-                        onChange={setSelectedDeal}
+                    <MultiSelectZdelka
+                        value={indicators.deals}
+                        onChange={(value) => indicators.setState('deals', value)}
                         placeholder="Сделка"
                         className="bg-neutral-50/50"
                     />

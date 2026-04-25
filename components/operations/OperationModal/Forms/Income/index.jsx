@@ -25,6 +25,7 @@ import SplitAmount from '../../SplitAmount'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
@@ -337,6 +338,8 @@ const IncomeForm = observer(({
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
 
+  console.log('watchPaymentDate', watchPaymentDate)
+
   // Derived flags
   const isDebit = (!showDate && !watchConfirmPayment && watchConfirmAccrual && !watchSalesDeal)
   const isCredit = (!showDate && watchConfirmPayment && !watchConfirmAccrual && !watchSalesDeal)
@@ -346,8 +349,8 @@ const IncomeForm = observer(({
     const payload = {
       tip: ['Поступление'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: data?.paymentDate,
-      data_nachisleniya: data?.accrualDate,
+      data_operatsii: moment(data?.paymentDate).format('YYYY-MM-DD'),
+      data_nachisleniya: moment(data?.accrualDate).format('YYYY-MM-DD'),
       payment_confirmed: data?.confirmPayment,
       payment_accrual: data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
@@ -376,6 +379,8 @@ const IncomeForm = observer(({
     if (!isNew) {
       payload.guid = initialData.guid
     }
+
+    console.log(payload)
 
     try {
 
@@ -436,9 +441,10 @@ const IncomeForm = observer(({
                     <FormDatepicker
                       value={field.value}
                       onChange={(val) => {
+                        console.log('val', val)
                         field.onChange(val)
                         setValue('confirmPayment', !isFuture(val))
-                        if (!!watchSalesDeal) {
+                        if (watchSalesDeal) {
                           setValue('accrualDate', val)
                         }
                       }}

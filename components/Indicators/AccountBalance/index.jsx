@@ -9,6 +9,7 @@ import { useMemo, useRef, useState } from 'react'
 import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
+import Loader from '../../shared/Loader'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const formatValue = (val) => {
@@ -21,21 +22,23 @@ const formatValue = (val) => {
 
 const MONTH_NAMES = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 
-const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308']
+const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308', '#535364', '#0404DE', '#0059FF']
 
 const AccountBalance = () => {
     const chartRef = useRef(null)
     const [zoomRange, setZoomRange] = useState([0, 50])
     const mounted = useMounted()
 
-    const { rangeMonth, deals, accounts } = indicators
+    const { rangeMonth, accounts } = indicators
 
     const filterData = {
         from_date: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
         to_date: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
+        accountId: accounts,
+        currencyCode: indicators?.currencyCode
     }
 
-    const { data: accountBalanceList } = useQuery({
+    const { data: accountBalanceList, isLoading, isFetching, isPending } = useQuery({
         queryKey: ["get_my_accounts_daily_balances", filterData],
         queryFn: () => apiClient.invokeFunction({ method: "get_my_accounts_daily_balances", data: filterData }),
         select: (res) => res?.data?.data?.items,
@@ -83,7 +86,7 @@ const AccountBalance = () => {
             symbolSize: 0,
             showSymbol: false,
             lineStyle: { width: 1.5, color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length] },
-            itemStyle: { color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length] },
+            itemStyle: { color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length], fontSize: 10 },
         }))
 
         const names = ['Общий остаток', ...accountBalanceList.map(a => a.account.title)]
@@ -127,8 +130,10 @@ const AccountBalance = () => {
             icon: 'roundRect',
             itemWidth: 14,
             itemHeight: 14,
-            textStyle: { color: '#6b7280', fontSize: 11 },
+            textStyle: { color: '#6b7280', fontSize: 14, marginTop: 10 },
+            itemStyle: { marginTop: '20px' },
             data: legendData,
+            selected: legendData.slice(1).reduce((acc, name) => ({ ...acc, [name]: false }), {}),
         },
         dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
         xAxis: {
@@ -136,14 +141,14 @@ const AccountBalance = () => {
             data: dates,
             axisLine: { show: false },
             axisTick: { show: false },
-            axisLabel: { color: '#9ca3af', fontSize: 10, interval: 30 },
+            axisLabel: { color: '#9ca3af', fontSize: 12, interval: 30 },
         },
         yAxis: {
             type: 'value',
             axisLine: { show: false },
             axisTick: { show: false },
             splitLine: { lineStyle: { color: '#f3f4f6' } },
-            axisLabel: { color: '#9ca3af', fontSize: 10, formatter: (v) => v === 0 ? '0' : formatValue(v) },
+            axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValue(v) },
         },
         series: [
             {
@@ -153,7 +158,7 @@ const AccountBalance = () => {
                 data: totalBalanceData,
                 symbol: 'circle',
                 symbolSize: 0,
-                showSymbol: false,
+                showSymbol: true,
                 lineStyle: { width: 2, color: '#22c55e' },
                 areaStyle: {
                     color: {
@@ -171,7 +176,7 @@ const AccountBalance = () => {
                         data: [{
                             xAxis: dates[todayIndex],
                             lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
-                            label: { show: true, formatter: 'Сегодня', position: 'start', color: '#3b82f6', fontSize: 11, fontWeight: 'bold' },
+                            label: { show: true, formatter: 'Сегодня', position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
                         }],
                     },
                     markPoint: {
@@ -180,7 +185,7 @@ const AccountBalance = () => {
                             yAxis: totalBalanceData[todayIndex],
                             symbol: 'circle',
                             symbolSize: 8,
-                            itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2 },
+                            itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2, fontSize: 18 },
                         }],
                         label: { show: false },
                     },
@@ -193,7 +198,16 @@ const AccountBalance = () => {
     // if (!mounted) return null
 
     return (
-        <div className="w-full bg-white p-6 rounded-lg mt-6">
+        <div className="w-full bg-white relative p-6 rounded-lg mt-6">
+            {/* Loading Overlay */}
+            {(isLoading || isFetching || isPending) && (
+                <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
+                        <span className="text-sm text-neutral-600"><Loader /></span>
+                    </div>
+                </div>
+            )}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                     <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, $</h2>
