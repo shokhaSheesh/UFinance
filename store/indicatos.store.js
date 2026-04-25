@@ -20,7 +20,7 @@ class Indicators {
   method = 'cash' // 'accrual'
 
   // profitable clients
-  profitableclientsMethod = 'accural'
+  profitableclientsMethod = 'accrual'
   paymentStructureMethod = 'income_expenses' // receipts_payments | income_expenses
 
   constructor() {
@@ -36,7 +36,8 @@ class Indicators {
           "deals",
           'accounts',
           "rangeMonth",
-          "paymentStructureMethod"
+          "paymentStructureMethod",
+          "profitableclientsMethod"
         ],
         storage: window.localStorage,
         debugMode: true,

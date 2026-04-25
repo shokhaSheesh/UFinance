@@ -4,6 +4,7 @@ import { makePersistable } from "mobx-persist-store";
 
 class AppStore {
 	isPayment = false
+	isAccrualDate = false
 	currency = {
 		name: '',
 		guid: '',
@@ -50,7 +51,7 @@ class AppStore {
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
 				name: 'plan_fact_app',
-				properties: ['isPayment', 'currency', 'currencies', 'isDonoSchool', 'myCurrencies', 'companyCurrencies', 'localApiUrl', 'permission'],
+				properties: ['isPayment', 'currency', 'isAccrualDate', 'currencies', 'isDonoSchool', 'myCurrencies', 'companyCurrencies', 'localApiUrl', 'permission'],
 				storage: window.localStorage,
 				debugMode: true,
 				version: 1,
@@ -108,6 +109,11 @@ class AppStore {
 	setPermission(value) {
 		this.permission = value
 	}
+
+	setIsAccrualDate(value) {
+		this.isAccrualDate = value
+	}
+
 	setPlanfactPermission() {
 		this.permission = {
 			indicators: { read: true },

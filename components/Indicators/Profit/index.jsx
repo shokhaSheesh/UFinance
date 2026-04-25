@@ -50,6 +50,7 @@ const Profit = () => {
   })
 
 
+  console.log('profitAndLossDataList', profitAndLossDataList)
 
   const { months, incomeData, expenseData, netProfitData, dividendData, incomeTotal,
     expenseTotal,
@@ -80,8 +81,7 @@ const Profit = () => {
         expenseTotal: expensesRow?.totalValue,
         dividendsTotal: dividendsRow?.totalValue
       }
-    }, [profitAndLossDataList])
-
+    }, [profitAndLossDataList]) 
   const stats = useMemo(() => {
     const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)
     const dividendTotal = dividendsTotal
@@ -222,8 +222,8 @@ const Profit = () => {
           </div>
         </div>
         <div className="items-center rounded-md">
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accural')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accural' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accrual')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accrual' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
         </div>
       </div>
 

@@ -332,17 +332,17 @@ const IncomeForm = observer(({
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
   const watchAmount = watch('amount')
-  const watchSalesDeal = watch('salesDeal')
+  const watchSalesDeal = !appStore.isAccrualDate ? watch('salesDeal') : '' // never delete that is importatn variable
   const watchPaymentDate = watch('paymentDate')
   const watchAccrualDate = watch('accrualDate')
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
+  const saleDeal = watch('salesDeal')
 
-  console.log('watchPaymentDate', watchPaymentDate)
 
   // Derived flags
-  const isDebit = (!showDate && !watchConfirmPayment && watchConfirmAccrual && !watchSalesDeal)
-  const isCredit = (!showDate && watchConfirmPayment && !watchConfirmAccrual && !watchSalesDeal)
+  const isDebit = (!showDate && !watchConfirmPayment && watchConfirmAccrual && !saleDeal)
+  const isCredit = (!showDate && watchConfirmPayment && !watchConfirmAccrual && !saleDeal)
 
   const onSubmit = async (data) => {
 
@@ -357,7 +357,7 @@ const IncomeForm = observer(({
       my_accounts_id: watchAccount,
       legal_entity_id: authStore?.userData?.legal_entity_id,
       chart_of_accounts_id: chart_of_accounts_id || data?.chartOfAccount,
-      sales_transactions_id: watchSalesDeal,
+      sales_transactions_id: saleDeal,
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
@@ -380,7 +380,6 @@ const IncomeForm = observer(({
       payload.guid = initialData.guid
     }
 
-    console.log(payload)
 
     try {
 
@@ -413,8 +412,6 @@ const IncomeForm = observer(({
   }
 
 
-  // console.log('initialData', initialData)
-
   const handleSelectMyAccount = (value) => {
     setValue('currency', value)
     const selected = toJS(appStore.currencies).find(c => c.guid === value)
@@ -440,8 +437,7 @@ const IncomeForm = observer(({
                   render={({ field }) => (
                     <FormDatepicker
                       value={field.value}
-                      onChange={(val) => {
-                        console.log('val', val)
+                      onChange={(val) => { 
                         field.onChange(val)
                         setValue('confirmPayment', !isFuture(val))
                         if (watchSalesDeal) {

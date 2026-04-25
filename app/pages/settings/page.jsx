@@ -8,7 +8,7 @@ import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
 
-const SettingsPage = observer(() => { 
+const SettingsPage = observer(() => {
 
   const { mutateAsync: updateSettings } = useUcodeRequestMutation()
 
@@ -21,6 +21,9 @@ const SettingsPage = observer(() => {
 
   function handleSwitchPayment() {
     appStore.setIsPayment(!appStore.isPayment)
+  }
+  function handleSwitchAccrualDate() {
+    appStore.setIsAccrualDate(!appStore.isAccrualDate)
   }
 
   const handleSelectCurrency = async (value) => {
@@ -82,7 +85,12 @@ const SettingsPage = observer(() => {
             checked={appStore.isPayment}
             onChange={handleSwitchPayment}
             label="Тип платежа"
-          /> 
+          />
+          <OperationCheckbox
+            checked={appStore.isAccrualDate}
+            onChange={handleSwitchAccrualDate}
+            label="Включить в работу поле << Дата начисления >> при выборе Сделка"
+          />
         </section>
       </section>
     </div>

@@ -273,7 +273,7 @@ const Students = observer(() => {
 const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage }) => {
   return (
     <div>
-      {studentList.map((studentItem) => (
+      {studentList.map((studentItem, index) => (
         <div key={studentItem.counterparty_id} className="flex hover:bg-neutral-100 h-9">
           {columns.map((col) => {
             if (col.type === 'sticky') {
@@ -282,9 +282,9 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
                   key={col.key}
                   className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
                 >
-                  <span className="px-4 py-3 w-full">
-                    {studentItem.counterparty_name}
-                  </span>
+                  <div className="px-4 py-3 w-full">
+                    <span className="pr-2">{index + 1}</span> {studentItem.counterparty_name}
+                  </div>
                 </div>
               )
             }
