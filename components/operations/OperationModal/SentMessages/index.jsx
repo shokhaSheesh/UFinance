@@ -59,6 +59,33 @@ function DeleteConfirmModal({ isOpen, onCancel, onConfirm }) {
   return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
 }
 
+async function downloadFile(file) {
+  if (!file?.url) return
+  const fileName = file.name || 'file'
+  try {
+    const res = await fetch(file.url)
+    if (!res.ok) throw new Error('fetch failed')
+    const blob = await res.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+  } catch {
+    const a = document.createElement('a')
+    a.href = file.url
+    a.download = fileName
+    a.target = '_blank'
+    a.rel = 'noopener noreferrer'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+}
+
 function FileBadge({ file, onRemove }) {
   const ext = getFileExt(file.name)
   const color = getFileColor(file.name)
@@ -68,6 +95,15 @@ function FileBadge({ file, onRemove }) {
         <span className='sm-file-badge__ext' style={{ color }}>{ext}</span>
       </div>
       <span className='sm-file-badge__name'>{file.name}</span>
+      {file.url && (
+        <button className='sm-file-badge__download' onClick={() => downloadFile(file)} title='Скачать'>
+          <svg width='14' height='14' viewBox='0 0 24 24' fill='none'>
+            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+            <polyline points='7 10 12 15 17 10' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+            <line x1='12' y1='15' x2='12' y2='3' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+          </svg>
+        </button>
+      )}
       {onRemove && (
         <button className='sm-file-badge__remove' onClick={onRemove} title='Убрать файл'>
           <svg width='12' height='12' viewBox='0 0 24 24' fill='none'>
@@ -80,15 +116,20 @@ function FileBadge({ file, onRemove }) {
   )
 }
 
-function MessageCard({ msg, isEditing, editText, editFile, onEditChange, onEditFileChange, onEditConfirm, onEditCancel, onEdit, onDelete }) {
+function MessageCard({ msg, isEditing, editText, editFiles, onEditChange, onEditFileChange, onEditConfirm, onEditCancel, onEdit, onDelete }) {
   const editFileRef = useRef(null)
 
   if (isEditing) {
+    const existingFiles = msg.files && msg.files.length > 0 ? msg.files : (msg.file ? [msg.file] : [])
+    const pendingFiles = (editFiles || []).map(f => ({ name: f.name }))
+    const allFiles = [...existingFiles, ...pendingFiles]
     return (
       <div className='sm-card sm-card--editing'>
-        {(editFile || msg.file) && (
+        {allFiles.length > 0 && (
           <div className='sm-card__file-row'>
-            <FileBadge file={editFile ? { name: editFile.name } : msg.file} />
+            <div className='sm-card__file-list'>
+              {allFiles.map((file, i) => <FileBadge key={i} file={file} />)}
+            </div>
             <button className='sm-card__action-btn sm-card__action-btn--delete' onClick={() => onDelete(msg.id)} title='Удалить'>
               <svg width='15' height='15' viewBox='0 0 24 24' fill='none'>
                 <polyline points='3 6 5 6 21 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
@@ -103,7 +144,7 @@ function MessageCard({ msg, isEditing, editText, editFile, onEditChange, onEditF
             <svg width='18' height='18' viewBox='0 0 24 24' fill='none'>
               <path d='M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59723 21.9983 8.005 21.9983C6.41277 21.9983 4.88584 21.3658 3.76 20.24C2.63416 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63416 12.8758 3.76 11.75L12.95 2.56C13.7006 1.80944 14.7185 1.38778 15.78 1.38778C16.8415 1.38778 17.8594 1.80944 18.61 2.56C19.3606 3.31056 19.7822 4.32855 19.7822 5.39C19.7822 6.45145 19.3606 7.46944 18.61 8.22L9.41 17.41C9.03472 17.7853 8.52573 17.9961 7.995 17.9961C7.46427 17.9961 6.95528 17.7853 6.58 17.41C6.20472 17.0347 5.99389 16.5257 5.99389 15.995C5.99389 15.4643 6.20472 14.9553 6.58 14.58L15.07 6.1' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
             </svg>
-            <input ref={editFileRef} type='file' accept={ACCEPTED_FORMATS} style={{ display: 'none' }} onChange={onEditFileChange} />
+            <input ref={editFileRef} type='file' accept={ACCEPTED_FORMATS} multiple style={{ display: 'none' }} onChange={onEditFileChange} />
           </label>
           <input
             className='sm-card__edit-input'
@@ -176,7 +217,7 @@ const SentMessages = ({
   attachedFiles,
   editingId,
   editText,
-  editFile,
+  editFiles,
   deleteTargetId,
   onTextChange,
   onFileChange,
@@ -224,7 +265,7 @@ const SentMessages = ({
               msg={msg}
               isEditing={editingId === msg.id}
               editText={editText}
-              editFile={editFile}
+              editFiles={editFiles}
               onEditChange={onEditChange}
               onEditFileChange={onEditFileChange}
               onEditConfirm={onEditConfirm}

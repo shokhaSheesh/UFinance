@@ -7,11 +7,13 @@ import { observer } from 'mobx-react-lite'
 import { useEffect, useMemo, useState } from 'react'
 import { donoSchool, GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import { useOperationComments } from '../../../../hooks/useOperationComments'
 import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
 import { queryClient } from '../../../../lib/queryClient'
 import { appStore } from '../../../../store/app.store'
 import { authStore } from '../../../../store/auth.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../utils/helpers'
+import SentMessages from '../../../operations/OperationModal/SentMessages'
 import MyAccountCurrensies from '../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../../ReadyComponents/SelectProductService'
@@ -37,6 +39,11 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
     { id: 1, name: '', quantity: '', price: '', discount: '', nds: '', sum: '' }
   ])
   const [code, setCode] = useState('')
+  const isNewShipment = !isEditing
+  const comments = useOperationComments({
+    isNew: isNewShipment,
+    operationId: isEditing ? initialData?.guid : undefined,
+  })
   const { data: SingleShipment, isPending: isGettingSingleShipment } = useUcodeRequestQuery({
     method: "get_shipment_transaction",
     data: {
@@ -220,14 +227,17 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
         payload.transaction_guid = initialData.guid
       }
 
-      await createShipment({
+      const res = await createShipment({
         method: isEditing ? "update_shipment_transaction" : "create_shipment_transaction",
         data: payload
-      }, {
-        onSuccess: () => {
-          onClose()
-        }
       })
+
+      const newShipmentId = isEditing
+        ? initialData?.guid
+        : (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+      if (isNewShipment && newShipmentId) {
+        await comments.flushPending(newShipmentId)
+      }
 
       // Clear fields on success
       setShipmentDate(today.toISOString().split('T')[0])
@@ -315,293 +325,317 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
   return (
     <>
       {/* Overlay */}
-      <div className={cn("fixed top-[60px] left-[80px] w-[calc(100%-80px)] h-full right-0 bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300")} onClick={onClose} />
+      <div className={cn("fixed top-[60px] left-[80px] w-[calc(100%-80px)] h-[calc(100%-60px)] right-0 bottom-0 flex bg-black/50  z-1000 transition-opacity duration-300")} >
 
-      {/* Panel */}
-      <div className={styles.panel}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div>
-            <h2 className={styles.title}>
-              {isEditing ? 'Редактирование отгрузки' : isCopying ? 'Копирование отгрузки' : 'Создание отгрузки'}
-            </h2>
-            <div className={styles.subtitle}>
-              Сделка: <span className={styles.dealLink}>{dealName}</span>
+
+        {/* Panel */}
+        <div className="h-full bg-white flex flex-col">
+          {/* Header */}
+          <div className="p-4 border-b relative">
+            <div>
+              <h2 className="text-lg font-semibold">
+                {isEditing ? 'Редактирование отгрузки' : isCopying ? 'Копирование отгрузки' : 'Создание отгрузки'}
+              </h2>
+              <div className="text-sm text-gray-600">
+                Сделка: <span className={styles.dealLink}>{dealName}</span>
+              </div>
             </div>
+            <button className="p-2 absolute right-4 top-2 hover:bg-gray-100 rounded-full" onClick={onClose}>
+              <X size={20} />
+            </button>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>
-            <X size={20} />
-          </button>
-        </div>
 
-        {/* Form Body */}
-        <div className={styles.body}>
-          {/* Date + Planned */}
-          <div className={styles.formRow}>
-            <label className={styles.label}>
-              Дата отгрузки <span className={styles.required}>*</span>
-            </label>
-            <div className={styles.fieldGroup} style={{ flex: 1, maxWidth: '600px' }}>
-              <div className="flex w-full items-center gap-4">
-                <div className='flex items-center gap-2'>
-                  <DatePicker
-                    value={shipmentDate}
-                    onChange={value => {
-                      setShipmentDate(value)
-                      if (errors.shipmentDate) {
-                        setErrors({ ...errors, shipmentDate: null })
-                      }
-                    }}
-                    dateFormat='YYYY-MM-DD'
-                    className={styles.datePicker}
-                    placeholder='Выберите дату'
-                  />
-                  <div className='flex items-center' style={{ opacity: isFutureDate ? 0.5 : 1, pointerEvents: isFutureDate ? 'none' : 'auto' }}>
-                    <OperationCheckbox
-                      checked={isFutureDate ? true : isPlanned}
-                      onChange={e => {
-                        if (!isFutureDate) {
-                          setIsPlanned(e.target.checked)
+          {/* Form Body */}
+          <div className="p-4 flex-1 overflow-auto">
+            {/* Date + Planned */}
+            <div className="flex gap-2 mb-4">
+              <label className=" w-40 text-sm font-medium text-gray-700">
+                Дата отгрузки <span className="text-red-500">*</span>
+              </label>
+              <div className={styles.fieldGroup} style={{ flex: 1, maxWidth: '600px' }}>
+                <div className="flex w-full items-center gap-4">
+                  <div className='flex items-center gap-2'>
+                    <DatePicker
+                      value={shipmentDate}
+                      onChange={value => {
+                        setShipmentDate(value)
+                        if (errors.shipmentDate) {
+                          setErrors({ ...errors, shipmentDate: null })
                         }
                       }}
-                      className={'w-44'}
-                      label='Плановая отгрузка'
+                      dateFormat='YYYY-MM-DD'
+                      className={styles.datePicker}
+                      placeholder='Выберите дату'
                     />
+                    <div className='flex items-center' style={{ opacity: isFutureDate ? 0.5 : 1, pointerEvents: isFutureDate ? 'none' : 'auto' }}>
+                      <OperationCheckbox
+                        checked={isFutureDate ? true : isPlanned}
+                        onChange={e => {
+                          if (!isFutureDate) {
+                            setIsPlanned(e.target.checked)
+                          }
+                        }}
+                        className={'w-44'}
+                        label='Плановая отгрузка'
+                      />
+                    </div>
                   </div>
                 </div>
+                {errors.shipmentDate && (
+                  <span className={styles.errorText}>{errors.shipmentDate}</span>
+                )}
               </div>
-              {errors.shipmentDate && (
-                <span className={styles.errorText}>{errors.shipmentDate}</span>
-              )}
             </div>
-          </div>
 
-          {/* Legal Entity */}
-          <div className="w-full flex items-center gap-2 pb-2">
-            <label className="w-40 text-xss!">
-              Юрлицо <span className={styles.required}>*</span>
-            </label>
-            <div className="w-80!">
-              <SelectLegelEntitties
-                multi={false}
-                value={legalEntity}
-                onChange={handleSelect}
-                placeholder="Выберите юрлицо"
-                childFieldName={'currenies_id'}
-                returnFieldValue={handleChangeCurrency}
-                className="w-80! bg-white"
-              />
-              {errors.legalEntity && (
-                <div className={styles.errorMessage}>{errors.legalEntity}</div>
-              )}
+            {/* Legal Entity */}
+            <div className="w-full flex items-center gap-2 pb-2">
+              <label className="w-40 text-xss!">
+                Юрлицо <span className={styles.required}>*</span>
+              </label>
+              <div className="w-80!">
+                <SelectLegelEntitties
+                  multi={false}
+                  value={legalEntity}
+                  onChange={handleSelect}
+                  placeholder="Выберите юрлицо"
+                  childFieldName={'currenies_id'}
+                  returnFieldValue={handleChangeCurrency}
+                  className="w-80! bg-white"
+                />
+                {errors.legalEntity && (
+                  <div className={styles.errorMessage}>{errors.legalEntity}</div>
+                )}
+              </div>
+              <MyAccountCurrensies guid={legalEntity} value={currency} onChange={handleChangeCurrency} className=" bg-white " wrapperClassName={'w-48'} />
             </div>
-            <MyAccountCurrensies guid={legalEntity} value={currency} onChange={handleChangeCurrency} className=" bg-white " wrapperClassName={'w-48'} />
-          </div>
 
-          {/* Client */}
-          <div className="w-full flex items-center gap-2 pb-2">
-            <label className="w-40! text-xss!">
-              Клиент <span className="text-red-500">*</span>
-            </label>
-            <div className="flex-1">
-              <SingleCounterParty
-                value={client}
-                onChange={value => setClient(value)}
-                placeholder='Выберите клиента...'
-                name='chart_of_accounts_id'
-                returnChartOfAccount={value => setChartOfAccounts(value)}
-                className="w-80! bg-white"
-              />
-            </div>
-            {errors.client && (
-              <div className={styles.errorMessage}>{errors.client}</div>
-            )}
-          </div>
-
-          {/* Chart of accounts */}
-          {showChartOfAccounts && (
+            {/* Client */}
             <div className="w-full flex items-center gap-2 pb-2">
               <label className="w-40! text-xss!">
-                Статья доходов
+                Клиент <span className="text-red-500">*</span>
               </label>
               <div className="flex-1">
-                <SinglSelectStatiya
-                  selectedValue={chartOfAccounts}
-                  setSelectedValue={value => setChartOfAccounts(value)}
-                  placeholder='Нераспределенный доход'
-                  className='w-80! bg-white'
+                <SingleCounterParty
+                  value={client}
+                  onChange={value => setClient(value)}
+                  placeholder='Выберите клиента...'
+                  name='chart_of_accounts_id'
+                  returnChartOfAccount={value => setChartOfAccounts(value)}
+                  className="w-80! bg-white"
                 />
               </div>
+              {errors.client && (
+                <div className={styles.errorMessage}>{errors.client}</div>
+              )}
             </div>
-          )}
 
-          {/* Products Table */}
-          <div className={styles.productsSection}>
-            <div className={styles.productsSectionHeader}>
-              <div className='flex flex-col gap-1'>
-                <span className={styles.productsTitle}>Товары/услуги для отгрузки</span>
-                {errors.products && <span className='text-[10px] text-red-500 font-medium'>{errors.products}</span>}
+            {/* Chart of accounts */}
+            {showChartOfAccounts && (
+              <div className="w-full flex items-center gap-2 pb-2">
+                <label className="w-40! text-xss!">
+                  Статья доходов
+                </label>
+                <div className="flex-1">
+                  <SinglSelectStatiya
+                    selectedValue={chartOfAccounts}
+                    setSelectedValue={value => setChartOfAccounts(value)}
+                    placeholder='Нераспределенный доход'
+                    className='w-80! bg-white'
+                  />
+                </div>
               </div>
-              {/* <button
+            )}
+
+            {/* Products Table */}
+            <div className={styles.productsSection}>
+              <div className={styles.productsSectionHeader}>
+                <div className='flex flex-col gap-1'>
+                  <span className={styles.productsTitle}>Товары/услуги для отгрузки</span>
+                  {errors.products && <span className='text-[10px] text-red-500 font-medium'>{errors.products}</span>}
+                </div>
+                {/* <button
                 className={styles.fillFromDeal}
                 onClick={() => setShowChartOfAccounts(!showChartOfAccounts)}
               >
                 Заполнить позициями из сделки
               </button> */}
-            </div>
+              </div>
 
-            <div className={styles.tableContainer}>
-              <table className="w-full">
-                <thead className='sticky top-0 z-10 bg-neutral-50'>
-                  <tr className='bg-neutral-50  text-neutral-600 font-light h-8 text-mini w-full border-b border-gray-200'>
-                    <th className="w-10">
-                      <div className='flex items-center justify-center'>
-                        <OperationCheckbox type="checkbox" checked={selectedProducts?.size > 0 && selectedProducts?.size === rows?.length} onChange={(e) => {
-                          if (e.target.checked) {
-                            const allrows = rows.map((row) => row.id)
-                            setSelectedProducts(new Set(allrows))
-                          } else {
-                            setSelectedProducts(new Set())
-                          }
-                        }} className={styles.checkbox} />
-                      </div>
-                    </th>
-                    {selectedProducts?.size > 0 && <th colSpan={6}>
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-3'>
-                          <span className="text-sm font-bold text-neutral-900">Выбрано: {selectedProducts?.size}</span>
+              <div className={styles.tableContainer}>
+                <table className="w-full">
+                  <thead className='sticky top-0 z-10 bg-neutral-50'>
+                    <tr className='bg-neutral-50  text-neutral-600 font-light h-8 text-mini w-full border-b border-gray-200'>
+                      <th className="w-10">
+                        <div className='flex items-center justify-center'>
+                          <OperationCheckbox type="checkbox" checked={selectedProducts?.size > 0 && selectedProducts?.size === rows?.length} onChange={(e) => {
+                            if (e.target.checked) {
+                              const allrows = rows.map((row) => row.id)
+                              setSelectedProducts(new Set(allrows))
+                            } else {
+                              setSelectedProducts(new Set())
+                            }
+                          }} className={styles.checkbox} />
+                        </div>
+                      </th>
+                      {selectedProducts?.size > 0 && <th colSpan={6}>
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-3'>
+                            <span className="text-sm font-bold text-neutral-900">Выбрано: {selectedProducts?.size}</span>
+                            <button
+                              className="outline-none border-none bg-transparent text-sm font-medium text-red-600 cursor-pointer flex items-center gap-2"
+                              onClick={handleRemoveRow}
+                            >
+                              <TrashIcon size={16} className='text-red-500' />
+                              Убрать из отгрузки
+                            </button>
+                          </div>
                           <button
-                            className="outline-none border-none bg-transparent text-sm font-medium text-red-600 cursor-pointer flex items-center gap-2"
-                            onClick={handleRemoveRow}
+                            className='outline-none border-none bg-transparent cursor-pointer mr-2'
+                            onClick={() => setSelectedProducts(new Set())}
                           >
-                            <TrashIcon size={16} className='text-red-500' />
-                            Убрать из отгрузки
+                            <X size={16} />
                           </button>
                         </div>
-                        <button
-                          className='outline-none border-none bg-transparent cursor-pointer mr-2'
-                          onClick={() => setSelectedProducts(new Set())}
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    </th>}
-                    {selectedProducts?.size === 0 && <>
-                      <th className='w-[150px]  text-left'>Наименование</th>
-                      <th className="w-[80px] border-l text-right px-1">Кол-во</th>
-                      <th className="w-[120px] border-l text-right px-1">Цена за ед. {code}</th>
-                      <th className="w-[80px] border-l text-right px-2">Скидка</th>
-                      <th className="w-[80px] border-l text-right px-2">НДС</th>
-                      <th className=" border-l text-right px-2">Сумма {code}</th>
-                    </>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.id} className='border-b last:border-none'>
-                      <td className={styles.checkCol}>
-                        <div className='flex items-center justify-center'>
-                          <OperationCheckbox type="checkbox" checked={selectedProducts.has(row.id)} className={styles.checkbox} onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedProducts(prev => {
-                                const next = new Set(prev)
-                                next.add(row.id)
-                                return next
-                              })
-                            } else {
-                              setSelectedProducts(prev => {
-                                const next = new Set(prev)
-                                next.delete(row.id)
-                                return next
-                              })
-                            }
-                          }} />
-                        </div>
-                      </td>
-                      <td className='w-[200px]'>
-                        <div className="pr-2 pt-2 pb-2">
-                          <SelectProductService
-                            value={row.name}
-                            onChange={(value) => handleSelectProductSerice(row?.id, value)}
-                            placeholder="Выберите позицию"
-                            className="bg-white border-none"
-                          />
-                        </div>
-                      </td>
-                      <td className="w-[80px] border-l">
-                        <input
-                          type="text"
-                          min={0}
-                          value={formatNumber(row.quantity)}
-                          onChange={(e) => updateRow(row.id, 'quantity', formatNumber(e.target.value))}
-                          className={'w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2'}
-                        />
-                      </td>
-                      <td className="w-[120px] border-l">
-                        <input
-                          type="text"
-                          min={0}
-                          value={formatNumber(row.price)}
-                          onChange={(e) => updateRow(row.id, 'price', formatNumber(e.target.value))}
-                          className={'w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2'}
-                        />
-                      </td>
-                      <td className="w-[80px] border-l relative">
-                        <input
-                          type="text"
-                          value={row.discount.replace(/\D/g, '')}
-                          maxLength={2}
-                          onChange={(e) => updateRow(row.id, 'discount', e.target.value)}
-                          className={`w-[80px] outline-none text-xs h-10 text-right pr-2 mr-2`}
-                        />
-                        <span className='absolute top-1/2 text-xs  -translate-y-1/2 right-1'>%</span>
-                      </td>
-                      <td className="w-[80px] border-l relative">
-                        <input
-                          type="text"
-                          maxLength={2}
-                          value={row.nds}
-                          onChange={(e) => updateRow(row.id, 'nds', e.target.value)}
-                          className={`w-[80px] outline-none text-xs h-10 text-right pr-2 mr-2`}
-                        />
-                        <span className='absolute top-1/2 text-xs  -translate-y-1/2 right-1'>%</span>
-                      </td>
-                      <td className="w-[120px] border-l relative">
-                        <input
-                          type="text"
-                          min={0}
-                          value={formatNumber(row.sum)}
-                          onChange={(e) => updateRow(row.id, 'sum', formatNumber(e.target.value))}
-                          className={'w-full h-full text-xs text-end h-10 border-none outline-none pr-2'}
-                        />
-                      </td>
+                      </th>}
+                      {selectedProducts?.size === 0 && <>
+                        <th className='w-[150px]  text-left'>Наименование</th>
+                        <th className="w-[80px] border-l text-right px-1">Кол-во</th>
+                        <th className="w-[120px] border-l text-right px-1">Цена за ед. {code}</th>
+                        <th className="w-[80px] border-l text-right px-2">Скидка</th>
+                        <th className="w-[80px] border-l text-right px-2">НДС</th>
+                        <th className=" border-l text-right px-2">Сумма {code}</th>
+                      </>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.id} className='border-b last:border-none'>
+                        <td className={styles.checkCol}>
+                          <div className='flex items-center justify-center'>
+                            <OperationCheckbox type="checkbox" checked={selectedProducts.has(row.id)} className={styles.checkbox} onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedProducts(prev => {
+                                  const next = new Set(prev)
+                                  next.add(row.id)
+                                  return next
+                                })
+                              } else {
+                                setSelectedProducts(prev => {
+                                  const next = new Set(prev)
+                                  next.delete(row.id)
+                                  return next
+                                })
+                              }
+                            }} />
+                          </div>
+                        </td>
+                        <td className='w-[200px]'>
+                          <div className="pr-2 pt-2 pb-2">
+                            <SelectProductService
+                              value={row.name}
+                              onChange={(value) => handleSelectProductSerice(row?.id, value)}
+                              placeholder="Выберите позицию"
+                              className="bg-white border-none"
+                            />
+                          </div>
+                        </td>
+                        <td className="w-[80px] border-l">
+                          <input
+                            type="text"
+                            min={0}
+                            value={formatNumber(row.quantity)}
+                            onChange={(e) => updateRow(row.id, 'quantity', formatNumber(e.target.value))}
+                            className={'w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2'}
+                          />
+                        </td>
+                        <td className="w-[120px] border-l">
+                          <input
+                            type="text"
+                            min={0}
+                            value={formatNumber(row.price)}
+                            onChange={(e) => updateRow(row.id, 'price', formatNumber(e.target.value))}
+                            className={'w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2'}
+                          />
+                        </td>
+                        <td className="w-[80px] border-l relative">
+                          <input
+                            type="text"
+                            value={row.discount.replace(/\D/g, '')}
+                            maxLength={2}
+                            onChange={(e) => updateRow(row.id, 'discount', e.target.value)}
+                            className={`w-[80px] outline-none text-xs h-10 text-right pr-2 mr-2`}
+                          />
+                          <span className='absolute top-1/2 text-xs  -translate-y-1/2 right-1'>%</span>
+                        </td>
+                        <td className="w-[80px] border-l relative">
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={row.nds}
+                            onChange={(e) => updateRow(row.id, 'nds', e.target.value)}
+                            className={`w-[80px] outline-none text-xs h-10 text-right pr-2 mr-2`}
+                          />
+                          <span className='absolute top-1/2 text-xs  -translate-y-1/2 right-1'>%</span>
+                        </td>
+                        <td className="w-[120px] border-l relative">
+                          <input
+                            type="text"
+                            min={0}
+                            value={formatNumber(row.sum)}
+                            onChange={(e) => updateRow(row.id, 'sum', formatNumber(e.target.value))}
+                            className={'w-full h-full text-xs text-end h-10 border-none outline-none pr-2'}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-            <div className={styles.tableFooter}>
-              <button className={styles.addRowBtn} onClick={addRow}>Добавить...</button>
-              <p className={styles.totalSum}>Сумма отгрузки: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
-                <span className='text-neutral-600 ml-1'>{code}</span>
-              </p>
+              <div className={styles.tableFooter}>
+                <button className={styles.addRowBtn} onClick={addRow}>Добавить...</button>
+                <p className={styles.totalSum}>Сумма отгрузки: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
+                  <span className='text-neutral-600 ml-1'>{code}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className={styles.footer}>
+            <span className={styles.requiredNote}>
+              <span className={styles.required}>*</span> Обязательные поля
+            </span>
+            <div className={styles.footerActions}>
+              <button className={styles.cancelBtn} onClick={onClose}>Отменить</button>
+              <button className="primary-btn" onClick={handleCreate}>{
+                isCreating ? <Loader /> : 'Создать'
+              }</button>
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className={styles.footer}>
-          <span className={styles.requiredNote}>
-            <span className={styles.required}>*</span> Обязательные поля
-          </span>
-          <div className={styles.footerActions}>
-            <button className={styles.cancelBtn} onClick={onClose}>Отменить</button>
-            <button className="primary-btn" onClick={handleCreate}>{
-              isCreating ? <Loader /> : 'Создать'
-            }</button>
-          </div>
-        </div>
+        <SentMessages
+          messages={comments.messages}
+          text={comments.text}
+          attachedFiles={comments.attachedFiles}
+          editingId={comments.editingId}
+          editText={comments.editText}
+          editFiles={comments.editFiles}
+          deleteTargetId={comments.deleteTargetId}
+          onTextChange={comments.setText}
+          onFileChange={comments.handleFileChange}
+          onRemoveAttach={comments.handleRemoveAttach}
+          onSend={comments.handleSend}
+          onKeyDown={comments.handleKeyDown}
+          onEdit={comments.handleEdit}
+          onEditChange={comments.setEditText}
+          onEditFileChange={comments.handleEditFileChange}
+          onEditConfirm={comments.handleEditConfirm}
+          onEditCancel={comments.handleEditCancel}
+          onDelete={comments.handleDeleteRequest}
+          onDeleteConfirm={comments.handleDeleteConfirm}
+          onDeleteCancel={comments.handleDeleteCancel}
+        />
       </div>
     </>
   )

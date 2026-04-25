@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import SelectCounterParties from "../../../../components/ReadyComponents/SelectCounterParties"
+import SelectCounterPartyGroup from "../../../../components/ReadyComponents/SelectCounterPartyGroup"
 import CustomRangeMonthPicker from "../../../../components/shared/CustomRangeMonthPicker"
 import ScreenLoader from "../../../../components/shared/ScreenLoader"
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
@@ -15,7 +16,7 @@ import { formatStudentTableDate } from "../../../../utils/formatDate"
 import { formatNumber } from "../../../../utils/helpers"
 
 
-const LIMIT = 30
+const LIMIT = 50
 
 const accountingMethodOptions = [
   { value: 'accrual', label: 'Метод начисления' },
@@ -23,26 +24,21 @@ const accountingMethodOptions = [
 ]
 
 const Students = observer(() => {
-  const [open, setOpen] = useState(true)
-  const [totalTotal, setTotalTotal] = useState({
-    totalPlan: 0,
-    totalFact: 0,
-    totalPlanFact: 0
-  })
+  const [open, setOpen] = useState(true) 
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
   const { accounting, rangeMonth, setState } = student
 
   const filterData = {
-    method: accounting,
+    accounting_method: accounting,
     currency_code: "UZS",
     company_id: authStore.userData?.company_id,
     limit: LIMIT,
     counterparties_ids: student.selectedCounterParties,
     from_date: rangeMonth?.start,
     to_date: rangeMonth?.end,
-    counterparties_group_id: []
+    counterparties_group_id: student.selectedCounterPartiesGroups
   }
 
   const {
@@ -183,6 +179,12 @@ const Students = observer(() => {
             onChange={(value) => student.setState('selectedCounterParties', value)}
           />
         </FilterSection>
+        <FilterSection title="Группа контрагентов">
+          <SelectCounterPartyGroup
+            value={student.selectedCounterPartiesGroups}
+            onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
+          />
+        </FilterSection>
       </FilterSidebar>
       <div className="flex-1 flex flex-col overflow-hidden relative bg-white px-4">
         {/* Header */}
@@ -260,7 +262,6 @@ const Students = observer(() => {
             <StudentsBody
               studentList={studentList}
               columns={columns}
-              setTotalTotal={setTotalTotal}
               isFetchingNextPage={isFetchingNextPage}
             />
           </div>
@@ -271,7 +272,7 @@ const Students = observer(() => {
 })
 
 // Body rows component - no separate scroll container, sticky works with parent
-const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage }) => {
+const StudentsBody = ({ studentList, columns }) => {
   return (
     <div>
       {studentList.map((studentItem, index) => (
@@ -312,11 +313,7 @@ const StudentsBody = ({ studentList, columns, setTotalTotal, isFetchingNextPage 
             }
 
             // Total columns
-            const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact
-            // setTotalTotal(prev => ({
-            //   ...prev,
-            //   [col.key]: prev[col.key] + value
-            // }))
+            const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact 
             return (
               <div
                 key={col.key}

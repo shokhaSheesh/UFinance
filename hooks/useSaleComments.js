@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { apiClient } from '../lib/api/ucode/base'
 import { authStore } from '../store/auth.store'
 
@@ -21,33 +21,33 @@ async function uploadFile(file) {
   return `${CDN_BASE}/${json.data.link}`
 }
 
-async function apiListComments(operationId) {
+async function apiListComments(salesId) {
   const res = await apiClient.invokeFunction({
-    method: 'list_operation_files_and_comments',
-    data: { operation_id: operationId },
+    method: 'list_sale_files_and_comments',
+    data: { sales_id: salesId },
   })
   return res?.data?.data || []
 }
 
-async function apiAddComment(operationId, comment, fileUrls) {
+async function apiAddComment(salesId, comment, fileUrls) {
   const file = Array.isArray(fileUrls) ? fileUrls.filter(Boolean) : (fileUrls ? [fileUrls] : [])
   return apiClient.invokeFunction({
-    method: 'add_operation_files_and_comments',
-    data: { operation_id: operationId, comment, file: file.length ? file : '' },
+    method: 'add_sale_files_and_comments',
+    data: { sales_id: salesId, comment, file: file.length ? file : '' },
   })
 }
 
 async function apiUpdateComment(guid, comment, fileUrls) {
   const file = Array.isArray(fileUrls) ? fileUrls.filter(Boolean) : (fileUrls ? [fileUrls] : [])
   return apiClient.invokeFunction({
-    method: 'update_operation_files_and_comments',
+    method: 'update_sale_files_and_comments',
     data: { guid, comment, file: file.length ? file : '' },
   })
 }
 
 async function apiDeleteComment(guid) {
   return apiClient.invokeFunction({
-    method: 'delete_operation_files_and_comments',
+    method: 'delete_sale_files_and_comments',
     data: { guid },
   })
 }
@@ -78,7 +78,7 @@ function normalizeMessage(item) {
   }
 }
 
-export function useOperationComments({ isNew, operationId }) {
+export function useSaleComments({ salesId }) {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [attachedFiles, setAttachedFiles] = useState([])
@@ -89,27 +89,22 @@ export function useOperationComments({ isNew, operationId }) {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [isSending, setIsSending] = useState(false)
 
-  // Stores pending { localId, text, files: File[] } when isNew=true
-  const pendingRef = useRef([])
-
-  const loadMessages = useCallback(async (opId) => {
-    if (!opId) return
+  const loadMessages = useCallback(async (id) => {
+    if (!id) return
     setIsLoadingMessages(true)
     try {
-      const data = await apiListComments(opId)
+      const data = await apiListComments(id)
       setMessages(Array.isArray(data) ? data.map(normalizeMessage) : [])
     } catch (e) {
-      console.error('useOperationComments loadMessages error', e)
+      console.error('useSaleComments loadMessages error', e)
     } finally {
       setIsLoadingMessages(false)
     }
   }, [])
 
   useEffect(() => {
-    if (!isNew && operationId) {
-      loadMessages(operationId)
-    }
-  }, [isNew, operationId, loadMessages])
+    if (salesId) loadMessages(salesId)
+  }, [salesId, loadMessages])
 
   const canSend = text.trim().length > 0 || attachedFiles.length > 0
 
@@ -135,55 +130,25 @@ export function useOperationComments({ isNew, operationId }) {
   }
 
   const handleSend = async () => {
-    if (!canSend) return
+    if (!canSend || !salesId) return
     const currentText = text.trim()
     const currentFiles = [...attachedFiles]
     setText('')
     setAttachedFiles([])
 
-    if (isNew) {
-      const localId = Date.now()
-      pendingRef.current.push({ localId, text: currentText, files: currentFiles })
-      setMessages(prev => [{
-        id: localId,
-        message: currentText,
-        file: currentFiles[0] ? { name: currentFiles[0].name } : null,
-        files: currentFiles.map(f => ({ name: f.name })),
-        email: authStore.userEmail,
-        createdAt: new Date().toISOString(),
-      }, ...prev])
-    } else {
-      setIsSending(true)
-      try {
-        const fileUrls = []
-        for (const file of currentFiles) {
-          fileUrls.push(await uploadFile(file))
-        }
-        await apiAddComment(operationId, currentText, fileUrls)
-        await loadMessages(operationId)
-      } catch (e) {
-        console.error('useOperationComments handleSend error', e)
-      } finally {
-        setIsSending(false)
+    setIsSending(true)
+    try {
+      const fileUrls = []
+      for (const file of currentFiles) {
+        fileUrls.push(await uploadFile(file))
       }
+      await apiAddComment(salesId, currentText, fileUrls)
+      await loadMessages(salesId)
+    } catch (e) {
+      console.error('useSaleComments handleSend error', e)
+    } finally {
+      setIsSending(false)
     }
-  }
-
-  // Called by OperationModal after form saves a NEW operation
-  const flushPending = async (opId) => {
-    if (!opId || pendingRef.current.length === 0) return
-    for (const pending of pendingRef.current) {
-      try {
-        const fileUrls = []
-        for (const file of pending.files) {
-          fileUrls.push(await uploadFile(file))
-        }
-        await apiAddComment(opId, pending.text, fileUrls)
-      } catch (e) {
-        console.error('useOperationComments flushPending error', e)
-      }
-    }
-    pendingRef.current = []
   }
 
   const handleKeyDown = (e) => {
@@ -207,24 +172,18 @@ export function useOperationComments({ isNew, operationId }) {
     setEditText('')
     setEditFiles([])
 
-    if (isNew) {
-      setMessages(prev => prev.map(m => m.id === targetId ? { ...m, message: currentEditText } : m))
-      const pending = pendingRef.current.find(p => p.localId === targetId)
-      if (pending) pending.text = currentEditText
-    } else {
-      const msg = messages.find(m => m.id === targetId)
-      if (!msg) return
-      try {
-        const existingUrls = (msg.files || []).map(f => f.url).filter(Boolean)
-        const newUrls = []
-        for (const file of currentEditFiles) {
-          newUrls.push(await uploadFile(file))
-        }
-        await apiUpdateComment(msg.guid, currentEditText, [...existingUrls, ...newUrls])
-        await loadMessages(operationId)
-      } catch (e) {
-        console.error('useOperationComments handleEditConfirm error', e)
+    const msg = messages.find(m => m.id === targetId)
+    if (!msg) return
+    try {
+      const existingUrls = (msg.files || []).map(f => f.url).filter(Boolean)
+      const newUrls = []
+      for (const file of currentEditFiles) {
+        newUrls.push(await uploadFile(file))
       }
+      await apiUpdateComment(msg.guid, currentEditText, [...existingUrls, ...newUrls])
+      await loadMessages(salesId)
+    } catch (e) {
+      console.error('useSaleComments handleEditConfirm error', e)
     }
   }
 
@@ -257,17 +216,11 @@ export function useOperationComments({ isNew, operationId }) {
       setEditText('')
       setEditFiles([])
     }
-
-    if (isNew) {
-      setMessages(prev => prev.filter(m => m.id !== targetId))
-      pendingRef.current = pendingRef.current.filter(p => p.localId !== targetId)
-    } else {
-      try {
-        await apiDeleteComment(targetId)
-        await loadMessages(operationId)
-      } catch (e) {
-        console.error('useOperationComments handleDeleteConfirm error', e)
-      }
+    try {
+      await apiDeleteComment(targetId)
+      await loadMessages(salesId)
+    } catch (e) {
+      console.error('useSaleComments handleDeleteConfirm error', e)
     }
   }
 
@@ -286,7 +239,6 @@ export function useOperationComments({ isNew, operationId }) {
     isLoadingMessages,
     isSending,
     canSend,
-    flushPending,
     handleFileChange,
     handleRemoveAttach,
     handleSend,

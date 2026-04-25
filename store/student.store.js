@@ -14,6 +14,7 @@ class Student {
   accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method'
   selectedCounterParties = []
+  selectedCounterPartiesGroups = []
   rangeMonth = defaultRangeMonth
 
   constructor() {
@@ -26,6 +27,7 @@ class Student {
           "accounting",
           "dealsMethod",
           "selectedCounterParties",
+          "selectedCounterPartiesGroups",
           "rangeMonth",
         ],
         storage: window.localStorage,
@@ -42,6 +44,7 @@ class Student {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
     this.selectedCounterParties = []
+    this.selectedCounterPartiesGroups = []
     this.rangeMonth = defaultRangeMonth
   }
   resetMonth = () => {

@@ -35,7 +35,6 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [selectedBranch, setSelectedBranch] = useState('')
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false)
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false)
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
   const [forgotPasswordError, setForgotPasswordError] = useState('')
   const phoneInputRef = useRef(null)
@@ -289,7 +288,7 @@ export default function LoginPage() {
       if (!formData.checked) {
         errors.terms = 'Необходимо согласиться с условиями'
       }
-    } else {
+    } else if (fromType === 'login') {
       if (!formData.email.trim()) {
         errors.email = 'Введите email'
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -320,6 +319,24 @@ export default function LoginPage() {
           email: formData.email,
           password: formData.password,
         })
+      } else if (fromType === 'forgot') {
+        if (!forgotPasswordEmail) {
+          setForgotPasswordError('Введите email')
+          return
+        }
+        if (!/\S+@\S+\.\S+/.test(forgotPasswordEmail)) {
+          setForgotPasswordError('Неверный формат email')
+          return
+        }
+        try {
+          await forgotPasswordMutation({ email: forgotPasswordEmail })
+          showSuccessNotification('Инструкции по восстановлению пароля отправлены на ваш email')
+          setForgotPasswordEmail('')
+          setForgotPasswordError('')
+          setFromType('login')
+        } catch (error) {
+          showErrorNotification(error?.message || 'Ошибка при отправке запроса')
+        }
       } else {
         const cleanPhone = getCleanPhoneNumber(formData.phone)
         await registerAsync({
@@ -343,6 +360,8 @@ export default function LoginPage() {
     setConfirmPassword('')
     setSelectedBranch('')
     setBranchDropdownOpen(false)
+    setForgotPasswordEmail('')
+    setForgotPasswordError('')
   }
 
   return (
@@ -351,7 +370,7 @@ export default function LoginPage() {
         <AuthLogo color="#ffffff" width="114" height="27" />
       </div>
       {/* Login Card */}
-      <div className=" rounded-md p-6">
+      <div className=" w-[450px] rounded-md p-6">
         <div className={styles.card}>
 
           {/* Logo/Title */}
@@ -360,7 +379,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className={styles.cardTitle}>
-            {fromType === 'login' ? 'Вход в аккаунт' : 'Регистрация'}
+            {fromType === 'login' ? 'Вход в аккаунт' : fromType === 'forgot' ? 'Восстановление пароля' : 'Регистрация'}
           </h1>
 
           {/* Form */}
@@ -521,12 +540,46 @@ export default function LoginPage() {
             {fromType === 'login' && (
               <div className="text-right mb-2">
                 <span
-                  onClick={() => setIsForgotPasswordOpen(true)}
+                  onClick={() => {
+                    setFromType('forgot')
+                    setError('')
+                    setFieldErrors({})
+                    setForgotPasswordEmail(formData.email)
+                    setForgotPasswordError('')
+                  }}
                   className="text-sm text-[#0E73F6] hover:text-[#0b5fd4] cursor-pointer"
                 >
                   Забыли пароль?
                 </span>
               </div>
+            )}
+
+            {/* Forgot Password Form */}
+            {fromType === 'forgot' && (
+              <>
+                <div className={styles.inputGroup}>
+                  <div className={styles.inputWrapper}>
+                    <Input
+                      type="email"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => {
+                        setForgotPasswordEmail(e.target.value)
+                        setForgotPasswordError('')
+                      }}
+                      onFocus={() => setFocusedField('forgotEmail')}
+                      onBlur={() => setFocusedField(null)}
+                      className={cn('h-10! p-4!',
+                        focusedField === 'forgotEmail' && 'focus:border-primary',
+                      )}
+                      hasError={forgotPasswordError}
+                      placeholder="Email"
+                    />
+                  </div>
+                  {forgotPasswordError && (
+                    <div className={styles.fieldError}>{forgotPasswordError}</div>
+                  )}
+                </div>
+              </>
             )}
 
             {/* Checkbox (Only on register) */}
@@ -558,22 +611,43 @@ export default function LoginPage() {
 
             {/* Action Links */}
             <div className={styles.actionLinks}>
-              <span>
-                {fromType === 'login' ? 'Нет учётной записи? ' : 'Есть учётная запись? '}
-                <span
-                  onClick={toggleFormType}
-                  className={styles.actionToggle}
-                >
-                  {fromType === 'login' ? 'Зарегистрироваться' : 'Войти'}
+              {fromType === 'forgot' ? (
+                <span>
+                  Вернуться ко{' '}
+                  <span
+                    onClick={() => {
+                      setFromType('login')
+                      setError('')
+                      setFieldErrors({})
+                      setForgotPasswordError('')
+                    }}
+                    className={styles.actionToggle}
+                  >
+                    входу
+                  </span>
                 </span>
-              </span>
+              ) : (
+                  <span>
+                    {fromType === 'login' ? 'Нет учётной записи? ' : 'Есть учётная запись? '}
+                    <span
+                      onClick={toggleFormType}
+                      className={styles.actionToggle}
+                    >
+                      {fromType === 'login' ? 'Зарегистрироваться' : 'Войти'}
+                    </span>
+                  </span>
+              )}
             </div>
 
             {/* Submit Button */}
             <div className={styles.submitWrapper}>
               <button
                 type="submit"
-                disabled={fromType === 'login' ? loginMutation.isPending : isRegistering}
+                disabled={
+                  fromType === 'login' ? loginMutation.isPending
+                    : fromType === 'forgot' ? isForgotPasswordLoading
+                      : isRegistering
+                }
                 className={cn(
                   styles.submitButton,
                   fromType === 'login' && styles.loginButton
@@ -581,80 +655,21 @@ export default function LoginPage() {
               >
                 {fromType === 'login'
                   ? (loginMutation.isPending ? (<Loader />) : 'Войти')
+                  : fromType === 'forgot'
+                    ? (isForgotPasswordLoading ? (<Loader />) : 'Отправить')
                   : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
               </button>
             </div>
 
-            <div className={styles.termsText}>
-              Нажав кнопку «{fromType === 'login' ? 'Войти' : 'Зарегистрироваться'}», вы подтверждаете{' '}
-              <a href="#">Политика конфеденциальности</a>
-            </div>
+            {fromType !== 'forgot' && (
+              <div className={styles.termsText}>
+                Нажав кнопку «{fromType === 'login' ? 'Войти' : 'Зарегистрироваться'}», вы подтверждаете{' '}
+                <a href="#">Политика конфеденциальности</a>
+              </div>
+            )}
           </form>
         </div>
       </div>
-
-      {/* Forgot Password Modal */}
-      {isForgotPasswordOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <h2 className="text-xl font-semibold mb-4 text-neutral-800">Восстановление пароля</h2>
-            <p className="text-sm text-neutral-600 mb-4">
-              Введите email, указанный при регистрации. Мы отправим вам инструкции по восстановлению пароля.
-            </p>
-            <div className="mb-4">
-              <Input
-                type="email"
-                value={forgotPasswordEmail}
-                onChange={(e) => {
-                  setForgotPasswordEmail(e.target.value)
-                  setForgotPasswordError('')
-                }}
-                placeholder="Email"
-                hasError={forgotPasswordError}
-                className="h-10! p-4!"
-              />
-              {forgotPasswordError && (
-                <div className="text-red-500 text-sm mt-1">{forgotPasswordError}</div>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setIsForgotPasswordOpen(false)
-                  setForgotPasswordEmail('')
-                  setForgotPasswordError('')
-                }}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={async () => {
-                  if (!forgotPasswordEmail) {
-                    setForgotPasswordError('Введите email')
-                    return
-                  }
-                  try {
-                    await forgotPasswordMutation({
-                      email: forgotPasswordEmail
-                    })
-                    showSuccessNotification('Инструкции по восстановлению пароля отправлены на ваш email')
-                    setIsForgotPasswordOpen(false)
-                    setForgotPasswordEmail('')
-                    setForgotPasswordError('')
-                  } catch (error) {
-                    showErrorNotification(error?.message || 'Ошибка при отправке запроса')
-                  }
-                }}
-                disabled={isForgotPasswordLoading}
-                className="flex-1 px-4 py-2 bg-[#0E73F6] text-white rounded-md hover:bg-[#0b5fd4] transition-colors disabled:opacity-50"
-              >
-                {isForgotPasswordLoading ? <Loader size={16} /> : 'Отправить'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

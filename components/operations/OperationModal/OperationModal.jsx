@@ -5,12 +5,14 @@ import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useMounted from '../../../hooks/useMounted'
+import { useOperationComments } from '../../../hooks/useOperationComments'
 import { appStore } from '../../../store/app.store'
 import { formatDateRu } from '../../../utils/helpers'
 import AccuralForm from './Forms/Accural'
 import IncomeForm from './Forms/Income'
 import PaymentForm from './Forms/Payment'
 import TransferForm from './Forms/Transfer'
+import SentMessages from './SentMessages'
 
 const OperationModal = observer(({
 	operation,
@@ -30,12 +32,12 @@ const OperationModal = observer(({
 
 	const operationPermissions = appStore.permission?.operations || {}
 
-	// const comments = useOperationComments({ isNew, operationId: operation?.guid })
+	const comments = useOperationComments({ isNew, operationId: operation?.guid })
 
 	const handleFormSuccess = async (operationId) => {
-		// await comments.flushPending(operationId)
-		// onSuccess?.()
-		// onClose()
+		await comments.flushPending(operationId)
+		onSuccess?.()
+		onClose()
 	}
 
 
@@ -157,28 +159,28 @@ const OperationModal = observer(({
 						)}
 					</div>
 				</div>
-				{/* <SentMessages
-						messages={comments.messages}
-						text={comments.text}
-						attachedFiles={comments.attachedFiles}
-						editingId={comments.editingId}
-						editText={comments.editText}
-						editFile={comments.editFile}
-						deleteTargetId={comments.deleteTargetId}
-						onTextChange={comments.setText}
-						onFileChange={comments.handleFileChange}
-						onRemoveAttach={comments.handleRemoveAttach}
-						onSend={comments.handleSend}
-						onKeyDown={comments.handleKeyDown}
-						onEdit={comments.handleEdit}
-						onEditChange={comments.setEditText}
-						onEditFileChange={comments.handleEditFileChange}
-						onEditConfirm={comments.handleEditConfirm}
-						onEditCancel={comments.handleEditCancel}
-						onDelete={comments.handleDeleteRequest}
-						onDeleteConfirm={comments.handleDeleteConfirm}
-						onDeleteCancel={comments.handleDeleteCancel}
-					/> */}
+				<SentMessages
+					messages={comments.messages}
+					text={comments.text}
+					attachedFiles={comments.attachedFiles}
+					editingId={comments.editingId}
+					editText={comments.editText}
+					editFiles={comments.editFiles}
+					deleteTargetId={comments.deleteTargetId}
+					onTextChange={comments.setText}
+					onFileChange={comments.handleFileChange}
+					onRemoveAttach={comments.handleRemoveAttach}
+					onSend={comments.handleSend}
+					onKeyDown={comments.handleKeyDown}
+					onEdit={comments.handleEdit}
+					onEditChange={comments.setEditText}
+					onEditFileChange={comments.handleEditFileChange}
+					onEditConfirm={comments.handleEditConfirm}
+					onEditCancel={comments.handleEditCancel}
+					onDelete={comments.handleDeleteRequest}
+					onDeleteConfirm={comments.handleDeleteConfirm}
+					onDeleteCancel={comments.handleDeleteCancel}
+				/>
 			</div>
 		</>
 	)
