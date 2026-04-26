@@ -7,6 +7,7 @@ import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
+import { authStore } from '../../../store/auth.store'
 
 const SettingsPage = observer(() => {
 
@@ -22,8 +23,10 @@ const SettingsPage = observer(() => {
   function handleSwitchPayment() {
     appStore.setIsPayment(!appStore.isPayment)
   }
+
   function handleSwitchAccrualDate() {
     appStore.setIsAccrualDate(!appStore.isAccrualDate)
+    appStore.setAccuralDateBranch(authStore?.branch_id)
   }
 
   const handleSelectCurrency = async (value) => {

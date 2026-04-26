@@ -5,6 +5,7 @@ import { makePersistable } from "mobx-persist-store";
 class AppStore {
 	isPayment = false
 	isAccrualDate = false
+	accuralDateBranch = []
 	currency = {
 		name: '',
 		guid: '',
@@ -51,7 +52,7 @@ class AppStore {
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
 				name: 'plan_fact_app',
-				properties: ['isPayment', 'currency', 'isAccrualDate', 'currencies', 'isDonoSchool', 'myCurrencies', 'companyCurrencies', 'localApiUrl', 'permission'],
+				properties: ['isPayment', 'currency', 'isAccrualDate', 'currencies', 'isDonoSchool', 'myCurrencies', 'companyCurrencies', 'localApiUrl', 'permission', 'accuralDateBranch'],
 				storage: window.localStorage,
 				debugMode: true,
 				version: 1,
@@ -112,6 +113,27 @@ class AppStore {
 
 	setIsAccrualDate(value) {
 		this.isAccrualDate = value
+		// if (this.accuralDateBranch?.includes(id)) {
+		// 	this.isAccrualDate = value
+		// } else {
+		// 	this.isAccrualDate = false
+		// }
+	}
+
+	setBranchIsAccrualDate(value) {
+		if (this.accuralDateBranch?.includes(value)) {
+			this.isAccrualDate = true
+		} else {
+			this.isAccrualDate = false
+		}
+	}
+
+	setAccuralDateBranch(value) {
+		if (this.accuralDateBranch?.includes(value)) {
+			this.accuralDateBranch = this.accuralDateBranch.filter(branch => branch !== value)
+		} else {
+			this.accuralDateBranch.push(value)
+		}
 	}
 
 	setPlanfactPermission() {

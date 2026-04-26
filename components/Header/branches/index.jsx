@@ -70,6 +70,7 @@ const Branches = observer(() => {
     let permission = {}
     setOpen(false)
     authStore.setBranchId(branch.guid)
+    appStore.setBranchIsAccrualDate(branch.guid)
     authStore.setSelectBranch(branch)
     setReloading(true)
     if (userData?.role === 'plan_fakt_admins' && branch?.is_employee) {

@@ -106,8 +106,10 @@ export default function LoginPage() {
       const branch = branches?.find(item => item?.is_employee == true)
 
       if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
         authStore.setBranches(branches)
-        authStore.setBranchId(branch?.guid || branches[0]?.guid)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
       }
 
       if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
@@ -117,7 +119,6 @@ export default function LoginPage() {
         })
       } else {
         appStore.setEmployerPermission()
-        console.log('for finance')
       }
 
 
@@ -657,7 +658,7 @@ export default function LoginPage() {
                   ? (loginMutation.isPending ? (<Loader />) : 'Войти')
                   : fromType === 'forgot'
                     ? (isForgotPasswordLoading ? (<Loader />) : 'Отправить')
-                  : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
+                    : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
               </button>
             </div>
 
