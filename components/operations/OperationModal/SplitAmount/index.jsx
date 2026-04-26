@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
 import { isFuture } from '../../../../utils/formatDate'
 import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/helpers'
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
-import CustomCalendar from '../../../shared/Calendar'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
 import CustomModal from '../../../shared/CustomModal'
+import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
 import CustomMultipleSelect from '../../../shared/Selects/MultipleSelect'
 import './style.scss'
 
@@ -20,50 +19,36 @@ const defaultOptions = [
 
 const today = new Date().getDate()
 
-const DateCell = ({ row, i, dispatch, openCalendarIdx, setOpenCalendarIdx, disabled }) => {
-  const cellRef = useRef(null)
-  const isOpened = openCalendarIdx === i
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
-
-  useEffect(() => {
-    if (isOpened && cellRef.current) {
-      const rect = cellRef.current.getBoundingClientRect()
-      setDropdownPosition({
-        top: rect.bottom + 4,
-        left: rect.left
-      })
-    }
-  }, [isOpened])
-
+const DateCell = ({ row, i, dispatch, disabled }) => {
   return (
-    <div className="date-cell-wrapper" ref={cellRef}>
-      <div className="date-cell" onClick={(e) => {
-        if (disabled) return
-        e.stopPropagation()
-        setOpenCalendarIdx(isOpened ? null : i)
-      }}>
-        <CalendarCellIcon />
-        <span className={`date-value ${disabled ? ' cursor-not-allowed' : ''}`}>{formatDateRu(row.calculationDate)}</span>
-      </div>
-      {isOpened && typeof window !== 'undefined' && createPortal(
-        <div
-          className="date-calendar-popover"
-          style={{ position: 'fixed', top: dropdownPosition.top, left: dropdownPosition.left, zIndex: 9999 }}
-          onClick={e => e.stopPropagation()}
-          onMouseDown={e => e.stopPropagation()}
-        >
-          <CustomCalendar
-            value={new Date(row.calculationDate)}
-            onChange={(value) => {
-              dispatch({ type: 'UPDATE', index: i, field: 'calculationDate', value: value })
-              setOpenCalendarIdx(null)
+    <FormDatepicker
+      value={row.calculationDate ? new Date(row.calculationDate) : null}
+      onChange={(value) => {
+        const date = value instanceof Date ? value : value ? new Date(value) : null
+        const formatted = date
+          ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+          : ''
+        dispatch({ type: 'UPDATE', index: i, field: 'calculationDate', value: formatted })
+      }}
+      format="YYYY-MM-DD"
+      disabled={disabled}
+      render={(_value, openCalendar) => (
+        <div className="date-cell-wrapper">
+          <div
+            className="date-cell"
+            onClick={() => {
+              if (disabled) return
+              openCalendar()
             }}
-            format="YYYY-MM-DD"
-          />
-        </div>,
-        document.body
+          >
+            <CalendarCellIcon />
+            <span className={`date-value ${disabled ? ' cursor-not-allowed' : ''}`}>
+              {formatDateRu(row.calculationDate)}
+            </span>
+          </div>
+        </div>
       )}
-    </div>
+    />
   )
 }
 
@@ -72,8 +57,6 @@ const SplitAmount = ({ amount, onChange, rows,
   dispatch, selectedSplits, setSelectedSplits, confirmPayment, initiallyOpen = false, modalType, salesDeal }) => {
   const [open, setOpen] = useState(initiallyOpen)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
-
-  const [openCalendarIdx, setOpenCalendarIdx] = useState(null)
 
   const [prevInitiallyOpen, setPrevInitiallyOpen] = useState(initiallyOpen)
 
@@ -108,17 +91,6 @@ const SplitAmount = ({ amount, onChange, rows,
     }
   }, [rows, open, onChange])
 
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (openCalendarIdx !== null && !event.target.closest('.date-cell-wrapper')) {
-        setOpenCalendarIdx(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [openCalendarIdx])
 
   const handleToggleSplit = () => {
     if (open) {
@@ -224,8 +196,6 @@ const SplitAmount = ({ amount, onChange, rows,
                                 i={i}
                                 dispatch={dispatch}
                                 disabled={salesDeal}
-                                openCalendarIdx={openCalendarIdx}
-                                setOpenCalendarIdx={setOpenCalendarIdx}
                               />
                             </td>
                             {/* Confirm checkbox */}
