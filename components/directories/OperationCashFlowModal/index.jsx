@@ -45,10 +45,6 @@ const OperationCashFlowModal = observer(({
     return infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
   }, [infiniteData])
 
-  const totalSummary = useMemo(() => {
-    return infiniteData?.pages?.[0]?.data?.data?.totalSummary
-  }, [infiniteData])
-
   const operationsList = useMemo(() => {
     return {
       future: operationsDto(allOperations, 'future'),
@@ -68,13 +64,6 @@ const OperationCashFlowModal = observer(({
     return ''
   }, [filterData])
 
-  // const totalAmount = useMemo(() => {
-  //   if (['Перемещения', 'Списания', 'Зачисления']?.includes(title)) {
-  //     return totalSummary?.by_type?.transfer?.total_summa
-  //   }
-  //   return totalSummary?.net_cash_flow
-  // }, [totalSummary, title])
-
   // Infinite scroll handler
   const handleScroll = useCallback(() => {
     const el = tableRef.current
@@ -91,6 +80,8 @@ const OperationCashFlowModal = observer(({
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
+
+  console.log('allOperations', allOperations)
 
   return (
     <CustomModal isOpen={isOpen} onClose={onClose} className="w-[800px] p-0">

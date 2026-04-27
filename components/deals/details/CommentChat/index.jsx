@@ -1,7 +1,7 @@
 'use client';
-import React, { useRef } from 'react';
-import { Paperclip, Send, X, Pencil, Trash2, Check, Download } from 'lucide-react';
 import { useSaleComments } from '@/hooks/useSaleComments';
+import { Check, Download, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react';
+import { useRef } from 'react';
 
 const ACCEPTED_FORMATS = '.pdf,.doc,.docx,.xls,.xlsx,.jpeg,.png,.jpg,.zip,.rar,.txt,.csv,.xml';
 
@@ -151,7 +151,7 @@ const CommentChat = ({ dealGuid }) => {
                   )}
 
                   <div className="flex items-center justify-between mt-2 text-[11px] text-gray-400">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-start">
                       <span>{msg.email}</span>
                       <span>{formatDateRu(msg.createdAt)}</span>
                     </div>

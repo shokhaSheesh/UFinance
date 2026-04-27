@@ -1,45 +1,74 @@
 "use client"
 
-import { useState, useEffect, useMemo } from 'react'
 import { cn } from '@/app/lib/utils'
-import { useCreateMyAccount, useUpdateMyAccount, useCurrencies } from '@/hooks/useDashboard'
 import Input from '@/components/shared/Input'
-import CustomDatePicker from '../../shared/DatePicker'
-import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
-import SingleSelect from '../../shared/Selects/SingleSelect'
-import CustomModal from '../../shared/CustomModal'
-import Loader from '../../shared/Loader'
-import { formatDecimal, formatNumber, returnNumber, StringtoNumber } from '../../../utils/helpers'
-import SelectMyAccoutGroup from '../../ReadyComponents/SelectMyAccoutGroup'
+import { useCreateMyAccount, useUpdateMyAccount } from '@/hooks/useDashboard'
+import moment from 'moment'
+import { useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
+import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
+import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
+import SelectMyAccoutGroup from '../../ReadyComponents/SelectMyAccoutGroup'
+import CustomDialog from '../../shared/CustomDialog'
+import FormDatepicker from '../../shared/DatePicker/form-datepicker'
+import Loader from '../../shared/Loader'
+import SingleSelect from '../../shared/Selects/SingleSelect'
 
 export default function CreateMyAccountModal({ isOpen, onClose, account = null }) {
   const createMutation = useCreateMyAccount()
   const updateMutation = useUpdateMyAccount()
   const isEdit = !!account && !!account.guid
 
-  const [formData, setFormData] = useState({
-    nazvanie: '',
-    tip: ['Наличный'],
-    nachalьnyy_ostatok: '',
-    data_sozdaniya: new Date().toISOString().split('T')[0],
-    currenies_id: '',
-    komentariy: '',
-    legal_entity_id: "",
-    bik: '',
-    bank: '',
-    rasch_schet: '',
-    korr_schet: '',
-    nomer: '',
-    account_group_id: ''
-  })
-
-  const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+
+  const defaultValues = useMemo(() => {
+    if (isEdit && account) {
+      return {
+        nazvanie: account.nazvanie || '',
+        tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
+        nachalьnyy_ostatok: account.nachalьnyy_ostatok || '',
+        data_sozdaniya: account.data_nachalьnogo_ostatka || account.data_sozdaniya
+          ? new Date(account.data_nachalьnogo_ostatka || account.data_sozdaniya).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        currenies_id: account.currenies_id || '',
+        komentariy: account.komentariy || '',
+        legal_entity_id: account.legal_entity_id || '',
+        bik: account.bik || '',
+        bank: account.bank_name || account.bank || '',
+        rasch_schet: account.nomer_scheta || '',
+        korr_schet: account.kor_schet || account.korr_schet || '',
+        nomer: account.nomer || '',
+        account_group_id: account.account_groups_id || account.account_group_id || account.group_id || ''
+      }
+    }
+    return {
+      nazvanie: '',
+      tip: ['Наличный'],
+      nachalьnyy_ostatok: '',
+      data_sozdaniya: new Date().toISOString().split('T')[0],
+      currenies_id: appStore?.currency?.guid || '',
+      komentariy: '',
+      legal_entity_id: '',
+      bik: '',
+      bank: '',
+      rasch_schet: '',
+      korr_schet: '',
+      nomer: '',
+      account_group_id: ''
+    }
+  }, [isEdit, account])
+
+  const { control, handleSubmit, watch, formState: { errors }, reset } = useForm({
+    defaultValues
+  })
+
+  const formData = watch()
+  const selectedType = formData.tip?.[0] || ''
 
 
 
@@ -65,58 +94,19 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false)
-      // Small delay to ensure smooth animation
       requestAnimationFrame(() => {
         setIsVisible(true)
       })
-
-      // Initialize form data
-      if (isEdit && account && account.guid) {
-        // Editing existing account
-        setFormData({
-          nazvanie: account.nazvanie || '',
-          tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
-          nachalьnyy_ostatok: account.nachalьnyy_ostatok || '',
-          data_sozdaniya: account.data_nachalьnogo_ostatka || account.data_sozdaniya
-            ? new Date(account.data_nachalьnogo_ostatka || account.data_sozdaniya).toISOString().split('T')[0]
-            : new Date().toISOString().split('T')[0],
-          currenies_id: account.currenies_id || '',
-          komentariy: account.komentariy || '',
-          legal_entity_id: account.legal_entity_id || "",
-          bik: account.bik || '',
-          bank: account.bank_name || account.bank || '',
-          rasch_schet: account.nomer_scheta || '',
-          korr_schet: account.kor_schet || account.korr_schet || '',
-          nomer: account.nomer || '',
-          account_group_id: account.account_groups_id || account.account_group_id || account.group_id || ''
-        })
-        if (account.bik || account.bank || account.rasch_schet || account.korr_schet) {
-          setShowDetails(true)
-        }
+      reset(defaultValues)
+      if (isEdit && account && (account.bik || account.bank || account.rasch_schet || account.korr_schet)) {
+        setShowDetails(true)
       } else {
-        // Creating new account
-        setFormData({
-          nazvanie: '',
-          tip: ['Наличный'],
-          nachalьnyy_ostatok: '',
-          data_sozdaniya: new Date().toISOString().split('T')[0],
-          currenies_id: appStore?.currency?.guid,
-          komentariy: '',
-          legal_entity_id: "",
-          bik: '',
-          bank: '',
-          rasch_schet: '',
-          korr_schet: '',
-          nomer: '',
-          account_group_id: ''
-        })
         setShowDetails(false)
       }
-      setErrors({})
     } else {
       setIsVisible(false)
     }
-  }, [isOpen, account, isEdit])
+  }, [isOpen, account, isEdit, reset, defaultValues])
 
   const handleClose = () => {
     setIsClosing(true)
@@ -126,43 +116,25 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
     }, 250)
   }
 
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!formData.nazvanie.trim()) {
-      newErrors.nazvanie = 'Укажите название'
-    }
-
-    if (!formData.legal_entity_id) {
-      newErrors.legal_entity_id = 'Выберите юрлицо'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async () => {
-    if (!validateForm()) return
-
+  const onSubmit = async (data) => {
     setIsSubmitting(true)
     try {
       const submitData = {
-        nazvanie: formData.nazvanie.trim(),
-        tip: formData.tip,
-        nachalьnyy_ostatok: formData.nachalьnyy_ostatok ? formatDecimal(StringtoNumber(formData.nachalьnyy_ostatok)) : null,
-        data_nachalьnogo_ostatka: formData.data_sozdaniya || null,
-        currenies_id: formData.currenies_id || null,
-        komentariy: formData.komentariy || null,
-        legal_entity_id: formData.legal_entity_id || null,
-        bik: formData.bik || null,
-        bank_name: formData.bank || null,
-        nomer: formData.nomer,
-        nomer_scheta: formData.rasch_schet,
-        kor_schet: formData.korr_schet || null,
-        account_groups_id: formData.account_group_id || null,
+        nazvanie: data.nazvanie.trim(),
+        tip: data.tip,
+        nachalьnyy_ostatok: data.nachalьnyy_ostatok ? formatDecimal(StringtoNumber(data.nachalьnyy_ostatok)) : null,
+        data_nachalьnogo_ostatka: data.data_sozdaniya || null,
+        currenies_id: data.currenies_id || null,
+        komentariy: data.komentariy || null,
+        legal_entity_id: data.legal_entity_id || null,
+        bik: data.bik || null,
+        bank_name: data.bank || null,
+        nomer: data.nomer,
+        nomer_scheta: data.rasch_schet,
+        kor_schet: data.korr_schet || null,
+        account_groups_id: data.account_group_id || null,
         ...(!isEdit && { data_sozdaniya: new Date().toISOString() })
       }
-
 
       if (isEdit && account && account.guid) {
         submitData.guid = account.guid
@@ -176,7 +148,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
       handleClose()
     } catch (error) {
-      setErrors({ submit: error.message || `Не удалось ${isEdit ? 'обновить' : 'создать'} счет` })
+      console.error(error)
     } finally {
       setIsSubmitting(false)
     }
@@ -185,8 +157,8 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   if (!isVisible && !isOpen) return null
 
   return (
-    <CustomModal className="w-[600px] p-0" isOpen={isOpen} onClose={handleClose}>
-      <div className="flex flex-col h-full text-slate-900">
+    <CustomDialog className="" open={isOpen} onClose={handleClose}>
+      <div className="flex w-[600px]! flex-col h-full text-slate-900">
         <div className="border-b pb-3 mb-3 p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">{isEdit ? 'Редактирование счета' : 'Создание счета'}</h2>
         </div>
@@ -199,15 +171,21 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 Название <span className="text-red-500">*</span>
               </label>
               <div className="flex-1 flex flex-col gap-1">
-                <Input
-                  type="text"
-                  value={formData.nazvanie}
-                  onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
-                  placeholder="Нанапример, ВТБ"
-                  className={cn(errors.nazvanie && "border-red-500")}
+                <Controller
+                  name="nazvanie"
+                  control={control}
+                  rules={{ required: 'Укажите название' }}
+                  render={({ field }) => (
+                    <Input
+                      type="text"
+                      {...field}
+                      placeholder="Например, ВТБ"
+                      className={cn(errors.nazvanie && "border-red-500")}
+                    />
+                  )}
                 />
                 {errors.nazvanie && (
-                  <div className="text-[12px] text-red-500 mt-1">{errors.nazvanie}</div>
+                  <div className="text-[12px] text-red-500 mt-1">{errors.nazvanie.message}</div>
                 )}
               </div>
             </div>
@@ -219,10 +197,16 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 Группа
               </label>
               <div className="flex-1 flex flex-col gap-1">
-                <SelectMyAccoutGroup
-                  value={formData.account_group_id}
-                  onChange={(value) => setFormData({ ...formData, account_group_id: value })}
-                  className="bg-white"
+                <Controller
+                  name="account_group_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectMyAccoutGroup
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="bg-white"
+                    />
+                  )}
                 />
               </div>
             </div>
@@ -231,16 +215,23 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Юрлицо <span className="text-red-500">*</span></label>
               <div className="flex-1 flex flex-col gap-1">
-                <SelectLegelEntitties
-                  value={formData.legal_entity_id}
-                  multi={false}
-                  onChange={(value) => setFormData({ ...formData, legal_entity_id: value })}
-                  className="bg-white"
-                  placeholder="Выберите юрлицо или создайте новое"
+                <Controller
+                  name="legal_entity_id"
+                  control={control}
+                  rules={{ required: 'Выберите юрлицо' }}
+                  render={({ field }) => (
+                    <SelectLegelEntitties
+                      value={field.value}
+                      multi={false}
+                      onChange={field.onChange}
+                      className="bg-white"
+                      isClearable={false}
+                      placeholder="Выберите юрлицо или создайте новое"
+                    />
+                  )}
                 />
-
                 {errors.legal_entity_id && (
-                  <div className="text-xs text-red-500 mt-1">{errors.legal_entity_id}</div>
+                  <div className="text-xs text-red-500 mt-1">{errors.legal_entity_id.message}</div>
                 )}
               </div>
             </div>
@@ -251,17 +242,23 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 Выберите тип счета
               </label>
               <div className="flex-1 flex flex-col gap-1 justify-start">
-                <SingleSelect
-                  data={accountTypes}
-                  value={formData.tip && formData.tip.length > 0 ? formData.tip[0] : ''}
-                  onChange={(value) => setFormData({ ...formData, tip: value ? [value] : [] })}
-                  placeholder="Выберите тип"
-                  className="flex-1 bg-white"
-                  withSearch={false}
-                  isClearable={false}
+                <Controller
+                  name="tip"
+                  control={control}
+                  render={({ field }) => (
+                    <SingleSelect
+                      data={accountTypes}
+                      value={field.value?.[0] || ''}
+                      onChange={(value) => field.onChange(value ? [value] : [])}
+                      placeholder="Выберите тип"
+                      className="flex-1 bg-white"
+                      withSearch={false}
+                      isClearable={false}
+                    />
+                  )}
                 />
                 <div className="flex justiyf-start">
-                  {formData.tip && (formData.tip[0] === 'Безналичный' || formData.tip[0] === 'Карта физлица') && (
+                  {selectedType && (selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
                     showDetails ? (
                       <button
                         type="button"
@@ -286,49 +283,55 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
 
 
-            {formData.tip && (formData.tip[0] === 'Безналичный' || formData.tip[0] === 'Карта физлица') && (
+            {(selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
               <div className="">
                 {showDetails && (
                   <div className="flex flex-col gap-3 rounded-md">
                     <div className="flex  gap-2">
                       <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Бик</label>
                       <div className="flex-1">
-                        <Input
-                          type="text"
-                          value={formData.bik}
-                          onChange={(e) => setFormData({ ...formData, bik: e.target.value })}
+                        <Controller
+                          name="bik"
+                          control={control}
+                          render={({ field }) => (
+                            <Input type="text" {...field} />
+                          )}
                         />
                       </div>
                     </div>
                     <div className="flex  gap-2">
                       <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Банк</label>
                       <div className="flex-1">
-
-                        <Input
-                          type="text"
-                          value={formData.bank}
-                          onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
+                        <Controller
+                          name="bank"
+                          control={control}
+                          render={({ field }) => (
+                            <Input type="text" {...field} />
+                          )}
                         />
                       </div>
                     </div>
                     <div className="flex  gap-2">
                       <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Расч. счет №</label>
                       <div className="flex-1">
-                        <Input
-                          type="text"
-                          value={formData.rasch_schet}
-                          onChange={(e) => setFormData({ ...formData, rasch_schet: e.target.value })}
-                          className={cn(errors.rasch_schet && "border-red-500")}
+                        <Controller
+                          name="rasch_schet"
+                          control={control}
+                          render={({ field }) => (
+                            <Input type="text" {...field} className={cn(errors.rasch_schet && "border-red-500")} />
+                          )}
                         />
                       </div>
                     </div>
                     <div className="flex  gap-2">
                       <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Кор. счет №</label>
                       <div className="flex-1">
-                        <Input
-                          type="text"
-                          value={formData.korr_schet}
-                          onChange={(e) => setFormData({ ...formData, korr_schet: e.target.value })}
+                        <Controller
+                          name="korr_schet"
+                          control={control}
+                          render={({ field }) => (
+                            <Input type="text" {...field} />
+                          )}
                         />
                       </div>
                     </div>
@@ -336,15 +339,16 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 )}
               </div>
             )}
-            {formData.tip && formData.tip[0] === 'Электронный' && (
+            {selectedType === 'Электронный' && (
               <div className="flex flex-row gap-2">
                 <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Номер</label>
                 <div className="flex-1">
-                  <Input
-                    type="text"
-                    value={formData.nomer}
-                    onChange={(e) => setFormData({ ...formData, nomer: e.target.value })}
-                    placeholder="Номер счета"
+                  <Controller
+                    name="nomer"
+                    control={control}
+                    render={({ field }) => (
+                      <Input type="text" {...field} placeholder="Номер счета" />
+                    )}
                   />
                 </div>
               </div>
@@ -363,30 +367,40 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
               </div>
             </div>} */}
 
-            {/* Начальный остаток - показываем только при создании */}
-            {!isEdit && (
-              <div className="flex flex-row gap-2">
-                <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Начальный остаток</label>
-                <div className="flex items-center flex-1 gap-2">
-                  <Input
-                    type="text"
-                    value={formatNumber(formData.nachalьnyy_ostatok)}
-                    onChange={(e) => setFormData({ ...formData, nachalьnyy_ostatok: formatNumber(e.target.value) })}
-                    placeholder="0"
-                    className="w-44"
-                    onWheel={(e) => e.target.blur()}
-                  />
-
-                  <CustomDatePicker
-                    value={formData.data_sozdaniya}
-                    onChange={(value) => setFormData({ ...formData, data_sozdaniya: value })}
+            {/* Начальный остаток */}
+            <div className="flex flex-row gap-2">
+              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Начальный остаток</label>
+              <div className="flex items-center flex-1 gap-2">
+                <Controller
+                  name="nachalьnyy_ostatok"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="text"
+                      value={formatNumber(field.value)}
+                      onChange={(e) => field.onChange(formatNumber(e.target.value))}
+                      placeholder="0"
+                      className="w-fit"
+                      onWheel={(e) => e.target.blur()}
+                    />
+                  )}
+                />
+              </div>
+              <Controller
+                name="data_sozdaniya"
+                control={control}
+                render={({ field }) => (
+                  <FormDatepicker
+                    value={field.value}
+                    onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
                     placeholder="Выберите дату"
                     format='YYYY-MM-DD'
-                    className="w-44"
+                    inputClass={'bg-white'}
+                    className="w-fit"
                   />
-                </div>
-              </div>
-            )}
+                )}
+              />
+            </div>
 
             {/* Валюта */}
             <div className="flex flex-row gap-2">
@@ -394,13 +408,19 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 Выберите валюту счета
               </label>
               <div className="flex-1 flex flex-col gap-1">
-                <SingleSelect
-                  data={currencies}
-                  value={formData.currenies_id}
-                  onChange={(value) => setFormData({ ...formData, currenies_id: value })}
-                  placeholder="Выберите валюту"
-                  isClearable={false}
-                  className="flex-1 bg-white"
+                <Controller
+                  name="currenies_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SingleSelect
+                      data={currencies}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Выберите валюту"
+                      isClearable={false}
+                      className="flex-1 bg-white"
+                    />
+                  )}
                 />
               </div>
             </div>
@@ -409,20 +429,20 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Комментарий</label>
               <div className="flex-1 flex flex-col gap-1">
-                <textarea
-                  value={formData.komentariy}
-
-                  onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
-                  placeholder="Ваш комментарий или пояснение к этому счету"
-                  className="p-2.5 text-sm resize-noneffwe text-[#0f172a] bg-white border border-gray-200 rounded-md transition-all w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-cyan-500/10 placeholder:text-gray-400 min-h-[80px]"
-                  rows={4}
+                <Controller
+                  name="komentariy"
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      placeholder="Ваш комментарий или пояснение к этому счету"
+                      className="p-2.5 text-sm resize-none text-[#0f172a] bg-white border border-gray-200 rounded-md transition-all w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-cyan-500/10 placeholder:text-gray-400 min-h-[80px]"
+                      rows={4}
+                    />
+                  )}
                 />
               </div>
             </div>
-
-            {errors.submit && (
-              <div className="text-[12px] text-red-500 mt-1">{errors.submit}</div>
-            )}
           </div>
         </div>
 
@@ -437,13 +457,13 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
           <button
             type="button"
             className="px-3 py-2 text-sm font-medium text-white bg-primary rounded-md cursor-pointer transition-all hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
-            onClick={handleSubmit}
+            onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
           >
             {isSubmitting ? <Loader /> : (isEdit ? 'Сохранить' : 'Создать')}
           </button>
         </div>
       </div>
-    </CustomModal>
+    </CustomDialog>
   )
 }

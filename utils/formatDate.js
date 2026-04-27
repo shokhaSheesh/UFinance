@@ -122,8 +122,8 @@ export const formatStudentTableDate = (monthString) => {
   if (!month || !year) return monthString
 
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
   ]
 
   const monthIndex = parseInt(month, 10) - 1

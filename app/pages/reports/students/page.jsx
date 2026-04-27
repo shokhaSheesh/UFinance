@@ -116,9 +116,9 @@ const Students = observer(() => {
   // Build unified columns array - nested structure for months
   const columns = useMemo(() => {
     const cols = [
-      { key: 'fio', type: 'sticky', label: 'ФИО', width: 'min-w-96 max-w-[500px]' },
-      { key: 'group', type: 'sticky', label: 'Группа', width: 'min-w-28 left-96 max-w-44' },
-      { key: 'status', type: 'sticky', label: 'Статус', width: 'min-w-24 left-124 max-w-32' }
+      { key: 'fio', type: 'sticky', label: 'ФИО', width: 'w-[400px] line-clamp-1 max-w-[500px]' },
+      { key: 'group', type: 'sticky', label: 'Группа', width: 'w-44 line-clamp-1  left-[400px]! line-clamp-1' },
+      { key: 'status', type: 'sticky', label: 'Статус', width: 'w-24 line-clamp-1 left-[576px] max-w-32' }
     ]
 
     monthsData.forEach(month => {
@@ -159,8 +159,6 @@ const Students = observer(() => {
     }
   }
 
-  console.log('studentList', studentList)
-
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
       {(isLoadingStudents || isFetchingNextPage || isFetchingStudents || isPending) && <ScreenLoader />}
@@ -196,7 +194,7 @@ const Students = observer(() => {
         {/* Header */}
         <div className="flex items-center top-0 sticky z-100  py-4 bg-white justify-between">
           <div className="flex gap-2 flex-1">
-            <h1 className="text-xl font-semibold text-gray-900 text-nowrap">Отчет о движении денежных средств</h1>
+            <h1 className="text-xl font-semibold text-gray-900 text-nowrap">Отчет о движении денежных средствь - Ежемесячный отчет студента</h1>
 
           </div>
           <div className="flex items-center gap-2">
@@ -225,7 +223,7 @@ const Students = observer(() => {
                   return (
                     <div
                       key={col.key}
-                      className={`sticky left-0 z-30 bg-neutral-100 border-b border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-700 ${col.width} flex items-center justify-center whitespace-nowrap text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
+                      className={`sticky left-0 z-30 bg-neutral-100 border-b border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-700 ${col.width} flex items-center justify-center whitespace-nowrap text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] `}
                     >
                       {col.label}
                     </div>
@@ -286,15 +284,15 @@ const StudentsBody = ({ studentList, columns }) => {
           {columns.map((col) => {
             if (col.type === 'sticky') {
               const name = col.key === 'fio' ? studentItem.counterparty_name : col.key === 'group' ? studentItem.counterparties_group_nazvanie : (studentItem.contract_status ? 'Active' : "Passive");
-              const prefix = col.key === 'fio' ? <span className="pr-2">{index + 1}</span> : null;
-              const textCenter = col.key === 'status' || col.key === 'group' ? 'text-center' : '';
+              const prefix = col.key === 'fio' ? <span className="pr-2 w-8! text-center">{index + 1}</span> : null;
+              const textCenter = col.key !== 'fio' ? 'text-center!' : '';
               return (
                 <div
                   key={col.key}
-                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${textCenter}`}
+                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap line-clamp-1 overflow-hidden shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] `}
                 >
-                  <div className="px-4 py-3 w-full">
-                    {prefix} {name}
+                  <div className={`px-2 py-3 w-full  flex-1 flex gap-1 `}>
+                    {prefix} <span className={`flex-1 ${textCenter} line-clamp-1`}>{name}</span>
                   </div>
                 </div>
               )
