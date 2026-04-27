@@ -226,7 +226,7 @@ const RolesPage = observer(() => {
   return (
     <div className="flex flex-col h-full w-full bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+      <div className="flex items-center h-16 sticky top-0 bg-white z-20  justify-start gap-5 px-6 py-4 border-b border-gray-100 shrink-0">
         <h1 className="text-xl font-semibold text-gray-900">Роли</h1>
         {rolePermissions.add && (
           <button
@@ -318,7 +318,7 @@ const RolesPage = observer(() => {
               </table>
           )}
         </div>
-      </div>
+      </div> 
 
       {/* Create / Edit Modal */}
       <RoleModal

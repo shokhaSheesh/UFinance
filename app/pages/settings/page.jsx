@@ -56,11 +56,11 @@ const SettingsPage = observer(() => {
   }
 
   return (
-    <div className="p-3">
-      <h1 className="text-xl font-bold text-slate-900 mb-7">Общие настройки</h1>
+    <div className=" bg-white w-full">
+      <h1 className="text-xl sticky top-0 bg-white p-3 font-bold text-slate-900 mb-7">Общие настройки</h1>
 
       {/* Account settings */}
-      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
         <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки аккаунта</h2>
         <div className="mb-2">
           <label className="block text-sm font-medium text-slate-500 mb-1.5">Основная валюта</label>
@@ -78,7 +78,7 @@ const SettingsPage = observer(() => {
       </section>
 
       {/* Accounting settings */}
-      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
         <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки учета</h2>
         <section className="flex flex-col gap-1.5 items-start">
           <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">

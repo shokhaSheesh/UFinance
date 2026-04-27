@@ -473,9 +473,9 @@ export default observer(function BranchesPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 bg-white">
+    <div className="flex-1 overflow-y-auto  bg-white">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex p-5 h-16 sticky top-0 bg-white  z-20 items-center gap-4 mb-6">
         <h1 className="text-xl font-bold text-slate-900">Филиалы</h1>
         <button
           onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
@@ -514,9 +514,9 @@ export default observer(function BranchesPage() {
           </table>
         </div>
       ) : branches.length > 0 && !branchesLoading ? (
-        <div className="flex-1 overflow-auto bg-white">
+          <div className="flex-1  bg-white">
           <table className="w-full border-collapse">
-            <thead className="sticky top-0 bg-gray-50 z-10">
+              <thead className="sticky top-16 bg-gray-50 z-10">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
                     Название филиала
@@ -546,6 +546,7 @@ export default observer(function BranchesPage() {
                   </td>
                 </tr>
               ))}
+
             </tbody>
           </table>
         </div>
@@ -600,6 +601,7 @@ export default observer(function BranchesPage() {
         open={warningModalOpen}
         onClose={() => { setWarningModalOpen(false); setBranchToDelete(null) }}
       />
+
     </div>
   )
 })

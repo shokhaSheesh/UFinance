@@ -200,8 +200,8 @@ const BranchStuffList = () => {
   const isPending = createUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending
 
   return (
-    <div className="p-4 flex-1 bg-white">
-      <div className="flex justify-start gap-2 items-center mb-6">
+    <div className=" flex-1 bg-white">
+      <div className="flex p-4 sticky bg-white top-0 h-16 justify-start gap-2 items-center">
         <h1 className="text-xl font-bold text-slate-900">Сотрудники филиала</h1>
         <button
           onClick={handleCreate}
@@ -217,8 +217,8 @@ const BranchStuffList = () => {
           <Loader size={24} className="animate-spin text-[#0E73F6]" />
         </div>
       ) : (
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-50">
+          <table className="w-full border-collapse bg-white">
+            <thead className="">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Имя</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Email</th>
@@ -229,7 +229,7 @@ const BranchStuffList = () => {
           </thead>
           <tbody>
             {usersList?.map((user) => (
-              <tr key={user.guid} className="hover:bg-gray-50">
+              <tr key={user.guid} className="bg-gray-200/20 hover:bg-gray-50">
                 <td className="px-4 py-3 text-sm text-[#344054] border-b">{user.user_name}</td>
                 <td className="px-4 py-3 text-sm text-[#344054] border-b">{user.user_email}</td>
                 <td className="px-4 py-3 text-sm text-[#344054] border-b">{user.user_phone}</td>
@@ -238,13 +238,13 @@ const BranchStuffList = () => {
                   <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => handleEdit(user)}
-                      className="p-1.5 text-gray-500 hover:text-[#0E73F6] hover:bg-gray-100 rounded transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-[#0E73F6] cursor-pointer hover:bg-gray-100 rounded transition-colors"
                     >
                       <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => setUserToDelete(user)}
-                      className="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 cursor-pointer rounded transition-colors"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -258,7 +258,8 @@ const BranchStuffList = () => {
                   Нет сотрудников
                 </td>
               </tr>
-            )}
+              )}
+
           </tbody>
         </table>
       )}

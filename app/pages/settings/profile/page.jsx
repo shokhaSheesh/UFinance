@@ -177,7 +177,7 @@ const MyProfile = observer(() => {
   }
 
   return (
-    <div className="flex flex-col gap-6  overflow-auto bg-white">
+    <div className="flex w-full flex-col gap-6  overflow-auto bg-white">
       <div className="flex-1">
         <h1 className="text-2xl sticky p-6 top-0 z-10 bg-white font-bold text-neutral-800">Мой профиль</h1>
 

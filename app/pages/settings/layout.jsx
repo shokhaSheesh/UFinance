@@ -50,7 +50,7 @@ export default observer(function SettingLayouts({ children }) {
       </aside>
 
       {/* Main content */}
-      <div className=" flex flex-1">
+      <div className="flex flex-1 overflow-auto">
         {children}
       </div>
     </div>
