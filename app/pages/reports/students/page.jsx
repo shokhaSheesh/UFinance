@@ -141,7 +141,7 @@ const Students = observer(() => {
     cols.push(
       { key: 'totalPlan', type: 'total', label: 'Общий план', width: 'min-w-44 max-w-44' },
       { key: 'totalFact', type: 'total', label: 'Общий факт', width: 'min-w-44 max-w-44' },
-      { key: 'totalPlanFact', type: 'total', label: 'Общая план-факт', width: 'min-w-44 max-w-44' }
+      { key: 'totalPlanFact', type: 'total', label: 'Общая разница', width: 'min-w-44 max-w-44' }
     )
 
     return cols
