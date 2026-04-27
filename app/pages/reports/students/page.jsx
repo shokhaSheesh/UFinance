@@ -62,7 +62,9 @@ const Students = observer(() => {
       const { page, totalPages } = pagination
       return page < totalPages ? page + 1 : undefined
     },
-    initialPageParam: 1
+    initialPageParam: 1,
+    staleTime: 0,
+    cacheTime: 0
   })
 
   // Infinite scroll detection on main container
@@ -184,6 +186,7 @@ const Students = observer(() => {
         </FilterSection>
         <FilterSection title="Группа контрагентов">
           <SelectCounterPartyGroup
+            multi={true}
             value={student.selectedCounterPartiesGroups}
             onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
           />
