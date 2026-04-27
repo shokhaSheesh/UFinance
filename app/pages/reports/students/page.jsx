@@ -24,7 +24,7 @@ const accountingMethodOptions = [
 ]
 
 const Students = observer(() => {
-  const [open, setOpen] = useState(true) 
+  const [open, setOpen] = useState(true)
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
@@ -114,7 +114,9 @@ const Students = observer(() => {
   // Build unified columns array - nested structure for months
   const columns = useMemo(() => {
     const cols = [
-      { key: 'fio', type: 'sticky', label: 'FIO', width: 'min-w-96 max-w-[500px]' }
+      { key: 'fio', type: 'sticky', label: 'ФИО', width: 'min-w-96 max-w-[500px]' },
+      { key: 'group', type: 'sticky', label: 'Группа', width: 'min-w-28 left-96 max-w-44' },
+      { key: 'status', type: 'sticky', label: 'Статус', width: 'min-w-24 left-124 max-w-32' }
     ]
 
     monthsData.forEach(month => {
@@ -136,11 +138,10 @@ const Students = observer(() => {
       })
     })
 
-    // Add total columns
     cols.push(
-      { key: 'totalPlan', type: 'total', label: 'Total Plan', width: 'min-w-44 max-w-44' },
-      { key: 'totalFact', type: 'total', label: 'Total Fact', width: 'min-w-44 max-w-44' },
-      { key: 'totalPlanFact', type: 'total', label: 'Total Plan-Fact', width: 'min-w-44 max-w-44' }
+      { key: 'totalPlan', type: 'total', label: 'Общий план', width: 'min-w-44 max-w-44' },
+      { key: 'totalFact', type: 'total', label: 'Общий факт', width: 'min-w-44 max-w-44' },
+      { key: 'totalPlanFact', type: 'total', label: 'Общая план-факт', width: 'min-w-44 max-w-44' }
     )
 
     return cols
@@ -155,6 +156,8 @@ const Students = observer(() => {
       fetchNextPage()
     }
   }
+
+  console.log('studentList', studentList)
 
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
@@ -219,7 +222,7 @@ const Students = observer(() => {
                   return (
                     <div
                       key={col.key}
-                      className={`sticky left-0 z-30 bg-neutral-100 border-b border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-700 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
+                      className={`sticky left-0 z-30 bg-neutral-100 border-b border-r border-gray-200 px-4 py-3 text-left font-medium text-gray-700 ${col.width} flex items-center justify-center whitespace-nowrap text-center shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
                     >
                       {col.label}
                     </div>
@@ -279,13 +282,16 @@ const StudentsBody = ({ studentList, columns }) => {
         <div key={studentItem.counterparty_id} className="flex hover:bg-neutral-100 h-9">
           {columns.map((col) => {
             if (col.type === 'sticky') {
+              const name = col.key === 'fio' ? studentItem.counterparty_name : col.key === 'group' ? studentItem.counterparties_group_nazvanie : (studentItem.contract_status ? 'Active' : "Passive");
+              const prefix = col.key === 'fio' ? <span className="pr-2">{index + 1}</span> : null;
+              const textCenter = col.key === 'status' || col.key === 'group' ? 'text-center' : '';
               return (
                 <div
                   key={col.key}
-                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]`}
+                  className={`sticky left-0 z-10 line-clamp-1 bg-white border-b border-r border-gray-200  text-sm text-gray-900 ${col.width} flex items-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] ${textCenter}`}
                 >
                   <div className="px-4 py-3 w-full">
-                    <span className="pr-2">{index + 1}</span> {studentItem.counterparty_name}
+                    {prefix} {name}
                   </div>
                 </div>
               )
@@ -313,7 +319,7 @@ const StudentsBody = ({ studentList, columns }) => {
             }
 
             // Total columns
-            const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact 
+            const value = col.key === 'totalPlan' ? studentItem.total_plan : col.key === 'totalFact' ? studentItem.total_fact : studentItem.total_plan_fact
             return (
               <div
                 key={col.key}
