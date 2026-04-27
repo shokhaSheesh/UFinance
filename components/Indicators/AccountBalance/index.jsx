@@ -11,6 +11,7 @@ import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import Loader from '../../shared/Loader'
+import { STATIC_ACCOUNT_BALANCE_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const formatValue = (val) => {
@@ -39,7 +40,7 @@ const AccountBalance = () => {
         currencyCode: indicators?.currencyCode
     }
 
-    const { data: accountBalanceList, isLoading, isFetching, isPending } = useQuery({
+    const { data: apiAccountBalanceList, isLoading, isFetching, isPending } = useQuery({
         queryKey: ["get_my_accounts_daily_balances", filterData],
         queryFn: () => apiClient.invokeFunction({ method: "get_my_accounts_daily_balances", data: filterData }),
         select: (res) => res?.data?.data?.items,
@@ -48,6 +49,11 @@ const AccountBalance = () => {
         refetchOnWindowFocus: false,
         refetchOnMount: true,
     })
+
+    // Fallback to static data if API returns no data
+    const accountBalanceList = apiAccountBalanceList?.length ? apiAccountBalanceList : STATIC_ACCOUNT_BALANCE_DATA
+
+    console.log('accountBalanceList', accountBalanceList)
 
     // Build dates array from first account's totalValuesByDays
     const dates = useMemo(() => {

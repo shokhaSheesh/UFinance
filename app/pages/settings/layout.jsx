@@ -50,7 +50,7 @@ export default observer(function SettingLayouts({ children }) {
       </aside>
 
       {/* Main content */}
-      <div className="flex flex-1 bg-white">
+      <div className=" flex flex-1">
         {children}
       </div>
     </div>

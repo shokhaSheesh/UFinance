@@ -12,6 +12,7 @@ import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 
@@ -39,7 +40,7 @@ const Profit = () => {
     page: 1,
   }
 
-  const { data: profitAndLossDataList, isLoading, isFetching, isPending } = useQuery({
+  const { data: apiProfitData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ["profit_indicators", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
     select: (res) => res?.data?.data,
@@ -49,8 +50,9 @@ const Profit = () => {
     refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
+  // Fallback to static data if API returns no data
+  const profitAndLossDataList = apiProfitData || STATIC_PROFIT_DATA
 
-  console.log('profitAndLossDataList', profitAndLossDataList)
 
   const { months, incomeData, expenseData, netProfitData, dividendData, incomeTotal,
     expenseTotal,
@@ -95,7 +97,7 @@ const Profit = () => {
       { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal])
-  const inteval = months?.length > 50 ? 100 : months?.length > 10 ? 100 : 40
+  const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {

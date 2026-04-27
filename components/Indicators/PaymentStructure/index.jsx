@@ -4,9 +4,10 @@ import { observer } from "mobx-react-lite"
 import moment from "moment"
 import { GlobalCurrency } from "../../../constants/globalCurrency"
 import { apiClient } from "../../../lib/api/ucode/base"
-import { indicators } from "../../../store/indicatos.store"
-import Expenses from "../Expenses"
-import Income from "../Income"
+import { indicators } from '../../../store/indicatos.store'
+import Expenses from '../Expenses'
+import Income from '../Income'
+import { STATIC_CASHFLOW_DATA, STATIC_PROFIT_DATA } from "../constants/staticChartData"
 
 const PaymentStructure = observer(() => {
   const { paymentStructureMethod, setState } = indicators
@@ -27,7 +28,7 @@ const PaymentStructure = observer(() => {
     page: 1,
   }
 
-  const { data: profitAndLossDataList, isLoading: profitAndLossLoading, isPending: profitPending, isFetching: profitFetching } = useQuery({
+  const { data: apiProfitData, isLoading: profitAndLossLoading, isPending: profitPending, isFetching: profitFetching } = useQuery({
     queryKey: ['profit_and_loss_income', filterData],
     queryFn: () => apiClient.invokeFunction({ method: 'profit_and_loss', data: filterData }),
     select: (res) => res?.data?.data,
@@ -36,6 +37,9 @@ const PaymentStructure = observer(() => {
     refetchOnWindowFocus: false,
     refetchOnMount: true,
   })
+
+  // Fallback to static data if API returns no data
+  const profitAndLossDataList = apiProfitData || STATIC_PROFIT_DATA
 
 
   const cashFlowfilterData = {
@@ -47,7 +51,7 @@ const PaymentStructure = observer(() => {
     accountId: indicators.accounts,
   }
 
-  const { data: cashFlowDataList, isLoading: isLoadingCashFlow, isPending: cashflowPending, isFetching: cashflowFetching } = useQuery({
+  const { data: apiCashFlowData, isLoading: isLoadingCashFlow, isPending: cashflowPending, isFetching: cashflowFetching } = useQuery({
     queryKey: ["cash_flow", cashFlowfilterData],
     queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: cashFlowfilterData }),
     select: (res) => res?.data?.data,
@@ -57,8 +61,8 @@ const PaymentStructure = observer(() => {
     refetchOnMount: true,
   })
 
-  console.log('cashFlowDataList', cashFlowDataList)
-  console.log('profitAndLossDataList', profitAndLossDataList)
+  // Fallback to static data if API returns no data
+  const cashFlowDataList = apiCashFlowData || STATIC_CASHFLOW_DATA
   return (
     <div className="w-full">
       <div className="flex items-center gap-10">

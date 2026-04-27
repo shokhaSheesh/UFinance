@@ -11,6 +11,7 @@ import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import { formatNumber } from '../../../utils/helpers'
+import { STATIC_CASHFLOW_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const formatValue = (val) => {
@@ -47,7 +48,7 @@ const CashFlow = () => {
     accountId: accounts,
   }
 
-  const { data: cashFlowDataList, isLoading, isPending, isFetching } = useQuery({
+  const { data: apiCashFlowData, isLoading, isPending, isFetching } = useQuery({
     queryKey: ["cash_flow", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
     select: (res) => res?.data?.data,
@@ -56,6 +57,9 @@ const CashFlow = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: true,
   })
+
+  // Fallback to static data if API returns no data
+  const cashFlowDataList = apiCashFlowData || STATIC_CASHFLOW_DATA
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.title), [legend])
@@ -113,7 +117,7 @@ const CashFlow = () => {
   }, [receiptsData, paymentsData, differenceData])
 
 
-  const inteval = months?.length > 50 ? 30 : months?.length > 10 ? 15 : 5
+  const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {

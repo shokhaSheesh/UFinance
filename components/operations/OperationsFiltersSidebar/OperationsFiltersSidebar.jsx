@@ -60,8 +60,6 @@ export const OperationsFiltersSidebar = observer(({
 
 
 
-  console.log('date', date)
-
 
   return (
     <>

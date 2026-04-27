@@ -8,6 +8,7 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { appStore } from '../../../store/app.store'
 import { indicators } from '../../../store/indicatos.store'
 import Loader from '../../shared/Loader'
+import { STATIC_PROFITABLE_CLIENTS_DATA } from '../constants/staticChartData'
 
 const formatValue = (val) => {
   if (!val && val !== 0) return '0'
@@ -32,7 +33,7 @@ const ProfitableClients = observer(() => {
     currencyCode: indicators?.currencyCode
   }
 
-  const { data: profitableClientsData, isLoading, isFetching, isPending } = useQuery({
+  const { data: apiProfitableClientsData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ['profitable_clients', filterData],
     queryFn: () => apiClient.invokeFunction({ method: 'report_counterparties_financials', data: filterData }),
     select: (res) => res?.data?.data,
@@ -41,6 +42,9 @@ const ProfitableClients = observer(() => {
     refetchOnWindowFocus: false,
     refetchOnMount: true,
   })
+
+  // Fallback to static data if API returns no data
+  const profitableClientsData = apiProfitableClientsData || STATIC_PROFITABLE_CLIENTS_DATA
 
   // chartData — names ga "Остальные" qo'shish
   const chartData = useMemo(() => {

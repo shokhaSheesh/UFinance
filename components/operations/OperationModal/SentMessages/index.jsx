@@ -257,7 +257,7 @@ const SentMessages = ({
         </div>
       )}
 
-      {messages.length > 0 && (
+      {(messages.length > 0 || attachedFiles.length > 0) && (
         <div className='sm-list'>
           {messages.map(msg => (
             <MessageCard

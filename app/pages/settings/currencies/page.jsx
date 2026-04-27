@@ -1,7 +1,7 @@
 'use client'
 
-import moment from 'moment/moment'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment/moment'
 import { appStore } from '../../../../store/app.store'
 
 const CurrenciesPage = observer(() => {
@@ -9,7 +9,7 @@ const CurrenciesPage = observer(() => {
   const currentDate = new Date()
 
   return (
-    <div className="flex-1  bg-gray-50 overflow-y-auto relative">
+    <div className="flex-1  bg-gray-50 overflow-scroll relative">
       <div className="max-w-7xl mx-auto bg-gray-50">
         <h1 className="text-2xl font-semibold px-6 h-16 sticky top-0 z-10 bg-gray-50 flex items-center">
           Курсы валют по ЦБ (обновлено {moment(currentDate).format('DD.MM.YYYY')})

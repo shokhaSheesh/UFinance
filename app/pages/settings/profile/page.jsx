@@ -177,152 +177,154 @@ const MyProfile = observer(() => {
   }
 
   return (
-    <div className="w-full gap-6 p-6 max-w-2xl bg-white">
-      <h1 className="text-2xl font-bold text-neutral-800">Мой профиль</h1>
+    <div className="flex flex-col gap-6  overflow-auto bg-white">
+      <div className="flex-1">
+        <h1 className="text-2xl sticky p-6 top-0 z-10 bg-white font-bold text-neutral-800">Мой профиль</h1>
 
-      <div className="bg-white rounded-lg w-72 border-gray-200 py-6">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-neutral-700">ФИО</label>
-            <Input
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setProfileErrors({ ...profileErrors, name: '' })
-              }}
-              placeholder="Введите ФИО"
-              hasError={profileErrors.name}
-              className="h-10!"
-            />
-            {profileErrors.name && (
-              <span className="text-xs text-red-500">{profileErrors.name}</span>
-            )}
+        <div className="bg-white p-6 rounded-lg w-72  border-gray-200 py-6">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-neutral-700">ФИО</label>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  setProfileErrors({ ...profileErrors, name: '' })
+                }}
+                placeholder="Введите ФИО"
+                hasError={profileErrors.name}
+                className="h-10!"
+              />
+              {profileErrors.name && (
+                <span className="text-xs text-red-500">{profileErrors.name}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-neutral-700">Телефон</label>
+              <Input
+                ref={phoneInputRef}
+                type="tel"
+                value={phone}
+                onChange={handlePhoneChange}
+                placeholder="+998 XX XXX XX XX"
+                hasError={profileErrors.phone}
+                className="h-10!"
+              />
+              {profileErrors.phone && (
+                <span className="text-xs text-red-500">{profileErrors.phone}</span>
+              )}
+            </div>
+
+            <button
+              onClick={handleProfileSubmit}
+              disabled={isUpdatingProfile}
+              className={cn(
+                "primary-btn w-44",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              {isUpdatingProfile ? 'Сохранение...' : 'Сохранить'}
+            </button>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-neutral-700">Телефон</label>
-            <Input
-              ref={phoneInputRef}
-              type="tel"
-              value={phone}
-              onChange={handlePhoneChange}
-              placeholder="+998 XX XXX XX XX"
-              hasError={profileErrors.phone}
-              className="h-10!"
-            />
-            {profileErrors.phone && (
-              <span className="text-xs text-red-500">{profileErrors.phone}</span>
-            )}
-          </div>
-
-          <button
-            onClick={handleProfileSubmit}
-            disabled={isUpdatingProfile}
-            className={cn(
-              "primary-btn w-44",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-          >
-            {isUpdatingProfile ? 'Сохранение...' : 'Сохранить'}
-          </button>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg w-72 border-gray-200 py-6">
-        <h2 className="text-lg font-semibold text-neutral-800 mb-4">Смена пароля</h2>
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-neutral-700">Текущий пароль</label>
-            <div className="relative">
-              <Input
-                type={showCurrentPassword ? 'text' : 'password'}
-                value={currentPassword}
-                onChange={(e) => {
-                  setCurrentPassword(e.target.value)
-                  setPasswordErrors({ ...passwordErrors, currentPassword: '' })
-                }}
-                placeholder="Введите текущий пароль"
-                hasError={passwordErrors.currentPassword}
-                className="h-10! pr-10!"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
-              >
-                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+        <div className="bg-white p-6 rounded-lg w-72 border-gray-200 py-6">
+          <h2 className="text-lg font-semibold text-neutral-800 mb-4">Смена пароля</h2>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-neutral-700">Текущий пароль</label>
+              <div className="relative">
+                <Input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  value={currentPassword}
+                  onChange={(e) => {
+                    setCurrentPassword(e.target.value)
+                    setPasswordErrors({ ...passwordErrors, currentPassword: '' })
+                  }}
+                  placeholder="Введите текущий пароль"
+                  hasError={passwordErrors.currentPassword}
+                  className="h-10! pr-10!"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                >
+                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {passwordErrors.currentPassword && (
+                <span className="text-xs text-red-500">{passwordErrors.currentPassword}</span>
+              )}
             </div>
-            {passwordErrors.currentPassword && (
-              <span className="text-xs text-red-500">{passwordErrors.currentPassword}</span>
-            )}
-          </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-neutral-700">Новый пароль</label>
-            <div className="relative">
-              <Input
-                type={showNewPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={(e) => {
-                  setNewPassword(e.target.value)
-                  setPasswordErrors({ ...passwordErrors, newPassword: '' })
-                }}
-                placeholder="Введите новый пароль"
-                hasError={passwordErrors.newPassword}
-                className="h-10! pr-10!"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
-              >
-                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-neutral-700">Новый пароль</label>
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value)
+                    setPasswordErrors({ ...passwordErrors, newPassword: '' })
+                  }}
+                  placeholder="Введите новый пароль"
+                  hasError={passwordErrors.newPassword}
+                  className="h-10! pr-10!"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {passwordErrors.newPassword && (
+                <span className="text-xs text-red-500">{passwordErrors.newPassword}</span>
+              )}
             </div>
-            {passwordErrors.newPassword && (
-              <span className="text-xs text-red-500">{passwordErrors.newPassword}</span>
-            )}
-          </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-neutral-700">Подтвердите пароль</label>
-            <div className="relative">
-              <Input
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value)
-                  setPasswordErrors({ ...passwordErrors, confirmPassword: '' })
-                }}
-                placeholder="Повторите новый пароль"
-                hasError={passwordErrors.confirmPassword}
-                className="h-10! pr-10!"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-neutral-700">Подтвердите пароль</label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value)
+                    setPasswordErrors({ ...passwordErrors, confirmPassword: '' })
+                  }}
+                  placeholder="Повторите новый пароль"
+                  hasError={passwordErrors.confirmPassword}
+                  className="h-10! pr-10!"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {passwordErrors.confirmPassword && (
+                <span className="text-xs text-red-500">{passwordErrors.confirmPassword}</span>
+              )}
             </div>
-            {passwordErrors.confirmPassword && (
-              <span className="text-xs text-red-500">{passwordErrors.confirmPassword}</span>
-            )}
-          </div>
 
-          <button
-            onClick={handlePasswordSubmit}
-            disabled={isResetting}
-            className={cn(
-              "primary-btn w-44",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-          >
-            {isResetting ? 'Сохранение...' : 'Сменить пароль'}
-          </button>
+            <button
+              onClick={handlePasswordSubmit}
+              disabled={isResetting}
+              className={cn(
+                "primary-btn w-44",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              {isResetting ? 'Сохранение...' : 'Сменить пароль'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
