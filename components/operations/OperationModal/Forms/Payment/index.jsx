@@ -345,8 +345,6 @@ const PaymentForm = observer(({
   const isCredit = (!showDate && !watchConfirmPayment && watchConfirmAccrual)
 
   const onSubmit = async (data) => {
-
-
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
@@ -674,6 +672,7 @@ const PaymentForm = observer(({
                       placeholder='Выберите сделку...'
                       className='bg-white border rounded-md h-[36px]!'
                       hasError={!!errors.salesDeal}
+                      defaultDealGuid={defaultDealGuid}
                     />
                   )}
                 />

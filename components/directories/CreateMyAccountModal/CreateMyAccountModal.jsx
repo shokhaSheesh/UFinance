@@ -31,7 +31,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
       return {
         nazvanie: account.nazvanie || '',
         tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
-        nachalьnyy_ostatok: account.nachalьnyy_ostatok || '',
+        nachalьnyy_ostatok: account?.nachalьnyy_ostatok_val || '',
         data_sozdaniya: account.data_nachalьnogo_ostatka || account.data_sozdaniya
           ? new Date(account.data_nachalьnogo_ostatka || account.data_sozdaniya).toISOString().split('T')[0]
           : new Date().toISOString().split('T')[0],

@@ -1,7 +1,8 @@
 'use client'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { debounce } from 'lodash'
+import { useCallback, useMemo, useState } from 'react'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const SingleZdelka = ({
@@ -11,22 +12,47 @@ const SingleZdelka = ({
   className,
   dropdownClassName,
   hasError,
-  withSearch = true
+  withSearch = true,
+  defaultDealGuid
 }) => {
+  const [search, setSearch] = useState('')
+  const [autoSearchSinglbyID, setAutoSearchSinglbyID] = useState(defaultDealGuid)
+
+  const filterData = {
+    page: 1,
+    limit: 100,
+    search,
+    ids: autoSearchSinglbyID && !search ? typeof autoSearchSinglbyID === 'string' ? [autoSearchSinglbyID] : autoSearchSinglbyID : []
+  }
+
   const { data: deals, isLoading } = useUcodeRequestQuery({
     method: "get_sales_list_simple",
-    data: {
-      page: 1,
-      limit: 100,
-    },
+    data: filterData,
     querySetting: {
       select: (response) => response?.data?.data,
       staleTime: 1000 * 60 * 30, // 30 minutes
       placeholder: keepPreviousData
     }
-  }) 
+  })
 
-  const options = useMemo(() => { 
+  const debouncedSearch = useMemo(
+    () => debounce((value) => setSearch(value), 300),
+    []
+  )
+
+  const handleSearch = useCallback((value) => {
+    setAutoSearchSinglbyID('')
+    debouncedSearch(value)
+  }, [debouncedSearch])
+
+  const handleChange = useCallback((newValue) => {
+    if (!newValue) {
+      setAutoSearchSinglbyID('')
+    }
+    onChange?.(newValue)
+  }, [onChange])
+
+  const options = useMemo(() => {
 
     return deals?.map(deal => ({
       value: deal.guid,
@@ -38,8 +64,9 @@ const SingleZdelka = ({
     <SingleSelect
       data={options}
       withSearch={withSearch}
-      value={value}
-      onChange={onChange}
+      value={autoSearchSinglbyID || value}
+      onChange={handleChange}
+      onSearch={handleSearch}
       placeholder={isLoading ? "Загрузка..." : placeholder}
       className={className}
       dropdownClassName={dropdownClassName}

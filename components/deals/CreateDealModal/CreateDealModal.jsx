@@ -78,7 +78,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
       nds: nds === 'true',
       commentary: comment,
       currenies_id: appStore?.currency?.guid,
-      // status: ["Новая"]
+      status: ["Новая"]
     };
 
     if (isEditing && initialData?.guid) {

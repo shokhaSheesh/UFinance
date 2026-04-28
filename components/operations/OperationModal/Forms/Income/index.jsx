@@ -676,6 +676,7 @@ const IncomeForm = observer(({
                       placeholder='Выберите сделку...'
                       className='bg-white border rounded-md h-[36px]!'
                       hasError={!!errors.salesDeal}
+                      defaultDealGuid={defaultDealGuid}
                     />
                   )}
                 />

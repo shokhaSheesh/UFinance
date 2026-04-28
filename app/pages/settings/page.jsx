@@ -1,10 +1,12 @@
 'use client'
 
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useMemo } from 'react'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
+import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
@@ -12,6 +14,24 @@ import { authStore } from '../../../store/auth.store'
 const SettingsPage = observer(() => {
 
   const { mutateAsync: updateSettings } = useUcodeRequestMutation()
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['handle_check_setting'],
+    mutationFn: () => apiClient.defaultUcodeFunction({ urlMethod: "POST", urlParams: "/items/check_setting" }),
+    onSuccess: () => {
+      // TODO: handle success
+    }
+  })
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['handle_get_check_setting'],
+    queryFn: () => apiClient.defaultUcodeFunction({
+      urlMethod: "GET", urlParams: "/items/check_settings"
+    }),
+    enabled: !!authStore?.userData?.guid,
+  })
+
+
 
   const currenciesList = useMemo(() => {
     return appStore.currencies?.map(c => ({

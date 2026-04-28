@@ -30,7 +30,7 @@ const OperationCashFlowModal = observer(({
     fetchNextPage,
   } = useUcodeRequestInfinite({
     method: 'find_operations',
-    data: filterData, 
+    data: filterData,
     querySetting: {
       enabled: isOpen,
       select: (response) => response,
@@ -52,6 +52,13 @@ const OperationCashFlowModal = observer(({
       before: operationsDto(allOperations, 'before'),
     }
   }, [allOperations])
+
+  const totalValue = useMemo(() => {
+    const totals = infiniteData?.pages?.[0]?.data?.totalSummary?.by_type || null
+    return infiniteData?.pages?.[0]?.data?.totalSummary?.net_cash_flow || totals?.accural?.total_summa || totals?.payment?.total_summa || totals?.receipt?.total_summa || totals?.shipment?.total_summa || totals?.supply?.total_summa || totals?.shipment?.total_summa
+  }, [infiniteData])
+
+
 
   const operationsPeriod = useMemo(() => {
     if (filterData?.paymentDateStart && filterData?.paymentDateEnd) {
@@ -81,8 +88,6 @@ const OperationCashFlowModal = observer(({
     return () => el.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
-  console.log('allOperations', allOperations)
-
   return (
     <CustomModal isOpen={isOpen} onClose={onClose} className="w-[800px] p-0">
 
@@ -100,7 +105,7 @@ const OperationCashFlowModal = observer(({
         <div className="flex text-sm items-center gap-10">
           <span className=" font-medium">Сумма операций</span>
           {summaryData && <div className="flex items-center gap-1">
-            <span>{title === 'Списания' ? "-" : ""}{summaryData?.totalAmount !== undefined ? formatNumber(formatTotalSumma(summaryData?.totalAmount)) : ''}</span>
+            <span>{(title === 'Списания' || title === '') ? "-" : ""}{totalValue !== undefined ? formatNumber(formatTotalSumma(totalValue)) : ''}</span>
             <span>{summaryData?.currencyCode || GlobalCurrency.code}</span>
           </div>}
         </div>

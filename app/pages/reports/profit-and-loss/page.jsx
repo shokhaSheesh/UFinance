@@ -36,6 +36,8 @@ const groupingOptions = [
   { value: 'monthly', label: 'Месяц' }
 ]
 
+
+
 const ProfitAndLossPage = observer(() => {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -81,15 +83,122 @@ const ProfitAndLossPage = observer(() => {
 
 
   const legend = useMemo(() => profitAndLossDataList?.legend || [], [profitAndLossDataList])
+  const allRows = profitAndLossDataList?.rows
+  // const rows = useMemo(() => {
+  //   const globalChartofAccountsIds = new Set()
+
+  //   const gatherids = (allRows) => {
+  //     allRows?.forEach(row => {
+  //       if (String(row?.id)?.match(/\d+/) && !row?.details) {
+  //         globalChartofAccountsIds.add(row?.id)
+  //       } else if (row?.details) {
+  //         gatherids(row?.details)
+  //       }
+  //     })
+  //   }
+
+  //   gatherids(allRows)
+
+  //   return profitAndLossDataList?.rows?.map(item => ({
+  //     ...item,
+  //     details: item.details?.map(detail => ({
+  //       ...detail,
+  //       tip: () => {
+  //         const income = item?.name === "income" || item?.id === "income" || item?.type === "income"
+  //         const expenses = item?.name === "expenses" || item?.id === "expenses" || item?.type === "expenses"
+  //         const tip = isCalculation === 'cash' && income ? ["Поступление", "Кредит", "Начисление"] : isCalculation === 'accural' && income ? ["Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"] : expenses ? ["Выплата", "Дебет", "Кредит", "Начисление"] : !income && !expenses && ["Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+  //         return tip
+  //       }
+  //     }))
+  //   })) || []
+  // }, [profitAndLossDataList, isCalculation, allRows])
+
+
   const rows = useMemo(() => {
-    return profitAndLossDataList?.rows?.map(item => ({
-      ...item,
-      details: item.details?.map(detail => ({
-        ...detail,
-        tip: item?.name === "income" || item?.id === "income" || item?.type === "income" ? ["Списание", "Зачисление", "Перемещение", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"] : item?.name === "expenses" || item?.id === "expenses" || item?.type === "expenses" ? ["Выплата", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"] : ["Выплата", "Поступление", "Списание", "Зачисление", "Перемещение", "Отгрузка", "Дебет", "Кредит", "Начисление"]
-      }))
-    })) || []
-  }, [profitAndLossDataList])
+    const list = profitAndLossDataList?.rows || []
+
+    // Har bir node ichidan leaf id larni yig'ib chiqadi
+    // (details bo'lmagan va id sida raqam bo'lgan objectlar)
+    const collectLeafIds = (node) => {
+      const hasChildren = node?.details && node.details.length > 0
+
+      if (!hasChildren) {
+        if (String(node?.id)?.match(/\d+/)) {
+          return [node.id]
+        }
+        return []
+      }
+
+      return node.details.flatMap(child => collectLeafIds(child))
+    }
+
+    // tip esa har doim root (top-level) item asosida hisoblanadi
+    const getTip = (rootItem) => {
+      const income =
+        rootItem?.name === "income" ||
+        rootItem?.id === "income" ||
+        rootItem?.type === "income"
+      const expenses =
+        rootItem?.name === "expenses" ||
+        rootItem?.id === "expenses" ||
+        rootItem?.type === "expenses"
+
+      if (isCalculation === 'cash' && income) {
+        return ["Поступление", "Кредит", "Начисление"]
+      }
+      if (isCalculation === 'accural' && income) {
+        return ["Поступление", "Отгрузка", "Кредит", "Начисление"]
+      }
+      if (expenses) {
+        return ["Выплата", "Кредит", "Начисление"]
+      }
+      if (!income && !expenses) {
+        return ["Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+      }
+      return []
+    }
+
+    // Har bir node va uning details ichidagi childlarga filterdata qo'shadi
+    const enrichNode = (node, rootItem) => {
+      const enriched = {
+        ...node,
+        filterdata: {
+          ids: collectLeafIds(node),
+          tip: getTip(rootItem),
+        },
+      }
+
+      if (node.details && node.details.length > 0) {
+        enriched.details = node.details.map(child => enrichNode(child, rootItem))
+      }
+
+      return enriched
+    }
+
+    // Top-level: details bo'lmaganlar oldingi (details bor) sibling lardan ids ni meros oladi
+    const accumulatedIds = []
+
+    return list.map((item) => {
+      const hasChildren = item.details && item.details.length > 0
+
+      if (hasChildren) {
+        const enriched = enrichNode(item, item)
+        accumulatedIds.push(...enriched.filterdata.ids)
+        return enriched
+      }
+
+      // details yo'q top-level item — accumulated idlarni oladi
+      return {
+        ...item,
+        filterdata: {
+          ids: [...accumulatedIds],
+          tip: getTip(item),
+        },
+      }
+    })
+  }, [profitAndLossDataList, isCalculation])
+
+  console.log('rows', rows)
 
 
   // Auto-expand first level on initial load
@@ -196,32 +305,36 @@ const ProfitAndLossPage = observer(() => {
 
     console.log('item', item)
     console.log('monthObj', monthObj)
-
-    const collectIds = (node) => {
-      let ids = []
-      if (typeof node.id === 'string' && /\d/.test(node.id)) {
-        ids.push(node.id)
-      }
-      if (node.details && Array.isArray(node.details)) {
-        node.details.forEach(child => {
-          ids.push(...collectIds(child))
-        })
-      }
-      return ids
-    }
-
+    console.log('dateRange', dateRange)
 
     const filterData = {
-      tip: item.tip,
-      paymentAccural: true,
-      paymentNotAccural: false,
-      paymentDateStart: dateRange.start,
-      paymentDateEnd: dateRange.end,
-      limit: 10,
-      chartOfAccounts: [item.id]
+      tip: item.filterdata?.tip,
+      limit: 50,
+      chart_of_accounts_ids: item.filterdata?.ids
+    }
+
+    if (isCalculation === 'cash') {
+      filterData.paymentConfirm = true
+      filterData.paymentNotConfirm = false
+      filterData.paymentAccural = true
+      filterData.paymentNotAccural = true
+      filterData.paymentDateStart = dateRange.start
+      filterData.paymentDateEnd = dateRange.end
+
+    }
+
+    if (isCalculation === 'accural') {
+      filterData.paymentConfirm = true
+      filterData.paymentNotConfirm = true
+      filterData.paymentAccural = true
+      filterData.paymentNotAccural = false
+      filterData.accrualDateStart = dateRange.start
+      filterData.accrualDateEnd = dateRange.end
     }
 
     const periodLabel = formatPeriod(dateRange.start, dateRange.end)
+
+    console.log('filterData', filterData)
 
     setModalConfig({
       filterData,
