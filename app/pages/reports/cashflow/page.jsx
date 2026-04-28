@@ -140,10 +140,6 @@ export default observer(function CashFlowReportPage() {
   const { periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId } = cashFlowStore
 
 
-  // const filterData = useMemo(() => {
-  //   return {
-  // }, [periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId])
-
   const filterData = {
     periodStartDate: periodStartDate ? moment(periodStartDate).format('YYYY-MM-DD') : null,
     periodEndDate: periodEndDate ? moment(periodEndDate).format('YYYY-MM-DD') : null,
@@ -165,6 +161,7 @@ export default observer(function CashFlowReportPage() {
     refetchOnWindowFocus: false,  // tab o'zgarganda OFF
     refetchOnMount: true,          // page ga qaytganda ON ✅
   })
+
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.key), [legend])
@@ -242,9 +239,6 @@ export default observer(function CashFlowReportPage() {
       requestData.paymentDateEnd = moment(periodEndDate).format('YYYY-MM-DD')
     }
     requestData.tip = nameMap[row.name] || nameMap[row.section]
-
-    console.log('row', row)
-    console.log('monthObj', monthObj)
 
     if (['Перемещения', 'Списания', 'Зачисления'].includes(row.name)) {
       requestData.paymentConfirmed = true

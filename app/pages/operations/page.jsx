@@ -122,9 +122,9 @@ const OperationsPage = observer(() => {
 			},
 			chart_of_accounts_ids: toJS(selectedChartOfAccounts),
 			payment_type: appStore.isPayment ? paymentType : null,
-			paymentConfirmedBool: paymentConfirm,
+			paymentConfirm,
 			paymentNotConfirm,
-			accrualConfirmedBool: accrualConfirm,
+			accrualConfirm,
 			accrualNotConfirm,
 			sellingDealId: deals
 		}
