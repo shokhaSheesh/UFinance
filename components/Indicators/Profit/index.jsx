@@ -6,11 +6,14 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
 import { apiClient } from '../../../lib/api/ucode/base'
+import { queryClient } from '../../../lib/queryClient'
 import { indicators } from '../../../store/indicatos.store'
+import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
@@ -21,6 +24,7 @@ const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 const Profit = () => {
   const chartRef = useRef(null);
   const mounted = useMounted()
+  const router = useRouter()
   const [zoomRange, setZoomRange] = useState([0, 100]); // [start, end] percentage
   const indicatorsStore = indicators
 
@@ -40,6 +44,34 @@ const Profit = () => {
     page: 1,
   }
 
+  const filterOperationData = useMemo(() => {
+    const data = { limit: 50 }
+
+    if (indicatorsStore.profitableclientsMethod === 'cash') {
+      data.paymentConfirm = true
+      data.paymentNotConfirm = false
+      data.accrualConfirm = true
+      data.accrualNotConfirm = true
+      data.paymentDateStart = filterData.periodStartDate
+      data.paymentDateEnd = filterData.periodEndDate
+      data.accrualDateStart = ''
+      data.accrualDateEnd = ''
+    }
+
+    if (indicatorsStore.profitableclientsMethod === 'accrual') {
+      data.paymentConfirm = true
+      data.paymentNotConfirm = true
+      data.accrualConfirm = true
+      data.accrualNotConfirm = false
+      data.accrualDateStart = filterData.periodStartDate
+      data.accrualDateEnd = filterData.periodEndDate
+      data.paymentDateStart = ''
+      data.paymentDateEnd = ''
+    }
+
+    return data
+  }, [indicatorsStore.profitableclientsMethod, filterData.periodStartDate, filterData.periodEndDate])
+
   const { data: apiProfitData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ["profit_indicators", filterData],
     queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
@@ -52,6 +84,91 @@ const Profit = () => {
 
   // Fallback to static data if API returns no data
   const profitAndLossDataList = apiProfitData || STATIC_PROFIT_DATA
+
+  const rows = useMemo(() => {
+    const list = profitAndLossDataList?.rows || []
+
+    // Har bir node ichidan leaf id larni yig'ib chiqadi
+    // (details bo'lmagan va id sida raqam bo'lgan objectlar)
+    const collectLeafIds = (node) => {
+      const hasChildren = node?.details && node.details.length > 0
+
+      if (!hasChildren) {
+        if (String(node?.id)?.match(/\d+/)) {
+          return [node.id]
+        }
+        return []
+      }
+
+      return node.details.flatMap(child => collectLeafIds(child))
+    }
+
+    // tip esa har doim root (top-level) item asosida hisoblanadi
+    const getTip = (rootItem) => {
+      let tips = []
+      const income =
+        rootItem?.name === "income" ||
+        rootItem?.id === "income" ||
+        rootItem?.type === "income"
+      const expenses =
+        rootItem?.name === "expenses" ||
+        rootItem?.id === "expenses" ||
+        rootItem?.type === "expenses"
+
+      if (indicatorsStore.profitableclientsMethod === 'accrual') {
+        tips.push("Отгрузка")
+      }
+      if (expenses) {
+        tips = ["Выплата", "Кредит", "Начисление"]
+      }
+      if (income) {
+        tips = [...tips, "Поступление", "Кредит", "Начисление"]
+      }
+      if (!income && !expenses) {
+        tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
+      }
+      return tips
+    }
+
+    // Har bir node va uning details ichidagi childlarga filterdata qo'shadi
+    const enrichNode = (node, rootItem) => {
+      const enriched = {
+        ...node,
+        filterdata: {
+          ids: collectLeafIds(node),
+          tip: getTip(rootItem),
+        },
+      }
+
+      if (node.details && node.details.length > 0) {
+        enriched.details = node.details.map(child => enrichNode(child, rootItem))
+      }
+
+      return enriched
+    }
+
+    // Top-level: details bo'lmaganlar oldingi (details bor) sibling lardan ids ni meros oladi
+    const accumulatedIds = []
+
+    return list.map((item) => {
+      const hasChildren = item.details && item.details.length > 0
+
+      if (hasChildren) {
+        const enriched = enrichNode(item, item)
+        accumulatedIds.push(...enriched.filterdata.ids)
+        return enriched
+      }
+
+      // details yo'q top-level item — accumulated idlarni oladi
+      return {
+        ...item,
+        filterdata: {
+          ids: [...accumulatedIds],
+          tip: getTip(item),
+        },
+      }
+    })
+  }, [profitAndLossDataList, indicatorsStore.profitableclientsMethod])
 
 
   const { months, incomeData, expenseData, netProfitData, dividendData, incomeTotal,
@@ -84,19 +201,42 @@ const Profit = () => {
         dividendsTotal: dividendsRow?.totalValue
       }
     }, [profitAndLossDataList])
+
+  const handleIncomePress = useCallback(() => {
+    const filterdata = {
+      tip: rows?.[0]?.filterdata?.tip,
+      chart_of_accounts_ids: rows?.[0]?.filterdata?.ids,
+      ...filterOperationData
+    }
+    operationFilterStore.setAutoFilter(filterdata)
+    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+    router.push('/pages/operations')
+  }, [rows, filterOperationData, router])
+
+  const handleExpensePress = useCallback(() => {
+    const filterdata = {
+      tip: rows?.[1]?.filterdata?.tip,
+      chart_of_accounts_ids: rows?.[1]?.filterdata?.ids,
+      ...filterOperationData
+    }
+    operationFilterStore.setAutoFilter(filterdata)
+    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+    router.push('/pages/operations')
+  }, [rows, filterOperationData, router])
+
   const stats = useMemo(() => {
     const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)
     const dividendTotal = dividendsTotal
     const margin = incomeTotal ? (netProfitTotal / incomeTotal) * 100 : 0
 
     return [
-      { label: 'Доходы', value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Доходы', value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
+      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
+      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
       { label: 'Рентабельность, %', value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
     ]
-  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal])
+  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress])
   const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
@@ -213,6 +353,8 @@ const Profit = () => {
     ]
   }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval])
 
+
+
   if (!mounted) return null
 
   return (
@@ -249,7 +391,7 @@ const Profit = () => {
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn(" text-xl xl:text-2xl 2xl:text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
+                <span onClick={stat.onClick} className={cn(" text-xl cursor-pointer xl:text-2xl 2xl:text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
                   {stat.value}
                 </span>
               </div>

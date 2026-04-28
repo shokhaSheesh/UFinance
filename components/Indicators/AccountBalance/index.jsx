@@ -53,7 +53,6 @@ const AccountBalance = () => {
     // Fallback to static data if API returns no data
     const accountBalanceList = apiAccountBalanceList?.length ? apiAccountBalanceList : STATIC_ACCOUNT_BALANCE_DATA
 
-    console.log('accountBalanceList', accountBalanceList)
 
     // Build dates array from first account's totalValuesByDays
     const dates = useMemo(() => {

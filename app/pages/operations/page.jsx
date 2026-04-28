@@ -69,16 +69,15 @@ const OperationsPage = observer(() => {
 		amountRange,
 		selectedChartOfAccounts,
 		paymentType,
-		deals
+		deals,
+		paymentConfirm,
+		paymentNotConfirm,
+		accrualConfirm,
+		accrualNotConfirm
 	} = operationFilterStore
 
 	const LIMIT = 50
 
-	// Destructure scalar booleans directly so each one is a reactive useMemo dependency
-	const paymentConfirmed = operationFilterStore.dateFilters.podtverzhdena
-	const paymentNotConfirmed = operationFilterStore.dateFilters.nePodtverzhdena
-	const accrualConfirmed = operationFilterStore.dateStartFilters.podtverzhdena
-	const accrualNotConfirmed = operationFilterStore.dateStartFilters.nePodtverzhdena
 
 	// Debounce search query
 	useEffect(() => {
@@ -88,10 +87,6 @@ const OperationsPage = observer(() => {
 
 		return () => clearTimeout(timer)
 	}, [searchQuery])
-
-
-
-	// Scrollable container id for InfiniteScroll: "operations-scrollable-container"
 
 
 	const safeFormatDate = (date) => {
@@ -127,10 +122,10 @@ const OperationsPage = observer(() => {
 			},
 			chart_of_accounts_ids: toJS(selectedChartOfAccounts),
 			payment_type: appStore.isPayment ? paymentType : null,
-			paymentConfirmed,
-			paymentNotConfirmed,
-			accrualConfirmed,
-			accrualNotConfirmed,
+			paymentConfirmedBool: paymentConfirm,
+			paymentNotConfirm,
+			accrualConfirmedBool: accrualConfirm,
+			accrualNotConfirm,
 			sellingDealId: deals
 		}
 
@@ -148,10 +143,10 @@ const OperationsPage = observer(() => {
 		amountRange,
 		selectedChartOfAccounts,
 		paymentType,
-		paymentConfirmed,
-		paymentNotConfirmed,
-		accrualConfirmed,
-		accrualNotConfirmed,
+		paymentConfirm,
+		paymentNotConfirm,
+		accrualConfirm,
+		accrualNotConfirm,
 		deals
 	])
 

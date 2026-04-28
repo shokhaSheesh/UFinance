@@ -46,7 +46,8 @@ const ProfitAndLossPage = observer(() => {
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
     summaryData: null,
-    title: ''
+    title: '',
+    dateRange: null
   })
 
   const { dateRange, selectedGrouping,
@@ -83,35 +84,6 @@ const ProfitAndLossPage = observer(() => {
 
 
   const legend = useMemo(() => profitAndLossDataList?.legend || [], [profitAndLossDataList])
-  const allRows = profitAndLossDataList?.rows
-  // const rows = useMemo(() => {
-  //   const globalChartofAccountsIds = new Set()
-
-  //   const gatherids = (allRows) => {
-  //     allRows?.forEach(row => {
-  //       if (String(row?.id)?.match(/\d+/) && !row?.details) {
-  //         globalChartofAccountsIds.add(row?.id)
-  //       } else if (row?.details) {
-  //         gatherids(row?.details)
-  //       }
-  //     })
-  //   }
-
-  //   gatherids(allRows)
-
-  //   return profitAndLossDataList?.rows?.map(item => ({
-  //     ...item,
-  //     details: item.details?.map(detail => ({
-  //       ...detail,
-  //       tip: () => {
-  //         const income = item?.name === "income" || item?.id === "income" || item?.type === "income"
-  //         const expenses = item?.name === "expenses" || item?.id === "expenses" || item?.type === "expenses"
-  //         const tip = isCalculation === 'cash' && income ? ["Поступление", "Кредит", "Начисление"] : isCalculation === 'accural' && income ? ["Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"] : expenses ? ["Выплата", "Дебет", "Кредит", "Начисление"] : !income && !expenses && ["Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"]
-  //         return tip
-  //       }
-  //     }))
-  //   })) || []
-  // }, [profitAndLossDataList, isCalculation, allRows])
 
 
   const rows = useMemo(() => {
@@ -134,6 +106,7 @@ const ProfitAndLossPage = observer(() => {
 
     // tip esa har doim root (top-level) item asosida hisoblanadi
     const getTip = (rootItem) => {
+      let tips = []
       const income =
         rootItem?.name === "income" ||
         rootItem?.id === "income" ||
@@ -143,19 +116,19 @@ const ProfitAndLossPage = observer(() => {
         rootItem?.id === "expenses" ||
         rootItem?.type === "expenses"
 
-      if (isCalculation === 'cash' && income) {
-        return ["Поступление", "Кредит", "Начисление"]
-      }
-      if (isCalculation === 'accural' && income) {
-        return ["Поступление", "Отгрузка", "Кредит", "Начисление"]
+      if (isCalculation === 'accrual') {
+        tips.push("Отгрузка")
       }
       if (expenses) {
-        return ["Выплата", "Кредит", "Начисление"]
+        tips = ["Выплата", "Кредит", "Начисление"]
+      }
+      if (income) {
+        tips = [...tips, "Поступление", "Кредит", "Начисление"]
       }
       if (!income && !expenses) {
-        return ["Выплата", "Поступление", "Отгрузка", "Дебет", "Кредит", "Начисление"]
+        tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
       }
-      return []
+      return tips
     }
 
     // Har bir node va uning details ichidagi childlarga filterdata qo'shadi
@@ -197,8 +170,6 @@ const ProfitAndLossPage = observer(() => {
       }
     })
   }, [profitAndLossDataList, isCalculation])
-
-  console.log('rows', rows)
 
 
   // Auto-expand first level on initial load
@@ -303,10 +274,6 @@ const ProfitAndLossPage = observer(() => {
       dateRange = { start: startDate, end: endDate }
     }
 
-    console.log('item', item)
-    console.log('monthObj', monthObj)
-    console.log('dateRange', dateRange)
-
     const filterData = {
       tip: item.filterdata?.tip,
       limit: 50,
@@ -316,28 +283,27 @@ const ProfitAndLossPage = observer(() => {
     if (isCalculation === 'cash') {
       filterData.paymentConfirm = true
       filterData.paymentNotConfirm = false
-      filterData.paymentAccural = true
-      filterData.paymentNotAccural = true
+      filterData.accuralConfirm = true
+      filterData.accuralNotConfirm = true
       filterData.paymentDateStart = dateRange.start
       filterData.paymentDateEnd = dateRange.end
 
     }
 
-    if (isCalculation === 'accural') {
+    if (isCalculation === 'accrual') {
       filterData.paymentConfirm = true
       filterData.paymentNotConfirm = true
-      filterData.paymentAccural = true
-      filterData.paymentNotAccural = false
+      filterData.accuralConfirm = true
+      filterData.accuralNotConfirm = false
       filterData.accrualDateStart = dateRange.start
       filterData.accrualDateEnd = dateRange.end
     }
 
     const periodLabel = formatPeriod(dateRange.start, dateRange.end)
 
-    console.log('filterData', filterData)
-
     setModalConfig({
       filterData,
+      dateRange,
       summaryData: {
         periodLabel,
         totalAmount: item.totalValue,
@@ -452,6 +418,7 @@ const ProfitAndLossPage = observer(() => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         filterData={modalConfig.filterData}
+        dateRange={modalConfig.dateRange}
         summaryData={modalConfig.summaryData}
         title={modalConfig.title}
       />
