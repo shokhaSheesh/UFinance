@@ -7,7 +7,7 @@ import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IoSettingsOutline } from 'react-icons/io5'
 import { AppLogo } from '../../constants/icons'
 import { appStore } from '../../store/app.store'
@@ -19,6 +19,12 @@ export const Sidebar = observer(() => {
     const sidebarRef = useRef(null)
     const [modalOpen, setModalOpen] = useState(false)
     const [apiUrl, setApiUrl] = useState(appStore.localApiUrl || '')
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
 
     const handleSaveApiUrl = () => {
         if (apiUrl.trim()) {
@@ -83,7 +89,13 @@ export const Sidebar = observer(() => {
                     href: '/pages/reports/balance',
                     hasPage: true,
                     canShow: permissions?.reports?.balance?.read
-                }, 
+                },
+                {
+                    label: 'Студенты',
+                    href: '/pages/reports/students',
+                    hasPage: true,
+                    canShow: appStore.isDonoSchool
+                },
             ]
         },
         {
@@ -99,11 +111,6 @@ export const Sidebar = observer(() => {
                     hasPage: true,
                     canShow: permissions?.directories?.counterparties?.read
                 },
-                // {
-                //     label: 'Студенты',
-                //     href: '/pages/directories/students',
-                //     hasPage: true,
-                // },
                 {
                     label: 'Учетные статьи',
                     href: '/pages/directories/transaction-categories',
@@ -140,13 +147,22 @@ export const Sidebar = observer(() => {
     ]
 
 
-    return (
-        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full items-center justify-start fixed left-0 z-1000" ref={sidebarRef}>
-            {/* <div className="flex items-center justify-center h-[60px] pl-1 pt-1"> */}
-            <AppLogo size={44} strokeWidth={1.5} className='mt-2' />
-            {/* </div> */}
 
+
+    if (!mounted) {
+        return (
+            <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0">
+                <nav className="flex flex-col w-full">
+                    <div className="mt-2 mx-auto ml-5 mb-4 w-11 h-11" />
+                </nav>
+            </aside>
+        )
+    }
+
+    return (
+        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0" ref={sidebarRef}> 
             <nav className="flex flex-col   w-full">
+                <AppLogo size={44} strokeWidth={1.5} className='mt-2 mx-auto ml-5 mb-4' />
                 {navItems.filter(item => item.hasPage && item.canShow)
                     .map((item, index) => {
                         const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
@@ -169,11 +185,11 @@ export const Sidebar = observer(() => {
 
                         if (hasSubmenu) {
                             return (
-                                <div key={index} className='relative group'>
+                                <div key={index} className='relative  group'>
                                     <div className='relative'>
                                         {LinkContent}
                                     </div>
-                                    <div className="bg-blue-950 -top-1/2 left-[80px]  absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
+                                    <div className="bg-blue-950 -top-1/2 left-[80px] z-30! absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
                                         <div className="flex flex-col gap-1">
                                             {(item.submenu || [])
                                                 .filter(sub => sub.hasPage && sub.canShow !== false)
@@ -204,13 +220,7 @@ export const Sidebar = observer(() => {
                             </Link>
                         )
                     })}
-            </nav>
-            <button
-                onClick={() => setModalOpen(true)}
-                className="flex flex-col h-[65px] items-center justify-center w-full rounded-md transition-all cursor-pointer text-white/60 hover:text-white justify-self-end"
-            >
-                &nbsp;
-            </button>
+            </nav> 
 
             {/* Modal for setting local API URL */}
             {modalOpen && (

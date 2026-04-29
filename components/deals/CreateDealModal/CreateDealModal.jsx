@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import styles from './CreateDealModal.module.scss';
 import CustomDatePicker from '@/components/shared/DatePicker';
 import Input from '@/components/shared/Input';
-import TextArea from '../../shared/TextArea'; 
-import { X } from 'lucide-react';
-import { useUcodeDefaultApiMutation, useUcodeRequestMutation } from '../../../hooks/useDashboard';
 import { useQueryClient } from '@tanstack/react-query';
-import Loader from '../../shared/Loader';
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useUcodeRequestMutation } from '../../../hooks/useDashboard';
+import { appStore } from '../../../store/app.store';
 import { formatDate } from '../../../utils/formatDate';
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty';
+import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
-import { authStore } from '../../../store/auth.store';
-import { appStore } from '../../../store/app.store';
+import TextArea from '../../shared/TextArea';
+import styles from './CreateDealModal.module.scss';
 
 const ndsOptions = [
   { value: 'true', label: 'С учетом НДС' },
@@ -79,7 +78,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
       nds: nds === 'true',
       commentary: comment,
       currenies_id: appStore?.currency?.guid,
-      // status: ["Новая"]
+      status: ["Новая"]
     };
 
     if (isEditing && initialData?.guid) {
@@ -88,7 +87,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
 
     try {
       await createDeal({
-        method: isEditing ? 'update_sales_transaction' : 'create_sales_transaction', 
+        method: isEditing ? 'update_sales_transaction' : 'create_sales_transaction',
         data: payload
       });
       queryClient.invalidateQueries({ queryKey: ['deals'] });

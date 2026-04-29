@@ -18,7 +18,6 @@ const IncomePaymentTableRow = observer(({
     chartofaccounts.add(part?.chart_of_accounts_id)
   })
 
-  console.log('IncomePaymentTableRow', op)
 
   const titleContragent = useMemo(() => {
     if (children.size === 1) {
@@ -112,6 +111,9 @@ const IncomePaymentTableRow = observer(({
             <span className={`text-neutral-600 ${textPrimary}`}>{op?.chartOfAccounts}</span>
             <span className='text-neutral-600'>{op.chartOfAccounts2}</span>
           </div>}
+          {op?.tip === 'Отгрузка' && <div className={`flex flex-col items-start `}>
+            <span className={`text-neutral-600 ${textPrimary}`}>{op?.chartOfAccounts}</span>
+          </div>}
         </td>
         {/* price */}
         <td className={'pr-4'} onClick={e => e.stopPropagation()}>
@@ -129,6 +131,12 @@ const IncomePaymentTableRow = observer(({
               </>
             )}
             {(op?.tip === 'Начисление') && (
+              <>
+                <span className={cn('text-neutral-700')}>{op?.debit} {formatNumber((op?.summa))} {op?.currency}</span>
+                <span className={cn('text-neutral-700')}>{op?.kredit} {formatNumber((op?.summa))} {op?.currency}</span>
+              </>
+            )}
+            {(op?.tip === 'Отгрузка') && (
               <>
                 <span className={cn('text-neutral-700')}>{op?.debit} {formatNumber((op?.summa))} {op?.currency}</span>
                 <span className={cn('text-neutral-700')}>{op?.kredit} {formatNumber((op?.summa))} {op?.currency}</span>

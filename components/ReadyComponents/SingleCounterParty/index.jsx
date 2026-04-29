@@ -1,6 +1,6 @@
 'use client'
-import React, { useEffect, useMemo } from 'react'
-import { useCounterpartiesGroupsPlanFact } from '@/hooks/useDashboard'
+import { useMemo, useState } from 'react'
+import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
 const SingleCounterParty = ({
@@ -15,9 +15,15 @@ const SingleCounterParty = ({
   isClearable = true,
   hasError
 }) => {
-  const { data: counterpartiesGroupsData, isLoading } = useCounterpartiesGroupsPlanFact({
-    page: 1,
-    limit: 1000,
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const { data: counterpartiesGroupsData, isLoading } = useUcodeRequestQuery({
+    method: 'get_counterparties_group',
+    data: {
+      page: 1,
+      limit: 1000,
+      search: searchQuery
+    }
   })
 
   const result = useMemo(() => {
@@ -69,10 +75,8 @@ const SingleCounterParty = ({
     const node = findItem(result)
     if (node && node.rawData) {
       // Return the chart_of_accounts_id (or id_2) based on the 'name' prop
-      const accountId = node.rawData[name]
-      console.log('accountId', accountId)
+      const accountId = node.rawData[name] 
       returnChartOfAccount?.(accountId || null)
-
     }
   }
 
@@ -92,19 +96,19 @@ const SingleCounterParty = ({
   }
 
   return (
-    <div className={disabled ? 'opacity-50 pointer-events-none w-full' : 'w-full'}>
-      <TreeSelect
-        data={result}
-        multi={false}
-        placeholder={isLoading ? "Загрузка..." : placeholder}
-        value={value}
-        onChange={handleSelect}
-        isClearable={isClearable}
-        className={className}
-        dropdownClassName={dropdownClassName}
-        hasError={hasError}
-      />
-    </div>
+    <TreeSelect
+      data={result}
+      multi={false}
+      placeholder={isLoading ? "Загрузка..." : placeholder}
+      value={value}
+      onChange={handleSelect}
+      onSearch={setSearchQuery}
+      isClearable={isClearable}
+      className={className}
+      dropdownClassName={dropdownClassName}
+      hasError={hasError}
+      disabled={disabled}
+    />
   )
 }
 

@@ -1,10 +1,13 @@
 'use client'
 
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
 import ScreenLoader from '../../shared/ScreenLoader'
 
@@ -13,10 +16,27 @@ const Branches = observer(() => {
   const [reloading, setReloading] = useState(false)
   const containerRef = useRef(null)
   const router = useRouter()
+  const userData = authStore.userData
+
+  const { mutateAsync: getMyPermissions, isPending: permissionsLoading } = useMutation({
+    mutationKey: ['get_my_permissions'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_user_role_permissions', data, type: 'role' })
+  })
 
   const { data: branchesData } = useUcodeRequestQuery({
     method: 'get_my_branches',
     data: { page: 1, limit: 200 }
+  })
+
+  const { data: permission, isSuccess } = useQuery({
+    queryKey: ['get_userPermissions'],
+    queryFn: async () => getMyPermissions({
+      branches_id: authStore.branch_id,
+    }),
+    select: (data) => data?.data?.data?.role_permissions,
+    enabled: userData?.role === 'employees' && appStore.branches?.length > 0,
+    staleTime: 1000 * 60 * 60,
+    refetchOnMount: true
   })
 
   const branches = useMemo(() => branchesData?.data?.data, [branchesData])
@@ -25,6 +45,11 @@ const Branches = observer(() => {
   const branchesList = useMemo(() => {
     return branches?.length <= 1 ? null : branches
   }, [branches])
+
+
+  if (isSuccess) {
+    appStore.setNewPermission(permission)
+  }
 
 
   useEffect(() => {
@@ -41,14 +66,28 @@ const Branches = observer(() => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function handleSelectBranch(branch) {
+  async function handleSelectBranch(branch) {
+    let permission = {}
     setOpen(false)
     authStore.setBranchId(branch.guid)
+    appStore.setBranchIsAccrualDate(branch.guid)
     authStore.setSelectBranch(branch)
     setReloading(true)
+    if (userData?.role === 'plan_fakt_admins' && branch?.is_employee) {
+      appStore.setEmployerPermission()
+    } else if (userData?.role === 'employees') {
+      permission = await getMyPermissions({
+        branches_id: branch?.guid,
+      })
+      appStore.setNewPermission(permission?.data?.data?.role_permissions)
+    } else if (userData?.role === 'plan_fakt_admins' && !branch?.is_employee) {
+      appStore.setPlanfactPermission()
+    }
     router.push('/pages/operations')
     window.location.reload()
   }
+
+
 
   if (!branchesList) return null
 

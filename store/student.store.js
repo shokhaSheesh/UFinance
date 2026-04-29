@@ -1,13 +1,21 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
-import { GlobalCurrency } from '../constants/globalCurrency'
+import moment from 'moment'
+
+const now = new Date()
+
+export const defaultRangeMonth = {
+  start: moment(new Date(now.getFullYear(), now.getMonth(), 1)).format('YYYY-MM-DD'),        // Joriy oyning 1-kuni
+  end: moment(new Date(now.getFullYear(), now.getMonth() + 1, 0)).format('YYYY-MM-DD'),    // Joriy oyning oxirgi kuni
+}
+
 
 class Student {
   accounting = 'accrual' // accrual || cash 
   dealsMethod = 'accrual_method'
-  selectedLegelEntities = []
-  currenyCode = GlobalCurrency.code
-  dateRange = { start: null, end: null }
+  selectedCounterParties = []
+  selectedCounterPartiesGroups = []
+  rangeMonth = defaultRangeMonth
 
   constructor() {
     makeAutoObservable(this)
@@ -18,9 +26,9 @@ class Student {
         properties: [
           "accounting",
           "dealsMethod",
-          "selectedLegelEntities",
-          "currenyCode",
-          "dateRange",
+          "selectedCounterParties",
+          "selectedCounterPartiesGroups",
+          "rangeMonth",
         ],
         storage: window.localStorage,
         debugMode: true,
@@ -35,9 +43,12 @@ class Student {
   resetFilters = () => {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
-    this.selectedLegelEntities = []
-    this.currenyCode = GlobalCurrency.code
-    this.dateRange = { start: null, end: null }
+    this.selectedCounterParties = []
+    this.selectedCounterPartiesGroups = []
+    this.rangeMonth = defaultRangeMonth
+  }
+  resetMonth = () => {
+    this.rangeMonth = defaultRangeMonth
   }
 }
 

@@ -5,6 +5,7 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
 import { useMemo, useState } from 'react'
 import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
+import { appStore } from '../../../store/app.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import styles from './style.module.scss'
 
@@ -131,7 +132,7 @@ const TableRow = observer(({
         )}
 
         {/* Date */}
-        <div className={cn('min-w-32 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-36 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <div className={cn(textPrimary, 'w-full')}>
             {op.operationParts?.length > 0 ? (
               <div className={"flex items-center gap-1 pl-5 px-3 relative"} onClick={(event) => { event.stopPropagation(); setOpen(!open) }}>
@@ -163,6 +164,12 @@ const TableRow = observer(({
           </div>
         </div>
 
+        {op?.paymentType && appStore.isPayment && <div className="min-w-14 flex px-1 items-center justify-center">
+          <div className={cn(styles.typeIcon, 'scale-75')}>
+            {op?.paymentType}
+          </div>
+        </div>}
+
         {/* Type Icon */}
         <div className="min-w-14 flex px-1 items-center justify-center">
           {op.tip ? (
@@ -179,12 +186,12 @@ const TableRow = observer(({
         </div>
 
         {/* Counterparty */}
-        <div className={cn('min-w-24 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
+        <div className={cn('min-w-20 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
           <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
         </div>
 
         {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-24', isActive && styles.activeRow)}>
+        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20', isActive && styles.activeRow)}>
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
@@ -237,6 +244,7 @@ const TableRow = observer(({
             toAmount={op.to_amount}
             tab={op.tip}
             type={op?.tip}
+            op={op}
             debit={op?.debit}
             kredit={op?.kredit}
             percent={op?.percent}

@@ -1,12 +1,12 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const MultiSelect = ({
     data = [],
-    value = [], // Array of values
+    value, // don't default here — normalize below
     onChange = () => { },
     placeholder = "Выберите",
     withSearch = true,
@@ -14,7 +14,8 @@ const MultiSelect = ({
     className,
     dropdownClassName,
     hasError,
-    onSearch = () => { }
+    onSearch = () => { },
+    disabled = false
 }) => {
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -25,6 +26,12 @@ const MultiSelect = ({
     const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0, width: 0 })
 
     const inputRef = useRef(null)
+
+    const safeValue = useMemo(() => {
+        if (Array.isArray(value)) return value;
+        if (value === null || value === undefined || value === '') return [];
+        return [value]; // single primitive → wrap
+    }, [value]);
 
     useEffect(() => {
         if (open && withSearch && inputRef.current) {
@@ -74,14 +81,6 @@ const MultiSelect = ({
         }
     }, [open])
 
-    const getSelectedLabel = () => {
-        if (!value || value.length === 0) return placeholder;
-        const selectedItems = data.filter(item => value.includes(item.value));
-        if (selectedItems.length === 1) return selectedItems[0].label;
-        if (selectedItems.length > 1) return `Выбрано: ${selectedItems.length}`;
-        return placeholder;
-    }
-
     const filteredData = useMemo(() => {
         if (!searchQuery) return data;
         return data.filter(item =>
@@ -89,10 +88,18 @@ const MultiSelect = ({
         );
     }, [data, searchQuery]);
 
+    const getSelectedLabel = () => {
+        if (safeValue.length === 0) return placeholder;
+        const selectedItems = data.filter(item => safeValue.includes(item.value));
+        if (selectedItems.length === 1) return selectedItems[0].label;
+        if (selectedItems.length > 1) return `Выбрано: ${selectedItems.length}`;
+        return placeholder;
+    }
+
     const handleSelect = (val) => {
-        const newValue = value.includes(val)
-            ? value.filter(v => v !== val)
-            : [...value, val];
+        const newValue = safeValue.includes(val)
+            ? safeValue.filter(v => v !== val)
+            : [...safeValue, val];
         onChange(newValue);
     };
 
@@ -101,12 +108,15 @@ const MultiSelect = ({
             <button
                 ref={buttonRef}
                 type="button"
+                disabled={disabled}
                 className={cn(
-                    'flex items-center cursor-pointer bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
+                    'flex items-center bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none',
+                    disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
                     className,
                     hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
                 )}
                 onClick={() => {
+                    if (disabled) return;
                     if (!open && buttonRef.current) {
                         const rect = getZoomAwareRect(buttonRef.current)
                         const spaceBelow = window.innerHeight - rect.bottom
@@ -116,15 +126,15 @@ const MultiSelect = ({
                     setOpen(!open)
                 }}
             >
-                <span className={cn('text-gray-ucode-400 text-start line-clamp-1 font-normal text-xss!', value.length > 0 && 'text-gray-ucode-800')}>{getSelectedLabel()}</span>
+                <span className={cn('text-gray-ucode-400 text-start line-clamp-1 font-normal text-xss!', value?.length > 0 && 'text-gray-ucode-800')}>{getSelectedLabel()}</span>
                 <div className="flex items-center">
-                    {isClearable && value?.length > 0 && (
+                    {isClearable && value?.length > 0 && !disabled && (
                         <div
                             role="button"
                             tabIndex={0}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onChange([]);
+                                if (!disabled) onChange([]);
                             }}
                             className=" cursor-pointer"
                         >
@@ -175,7 +185,7 @@ const MultiSelect = ({
                                 <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
                             ) : (
                                     filteredData.map(node => {
-                                        const isSelected = value.includes(node.value);
+                                        const isSelected = value?.includes(node.value);
 
                                         return (
                                             <div

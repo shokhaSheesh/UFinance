@@ -4,7 +4,7 @@ import { cn } from '@/app/lib/utils'
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
-import { Search } from 'lucide-react'
+import { Download, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -19,16 +19,18 @@ import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
-import { useUcodeDefaultApiMutation, useUcodeRequestInfinite } from '../../../hooks/useDashboard'
+import { useUcodeRequestInfinite, useUcodeRequestMutation } from '../../../hooks/useDashboard'
+import useMounted from '../../../hooks/useMounted'
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatDateFormat } from '../../../utils/formatDate'
-import { formatAmount } from '../../../utils/helpers'
+import { formatAmount, handleDownload } from '../../../utils/helpers'
 import styles from './deals.module.scss'
 
 export default observer(function DealsPage() {
   const router = useRouter()
   const [search, setSearch] = useState('')
+  const mounted = useMounted()
 
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -36,6 +38,8 @@ export default observer(function DealsPage() {
   const [dealToEdit, setDealToEdit] = useState(null)
   const [dealToCopy, setDealToCopy] = useState(null)
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false)
+  const [studentToEdit, setStudentToEdit] = useState(null)
+  const [canUpdateForms, setCanUpdateForms] = useState(false)
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
 
@@ -106,7 +110,7 @@ export default observer(function DealsPage() {
 
   const totalProfit = dealsMethod === 'accrual_method' ? summary?.accrual_profit : summary?.cash_profit
 
-  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeDefaultApiMutation({ mutationKey: 'delete-deal' })
+  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeRequestMutation()
 
   const formattedDeals = useMemo(() => {
     return allDeals?.map(deal => ({
@@ -157,7 +161,7 @@ export default observer(function DealsPage() {
   const confirmDelete = () => {
     if (!dealToDelete) return
     deleteDeal(
-      { urlMethod: 'DELETE', urlParams: `/items/sales_transactions/${dealToDelete.guid}?from-ofs=true` },
+      { method: 'delete_sales_transaction', data: { guid: dealToDelete.guid } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
@@ -174,7 +178,11 @@ export default observer(function DealsPage() {
 
   const handleEditClick = (deal, e) => {
     e.stopPropagation()
-    setDealToEdit(deal)
+    setDealToEdit(deal) 
+    if (deal?.contract_file) {
+      setShowCreateStudentModal(true)
+      return
+    }
     setIsCreateModalOpen(true)
   }
 
@@ -184,11 +192,25 @@ export default observer(function DealsPage() {
     setIsCreateModalOpen(true)
   }
 
+  const handleUpdate = (deal, e) => {
+    e?.stopPropagation()
+    setDealToEdit(deal)
+    setShowCreateStudentModal(true)
+    setCanUpdateForms(true)
+  }
+
   const closeCreateModal = () => {
     setIsCreateModalOpen(false)
     setDealToEdit(null)
     setDealToCopy(null)
   }
+
+  const closeStudentModal = () => {
+    setShowCreateStudentModal(false)
+    setStudentToEdit(null)
+  }
+
+  if (!mounted) return null
 
   return (
     <div className='flex fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]'>
@@ -198,12 +220,15 @@ export default observer(function DealsPage() {
           <div className='flex items-center gap-2 flex-1'>
             <h1 className={styles.title}>Сделки по продажам</h1>
             {dealPermission.add && <>
-              <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
+              {!appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
                 Создать
-              </button>
-              <button className='primary-btn text-sm rounded-sm!' onClick={() => setShowCreateStudentModal(true)}>
+              </button>}
+              {appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => {
+                setShowCreateStudentModal(true)
+                setDealToEdit(null)
+              }}>
                 Создать студента
-              </button>
+              </button>}
             </>}
           </div>
           <div className='flex items-center gap-2'>
@@ -308,8 +333,16 @@ export default observer(function DealsPage() {
                     <div className='group-hover:hidden'>
                       <p className={price < 0 ? 'text-red-600' : 'text-green-600'}>{formatAmount(price)}</p>
                     </div>
-                    <div className='hidden group-hover:flex justify-end'>
-                      <div className='flex items-center'>
+                    <div className='hidden group-hover:flex justify-between'>
+
+                      <button className='hover:bg-neutral-100 rounded-full justify-self-start p-2 cursor-pointer' title='Редактировать договор' onClick={(e) => handleUpdate(deal, e)}>
+                        &nbsp;
+                      </button>
+
+                      <div className='flex items-center justify-end'>
+                        {deal.contract_file && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скачать договор' onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}>
+                          <Download size={14} color='#686868' />
+                        </button>}
                         {dealPermission.edit && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Редактировать' onClick={(e) => handleEditClick(deal, e)}>
                           <MdOutlineModeEdit size={14} color='#686868' />
                         </button>}
@@ -354,8 +387,10 @@ export default observer(function DealsPage() {
       </footer>
 
       <CreateStudentModal
+        dealGuid={dealToEdit?.guid || null}
         isOpen={showCreateStudentModal}
-        onClose={() => setShowCreateStudentModal(false)}
+        onClose={closeStudentModal}
+        canUpdateForms={canUpdateForms}
       />
       <CreateDealModal
         isOpen={isCreateModalOpen}

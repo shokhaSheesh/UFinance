@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const SingleSelect = ({
   data = [],
@@ -15,7 +15,11 @@ const SingleSelect = ({
   dropdownClassName,
   hasError,
   wrapperClassName,
-  disabled = false
+  disabled = false,
+  onSearch = () => { },
+  customButton,
+  customRenderItem,
+  elementAfter
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -163,33 +167,79 @@ const SingleSelect = ({
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                 placeholder='Поиск по списку'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  onSearch(e.target.value)
+                }}
               />
             </div>}
 
+            {/* Custom Button at Top */}
+            {customButton && (
+              <div onClick={() => setOpen(false)} className='border-b border-gray-100'>
+                {customButton}
+              </div>
+            )}
+
             {/* List Items */}
             <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
+
               {filteredData.length === 0 ? (
                 <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
               ) : (
                 filteredData.map(node => {
                   const isSelected = value === node.value;
 
+                  if (customRenderItem) {
+                    return (
+                      <div
+                        key={node.value}
+                        className={cn(
+                          "w-full hover:bg-neutral-50 transition-colors cursor-pointer",
+                          isSelected && "bg-neutral-100/60"
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChange(node.value);
+                          setOpen(false);
+                        }}
+                      >
+                        {customRenderItem(node, isSelected)}
+                      </div>
+                    )
+                  }
+
                   return (
                     <div
                       key={node.value}
                       className={cn(
-                        "w-full px-4 py-2 hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
+                        "w-full  hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
                         isSelected && "bg-neutral-100/60"
                       )}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onChange(node.value);
-                        setOpen(false);
-                      }}
+
                     >
-                      <span>{node.label}</span>
-                      {isSelected && <Check size={16} className="text-primary" />}
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onChange(node.value);
+                          setOpen(false);
+                        }}
+                        className="flex-1 px-4 py-2"
+                      >
+                        {node.label}
+                      </span>
+                      <div
+                        className="flex items-center gap-2 px-2"
+                        onClick={() => {
+                          setOpen(false);
+                        }}
+                      >
+                        {isSelected && <Check size={16} className="text-primary" />}
+                        {elementAfter && <div onClick={(e) => {
+                          e.stopPropagation()
+                          setOpen(false)
+                        }}>{elementAfter(node)}</div>}
+                      </div>
                     </div>
                   )
                 })

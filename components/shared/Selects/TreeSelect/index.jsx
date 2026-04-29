@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const TreeNode = ({ node, level = 0, selectedValue, onSelect, multi }) => {
   const isSelected = multi ? selectedValue?.includes(node.value) : selectedValue === node.value;
@@ -44,16 +44,20 @@ const TreeNode = ({ node, level = 0, selectedValue, onSelect, multi }) => {
 const TreeSelect = ({
   data = [],
   value,
+  search = "",
   onChange = () => { },
+  onSearch = () => { },
   placeholder = "Выберите",
   multi = false,
   isClearable = true,
   className, dropdownClassName,
-  hasError
+  hasError,
+  disabled = false
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [openUpwards, setOpenUpwards] = useState(false)
+  const searchTimeoutRef = useRef(null)
   const buttonRef = useRef(null)
   const containerRef = useRef(null)
   const dropdownRef = useRef(null)
@@ -69,6 +73,15 @@ const TreeSelect = ({
       return () => clearTimeout(timer)
     }
   }, [open])
+
+  // Cleanup search timeout
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (open && buttonRef.current) {
@@ -190,12 +203,15 @@ const TreeSelect = ({
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         className={cn(
-          'flex items-center cursor-pointer h-[36px]! bg-gray-ucode-25 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-primary/80',
+          'flex items-center h-[36px]! bg-gray-ucode-25 transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none',
+          disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
           className,
           hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
         )}
         onClick={() => {
+          if (disabled) return;
           if (!open && buttonRef.current) {
             const rect = getZoomAwareRect(buttonRef.current)
             const spaceBelow = window.innerHeight - rect.bottom
@@ -207,13 +223,13 @@ const TreeSelect = ({
       >
         <span className={cn('text-gray-ucode-400 text-start line-clamp-1 font-normal text-xss!', (multi && value?.length > 0) || (!multi && value) && 'text-gray-ucode-800', isPlaceholder && 'text-gray-ucode-400')}>{getSelectedLabel()}</span>
         <div className="flex items-center">
-          {isClearable && ((multi && value?.length > 0) || (!multi && value)) && (
+          {isClearable && ((multi && value?.length > 0) || (!multi && value)) && !disabled && (
             <div
               role="button"
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
-                onChange(multi ? [] : null);
+                if (!disabled) onChange(multi ? [] : null);
               }}
               className=" cursor-pointer"
             >
@@ -252,7 +268,17 @@ const TreeSelect = ({
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                 placeholder='Поиск по списку'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setSearchQuery(value)
+                  // Debounce search callback
+                  if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current)
+                  }
+                  searchTimeoutRef.current = setTimeout(() => {
+                    onSearch(value)
+                  }, 300)
+                }}
               />
             </div>
 

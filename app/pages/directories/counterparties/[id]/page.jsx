@@ -782,7 +782,7 @@ const KontragentDetailPage = observer(() => {
                 <div className="pb-56">
                   {/* Table Header */}
                   <div className='flex  sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-                    <div className='min-w-32  pl-5 flex p-3 items-center justify-start '>
+                    <div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
                       Дата
                     </div>
                     <div className='min-w-18 max-w-52 flex-1  flex p-3 items-center justify-start '>
@@ -791,10 +791,10 @@ const KontragentDetailPage = observer(() => {
                     <div className='min-w-14   flex p-3 items-center justify-center '>
                       Тип
                     </div>
-                    <div className='min-w-24 flex-1  flex p-3 items-center justify-start '>
+                    <div className='min-w-20 flex-1  flex p-3 items-center justify-start '>
                       Контрагент
                     </div>
-                    <div className='min-w-24 flex-1   text-start  p-3 items-center justify-start '>
+                    <div className='min-w-20 flex-1   text-start  p-3 items-center justify-start '>
                       Статья
                     </div>
                     <div className='min-w-20 flex-1  flex p-3 items-center justify-center '>

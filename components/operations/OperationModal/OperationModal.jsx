@@ -5,17 +5,19 @@ import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useMounted from '../../../hooks/useMounted'
+import { useOperationComments } from '../../../hooks/useOperationComments'
 import { appStore } from '../../../store/app.store'
 import { formatDateRu } from '../../../utils/helpers'
 import AccuralForm from './Forms/Accural'
 import IncomeForm from './Forms/Income'
 import PaymentForm from './Forms/Payment'
 import TransferForm from './Forms/Transfer'
+import SentMessages from './SentMessages'
 
 const OperationModal = observer(({
 	operation,
 	isClosing,
-	isOpening,
+	// isOpening,
 	onClose,
 	onSuccess,
 	preselectedCounterparty = null,
@@ -29,6 +31,14 @@ const OperationModal = observer(({
 	const isNew = operation?.isNew || false
 
 	const operationPermissions = appStore.permission?.operations || {}
+
+	const comments = useOperationComments({ isNew, operationId: operation?.guid })
+
+	const handleFormSuccess = async (operationId) => {
+		await comments.flushPending(operationId)
+		onSuccess?.()
+		onClose()
+	}
 
 
 	const operationData = useMemo(() => {
@@ -92,10 +102,10 @@ const OperationModal = observer(({
 					{/* Tabs */}
 					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
 						{[
-							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add || operationPermissions?.income?.edit },
-							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add || operationPermissions?.payout?.edit },
-							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add || operationPermissions?.transfer?.edit },
-							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add || operationPermissions?.accrual?.edit }
+							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
+							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
+							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
+							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew }
 						].filter(tab => tab.canShow).map(tab => (
 							<button
 								key={tab.id}
@@ -119,7 +129,7 @@ const OperationModal = observer(({
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id}
-								onSuccess={onSuccess}
+								onSuccess={handleFormSuccess}
 							/>
 						)}
 						{activeTab === 'payment' && (
@@ -129,26 +139,48 @@ const OperationModal = observer(({
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id_2}
-								onSuccess={onSuccess}
+								onSuccess={handleFormSuccess}
 							/>
 						)}
 						{activeTab === 'transfer' && (
 							<TransferForm
 								onClose={onClose}
 								initialData={operationData}
-								onSuccess={onSuccess}
+								onSuccess={handleFormSuccess}
 							/>
 						)}
 						{activeTab === 'accrual' && (
 							<AccuralForm
 								onCancel={onClose}
 								onClose={onClose}
-								onSuccess={onSuccess}
+								onSuccess={handleFormSuccess}
 								initialData={operationData}
 							/>
 						)}
 					</div>
 				</div>
+				<SentMessages
+					messages={comments.messages}
+					text={comments.text}
+					attachedFiles={comments.attachedFiles}
+					editingId={comments.editingId}
+					editText={comments.editText}
+					editFiles={comments.editFiles}
+					deleteTargetId={comments.deleteTargetId}
+					onTextChange={comments.setText}
+					onFileChange={comments.handleFileChange}
+					onRemoveAttach={comments.handleRemoveAttach}
+					onSend={comments.handleSend}
+					onKeyDown={comments.handleKeyDown}
+					onEdit={comments.handleEdit}
+					onEditChange={comments.setEditText}
+					onEditFileChange={comments.handleEditFileChange}
+					onEditConfirm={comments.handleEditConfirm}
+					onEditCancel={comments.handleEditCancel}
+					onDelete={comments.handleDeleteRequest}
+					onDeleteConfirm={comments.handleDeleteConfirm}
+					onDeleteCancel={comments.handleDeleteCancel}
+				/>
 			</div>
 		</>
 	)

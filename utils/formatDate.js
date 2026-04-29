@@ -1,3 +1,4 @@
+
 export const formatDate = (date) => {
   // Handle null/undefined
   if (!date) return ''
@@ -82,12 +83,56 @@ export const isFuture = (dateString) => {
 export const isBefore = (dateString) => {
   if (!dateString) return false
   const date = new Date(dateString)
-  const today = new Date()
-  console.log('date', date)
-  console.log('today', today)
+  const today = new Date() 
   today.setHours(0, 0, 0, 0)
   return date < today
 }
 
+export function isPastDate(date) {
+  if (!date) return false
+
+  // Parse YYYY-MM-DD format
+  const parsed = new Date(date)
+  if (isNaN(parsed.getTime())) return false
+
+  // Get year, month, day from input date (using local time to match input intent)
+  const inputYear = parsed.getFullYear()
+  const inputMonth = parsed.getMonth()
+  const inputDay = parsed.getDate()
+
+  // Get today's year, month, day
+  const today = new Date()
+  const todayYear = today.getFullYear()
+  const todayMonth = today.getMonth()
+  const todayDay = today.getDate()
+
+  // Compare year first, then month, then day
+  if (inputYear < todayYear) return true
+  if (inputYear > todayYear) return false
+  if (inputMonth < todayMonth) return true
+  if (inputMonth > todayMonth) return false
+  return inputDay < todayDay
+}
 
 
+export const formatStudentTableDate = (monthString) => {
+  if (!monthString) return ''
+
+  const [month, year] = monthString.split('.')
+  if (!month || !year) return monthString
+
+  const monthNames = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ]
+
+  const monthIndex = parseInt(month, 10) - 1
+  if (monthIndex < 0 || monthIndex > 11) return monthString
+
+  return `${monthNames[monthIndex]} ${year}`
+}
+
+export function toISOStringFromDate(dateStr) {
+  console.log('dateStr', dateStr)
+  return new Date(dateStr).toISOString();
+}

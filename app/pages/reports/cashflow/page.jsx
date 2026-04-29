@@ -14,7 +14,7 @@ import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
+import { formatNumber, formatTotalSumma, isUUID } from '../../../../utils/helpers'
 
 const groupingOptions = [
   { value: 'monthly', label: 'По месяцам' },
@@ -67,9 +67,9 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
           return (
             <td key={month} className="px-2 cursor-pointer! text-xs text-end border-r min-w-[150px] max-w-[150px]">
               <span
-                className={`  ${isBold ? "font-semibold" : ""} ${!isEndingBalance ? ' hover:text-primary transition-colors' : ''}`}
+                className={`  ${isBold ? "font-semibold" : ""} ${row?.isClickable ? ' hover:text-primary transition-colors' : ''}`}
                 onClick={() => {
-                  if (isEndingBalance) return
+                  if (!row?.isClickable) return
                   onCellClick(row, { key: month, label: legendItem?.title || month })
                 }}
               >
@@ -84,9 +84,9 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
         {/* Total cell */}
         <td className="px-2 text-right border-l min-w-[150px] max-w-[150px] cursor-pointer!">
           <span
-            className={`text-xs line-clamp-1 ${isBold ? "font-semibold" : "text-xs"} ${!isEndingBalance ? ' hover:underline hover:text-primary transition-colors' : ''}`}
+            className={`text-xs line-clamp-1 ${isBold ? "font-semibold" : "text-xs"} ${!row?.isClickable ? ' hover:underline hover:text-primary transition-colors' : ''}`}
             onClick={() => {
-              if (isEndingBalance) return
+              if (!row?.isClickable) return
               onCellClick(row, null)
             }}
           >
@@ -140,10 +140,6 @@ export default observer(function CashFlowReportPage() {
   const { periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId } = cashFlowStore
 
 
-  // const filterData = useMemo(() => {
-  //   return {
-  // }, [periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId])
-
   const filterData = {
     periodStartDate: periodStartDate ? moment(periodStartDate).format('YYYY-MM-DD') : null,
     periodEndDate: periodEndDate ? moment(periodEndDate).format('YYYY-MM-DD') : null,
@@ -166,14 +162,58 @@ export default observer(function CashFlowReportPage() {
     refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
+
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.key), [legend])
 
-  // Transform rows into tree structure with section context
   const data = useMemo(() => {
     if (!cashFlowDataList?.rows) return []
 
-    const transformRow = (row, depth = 0, sectionName = null, parentPath = '') => {
+    // Recursive — barcha leaf id larni yig'adi (details bo'lmagan nodelar)
+    const collectLeafIds = (node) => {
+      const hasChildren = node?.details && node.details.length > 0
+      if (!hasChildren) {
+        return node?.id ? [node.id?.slice(0, 36)] : []
+      }
+      return node.details.flatMap(child => collectLeafIds(child))
+    }
+
+    // Top-level (root) item nomi bo'yicha tip
+    const getRootTip = (rootName) => {
+      if (
+        rootName === 'Операционный поток' ||
+        rootName === 'Инвестиционный поток' ||
+        rootName === 'Финансовый поток'
+      ) {
+        return ['Поступление', 'Выплата']
+      }
+      if (rootName === 'Перемещения') {
+        return ['Списание', 'Зачисление', 'Перемещение']
+      }
+      if (rootName === 'Общий денежный поток' || rootName === 'Остатки на конец периода') {
+        return ['Списание', 'Зачисление', 'Перемещение', 'Поступление', 'Выплата']
+      }
+      return []
+    }
+
+    // Subtree context
+    const getSubtreeTip = (name) => {
+      if (name === 'Поступления') return ['Поступление']
+      if (name === 'Выплаты') return ['Выплата']
+      if (name === 'Списания') return ['Списание']
+      if (name === 'Зачисления') return ['Зачисление']
+      return null
+    }
+
+    const transformRow = (
+      row,
+      depth = 0,
+      sectionName = null,
+      parentPath = '',
+      inheritedSubtreeTip = null,
+      rootName = null,
+      inheritedClickable = true
+    ) => {
       const monthData = {}
       months.forEach(monthKey => {
         monthData[monthKey] = row.values?.[monthKey] || 0
@@ -188,6 +228,35 @@ export default observer(function CashFlowReportPage() {
       }
 
       const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
+      const currentRootName = depth === 0 ? row.name : rootName
+
+      // Subtree tip
+      let currentSubtreeTip = inheritedSubtreeTip
+      const subtreeTipFromName = getSubtreeTip(row.name)
+      if (depth >= 1 && subtreeTipFromName) {
+        currentSubtreeTip = subtreeTipFromName
+      }
+
+      // Tip
+      let tip
+      if (depth === 0) {
+        tip = getRootTip(row.name)
+      } else if (currentSubtreeTip) {
+        tip = currentSubtreeTip
+      } else {
+        tip = getRootTip(currentRootName)
+      }
+
+      // isClickable — Остатки на конец периода va barcha bolalari false
+      let isClickable = inheritedClickable
+      if (depth === 0) {
+        // Top-level: agar Остатки bo'lsa — false, aks holda true
+        isClickable = row.name !== 'Остатки на конец периода' && row.id !== 'ending-balance'
+      }
+      // Agar parent isClickable=false bo'lsa, bola ham false (meros)
+      // Agar parent isClickable=true bo'lsa, bola ham true
+
+      const ids = collectLeafIds(row)?.map(id => id?.replace(/':+/g, ''))?.filter(id => isUUID(id))
 
       const node = {
         id: row.id,
@@ -197,18 +266,48 @@ export default observer(function CashFlowReportPage() {
         months: monthData,
         level: depth,
         section: currentSection,
-        subRows: []
+        isClickable,
+        filterdata: {
+          ids,
+          tip,
+        },
+        subRows: [],
       }
 
       if (row.details && Array.isArray(row.details) && row.details.length > 0) {
-        node.subRows = row.details.map(detail => transformRow(detail, depth + 1, currentSection, rowUniquePath))
+        node.subRows = row.details.map(detail =>
+          transformRow(
+            detail,
+            depth + 1,
+            currentSection,
+            rowUniquePath,
+            currentSubtreeTip,
+            currentRootName,
+            isClickable  // bolalari ota'ning isClickable ni meros oladi
+          )
+        )
       }
 
       return node
     }
 
-    return cashFlowDataList.rows.map(row => transformRow(row, 0, null, ''))
+    const transformed = cashFlowDataList.rows.map(row => transformRow(row, 0))
+
+    // "Общий денежный поток" — leaf, qo'lda aggregate
+    const overallIndex = transformed.findIndex(
+      r => r.name === 'Общий денежный поток' || r.id === 'overall-cash-flow'
+    )
+    if (overallIndex !== -1) {
+      const aggregatedIds = []
+      for (let i = 0; i < overallIndex; i++) {
+        aggregatedIds.push(...transformed[i].filterdata.ids)
+      }
+      transformed[overallIndex].filterdata.ids = aggregatedIds
+    }
+
+    return transformed
   }, [cashFlowDataList, months])
+
 
   // Auto-expand top-level rows on first load
   useEffect(() => {
@@ -228,74 +327,31 @@ export default observer(function CashFlowReportPage() {
   }
 
   const handleCellClick = (row, monthObj) => {
-    const requestData = {}
+
+    const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
+
+    const requestData = {
+      tip: row.filterdata?.tip,
+      limit: 50,
+      chart_of_accounts_ids: row.filterdata?.ids,
+      paymentConfirm: true,
+      paymentNotConfirm: false,
+      accrualConfirm: true,
+      accrualNotConfirm: true,
+      currenies_id: currencyId?.guid
+    }
 
     if (monthObj?.key) {
       const [year, month] = monthObj.key.split('-').map(Number)
-      const startDate = `01-${String(month).padStart(2, '0')}-${year}`
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`
       const lastDay = new Date(year, month, 0).getDate()
-      const endDate = `${String(lastDay).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
       requestData.paymentDateStart = startDate
       requestData.paymentDateEnd = endDate
     } else {
       requestData.paymentDateStart = moment(periodStartDate).format('YYYY-MM-DD')
       requestData.paymentDateEnd = moment(periodEndDate).format('YYYY-MM-DD')
     }
-    requestData.tip = nameMap[row.name] || nameMap[row.section]
-
-    console.log('row', row)
-    console.log('monthObj', monthObj)
-
-    if (['Перемещения', 'Списания', 'Зачисления'].includes(row.name)) {
-      requestData.paymentConfirmed = true
-      requestData.paymentNotConfirmed = true
-      requestData.accrualConfirmed = true
-      requestData.accrualNotConfirmed = true
-    }
-    if ("Операционный поток" === row?.name ||
-      "Инвестиционный поток" === row?.name ||
-      "Финансовый поток" === row?.name) {
-      requestData.paymentConfirmed = true
-      requestData.paymentNotConfirmed = false
-    }
-
-    if (row?.subRows) {
-      requestData.chartOfAccounts = [row.id]
-    }
-
-
-
-    // const filters = cashFlowStore.filters
-    // let dateRange = { start: filters.periodStartDate, end: filters.periodEndDate }
-
-    // if (monthObj?.key) {
-    //   const [year, month] = monthObj.key.split('-').map(Number)
-    //   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-    //   const lastDay = new Date(year, month, 0).getDate()
-    //   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-    //   dateRange = { start: startDate, end: endDate }
-    // }
-
-    // const tips = (() => {
-    //   if (['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'].includes(row.name)) {
-    //     return { tip: ['Поступление', 'Выплата'] }
-    //   }
-    //   if (row.section === 'Поступления') return { tip: ['Поступление'] }
-    //   if (row.section === 'Выплаты') return { tip: ['Выплата'] }
-    //   if (row.section === 'Списания') return { tip: ['Списание', 'Перемещение'] }
-    //   if (row.section === 'Зачисления') return { tip: ['Зачисление', 'Перемещение'] }
-
-
-    //   return nameMap[row.name] ? { tip: nameMap[row.name] } : {}
-    // })()
-
-    // const filterData = {
-    //   ...tips,
-    //   paymentConfirmed: true,
-    //   paymentNotConfirmed: false,
-    //   paymentDateStart: dateRange.start,
-    //   paymentDateEnd: dateRange.end,
-    // }
 
     const periodLabel = moment(monthObj + '01').format("MMM, 'YY")
     const isTransfer = ['Зачисления', 'Списания', 'Перемещения'].includes(row.name)

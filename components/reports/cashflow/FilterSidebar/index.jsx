@@ -1,11 +1,11 @@
 'use client'
 
-import { observer } from 'mobx-react-lite'
+import SalesTransactions from '@/components/ReadyComponents/SalesTransactions'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
-import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
-import SalesTransactions from '@/components/ReadyComponents/SalesTransactions'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { observer } from 'mobx-react-lite'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import { cashFlowStore } from '../cashflow.store'
 

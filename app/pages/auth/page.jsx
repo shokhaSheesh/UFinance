@@ -11,6 +11,7 @@ import Loader from '../../../components/shared/Loader'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
+import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
 import styles from './styles.module.scss'
 
@@ -34,11 +35,21 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [selectedBranch, setSelectedBranch] = useState('')
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [forgotPasswordError, setForgotPasswordError] = useState('')
   const phoneInputRef = useRef(null)
   const branchDropdownRef = useRef(null)
 
 
   const { mutateAsync: getMyBranches, isPending: branchesLoading } = useUcodeRequestMutation()
+  const { mutateAsync: getMyPermissions, isPending: permissionsLoading } = useMutation({
+    mutationKey: ['get_my_permissions'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_user_role_permissions', data, type: 'role' })
+  })
+  const { mutateAsync: forgotPasswordMutation, isPending: isForgotPasswordLoading } = useMutation({
+    mutationKey: ['auth_forgot_password'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data })
+  })
 
 
   // Close branch dropdown when clicking outside
@@ -63,6 +74,7 @@ export default function LoginPage() {
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_login', data }),
     onSuccess: async (data) => {
       const responseData = data?.data?.data
+      let permissions = 0
 
       const tokenData = responseData?.token?.access_token
       const refreshToken = responseData?.token?.refresh_token
@@ -89,21 +101,49 @@ export default function LoginPage() {
         data: { page: 1, limit: 200 },
       })
 
+
       const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
 
       if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
         authStore.setBranches(branches)
-        authStore.setBranchId(branches[0]?.guid)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
       }
-      authStore.selectBranch = branches[0]
 
-      router.push('/pages/operations')
+      if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
+        permissions = await getMyPermissions({
+          branches_id: branch?.guid || branches[0]?.guid,
+          role_id: responseData?.role?.id
+        })
+      } else {
+        appStore.setEmployerPermission()
+      }
+
+
+      if (responseData?.role?.name === 'employees') {
+        if (permissions?.data?.message === 'error') {
+          appStore.setPlanfactPermission()
+        } else if (permissions?.data?.data?.role_permissions) {
+          console.log('change permissions', permissions?.data?.data?.role_permissions)
+          appStore.setNewPermission(permissions?.data?.data?.role_permissions)
+        } else {
+          appStore.setPlanfactPermission()
+        }
+      } else if (responseData?.role?.name === 'plan_fakt_admins') {
+        appStore.setEmployerPermission()
+      }
+
+      authStore.selectBranch = branches[0]
+      router.push('/pages/operations') // 7445
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при входе'
       showErrorNotification(errorMessage)
     },
   })
+
   const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
     mutationKey: ['register'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
@@ -112,6 +152,10 @@ export default function LoginPage() {
       const tokenData = responseData?.token?.access_token
       const refreshToken = responseData?.token?.refresh_token
       const userData = responseData?.user_data || responseData?.userData || responseData?.user
+
+      if (responseData?.role === "plan_fakt_admins") {
+        appStore.setEmployerPermission()
+      }
 
       if (tokenData && userData) {
         authStore.setAuthentication({
@@ -127,7 +171,7 @@ export default function LoginPage() {
     },
     onError: (error) => {
       const errorMessage = error.message || 'Ошибка при регистрации'
-      showErrorNotification(errorMessage)
+      showErrorNotification('Error while registeration')
     },
   })
 
@@ -245,7 +289,7 @@ export default function LoginPage() {
       if (!formData.checked) {
         errors.terms = 'Необходимо согласиться с условиями'
       }
-    } else {
+    } else if (fromType === 'login') {
       if (!formData.email.trim()) {
         errors.email = 'Введите email'
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -253,7 +297,7 @@ export default function LoginPage() {
       }
       if (!formData.password) {
         errors.password = 'Введите пароль'
-      } 
+      }
     }
 
     return errors
@@ -265,13 +309,10 @@ export default function LoginPage() {
     setFieldErrors({})
 
     const errors = validateForm()
-    console.log('Form validation errors:', errors)
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)
-      console.log('Validation failed, not submitting')
       return
     }
-    console.log('Form is valid, submitting...')
 
     try {
       if (fromType === 'login') {
@@ -279,6 +320,24 @@ export default function LoginPage() {
           email: formData.email,
           password: formData.password,
         })
+      } else if (fromType === 'forgot') {
+        if (!forgotPasswordEmail) {
+          setForgotPasswordError('Введите email')
+          return
+        }
+        if (!/\S+@\S+\.\S+/.test(forgotPasswordEmail)) {
+          setForgotPasswordError('Неверный формат email')
+          return
+        }
+        try {
+          await forgotPasswordMutation({ email: forgotPasswordEmail })
+          showSuccessNotification('Инструкции по восстановлению пароля отправлены на ваш email')
+          setForgotPasswordEmail('')
+          setForgotPasswordError('')
+          setFromType('login')
+        } catch (error) {
+          showErrorNotification(error?.message || 'Ошибка при отправке запроса')
+        }
       } else {
         const cleanPhone = getCleanPhoneNumber(formData.phone)
         await registerAsync({
@@ -302,6 +361,8 @@ export default function LoginPage() {
     setConfirmPassword('')
     setSelectedBranch('')
     setBranchDropdownOpen(false)
+    setForgotPasswordEmail('')
+    setForgotPasswordError('')
   }
 
   return (
@@ -310,7 +371,7 @@ export default function LoginPage() {
         <AuthLogo color="#ffffff" width="114" height="27" />
       </div>
       {/* Login Card */}
-      <div className=" rounded-md p-6">
+      <div className=" w-[450px] rounded-md p-6">
         <div className={styles.card}>
 
           {/* Logo/Title */}
@@ -319,7 +380,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className={styles.cardTitle}>
-            {fromType === 'login' ? 'Вход в аккаунт' : 'Регистрация'}
+            {fromType === 'login' ? 'Вход в аккаунт' : fromType === 'forgot' ? 'Восстановление пароля' : 'Регистрация'}
           </h1>
 
           {/* Form */}
@@ -476,6 +537,52 @@ export default function LoginPage() {
               )}
             </div>}
 
+            {/* Forgot Password Link */}
+            {fromType === 'login' && (
+              <div className="text-right mb-2">
+                <span
+                  onClick={() => {
+                    setFromType('forgot')
+                    setError('')
+                    setFieldErrors({})
+                    setForgotPasswordEmail(formData.email)
+                    setForgotPasswordError('')
+                  }}
+                  className="text-sm text-[#0E73F6] hover:text-[#0b5fd4] cursor-pointer"
+                >
+                  Забыли пароль?
+                </span>
+              </div>
+            )}
+
+            {/* Forgot Password Form */}
+            {fromType === 'forgot' && (
+              <>
+                <div className={styles.inputGroup}>
+                  <div className={styles.inputWrapper}>
+                    <Input
+                      type="email"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => {
+                        setForgotPasswordEmail(e.target.value)
+                        setForgotPasswordError('')
+                      }}
+                      onFocus={() => setFocusedField('forgotEmail')}
+                      onBlur={() => setFocusedField(null)}
+                      className={cn('h-10! p-4!',
+                        focusedField === 'forgotEmail' && 'focus:border-primary',
+                      )}
+                      hasError={forgotPasswordError}
+                      placeholder="Email"
+                    />
+                  </div>
+                  {forgotPasswordError && (
+                    <div className={styles.fieldError}>{forgotPasswordError}</div>
+                  )}
+                </div>
+              </>
+            )}
+
             {/* Checkbox (Only on register) */}
             {fromType === 'register' && (
               <div className={styles.checkboxGroup}>
@@ -505,22 +612,43 @@ export default function LoginPage() {
 
             {/* Action Links */}
             <div className={styles.actionLinks}>
-              <span>
-                {fromType === 'login' ? 'Нет учётной записи? ' : 'Есть учётная запись? '}
-                <span
-                  onClick={toggleFormType}
-                  className={styles.actionToggle}
-                >
-                  {fromType === 'login' ? 'Зарегистрироваться' : 'Войти'}
+              {fromType === 'forgot' ? (
+                <span>
+                  Вернуться ко{' '}
+                  <span
+                    onClick={() => {
+                      setFromType('login')
+                      setError('')
+                      setFieldErrors({})
+                      setForgotPasswordError('')
+                    }}
+                    className={styles.actionToggle}
+                  >
+                    входу
+                  </span>
                 </span>
-              </span>
+              ) : (
+                  <span>
+                    {fromType === 'login' ? 'Нет учётной записи? ' : 'Есть учётная запись? '}
+                    <span
+                      onClick={toggleFormType}
+                      className={styles.actionToggle}
+                    >
+                      {fromType === 'login' ? 'Зарегистрироваться' : 'Войти'}
+                    </span>
+                  </span>
+              )}
             </div>
 
             {/* Submit Button */}
             <div className={styles.submitWrapper}>
               <button
                 type="submit"
-                disabled={fromType === 'login' ? loginMutation.isPending : isRegistering}
+                disabled={
+                  fromType === 'login' ? loginMutation.isPending
+                    : fromType === 'forgot' ? isForgotPasswordLoading
+                      : isRegistering
+                }
                 className={cn(
                   styles.submitButton,
                   fromType === 'login' && styles.loginButton
@@ -528,14 +656,18 @@ export default function LoginPage() {
               >
                 {fromType === 'login'
                   ? (loginMutation.isPending ? (<Loader />) : 'Войти')
-                  : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
+                  : fromType === 'forgot'
+                    ? (isForgotPasswordLoading ? (<Loader />) : 'Отправить')
+                    : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
               </button>
             </div>
 
-            <div className={styles.termsText}>
-              Нажав кнопку «{fromType === 'login' ? 'Войти' : 'Зарегистрироваться'}», вы подтверждаете{' '}
-              <a href="#">Политика конфеденциальности</a>
-            </div>
+            {fromType !== 'forgot' && (
+              <div className={styles.termsText}>
+                Нажав кнопку «{fromType === 'login' ? 'Войти' : 'Зарегистрироваться'}», вы подтверждаете{' '}
+                <a href="#">Политика конфеденциальности</a>
+              </div>
+            )}
           </form>
         </div>
       </div>

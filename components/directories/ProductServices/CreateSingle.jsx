@@ -1,22 +1,26 @@
-import Modal from '../../common/Modal/Modal'
-import styles from './style.module.scss'
+import { keepPreviousData } from '@tanstack/react-query'
 import { X } from 'lucide-react'
-import { useMemo, useEffect } from 'react'
-import SegmentedControl from '../../shared/SegmentedControl'
-import Input from '../../shared/Input'
-import TextArea from '../../shared/TextArea'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useMemo } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
-import Loader from '../../shared/Loader'
+import { appStore } from '../../../store/app.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
-import { keepPreviousData } from '@tanstack/react-query'
+import Modal from '../../common/Modal/Modal'
+import Input from '../../shared/Input'
+import Loader from '../../shared/Loader'
+import SegmentedControl from '../../shared/SegmentedControl'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import { useForm, Controller } from 'react-hook-form'
+import TextArea from '../../shared/TextArea'
+import styles from './style.module.scss'
 
-const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = false }) => {
-  const viewOptions = [
+const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false }) => {
+  const viewOptions = !appStore.isDonoSchool ? [
     { value: 'product', label: 'Товары' },
     { value: 'service', label: 'Услуги' }
+  ] : [
+      { value: 'service', label: 'Услуги' }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
@@ -90,7 +94,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
       }
     }
     return {
-      viewMode: 'product',
+      viewMode: appStore.isDonoSchool ? 'service' : 'product',
       name: '',
       article: '',
       unit: apiOptions?.[0].value || null,
@@ -118,6 +122,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
     const payload = {
       Naimenovanie: data.name,
       TSena_za_ed: formatDecimal(StringtoNumber(data.price)),
+      amount: formatDecimal(StringtoNumber(data.price)),
       unit_of_measurement_id: data.unit,
       NDS: parseInt((data.vat || '').toString().replace('%', '')) || 0,
       product_and_service_group_id: data.group,
@@ -146,7 +151,7 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
     } catch (error) {
       console.error('mutateProductService', error?.message)
     }
-  } 
+  }
 
   return (
     <Modal
@@ -368,6 +373,6 @@ const CreateSingle = ({ open = true, setOpen, initialData = null, isEditing = fa
       </div>
     </Modal>
   )
-}
+})
 
 export default CreateSingle

@@ -25,15 +25,13 @@ class OperationFilterStore {
 	selectedFilters = tips
 	amountRange = { min: '', max: '' }
 	selectedChartOfAccounts = []
-	paymentType = 'cash'
-	dateFilters = {
-		podtverzhdena: true,
-		nePodtverzhdena: true,
-	}
-	dateStartFilters = {
-		podtverzhdena: true,
-		nePodtverzhdena: true,
-	}
+	paymentType = null
+
+	paymentConfirm = true
+	paymentNotConfirm = true
+	accrualConfirm = true
+	accrualNotConfirm = true
+
 	paymentDateStart = ''
 	paymentDateEnd = ''
 	accrualDateStart = ''
@@ -53,12 +51,14 @@ class OperationFilterStore {
 					'selectedDateStartRange',
 					'selectedCounterAgents',
 					'selectedLegalEntities',
-					// 'selectedFilters',
+					'selectedFilters',
 					'amountRange',
 					'selectedChartOfAccounts',
 					'paymentType',
-					'dateFilters',
-					'dateStartFilters',
+					'paymentConfirm',
+					'paymentNotConfirm',
+					'accrualConfirm',
+					'accrualNotConfirm',
 					'paymentDateStart',
 					'paymentDateEnd',
 					'accrualDateStart',
@@ -74,6 +74,23 @@ class OperationFilterStore {
 	// Actions
 	setLimit(num) {
 		this.limit = num
+	}
+
+	setAutoFilter(filterdata) {
+		console.log('filterdata', filterdata.accrualNotConfirm)
+		this.accrualConfirm = filterdata.accrualConfirm ?? this.accrualConfirm
+		this.accrualNotConfirm = filterdata.accrualNotConfirm ?? this.accrualNotConfirm
+		this.paymentConfirm = filterdata.paymentConfirm ?? this.paymentConfirm
+		this.paymentNotConfirm = filterdata.paymentNotConfirm ?? this.paymentNotConfirm
+		this.selectedFilters = filterdata.tip ?? this.selectedFilters
+		this.selectedChartOfAccounts = filterdata.chart_of_accounts_ids ?? this.selectedChartOfAccounts
+		this.selectedDateStartRange = { start: filterdata.accrualDateStart, end: filterdata.accrualDateEnd }
+		this.selectedDatePaymentRange = { start: filterdata.paymentDateStart, end: filterdata.paymentDateEnd }
+	}
+
+	setState(state, value) {
+		console.log(state, value)
+		this[state] = value
 	}
 
 	setSearchQuery(query) {
@@ -200,7 +217,7 @@ class OperationFilterStore {
 	}
 
 	setDateStartFilters(key, value) {
-		this.dateStartFilters = { ...this.dateStartFilters, [key]: value }
+		this[key] = value
 	}
 
 	setSelectedDeals(deals) {
@@ -218,14 +235,10 @@ class OperationFilterStore {
 		this.amountRange = { min: '', max: '' }
 		this.selectedChartOfAccounts = []
 		this.paymentType = null
-		this.dateFilters = {
-			podtverzhdena: true,
-			nePodtverzhdena: true,
-		}
-		this.dateStartFilters = {
-			podtverzhdena: true,
-			nePodtverzhdena: true,
-		}
+		this.paymentConfirm = true
+		this.paymentNotConfirm = true
+		this.accrualConfirm = true
+		this.accrualNotConfirm = true
 		this.deals = []
 	}
 }

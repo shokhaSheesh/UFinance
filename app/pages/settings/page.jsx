@@ -1,17 +1,37 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { appStore } from '../../../store/app.store'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
+import { useMemo } from 'react'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import SingleSelect from '../../../components/shared/Selects/SingleSelect'
-import { queryClient } from '../../../lib/queryClient'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { queryClient } from '../../../lib/queryClient'
+import { appStore } from '../../../store/app.store'
+import { authStore } from '../../../store/auth.store'
 
 const SettingsPage = observer(() => {
-  const [purposeOptional, setPurposeOptional] = useState(false)
 
   const { mutateAsync: updateSettings } = useUcodeRequestMutation()
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['handle_check_setting'],
+    mutationFn: () => apiClient.defaultUcodeFunction({ urlMethod: "POST", urlParams: "/items/check_setting" }),
+    onSuccess: () => {
+      // TODO: handle success
+    }
+  })
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['handle_get_check_setting'],
+    queryFn: () => apiClient.defaultUcodeFunction({
+      urlMethod: "GET", urlParams: "/items/check_settings"
+    }),
+    enabled: !!authStore?.userData?.guid,
+  })
+
+
 
   const currenciesList = useMemo(() => {
     return appStore.currencies?.map(c => ({
@@ -22,6 +42,11 @@ const SettingsPage = observer(() => {
 
   function handleSwitchPayment() {
     appStore.setIsPayment(!appStore.isPayment)
+  }
+
+  function handleSwitchAccrualDate() {
+    appStore.setIsAccrualDate(!appStore.isAccrualDate)
+    appStore.setAccuralDateBranch(authStore?.branch_id)
   }
 
   const handleSelectCurrency = async (value) => {
@@ -51,11 +76,11 @@ const SettingsPage = observer(() => {
   }
 
   return (
-    <div className="p-3">
-      <h1 className="text-xl font-bold text-slate-900 mb-7">Общие настройки</h1>
+    <div className=" bg-white w-full">
+      <h1 className="text-xl sticky top-0 bg-white p-3 font-bold text-slate-900 mb-7">Общие настройки</h1>
 
       {/* Account settings */}
-      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
         <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки аккаунта</h2>
         <div className="mb-2">
           <label className="block text-sm font-medium text-slate-500 mb-1.5">Основная валюта</label>
@@ -73,7 +98,7 @@ const SettingsPage = observer(() => {
       </section>
 
       {/* Accounting settings */}
-      <section className="flex flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
         <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">Настройки учета</h2>
         <section className="flex flex-col gap-1.5 items-start">
           <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
@@ -85,9 +110,9 @@ const SettingsPage = observer(() => {
             label="Тип платежа"
           />
           <OperationCheckbox
-            checked={purposeOptional}
-            onChange={() => setPurposeOptional(v => !v)}
-            label="Сделать поле «Назначение платежа» необязательным"
+            checked={appStore.isAccrualDate}
+            onChange={handleSwitchAccrualDate}
+            label="Включить в работу поле << Дата начисления >> при выборе Сделка"
           />
         </section>
       </section>

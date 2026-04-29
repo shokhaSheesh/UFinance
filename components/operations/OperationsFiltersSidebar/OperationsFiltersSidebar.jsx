@@ -15,7 +15,6 @@ import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
 import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
 import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import styles from './OperationsFiltersSidebar.module.scss'
 
 export const OperationsFiltersSidebar = observer(({
   isOpen, onClose, clearCount, onClear
@@ -23,15 +22,17 @@ export const OperationsFiltersSidebar = observer(({
   const queryClient = useQueryClient()
   const {
     selectedFilters,
-    dateFilters,
-    dateStartFilters,
     selectedDatePaymentRange,
     selectedDateStartRange,
     selectedLegalEntities,
     selectedCounterAgents,
     selectedChartOfAccounts,
     paymentType,
-    deals
+    deals,
+    paymentConfirm,
+    paymentNotConfirm,
+    accrualConfirm,
+    accrualNotConfirm
   } = operationFilterStore
 
   // Ensure selectedFilters is always an array
@@ -55,8 +56,7 @@ export const OperationsFiltersSidebar = observer(({
       operationFilterStore.setAmountRange(prev => ({ ...prev, [field]: digitsOnly }))
       handleChangeFilter()
     }, 200)
-  }, [queryClient, handleChangeFilter])
-
+  }, [handleChangeFilter])
 
 
 
@@ -192,22 +192,22 @@ export const OperationsFiltersSidebar = observer(({
         {/* Дата оплаты - упрощенная версия, полная версия будет в отдельном компоненте */}
         <FilterSection title="Дата оплаты" className="mb-5">
           <div className="space-y-3">
-            {[
-              { key: 'podtverzhdena', label: 'Подтверждена' },
-              { key: 'nePodtverzhdena', label: 'Не подтверждена' }
-            ].map(item => (
-              <label key={item.key} className={styles.filterOption}>
-                <OperationCheckbox
-                  key={item.key}
-                  checked={dateFilters[item.key]}
-                  onChange={() => {
-                    operationFilterStore.setDateFilters(item.key, !dateFilters[item.key])
-                    handleChangeFilter()
-                  }}
-                  label={item.label}
-                />
-              </label>
-            ))}
+            <OperationCheckbox
+              checked={paymentConfirm}
+              onChange={(event) => {
+                operationFilterStore.setState('paymentConfirm', event.target?.checked)
+                handleChangeFilter()
+              }}
+              label={'Подтверждена'}
+            />
+            <OperationCheckbox
+              checked={paymentNotConfirm}
+              onChange={(event) => {
+                operationFilterStore.setState('paymentNotConfirm', event.target?.checked)
+                handleChangeFilter()
+              }}
+              label={'Не подтверждена'}
+            />
           </div>
           {/* CustomDatePicker for date payment range */}
           <NewDateRangeComponent
@@ -221,22 +221,22 @@ export const OperationsFiltersSidebar = observer(({
 
         <FilterSection title="Дата начисления" className="mb-5">
           <div className="space-y-3">
-            {[
-              { key: 'podtverzhdena', label: 'Подтверждена' },
-              { key: 'nePodtverzhdena', label: 'Не подтверждена' }
-            ].map(item => (
-              <label key={item.key} className={styles.filterOption}>
-                <OperationCheckbox
-                  key={item.key}
-                  checked={dateStartFilters[item.key]}
-                  onChange={() => {
-                    operationFilterStore.setDateStartFilters(item.key, !dateStartFilters[item.key])
-                    handleChangeFilter()
-                  }}
-                  label={item.label}
-                />
-              </label>
-            ))}
+            <OperationCheckbox
+              checked={accrualConfirm}
+              onChange={(event) => {
+                operationFilterStore.setState('accrualConfirm', event.target?.checked)
+                handleChangeFilter()
+              }}
+              label={'Подтверждена'}
+            />
+            <OperationCheckbox
+              checked={accrualNotConfirm}
+              onChange={(event) => {
+                operationFilterStore.setState('accrualNotConfirm', event.target?.checked)
+                handleChangeFilter()
+              }}
+              label={'Не подтверждена'}
+            />
           </div>
           {/* CustomDatePicker for date start range */}
           <NewDateRangeComponent
@@ -262,7 +262,6 @@ export const OperationsFiltersSidebar = observer(({
               className={'bg-gray-ucode-25'}
             />
 
-
             {/* Контрагенты */}
             <SelectCounterParties
               value={selectedCounterAgents}
@@ -272,7 +271,6 @@ export const OperationsFiltersSidebar = observer(({
               }}
               placeholder="Контрагенты"
               className={'bg-gray-ucode-25'}
-
             />
 
             {/* Payment filter  */}
@@ -284,7 +282,7 @@ export const OperationsFiltersSidebar = observer(({
                 handleChangeFilter()
               }}
               isClearable={false}
-              placeholder='Выберите тип платежа...'
+              placeholder='Тип платежа'
               className={'bg-gray-ucode-25'}
             />}
 

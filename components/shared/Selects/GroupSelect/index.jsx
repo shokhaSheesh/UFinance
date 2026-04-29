@@ -1,8 +1,8 @@
-import { ChevronUp, Check, Search, X } from 'lucide-react'
-import React, { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const GroupSelect = ({
   data = [],
@@ -12,7 +12,8 @@ const GroupSelect = ({
   isClearable = true,
   dropdownClassName,
   className,
-  hasError
+  hasError,
+  disabled = false
 }) => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -130,12 +131,15 @@ const GroupSelect = ({
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         className={cn(
-          'flex items-center cursor-pointer bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none focus:border-teal-500',
+          'flex items-center bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md  px-3 py-2 outline-none',
+          disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-teal-500',
           className,
           hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
         )}
         onClick={() => {
+          if (disabled) return;
           if (!open && buttonRef.current) {
             const rect = getZoomAwareRect(buttonRef.current)
             const spaceBelow = window.innerHeight - rect.bottom
@@ -151,13 +155,13 @@ const GroupSelect = ({
           {value.length > 0 ? `Выбрано: ${value.length}` : placeholder}
         </span>
         <div className="flex items-center">
-          {isClearable && value?.length > 0 && (
+          {isClearable && value?.length > 0 && !disabled && (
             <div
               role="button"
               tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
-                onChange([]);
+                if (!disabled) onChange([]);
               }}
               className=" cursor-pointer"
             >

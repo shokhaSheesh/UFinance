@@ -1,11 +1,13 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment/moment'
 import { useState } from 'react'
+import { indicators } from '../../../store/indicatos.store'
+import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts"
-import SingleZdelka from "../../ReadyComponents/SingleZdelka"
-import RangeMonthPicker from "../../shared/RangeMonthPicker"
+import CustomRangeMonthPicker from '../../shared/CustomRangeMonthPicker'
 import SingleSelect from "../../shared/Selects/SingleSelect"
 import './style.scss'
 
@@ -13,6 +15,8 @@ const IndicatorsNavbar = () => {
     const [displayMode, setDisplayMode] = useState('monthly')
     const [selectedAccount, setSelectedAccount] = useState(null)
     const [selectedDeal, setSelectedDeal] = useState(null)
+
+    const { setState, rangeMonth } = indicators
 
     const displayOptions = [
         { value: 'weekly', label: 'По неделям' },
@@ -37,14 +41,19 @@ const IndicatorsNavbar = () => {
                     <p className='text-xs text-gray-400 whitespace-nowrap capitalize'>{moment(new Date()).format('DD MMMM YYYY dddd')}</p>
                 </div>
                 <div className="w-[180px] shrink-0">
-                    <RangeMonthPicker className="h-9 px-3" format="MMM, 'YY" />
+                    <CustomRangeMonthPicker
+                        value={rangeMonth}
+                        onChange={(months) => setState('rangeMonth', months)}
+                        format="MMM, 'YY"
+                        range
+                    />
                 </div>
 
                 <div className="w-[140px] shrink-0">
                     <SingleSelect
                         data={displayOptions}
-                        value={displayMode}
-                        onChange={setDisplayMode}
+                        value={indicators.periodType}
+                        onChange={(value) => indicators.setState('periodType', value)}
                         isClearable={false}
                         withSearch={false}
                         placeholder="Отображение"
@@ -54,18 +63,17 @@ const IndicatorsNavbar = () => {
 
                 <div className="w-[200px] shrink-0">
                     <SelectMyAccounts
-                        multi={false}
-                        value={selectedAccount}
-                        onChange={setSelectedAccount}
+                        value={indicators.accounts}
+                        onChange={(value) => indicators.setState('accounts', value)}
                         placeholder="Счет"
                         className="bg-neutral-50/50"
                     />
                 </div>
 
                 <div className="w-[200px] shrink-0">
-                    <SingleZdelka
-                        value={selectedDeal}
-                        onChange={setSelectedDeal}
+                    <MultiSelectZdelka
+                        value={indicators.deals}
+                        onChange={(value) => indicators.setState('deals', value)}
                         placeholder="Сделка"
                         className="bg-neutral-50/50"
                     />
@@ -86,4 +94,4 @@ const IndicatorsNavbar = () => {
     )
 }
 
-export default IndicatorsNavbar
+export default observer(IndicatorsNavbar)

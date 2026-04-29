@@ -13,19 +13,22 @@ import { StringtoNumber } from '@/utils/helpers'
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
 import TextArea from '../../../../shared/TextArea'
 
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { WarnIcon } from '../../../../../constants/icons'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
 import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
-const TransferForm = observer(({ initialData, onClose }) => {
+const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const [title, setTitle] = useState({
 		currency_1: '',
 		currency_2: '',
@@ -83,6 +86,7 @@ const TransferForm = observer(({ initialData, onClose }) => {
 	const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 
 	const watchFromAccount = watch('fromAccount')
+	const watchConfirmPayment = watch('confirmPayment')
 	const watchToAccount = watch('toAccount')
 	const watchFromDate = watch('fromDate')
 	const watchCurrency1 = watch('currency_1')
@@ -90,14 +94,14 @@ const TransferForm = observer(({ initialData, onClose }) => {
 	const isSameCurrency = useMemo(() => {
 		if (!watchFromAccount || !watchToAccount) return false
 		return watchCurrency1 && watchCurrency2 && watchCurrency1 === watchCurrency2
-	}, [watchFromAccount, watchToAccount, bankAccounts])
+	}, [watchFromAccount, watchToAccount, watchCurrency1, watchCurrency2])
 
 	const onSubmit = async data => {
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: data.fromDate,
-			data_nachisleniya: data.toDate,
+			data_operatsii: moment(data?.fromDate).format('YYYY-MM-DD'),
+			data_nachisleniya: moment(data?.toDate).format('YYYY-MM-DD'),
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,
@@ -123,9 +127,13 @@ const TransferForm = observer(({ initialData, onClose }) => {
 		}
 
 		try {
-			await createOperation({
+			const res = await createOperation({
 				method: isNew ? 'create_operation' : 'update_operation',
 				data: payload,
+			}, {
+				onSuccess: () => {
+					onClose()
+				}
 			})
 			queryClient.invalidateQueries({ queryKey: ['dashboard'] })
 			queryClient.invalidateQueries({ queryKey: ['operationsList'] })
@@ -135,11 +143,13 @@ const TransferForm = observer(({ initialData, onClose }) => {
 			queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
 			queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
 			queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
-			queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
 			queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
 			queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
 			queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-			onClose?.()
+			const operationId = isNew
+				? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+				: initialData.guid
+			await onSuccess?.(operationId)
 		} catch (error) {
 			console.error('TransferForm onSubmit error', error)
 		}
@@ -172,12 +182,12 @@ const TransferForm = observer(({ initialData, onClose }) => {
 
 					<div className='flex items-center gap-4'>
 						<label className='w-[150px] text-xss!'>Дата оплаты</label>
-						<div className='flex-1 flex gap-2 max-w-[600px]'>
+						<div className='flex-1 flex gap-2 items-center max-w-[600px]'>
 							<Controller
 								name='fromDate'
 								control={control}
 								render={({ field }) => (
-									<CustomDatePicker
+									<FormDatepicker
 										value={field.value}
 										onChange={val => {
 											field.onChange(val)
@@ -185,10 +195,11 @@ const TransferForm = observer(({ initialData, onClose }) => {
 										}}
 										placeholder='Выберите дату'
 										format='YYYY-MM-DD'
-										className={cn('w-[180px]!', errors.fromDate && 'border-red-500')}
+										inputClass={cn('bg-white border', errors.fromDate && 'border-red-500')}
 									/>
 								)}
 							/>
+							<span className="flex items-center w-5">{isPastDate(watchFromDate) && !watchConfirmPayment && <WarnIcon />}</span>
 							<Controller
 								name='confirmPayment'
 								control={control}
@@ -283,12 +294,12 @@ const TransferForm = observer(({ initialData, onClose }) => {
 								name='toDate'
 								control={control}
 								render={({ field }) => (
-									<CustomDatePicker
+									<FormDatepicker
 										value={field.value}
 										onChange={field.onChange}
 										placeholder='Выберите дату'
 										format='YYYY-MM-DD'
-										className={cn('w-[180px]!', errors.toDate && 'border-red-500')}
+										inputClass={cn('bg-white w-52! border', errors.toDate && 'border-red-500')}
 									/>
 								)}
 							/>

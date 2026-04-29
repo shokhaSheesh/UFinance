@@ -16,7 +16,6 @@ import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import CustomDatePicker from '../../../../shared/DatePicker'
 import Input from '../../../../shared/Input'
 import SingleSelect from '../../../../shared/Selects/SingleSelect'
 import TextArea from '../../../../shared/TextArea'
@@ -27,11 +26,13 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { CreditIcon, DebitIcon } from '../../../../../constants/icons'
+import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // ── Reducer Logic ──────────────────────────────────────────
 
@@ -238,6 +239,7 @@ function rowsReducer(state, action) {
 const PaymentForm = observer(({
   initialData,
   onClose,
+  onSuccess,
   preselectedCounterparty = null,
   defaultDealGuid = null,
   chart_of_accounts_id = null
@@ -262,7 +264,7 @@ const PaymentForm = observer(({
         confirmAccrual: raw.payment_accrual !== undefined ? raw.payment_accrual : false,
         counterparty: raw.counterparties_id || preselectedCounterparty || null,
         chartOfAccount: raw.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
-        paymentType: 'transfer',
+        paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.selling_deal_id || defaultDealGuid || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || 'RUB',
@@ -278,7 +280,7 @@ const PaymentForm = observer(({
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
-      paymentType: 'transfer',
+      paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
       purpose: '',
       currency: '',
@@ -343,13 +345,11 @@ const PaymentForm = observer(({
   const isCredit = (!showDate && !watchConfirmPayment && watchConfirmAccrual)
 
   const onSubmit = async (data) => {
-
-
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: data?.paymentDate,
-      data_nachisleniya: data?.accrualDate,
+      data_operatsii: moment(data?.paymentDate).format('YYYY-MM-DD'),
+      data_nachisleniya: moment(data?.accrualDate).format('YYYY-MM-DD'),
       payment_confirmed: data?.confirmPayment,
       payment_accrual: data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
@@ -360,6 +360,7 @@ const PaymentForm = observer(({
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
+      paymentType: data?.paymentType
     }
 
     if (divivedAmounts.length > 0) {
@@ -379,9 +380,13 @@ const PaymentForm = observer(({
 
     try {
 
-      await createOperation({
+      const res = await createOperation({
         method: isNew ? 'create_operation' : 'update_operation',
         data: payload
+      }, {
+        onSuccess: () => {
+          onClose()
+        }
       })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })
@@ -392,12 +397,14 @@ const PaymentForm = observer(({
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      onClose?.()
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+      await onSuccess?.(operationId)
     } catch (error) {
-      console.error('IncomeForm onSubmit error', error)
+      console.error('PaymentForm onSubmit error', error)
     }
   }
 
@@ -420,12 +427,12 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
               <label className="w-[150px] text-xss!">Дата оплаты</label>
-              <div className="flex-1 flex gap-2 max-w-[600px]">
+              <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                 <Controller
                   name="paymentDate"
                   control={control}
                   render={({ field }) => (
-                    <CustomDatePicker
+                    <FormDatepicker
                       value={field.value}
                       onChange={(val) => {
                         field.onChange(val)
@@ -436,10 +443,11 @@ const PaymentForm = observer(({
                       }}
                       placeholder="Выберите дату"
                       format='YYYY-MM-DD'
-                      className={cn("w-[180px]!", errors.paymentDate && "border-red-500")}
+                      inputClass={cn("bg-white border", errors.paymentDate && "border-red-500")}
                     />
                   )}
                 />
+                <span className="flex items-center w-5">{isPastDate(watchPaymentDate) && !watchConfirmPayment && <WarnIcon />}</span>
                 <Controller
                   name="confirmPayment"
                   control={control}
@@ -473,6 +481,7 @@ const PaymentForm = observer(({
                       }}
                       multi={false}
                       type="show"
+                      isClearable={false}
                       extraValue="currenies_id"
                       returnValue={handleSelectMyAccount}
                       placeholder="Юрлица и счета"
@@ -541,23 +550,25 @@ const PaymentForm = observer(({
             {!showDate && (
               <div className={cn("flex items-center gap-4")}>
                 <label className="w-[150px] text-xss!">Дата начисления</label>
-                <div className="flex-1 flex gap-2 max-w-[600px]">
+                <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
                     name="accrualDate"
                     control={control}
                     render={({ field }) => (
-                      <CustomDatePicker
-                        value={field.value} 
+                      <FormDatepicker
+                        value={watchSalesDeal ? watchPaymentDate : field.value}
+                        disabled={!!watchSalesDeal}
                         onChange={(val) => {
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
                         placeholder="Выберите дату"
                         format='YYYY-MM-DD'
-                        className={cn("w-[180px]!", errors.accrualDate && "border-red-500")}
+                        inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
                       />
                     )}
                   />
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}
@@ -637,6 +648,7 @@ const PaymentForm = observer(({
                         onChange={field.onChange}
                         placeholder='Выберите тип платежа...'
                         withSearch={false}
+                        isClearable={false}
                         className='bg-white border rounded-md'
                       />
                     )}
@@ -658,6 +670,7 @@ const PaymentForm = observer(({
                       placeholder='Выберите сделку...'
                       className='bg-white border rounded-md h-[36px]!'
                       hasError={!!errors.salesDeal}
+                      defaultDealGuid={defaultDealGuid}
                     />
                   )}
                 />

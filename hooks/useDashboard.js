@@ -1385,7 +1385,8 @@ export const useUcodeRequestInfinite = ({ method, data, skip = false, querySetti
 }
 
 // vaqtinchalik UcodeDefaultApi uchun
-export const useUcodeDefaultApiMutation = ({ mutationKey = '' }) => {
+export const useUcodeDefaultApiMutation = (options = {}) => {
+	const { mutationKey = '' } = options
 	return useMutation({
 		mutationKey: [mutationKey],
 		mutationFn: ({ urlMethod, urlParams, data }) =>

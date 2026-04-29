@@ -1,8 +1,8 @@
-import { ChevronDown, Check, Search, X } from 'lucide-react'
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
+import { Check, ChevronDown, Search, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const CustomMultipleSelect = ({
     data = [],
@@ -13,7 +13,8 @@ const CustomMultipleSelect = ({
     isClearable = true,
     className,
     dropdownClassName,
-    hasError
+    hasError,
+    disabled = false
 }) => {
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -98,11 +99,13 @@ const CustomMultipleSelect = ({
             <div
                 ref={buttonRef}
                 className={cn(
-                    'flex items-center cursor-pointer bg-gray-ucode-25 transition-all duration-200 min-h-[36px]! w-full rounded-md border px-3 py-2 outline-none focus-within:border-primary/80',
+                    'flex items-center bg-gray-ucode-25 transition-all duration-200 min-h-[36px]! w-full rounded-md border px-3 py-2 outline-none',
+                    disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus-within:border-primary/80',
                     className,
                     hasError ? 'border-red-500 border!' : "border-neutral-200"
                 )}
                 onClick={() => {
+                    if (disabled) return;
                     if (!open && buttonRef.current) {
                         const rect = getZoomAwareRect(buttonRef.current)
                         const spaceBelow = window.innerHeight - rect.bottom
@@ -120,11 +123,13 @@ const CustomMultipleSelect = ({
                                 className="flex items-center gap-1.5 bg-neutral-100 text-neutral-700 px-2 py-1 rounded-[4px] text-xs font-medium group"
                             >
                                 <span>{item.label}</span>
-                                <X
-                                    size={14}
-                                    className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
-                                    onClick={(e) => removeItem(e, item.value)}
-                                />
+                                {!disabled && (
+                                    <X
+                                        size={14}
+                                        className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
+                                        onClick={(e) => removeItem(e, item.value)}
+                                    />
+                                )}
                             </div>
                         ))
                     ) : (
@@ -133,7 +138,7 @@ const CustomMultipleSelect = ({
                 </div>
 
                 <div className="flex items-center px-1 shrink-0 gap-1 border-l ml-2 border-neutral-100">
-                    {isClearable && value.length > 0 && (
+                    {isClearable && value.length > 0 && !disabled && (
                         <X
                             size={18}
                             className="text-neutral-300 hover:text-neutral-500 cursor-pointer"

@@ -1,21 +1,243 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { useRouter } from 'next/navigation'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
+import useMounted from '../../../hooks/useMounted'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { queryClient } from '../../../lib/queryClient'
+import { indicators } from '../../../store/indicatos.store'
+import { operationFilterStore } from '../../../store/operationFilter.store'
+import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-// Static Mock Data based on the provided image
-const months = ['янв', 'фев', 'мар', 'апр', 'апр\n(план)', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const incomeData = [20000, 25000, 22000, 30000, 50000, 35000, 38000, 42000, 40000, 45000, 48000, 52000, 55000]
-const expenseData = [15000, 18000, 16000, 20000, 5000, 25000, 26000, 28000, 27000, 30000, 32000, 35000, 38000]
-const netProfitData = incomeData.map((val, idx) => val - expenseData[idx])
-const dividendData = [0, 0, 0, 0, 0, 5000, 0, 0, 0, 0, 0, 0, 10000]
+
+const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
 const Profit = () => {
   const chartRef = useRef(null);
-  const [zoomRange, setZoomRange] = useState([0, 50]); // [start, end] percentage
+  const mounted = useMounted()
+  const router = useRouter()
+  const [zoomRange, setZoomRange] = useState([0, 100]); // [start, end] percentage
+  const indicatorsStore = indicators
+
+  const filterData = {
+    periodStartDate: moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD'),
+    periodEndDate: moment(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD'),
+    periodType: indicatorsStore.periodType,
+    userCurrencyCode: GlobalCurrency.code,
+    accounting_method: indicatorsStore.profitableclientsMethod,
+    currencyCode: indicators?.currencyCode,
+    accountId: indicatorsStore.accounts,
+    sellingDealId: indicatorsStore?.deals,
+    isEbitda: false,
+    isEbit: false,
+    isEbt: false,
+    limit: 100,
+    page: 1,
+  }
+
+  const filterOperationData = useMemo(() => {
+    const data = { limit: 50 }
+
+    if (indicatorsStore.profitableclientsMethod === 'cash') {
+      data.paymentConfirm = true
+      data.paymentNotConfirm = false
+      data.accrualConfirm = true
+      data.accrualNotConfirm = true
+      data.paymentDateStart = filterData.periodStartDate
+      data.paymentDateEnd = filterData.periodEndDate
+      data.accrualDateStart = ''
+      data.accrualDateEnd = ''
+    }
+
+    if (indicatorsStore.profitableclientsMethod === 'accrual') {
+      data.paymentConfirm = true
+      data.paymentNotConfirm = true
+      data.accrualConfirm = true
+      data.accrualNotConfirm = false
+      data.accrualDateStart = filterData.periodStartDate
+      data.accrualDateEnd = filterData.periodEndDate
+      data.paymentDateStart = ''
+      data.paymentDateEnd = ''
+    }
+
+    return data
+  }, [indicatorsStore.profitableclientsMethod, filterData.periodStartDate, filterData.periodEndDate])
+
+  const { data: apiProfitData, isLoading, isFetching, isPending } = useQuery({
+    queryKey: ["profit_indicators", filterData],
+    queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
+    select: (res) => res?.data?.data,
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: false,  // tab o'zgarganda OFF
+    refetchOnMount: true,          // page ga qaytganda ON ✅
+  })
+
+  // Fallback to static data if API returns no data
+  const profitAndLossDataList = apiProfitData || STATIC_PROFIT_DATA
+
+  const rows = useMemo(() => {
+    const list = profitAndLossDataList?.rows || []
+
+    // Har bir node ichidan leaf id larni yig'ib chiqadi
+    // (details bo'lmagan va id sida raqam bo'lgan objectlar)
+    const collectLeafIds = (node) => {
+      const hasChildren = node?.details && node.details.length > 0
+
+      if (!hasChildren) {
+        if (String(node?.id)?.match(/\d+/)) {
+          return [node.id]
+        }
+        return []
+      }
+
+      return node.details.flatMap(child => collectLeafIds(child))
+    }
+
+    // tip esa har doim root (top-level) item asosida hisoblanadi
+    const getTip = (rootItem) => {
+      let tips = []
+      const income =
+        rootItem?.name === "income" ||
+        rootItem?.id === "income" ||
+        rootItem?.type === "income"
+      const expenses =
+        rootItem?.name === "expenses" ||
+        rootItem?.id === "expenses" ||
+        rootItem?.type === "expenses"
+
+      if (indicatorsStore.profitableclientsMethod === 'accrual') {
+        tips.push("Отгрузка")
+      }
+      if (expenses) {
+        tips = ["Выплата", "Кредит", "Начисление"]
+      }
+      if (income) {
+        tips = [...tips, "Поступление", "Кредит", "Начисление"]
+      }
+      if (!income && !expenses) {
+        tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
+      }
+      return tips
+    }
+
+    // Har bir node va uning details ichidagi childlarga filterdata qo'shadi
+    const enrichNode = (node, rootItem) => {
+      const enriched = {
+        ...node,
+        filterdata: {
+          ids: collectLeafIds(node),
+          tip: getTip(rootItem),
+        },
+      }
+
+      if (node.details && node.details.length > 0) {
+        enriched.details = node.details.map(child => enrichNode(child, rootItem))
+      }
+
+      return enriched
+    }
+
+    // Top-level: details bo'lmaganlar oldingi (details bor) sibling lardan ids ni meros oladi
+    const accumulatedIds = []
+
+    return list.map((item) => {
+      const hasChildren = item.details && item.details.length > 0
+
+      if (hasChildren) {
+        const enriched = enrichNode(item, item)
+        accumulatedIds.push(...enriched.filterdata.ids)
+        return enriched
+      }
+
+      // details yo'q top-level item — accumulated idlarni oladi
+      return {
+        ...item,
+        filterdata: {
+          ids: [...accumulatedIds],
+          tip: getTip(item),
+        },
+      }
+    })
+  }, [profitAndLossDataList, indicatorsStore.profitableclientsMethod])
+
+
+  const { months, incomeData, expenseData, netProfitData, dividendData, incomeTotal,
+    expenseTotal,
+    dividendsTotal } = useMemo(() => {
+      const legend = profitAndLossDataList?.legend || []
+      const rows = profitAndLossDataList?.rows || []
+
+      const keys = legend.map((l) => l?.key).filter(Boolean)
+      const titles = legend.map((l) => l?.title || l?.key || '')
+
+      const revenueRow = findRowById(rows, 'revenue')
+      const expensesRow = findRowById(rows, 'expenses')
+      const netProfitRow = findRowById(rows, 'net-profit')
+      const dividendsRow = findRowById(rows, 'dividends')
+
+      const readValues = (row) => {
+        const src = row?.values || row?.months || {}
+        return keys.map((k) => Number(src?.[k] ?? 0))
+      }
+
+      return {
+        months: titles,
+        incomeData: readValues(revenueRow),
+        expenseData: readValues(expensesRow),
+        netProfitData: readValues(netProfitRow),
+        dividendData: readValues(dividendsRow),
+        incomeTotal: revenueRow?.totalValue,
+        expenseTotal: expensesRow?.totalValue,
+        dividendsTotal: dividendsRow?.totalValue
+      }
+    }, [profitAndLossDataList])
+
+  const handleIncomePress = useCallback(() => {
+    const filterdata = {
+      tip: rows?.[0]?.filterdata?.tip,
+      chart_of_accounts_ids: rows?.[0]?.filterdata?.ids,
+      ...filterOperationData
+    }
+    operationFilterStore.setAutoFilter(filterdata)
+    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+    window.open('/pages/operations', '_blank')
+  }, [rows, filterOperationData])
+
+  const handleExpensePress = useCallback(() => {
+    const filterdata = {
+      tip: rows?.[1]?.filterdata?.tip,
+      chart_of_accounts_ids: rows?.[1]?.filterdata?.ids,
+      ...filterOperationData
+    }
+    operationFilterStore.setAutoFilter(filterdata)
+    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+    window.open('/pages/operations', '_blank')
+  }, [rows, filterOperationData])
+
+  const stats = useMemo(() => {
+    const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)
+    const dividendTotal = dividendsTotal
+    const margin = incomeTotal ? (netProfitTotal / incomeTotal) * 100 : 0
+
+    return [
+      { label: 'Доходы', value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
+      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
+      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: 'Рентабельность, %', value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+    ]
+  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress])
+  const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {
@@ -34,7 +256,7 @@ const Profit = () => {
                       <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${item.value.toLocaleString('ru-RU')} $</div>
+                    <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
                   </div>`
         })
         return res
@@ -67,19 +289,24 @@ const Profit = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#9ca3af', fontSize: 11, interval: 0 }
+      axisLabel: { color: '#9ca3af', fontSize: 11, interval: inteval, rotate: 40 }
     },
     yAxis: {
       type: 'value',
-      max: 60000,
-      interval: 10000,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#f3f4f6' } },
       axisLabel: {
         color: '#9ca3af',
         fontSize: 11,
-        formatter: (value) => value === 0 ? '0' : `${value / 1000} тыс`
+        formatter: (value) => {
+          if (value === 0) return '0'
+          const abs = Math.abs(value)
+          if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
+          if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
+          if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+          return `${value}`
+        }
       }
     },
     series: [
@@ -90,16 +317,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#38bdf8' // Cyan-blue
-        },
-        // Special highlighting for "Apr (plan)"
-        markArea: {
-          data: [[{
-            xAxis: 'апр\n(план)',
-            itemStyle: { color: 'rgba(56, 189, 248, 0.1)' }
-          }, {
-            xAxis: 'апр\n(план)'
-          }]]
+          color: '#38bdf8'
         }
       },
       {
@@ -109,7 +327,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#fbab7e' // Orange
+          color: '#fbab7e'
         }
       },
       {
@@ -133,59 +351,57 @@ const Profit = () => {
         itemStyle: { color: '#920DF8', borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange])
+  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval])
 
-  const stats = [
-    { label: 'Доходы', value: '100', plan: '50 793', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Расходы', value: '40', plan: '180', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Чистая прибыль', value: '60', plan: '50 613', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Рентабельность, %', value: '60%', plan: '99.65%', color: 'text-slate-900', planColor: 'text-blue-500' },
-    { label: 'Дивиденды', value: '0', plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
-  ]
+
+
+  if (!mounted) return null
 
   return (
     <div className="w-full bg-white p-6">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">Прибыль, $</h2>
+          <h2 className="text-[22px] font-bold text-[#111827]">Прибыль, {GlobalCurrency?.name || ''}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HelpCircle className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="flex bg-[#f3f4f624] border border-neutral-200 rounded-md p-[3px]">
-          <button className="px-4 py-1.5 text-sm font-medium text-neutral-500 hover:text-slate-900 rounded transition-colors whitespace-nowrap">
-            Метод начисления
-          </button>
-          <button className="px-4 py-1.5 text-sm font-medium bg-white text-[#38bdf8] shadow-sm border border-neutral-200 rounded transition-colors whitespace-nowrap">
-            Кассовый метод
-          </button>
+        <div className="items-center rounded-md">
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accrual')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accrual' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 overflow-x-auto">
+      <div className="flex flex-col lg:flex-row gap-6  relative">
+        {/* Loading Overlay */}
+        {(isLoading || isFetching || isPending) && (
+          <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
+              <span className="text-sm text-neutral-600">Загрузка...</span>
+            </div>
+          </div>
+        )}
+
         {/* Statistics panel */}
-        <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
+        <div className="w-full lg:w-[420px] shrink-0 space-y-7 pr-4 mt-4">
           {stats.map((stat, idx) => (
             <div key={idx} className="flex items-center justify-between group">
-              <span className="text-[14px] font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
+              <span className=" text-xs 2xl:text-sm font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
                 {stat.label}
               </span>
               <div className="flex flex-col items-end">
-                <span className={cn("text-[28px] font-bold leading-none mb-1", stat.color)}>
+                <span onClick={stat.onClick} className={cn(" text-xl cursor-pointer xl:text-2xl 2xl:text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
                   {stat.value}
                 </span>
-                <div className="flex items-center gap-1.5 text-[13px]">
-                  <span className={cn("font-semibold", stat.planColor)}>{stat.plan}</span>
-                  <span className="text-neutral-400">— по плану</span>
-                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Chart container */}
-        <div className="flex-1">
-          <div className="mb-4 pt-4 px-2">
+        <div className="flex-1 overflow-visible!">
+          <div className="mb-4 pt-4 px-2 overflow-visible!">
             <CustomMonthSlider
               value={zoomRange}
               onChange={setZoomRange}
@@ -195,7 +411,7 @@ const Profit = () => {
             <ReactECharts
               ref={chartRef}
               option={options}
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: '100%', width: 'fit' }}
               opts={{ renderer: 'svg' }}
             />
           </div>
@@ -205,4 +421,4 @@ const Profit = () => {
   )
 }
 
-export default Profit
+export default observer(Profit)

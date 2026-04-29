@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react'
 import MultiSelect from '@/components/shared/Selects/MultiSelect'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { debounce } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
+import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 
 const SelectCounterParties = ({ value = [], onChange, placeholder = "Выберите контрагентов", dropdownClassName, className, hasError }) => {
   const [debouncedSearch, setDebouncedSearch] = useState("")

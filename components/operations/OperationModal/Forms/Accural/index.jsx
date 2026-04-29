@@ -10,24 +10,26 @@ import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
-import { isFuture } from '../../../../../utils/formatDate'
+import { isFuture, isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
 import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
-import CustomDatePicker from '../../../../shared/DatePicker'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
-const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
+const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => {
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
   const [isToRasxodChild, setIsToRasxodChild] = useState(false)
   const [title, setTitle] = useState()
 
   const isNew = initialData?.isNew
-  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid) 
+  const defaultCurrency = toJS(appStore.currencies).find(c => c.guid === appStore.currency.guid)
 
 
   const defaultValues = useMemo(() => {
@@ -85,7 +87,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
 
 
   const handleSelect = (value) => {
-    setValue('legalEntity', value)
+    setValue('legalEntity', value, { shouldValidate: true })
     const selected = getCurrencyIcon(currency)
     if (selected) {
       setTitle(`${selected.kod} ${selected.nazvanie}`)
@@ -97,6 +99,8 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
 
 
   const legalEntityGuid = watch('legalEntity')
+  const watchAccuralDate = watch('accuralDate')
+  const watchConfirmAccrual = watch('confirmAccrual')
   const currency = watch('currency')
   const currencyTitle = legalEntityGuid ? title : ``
 
@@ -104,7 +108,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: data.accuralDate,
+        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'), 
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
@@ -127,24 +131,29 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
         requestData.guid = initialData.guid
       }
 
-      await createAccural({
+      const res = await createAccural({
         method: isNew ? 'create_operation' : 'update_operation',
         data: requestData
+      }, {
+        onSuccess: () => {
+          onClose()
+        }
       })
-      // onSuccess?.(data)
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })
       queryClient.invalidateQueries({ queryKey: ['operations'] })
       queryClient.invalidateQueries({ queryKey: ['find_operations'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      onClose()
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+      await onSuccess?.(operationId)
     } catch (error) {
       console.error('Error in AccuralForm handleSubmit:', error)
     }
@@ -181,7 +190,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
                 name="accuralDate"
                 control={control}
                 render={({ field }) => (
-                  <CustomDatePicker
+                  <FormDatepicker
                     value={field.value}
                     onChange={(val) => {
                       field.onChange(val)
@@ -189,11 +198,12 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
                     }}
                     placeholder="Выберите дату"
                     format='YYYY-MM-DD'
-                    className={cn("w-[180px]!", errors.accuralDate && "border-red-500")}
+                    inputClass={cn("bg-white border", errors.accuralDate && "border-red-500")}
                   />
                 )}
               />
               {/* Подтвердить начисление */}
+              <span className="flex items-center w-5">{isPastDate(watchAccuralDate) && !watchConfirmAccrual && <WarnIcon />}</span>
               <Controller
                 name="confirmAccrual"
                 control={control}
@@ -247,7 +257,7 @@ const AccuralForm = observer(({ onCancel, onClose, initialData }) => {
                   <MyAccountCurrensies isClearable={false} guid={legalEntityGuid} value={field.value} onChange={field.onChange} className="w-40 bg-white " wrapperClassName={'w-40'} />
                 )}
               />
-              {errors.currency && <span className="text-xs text-red-500">{errors.currency.message}</span>}
+              {errors.currency && watch('legalEntity') && <span className="text-xs text-red-500">{errors.currency.message}</span>}
             </div>
           </div>
 
