@@ -65,7 +65,7 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
     }
   })
 
-  const result = useMemo(() => { 
+  const result = useMemo(() => {
     return mapTree(chartOfAccountsData, type, hiddenValue)
   }, [chartOfAccountsData, type, hiddenValue])
 
@@ -105,6 +105,15 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
       returnIsChild(isDescendant);
     }
   }, [selectedValue, flattenedAncestry, parent, returnIsChild])
+
+  useEffect(() => {
+    if (selectedValue) {
+      const ancestors = flattenedAncestry[selectedValue] || [];
+      if (!ancestors?.length) {
+        setSelectedValue('')
+      }
+    }
+  }, [selectedValue, flattenedAncestry, parent, returnIsChild, setSelectedValue])
 
   // Return selected item label when value changes
   useEffect(() => {

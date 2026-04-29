@@ -67,9 +67,9 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
           return (
             <td key={month} className="px-2 cursor-pointer! text-xs text-end border-r min-w-[150px] max-w-[150px]">
               <span
-                className={`  ${isBold ? "font-semibold" : ""} ${!isEndingBalance ? ' hover:text-primary transition-colors' : ''}`}
+                className={`  ${isBold ? "font-semibold" : ""} ${row?.isClickable ? ' hover:text-primary transition-colors' : ''}`}
                 onClick={() => {
-                  if (isEndingBalance) return
+                  if (!row?.isClickable) return
                   onCellClick(row, { key: month, label: legendItem?.title || month })
                 }}
               >
@@ -84,9 +84,9 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
         {/* Total cell */}
         <td className="px-2 text-right border-l min-w-[150px] max-w-[150px] cursor-pointer!">
           <span
-            className={`text-xs line-clamp-1 ${isBold ? "font-semibold" : "text-xs"} ${!isEndingBalance ? ' hover:underline hover:text-primary transition-colors' : ''}`}
+            className={`text-xs line-clamp-1 ${isBold ? "font-semibold" : "text-xs"} ${!row?.isClickable ? ' hover:underline hover:text-primary transition-colors' : ''}`}
             onClick={() => {
-              if (isEndingBalance) return
+              if (!row?.isClickable) return
               onCellClick(row, null)
             }}
           >
@@ -166,47 +166,6 @@ export default observer(function CashFlowReportPage() {
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.key), [legend])
 
-  // Transform rows into tree structure with section context
-  // const data = useMemo(() => {
-  //   if (!cashFlowDataList?.rows) return []
-
-  //   const transformRow = (row, depth = 0, sectionName = null, parentPath = '') => {
-  //     const monthData = {}
-  //     months.forEach(monthKey => {
-  //       monthData[monthKey] = row.values?.[monthKey] || 0
-  //     })
-
-  //     let currentSection = sectionName
-  //     if (depth === 1) {
-  //       if (row.name === 'Поступления') currentSection = 'Поступления'
-  //       if (row.name === 'Выплаты') currentSection = 'Выплаты'
-  //       if (row.name === 'Списания') currentSection = 'Списания'
-  //       if (row.name === 'Зачисления') currentSection = 'Зачисления'
-  //     }
-
-  //     const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
-
-  //     const node = {
-  //       id: row.id,
-  //       uniquePath: rowUniquePath,
-  //       name: row.name,
-  //       total: row.totalValue || 0,
-  //       months: monthData,
-  //       level: depth,
-  //       section: currentSection,
-  //       subRows: []
-  //     }
-
-  //     if (row.details && Array.isArray(row.details) && row.details.length > 0) {
-  //       node.subRows = row.details.map(detail => transformRow(detail, depth + 1, currentSection, rowUniquePath))
-  //     }
-
-  //     return node
-  //   }
-
-  //   return cashFlowDataList.rows.map(row => transformRow(row, 0, null, ''))
-  // }, [cashFlowDataList, months])
-
   const data = useMemo(() => {
     if (!cashFlowDataList?.rows) return []
 
@@ -237,8 +196,7 @@ export default observer(function CashFlowReportPage() {
       return []
     }
 
-    // Subtree context — Поступления/Выплаты/Списания/Зачисления tagidagi nodelar
-    // o'z subtree tipini meros qilib oladi
+    // Subtree context
     const getSubtreeTip = (name) => {
       if (name === 'Поступления') return ['Поступление']
       if (name === 'Выплаты') return ['Выплата']
@@ -253,7 +211,8 @@ export default observer(function CashFlowReportPage() {
       sectionName = null,
       parentPath = '',
       inheritedSubtreeTip = null,
-      rootName = null
+      rootName = null,
+      inheritedClickable = true
     ) => {
       const monthData = {}
       months.forEach(monthKey => {
@@ -269,31 +228,34 @@ export default observer(function CashFlowReportPage() {
       }
 
       const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
-
-      // Root nomini eslab qolamiz (top-level node)
       const currentRootName = depth === 0 ? row.name : rootName
 
-      // Subtree tip ni aniqlash — Поступления/Выплаты/Списания/Зачисления ga tushganda yangilanadi
+      // Subtree tip
       let currentSubtreeTip = inheritedSubtreeTip
       const subtreeTipFromName = getSubtreeTip(row.name)
       if (depth >= 1 && subtreeTipFromName) {
         currentSubtreeTip = subtreeTipFromName
       }
 
-      // Tip ni aniqlash
+      // Tip
       let tip
       if (depth === 0) {
-        // Top-level — root tip
         tip = getRootTip(row.name)
       } else if (currentSubtreeTip) {
-        // Subtree ichidagi node — subtree tip ni meros oladi
         tip = currentSubtreeTip
       } else {
-        // Subtree dan tashqari (masalan Остатки ning bolalari) — root tip ni oladi
         tip = getRootTip(currentRootName)
       }
 
-      // Ids — bolasi borlar uchun barcha leaf id lar, leaf uchun o'zining id si
+      // isClickable — Остатки на конец периода va barcha bolalari false
+      let isClickable = inheritedClickable
+      if (depth === 0) {
+        // Top-level: agar Остатки bo'lsa — false, aks holda true
+        isClickable = row.name !== 'Остатки на конец периода' && row.id !== 'ending-balance'
+      }
+      // Agar parent isClickable=false bo'lsa, bola ham false (meros)
+      // Agar parent isClickable=true bo'lsa, bola ham true
+
       const ids = collectLeafIds(row)?.map(id => id?.replace(/':+/g, ''))?.filter(id => isUUID(id))
 
       const node = {
@@ -304,6 +266,7 @@ export default observer(function CashFlowReportPage() {
         months: monthData,
         level: depth,
         section: currentSection,
+        isClickable,
         filterdata: {
           ids,
           tip,
@@ -319,7 +282,8 @@ export default observer(function CashFlowReportPage() {
             currentSection,
             rowUniquePath,
             currentSubtreeTip,
-            currentRootName
+            currentRootName,
+            isClickable  // bolalari ota'ning isClickable ni meros oladi
           )
         )
       }
@@ -329,8 +293,7 @@ export default observer(function CashFlowReportPage() {
 
     const transformed = cashFlowDataList.rows.map(row => transformRow(row, 0))
 
-    // "Общий денежный поток" — details yo'q (leaf), shuning uchun
-    // undan oldingi barcha rootlarning idlarini qo'lda yig'amiz
+    // "Общий денежный поток" — leaf, qo'lda aggregate
     const overallIndex = transformed.findIndex(
       r => r.name === 'Общий денежный поток' || r.id === 'overall-cash-flow'
     )
