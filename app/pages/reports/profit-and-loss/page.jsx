@@ -36,8 +36,6 @@ const groupingOptions = [
   { value: 'monthly', label: 'Месяц' }
 ]
 
-
-
 const ProfitAndLossPage = observer(() => {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -54,7 +52,8 @@ const ProfitAndLossPage = observer(() => {
     selectedCurrency,
     ebitda,
     ebit,
-    ebt, isCalculation } = pnlStore
+    ebt, isCalculation }
+    = pnlStore
 
 
   const filterData = {
@@ -81,30 +80,28 @@ const ProfitAndLossPage = observer(() => {
   })
 
   const loading = isLoadingProfitAndLoss || isFetchingProfitAndLoss
-
-
   const legend = useMemo(() => profitAndLossDataList?.legend || [], [profitAndLossDataList])
 
 
   const rows = useMemo(() => {
     const list = profitAndLossDataList?.rows || []
 
-    // Har bir node ichidan leaf id larni yig'ib chiqadi
-    // (details bo'lmagan va id sida raqam bo'lgan objectlar)
-    const collectLeafIds = (node) => {
-      const hasChildren = node?.details && node.details.length > 0
+    // Har bir node ning O'ZINI + barcha descendant id larini yig'adi
+    // (parent + child + nabira hammasi)
+    const collectAllIds = (node) => {
+      const ownId =
+        node?.id && String(node.id).match(/\d+/) ? [node.id] : []
 
+      const hasChildren = node?.details && node.details.length > 0
       if (!hasChildren) {
-        if (String(node?.id)?.match(/\d+/)) {
-          return [node.id]
-        }
-        return []
+        return ownId
       }
 
-      return node.details.flatMap(child => collectLeafIds(child))
+      const childIds = node.details.flatMap(child => collectAllIds(child))
+      return [...ownId, ...childIds]
     }
 
-    // tip esa har doim root (top-level) item asosida hisoblanadi
+    // tip har doim root (top-level) item asosida hisoblanadi
     const getTip = (rootItem) => {
       let tips = []
       const income =
@@ -136,7 +133,8 @@ const ProfitAndLossPage = observer(() => {
       const enriched = {
         ...node,
         filterdata: {
-          ids: collectLeafIds(node),
+          // o'zi + descendant lar, duplikatlarsiz
+          ids: [...new Set(collectAllIds(node))],
           tip: getTip(rootItem),
         },
       }
@@ -164,7 +162,7 @@ const ProfitAndLossPage = observer(() => {
       return {
         ...item,
         filterdata: {
-          ids: [...accumulatedIds],
+          ids: [...new Set(accumulatedIds)],
           tip: getTip(item),
         },
       }
@@ -197,27 +195,35 @@ const ProfitAndLossPage = observer(() => {
     })
   }
 
-  const renderRow = (item, parentExpanded = true) => {
+  const renderRow = (item, parentExpanded = true, depth = 0) => {
     if (!parentExpanded) return null
 
     const hasChildren = item.details && item.details.length > 0
     const isExpanded = expandedRows.has(item.id)
-    const indent = item.level * 24
 
     const isPercentRow = item.type === 'percent'
     const isResultRow = item.type === 'result'
     const isTotalRow = item.type === 'total'
 
+    const paddingLeft = `${depth * 1 + 1}rem`
+
     return (
       <React.Fragment key={item.id}>
-        <tr className={`border-b box-content border-neutral-200 transition-colors ${item.level === 0 || isResultRow || isTotalRow ? 'bg-neutral-50 font-semibold' : 'hover:bg-neutral-50'}`}>
+        <tr
+          className={`border-b box-content border-neutral-200 transition-colors ${depth === 0 || isResultRow || isTotalRow
+            ? 'bg-neutral-50 font-semibold'
+            : 'hover:bg-neutral-50'
+            }`}
+        >
           {/* Name cell — sticky left */}
           <td
-            className={`sticky left-0 z-10 p-0! box-border transition-shadow duration-300 ${item.level === 0 || isResultRow || isTotalRow ? 'bg-neutral-50' : 'bg-white'} hover:bg-neutral-100 transition-colors`}
+            className={`sticky left-0 z-10 p-0! box-border transition-shadow duration-300 ${depth === 0 || isResultRow || isTotalRow ? 'bg-neutral-50' : 'bg-white'
+              } hover:bg-neutral-100 transition-colors`}
           >
             <div
-              className={`flex items-center cursor-pointer! w-full border-r px-4 py-2 text-xss! gap-2 ${hasChildren ? '' : 'cursor-default'}`}
-              style={{ paddingLeft: `${item.level * 1 + 1}rem` }}
+              className={`flex items-center cursor-pointer! w-full border-r px-4 py-2 text-xss! gap-2 ${hasChildren ? '' : 'cursor-default'
+                }`}
+              style={{ paddingLeft }}
               onClick={() => hasChildren && toggleRow(item.id)}
             >
               {hasChildren && (
@@ -225,37 +231,75 @@ const ProfitAndLossPage = observer(() => {
                   {isExpanded ? <ExpendClose /> : <ExpendOpen />}
                 </button>
               )}
-              <span className={cn('cursor-pointer!', item.level === 0 || isResultRow || isTotalRow ? 'font-semibold' : 'text-sm')}>
+              <span
+                className={cn(
+                  'cursor-pointer!',
+                  depth === 0 || isResultRow || isTotalRow
+                    ? 'font-semibold'
+                    : 'text-sm'
+                )}
+              >
                 {item.name}
               </span>
             </div>
           </td>
+
           {/* Period value cells */}
           {legend.map(period => {
             const value = item.values?.[period.key] || 0
-            const displayValue = value === 0 ? '' : isPercentRow ? `${formatNumber(value)}%` : `${formatNumber(value)}`
+            const displayValue =
+              value === 0
+                ? ''
+                : isPercentRow
+                  ? `${formatNumber(value)}%`
+                  : `${formatNumber(value)}`
             return (
-              <td key={period.key} className="px-2 text-xs cursor-pointer text-end border-r min-w-[150px] max-w-[150px]">
+              <td
+                key={period.key}
+                className={`px-2 text-xs text-end border-r min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
+                  }`}
+              >
                 <span
-                  className={`cursor-pointer! ${item.level === 0 || isResultRow || isTotalRow ? 'font-semibold' : ''} hover:text-primary transition-colors`}
-                  onClick={() => handleCellClick(item, { key: period.key, label: period.title })}
+                  className={`${isPercentRow ? 'cursor-default!' : 'cursor-pointer! hover:text-primary'
+                    } ${depth === 0 || isResultRow || isTotalRow ? 'font-semibold' : ''
+                    } transition-colors`}
+                  onClick={
+                    isPercentRow
+                      ? undefined
+                      : () => handleCellClick(item, { key: period.key, label: period.title })
+                  }
                 >
-                  <span className='line-clamp-1 text-end w-full '>{displayValue}</span>
+                  <span className="line-clamp-1 text-end w-full">{displayValue}</span>
                 </span>
               </td>
             )
           })}
+
           {/* Total cell */}
-          <td className="px-2 cursor-pointer text-right border-l min-w-[150px] max-w-[150px]">
+          <td
+            className={`px-2 text-right border-l min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
+              }`}
+          >
             <span
-              className={`text-xs cursor-pointer! line-clamp-1 ${item.level === 0 || isResultRow || isTotalRow ? 'font-semibold' : 'text-xs'}  hover:underline hover:text-primary transition-colors`}
-              onClick={() => handleCellClick(item, null)}
+              className={`text-xs line-clamp-1 ${isPercentRow
+                ? 'cursor-default!'
+                : 'cursor-pointer! hover:underline hover:text-primary'
+                } ${depth === 0 || isResultRow || isTotalRow ? 'font-semibold' : 'text-xs'
+                } transition-colors`}
+              onClick={isPercentRow ? undefined : () => handleCellClick(item, null)}
             >
-              {item.totalValue === 0 ? '' : isPercentRow ? `${formatNumber(item.totalValue)}%` : formatNumber(item.totalValue)}
+              {item.totalValue === 0
+                ? ''
+                : isPercentRow
+                  ? `${formatNumber(item.totalValue)}%`
+                  : formatNumber(item.totalValue)}
             </span>
           </td>
         </tr>
-        {hasChildren && isExpanded && item.details.map(child => renderRow(child, true))}
+
+        {hasChildren &&
+          isExpanded &&
+          item.details.map(child => renderRow(child, true, depth + 1))}
       </React.Fragment>
     )
   }
