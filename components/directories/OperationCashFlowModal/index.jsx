@@ -45,7 +45,6 @@ const OperationCashFlowModal = observer(({
     }
   })
 
-  console.log('ramge', dateRange)
 
   // Flatten all pages into a single array
   const allOperations = useMemo(() => {
@@ -65,7 +64,7 @@ const OperationCashFlowModal = observer(({
     return infiniteData?.pages?.[0]?.data?.totalSummary?.net_cash_flow || totals?.accural?.total_summa || totals?.payment?.total_summa || totals?.receipt?.total_summa || totals?.shipment?.total_summa || totals?.supply?.total_summa || totals?.shipment?.total_summa
   }, [infiniteData])
 
-
+  console.log('')
 
   const operationsPeriod = useMemo(() => {
     return <p className='text-neutral-600'>

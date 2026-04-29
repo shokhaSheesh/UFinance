@@ -217,3 +217,9 @@ export const getMonthPeriods = (startDate, endDate) => {
 
   return months
 }
+
+export const isUUID = (str) => {
+  if (typeof str !== 'string') return false
+  const regex = /^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/i
+  return regex.test(str)
+}

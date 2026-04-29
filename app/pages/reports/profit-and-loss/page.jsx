@@ -266,6 +266,8 @@ const ProfitAndLossPage = observer(() => {
       end: formatDateLocal(pnlStore.dateRange.end)
     }
 
+    const currencyId = appStore.currencies?.find(c => c.kod === selectedCurrency)
+
     if (monthObj?.key) {
       const [year, month] = monthObj.key.split('-').map(Number)
       const startDate = `${year}-${String(month).padStart(2, '0')}-01`
@@ -277,7 +279,8 @@ const ProfitAndLossPage = observer(() => {
     const filterData = {
       tip: item.filterdata?.tip,
       limit: 50,
-      chart_of_accounts_ids: item.filterdata?.ids
+      chart_of_accounts_ids: item.filterdata?.ids,
+      currenies_id: currencyId?.guid
     }
 
     if (isCalculation === 'cash') {
@@ -307,7 +310,7 @@ const ProfitAndLossPage = observer(() => {
       summaryData: {
         periodLabel,
         totalAmount: item.totalValue,
-        currencyCode: pnlStore.selectedCurrency
+        currencyCode: selectedCurrency
       },
       title: item.name
     })

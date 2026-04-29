@@ -14,7 +14,7 @@ import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
+import { formatNumber, formatTotalSumma, isUUID } from '../../../../utils/helpers'
 
 const groupingOptions = [
   { value: 'monthly', label: 'По месяцам' },
@@ -167,10 +167,94 @@ export default observer(function CashFlowReportPage() {
   const months = useMemo(() => legend.map(l => l.key), [legend])
 
   // Transform rows into tree structure with section context
+  // const data = useMemo(() => {
+  //   if (!cashFlowDataList?.rows) return []
+
+  //   const transformRow = (row, depth = 0, sectionName = null, parentPath = '') => {
+  //     const monthData = {}
+  //     months.forEach(monthKey => {
+  //       monthData[monthKey] = row.values?.[monthKey] || 0
+  //     })
+
+  //     let currentSection = sectionName
+  //     if (depth === 1) {
+  //       if (row.name === 'Поступления') currentSection = 'Поступления'
+  //       if (row.name === 'Выплаты') currentSection = 'Выплаты'
+  //       if (row.name === 'Списания') currentSection = 'Списания'
+  //       if (row.name === 'Зачисления') currentSection = 'Зачисления'
+  //     }
+
+  //     const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
+
+  //     const node = {
+  //       id: row.id,
+  //       uniquePath: rowUniquePath,
+  //       name: row.name,
+  //       total: row.totalValue || 0,
+  //       months: monthData,
+  //       level: depth,
+  //       section: currentSection,
+  //       subRows: []
+  //     }
+
+  //     if (row.details && Array.isArray(row.details) && row.details.length > 0) {
+  //       node.subRows = row.details.map(detail => transformRow(detail, depth + 1, currentSection, rowUniquePath))
+  //     }
+
+  //     return node
+  //   }
+
+  //   return cashFlowDataList.rows.map(row => transformRow(row, 0, null, ''))
+  // }, [cashFlowDataList, months])
+
   const data = useMemo(() => {
     if (!cashFlowDataList?.rows) return []
 
-    const transformRow = (row, depth = 0, sectionName = null, parentPath = '') => {
+    // Recursive — barcha leaf id larni yig'adi (details bo'lmagan nodelar)
+    const collectLeafIds = (node) => {
+      const hasChildren = node?.details && node.details.length > 0
+      if (!hasChildren) {
+        return node?.id ? [node.id?.slice(0, 36)] : []
+      }
+      return node.details.flatMap(child => collectLeafIds(child))
+    }
+
+    // Top-level (root) item nomi bo'yicha tip
+    const getRootTip = (rootName) => {
+      if (
+        rootName === 'Операционный поток' ||
+        rootName === 'Инвестиционный поток' ||
+        rootName === 'Финансовый поток'
+      ) {
+        return ['Поступление', 'Выплата']
+      }
+      if (rootName === 'Перемещения') {
+        return ['Списание', 'Зачисление', 'Перемещение']
+      }
+      if (rootName === 'Общий денежный поток' || rootName === 'Остатки на конец периода') {
+        return ['Списание', 'Зачисление', 'Перемещение', 'Поступление', 'Выплата']
+      }
+      return []
+    }
+
+    // Subtree context — Поступления/Выплаты/Списания/Зачисления tagidagi nodelar
+    // o'z subtree tipini meros qilib oladi
+    const getSubtreeTip = (name) => {
+      if (name === 'Поступления') return ['Поступление']
+      if (name === 'Выплаты') return ['Выплата']
+      if (name === 'Списания') return ['Списание']
+      if (name === 'Зачисления') return ['Зачисление']
+      return null
+    }
+
+    const transformRow = (
+      row,
+      depth = 0,
+      sectionName = null,
+      parentPath = '',
+      inheritedSubtreeTip = null,
+      rootName = null
+    ) => {
       const monthData = {}
       months.forEach(monthKey => {
         monthData[monthKey] = row.values?.[monthKey] || 0
@@ -186,6 +270,32 @@ export default observer(function CashFlowReportPage() {
 
       const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
 
+      // Root nomini eslab qolamiz (top-level node)
+      const currentRootName = depth === 0 ? row.name : rootName
+
+      // Subtree tip ni aniqlash — Поступления/Выплаты/Списания/Зачисления ga tushganda yangilanadi
+      let currentSubtreeTip = inheritedSubtreeTip
+      const subtreeTipFromName = getSubtreeTip(row.name)
+      if (depth >= 1 && subtreeTipFromName) {
+        currentSubtreeTip = subtreeTipFromName
+      }
+
+      // Tip ni aniqlash
+      let tip
+      if (depth === 0) {
+        // Top-level — root tip
+        tip = getRootTip(row.name)
+      } else if (currentSubtreeTip) {
+        // Subtree ichidagi node — subtree tip ni meros oladi
+        tip = currentSubtreeTip
+      } else {
+        // Subtree dan tashqari (masalan Остатки ning bolalari) — root tip ni oladi
+        tip = getRootTip(currentRootName)
+      }
+
+      // Ids — bolasi borlar uchun barcha leaf id lar, leaf uchun o'zining id si
+      const ids = collectLeafIds(row)?.map(id => id?.replace(/':+/g, ''))?.filter(id => isUUID(id))
+
       const node = {
         id: row.id,
         uniquePath: rowUniquePath,
@@ -194,18 +304,47 @@ export default observer(function CashFlowReportPage() {
         months: monthData,
         level: depth,
         section: currentSection,
-        subRows: []
+        filterdata: {
+          ids,
+          tip,
+        },
+        subRows: [],
       }
 
       if (row.details && Array.isArray(row.details) && row.details.length > 0) {
-        node.subRows = row.details.map(detail => transformRow(detail, depth + 1, currentSection, rowUniquePath))
+        node.subRows = row.details.map(detail =>
+          transformRow(
+            detail,
+            depth + 1,
+            currentSection,
+            rowUniquePath,
+            currentSubtreeTip,
+            currentRootName
+          )
+        )
       }
 
       return node
     }
 
-    return cashFlowDataList.rows.map(row => transformRow(row, 0, null, ''))
+    const transformed = cashFlowDataList.rows.map(row => transformRow(row, 0))
+
+    // "Общий денежный поток" — details yo'q (leaf), shuning uchun
+    // undan oldingi barcha rootlarning idlarini qo'lda yig'amiz
+    const overallIndex = transformed.findIndex(
+      r => r.name === 'Общий денежный поток' || r.id === 'overall-cash-flow'
+    )
+    if (overallIndex !== -1) {
+      const aggregatedIds = []
+      for (let i = 0; i < overallIndex; i++) {
+        aggregatedIds.push(...transformed[i].filterdata.ids)
+      }
+      transformed[overallIndex].filterdata.ids = aggregatedIds
+    }
+
+    return transformed
   }, [cashFlowDataList, months])
+
 
   // Auto-expand top-level rows on first load
   useEffect(() => {
@@ -225,71 +364,31 @@ export default observer(function CashFlowReportPage() {
   }
 
   const handleCellClick = (row, monthObj) => {
-    const requestData = {}
+
+    const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
+
+    const requestData = {
+      tip: row.filterdata?.tip,
+      limit: 50,
+      chart_of_accounts_ids: row.filterdata?.ids,
+      paymentConfirm: true,
+      paymentNotConfirm: false,
+      accrualConfirm: true,
+      accrualNotConfirm: true,
+      currenies_id: currencyId?.guid
+    }
 
     if (monthObj?.key) {
       const [year, month] = monthObj.key.split('-').map(Number)
-      const startDate = `01-${String(month).padStart(2, '0')}-${year}`
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`
       const lastDay = new Date(year, month, 0).getDate()
-      const endDate = `${String(lastDay).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
       requestData.paymentDateStart = startDate
       requestData.paymentDateEnd = endDate
     } else {
       requestData.paymentDateStart = moment(periodStartDate).format('YYYY-MM-DD')
       requestData.paymentDateEnd = moment(periodEndDate).format('YYYY-MM-DD')
     }
-    requestData.tip = nameMap[row.name] || nameMap[row.section]
-
-    if (['Перемещения', 'Списания', 'Зачисления'].includes(row.name)) {
-      requestData.paymentConfirmed = true
-      requestData.paymentNotConfirmed = true
-      requestData.accrualConfirmed = true
-      requestData.accrualNotConfirmed = true
-    }
-    if ("Операционный поток" === row?.name ||
-      "Инвестиционный поток" === row?.name ||
-      "Финансовый поток" === row?.name) {
-      requestData.paymentConfirmed = true
-      requestData.paymentNotConfirmed = false
-    }
-
-    if (row?.subRows) {
-      requestData.chartOfAccounts = [row.id]
-    }
-
-
-
-    // const filters = cashFlowStore.filters
-    // let dateRange = { start: filters.periodStartDate, end: filters.periodEndDate }
-
-    // if (monthObj?.key) {
-    //   const [year, month] = monthObj.key.split('-').map(Number)
-    //   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-    //   const lastDay = new Date(year, month, 0).getDate()
-    //   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-    //   dateRange = { start: startDate, end: endDate }
-    // }
-
-    // const tips = (() => {
-    //   if (['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'].includes(row.name)) {
-    //     return { tip: ['Поступление', 'Выплата'] }
-    //   }
-    //   if (row.section === 'Поступления') return { tip: ['Поступление'] }
-    //   if (row.section === 'Выплаты') return { tip: ['Выплата'] }
-    //   if (row.section === 'Списания') return { tip: ['Списание', 'Перемещение'] }
-    //   if (row.section === 'Зачисления') return { tip: ['Зачисление', 'Перемещение'] }
-
-
-    //   return nameMap[row.name] ? { tip: nameMap[row.name] } : {}
-    // })()
-
-    // const filterData = {
-    //   ...tips,
-    //   paymentConfirmed: true,
-    //   paymentNotConfirmed: false,
-    //   paymentDateStart: dateRange.start,
-    //   paymentDateEnd: dateRange.end,
-    // }
 
     const periodLabel = moment(monthObj + '01').format("MMM, 'YY")
     const isTransfer = ['Зачисления', 'Списания', 'Перемещения'].includes(row.name)
