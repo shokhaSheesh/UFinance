@@ -169,16 +169,20 @@ export default observer(function CashFlowReportPage() {
   const data = useMemo(() => {
     if (!cashFlowDataList?.rows) return []
 
-    // Recursive — barcha leaf id larni yig'adi (details bo'lmagan nodelar)
-    const collectLeafIds = (node) => {
+    // Recursive — node ning O'ZINI + barcha descendantlarini yig'adi
+    // (faqat leaf emas, intermediate parentlar ham)
+    const collectAllIds = (node) => {
+      const ownId = node?.id ? [node.id?.slice(0, 36)] : []
       const hasChildren = node?.details && node.details.length > 0
+
       if (!hasChildren) {
-        return node?.id ? [node.id?.slice(0, 36)] : []
+        return ownId
       }
-      return node.details.flatMap(child => collectLeafIds(child))
+
+      const childIds = node.details.flatMap(child => collectAllIds(child))
+      return [...ownId, ...childIds]
     }
 
-    // Top-level (root) item nomi bo'yicha tip
     const getRootTip = (rootName) => {
       if (
         rootName === 'Операционный поток' ||
@@ -196,7 +200,6 @@ export default observer(function CashFlowReportPage() {
       return []
     }
 
-    // Subtree context
     const getSubtreeTip = (name) => {
       if (name === 'Поступления') return ['Поступление']
       if (name === 'Выплаты') return ['Выплата']
@@ -230,14 +233,12 @@ export default observer(function CashFlowReportPage() {
       const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
       const currentRootName = depth === 0 ? row.name : rootName
 
-      // Subtree tip
       let currentSubtreeTip = inheritedSubtreeTip
       const subtreeTipFromName = getSubtreeTip(row.name)
       if (depth >= 1 && subtreeTipFromName) {
         currentSubtreeTip = subtreeTipFromName
       }
 
-      // Tip
       let tip
       if (depth === 0) {
         tip = getRootTip(row.name)
@@ -247,16 +248,19 @@ export default observer(function CashFlowReportPage() {
         tip = getRootTip(currentRootName)
       }
 
-      // isClickable — Остатки на конец периода va barcha bolalari false
       let isClickable = inheritedClickable
       if (depth === 0) {
-        // Top-level: agar Остатки bo'lsa — false, aks holda true
         isClickable = row.name !== 'Остатки на конец периода' && row.id !== 'ending-balance'
       }
-      // Agar parent isClickable=false bo'lsa, bola ham false (meros)
-      // Agar parent isClickable=true bo'lsa, bola ham true
 
-      const ids = collectLeafIds(row)?.map(id => id?.replace(/':+/g, ''))?.filter(id => isUUID(id))
+      // Barcha descendant + o'zining id si — duplikatlarsiz
+      const ids = [
+        ...new Set(
+          collectAllIds(row)
+            ?.map(id => id?.replace(/':+/g, ''))
+            ?.filter(id => isUUID(id))
+        ),
+      ]
 
       const node = {
         id: row.id,
@@ -283,7 +287,7 @@ export default observer(function CashFlowReportPage() {
             rowUniquePath,
             currentSubtreeTip,
             currentRootName,
-            isClickable  // bolalari ota'ning isClickable ni meros oladi
+            isClickable
           )
         )
       }
@@ -293,7 +297,7 @@ export default observer(function CashFlowReportPage() {
 
     const transformed = cashFlowDataList.rows.map(row => transformRow(row, 0))
 
-    // "Общий денежный поток" — leaf, qo'lda aggregate
+    // "Общий денежный поток" — leaf, qo'lda aggregate (barcha oldingi rootlar dan)
     const overallIndex = transformed.findIndex(
       r => r.name === 'Общий денежный поток' || r.id === 'overall-cash-flow'
     )
@@ -302,7 +306,7 @@ export default observer(function CashFlowReportPage() {
       for (let i = 0; i < overallIndex; i++) {
         aggregatedIds.push(...transformed[i].filterdata.ids)
       }
-      transformed[overallIndex].filterdata.ids = aggregatedIds
+      transformed[overallIndex].filterdata.ids = [...new Set(aggregatedIds)]
     }
 
     return transformed
@@ -329,6 +333,8 @@ export default observer(function CashFlowReportPage() {
   const handleCellClick = (row, monthObj) => {
 
     const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
+
+    console.log('r0w', row)
 
     const requestData = {
       tip: row.filterdata?.tip,
