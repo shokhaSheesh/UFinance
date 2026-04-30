@@ -22,8 +22,9 @@ import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import { apiClient } from '../../../lib/api/ucode/base'
 import operationsDto from '../../../lib/dtos/operationsDto'
-import { showSuccessNotification } from '../../../lib/utils/notifications'
+import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { appStore } from '../../../store/app.store'
+import { authStore } from '../../../store/auth.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatDate } from '../../../utils/formatDate'
 import { handleDownload } from '../../../utils/helpers'
@@ -445,8 +446,62 @@ const OperationsPage = observer(() => {
 		}, 50)
 	}
 
+	const [isImporting, setIsImporting] = useState(false)
+
 	const handleImportOperations = () => {
-		console.log('Import operations')
+		const input = document.createElement('input')
+		input.type = 'file'
+		input.accept = '.xlsx,.xls,.csv'
+		input.onchange = async (event) => {
+			const file = event.target.files?.[0]
+			if (!file) return
+
+			try {
+				setIsImporting(true)
+
+				const formData = new FormData()
+				formData.append('file', file, file.name)
+
+				const uploadResponse = await fetch(
+					'https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png',
+					{
+						method: 'POST',
+						headers: {
+							Authorization: `Bearer ${authStore.authToken}`,
+						},
+						body: formData,
+					},
+				)
+
+				if (!uploadResponse.ok) {
+					throw new Error('Failed to upload file')
+				}
+
+				const uploadData = await uploadResponse.json()
+				const fileLink = uploadData?.data?.link
+
+				if (!fileLink) {
+					throw new Error('File link not returned from upload')
+				}
+
+				const fileUrl = `https://cdn.u-code.io/${fileLink}`
+
+				await apiClient.invokeFunction({
+					method: 'import_operations',
+					data: { url: fileUrl },
+				})
+
+				showSuccessNotification('Операции успешно импортированы.')
+				queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+				queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+			} catch (error) {
+				console.error('Error importing operations:', error)
+				showErrorNotification('Не удалось импортировать операции.')
+			} finally {
+				setIsImporting(false)
+			}
+		}
+		input.click()
 	}
 
 
@@ -479,6 +534,7 @@ const OperationsPage = observer(() => {
 							className="w-[300px]"
 							onChange={(e) => operationFilterStore.setSearchQuery(e.target.value)}
 						/>
+						<button onClick={handleImportOperations} type='button' disabled={isImporting} className="primary-btn">Импорт {isImporting && <Loader2 size={16} className="animate-spin" />}</button>
 						<button onClick={handleExportOperations} type='button' className="primary-btn">Скачать в Excel {isExporting && <Loader2 size={16} className="animate-spin" />}</button>
 						{/* <button className=" bg-white rounded-md border  flex items-center justify-center p-2">
 							<EllipsisVertical size={20} className='text-neutral-500' />
