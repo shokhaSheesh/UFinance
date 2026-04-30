@@ -16,8 +16,8 @@ import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups } from '@/hooks/useDashboard'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -30,8 +30,10 @@ import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestInfinite } from '../../../../hooks/useDashboard'
+import { apiClient } from '../../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
-import { formatAmount } from '../../../../utils/helpers'
+import { formatAmount, handleDownload } from '../../../../utils/helpers'
 
 const calculationOptions = [
   { value: "Cashflow", label: 'Учет по денежному потоку' },
@@ -108,6 +110,19 @@ const CounterpartiesPage = observer(() => {
       select: response => response,
       staleTime: 1000 * 60,
     },
+  })
+
+  const { mutate: exportCounterparties, isPending: isCounterpartiesExportLoading } = useMutation({
+    mutationKey: ['export_counterparties'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_counterparties', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'balance_report.xlsx')
+      }
+    }
   })
 
   const allCounterparties = useMemo(() => {
@@ -354,8 +369,8 @@ const CounterpartiesPage = observer(() => {
             >
               Создать
             </button>}
-          </div>
-          <div className="flex items-center gap-2">
+          </div> 
+          <div className=" flex items-center justify-self-center gap-2">
             <div className='w-[250px]'>
               <SingleSelect
                 data={calculationOptions}
@@ -386,12 +401,8 @@ const CounterpartiesPage = observer(() => {
                 <LuListTree size={18} />
               </button>
             </div>
-          </div>
-          <div className=" flex items-center justify-self-center gap-2">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <button className=" bg-white rounded-md border  flex items-center justify-center p-2">
-              <BsList size={20} className='text-neutral-500' />
-            </button>
+            <button onClick={exportCounterparties} type='button' className="primary-btn">Скачать в Excel {isCounterpartiesExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
           </div>
         </div>
 

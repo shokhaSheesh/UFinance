@@ -5,7 +5,8 @@ import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -13,8 +14,9 @@ import { cashFlowStore } from '../../../../components/reports/cashflow/cashflow.
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma, isUUID } from '../../../../utils/helpers'
+import { formatNumber, formatTotalSumma, handleDownload, isUUID } from '../../../../utils/helpers'
 
 const groupingOptions = [
   { value: 'monthly', label: 'По месяцам' },
@@ -160,6 +162,20 @@ export default observer(function CashFlowReportPage() {
     cacheTime: 0,
     refetchOnWindowFocus: false,  // tab o'zgarganda OFF
     refetchOnMount: true,          // page ga qaytganda ON ✅
+  })
+
+  const { mutate: exportCashFlow, isPending: isCashFlowLoading } = useMutation({
+    mutationKey: ['export_cash_flow'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_cash_flow', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      console.log('uploadData', uploadData)
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'cash_flow.xlsx')
+      }
+    }
   })
 
 
@@ -330,11 +346,14 @@ export default observer(function CashFlowReportPage() {
     setExpandedMap(prev => ({ ...prev, [uniquePath]: !prev[uniquePath] }))
   }
 
+  const handleExportCashFlow = () => {
+    exportCashFlow()
+  }
+
   const handleCellClick = (row, monthObj) => {
 
     const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
 
-    console.log('r0w', row)
 
     const requestData = {
       tip: row.filterdata?.tip,
@@ -414,13 +433,7 @@ export default observer(function CashFlowReportPage() {
                 className="bg-white w-44"
                 dropdownClassName="bg-white"
               />
-              <button className="flex items-center justify-center p-2 rounded-md hover:bg-neutral-100 text-neutral-600 transition-colors">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="3" r="1" fill="currentColor" />
-                  <circle cx="8" cy="8" r="1" fill="currentColor" />
-                  <circle cx="8" cy="13" r="1" fill="currentColor" />
-                </svg>
-              </button>
+              <button onClick={handleExportCashFlow} type='button' className="primary-btn">Скачать в Excel {isCashFlowLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
 

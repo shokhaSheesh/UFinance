@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
+import { appStore } from '../../../../store/app.store'
 import { isFuture } from '../../../../utils/formatDate'
 import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/helpers'
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
@@ -108,9 +109,12 @@ const SplitAmount = ({ amount, onChange, rows,
 
 
   const handleCheckRow = (isFutureDate, index, check) => {
-    if (isFutureDate || salesDeal) {
+    if ((isFutureDate && !appStore.isDonoSchool)) {
       return
     }
+    console.log('isFutureDate', isFutureDate)
+    console.log('index', index)
+    console.log('check', check)
     dispatch({ type: 'UPDATE', index, field: 'isCalculationCommitted', value: check })
   }
 
@@ -201,7 +205,7 @@ const SplitAmount = ({ amount, onChange, rows,
                             {/* Confirm checkbox */}
                             <td className={`split-td col-confirm ${salesDeal ? ' cursor-not-allowed opacity-30' : ''}`}>
                               <OperationCheckbox
-                                checked={isFutureDate || salesDeal ? false : row.isCalculationCommitted}
+                                checked={(isFutureDate && !appStore.isDonoSchool) || salesDeal ? false : row.isCalculationCommitted}
                                 onChange={e => handleCheckRow(isFutureDate, i, e.target.checked)}
                                 disabled={salesDeal}
                               />

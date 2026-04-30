@@ -2,10 +2,10 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { FaSortDown } from 'react-icons/fa'
 import { appStore } from '../../../store/app.store'
-import { allowedTip, operationFilterStore } from '../../../store/operationFilter.store'
+import { allowedTip, operationFilterStore, tips } from '../../../store/operationFilter.store'
 import MultiSelectStatiya from '../../ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
@@ -17,7 +17,7 @@ import Input from '../../shared/Input'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
 export const OperationsFiltersSidebar = observer(({
-  isOpen, onClose, clearCount, onClear
+  isOpen, onClose
 }) => {
   const queryClient = useQueryClient()
   const {
@@ -32,16 +32,56 @@ export const OperationsFiltersSidebar = observer(({
     paymentConfirm,
     paymentNotConfirm,
     accrualConfirm,
-    accrualNotConfirm
+    accrualNotConfirm,
+    amountRange
   } = operationFilterStore
 
   // Ensure selectedFilters is always an array
-  const safeSelectedFilters = Array.isArray(selectedFilters) ? selectedFilters : []
+  const safeSelectedFilters = useMemo(() => Array.isArray(selectedFilters) ? selectedFilters : [], [selectedFilters])
 
   const [expandedFilters, setExpandedFilters] = useState({ peremescheniye: false, nachisleniye: false })
   // const [activeTab, setActiveTab] = useState('general')
-  const [localAmount, setLocalAmount] = useState({ min: '', max: '' })
+  const [localAmount, setLocalAmount] = useState({ min: amountRange?.min || '', max: amountRange?.max || '' })
   const amountDebounceRef = useRef(null)
+
+  // Calculate count of active filters
+  const clearCount = useMemo(() => {
+    let count = 0
+
+    // Count non-default filters (excluding default tips)
+    const defaultTips = new Set(tips)
+    const hasNonDefaultFilters = safeSelectedFilters.some(f => !defaultTips.has(f))
+    const hasMissingDefaultFilters = tips.some(t => !safeSelectedFilters.includes(t))
+    if (hasNonDefaultFilters || hasMissingDefaultFilters) count++
+
+    // Date ranges
+    if (selectedDatePaymentRange?.start || selectedDatePaymentRange?.end) count++
+    if (selectedDateStartRange?.start || selectedDateStartRange?.end) count++
+
+    // Multi-selects
+    if (selectedCounterAgents?.length) count++
+    if (selectedLegalEntities?.length) count++
+    if (selectedChartOfAccounts?.length) count++
+    if (deals?.length) count++
+
+    // Payment type
+    if (paymentType) count++
+
+    // Amount range
+    if (amountRange?.min || amountRange?.max) count++
+
+    // Checkboxes (if different from default all-true state)
+    if (!paymentConfirm || !paymentNotConfirm || !accrualConfirm || !accrualNotConfirm) count++
+
+    return count
+  }, [safeSelectedFilters, selectedDatePaymentRange, selectedDateStartRange, selectedCounterAgents, selectedLegalEntities, selectedChartOfAccounts, deals, paymentType, amountRange, paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm])
+
+  // Clear all filters
+  const onClear = useCallback(() => {
+    operationFilterStore.resetFilters()
+    setLocalAmount({ min: '', max: '' })
+    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+  }, [queryClient])
 
   const handleChangeFilter = useCallback(() => {
     // control all filters values here adter that call find_operations with queryClient.invalidateQueries

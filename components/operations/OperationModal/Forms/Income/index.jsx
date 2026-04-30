@@ -332,7 +332,7 @@ const IncomeForm = observer(({
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
   const watchAmount = watch('amount')
-  const watchSalesDeal = !appStore.isAccrualDate ? watch('salesDeal') : '' // never delete that is importatn variable
+  const watchSalesDeal = !appStore.isAccrualDate && !appStore.isDonoSchool ? watch('salesDeal') : '' // never delete that is importatn variable
   const watchPaymentDate = watch('paymentDate')
   const watchAccrualDate = watch('accrualDate')
   const watchConfirmPayment = watch('confirmPayment')
@@ -437,7 +437,7 @@ const IncomeForm = observer(({
                   render={({ field }) => (
                     <FormDatepicker
                       value={field.value}
-                      onChange={(val) => { 
+                      onChange={(val) => {
                         field.onChange(val)
                         setValue('confirmPayment', !isFuture(val))
                         if (watchSalesDeal) {
@@ -532,7 +532,7 @@ const IncomeForm = observer(({
                       rows={rows}
                       modalType={'income'}
                       dispatch={dispatch}
-                      salesDeal={watchSalesDeal}
+                      salesDeal={watchSalesDeal && !appStore.isDonoSchool}
                       confirmAccural={watchConfirmAccrual}
                       confirmPayment={watchConfirmPayment}
                       selectedSplits={selectedSplits}
@@ -565,7 +565,11 @@ const IncomeForm = observer(({
                         onChange={(val) => {
                           if (watchSalesDeal) return
                           field.onChange(val)
-                          setValue('confirmAccrual', !isFuture(val))
+                          if (appStore.isDonoSchool) {
+                            // setValue('confirmAccrual', !isFuture(val))
+                          } else {
+                            setValue('confirmAccrual', !isFuture(val))
+                          }
                         }}
                         placeholder="Выберите дату"
                         format='YYYY-MM-DD'
@@ -573,7 +577,7 @@ const IncomeForm = observer(({
                       />
                     )}
                   />
-                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && <WarnIcon />}</span>
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && (!watchConfirmAccrual) && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}
@@ -583,7 +587,7 @@ const IncomeForm = observer(({
                         disabled={!!watchSalesDeal}
                         label="Подтвердить начисление"
                         onChange={(e) => {
-                          if (watchSalesDeal || isFuture(watchAccrualDate)) return
+                          if (watchSalesDeal || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />

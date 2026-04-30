@@ -2,7 +2,8 @@
 
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
@@ -10,8 +11,9 @@ import { balanceStore } from '../../../../components/reports/balance/balance.sto
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma } from '../../../../utils/helpers'
+import { formatNumber, formatTotalSumma, handleDownload } from '../../../../utils/helpers'
 import styles from './balance.module.scss'
 
 export default observer(function BalancePage() {
@@ -37,6 +39,19 @@ export default observer(function BalancePage() {
     refetchOnMount: true,          // page ga qaytganda ON ✅
     staleTime: 0,
     cacheTime: 0
+  })
+
+  const { mutate: exportBalanceReport, isPending: isExportBalanceReportLoading } = useMutation({
+    mutationKey: ['export_balance_report'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_balance_report', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'balance_report.xlsx')
+      }
+    }
   })
 
   useEffect(() => {
@@ -143,7 +158,9 @@ export default observer(function BalancePage() {
               dropdownClassName={'w-28'}
             />
           </div>
-
+          <div>
+            <button onClick={exportBalanceReport} type='button' className="primary-btn">Скачать в Excel {isExportBalanceReportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+          </div>
         </div>
 
         <div className="px-4 text-center mb-4 text-sm font-medium ">

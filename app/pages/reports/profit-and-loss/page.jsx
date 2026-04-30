@@ -5,7 +5,8 @@ import OperationCashFlowModal from '@/components/directories/OperationCashFlowMo
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import '@/styles/report-filters.css'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -13,8 +14,9 @@ import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.sto
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatPeriod } from '../../../../utils/helpers'
+import { formatNumber, formatPeriod, handleDownload } from '../../../../utils/helpers'
 
 const formatDateLocal = (date) => {
   if (!date) return null
@@ -77,6 +79,20 @@ const ProfitAndLossPage = observer(() => {
     cacheTime: 0,
     refetchOnWindowFocus: false,  // tab o'zgarganda OFF
     refetchOnMount: true,          // page ga qaytganda ON ✅
+  })
+
+  const { mutate: exportProfitAndLoss, isPending: isProfitAndLossLoading } = useMutation({
+    mutationKey: ['export_profit_and_loss'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_profit_and_loss', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      console.log('uploadData', uploadData)
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'profit_and_loss.xlsx')
+      }
+    }
   })
 
   const loading = isLoadingProfitAndLoss || isFetchingProfitAndLoss
@@ -412,13 +428,7 @@ const ProfitAndLossPage = observer(() => {
                 className="bg-white w-44"
                 autoHeight={true}
               />
-              <button className="flex items-center justify-center p-2 rounded-md hover:bg-neutral-100 text-neutral-600 transition-colors">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="3" r="1" fill="currentColor" />
-                  <circle cx="8" cy="8" r="1" fill="currentColor" />
-                  <circle cx="8" cy="13" r="1" fill="currentColor" />
-                </svg>
-              </button>
+              <button onClick={exportProfitAndLoss} type='button' className="primary-btn">Скачать в Excel {isProfitAndLossLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
           <div className='flex flex-1 overflow-hidden'>

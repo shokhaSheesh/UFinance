@@ -10,8 +10,8 @@ import {
 	useUcodeRequestInfinite,
 	useUcodeRequestMutation,
 } from '@/hooks/useDashboard'
-import { useQueryClient } from '@tanstack/react-query'
-import { EllipsisVertical, Search } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Loader2, Search } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useEffect, useMemo, useState } from 'react'
@@ -20,10 +20,13 @@ import { OperationsFooter } from '../../../components/operations/OperationsFoote
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
+import { apiClient } from '../../../lib/api/ucode/base'
 import operationsDto from '../../../lib/dtos/operationsDto'
+import { showSuccessNotification } from '../../../lib/utils/notifications'
 import { appStore } from '../../../store/app.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatDate } from '../../../utils/formatDate'
+import { handleDownload } from '../../../utils/helpers'
 
 
 
@@ -164,6 +167,20 @@ const OperationsPage = observer(() => {
 			select: (response) => response,
 			staleTime: 1000 * 60,
 			gcTime: 1000 * 60,
+		}
+	})
+
+	const { mutate: exportOperations, isPending: isExporting } = useMutation({
+		mutationKey: ['export_operations'],
+		mutationFn: () => apiClient.invokeFunction({ method: 'export_operations', data: requestOperationFilters }),
+		onSuccess: (uploadData) => {
+			showSuccessNotification('Файл успешно загружен.')
+			const fileLink = uploadData?.data?.export?.file_url
+
+			if (fileLink) {
+				const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+				handleDownload(contractFileLink, 'operations.xlsx')
+			}
 		}
 	})
 
@@ -398,6 +415,10 @@ const OperationsPage = observer(() => {
 		}
 	}
 
+	const handleExportOperations = () => {
+		exportOperations()
+	}
+
 	const handleDeleteCancel = () => {
 		setIsDeleteModalOpen(false)
 		setOperationToDelete(null)
@@ -454,9 +475,10 @@ const OperationsPage = observer(() => {
 							className="w-[300px]"
 							onChange={(e) => operationFilterStore.setSearchQuery(e.target.value)}
 						/>
-						<button className=" bg-white rounded-md border  flex items-center justify-center p-2">
+						<button onClick={handleExportOperations} type='button' className="primary-btn">Скачать в Excel {isExporting && <Loader2 size={16} className="animate-spin" />}</button>
+						{/* <button className=" bg-white rounded-md border  flex items-center justify-center p-2">
 							<EllipsisVertical size={20} className='text-neutral-500' />
-						</button>
+						</button> */}
 					</div>
 				</div>
 				<div id="scrollableDiv" className="overflow-auto  h-full w-full px-2 bg-white">
@@ -470,7 +492,6 @@ const OperationsPage = observer(() => {
 						{isAllSelected && selectedOperations.length > 0 && <div className="flex items-center gap-2">
 							<p>{selectedOperations.length}</p>
 							<button className="primary-btn">Удалить</button>
-							<button className="primary-btn">Экспорт</button>
 						</div>}
 						{!isAllSelected && <>
 							<div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
