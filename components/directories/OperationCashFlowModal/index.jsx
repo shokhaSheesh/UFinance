@@ -99,7 +99,7 @@ const OperationCashFlowModal = observer(({
 
   return (
     <CustomDialog open={isOpen} onClose={onClose} contentClass=" p-0" className=" p-0">
-      <div className='w-[800px]!'>
+      <div className='w-[900px]!'>
         {/* Header */}
         <div className="text-lg font-semibold p-6 border-b">
           {title || 'Операции'}
@@ -132,9 +132,9 @@ const OperationCashFlowModal = observer(({
             <table className="w-full relative">
               <thead className="sticky top-0 z-10 h-10 bg-neutral-50 border-b box-content border-gray-300">
                 <tr className='text-xs text-neutral-600 '>
-                  <th className=" px-4 text-start">Дата ▾</th>
+                  <th className="min-w-32! px-4 text-start">Дата ▾</th>
                   <th className=" px-4 text-center">Тип</th>
-                  <th className=" px-2 text-start">{isTransfer ? 'Откуда' : 'Контрагент'}</th>
+                  <th className="min-w-44! px-2 text-start">{isTransfer ? 'Откуда' : 'Контрагент'}</th>
                   <th className=" px-2 text-start">{isTransfer ? 'Куда' : 'Статья'}</th>
                   <th className=" px-4 text-end">Сумма</th>
                 </tr>

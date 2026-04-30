@@ -445,6 +445,10 @@ const OperationsPage = observer(() => {
 		}, 50)
 	}
 
+	const handleImportOperations = () => {
+		console.log('Import operations')
+	}
+
 
 	return (
 		<div className="fixed left-[80px] top-[60px]  w-[calc(100%-80px)] flex h-[calc(100%-60px)]">

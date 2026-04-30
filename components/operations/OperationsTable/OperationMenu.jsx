@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { appStore } from '../../../store/app.store'
 
 export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) => {
+
 
   const operationPermissions = appStore.permission.operations
   const canAdd = operationPermissions.income.add && operation.operationType === 'income' || operationPermissions.payout.add && operation.operationType === 'payment' || operationPermissions.transfer.add && operation.operationType === 'transfer' || operationPermissions.accrual.add && operation.operationType === 'accrual' || operationPermissions.shipment.add && operation.operationType === 'shipment'
@@ -33,6 +35,8 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
   if (!canEdit && !canDelete && !canAdd) {
     return null
   }
+
+  console.log(operation?.summa, operation?.createdBy, operation?.updatedBy)
 
   return (
     <DropdownMenu >
@@ -75,7 +79,14 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
             </button>
           </DropdownMenuItem>
         }
+        <div className='border-t border-neutral-200 pt-2 text-[9px] text-neutral-400'>
+          <p className="line-clamp-1">{operation?.createdAt && moment(operation?.createdAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">{operation?.createdBy || ''}</p>
+          <p className="line-clamp-1">{operation?.updatedAt && moment(operation?.updatedAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">{operation?.updatedBy || ''}</p>
+        </div>
       </DropdownMenuContent>
+
     </DropdownMenu>
   )
 })

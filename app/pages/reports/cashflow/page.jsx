@@ -352,9 +352,6 @@ export default observer(function CashFlowReportPage() {
 
   const handleCellClick = (row, monthObj) => {
 
-    const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
-
-
     const requestData = {
       tip: row.filterdata?.tip,
       limit: 50,
@@ -363,7 +360,7 @@ export default observer(function CashFlowReportPage() {
       paymentNotConfirm: false,
       accrualConfirm: true,
       accrualNotConfirm: true,
-      currenies_id: currencyId?.guid
+      currencyCode: currencyCode
     }
 
     if (monthObj?.key) {

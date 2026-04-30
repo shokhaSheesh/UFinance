@@ -326,7 +326,6 @@ const ProfitAndLossPage = observer(() => {
       end: formatDateLocal(pnlStore.dateRange.end)
     }
 
-    const currencyId = appStore.currencies?.find(c => c.kod === selectedCurrency)
 
     if (monthObj?.key) {
       const [year, month] = monthObj.key.split('-').map(Number)
@@ -340,7 +339,7 @@ const ProfitAndLossPage = observer(() => {
       tip: item.filterdata?.tip,
       limit: 50,
       chart_of_accounts_ids: item.filterdata?.ids,
-      currenies_id: currencyId?.guid
+      currencyCode: selectedCurrency
     }
 
     if (isCalculation === 'cash') {

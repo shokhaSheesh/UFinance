@@ -117,7 +117,7 @@ const IncomePaymentTableRow = observer(({
         </td>
         {/* price */}
         <td className={'pr-4'} onClick={e => e.stopPropagation()}>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end pr-2">
             {(op?.tip === 'Перемещение') && (
               <>
                 <span className={cn('text-neutral-700', tip !== 'Перемещения' && 'text-red-500', tip === 'Зачисления' && 'hidden')}>- {formatAmount((op?.summa))} {op?.currency}</span>
@@ -127,7 +127,7 @@ const IncomePaymentTableRow = observer(({
 
             {(op?.tip === 'Поступление' || op?.tip === 'Выплата') && (
               <>
-                <span className={cn('text-neutral-700', op?.tip === 'Выплата' && 'text-red-600', op?.tip === 'Поступление' && 'text-green-700')}>{op?.tip === 'Выплата' ? '-' : '+'}{formatAmount((op?.summa))} {op?.currency}</span>
+                <span className={cn('text-neutral-700 whitespace-nowrap', op?.tip === 'Выплата' && 'text-red-600', op?.tip === 'Поступление' && 'text-green-700')}>{op?.tip === 'Выплата' ? '-' : '+'}{formatAmount((op?.summa))} {op?.currency}</span>
               </>
             )}
             {(op?.tip === 'Начисление') && (
