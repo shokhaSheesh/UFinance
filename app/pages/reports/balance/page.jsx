@@ -56,7 +56,10 @@ export default observer(function BalancePage() {
 
   useEffect(() => {
     if (!isInitialLoad || !data) return
-    const hasData = (data.data && data.data.length > 0)
+    const hasData =
+      (data.assets && data.assets.length > 0) ||
+      (data.liabilities && data.liabilities.length > 0) ||
+      (data.equity && data.equity.length > 0)
 
     if (!hasData) return
 
@@ -74,7 +77,9 @@ export default observer(function BalancePage() {
       })
     }
 
-    addFirstLevel(data.data || [])
+    addFirstLevel(data.assets || [])
+    addFirstLevel(data.liabilities || [])
+    addFirstLevel(data.equity || [])
 
     setExpandedRows(firstLevelIds)
     setIsInitialLoad(false)
@@ -182,7 +187,9 @@ export default observer(function BalancePage() {
                 </tr>
               </thead>
               <tbody className={styles.tbody}>
-                  {data?.data?.map(row => renderRow(row))}
+                  {data?.assets?.map(row => renderRow(row))}
+                  {data?.liabilities?.map(row => renderRow(row))}
+                  {data?.equity?.map(row => renderRow(row))}
               </tbody>
             </table>
           )}
