@@ -5,7 +5,8 @@ import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -13,8 +14,9 @@ import { cashFlowStore } from '../../../../components/reports/cashflow/cashflow.
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma, isUUID } from '../../../../utils/helpers'
+import { formatNumber, formatTotalSumma, handleDownload, isUUID } from '../../../../utils/helpers'
 
 const groupingOptions = [
   { value: 'monthly', label: 'По месяцам' },
@@ -162,6 +164,20 @@ export default observer(function CashFlowReportPage() {
     refetchOnMount: true,          // page ga qaytganda ON ✅
   })
 
+  const { mutate: exportCashFlow, isPending: isCashFlowLoading } = useMutation({
+    mutationKey: ['export_cash_flow'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_cash_flow', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      console.log('uploadData', uploadData)
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'cash_flow.xlsx')
+      }
+    }
+  })
+
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
   const months = useMemo(() => legend.map(l => l.key), [legend])
@@ -169,16 +185,20 @@ export default observer(function CashFlowReportPage() {
   const data = useMemo(() => {
     if (!cashFlowDataList?.rows) return []
 
-    // Recursive — barcha leaf id larni yig'adi (details bo'lmagan nodelar)
-    const collectLeafIds = (node) => {
+    // Recursive — node ning O'ZINI + barcha descendantlarini yig'adi
+    // (faqat leaf emas, intermediate parentlar ham)
+    const collectAllIds = (node) => {
+      const ownId = node?.id ? [node.id?.slice(0, 36)] : []
       const hasChildren = node?.details && node.details.length > 0
+
       if (!hasChildren) {
-        return node?.id ? [node.id?.slice(0, 36)] : []
+        return ownId
       }
-      return node.details.flatMap(child => collectLeafIds(child))
+
+      const childIds = node.details.flatMap(child => collectAllIds(child))
+      return [...ownId, ...childIds]
     }
 
-    // Top-level (root) item nomi bo'yicha tip
     const getRootTip = (rootName) => {
       if (
         rootName === 'Операционный поток' ||
@@ -196,7 +216,6 @@ export default observer(function CashFlowReportPage() {
       return []
     }
 
-    // Subtree context
     const getSubtreeTip = (name) => {
       if (name === 'Поступления') return ['Поступление']
       if (name === 'Выплаты') return ['Выплата']
@@ -230,14 +249,12 @@ export default observer(function CashFlowReportPage() {
       const rowUniquePath = parentPath ? `${parentPath}-${row.id}` : String(row.id)
       const currentRootName = depth === 0 ? row.name : rootName
 
-      // Subtree tip
       let currentSubtreeTip = inheritedSubtreeTip
       const subtreeTipFromName = getSubtreeTip(row.name)
       if (depth >= 1 && subtreeTipFromName) {
         currentSubtreeTip = subtreeTipFromName
       }
 
-      // Tip
       let tip
       if (depth === 0) {
         tip = getRootTip(row.name)
@@ -247,16 +264,19 @@ export default observer(function CashFlowReportPage() {
         tip = getRootTip(currentRootName)
       }
 
-      // isClickable — Остатки на конец периода va barcha bolalari false
       let isClickable = inheritedClickable
       if (depth === 0) {
-        // Top-level: agar Остатки bo'lsa — false, aks holda true
         isClickable = row.name !== 'Остатки на конец периода' && row.id !== 'ending-balance'
       }
-      // Agar parent isClickable=false bo'lsa, bola ham false (meros)
-      // Agar parent isClickable=true bo'lsa, bola ham true
 
-      const ids = collectLeafIds(row)?.map(id => id?.replace(/':+/g, ''))?.filter(id => isUUID(id))
+      // Barcha descendant + o'zining id si — duplikatlarsiz
+      const ids = [
+        ...new Set(
+          collectAllIds(row)
+            ?.map(id => id?.replace(/':+/g, ''))
+            ?.filter(id => isUUID(id))
+        ),
+      ]
 
       const node = {
         id: row.id,
@@ -283,7 +303,7 @@ export default observer(function CashFlowReportPage() {
             rowUniquePath,
             currentSubtreeTip,
             currentRootName,
-            isClickable  // bolalari ota'ning isClickable ni meros oladi
+            isClickable
           )
         )
       }
@@ -293,7 +313,7 @@ export default observer(function CashFlowReportPage() {
 
     const transformed = cashFlowDataList.rows.map(row => transformRow(row, 0))
 
-    // "Общий денежный поток" — leaf, qo'lda aggregate
+    // "Общий денежный поток" — leaf, qo'lda aggregate (barcha oldingi rootlar dan)
     const overallIndex = transformed.findIndex(
       r => r.name === 'Общий денежный поток' || r.id === 'overall-cash-flow'
     )
@@ -302,7 +322,7 @@ export default observer(function CashFlowReportPage() {
       for (let i = 0; i < overallIndex; i++) {
         aggregatedIds.push(...transformed[i].filterdata.ids)
       }
-      transformed[overallIndex].filterdata.ids = aggregatedIds
+      transformed[overallIndex].filterdata.ids = [...new Set(aggregatedIds)]
     }
 
     return transformed
@@ -326,9 +346,14 @@ export default observer(function CashFlowReportPage() {
     setExpandedMap(prev => ({ ...prev, [uniquePath]: !prev[uniquePath] }))
   }
 
+  const handleExportCashFlow = () => {
+    exportCashFlow()
+  }
+
   const handleCellClick = (row, monthObj) => {
 
     const currencyId = appStore.currencies?.find(c => c.kod === currencyCode)
+
 
     const requestData = {
       tip: row.filterdata?.tip,
@@ -408,13 +433,7 @@ export default observer(function CashFlowReportPage() {
                 className="bg-white w-44"
                 dropdownClassName="bg-white"
               />
-              <button className="flex items-center justify-center p-2 rounded-md hover:bg-neutral-100 text-neutral-600 transition-colors">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="3" r="1" fill="currentColor" />
-                  <circle cx="8" cy="8" r="1" fill="currentColor" />
-                  <circle cx="8" cy="13" r="1" fill="currentColor" />
-                </svg>
-              </button>
+              <button onClick={handleExportCashFlow} type='button' className="primary-btn">Скачать в Excel {isCashFlowLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
 

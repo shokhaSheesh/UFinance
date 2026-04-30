@@ -2,9 +2,9 @@
 
 import { cn } from '@/app/lib/utils'
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
-import { Download, Search } from 'lucide-react'
+import { Download, Loader2, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -21,6 +21,8 @@ import SingleSelect from '../../../components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { useUcodeRequestInfinite, useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import useMounted from '../../../hooks/useMounted'
+import { apiClient } from '../../../lib/api/ucode/base'
+import { showSuccessNotification } from '../../../lib/utils/notifications'
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatDateFormat } from '../../../utils/formatDate'
@@ -88,6 +90,20 @@ export default observer(function DealsPage() {
     method: 'get_sales_list_simple',
     data: dealsFilters,
     querySetting: { staleTime: 0 },
+  })
+
+
+  const { mutate: exportDeals, isPending: isDealsExportLoading } = useMutation({
+    mutationKey: ['export_deals'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_deals', data: dealsFilters }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'balance_report.xlsx')
+      }
+    }
   })
 
   const debouncedSetSearch = useMemo(
@@ -178,7 +194,7 @@ export default observer(function DealsPage() {
 
   const handleEditClick = (deal, e) => {
     e.stopPropagation()
-    setDealToEdit(deal) 
+    setDealToEdit(deal)
     if (deal?.contract_file) {
       setShowCreateStudentModal(true)
       return
@@ -253,6 +269,9 @@ export default observer(function DealsPage() {
                 onChange={(e) => handleSearch(e.target.value)}
                 leftIcon={<Search size={18} />}
               />
+            </div>
+            <div>
+              <button onClick={exportDeals} type='button' className="primary-btn">Скачать в Excel {isDealsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
         </header>

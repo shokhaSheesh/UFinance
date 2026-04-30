@@ -528,11 +528,14 @@ export default observer(function BranchesPage() {
             </thead>
             <tbody>
                 {branches?.map(branch => (
-                <tr key={branch?.guid} onClick={() => router.push(`/pages/settings/branches/${branch?.guid}`)} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-1.5 cursor-pointer text-xs text-[#344054] border-b border-gray-200 whitespace-nowrap">
+                  <tr key={branch?.guid} className="hover:bg-gray-50 transition-colors">
+                    <td onClick={(event) => {
+                      event.stopPropagation()
+                      router.push(`/pages/settings/branches/${branch?.guid}`)
+                    }} className="px-4 py-1.5 border-b border-gray-200 cursor-pointer text-xs text-[#344054] whitespace-nowrap">
                     {branch?.name ?? 'Администратор'}
                   </td>
-                  <td className="px-4 py-1.5 text-xs border-b border-gray-200">
+                    <td className="p-1 py-1.5 text-xs border border-gray-200">
                     <RowDropdown
                       onEdit={() => {
                         setEditingBranch({

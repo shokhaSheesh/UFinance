@@ -720,7 +720,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
               <>
                 {/* Scrollable Form */}
                 <div className="flex-1 overflow-auto p-4">
-                  <form id="student-form" onSubmit={handleSubmit(isEditing ? handleFormUpdateSubmit : handleFormSubmit)} className="grid grid-cols-3 gap-3">
+                  <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
                     <fieldset className="contents">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-medium text-gray-700">Номер договора *</label>

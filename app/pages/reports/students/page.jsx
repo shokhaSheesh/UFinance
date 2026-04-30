@@ -1,5 +1,6 @@
 'use client'
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
 import { observer } from "mobx-react-lite"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
@@ -10,10 +11,11 @@ import ScreenLoader from "../../../../components/shared/ScreenLoader"
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
 import useMounted from "../../../../hooks/useMounted"
 import { apiClient } from "../../../../lib/api/ucode/base"
+import { showSuccessNotification } from "../../../../lib/utils/notifications"
 import { authStore } from "../../../../store/auth.store"
 import { student } from "../../../../store/student.store"
 import { formatStudentTableDate } from "../../../../utils/formatDate"
-import { formatNumber } from "../../../../utils/helpers"
+import { formatNumber, handleDownload } from "../../../../utils/helpers"
 
 
 const LIMIT = 50
@@ -65,6 +67,20 @@ const Students = observer(() => {
     initialPageParam: 1,
     staleTime: 0,
     cacheTime: 0
+  })
+
+
+  const { mutate: exportStudents, isPending: isStudentsExportLoading } = useMutation({
+    mutationKey: ['export_students'],
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_students', data: filterData }),
+    onSuccess: (uploadData) => {
+      showSuccessNotification('Файл успешно загружен.')
+      const fileLink = uploadData?.data?.export?.file_url
+      if (fileLink) {
+        const contractFileLink = `https://cdn.u-code.io/${fileLink}`
+        handleDownload(contractFileLink, 'balance_report.xlsx')
+      }
+    }
   })
 
   // Infinite scroll detection on main container
@@ -211,6 +227,7 @@ const Students = observer(() => {
                 className="bg-white w-44"
               />
             )}
+            <button onClick={exportStudents} type='button' className="primary-btn">Скачать в Excel {isStudentsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
           </div>
         </div>
 

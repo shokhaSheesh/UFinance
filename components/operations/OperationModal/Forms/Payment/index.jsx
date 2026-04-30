@@ -528,7 +528,7 @@ const PaymentForm = observer(({
                       rows={rows}
                       modalType={'payment'}
                       dispatch={dispatch}
-                      salesDeal={watchSalesDeal}
+                      salesDeal={false}
                       confirmAccural={watchConfirmAccrual}
                       confirmPayment={watchConfirmPayment}
                       selectedSplits={selectedSplits}
@@ -548,7 +548,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4")}>
+              <div className={cn("flex items-center gap-4 ")}>
                 <label className="w-[150px] text-xss!">Дата начисления</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
@@ -556,8 +556,7 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <FormDatepicker
-                        value={watchSalesDeal ? watchPaymentDate : field.value}
-                        disabled={!!watchSalesDeal}
+                        value={field.value}
                         onChange={(val) => {
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
@@ -574,10 +573,10 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={field.value} 
+                        checked={field.value}
                         label="Подтвердить начисление"
                         onChange={(e) => {
-                          if (isFuture(watchAccrualDate)) return
+                          if ((isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />

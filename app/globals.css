@@ -288,7 +288,7 @@
 }
 
 .primary-btn {
-	@apply text-sm border-none outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-primary px-3 py-1.5 text-white hover:bg-primary-dark  rounded-sm;
+	@apply text-sm border-none flex whitespace-nowrap gap-1 items-center outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-primary px-3 py-1.5 text-white hover:bg-primary-dark  rounded-sm;
 }
 
 .secondary-btn {

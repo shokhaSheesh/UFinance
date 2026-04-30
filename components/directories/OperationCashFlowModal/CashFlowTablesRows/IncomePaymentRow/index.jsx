@@ -133,13 +133,12 @@ const IncomePaymentTableRow = observer(({
             {(op?.tip === 'Начисление') && (
               <>
                 <span className={cn('text-neutral-700')}>{op?.debit} {formatNumber((op?.summa))} {op?.currency}</span>
-                <span className={cn('text-neutral-700')}>{op?.kredit} {formatNumber((op?.summa))} {op?.currency}</span>
+
               </>
             )}
             {(op?.tip === 'Отгрузка') && (
               <>
                 <span className={cn('text-neutral-700')}>{op?.debit} {formatNumber((op?.summa))} {op?.currency}</span>
-                <span className={cn('text-neutral-700')}>{op?.kredit} {formatNumber((op?.summa))} {op?.currency}</span>
               </>
             )}
           </div>
