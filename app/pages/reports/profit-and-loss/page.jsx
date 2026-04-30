@@ -86,7 +86,7 @@ const ProfitAndLossPage = observer(() => {
     mutationFn: () => apiClient.invokeFunction({ method: 'export_profit_and_loss', data: filterData }),
     onSuccess: (uploadData) => {
       showSuccessNotification('Файл успешно загружен.')
-      const fileLink = uploadData?.data?.export?.file_url
+      const fileLink = uploadData?.data?.link
       console.log('uploadData', uploadData)
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`

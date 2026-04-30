@@ -123,7 +123,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
         nazvanie: data.nazvanie.trim(),
         tip: data.tip,
         nachalьnyy_ostatok: data.nachalьnyy_ostatok ? formatDecimal(StringtoNumber(data.nachalьnyy_ostatok)) : null,
-        data_nachalьnogo_ostatka: data.data_sozdaniya || null,
+        data_sozdaniya: data.data_sozdaniya || null,
         currenies_id: data.currenies_id || null,
         komentariy: data.komentariy || null,
         legal_entity_id: data.legal_entity_id || null,
@@ -133,7 +133,6 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
         nomer_scheta: data.rasch_schet,
         kor_schet: data.korr_schet || null,
         account_groups_id: data.account_group_id || null,
-        ...(!isEdit && { data_sozdaniya: new Date().toISOString() })
       }
 
       if (isEdit && account && account.guid) {

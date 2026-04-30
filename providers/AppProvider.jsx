@@ -5,8 +5,8 @@ import { useUcodeRequestQuery } from "../hooks/useDashboard"
 import { appStore } from "../store/app.store"
 
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { authStore } from "../store/auth.store"
 import { initAnalytics } from "@/lib/firebase"
+import { authStore } from "../store/auth.store"
 
 const AppProvider = ({ children }) => {
   const { data } = useUcodeRequestQuery({
@@ -32,6 +32,8 @@ const AppProvider = ({ children }) => {
     if (currencies) {
       appStore.setCurrencies(currencies)
       const currency = currencies.find(c => data?.default_currency_id ? c.guid === data?.default_currency_id : c.kod === 'UZS')
+      appStore.setIsAccrualDate(data?.is_accural_date)
+      appStore.setIsPayment(data?.is_payment)
       if (currency) {
         appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency.kod })
       }

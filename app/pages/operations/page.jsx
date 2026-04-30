@@ -176,7 +176,7 @@ const OperationsPage = observer(() => {
 		mutationFn: () => apiClient.invokeFunction({ method: 'export_operations', data: requestOperationFilters }),
 		onSuccess: (uploadData) => {
 			showSuccessNotification('Файл успешно загружен.')
-			const fileLink = uploadData?.data?.export?.file_url
+			const fileLink = uploadData?.data?.link
 
 			if (fileLink) {
 				const contractFileLink = `https://cdn.u-code.io/${fileLink}`
@@ -486,14 +486,29 @@ const OperationsPage = observer(() => {
 
 				const fileUrl = `https://cdn.u-code.io/${fileLink}`
 
-				await apiClient.invokeFunction({
+				const importResult = await apiClient.invokeFunction({
 					method: 'import_operations',
 					data: { url: fileUrl },
 				})
 
-				showSuccessNotification('Операции успешно импортированы.')
-				queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-				queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+				const errors = importResult?.data?.errors || []
+				const failedExport = importResult?.data?.failed_rows_export
+
+				if (errors.length > 0) {
+					// // Show warning with error details
+					const errorMessage = errors.join('\n')
+					showErrorNotification(`Импорт завершен с ошибками:\n${errorMessage}`)
+
+					// // Auto-download failed rows file if available
+					if (failedExport?.file_url) {
+						const failedFileUrl = `https://cdn.u-code.io/${failedExport.file_url}`
+						handleDownload(failedFileUrl, failedExport.file_name || 'import_failed.xlsx')
+					}
+				} else {
+					showSuccessNotification('Операции успешно импортированы.')
+				}
+
+				// queryClient.invalidateQueries({ queryKey: ['find_operations'] })
 			} catch (error) {
 				console.error('Error importing operations:', error)
 				showErrorNotification('Не удалось импортировать операции.')

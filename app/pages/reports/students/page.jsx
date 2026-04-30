@@ -75,7 +75,7 @@ const Students = observer(() => {
     mutationFn: () => apiClient.invokeFunction({ method: 'export_students', data: filterData }),
     onSuccess: (uploadData) => {
       showSuccessNotification('Файл успешно загружен.')
-      const fileLink = uploadData?.data?.export?.file_url
+      const fileLink = uploadData?.data?.link
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`
         handleDownload(contractFileLink, 'balance_report.xlsx')

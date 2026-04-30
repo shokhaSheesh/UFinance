@@ -36,7 +36,6 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
     return null
   }
 
-  console.log(operation?.summa, operation?.createdBy, operation?.updatedBy)
 
   return (
     <DropdownMenu >
@@ -80,9 +79,9 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
           </DropdownMenuItem>
         }
         <div className='border-t border-neutral-200 pt-2 text-[9px] text-neutral-400'>
-          <p className="line-clamp-1">{operation?.createdAt && moment(operation?.createdAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">Создана {operation?.createdAt && moment(operation?.createdAt).format('MMM, DD YYYY HH:mm')}</p>
           <p className="line-clamp-1">{operation?.createdBy || ''}</p>
-          <p className="line-clamp-1">{operation?.updatedAt && moment(operation?.updatedAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">Изменена {operation?.updatedAt && moment(operation?.updatedAt).format('MMM, DD YYYY HH:mm')}</p>
           <p className="line-clamp-1">{operation?.updatedBy || ''}</p>
         </div>
       </DropdownMenuContent>
