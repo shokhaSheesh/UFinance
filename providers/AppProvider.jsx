@@ -6,6 +6,7 @@ import { appStore } from "../store/app.store"
 
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { authStore } from "../store/auth.store"
+import { initAnalytics } from "@/lib/firebase"
 
 const AppProvider = ({ children }) => {
   const { data } = useUcodeRequestQuery({
@@ -22,6 +23,10 @@ const AppProvider = ({ children }) => {
     },
     skip: !authStore.isAuthenticated
   })
+
+  useEffect(() => {
+    initAnalytics()
+  }, [])
 
   useEffect(() => {
     if (currencies) {
