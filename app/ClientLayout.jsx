@@ -10,7 +10,7 @@ import { useEffect, useState, useSyncExternalStore } from "react"
 import { Toaster } from "sonner"
 import AppProvider from "../providers/AppProvider"
 
-const subscribe = () => () => {}
+const subscribe = () => () => { }
 const useIsHydrated = () =>
   useSyncExternalStore(subscribe, () => true, () => false)
 
@@ -50,8 +50,8 @@ export default function ClientLayout({ children }) {
     setTimeout(() => setPendingNavPath(null), 0)
   }, [pathname])
 
-  const isNavigating = pendingNavPath !== null && !pendingNavPath.startsWith(pathname)
-  const showLoader = isNavigating
+  // const isNavigating = pendingNavPath !== null && !pendingNavPath.startsWith(pathname)
+  // const showLoader = isNavigating
 
   return (
     <NuqsAdapter>
