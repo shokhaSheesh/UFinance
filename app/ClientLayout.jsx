@@ -17,7 +17,6 @@ const useIsHydrated = () =>
 export default function ClientLayout({ children }) {
   const pathname = usePathname()
   const isLoginPage = pathname === '/pages/auth'
-  const isHydrated = useIsHydrated()
 
   const [pendingNavPath, setPendingNavPath] = useState(null)
 
