@@ -7,7 +7,6 @@ import CreateShipment from '@/components/deals/details/CreatingShipment';
 import DealStatus from '@/components/deals/details/Status';
 import OperationModal from '@/components/operations/OperationModal/OperationModal';
 import Input from '@/components/shared/Input';
-import Loader from '@/components/shared/Loader';
 import {
   Popover,
   PopoverContent,
@@ -31,6 +30,7 @@ import ProductServiceTable from '../../../../components/deals/details/ProductSer
 import ShipmenTable from '../../../../components/deals/details/ShipmenTable';
 import CustomProgress from '../../../../components/shared/Progress';
 import CustomRadio from '../../../../components/shared/Radio';
+import ScreenLoader from '../../../../components/shared/ScreenLoader';
 import { GlobalCurrency } from '../../../../constants/globalCurrency';
 import { useUcodeRequestMutation } from '../../../../hooks/useDashboard';
 import { sealDeal } from '../../../../store/saleDeal.store';
@@ -131,13 +131,7 @@ export default observer(function DealDetailPage() {
   const [isCopying, setIsCopying] = useState(false)
 
 
-  if (isLoading) {
-    return (
-      <div className="w-full h-dvh flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+
 
   const dealAmount = Number(summeryCards?.total_products_summa) || 0;
   const received = Number(summeryCards?.total_receipts_summa) || 0;
@@ -180,6 +174,7 @@ export default observer(function DealDetailPage() {
 
   return (
     <div className="flex overflow-hidden overflow-y-auto  flex-col space-y-4 fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+      {isLoading && <ScreenLoader />}
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
         <button onClick={() => router.push('/pages/deals')} className={styles.breadcrumbLink}>

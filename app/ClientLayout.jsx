@@ -1,7 +1,6 @@
 "use client"
 
 import { Header } from "@/components/Header/Header"
-import LoadingScreen from "@/components/LoadingScreen"
 import { Sidebar } from "@/components/Sidebar/Sidebar"
 import { queryClient } from '@/lib/queryClient'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -48,16 +47,19 @@ export default function ClientLayout({ children }) {
     return () => document.removeEventListener('click', onClick, true)
   }, [])
 
-  const isNavigating =
-    pendingNavPath !== null && !pendingNavPath.startsWith(pathname)
-  const showLoader = !isHydrated || isNavigating
+  useEffect(() => {
+    setTimeout(() => setPendingNavPath(null), 0)
+  }, [pathname])
+
+  const isNavigating = pendingNavPath !== null && !pendingNavPath.startsWith(pathname)
+  const showLoader = isNavigating
 
   return (
     <NuqsAdapter>
       <QueryClientProvider client={queryClient}>
         <AppProvider>
           <Toaster position="top-right" />
-          {showLoader && <LoadingScreen />}
+          {/* {showLoader && <LoadingScreen />} */}
           <div className="flex max-h-full overflow-hidden max-w-full">
             {!isLoginPage && <Sidebar />}
             <div className="flex flex-col flex-1 max-h-screen overflow-hidden">
