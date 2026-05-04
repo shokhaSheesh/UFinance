@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react'
+import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
-import { keepPreviousData } from '@tanstack/react-query'
 
-const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Выберите группу", className, dropdownClassName, multi = false, hasError }) => {
+const SelectMyAccoutGroup = ({ value, onChange, placeholder, className, dropdownClassName, multi = false, hasError }) => {
+  const t = useTranslations('Common')
 
   const { data: groupsData, isLoading } = useUcodeRequestQuery({
     method: "get_account_groups",
@@ -22,12 +24,12 @@ const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Выберите 
   const mappedData = useMemo(() => {
     return (groupsData || []).map(item => ({
       value: item.guid,
-      label: item.name || item.nazvanie || 'Без названия'
+      label: item.name || item.nazvanie || t('noName')
     }))
-  }, [groupsData])
+  }, [groupsData, t])
 
   if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">Загрузка...</div>
+    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">{t('loading')}</div>
   }
 
   const Component = multi ? MultiSelect : SingleSelect;
@@ -37,7 +39,7 @@ const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Выберите 
       data={mappedData}
       value={value}
       onChange={onChange}
-      placeholder={placeholder}
+      placeholder={placeholder || t('placeholders.selectGroup')}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

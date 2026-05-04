@@ -1,24 +1,25 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/app/lib/utils'
-import { useQueryClient } from '@tanstack/react-query'
+import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
+import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
+import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { useCreateCounterparty, useCreateCounterpartiesGroup, useCounterpartiesGroupsPlanFact, useDeleteCounterpartiesGroups, useUpdateCounterparty } from '@/hooks/useDashboard'
-import { GroupedSelect } from '@/components/common/GroupedSelect/GroupedSelect'
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
-import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
-import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
-import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
-import styles from './CreateCounterpartyModal.module.scss'
+import { useCreateCounterpartiesGroup, useCreateCounterparty, useDeleteCounterpartiesGroups, useUpdateCounterparty } from '@/hooks/useDashboard'
+import { useQueryClient } from '@tanstack/react-query'
 import { PlusCircle, Trash2 } from 'lucide-react'
-import CustomModal from '../../shared/CustomModal'
+import { useTranslations } from 'next-intl'
+import { useMemo, useState } from 'react'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import SelectCounterPartyGroup from '../../ReadyComponents/SelectCounterPartyGroup'
+import CustomDialog from '../../shared/CustomDialog'
+import styles from './CreateCounterpartyModal.module.scss'
 
 
 export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGroupId = null, counterpartyData = null, onSuccess = null }) {
+  const t = useTranslations('Directories.counterparty')
   const queryClient = useQueryClient()
   const createMutation = useCreateCounterparty()
   const updateMutation = useUpdateCounterparty()
@@ -111,22 +112,6 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
 
   const isSubmitting = isSubmittingCounterparty || isSubmittingGroup
 
-  // Get counterparties groups for dropdown
-  const { data: counterpartiesGroupsData } = useCounterpartiesGroupsPlanFact({ page: 1, limit: 100 })
-  const counterpartiesGroups = useMemo(() => {
-    if (!counterpartiesGroupsData?.data?.data) return []
-    return counterpartiesGroupsData?.data?.data
-  }, [counterpartiesGroupsData])
-
-  // Transform counterparties groups for GroupedSelect
-  const counterpartiesGroupsOptions = useMemo(() => {
-    return counterpartiesGroups.map(item => ({
-      guid: item.guid,
-      label: item.nazvanie_gruppy || '',
-      rawData: item // Add full group data for edit/delete
-    }))
-  }, [counterpartiesGroups])
-
 
   const handleClose = () => {
     setIsClosing(true)
@@ -152,7 +137,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
       handleClose()
     } catch (error) {
       console.error('Error creating counterparties group:', error)
-      setErrorGroup('root', { message: error.message || 'Не удалось создать группу контрагентов' })
+      setErrorGroup('root', { message: error.message || t('errors.createGroupFailed') })
     }
   }
 
@@ -178,7 +163,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
       const submitData = {
         ...(isEdit && { guid }),
         nazvanie: data.nazvanie.trim(),
-        polnoe_imya: data.polnoe_imya || null, 
+        polnoe_imya: data.polnoe_imya || null,
         inn: data.inn || null,
         kpp: validKpp,
         account_number: validAccount,
@@ -203,24 +188,23 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
       queryClient.invalidateQueries({ queryKey: ['counterpartiesGroupsPlanFact'] })
       if (onSuccess) onSuccess()
       handleClose()
-      console.log('--- Submission Flow Completed ---', data)
     } catch (error) {
       console.error('Error creating counterparty:', error)
-      setError('root', { message: error.message || 'Не удалось создать контрагента' })
+      setError('root', { message: error.message || t('errors.createFailed') })
     }
   }
 
 
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} className={'p-0 w-[640px]'}>
-      <>
+    <CustomDialog contentClass={'p-0'} open={isOpen} onClose={onClose} >
+      <div className='w-[640px]'>
         <div onClick={handleClose} />
         <div>
           <div className={styles.header}>
             <h2 className={styles.title}>
               {activeTab === 'group'
-                ? 'Создать группу'
-                : (counterpartyData ? 'Редактировать контрагента' : 'Создать контрагента')}
+                ? t('createGroupTitle')
+                : (counterpartyData ? t('editTitle') : t('createTitle'))}
             </h2>
           </div>
 
@@ -236,7 +220,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                   activeTab === 'counterparty' ? styles.active : styles.inactive
                 )}
               >
-                Создать контрагента
+                {t('tabCounterparty')}
               </button>
               <button
                 onClick={() => setActiveTab('group')}
@@ -247,7 +231,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                   activeTab === 'group' ? styles.active : styles.inactive
                 )}
               >
-                Создать группу
+                {t('tabGroup')}
               </button>
             </div>
 
@@ -262,9 +246,9 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                   <div className={styles.inputContainer}>
                     <Input
                       type="text"
-                      placeholder="Например, Васильев"
+                      placeholder={t('placeholders.name')}
                       className={cn(styles.input, errors.nazvanie && styles.inputError)}
-                      {...register('nazvanie', { required: 'Укажите название' })}
+                      {...register('nazvanie', { required: t('errors.nameRequired') })}
                     />
                     {errors.nazvanie && (
                       <div className={styles.errorMessage}>{errors.nazvanie.message}</div>
@@ -273,11 +257,11 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 </div>
 
                 <div className={styles.formRow}>
-                  <label className={styles.label}>Полное название</label>
+                  <label className={styles.label}>{t('fields.fullName')}</label>
                   <div className={styles.inputContainer}>
                     <Input
                       type="text"
-                      placeholder="Например, ООО «Васильев и партнеры»"
+                      placeholder={t('placeholders.fullName')}
                       className={styles.input}
                       {...register('polnoe_imya')}
                     />
@@ -285,24 +269,17 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 </div>
 
                 <div className={styles.formRow}>
-                  <label className={styles.label}>Группа контрагентов</label>
+                  <label className={styles.label}>{t('fields.group')}</label>
                   <div className={styles.inputContainer}>
                     <Controller
                       name="counterparties_group_id"
                       control={control}
                       render={({ field }) => (
-                        <GroupedSelect
-                          data={counterpartiesGroupsOptions}
+                        <SelectCounterPartyGroup
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Выберите группу контрагентов"
-                          groupBy={false}
-                          labelKey="label"
-                          valueKey="guid"
+                          placeholder={t('placeholders.selectGroup')}
                           className="flex-1"
-                          showGroupActions={false}
-                          onEditGroup={(item) => setEditingGroup(item.rawData)}
-                          onDeleteGroup={(item) => setDeletingGroup(item.rawData)}
                         />
                       )}
                     />
@@ -312,21 +289,21 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 <div className={styles.formRow}>
                   <label className={styles.label}></label>
                   <div onClick={() => setDetails(!details)} className={styles.requisites}>
-                    <p>Реквизиты</p>
+                    <p>{t('requisites')}</p>
                   </div>
                 </div>
 
                 <div className={cn(styles.requisitesContainer, details && styles.active)}>
                   <div className={styles.formRow}>
                     <label className={styles.label}>
-                      ИНН <span className={styles.infoIcon}>?</span>
+                      {t('fields.inn')} <span className={styles.infoIcon}>?</span>
                     </label>
                     <div className={styles.inputContainer}>
                       <Input
                         type="text"
                         inputMode="numeric"
                         autoComplete="off"
-                        placeholder="Укажите ИНН"
+                        placeholder={t('placeholders.inn')}
                         className={cn(styles.input, styles.requisitesInput)}
                         {...register('inn')}
                       />
@@ -334,7 +311,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                   </div>
 
                   <div className={styles.formRow}>
-                    <label className={styles.label}>КПП</label>
+                    <label className={styles.label}>{t('fields.kpp')}</label>
                     <div className={styles.multiInputContainer}>
                       {kppFields.map((item, index) => (
                         <div key={item.id} className="flex gap-2 items-center">
@@ -343,7 +320,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                             type="text"
                             inputMode="numeric"
                             autoComplete="off"
-                            placeholder="Укажите КПП"
+                            placeholder={t('placeholders.kpp')}
                             className={cn(styles.input, styles.requisitesInput)}
                             {...register(`kpp.${index}.value`)}
                           />
@@ -371,7 +348,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                   </div>
 
                   <div className={styles.formRow}>
-                    <label className={styles.label}>Номер счета</label>
+                    <label className={styles.label}>{t('fields.accountNumber')}</label>
                     <div className={styles.multiInputContainer}>
                       {accountFields.map((item, index) => (
                         <div key={item.id} className="flex gap-2 items-center">
@@ -379,7 +356,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                             key={item.id}
                             type="text"
                             autoComplete="off"
-                            placeholder="Укажите номер счета"
+                            placeholder={t('placeholders.account')}
                             className={cn(styles.input, styles.requisitesInput)}
                             {...register(`account_number.${index}.value`)}
                           />
@@ -416,7 +393,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                       <OperationCheckbox
                         checked={field.value}
                         onChange={field.onChange}
-                        label="Применять статьи по умолчанию "
+                        label={t('fields.defaultArticles')}
                       />
                     )}
                   />
@@ -426,7 +403,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 {primenyat_stat_i_po_umolchaniyu && (
                   <>
                     <div className={styles.formRow}>
-                      <label className={styles.label}>Статья для поступлений</label>
+                      <label className={styles.label}>{t('fields.articleIn')}</label>
                       <div className={styles.inputContainer}>
                         <Controller
                           name="chart_of_accounts_id"
@@ -445,7 +422,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                     </div>
 
                     <div className={styles.formRow}>
-                      <label className={styles.label}>Статья для выплат</label>
+                      <label className={styles.label}>{t('fields.articleOut')}</label>
                       <div className={styles.inputContainer}>
                         <Controller
                           name="chart_of_accounts_id_2"
@@ -466,10 +443,10 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 )}
 
                 <div className={styles.formRow}>
-                  <label className={styles.label}>Комментарий</label>
+                  <label className={styles.label}>{t('fields.comment')}</label>
                   <div className={styles.inputContainer}>
                     <TextArea
-                      placeholder="Пояснение к контрагенту"
+                      placeholder={t('placeholders.comment')}
                       className={styles.textarea}
                       rows={4}
                       hasError={!!errors.komentariy}
@@ -486,14 +463,14 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
               <form id="group-form" className={styles.form} onSubmit={handleSubmitGroup(onSubmitGroup)}>
                 <div className={styles.formRow}>
                   <label className={styles.label}>
-                    Название <span className={styles.required}>*</span>
+                      {t('fields.groupName')} <span className={styles.required}>*</span>
                   </label>
                   <div className={styles.inputContainer}>
                     <Input
                       type="text"
-                      placeholder="Например, мои поставщики"
+                        placeholder={t('placeholders.groupName')}
                       className={cn(styles.input, groupErrors.nazvanie_gruppy && styles.inputError)}
-                      {...registerGroup('nazvanie_gruppy', { required: 'Укажите название группы' })}
+                        {...registerGroup('nazvanie_gruppy', { required: t('errors.groupNameRequired') })}
                     />
                     {groupErrors.nazvanie_gruppy && (
                       <div className={styles.errorMessage}>{groupErrors.nazvanie_gruppy.message}</div>
@@ -502,10 +479,10 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
                 </div>
 
                 <div className={styles.formRow}>
-                  <label className={styles.label}>Комментарий</label>
+                    <label className={styles.label}>{t('fields.groupComment')}</label>
                   <div className={styles.inputContainer}>
                     <TextArea
-                      placeholder="Пояснение к группе контрагентов"
+                        placeholder={t('placeholders.groupComment')}
                       className={styles.textarea}
                       rows={4}
                       hasError={!!groupErrors.opisanie_gruppy}
@@ -521,14 +498,14 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
             )}
           </div>
 
-          <div className={styles.footer}>
+          <div className="border-t flex items-center justify-end p-2">
             <button
               type="button"
               onClick={handleClose}
               className="secondary-btn"
               disabled={isSubmitting}
             >
-              Отменить
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -537,8 +514,8 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
               disabled={isSubmitting}
             >
               {isSubmitting
-                ? (activeTab === 'counterparty' && counterpartyData ? 'Сохранение...' : 'Создание...')
-                : (activeTab === 'counterparty' && counterpartyData ? 'Сохранить' : 'Создать')}
+                ? (activeTab === 'counterparty' && counterpartyData ? t('saving') : t('creating'))
+                : (activeTab === 'counterparty' && counterpartyData ? t('save') : t('create'))}
             </button>
           </div>
         </div>
@@ -572,7 +549,7 @@ export default function CreateCounterpartyModal({ isOpen, onClose, preselectedGr
           onCancel={() => setDeletingGroup(null)}
           isDeleting={deleteGroupMutation.isPending}
         />
-      </>
-    </CustomModal>
+      </div>
+    </CustomDialog>
   )
 }

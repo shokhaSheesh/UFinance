@@ -1,17 +1,16 @@
 import { cn } from '@/app/lib/utils'
-import { DatePicker } from '@/components/common/DatePicker/DatePicker'
 import { keepPreviousData } from '@tanstack/react-query'
 import { TrashIcon, X } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
-import { donoSchool, GlobalCurrency } from '../../../../constants/globalCurrency'
+import { GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 import { useOperationComments } from '../../../../hooks/useOperationComments'
 import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
 import { queryClient } from '../../../../lib/queryClient'
 import { appStore } from '../../../../store/app.store'
-import { authStore } from '../../../../store/auth.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../utils/helpers'
 import SentMessages from '../../../operations/OperationModal/SentMessages'
 import MyAccountCurrensies from '../../../ReadyComponents/MyAccountCurrensies'
@@ -20,6 +19,7 @@ import SelectProductService from '../../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
+import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
 import Loader from '../../../shared/Loader'
 import styles from './style.module.scss'
 
@@ -187,7 +187,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       return
     }
 
-    const productCurrency = donoSchool === authStore.userData?.company_id ? "31b10867-8169-464e-8d3f-e3bec976fdbb" : currency
+    const productCurrency = appStore.isDonoSchool ? "31b10867-8169-464e-8d3f-e3bec976fdbb" : currency
 
     try {
       const payload = {
@@ -198,8 +198,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
         status_nachislenie: ["confirmed"],
         type: ["Отгрузка"],
         summa: totalSum,
-        data_nachislenie: shipmentDate,
-        data_oplaty: shipmentDate,
+        data_nachislenie: moment(shipmentDate).format('YYYY-MM-DD'),
+        data_oplaty: moment(shipmentDate).format('YYYY-MM-DD'),
         currencies_id: productCurrency,
         description: "Shipment",
         chart_of_accounts_id: chartOfAccounts,
@@ -355,7 +355,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
               <div className={styles.fieldGroup} style={{ flex: 1, maxWidth: '600px' }}>
                 <div className="flex w-full items-center gap-4">
                   <div className='flex items-center gap-2'>
-                    <DatePicker
+                    <FormDatepicker
                       value={shipmentDate}
                       onChange={value => {
                         setShipmentDate(value)
@@ -363,8 +363,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                           setErrors({ ...errors, shipmentDate: null })
                         }
                       }}
-                      dateFormat='YYYY-MM-DD'
-                      className={styles.datePicker}
+                      format='YYYY-MM-DD'
+                      inputClass={'w-44!'}
                       placeholder='Выберите дату'
                     />
                     <div className='flex items-center' style={{ opacity: isFutureDate ? 0.5 : 1, pointerEvents: isFutureDate ? 'none' : 'auto' }}>

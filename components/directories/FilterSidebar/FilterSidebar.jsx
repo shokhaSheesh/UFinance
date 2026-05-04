@@ -2,9 +2,11 @@
 
 import { cn } from '@/app/lib/utils'
 import { ChevronsLeft, ChevronsRightIcon, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import styles from './FilterSidebar.module.scss'
 
 export function FilterSidebar({ isOpen, onClose, children, clearCount, onClear }) {
+  const t = useTranslations()
 
   return (
     <div className={cn("flex flex-col bg-neutral-100 border-r transition-all duration-300 overflow-hidden relative h-full shrink-0")} style={{ width: isOpen ? '240px' : "30px", padding: isOpen ? "" : "3px 0px" }}>
@@ -19,7 +21,7 @@ export function FilterSidebar({ isOpen, onClose, children, clearCount, onClear }
       <div className={cn("flex flex-col h-full shrink-0 transition-opacity duration-200", isOpen ? "opacity-100 delay-150 " : "opacity-0 pointer-events-none")}>
         <div className="flex items-center p-3 justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-black text-xl font-semibold">Фильтры</h2>
+            <h2 className="text-black text-xl font-semibold">{t('filter')}</h2>
 
             {clearCount > 0 && onClear && (
               <button

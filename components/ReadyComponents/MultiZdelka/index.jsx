@@ -1,17 +1,19 @@
 'use client'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
 const MultiSelectZdelka = ({
   value = [],
   onChange = () => { },
-  placeholder = 'Выберите сделки',
+  placeholder,
   className,
   dropdownClassName,
   hasError
 }) => {
+  const t = useTranslations('Common')
   const { data: deals, isLoading } = useUcodeRequestQuery({
     method: "get_sales_list_simple",
     data: { 
@@ -30,16 +32,16 @@ const MultiSelectZdelka = ({
 
     return deals.map(deal => ({
       value: deal.guid,
-      label: deal?.Nazvanie || 'Без названия'
+      label: deal?.Nazvanie || t('noName')
     }))
-  }, [deals])
+  }, [deals, t])
 
   return (
     <MultiSelect
       data={options}
       value={Array.isArray(value) ? value : []}
       onChange={onChange}
-      placeholder={isLoading ? "Загрузка..." : placeholder}
+      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectDeals'))}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

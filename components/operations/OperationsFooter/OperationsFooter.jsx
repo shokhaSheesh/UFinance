@@ -1,12 +1,14 @@
 "use client"
 import { cn } from '@/app/lib/utils'
-import styles from './OperationsFooter.module.scss'
-import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
+import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import styles from './OperationsFooter.module.scss'
 
 export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }) => {
+  const t = useTranslations('Operations')
   const mounted = useMounted()
 
   if (!mounted) return null
@@ -16,7 +18,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
       <div className="flex items-center">
         <div className="flex items-center text-sm">
           <div className='flex flex-col border-r border-neutral-400 px-4'>
-            <p className=' capitalize'>операций</p>
+            <p className=' capitalize'>{t('footer.operations')}</p>
             <strong className={styles.footerText}>
               {totalSummary?.count}
             </strong>
@@ -24,7 +26,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
 
           <div className="flex flex-col border-r border-neutral-400 px-4">
             <div className="flex gap-2">
-              <p className=' capitalize'> поступлений:</p>
+              <p className=' capitalize'>{t('footer.receipts')}</p>
               <strong className={styles.footerText}>
                 {totalSummary?.by_type?.receipt?.count}
               </strong>
@@ -39,7 +41,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
 
           <div className="flex flex-col border-r border-neutral-400 px-4">
             <div className="flex gap-2">
-              <p className=' capitalize'>выплат:</p>
+              <p className=' capitalize'>{t('footer.payments')}</p>
               <strong className={styles.footerText}>
                 {totalSummary?.by_type?.payment?.count}
               </strong>
@@ -54,7 +56,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
 
           <div className="flex flex-col border-r border-neutral-400 px-4">
             <div className="flex gap-2">
-              <p className=' capitalize'>перемещения:</p>
+              <p className=' capitalize'>{t('footer.transfers')}</p>
               <strong className={styles.footerText}>
                 {totalSummary?.by_type?.transfer?.count}
               </strong>
@@ -69,7 +71,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
         </div>
         <div className="flex text-sm flex-col border-r border-neutral-400 px-4">
           <div className="flex gap-2">
-            <p className=' capitalize'>Итого:</p>
+            <p className=' capitalize'>{t('footer.total')}</p>
           </div>
           <div className={cn("flex items-center gap-2", totalSummary?.net_cash_flow >= 0 ? "text-green-600" : "text-red-600")}>
             <strong>

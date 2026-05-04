@@ -1,11 +1,13 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите счет", className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable }) => {
+const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable }) => {
+  const t = useTranslations('Common')
 
   const { data: accountsData, isLoading } = useUcodeRequestQuery({
     method: "get_my_accounts",
@@ -35,13 +37,13 @@ const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите с�
     if (returnValue) {
       const matched = (accountsData || []).find(item => item.guid === value);
       if (matched) {
-        returnValue?.(matched[extraValue] || 'Без названия');
+        returnValue?.(matched[extraValue] || t('noName'));
       }
     }
   }
 
   if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">Загрузка...</div>
+    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">{t('loading')}</div>
   }
 
   const Component = multi ? MultiSelect : SingleSelect;
@@ -51,7 +53,7 @@ const SelectMyAccounts = ({ value, onChange, placeholder = "Выберите с�
       data={mappedData}
       value={value}
       onChange={handleSelect}
-      placeholder={placeholder}
+      placeholder={placeholder || t('placeholders.selectAccount')}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

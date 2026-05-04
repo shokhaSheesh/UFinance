@@ -210,8 +210,10 @@ const Profit = () => {
     }
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-    router.push('/pages/operations')
-  }, [rows, filterOperationData, router])
+    if (typeof window !== 'undefined') {
+      window.open('/pages/operations', '_blank')
+    }
+  }, [rows, filterOperationData])
 
   const handleExpensePress = useCallback(() => {
     const filterdata = {
@@ -221,8 +223,10 @@ const Profit = () => {
     }
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-    router.push('/pages/operations')
-  }, [rows, filterOperationData, router])
+    if (typeof window !== 'undefined') {
+      window.open('/pages/operations', '_blank')
+    }
+  }, [rows, filterOperationData])
 
   const stats = useMemo(() => {
     const netProfitTotal = profitAndLossDataList?.netProfit ?? (incomeTotal - expenseTotal)

@@ -94,7 +94,9 @@ const OperationCashFlowModal = observer(({
   const handleNavigateOperations = () => {
     operationFilterStore.setAutoFilter(filterData)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-    router.push('/pages/operations')
+    if (typeof window !== 'undefined') {
+      window.open('/pages/operations', '_blank')
+    }
   }
 
   return (

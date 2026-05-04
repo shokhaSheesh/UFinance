@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -16,11 +17,13 @@ import TextArea from '../../shared/TextArea'
 import styles from './style.module.scss'
 
 const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false }) => {
+  const t = useTranslations('Directories.product')
+  const tc = useTranslations('Common')
   const viewOptions = !appStore.isDonoSchool ? [
-    { value: 'product', label: 'Товары' },
-    { value: 'service', label: 'Услуги' }
+    { value: 'product', label: t('types.products') },
+    { value: 'service', label: t('types.services') }
   ] : [
-      { value: 'service', label: 'Услуги' }
+      { value: 'service', label: t('types.services') }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
@@ -163,8 +166,8 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
         <div className={styles.header}>
           <h2 className={styles.title}>
             {isEditing
-              ? (viewMode === 'product' ? 'Редактирование товара' : 'Редактирование услуги')
-              : (viewMode === 'product' ? 'Создание товара' : 'Создание услуги')}
+              ? (viewMode === 'product' ? t('editProductTitle') : t('editServiceTitle'))
+              : (viewMode === 'product' ? t('createProductTitle') : t('createServiceTitle'))}
           </h2>
 
           <div className={styles.headerActions}>
@@ -178,7 +181,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
           <div className={styles.body}>
 
             <div className={styles.formRow}>
-              <div className={styles.label}>Тип</div>
+              <div className={styles.label}>{t('fields.type')}</div>
               <div className={styles.fieldContainer}>
                 <Controller
                   name="viewMode"
@@ -195,15 +198,15 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
             </div>
 
             <div className={styles.formRow}>
-              <div className={styles.label}>Название товара</div>
+              <div className={styles.label}>{viewMode === 'product' ? t('fields.name') : t('fields.name').replace('товара', 'услуги')}</div>
               <div className={styles.fieldContainer}>
                 <Controller
                   name="name"
                   control={control}
-                  rules={{ required: 'Укажите название' }}
+                  rules={{ required: t('errors.nameRequired') }}
                   render={({ field }) => (
                     <Input
-                      placeholder="Например, кафельная плитка"
+                      placeholder={t('placeholders.name')}
                       className={styles.fullWidth}
                       value={field.value}
                       error={!!errors.name}
@@ -217,14 +220,14 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
 
             <div className={styles.formRow}>
               {viewMode === 'product' && <>
-                <div className={styles.label}>Артикул</div>
+                <div className={styles.label}>{t('fields.article')}</div>
                 <div className={styles.fieldContainer}>
                   <Controller
                     name="article"
                     control={control}
                     render={({ field }) => (
                       <Input
-                        placeholder="Введите артикул"
+                        placeholder={t('placeholders.article')}
                         style={{ width: '140px' }}
                         value={field.value}
                         onChange={e => field.onChange(e.target.value)}
@@ -235,7 +238,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </>}
 
               <div className={styles.label}>
-                Единица измерения
+                {t('fields.unit')}
               </div>
               <div className={`${styles.fieldContainer} ${viewMode === 'service' ? styles.service : ''}`}>
                 <Controller
@@ -246,7 +249,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       data={apiOptions}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите единицу измерения"
+                      placeholder={t('placeholders.selectUnit')}
                       className={'bg-white'}
                       isClearable={false}
                     />
@@ -256,7 +259,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
             </div>
 
             <div className={styles.formRow}>
-              <div className={styles.label}>Группа товаров</div>
+              <div className={styles.label}>{viewMode === 'product' ? t('fields.group') : t('fields.group').replace('товаров', 'услуг')}</div>
               <div className={styles.fieldContainer}>
                 <Controller
                   name="group"
@@ -266,7 +269,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       data={groupsList}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите группу"
+                      placeholder={t('placeholders.selectGroup')}
                       className={'bg-white'}
                     />
                   )}
@@ -276,7 +279,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
 
             <div className={styles.formRow}>
               <div className={styles.labelWithHelp}>
-                Цена продажи
+                {t('fields.price')}
               </div>
               <div className={styles.priceGroup}>
                 <Controller
@@ -285,7 +288,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                   render={({ field }) => (
                     <Input
                       className={styles.priceInput}
-                      placeholder="0.00"
+                      placeholder={t('placeholders.price')}
                       value={formatNumber(field.value)}
                       onChange={e => field.onChange(formatNumber(e.target.value))}
                     />
@@ -309,7 +312,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </div>
 
               <div className={styles.label} style={{ marginLeft: 'auto', width: 'auto', marginRight: '1rem' }}>
-                НДС
+                {t('fields.vat')}
               </div>
               <div className={styles.fieldContainer} style={{ width: '120px' }}>
                 <Controller
@@ -317,7 +320,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="0%"
+                      placeholder={t('placeholders.vat')}
                       className={styles.fullWidth}
                       value={field.value ? `${field.value}%` : ''}
                       onChange={e => {
@@ -338,14 +341,14 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
             </div>
 
             <div className={styles.formRowTop}>
-              <div className={styles.label}>Комментарий</div>
+              <div className={styles.label}>{t('fields.comment')}</div>
               <div className={styles.fieldContainer}>
                 <Controller
                   name="comment"
                   control={control}
                   render={({ field }) => (
                     <TextArea
-                      placeholder="Добавьте комментарий к этому товару"
+                      placeholder={viewMode === 'product' ? t('placeholders.comment') : t('placeholders.comment').replace('товару', 'услуге')}
                       className={styles.textArea}
                       rows={4}
                       value={field.value}
@@ -362,10 +365,10 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
           <div className={styles.footer}>
             <div className={styles.footerButtons}>
               <button type="button" className={styles.cancelButton} onClick={() => setOpen(false)}>
-                Отменить
+                {tc('cancel')}
               </button>
               <button type="submit" className={styles.saveButton} disabled={isPending}>
-                {isPending ? <Loader /> : isEditing ? "Сохранить" : "Создать"}
+                {isPending ? <Loader /> : isEditing ? tc('save') : tc('create')}
               </button>
             </div>
           </div>

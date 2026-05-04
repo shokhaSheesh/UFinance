@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react'
 import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import { useUcodeDefaultApiQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 
-const SalesTransactions = ({ value = [], onChange, placeholder = "Выберите сделки", dropdownClassName, hasError }) => {
+const SalesTransactions = ({ value = [], onChange, placeholder, dropdownClassName, hasError }) => {
+  const t = useTranslations('Common')
   const { data: dealsData, isLoading } = useUcodeDefaultApiQuery({
     queryKey: 'deals',
     urlMethod: 'GET',
@@ -18,16 +20,16 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
     const items = dealsData?.data?.data?.response || [];
     return items.map(deal => ({
       value: deal.guid,
-      label: deal.name || 'Без названия',
+      label: deal.name || t('noName'),
     }));
-  }, [dealsData]);
+  }, [dealsData, t]);
 
   return (
     <MultiSelect
       data={formattedDeals}
       value={value}
       onChange={onChange}
-      placeholder={isLoading ? "Загрузка..." : placeholder}
+      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectDeals'))}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
     />

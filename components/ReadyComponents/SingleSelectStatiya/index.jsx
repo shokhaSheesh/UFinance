@@ -1,4 +1,5 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
@@ -50,7 +51,8 @@ const mapTree = (data, type, hiddenValue) => {
     .filter(Boolean)
 }
 
-const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false }) => {
+const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false }) => {
+  const t = useTranslations('Common')
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
@@ -153,7 +155,7 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'В
   return <TreeSelect
     data={result}
     multi={false}
-    placeholder={placeholder}
+    placeholder={placeholder || t('placeholders.selectStatiya')}
     value={selectedValue}
     isClearable={isClearable}
     onChange={handleSelect}

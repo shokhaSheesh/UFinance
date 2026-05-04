@@ -4,6 +4,7 @@ import { cn } from '@/app/lib/utils'
 import Input from '@/components/shared/Input'
 import { useCreateMyAccount, useUpdateMyAccount } from '@/hooks/useDashboard'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { queryClient } from '../../../lib/queryClient'
@@ -17,6 +18,8 @@ import Loader from '../../shared/Loader'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
 export default function CreateMyAccountModal({ isOpen, onClose, account = null }) {
+  const t = useTranslations('Directories.account')
+  const tc = useTranslations('Common')
   const createMutation = useCreateMyAccount()
   const updateMutation = useUpdateMyAccount()
   const isEdit = !!account && !!account.guid
@@ -85,10 +88,10 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
   // Account types
   const accountTypes = [
-    { value: 'Наличный', label: 'Наличный' },
-    { value: 'Безналичный', label: 'Безналичный' },
-    { value: 'Карта физлица', label: 'Карта физлица' },
-    { value: 'Электронный', label: 'Электронный' }
+    { value: 'Наличный', label: t('types.cash') },
+    { value: 'Безналичный', label: t('types.nonCash') },
+    { value: 'Карта физлица', label: t('types.card') },
+    { value: 'Электронный', label: t('types.electronic') }
   ]
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
     <CustomDialog className="" open={isOpen} onClose={handleClose}>
       <div className="flex w-[600px]! flex-col h-full text-slate-900">
         <div className="border-b pb-3 mb-3 p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{isEdit ? 'Редактирование счета' : 'Создание счета'}</h2>
+          <h2 className="text-xl font-semibold">{isEdit ? t('editTitle') : t('createTitle')}</h2>
         </div>
 
         <div className="px-4 overflow-y-auto max-h-[70vh] py-4">
@@ -167,18 +170,18 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             {/* Название */}
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">
-                Название <span className="text-red-500">*</span>
+                {t('fields.name')} <span className="text-red-500">*</span>
               </label>
               <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="nazvanie"
                   control={control}
-                  rules={{ required: 'Укажите название' }}
+                  rules={{ required: t('errors.nameRequired') }}
                   render={({ field }) => (
                     <Input
                       type="text"
                       {...field}
-                      placeholder="Например, ВТБ"
+                      placeholder={t('placeholders.name')}
                       className={cn(errors.nazvanie && "border-red-500")}
                     />
                   )}
@@ -193,7 +196,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             {/* Группа */}
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm text-[#0f172a] flex items-center gap-1">
-                Группа
+                {t('fields.group')}
               </label>
               <div className="flex-1 flex flex-col gap-1">
                 <Controller
@@ -212,12 +215,12 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
             {/* Юрлицо */}
             <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Юрлицо <span className="text-red-500">*</span></label>
+              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.legalEntity')} <span className="text-red-500">*</span></label>
               <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="legal_entity_id"
                   control={control}
-                  rules={{ required: 'Выберите юрлицо' }}
+                  rules={{ required: t('errors.legalEntityRequired') }}
                   render={({ field }) => (
                     <SelectLegelEntitties
                       value={field.value}
@@ -225,7 +228,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       onChange={field.onChange}
                       className="bg-white"
                       isClearable={false}
-                      placeholder="Выберите юрлицо или создайте новое"
+                      placeholder={t('placeholders.selectLegalEntity')}
                     />
                   )}
                 />
@@ -238,7 +241,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             {/* Тип */}
             <div className="flex flex-row gap-2 ">
               <label className="w-[30%] text-sm mb-5  text-[#0f172a] flex items-center gap-1">
-                Выберите тип счета
+                {t('fields.type')}
               </label>
               <div className="flex-1 flex flex-col gap-1 justify-start">
                 <Controller
@@ -249,7 +252,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       data={accountTypes}
                       value={field.value?.[0] || ''}
                       onChange={(value) => field.onChange(value ? [value] : [])}
-                      placeholder="Выберите тип"
+                      placeholder={t('placeholders.selectType')}
                       className="flex-1 bg-white"
                       withSearch={false}
                       isClearable={false}
@@ -264,7 +267,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                         onClick={() => setShowDetails(!showDetails)}
                         className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
                       >
-                        Скрыть реквизиты
+                        {t('requisites.hide')}
                       </button>
                     ) : (
                       <button
@@ -272,7 +275,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                         onClick={() => setShowDetails(!showDetails)}
                         className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
                       >
-                        Реквизиты
+                          {t('requisites.show')}
                       </button>
                     )
                   )}
@@ -287,7 +290,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 {showDetails && (
                   <div className="flex flex-col gap-3 rounded-md">
                     <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Бик</label>
+                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.bik')}</label>
                       <div className="flex-1">
                         <Controller
                           name="bik"
@@ -299,7 +302,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       </div>
                     </div>
                     <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Банк</label>
+                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.bank')}</label>
                       <div className="flex-1">
                         <Controller
                           name="bank"
@@ -311,7 +314,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       </div>
                     </div>
                     <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Расч. счет №</label>
+                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.accountNumber')}</label>
                       <div className="flex-1">
                         <Controller
                           name="rasch_schet"
@@ -323,7 +326,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       </div>
                     </div>
                     <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Кор. счет №</label>
+                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.corrAccount')}</label>
                       <div className="flex-1">
                         <Controller
                           name="korr_schet"
@@ -340,13 +343,13 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             )}
             {selectedType === 'Электронный' && (
               <div className="flex flex-row gap-2">
-                <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Номер</label>
+                <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.number')}</label>
                 <div className="flex-1">
                   <Controller
                     name="nomer"
                     control={control}
                     render={({ field }) => (
-                      <Input type="text" {...field} placeholder="Номер счета" />
+                      <Input type="text" {...field} placeholder={t('fields.number')} />
                     )}
                   />
                 </div>
@@ -368,7 +371,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
             {/* Начальный остаток */}
             <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Начальный остаток</label>
+              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.initialBalance')}</label>
               <div className="flex items-center flex-1 gap-2">
                 <Controller
                   name="nachalьnyy_ostatok"
@@ -392,7 +395,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   <FormDatepicker
                     value={field.value}
                     onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
-                    placeholder="Выберите дату"
+                    placeholder={t('placeholders.selectDate')}
                     format='YYYY-MM-DD'
                     inputClass={'bg-white'}
                     className="w-fit"
@@ -404,7 +407,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             {/* Валюта */}
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">
-                Выберите валюту счета
+                {t('fields.currency')}
               </label>
               <div className="flex-1 flex flex-col gap-1">
                 <Controller
@@ -415,7 +418,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                       data={currencies}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите валюту"
+                      placeholder={tc('placeholders.selectCurrency')}
                       isClearable={false}
                       className="flex-1 bg-white"
                     />
@@ -426,7 +429,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
             {/* Комментарий */}
             <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">Комментарий</label>
+              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.comment')}</label>
               <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="komentariy"
@@ -434,7 +437,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   render={({ field }) => (
                     <textarea
                       {...field}
-                      placeholder="Ваш комментарий или пояснение к этому счету"
+                      placeholder={t('placeholders.comment')}
                       className="p-2.5 text-sm resize-none text-[#0f172a] bg-white border border-gray-200 rounded-md transition-all w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-cyan-500/10 placeholder:text-gray-400 min-h-[80px]"
                       rows={4}
                     />
@@ -451,7 +454,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             className="px-3 py-2 text-sm font-medium text-gray-500 bg-transparent rounded-md cursor-pointer transition-all hover:text-[#0f172a] hover:bg-gray-100"
             onClick={handleClose}
           >
-            Отменить
+            {tc('cancel')}
           </button>
           <button
             type="button"
@@ -459,7 +462,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <Loader /> : (isEdit ? 'Сохранить' : 'Создать')}
+            {isSubmitting ? <Loader /> : (isEdit ? tc('save') : tc('create'))}
           </button>
         </div>
       </div>

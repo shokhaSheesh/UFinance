@@ -3,6 +3,7 @@ import { OperationMenu } from '@/components/operations/OperationsTable/Operation
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
 import { appStore } from '../../../store/app.store'
@@ -20,6 +21,7 @@ const TableRow = observer(({
   counterpartyGuid,
   showIndex
 }) => {
+  const t = useTranslations('Operations')
   const [open, setOpen] = useState(false)
   const children = new Set()
   const chartofaccounts = new Set()
@@ -35,30 +37,30 @@ const TableRow = observer(({
   })
 
   const titleContragent = useMemo(() => {
-    if (op.tip == "Начисление") return op.counterparty || '[Начисление]'
+    if (op.tip == "Начисление") return op.counterparty || t('row.accrualPlaceholder')
     if (children.size === 1 && children.has(counterpartyGuid)) {
       return op.counterparty || ''
     } else if (children.size > 1) {
-      return `${children.size || 2} [контрагента]`
+      return t('row.counterpartiesCount', { count: children.size || 2 })
     } else {
       return op.counterparty || ''
     }
-  }, [children, counterpartyGuid, op.counterparty])
+  }, [children, counterpartyGuid, op.counterparty, op.tip, t])
 
   const titleChartOfAccounts = useMemo(() => {
     if (chartofaccounts.size === 1) {
       return op.chartOfAccounts || ''
     } else if (chartofaccounts.size > 1) {
-      return `${chartofaccounts.size || 2} [статьи]`
+      return t('row.statyaCount', { count: chartofaccounts.size || 2 })
     } else {
       return op.chartOfAccounts || ''
     }
-  }, [chartofaccounts, op.chartOfAccounts])
+  }, [chartofaccounts, op.chartOfAccounts, t])
 
   const titleDeals = useMemo(() => {
     if (op.tip == "Начисление" && op.sales_transaction_name && op.sales_transaction_name_2) {
       return {
-        title: '2 [сделки]',
+        title: t('row.dealsCount'),
         children: [
           op.sales_transaction_name,
           op.sales_transaction_name_2
@@ -75,7 +77,7 @@ const TableRow = observer(({
         children: []
       }
     }
-  }, [op.deal])
+  }, [op.deal, op.tip, op.sales_transaction_name, op.sales_transaction_name_2, t])
 
   const isDifferentDate = op?.accrualDate !== op?.operationDate
 
@@ -195,8 +197,8 @@ const TableRow = observer(({
           <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
             {op?.tip === "Перемещение" ? (
               <>
-                <span className={cn('text-sm line-clamp-1 w-full', isSpinasiya && 'opacity-50')}>[Перемещение списание]</span>
-                <span className={cn('text-sm line-clamp-1 w-full', isZachisleniya && 'opacity-50')}>[Перемещение зачисление]</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isSpinasiya && 'opacity-50')}>{t('row.transferWriteOff')}</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isZachisleniya && 'opacity-50')}>{t('row.transferEnrollment')}</span>
               </>
             ) : (op.tip === "Поступление" || op.tip === "Выплата") ? (
               <>
@@ -205,8 +207,8 @@ const TableRow = observer(({
               </>
             ) : op?.tip === "Начисление" ? (
               <>
-                <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} [по дебету]</span>
-                <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} [по кредиту]</span>
+                    <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
+                    <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
               </>
             ) : (op?.tip === "Отгрузка") && (
               <span className="text-sm line-clamp-1  w-full">{op.chartOfAccounts}</span>

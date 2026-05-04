@@ -3,6 +3,7 @@ import NewDateRangeComponent from '@/components/directories/NewDateRangeComponen
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { sealDeal } from '../../../store/saleDeal.store'
@@ -12,6 +13,8 @@ import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
 const FilterSidebar = observer(({ onOpenChange }) => {
+	const t = useTranslations('Deals.filters')
+	const tc = useTranslations('Common')
 	const [isOpen, setIsOpen] = useState(true)
 
 	const toggleOpen = val => {
@@ -99,7 +102,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						data={statuses}
 						value={status || []}
 						onChange={val => handleFilterChange('status', val)}
-						placeholder='Статус сделки'
+						placeholder={t('dealStatus')}
 					/>
 				</div>
 
@@ -107,7 +110,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 				<div className='flex flex-col gap-1.5'>
 					<SelectCounterParties
 						onChange={values => handleFilterChange('selectedCounterparties', values)}
-						placeholder='Выберите контрагентов'
+						placeholder={t('selectCounterparties')}
 						value={selectedCounterparties}
 					/>
 				</div>
@@ -124,11 +127,11 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 
 				{/* Amount Borders Selectors */}
 				<div className='flex flex-col gap-1.5'>
-					<p className='text-neutral-600 text-xs font-medium'>Сумма сделки</p>
+					<p className='text-neutral-600 text-xs font-medium'>{t('dealAmount')}</p>
 					<div className='flex items-center gap-1.5'>
 						<Input
 							type='text'
-							placeholder='От'
+							placeholder={t('from')}
 							value={formatNumber(amountFrom)}
 							onChange={e => handlePriceDebouce('amountFrom', e.target.value)}
 							className='h-8!'
@@ -136,7 +139,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<span className='text-neutral-400 font-light'>-</span>
 						<Input
 							type='text'
-							placeholder='До'
+							placeholder={t('to')}
 							value={formatNumber(amountTo)}
 							onChange={e => handlePriceDebouce('amountTo', e.target.value)}
 							className='h-8!'
@@ -146,11 +149,11 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 
 				{/* Profit Borders Selectors */}
 				<div className='flex flex-col gap-1.5'>
-					<p className='text-neutral-600 text-xs font-medium'>Прибыль сделки</p>
+					<p className='text-neutral-600 text-xs font-medium'>{t('dealProfit')}</p>
 					<div className='flex items-center gap-1.5'>
 						<Input
 							type='text'
-							placeholder='От'
+							placeholder={t('from')}
 							value={formatNumber(profitFrom)}
 							onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
 							className='h-8!'
@@ -158,7 +161,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						<span className='text-neutral-400 font-light'>-</span>
 						<Input
 							type='text'
-							placeholder='До'
+							placeholder={t('to')}
 							value={formatNumber(profitTo)}
 							onChange={e => handlePriceDebouce('profitTo', e.target.value)}
 							className='h-8!'

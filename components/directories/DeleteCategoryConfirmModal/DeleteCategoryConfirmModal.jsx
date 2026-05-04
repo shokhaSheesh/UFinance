@@ -1,9 +1,12 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { useTranslations } from 'next-intl'
+import Loader from "../../shared/Loader"
 import styles from './DeleteCategoryConfirmModal.module.scss'
 
 export function DeleteCategoryConfirmModal({ isOpen, category, onConfirm, onCancel, isDeleting = false }) {
+  const tc = useTranslations('Common')
+  const t = useTranslations('Directories.chartOfAccounts')
   if (!isOpen) return null
 
   return (
@@ -14,7 +17,7 @@ export function DeleteCategoryConfirmModal({ isOpen, category, onConfirm, onCanc
       />
       <div className={styles.deleteModal}>
         <div className={styles.deleteModalHeader}>
-          <h3 className={styles.deleteModalTitle}>Подтверждение удаления</h3>
+          <h3 className="text-lg font-semibold m-0">{tc('deleteConfirmTitle')}</h3>
           <button 
             className={styles.deleteModalClose}
             onClick={onCancel}
@@ -23,8 +26,8 @@ export function DeleteCategoryConfirmModal({ isOpen, category, onConfirm, onCanc
           </button>
         </div>
         <div className={styles.deleteModalBody}>
-          <p className={styles.deleteModalText}>
-            Вы уверены, что хотите удалить учетную статью?
+          <p className="text-sm text-gray-500 m-0 mb-4">
+            {t('deleteConfirmMessage', { name: category?.name || '—' })}
           </p>
           {category && (
             <div className={styles.deleteModalInfo}>
@@ -46,14 +49,14 @@ export function DeleteCategoryConfirmModal({ isOpen, category, onConfirm, onCanc
             className={styles.deleteModalButtonCancel}
             onClick={onCancel}
           >
-            Отмена
+            {tc('cancel')}
           </button>
-          <button 
-            className={styles.deleteModalButtonConfirm}
+          <button
+            className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 border-none rounded-md cursor-pointer hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors font-sans"
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Удаление...' : 'Удалить'}
+            {isDeleting ? <Loader /> : tc('delete')}
           </button>
         </div>
       </div>

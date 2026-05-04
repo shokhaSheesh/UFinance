@@ -1,18 +1,21 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/app/lib/utils'
-import { useCreateLegalEntity, useUpdateLegalEntity } from '@/hooks/useDashboard'
-import styles from './CreateLegalEntityModal.module.scss'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
+import { useCreateLegalEntity, useUpdateLegalEntity } from '@/hooks/useDashboard'
 import { observer } from 'mobx-react-lite'
-import { authStore } from '../../../store/auth.store'
+import { useTranslations } from 'next-intl'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
+import { authStore } from '../../../store/auth.store'
+import styles from './CreateLegalEntityModal.module.scss'
 
 export default observer(function CreateLegalEntityModal({ isOpen, onClose, legalEntity = null, legalEntityId }) {
+  const t = useTranslations('Directories.legalEntity')
+  const tc = useTranslations('Common')
   const createMutation = useCreateLegalEntity()
   const updateMutation = useUpdateLegalEntity()
   const isEdit = !!legalEntity && !!legalEntity.guid
@@ -105,7 +108,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
     const newErrors = {}
 
     if (!formData.nazvanie.trim()) {
-      newErrors.nazvanie = 'Укажите название'
+      newErrors.nazvanie = t('errors.nameRequired')
     }
 
     setErrors(newErrors)
@@ -153,7 +156,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
       }, 250)
     } catch (error) {
       console.error(`Error ${isEdit ? 'updating' : 'creating'} legal entity:`, error)
-      setErrors({ submit: error.message || `Не удалось ${isEdit ? 'обновить' : 'создать'} юрлицо` })
+      setErrors({ submit: error.message || (isEdit ? t('errors.updateFailed') : t('errors.createFailed')) })
     } finally {
       setIsSubmitting(false)
     }
@@ -177,12 +180,12 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
       >
         <div className={styles.header}>
           <h3 id="modal-title" className={styles.title}>
-            {isEdit ? 'Редактирование юрлица' : 'Создание юрлица'}
+            {isEdit ? t('editTitle') : t('createTitle')}
           </h3>
           <button
             className={styles.closeButton}
             onClick={handleClose}
-            aria-label="Закрыть"
+            aria-label={tc('close')}
           >
             <svg className={styles.closeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -194,14 +197,14 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
             {/* Название */}
             <div className={styles.formRow}>
               <label className={styles.label}>
-                Название <span className={styles.required}>*</span>
+                {t('fields.name')} <span className={styles.required}>*</span>
               </label>
               <div className={styles.inputContainer}>
                 <Input
                   type="text"
                   value={formData.nazvanie}
                   onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
-                  placeholder="Например: Васильев"
+                  placeholder={t('placeholders.name')}
                   className={cn(styles.input, errors.nazvanie && styles.inputError)}
                 />
                 {errors.nazvanie && <p className={styles.errorMessage}>{errors.nazvanie}</p>}
@@ -210,13 +213,13 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
 
             {/* Полное название */}
             <div className={styles.formRow}>
-              <label className={styles.label}>Полное название</label>
+              <label className={styles.label}>{t('fields.fullName')}</label>
               <div className={styles.inputContainer}>
                 <Input
                   type="text"
                   value={formData.polnoe_nazvanie}
                   onChange={(e) => setFormData({ ...formData, polnoe_nazvanie: e.target.value })}
-                  placeholder="Например: ООО «Васильев и партнеры»"
+                  placeholder={t('placeholders.fullName')}
                   className={styles.input}
                 />
               </div>
@@ -224,7 +227,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
 
             {/* ИНН/КПП */}
             <div className={styles.formRow}>
-              <label className={styles.label}>ИНН/КПП</label>
+              <label className={styles.label}>{t('fields.innKpp')}</label>
               <div className={styles.inputContainer}>
                 <div className={styles.innKppContainer}>
                   <Input
@@ -250,12 +253,12 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
 
             {/* Комментарий */}
             <div className={styles.formRow}>
-              <label className={styles.label}>Комментарий</label>
+              <label className={styles.label}>{t('fields.comment')}</label>
               <div className={styles.inputContainer}>
                 <TextArea
                   value={formData.komentariy}
                   onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
-                  placeholder="Дайте краткое пояснение этому юрлицу, если это необходимо"
+                  placeholder={t('placeholders.comment')}
                   className={styles.textarea}
                   rows={4}
                   hasError={!!errors.komentariy}
@@ -271,14 +274,14 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
 
         <div className={styles.footer}>
           <button className={styles.cancelButton} onClick={handleClose}>
-            Отменить
+            {tc('cancel')}
           </button>
           <button
             className={styles.saveButton}
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? (isEdit ? 'Сохранение...' : 'Создание...') : (isEdit ? 'Сохранить' : 'Создать')}
+            {isSubmitting ? (isEdit ? tc('saving') : tc('creating')) : (isEdit ? tc('save') : tc('create'))}
           </button>
         </div>
       </div>

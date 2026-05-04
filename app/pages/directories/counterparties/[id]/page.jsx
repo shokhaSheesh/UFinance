@@ -5,12 +5,12 @@ import NewDateRangeComponent from '@/components/directories/NewDateRangeComponen
 import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
 import { useDeleteOperation, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, ChevronRight, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, MoreHorizontal, PenLine, Trash2, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import styles from './counterparty-detail.module.scss'
 
 import Select from '@/components/common/Select'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
@@ -27,13 +27,15 @@ import { appStore } from '../../../../../store/app.store'
 import { formatDate } from '../../../../../utils/formatDate'
 import { formatAmount, formatNumber, formatTotalSumma } from '../../../../../utils/helpers'
 
-const calculationOptions = [
-  { value: "Cashflow", label: 'Учет по денежному потоку' },
-  { value: "Cash", label: 'Учет кассовым методом' },
-  { value: "Calculation", label: 'Учет методом начисления' },
+const getCalculationOptions = (t) => [
+  { value: "Cashflow", label: t('calculationOptions.cashflow') },
+  { value: "Cash", label: t('calculationOptions.cash') },
+  { value: "Calculation", label: t('calculationOptions.calculation') },
 ]
 
 const KontragentDetailPage = observer(() => {
+  const t = useTranslations('Directories.counterparty.detail')
+  const tc = useTranslations('Common')
   const params = useParams()
   const router = useRouter()
   const counterpartyGuid = params?.id
@@ -62,7 +64,7 @@ const KontragentDetailPage = observer(() => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false)
       }
-      if (!event.target.closest(`.${styles.popoverContainer}`)) {
+      if (!event.target.closest('.popover-container')) {
         setActivePopover(null)
       }
     }
@@ -151,7 +153,7 @@ const KontragentDetailPage = observer(() => {
 
 
     return {
-      name: counterparty.nazvanie || 'Без названия',
+      name: counterparty.nazvanie || tc('noName'),
       fullName: counterparty.polnoe_imya || '',
       inn: counterparty.inn && counterparty.inn !== 0 ? counterparty.inn : null,
       kpp: (Array.isArray(counterparty.kpp) ? counterparty.kpp.filter(v => v !== null && v !== '') : (counterparty.kpp && counterparty.kpp !== 0 ? [counterparty.kpp] : [])),
@@ -159,7 +161,7 @@ const KontragentDetailPage = observer(() => {
       receiptArticle: counterparty.chart_of_accounts_name || (counterparty.chart_of_accounts_id ? '-' : null),
       paymentArticle: counterparty.chart_of_accounts_name_2 || (counterparty.chart_of_accounts_id_2 ? '-' : null),
       comment: counterparty.komentariy || null,
-      type: counterparty.tip || 'Не указан',
+      type: counterparty.tip || tc('noName'),
       income: counterparty.income || 0,
       expense: counterparty.expense || 0,
       difference: counterparty.difference || 0,
@@ -207,10 +209,10 @@ const KontragentDetailPage = observer(() => {
     if (values.length === 1) return values[0];
 
     return (
-      <div className={styles.popoverContainer}>
+      <div className="relative inline-flex items-center gap-1">
         <span>{values[0]}</span>
         <button
-          className={styles.popoverToggle}
+          className="text-xs text-blue-600 hover:text-blue-800 font-medium"
           onClick={(e) => {
             e.stopPropagation();
             setActivePopover(activePopover === type ? null : type);
@@ -219,44 +221,24 @@ const KontragentDetailPage = observer(() => {
           +{values.length - 1}
         </button>
         {activePopover === type && (
-          <div className={styles.popoverMenu}>
-            <div className={styles.popoverHeader}>
-              <span>{type === 'kpp' ? 'Дополнительные КПП' : 'Номера счетов'}</span>
-              <button className={styles.closeBtn} onClick={() => setActivePopover(null)}>
+          <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[200px] z-50">
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+              <span className="text-sm font-medium text-gray-700">{type === 'kpp' ? t('info.additionalKpp') : t('info.additionalAccounts')}</span>
+              <button className="text-gray-400 hover:text-gray-600" onClick={() => setActivePopover(null)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className={styles.popoverList}>
+            <div className="space-y-1">
               {values.slice(1).map((val, idx) => (
-                <div key={idx} className={styles.popoverItem}>{val}</div>
+                <div key={idx} className="text-sm text-gray-600 py-1">{val}</div>
               ))}
             </div>
           </div>
         )}
       </div>
     );
-  }
-
-  const isAllSelected = useMemo(() => {
-    return operations.length > 0 && selectedOperations.length >= operations.length
-  }, [operations, selectedOperations])
-
-  const toggleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedOperations([])
-    } else {
-      setSelectedOperations(operations.map(op => op.id))
-    }
-  }
-
-  const toggleOperation = (id) => {
-    if (selectedOperations.includes(id)) {
-      setSelectedOperations(selectedOperations.filter(opId => opId !== id))
-    } else {
-      setSelectedOperations([...selectedOperations, id])
-    }
   }
 
 
@@ -418,60 +400,63 @@ const KontragentDetailPage = observer(() => {
 
   if (isLoadingCounterparty) {
     return (
-      <div className={styles.container}>
-        <div className={styles.content}>
+      <div className="fixed h-[calc(100vh-60px)] top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto bg-slate-50">
+        <div className="flex-1 h-full flex flex-col">
           {/* Breadcrumbs Skeleton */}
-          <div className={styles.breadcrumbs}>
-            <div className={styles.breadcrumbsContent}>
-              <div className={styles.skeleton} style={{ width: '150px', height: '14px' }}></div>
-              <span className={styles.breadcrumbSeparator}>›</span>
-              <div className={styles.skeleton} style={{ width: '100px', height: '14px' }}></div>
+          <div className="flex items-center px-3 bg-white border-b border-gray-200 sticky top-0 z-30 h-10">
+            <div className="flex items-center gap-2">
+              <div className="bg-gray-200 rounded animate-pulse" style={{ width: '150px', height: '14px' }}></div>
+              <span className="text-gray-400">›</span>
+              <div className="bg-gray-200 rounded animate-pulse" style={{ width: '100px', height: '14px' }}></div>
             </div>
           </div>
 
           {/* Header Skeleton */}
-          <div className={styles.header}>
-            <div className={styles.headerTop}>
-              <div className={styles.skeleton} style={{ width: '200px', height: '28px' }}></div>
-              <div className={styles.skeleton} style={{ width: '180px', height: '36px' }}></div>
+          <div className="px-6 py-5 flex-shrink-0">
+            <div className="flex items-center gap-6 mb-5">
+              <div className="bg-gray-200 rounded animate-pulse" style={{ width: '200px', height: '28px' }}></div>
+              <div className="flex items-center gap-3 flex-1">
+                <div className="bg-gray-200 rounded animate-pulse" style={{ width: '250px', height: '36px' }}></div>
+                <div className="bg-gray-200 rounded animate-pulse" style={{ width: '250px', height: '36px' }}></div>
+              </div>
             </div>
 
             {/* Stats Grid Skeleton */}
-            <div className={styles.statsGrid}>
+            <div className="flex gap-4">
               {/* Financial Card Skeleton */}
-              <div className={styles.financialCard}>
-                <div className={styles.financialCardContent}>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 min-w-[200px]">
+                <div className="flex flex-col gap-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className={styles.financialItem}>
-                      <div className={styles.financialItemHeader}>
-                        <div className={styles.skeleton} style={{ width: '6px', height: '6px', borderRadius: '50%' }}></div>
-                        <div className={styles.skeleton} style={{ width: '80px', height: '12px' }}></div>
+                    <div key={i}>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="bg-gray-200 rounded-full animate-pulse" style={{ width: '6px', height: '6px' }}></div>
+                        <div className="bg-gray-200 rounded animate-pulse" style={{ width: '80px', height: '12px' }}></div>
                       </div>
-                      <div className={styles.skeleton} style={{ width: '120px', height: '24px' }}></div>
+                      <div className="bg-gray-200 rounded animate-pulse" style={{ width: '120px', height: '24px' }}></div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Debit/Credit Column Skeleton */}
-              <div className={styles.debitCreditColumn}>
+              <div className="flex flex-col gap-4 min-w-[180px]">
                 {[1, 2].map((i) => (
-                  <div key={i} className={styles.debitCreditCard}>
-                    <div className={styles.skeleton} style={{ width: '80px', height: '14px', marginBottom: '8px' }}></div>
-                    <div className={styles.skeleton} style={{ width: '100px', height: '12px' }}></div>
+                  <div key={i} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex-1">
+                    <div className="bg-gray-200 rounded animate-pulse mb-2" style={{ width: '80px', height: '14px' }}></div>
+                    <div className="bg-gray-200 rounded animate-pulse" style={{ width: '100px', height: '12px' }}></div>
                   </div>
                 ))}
               </div>
 
               {/* Info Card Skeleton */}
-              <div className={styles.infoCard}>
-                <div className={styles.skeleton} style={{ width: '150px', height: '18px', marginBottom: '12px' }}></div>
-                <div className={styles.infoCardDivider}></div>
-                <div className={styles.infoCardDetails}>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 flex-1 flex flex-col">
+                <div className="bg-gray-200 rounded animate-pulse mb-3" style={{ width: '150px', height: '18px' }}></div>
+                <div className="h-px bg-gray-200 mb-4"></div>
+                <div className="space-y-3">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className={styles.infoCardRow}>
-                      <div className={styles.skeleton} style={{ width: '100px', height: '12px', marginBottom: '4px' }}></div>
-                      <div className={styles.skeleton} style={{ width: '140px', height: '12px' }}></div>
+                    <div key={i} className="flex flex-col gap-1">
+                      <div className="bg-gray-200 rounded animate-pulse" style={{ width: '100px', height: '12px' }}></div>
+                      <div className="bg-gray-200 rounded animate-pulse" style={{ width: '140px', height: '12px' }}></div>
                     </div>
                   ))}
                 </div>
@@ -480,17 +465,17 @@ const KontragentDetailPage = observer(() => {
           </div>
 
           {/* Operations Section Skeleton */}
-          <div className={styles.operationsSection}>
-            <div className={styles.operationsContent}>
-              <div className={styles.operationsHeader}>
-                <div className={styles.skeleton} style={{ width: '180px', height: '18px' }}></div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <div className={styles.skeleton} style={{ width: '80px', height: '32px' }}></div>
-                  <div className={styles.skeleton} style={{ width: '80px', height: '32px' }}></div>
+          <div className="flex-1 bg-white">
+            <div className="p-4">
+              <div className="flex py-3 items-center gap-3 mb-3">
+                <div className="bg-gray-200 rounded animate-pulse" style={{ width: '180px', height: '24px' }}></div>
+                <div className="flex gap-3">
+                  <div className="bg-gray-200 rounded animate-pulse" style={{ width: '80px', height: '32px' }}></div>
+                  <div className="bg-gray-200 rounded animate-pulse" style={{ width: '80px', height: '32px' }}></div>
                 </div>
               </div>
-              <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-                Загрузка данных контрагента...
+              <div className="p-8 text-center text-gray-500">
+                {tc('loading')}
               </div>
             </div>
           </div>
@@ -501,9 +486,9 @@ const KontragentDetailPage = observer(() => {
 
   if (!counterparty) {
     return (
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Контрагент не найден</div>
+      <div className="fixed h-[calc(100vh-60px)] top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto">
+        <div className="flex-1 h-full flex flex-col">
+          <div className="p-8 text-center text-gray-500">{t('notFound')}</div>
         </div>
       </div>
     )
@@ -514,20 +499,22 @@ const KontragentDetailPage = observer(() => {
   return (
     <div className="fixed h-[calc(100vh-60px)]  top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto">
       {isDeletingCounterparty && (
-        <div className={styles.deleteOverlay}>
-          <div className={styles.deleteSpinner}></div>
-          <span className={styles.deleteSpinnerText}>Удаление...</span>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <span className="text-white font-medium">{t('actions.deleting')}</span>
+          </div>
         </div>
       )}
       <div className="flex-1 h-full flex flex-col">
         {/* Breadcrumbs */}
-        <div className=" flex items-center px-3 bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="flex items-center  text-xs h-10!">
-            <Link href="/pages/directories/counterparties" className={styles.breadcrumbLink}>
-              Список контрагентов
+        <div className="flex items-center px-3 bg-white border-b border-gray-200 sticky top-0 z-30">
+          <div className="flex items-center text-xs h-10">
+            <Link href="/pages/directories/counterparties" className="text-gray-500 hover:text-gray-700 transition-colors">
+              {t('backToList')}
             </Link>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-neutral-900 text-sm">{counterpartyInfo?.name || 'Контрагент'}</span>
+            <ChevronRight className="w-3 h-3 mx-1 text-gray-400" />
+            <span className="text-neutral-900 text-sm font-medium">{counterpartyInfo?.name || tc('noName')}</span>
           </div>
         </div>
 
@@ -554,11 +541,11 @@ const KontragentDetailPage = observer(() => {
               <div style={{ width: '250px' }}>
                 <Select
                   instanceId="counterparty-detail-calculation-method"
-                  options={calculationOptions}
-                  value={calculationOptions.find(opt => opt.value === filters?.calculationMethod) || null}
+                  options={getCalculationOptions(t)}
+                  value={getCalculationOptions(t).find(opt => opt.value === filters?.calculationMethod) || null}
                   onChange={(selected) =>
                     setFilters(prev => ({ ...prev, calculationMethod: selected ? selected.value : 'Cashflow' }))}
-                  placeholder="Выбирать"
+                  placeholder={tc('placeholders.select')}
                   isSearchable={false}
                   isClearable={false}
                 />
@@ -568,7 +555,7 @@ const KontragentDetailPage = observer(() => {
             <div className="relative" ref={dropdownRef}>
               {canEdit && canDelete && <button
                 className={cn(
-                  'flex items-center justify-center w-[38px] h-[38px] rounded border border-gray-300 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400',
+                  'flex items-center justify-center w-[38px] h-[38px] rounded-md border border-gray-300 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400',
                   isDropdownOpen && 'bg-slate-100 border-gray-400'
                 )}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -583,11 +570,11 @@ const KontragentDetailPage = observer(() => {
                     setIsEditCounterpartyModalOpen(true)
                   }}>
                     <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
-                    Редактировать
+                    {tc('edit')}
                   </button>}
                   <button className="flex items-center px-4 py-3 text-sm text-red-500 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-red-50" onClick={handleDeleteCounterparty}>
                     <Trash2 size={18} className="mr-3 text-red-500" />
-                    Удалить
+                    {tc('delete')}
                   </button>
                 </div>
               )}
@@ -597,38 +584,38 @@ const KontragentDetailPage = observer(() => {
           {/* Stats Grid */}
           <div className="flex gap-4">
             {/* Left Card - Financial Stats */}
-            <div className="bg-white rounded border border-gray-300 p-4 min-w-[200px]">
+            <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 min-w-[200px]">
               <div className="flex flex-col gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <div style={{ backgroundColor: '#5dade2' }} className="w-1.5 h-1.5 rounded-full"></div>
-                    <span className="text-xs text-slate-700">Поступления</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
+                    <span className="text-xs text-slate-700 font-medium">{t('stats.receipts')}</span>
                   </div>
                   <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.income)}
-                    <span className="text-base ml-2">{GlobalCurrency.name}</span>
+                    <span className="text-base ml-2 text-slate-500">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <div style={{ backgroundColor: '#f39c6b' }} className="w-1.5 h-1.5 rounded-full"></div>
-                    <span className="text-xs text-slate-700">Выплаты</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                    <span className="text-xs text-slate-700 font-medium">{t('stats.payments')}</span>
                   </div>
                   <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo?.expense)}
-                    <span className="text-base ml-2">{GlobalCurrency.name}</span>
+                    <span className="text-base ml-2 text-slate-500">{GlobalCurrency.name}</span>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <div style={{ backgroundColor: stats.difference >= 0 ? '#52c41a' : '#ff4d4f' }} className="w-1.5 h-1.5 rounded-full"></div>
-                    <span className="text-xs text-slate-700">Разница</span>
+                    <div className={cn("w-1.5 h-1.5 rounded-full", stats.difference >= 0 ? 'bg-emerald-500' : 'bg-red-500')}></div>
+                    <span className="text-xs text-slate-700 font-medium">{t('stats.difference')}</span>
                   </div>
                   <div className="text-xl font-bold text-slate-900">
                     {formatAmount(counterpartyInfo.difference)}
-                    <span className="text-base ml-2">{GlobalCurrency.name}</span>
+                    <span className="text-base ml-2 text-slate-500">{GlobalCurrency.name}</span>
                   </div>
                 </div>
               </div>
@@ -637,65 +624,65 @@ const KontragentDetailPage = observer(() => {
             {/* Middle Column - Debit and Credit stacked */}
             <div className="flex flex-col gap-4 min-w-[180px]">
               {/* Debit Card */}
-              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
-                <div className="text-sm text-slate-700 mb-1.5">Дебиторка</div>
-                <div className="text-xs text-slate-400">
-                  {counterpartyInfo?.debitorka ? formatNumber(formatTotalSumma(counterpartyInfo.debitorka)) : 'Нет задолженности'}
+              <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 flex-1">
+                <div className="text-sm text-slate-700 font-medium mb-1.5">{t('stats.receivables')}</div>
+                <div className="text-xs text-slate-500">
+                  {counterpartyInfo?.debitorka ? formatNumber(formatTotalSumma(counterpartyInfo.debitorka)) : t('stats.noDebt')}
                 </div>
               </div>
 
               {/* Credit Card */}
-              <div className="bg-white rounded border border-gray-300 p-4 flex-1">
-                <div className="text-sm text-slate-700 mb-1.5">Кредиторка</div>
-                <div className="text-xs text-slate-400">
-                  {counterpartyInfo?.kreditorka ? formatNumber(formatTotalSumma(counterpartyInfo.kreditorka)) : 'Нет задолженности'}
+              <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 flex-1">
+                <div className="text-sm text-slate-700 font-medium mb-1.5">{t('stats.payables')}</div>
+                <div className="text-xs text-slate-500">
+                  {counterpartyInfo?.kreditorka ? formatNumber(formatTotalSumma(counterpartyInfo.kreditorka)) : t('stats.noDebt')}
                 </div>
               </div>
             </div>
 
             {/* Right Card - Additional Info in two-column format */}
-            <div className="bg-white rounded border border-gray-300 p-5 flex-1 flex flex-col">
+            <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-5 flex-1 flex flex-col">
               <div className="flex items-center gap-2 mb-3">
-                <h1 className="text-base font-semibold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
-                <PenLine size={12} className="text-slate-700 cursor-pointer" onClick={() => setIsEditCounterpartyModalOpen(true)} />
+                <h1 className="text-base font-semibold text-slate-900">{counterpartyInfo?.name || tc('noName')}</h1>
+                <PenLine size={12} className="text-slate-700 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => setIsEditCounterpartyModalOpen(true)} />
               </div>
-              <div className="h-px bg-gray-300 mb-4"></div>
+              <div className="h-px bg-gray-200 mb-4"></div>
               {hasInfo ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-                  <span className="text-xs text-slate-400 text-center">Реквизиты контрагента отсутствуют</span>
-                  <button className="flex items-center gap-2 px-5 py-2 text-xs text-slate-600 bg-white border border-gray-300 rounded cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-400" onClick={() => setIsEditCounterpartyModalOpen(true)}>
+                  <span className="text-xs text-slate-400 text-center">{t('info.noRequisites')}</span>
+                  <button className="flex items-center gap-2 px-5 py-2 text-xs text-slate-600 bg-white border border-gray-300 rounded-lg cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-400 hover:shadow-sm" onClick={() => setIsEditCounterpartyModalOpen(true)}>
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="9" cy="9" r="8" stroke="#6b7280" strokeWidth="1.2" />
                       <path d="M9 5.5V12.5M5.5 9H12.5" stroke="#6b7280" strokeWidth="1.2" strokeLinecap="round" />
                     </svg>
-                    Добавить
+                    {t('info.addRequisites')}
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-y-3 gap-x-6">
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">ИНН</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.inn')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.inn || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для поступлений</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.receiptArticle')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.receiptArticle || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">КПП</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.kpp')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Статья для выплат</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.paymentArticle')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.paymentArticle || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">№ счета</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.accountNumber')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 font-normal flex-shrink-0">Комментарий</span>
+                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.comment')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.comment || '–'}</span>
                     </div>
                   </div>
@@ -710,7 +697,7 @@ const KontragentDetailPage = observer(() => {
           <div className="p-4">
             <div id='operation_filter_section' className={"mb-3 sticky min-h-14  max-h-28 top-10 z-20 bg-white "}>
               <div className="flex py-3 items-center gap-3">
-                <h2 className="text-xl font-medium">Операции по контрагенту</h2>
+                <h2 className="text-xl font-medium">{t('operationsTitle')}</h2>
                 <button
                   className="primary-btn"
                   onClick={() => {
@@ -724,13 +711,13 @@ const KontragentDetailPage = observer(() => {
                     }, 50)
                   }}
                 >
-                  Создать
+                  {t('createOperation')}
                 </button>
                 <button
                   className="secondary-btn flex items-center gap-2 text-primary!"
                   onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                 >
-                  Фильтры
+                  {t('filters')}
                   <ChevronDown className='w-4 h-4' />
                 </button>
               </div>
@@ -741,7 +728,7 @@ const KontragentDetailPage = observer(() => {
                     <SelectMyAccounts
                       value={selectedLegalEntities}
                       onChange={setSelectedLegalEntities}
-                      placeholder="Юрлица и счета"
+                      placeholder={tc('placeholders.selectLegalEntity')}
                       className={'bg-white'}
                       dropdownClassName={'w-64'}
                     />
@@ -750,7 +737,7 @@ const KontragentDetailPage = observer(() => {
                     <MultiSelectStatiya
                       value={selectedChartOfAccounts}
                       onChange={setSelectedChartOfAccounts}
-                      placeholder="Статьи"
+                      placeholder={tc('placeholders.selectStatii')}
                       className={'bg-white'}
                       dropdownClassName={'w-64'}
                     />
@@ -759,12 +746,40 @@ const KontragentDetailPage = observer(() => {
                     <MultiSelectZdelka
                       value={filters.deals}
                       onChange={(values) => setFilters(prev => ({ ...prev, deals: values }))}
-                      placeholder="Сделки"
+                      placeholder={tc('placeholders.selectDeals')}
                       className={'bg-white'}
                     />
                   </div>
                 </div>
               )}
+              <div>
+                <div className='flex z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+                  <div className='min-w-36 pl-5 flex p-3 items-center justify-start'>
+                    {t('table.date')}
+                  </div>
+                  <div className='min-w-18 max-w-52 flex-1 flex p-3 items-center justify-start'>
+                    {t('table.account')}
+                  </div>
+                  <div className='min-w-14 flex p-3 items-center justify-center'>
+                    {t('table.type')}
+                  </div>
+                  <div className='min-w-20 flex-1 flex p-3 items-center justify-start'>
+                    {t('table.counterparty')}
+                  </div>
+                  <div className='min-w-20 flex-1 text-start p-3 items-center justify-start'>
+                    {t('table.article')}
+                  </div>
+                  <div className='min-w-20 flex-1 flex p-3 items-center justify-center'>
+                    {t('table.deal')}
+                  </div>
+                  <div className='min-w-36 flex p-3 items-center justify-end'>
+                    {t('table.amount')}
+                  </div>
+                  <div className='min-w-5 flex p-3 items-center justify-center'>
+                    &nbsp;
+                  </div>
+                </div>
+              </div>
             </div>
 
 
@@ -773,45 +788,20 @@ const KontragentDetailPage = observer(() => {
               <div className="">
                 <div className="">
                   <div className="text-center">
-                    <div className="text-2xl font-medium">Создайте операции с контрагентом</div>
-                    <div className="text-lg text-gray-500">Добавляйте платежи и учитывайте предоплаты или отсрочки.</div>
+                    <div className="text-2xl font-medium">{t('empty.title')}</div>
+                    <div className="text-lg text-gray-500">{t('empty.description')}</div>
                   </div>
                 </div>
               </div>
             ) : (
                 <div className="pb-56">
                   {/* Table Header */}
-                  <div className='flex  sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-                    <div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
-                      Дата
-                    </div>
-                    <div className='min-w-18 max-w-52 flex-1  flex p-3 items-center justify-start '>
-                      Счет
-                    </div>
-                    <div className='min-w-14   flex p-3 items-center justify-center '>
-                      Тип
-                    </div>
-                    <div className='min-w-20 flex-1  flex p-3 items-center justify-start '>
-                      Контрагент
-                    </div>
-                    <div className='min-w-20 flex-1   text-start  p-3 items-center justify-start '>
-                      Статья
-                    </div>
-                    <div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
-                      Сделка
-                    </div>
-                    <div className='min-w-36  flex p-3 items-center justify-end '>
-                      Сумма
-                    </div>
-                    <div className='min-w-5  flex p-3 items-center justify-center'>
-                      &nbsp;
-                    </div>
-                  </div>
 
-                  <div className={styles.tableBody}>
+
+                  <div className="pb-4">
                     {operationsList?.future?.length > 0 && (
                       <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
-                        <h3 className="font-medium">После</h3>
+                        <h3 className="font-medium">{t('sections.future')}</h3>
                       </div>
                     )}
 
@@ -831,7 +821,7 @@ const KontragentDetailPage = observer(() => {
                     {/* Today — Section Header */}
                     {operationsList?.today?.length > 0 && (
                       <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
-                        <h3 className="font-medium">Сегодня</h3>
+                        <h3 className="font-medium">{t('sections.today')}</h3>
                       </div>
                     )}
 
@@ -851,7 +841,7 @@ const KontragentDetailPage = observer(() => {
                     {/* Вчера и ранее - Section Header */}
                     {operationsList?.before?.length > 0 && (
                       <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
-                        <h3 className="font-medium">Вчера и ранее</h3>
+                        <h3 className="font-medium">{t('sections.before')}</h3>
                       </div>
                     )}
                     {operationsList?.before?.map((op) => (
@@ -875,22 +865,22 @@ const KontragentDetailPage = observer(() => {
         {/* Fixed Footer */}
         <div className="fixed bottom-0 w-full h-10 bg-neutral-100 border-t border-gray-200 flex items-center justify-start px-6">
           <div className="flex items-center gap-4 text-xss">
-            <span className={styles.footerText}>
-              <span className={styles.footerTextBold}>{summary?.total}</span> {summary?.total === 1 ? 'операция' : summary?.total < 5 ? 'операции' : 'операций'}
+            <span className="text-xs text-gray-600">
+              <span className="font-semibold text-slate-900">{summary?.total}</span> {summary?.total === 1 ? t('footer.operations') : summary?.total < 5 ? t('footer.operationsPlural') : t('footer.operationsPluralMany')}
             </span>
             {stats.receiptsCount > 0 && (
-              <span className={styles.footerText}>
-                {stats.receiptsCount} {stats.receiptsCount === 1 ? 'поступление' : stats.receiptsCount < 5 ? 'поступления' : 'поступлений'}: <span className={styles.footerTextBold}>{formatAmount(summary?.incoming)} {GlobalCurrency.name}</span>
+              <span className="text-xs text-gray-600">
+                {stats.receiptsCount} {stats.receiptsCount === 1 ? t('footer.receipts') : stats.receiptsCount < 5 ? t('footer.receiptsPlural') : t('footer.receiptsPluralMany')}: <span className="font-semibold text-slate-900">{formatAmount(summary?.incoming)} {GlobalCurrency.name}</span>
               </span>
             )}
             {stats.paymentsCount > 0 && (
-              <span className={styles.footerText}>
-                {stats.paymentsCount} {counterparty?.expense === 1 ? 'выплата' : counterparty?.expense < 5 ? 'выплаты' : 'выплат'}: <span className={styles.footerTextBold}>{formatAmount(summary?.outgoing)} {GlobalCurrency.name}</span>
+              <span className="text-xs text-gray-600">
+                {stats.paymentsCount} {stats.paymentsCount === 1 ? t('footer.payments') : stats.paymentsCount < 5 ? t('footer.paymentsPlural') : t('footer.paymentsPluralMany')}: <span className="font-semibold text-slate-900">{formatAmount(summary?.outgoing)} {GlobalCurrency.name}</span>
               </span>
             )}
-            <span className={styles.footerText}>
-              Итого: <span className={cn(styles.footerTextBold, summary.profit >= 0 ? styles.footerTextGreen : styles.footerTextRed)}>
-                {summary.profit >= 0 ? '+' : ''}{formatAmount(summary.profit)} {GlobalCurrency.name}
+            <span className="text-xs text-gray-600">
+              {t('footer.total')}: <span className={cn('font-semibold', summary?.profit >= 0 ? 'text-emerald-600' : 'text-red-600')}>
+                {summary?.profit >= 0 ? '+' : ''}{formatAmount(summary?.profit || 0)} {GlobalCurrency.name}
               </span>
             </span>
           </div>
@@ -944,67 +934,62 @@ const KontragentDetailPage = observer(() => {
 
       {/* Requisites Modal */}
       {isRequisitesModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsRequisitesModalOpen(false)}>
-          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>Реквизиты «{counterpartyInfo?.name}»</h3>
-              <button className={styles.closeBtn} onClick={() => setIsRequisitesModalOpen(false)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setIsRequisitesModalOpen(false)}>
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-slate-900">{t('info.title')} «{counterpartyInfo?.name}»</h3>
+              <button className="text-gray-400 hover:text-gray-600 transition-colors" onClick={() => setIsRequisitesModalOpen(false)}>
+                <X size={20} />
               </button>
             </div>
-            <div className={styles.modalBody}>
-              <div className={styles.modalRow}>
-                <div className={styles.modalLabel}>Название</div>
-                <div className={styles.modalValue}>{counterpartyInfo?.fullName || ''}</div>
+            <div className="p-4 space-y-4">
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-slate-500 font-medium">{tc('placeholders.selectCounterparty')}</div>
+                <div className="text-sm text-slate-900">{counterpartyInfo?.fullName || ''}</div>
               </div>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalLabel}>ИНН</div>
-                <div className={styles.modalValue}>{counterpartyInfo?.inn || ''}</div>
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-slate-500 font-medium">{t('info.inn')}</div>
+                <div className="text-sm text-slate-900">{counterpartyInfo?.inn || ''}</div>
               </div>
 
-              <div className={styles.modalRow}>
-                <div className={styles.modalDoubleCol}>
-                  <div>
-                    <div className={styles.modalLabel}>КПП</div>
-                    <div className={styles.modalValue}>
-                      {counterpartyInfo?.kpp?.length > 0 ? counterpartyInfo.kpp[0] : ''}
-                    </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs text-slate-500 font-medium">{t('info.kpp')}</div>
+                  <div className="text-sm text-slate-900">
+                    {counterpartyInfo?.kpp?.length > 0 ? counterpartyInfo.kpp[0] : ''}
                   </div>
-                  <div>
-                    <div className={styles.modalLabel}>Дополнительные КПП</div>
-                    <div className={styles.modalValueList}>
-                      {counterpartyInfo?.kpp?.length > 1 ? counterpartyInfo.kpp.slice(1).map((val, i) => (
-                        <div key={i} className={styles.modalValueItem}>{val}</div>
-                      )) : ''}
-                    </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs text-slate-500 font-medium">{t('info.additionalKpp')}</div>
+                  <div className="space-y-1">
+                    {counterpartyInfo?.kpp?.length > 1 ? counterpartyInfo.kpp.slice(1).map((val, i) => (
+                      <div key={i} className="text-sm text-slate-900">{val}</div>
+                    )) : ''}
                   </div>
                 </div>
               </div>
-              <div className={styles.modalRow}>
-                <div className={styles.modalDoubleCol}>
-                  <div>
-                    <div className={styles.modalLabel}>Номер счета</div>
-                    <div className={styles.modalValue}>
-                      {counterpartyInfo?.accountNumber?.length > 0 ? counterpartyInfo.accountNumber[0] : ''}
-                    </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs text-slate-500 font-medium">{t('info.accountNumber')}</div>
+                  <div className="text-sm text-slate-900">
+                    {counterpartyInfo?.accountNumber?.length > 0 ? counterpartyInfo.accountNumber[0] : ''}
                   </div>
-                  <div >
-                    <div className={styles.modalLabel}>Дополнительные номера счетов</div>
-                    <div className={styles.modalValueList}>
-                      {counterpartyInfo?.accountNumber?.length > 1 ? counterpartyInfo.accountNumber.slice(1).map((val, i) => (
-                        <div key={i} className={styles.modalValueItem}>{val}</div>
-                      )) : '–'}
-                    </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs text-slate-500 font-medium">{t('info.additionalAccounts')}</div>
+                  <div className="space-y-1">
+                    {counterpartyInfo?.accountNumber?.length > 1 ? counterpartyInfo.accountNumber.slice(1).map((val, i) => (
+                      <div key={i} className="text-sm text-slate-900">{val}</div>
+                    )) : '–'}
                   </div>
                 </div>
               </div>
             </div>
-            <div className={styles.modalFooter}>
-              <button className={styles.closeActionBtn} onClick={() => setIsRequisitesModalOpen(false)}>
-                Закрыть
+            <div className="p-4 border-t border-gray-200 flex justify-end">
+              <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsRequisitesModalOpen(false)}>
+                {tc('close')}
               </button>
             </div>
           </div>

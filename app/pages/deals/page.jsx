@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
 import { Download, Loader2, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
@@ -31,6 +32,8 @@ import styles from './deals.module.scss'
 
 export default observer(function DealsPage() {
   const router = useRouter()
+  const t = useTranslations('Deals')
+  const tc = useTranslations('Common')
   const [search, setSearch] = useState('')
   const mounted = useMounted()
 
@@ -75,7 +78,7 @@ export default observer(function DealsPage() {
     profit_to: Number(profitTo) || null,
     counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
     status: status?.length > 0 ? status : null,
-    accounting_method: dealsMethod === 'accrual_method' ? 'Метод начисления' : 'Кассовый метод',
+    accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }
 
@@ -97,7 +100,7 @@ export default observer(function DealsPage() {
     mutationKey: ['export_deals'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_deals', data: dealsFilters }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
+      showSuccessNotification(t('fileDownloaded'))
       const fileLink = uploadData?.data?.link
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`
@@ -135,7 +138,7 @@ export default observer(function DealsPage() {
       data_nachala: deal.Data_sdelki,
       nazvanie: deal.Nazvanie,
       kontragent: { nazvanie: deal.partner_name || '-' },
-      status: deal.Status?.[0] || 'Новая',
+      status: deal.Status?.[0] || t('statusNew'),
       summa_sdelki: deal?.total_products_summa || 0,
       postupilo: deal?.receipts_percentage ? `${Math.round(deal.receipts_percentage)}%` : '0%',
       otgruzheno: deal?.shipments_percentage ? `${Math.round(deal.shipments_percentage)}%` : '0%',
@@ -234,16 +237,16 @@ export default observer(function DealsPage() {
       <main id='scrollableDiv' className='w-full relative overflow-y-auto scroll-smooth bg-white px-2'>
         <header className='flex items-center justify-between px-3 h-[60px] sticky top-0 bg-white z-20'>
           <div className='flex items-center gap-2 flex-1'>
-            <h1 className={styles.title}>Сделки по продажам</h1>
+            <h1 className={styles.title}>{t('pageTitle')}</h1>
             {dealPermission.add && <>
               {!appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => setIsCreateModalOpen(true)}>
-                Создать
+                {t('createDeal')}
               </button>}
               {appStore.isDonoSchool && <button className='primary-btn text-sm rounded-sm!' onClick={() => {
                 setShowCreateStudentModal(true)
                 setDealToEdit(null)
               }}>
-                Создать студента
+                {t('createStudent')}
               </button>}
             </>}
           </div>
@@ -251,8 +254,8 @@ export default observer(function DealsPage() {
             <div className='w-44'>
               <SingleSelect
                 data={[
-                  { value: 'accrual_method', label: 'Метод начисления' },
-                  { value: 'cash_method', label: 'Кассовый метод' },
+                  { value: 'accrual_method', label: t('methods.accrual') },
+                  { value: 'cash_method', label: t('methods.cash') },
                 ]}
                 withSearch={false}
                 value={dealsMethod}
@@ -264,14 +267,14 @@ export default observer(function DealsPage() {
             <div className='w-72'>
               <Input
                 type='text'
-                placeholder='Поиск по краткому названию'
+                placeholder={t('searchPlaceholder')}
                 value={searchValue}
                 onChange={(e) => handleSearch(e.target.value)}
                 leftIcon={<Search size={18} />}
               />
             </div>
             <div>
-              <button onClick={exportDeals} type='button' className="primary-btn">Скачать в Excel {isDealsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+              <button onClick={exportDeals} type='button' className="primary-btn">{t('downloadExcel')} {isDealsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
         </header>
@@ -284,22 +287,22 @@ export default observer(function DealsPage() {
           {isAllSelected && selectedDeals.size > 0 ? (
             <div className='flex items-center gap-2'>
               <p>{selectedDeals.size}</p>
-              <button className='primary-btn'>Удалить</button>
+              <button className='primary-btn'>{tc('delete')}</button>
             </div>
           ) : (
             <>
-              <div className='w-32 flex px-2 items-center justify-start'>Дата</div>
-              <div className='flex-1 flex px-2 items-center justify-start'>Название</div>
-              <div className='w-52 flex px-2 items-center justify-start'>Клиент</div>
-              <div className='w-28 flex px-2 items-center justify-center'>Статус</div>
+                <div className='w-32 flex px-2 items-center justify-start'>{t('table.date')}</div>
+                <div className='flex-1 flex px-2 items-center justify-start'>{t('table.name')}</div>
+                <div className='w-52 flex px-2 items-center justify-start'>{t('table.client')}</div>
+                <div className='w-28 flex px-2 items-center justify-center'>{t('table.status')}</div>
               <div className='w-36 flex px-2 items-center justify-end gap-1'>
-                <span>Сумма сделки</span>
+                  <span>{t('table.dealAmount')}</span>
                 <span>{GlobalCurrency.name}</span>
               </div>
-                <div className='w-24 flex px-2 items-center justify-end'>Поступило</div>
-                <div className='w-24 flex px-2 items-center justify-end'>Отгружено</div>
+                <div className='w-24 flex px-2 items-center justify-end'>{t('table.received')}</div>
+                <div className='w-24 flex px-2 items-center justify-end'>{t('table.shipped')}</div>
                 <div className='w-44 flex px-2 items-center justify-end gap-1'>
-                  <span>Прибыль</span>
+                  <span>{t('table.profit')}</span>
                   <span>{GlobalCurrency.name}</span>
                 </div>
             </>
@@ -307,7 +310,7 @@ export default observer(function DealsPage() {
         </div>
 
         {formattedDeals?.length === 0 && !isLoading && (
-          <div className='py-20 text-center text-neutral-500 text-sm'>Нет данных</div>
+          <div className='py-20 text-center text-neutral-500 text-sm'>{t('empty')}</div>
         )}
 
         <InfiniteScroll
@@ -354,21 +357,21 @@ export default observer(function DealsPage() {
                     </div>
                     <div className='hidden group-hover:flex justify-between'>
 
-                      <button className='hover:bg-neutral-100 rounded-full justify-self-start p-2 cursor-pointer' title='Редактировать договор' onClick={(e) => handleUpdate(deal, e)}>
+                      <button className='hover:bg-neutral-100 rounded-full justify-self-start p-2 cursor-pointer' title={t('tooltips.editContract')} onClick={(e) => handleUpdate(deal, e)}>
                         &nbsp;
                       </button>
 
                       <div className='flex items-center justify-end'>
-                        {deal.contract_file && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скачать договор' onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}>
+                        {deal.contract_file && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title={t('tooltips.downloadContract')} onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}>
                           <Download size={14} color='#686868' />
                         </button>}
-                        {dealPermission.edit && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Редактировать' onClick={(e) => handleEditClick(deal, e)}>
+                        {dealPermission.edit && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title={t('tooltips.edit')} onClick={(e) => handleEditClick(deal, e)}>
                           <MdOutlineModeEdit size={14} color='#686868' />
                         </button>}
-                        {dealPermission.add && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Скопировать' onClick={(e) => handleCopyClick(deal, e)}>
+                        {dealPermission.add && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title={t('tooltips.copy')} onClick={(e) => handleCopyClick(deal, e)}>
                           <IoCopyOutline size={14} color='#686868' />
                         </button>}
-                        {dealPermission.delete && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title='Удалить' onClick={(e) => handleDeleteClick(deal, e)}>
+                        {dealPermission.delete && <button className='hover:bg-neutral-100 rounded-full p-2 cursor-pointer' title={t('tooltips.delete')} onClick={(e) => handleDeleteClick(deal, e)}>
                           <IoCloseOutline size={14} color='#686868' />
                         </button>}
                       </div>
@@ -390,13 +393,13 @@ export default observer(function DealsPage() {
         isFilterOpen ? 'left-[320px]' : 'left-[110px]'
       )}>
         <span className='flex items-center gap-1.5'>
-          <span className='text-[11px] text-gray-500 font-medium'>{summary?.count || 0} сделок на сумму:</span>
+          <span className='text-[11px] text-gray-500 font-medium'>{t('footer.dealsCount', { count: summary?.count || 0 })}</span>
           <span className='text-xs font-semibold text-slate-900'>{formatAmount(summary?.total_deals_sum || 0)}</span>
           <span className='text-xs font-semibold text-slate-900'>{GlobalCurrency.name}</span>
         </span>
         <div className='w-px h-5 bg-gray-200 shrink-0' />
         <span className='flex items-center gap-1.5'>
-          <span className='text-[11px] text-gray-500 font-medium'>Общая прибыль:</span>
+          <span className='text-[11px] text-gray-500 font-medium'>{t('footer.totalProfit')}</span>
           <span className={cn(
             'text-xs font-semibold',
             totalProfit > 0 ? 'text-emerald-500' : totalProfit < 0 ? 'text-red-500' : 'text-slate-900'

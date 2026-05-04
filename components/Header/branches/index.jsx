@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ChevronDown } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -12,6 +13,7 @@ import { authStore } from '../../../store/auth.store'
 import ScreenLoader from '../../shared/ScreenLoader'
 
 const Branches = observer(() => {
+  const t = useTranslations('Header.branches')
   const [open, setOpen] = useState(false)
   const [reloading, setReloading] = useState(false)
   const containerRef = useRef(null)
@@ -101,7 +103,7 @@ const Branches = observer(() => {
         className="flex flex-col px-4 py-1 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
       >
         <span className="flex items-center gap-1 text-start line-clamp-1 w-full font-medium">
-          {selectedBranch?.name || 'Выберите филиал'}
+          {selectedBranch?.name || t('selectPlaceholder')}
           {branchesList && (
             <ChevronDown
               size={14}

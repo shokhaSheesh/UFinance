@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
-import TreeSelect from '../../shared/Selects/TreeSelect'
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
+import TreeSelect from '../../shared/Selects/TreeSelect'
 
 const NOT_SELECTABLE = new Set([
   'Доходы',
@@ -40,7 +41,8 @@ const mapTree = (data, type) => {
     .filter(Boolean)
 }
 
-const MultiSelectStatiya = ({ value = [], onChange, placeholder = 'Выберите статьи', className, type = "", dropdownClassName, hasError }) => {
+const MultiSelectStatiya = ({ value = [], onChange, placeholder, className, type = "", dropdownClassName, hasError }) => {
+  const t = useTranslations('Common')
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
@@ -63,7 +65,7 @@ const MultiSelectStatiya = ({ value = [], onChange, placeholder = 'Выбери�
     <TreeSelect
       data={result}
       multi={true}
-      placeholder={placeholder}
+      placeholder={placeholder || t('placeholders.selectStatii')}
       value={value}
       onChange={onChange}
       className={className}

@@ -5,6 +5,7 @@ import { DealIcon, UsersIcon } from '@/constants/icons'
 import { ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -15,6 +16,7 @@ import { appStore } from '../../store/app.store'
 
 
 export const Sidebar = observer(() => {
+    const t = useTranslations('Sidebar')
     const pathname = usePathname()
     const sidebarRef = useRef(null)
     const [modalOpen, setModalOpen] = useState(false)
@@ -43,55 +45,55 @@ export const Sidebar = observer(() => {
     const permissions = toJS(appStore.permission)
 
     const navItems = [
-        { icon: ChartLine, label: 'Показатели', href: '/pages/indicators', hasPage: true, canShow: permissions?.indicators?.read },
+        { icon: ChartLine, label: t('nav.indicators'), href: '/pages/indicators', hasPage: true, canShow: permissions?.indicators?.read },
         {
             icon: RefreshCw,
-            label: 'Операции',
+            label: t('nav.operations'),
             href: '/pages/operations',
             hasPage: true,
             canShow: permissions?.operations?.income?.read || permissions?.operations?.payout?.read || permissions?.operations?.transfer?.read || permissions?.operations?.accrual?.read || permissions?.operations?.shipment?.read
         },
         {
             icon: UsersIcon,
-            label: 'Контрагенты',
+            label: t('nav.counterparties'),
             href: '/pages/directories/counterparties',
             hasPage: true,
             canShow: permissions?.directories?.counterparties?.read
         },
         {
             icon: DealIcon,
-            label: 'Сделки',
+            label: t('nav.deals'),
             href: '/pages/deals',
             hasPage: true,
             canShow: permissions?.deals?.read
         },
         {
             icon: ClipboardList,
-            label: 'Отчёты',
+            label: t('nav.reports'),
             href: '/pages/reports',
             hasPage: true,
             canShow: (permissions?.reports?.cashflow?.read || permissions?.reports?.pnl?.read || permissions?.reports?.balance?.read),
             submenu: [
                 {
-                    label: 'Движение денег (ДДС)',
+                    label: t('reports.cashflow'),
                     href: '/pages/reports/cashflow',
                     hasPage: true,
                     canShow: permissions?.reports?.cashflow?.read
                 },
                 {
-                    label: 'Прибыли и убытки (ОПУ)',
+                    label: t('reports.pnl'),
                     href: '/pages/reports/profit-and-loss',
                     hasPage: true,
                     canShow: permissions?.reports?.pnl?.read
                 },
                 {
-                    label: 'Баланс',
+                    label: t('reports.balance'),
                     href: '/pages/reports/balance',
                     hasPage: true,
                     canShow: permissions?.reports?.balance?.read
                 },
                 {
-                    label: 'Студенты',
+                    label: t('reports.students'),
                     href: '/pages/reports/students',
                     hasPage: true,
                     canShow: appStore.isDonoSchool
@@ -100,37 +102,37 @@ export const Sidebar = observer(() => {
         },
         {
             icon: Library,
-            label: 'Справочники',
+            label: t('nav.directories'),
             href: '/pages/directories',
             hasPage: true,
             canShow: (permissions?.directories?.counterparties?.read || permissions?.directories?.transactionCategories?.read || permissions?.directories?.accounts?.read || permissions?.directories?.legalentities?.read || permissions?.directories?.productsServices?.read),
             submenu: [
                 {
-                    label: 'Контрагенты',
+                    label: t('directories.counterparties'),
                     href: '/pages/directories/counterparties',
                     hasPage: true,
                     canShow: permissions?.directories?.counterparties?.read
                 },
                 {
-                    label: 'Учетные статьи',
+                    label: t('directories.transactionCategories'),
                     href: '/pages/directories/transaction-categories',
                     hasPage: true,
                     canShow: permissions?.directories?.transactionCategories?.read
                 },
                 {
-                    label: 'Мои счета',
+                    label: t('directories.accounts'),
                     href: '/pages/directories/accounts',
                     hasPage: true,
                     canShow: permissions?.directories?.accounts?.read
                 },
                 {
-                    label: 'Мои юрлица',
+                    label: t('directories.legalEntities'),
                     href: '/pages/directories/legal-entities',
                     hasPage: true,
                     canShow: permissions?.directories?.legalentities?.read
                 },
                 {
-                    label: 'Товары & Услуги',
+                    label: t('directories.productsServices'),
                     href: '/pages/directories/product-service',
                     hasPage: true,
                     canShow: permissions?.directories?.productsServices?.read
@@ -139,7 +141,7 @@ export const Sidebar = observer(() => {
         },
         {
             icon: IoSettingsOutline,
-            label: 'Настройки',
+            label: t('nav.settings'),
             href: '/pages/settings',
             hasPage: true,
             canShow: (permissions?.settings?.general?.read || permissions?.settings?.users?.read || permissions?.settings?.profile?.read || permissions?.settings?.exchangerates?.read),
@@ -227,16 +229,16 @@ export const Sidebar = observer(() => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999">
                     <div className="bg-white rounded-lg p-6 w-[500px] max-w-[95vw]">
                         <h2 className="text-lg font-bold text-slate-900 mb-4">
-                            Настройка локального API
+                            {t('apiModal.title')}
                         </h2>
 
                         <div className="flex flex-col gap-1.5 mb-4">
-                            <label className="text-sm font-medium text-slate-500">URL локального API</label>
+                            <label className="text-sm font-medium text-slate-500">{t('apiModal.label')}</label>
                             <textarea
                                 value={apiUrl}
                                 onChange={(e) => setApiUrl(e.target.value)}
                                 disabled={hasSavedUrl}
-                                placeholder="https://your-local-api-url.com"
+                                placeholder={t('apiModal.placeholder')}
                                 className={cn(
                                     "w-full p-3 border border-gray-300 rounded-lg text-sm resize-none",
                                     hasSavedUrl && "bg-gray-100 cursor-not-allowed"
@@ -245,7 +247,7 @@ export const Sidebar = observer(() => {
                             />
                             {hasSavedUrl && (
                                 <p className="text-xs text-gray-500">
-                                    URL уже сохранен и не может быть изменен
+                                    {t('apiModal.savedNotice')}
                                 </p>
                             )}
                         </div>
@@ -254,13 +256,13 @@ export const Sidebar = observer(() => {
                                 onClick={() => setModalOpen(false)}
                                 className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                             >
-                                Отмена
+                                {t('apiModal.cancel')}
                             </button>
                             {apiUrl && <button
                                 onClick={handleClearApiUrl}
                                 className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                             >
-                                Clear
+                                {t('apiModal.clear')}
                             </button>}
                             {!hasSavedUrl && (
                                 <button
@@ -268,7 +270,7 @@ export const Sidebar = observer(() => {
                                     disabled={!apiUrl.trim()}
                                     className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                    Сохранить
+                                    {t('apiModal.save')}
                                 </button>
                             )}
                         </div>

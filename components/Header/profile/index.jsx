@@ -1,11 +1,13 @@
 import { cn } from '@/app/lib/utils'
 import { ChevronDown, LogOut } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { authStore } from '../../../store/auth.store'
 import styles from './Profile.module.scss'
 
 export const Profile = observer(() => {
+  const t = useTranslations('Header.profile')
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const menuRef = useRef(null)
@@ -39,7 +41,7 @@ export const Profile = observer(() => {
         <div className={styles.profileInfo}>
           <div className={styles.profileTop}>
             <span className={styles.email}>
-              {mounted ? (authStore.userEmail || 'Пользователь') : 'Пользователь'}
+              {mounted ? (authStore.userEmail || t('fallbackName')) : t('fallbackName')}
             </span>
             <ChevronDown size={14} className={cn(styles.chevron, isOpen && styles.open)} />
           </div>
@@ -52,7 +54,7 @@ export const Profile = observer(() => {
           <div className={styles.menuGroup}> 
             <button className={cn(styles.menuItem, styles.logoutItem)} onClick={handleLogout}>
               <LogOut size={18} className={styles.menuIcon} />
-              <span>Выйти из аккаунта</span>
+              <span>{t('logout')}</span>
             </button>
           </div>
         </div>

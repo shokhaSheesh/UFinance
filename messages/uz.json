@@ -1,0 +1,743 @@
+{
+  "filter":"Filtrlar",
+  "search":"Qidirish...",
+  "Common": {
+    "loading": "Yuklanmoqda...",
+    "noName": "Nomsiz",
+    "search": "Qidirish...",
+    "searching": "Qidirilmoqda...",
+    "empty": "Hech narsa topilmadi",
+    "noGroup": "Guruhsiz",
+    "selectAll": "Hammasini tanlash",
+    "selected": "Tanlangan: {{count}}",
+    "create": "Yaratish",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "close": "Yopish",
+    "rootElement": "Asosiy element",
+    "createAsRoot": "Asosiy element sifatida yaratish",
+    "placeholders": {
+      "select": "Tanlang...",
+      "selectAccount": "Hisobni tanlang",
+      "selectAccounts": "Hisoblarni tanlang",
+      "selectCounterparty": "Tomonni tanlang",
+      "selectCounterparties": "Tomonlarni tanlang",
+      "selectStatiya": "Maqolani tanlang",
+      "selectStatii": "Maqolalarni tanlang",
+      "selectLegalEntity": "Yuridik shaxsni tanlang",
+      "selectDeal": "Bitimni tanlang",
+      "selectDeals": "Bitimlarni tanlang",
+      "selectProduct": "Tovar yoki xizmatni tanlang",
+      "selectCurrency": "Valyutani tanlang",
+      "selectGroup": "Guruhni tanlang",
+      "selectCounterpartyGroup": "Tomonlar guruhini tanlang"
+    },
+    "tooltips": {
+      "editGroup": "Guruhni tahrirlash",
+      "deleteGroup": "Guruhni o'chirish",
+      "edit": "Tahrirlash",
+      "delete": "O'chirish"
+    }
+  },
+  "Directories": {
+    "counterparty": {
+      "createTitle": "Tomon yaratish",
+      "editTitle": "Tomonni tahrirlash",
+      "createGroupTitle": "Guruh yaratish",
+      "tabCounterparty": "Tomon yaratish",
+      "tabGroup": "Guruh yaratish",
+      "fields": {
+        "name": "Nomi",
+        "fullName": "To'liq nomi",
+        "group": "Tomonlar guruhi",
+        "inn": "INN",
+        "kpp": "KPP",
+        "accountNumber": "Hisob raqami",
+        "defaultArticles": "Standart bo'yicha moddalar qo'llash",
+        "articleIn": "Kirimlar uchun modda",
+        "articleOut": "Chiqimlar uchun modda",
+        "comment": "Izoh",
+        "groupName": "Nomi",
+        "groupComment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Masalan, Vasiliev",
+        "fullName": "Masalan, Vasiliev va hamkorlari MChJ",
+        "selectGroup": "Tomonlar guruhini tanlang",
+        "inn": "INN kiriting",
+        "kpp": "KPP kiriting",
+        "account": "Hisob raqamini kiriting",
+        "comment": "Tomonga izoh",
+        "groupComment": "Tomonlar guruhiga izoh",
+        "groupName": "Masalan, yetkazib beruvchilarim"
+      },
+      "errors": {
+        "nameRequired": "Nomini kiriting",
+        "groupNameRequired": "Guruh nomini kiriting",
+        "createFailed": "Tomon yaratib bo'lmadi",
+        "createGroupFailed": "Tomonlar guruhini yaratib bo'lmadi"
+      },
+      "saving": "Saqlanmoqda...",
+      "creating": "Yaratilmoqda...",
+      "requisites": "Rekvizitlar",
+      "cancel":"Bekor qilish",
+      "create":"Yaratish",
+      "groupNameLabel": "Guruh nomi:",
+      "groupDescriptionLabel": "Tavsif:",
+      "deleteConfirmTitle": "O'chirishni tasdiqlash",
+      "deleteConfirmMessage": "Siz tomonlar guruhini o'chirishga ishonchingiz komilmi?",
+      "pageTitle": "Tomonlar",
+      "list": {
+        "title": "Tomonlar",
+        "createButton": "Yaratish",
+        "downloadExcel": "Excel ga yuklash",
+        "searchPlaceholder": "Qidirish...",
+        "viewModes": {
+          "list": "Ro'yxat",
+          "nested": "Ichma-ich ko'rinish"
+        },
+        "tableHeaders": {
+          "counterparty": "Tomon",
+          "group": "Guruh",
+          "inn": "INN",
+          "operations": "Operatsiyalar",
+          "receivables": "Debit.",
+          "payables": "Kredit.",
+          "income": "Daromadlar",
+          "expense": "Xarajatlar",
+          "profit": "Foyda",
+          "receipts": "Kirimlar",
+          "payments": "Chiqimlar",
+          "difference": "Farq"
+        },
+        "filters": {
+          "parameters": "Parametrlar",
+          "period": "Tahlil davri",
+          "receivables": "Debit qoldiq",
+          "payables": "Kredit qoldiq",
+          "cash": "Naqd",
+          "nonCash": "Naqdmas",
+          "without": "Qarzsiz",
+          "selectChartOfAccounts": "Hisob moddalarini tanlang",
+          "selectDeals": "Bitimlarni tanlang",
+          "selectLegalEntities": "Yuridik shaxsni tanlang"
+        },
+        "calculationOptions": {
+          "cashflow": "Pul oqimi bo'yicha hisob",
+          "cash": "Kassa usuli bo'yicha hisob",
+          "calculation": "Uchdan hisob usuli"
+        },
+        "empty": "Ma'lumot yo'q",
+        "noCounterpartiesInGroup": "Tomonlar yo'q",
+        "noName": "Nomsiz",
+        "noGroup": "Guruhsiz",
+        "counterpartyCount": "{count} tomon",
+        "counterpartyCountPlural": "{count} tomon",
+        "counterpartyCountPluralMany": "{count} tomon",
+        "summary": {
+          "receivables": "Debit qoldiq",
+          "payables": "Kredit qoldiq",
+          "receipts": "Kirimlar",
+          "payments": "Chiqimlar",
+          "difference": "Farq"
+        }
+      },
+      "detail": {
+        "backToList": "Tomonlar ro'yxati",
+        "notFound": "Tomon topilmadi",
+        "calculationOptions": {
+          "cashflow": "Pul oqimi bo'yicha hisob",
+          "cash": "Kassa usuli bo'yicha hisob",
+          "calculation": "Uchdan hisob usuli"
+        },
+        "operationsTitle": "Tomon operatsiyalari",
+        "createOperation": "Yaratish",
+        "filters": "Filtrlar",
+        "stats": {
+          "receipts": "Kirimlar",
+          "payments": "Chiqimlar",
+          "difference": "Farq",
+          "receivables": "Debit qoldiq",
+          "payables": "Kredit qoldiq",
+          "noDebt": "Qarz yo'q"
+        },
+        "info": {
+          "title": "Rekvizitlar",
+          "inn": "INN",
+          "kpp": "KPP",
+          "accountNumber": "Hisob raqami",
+          "receiptArticle": "Kirimlar uchun modda",
+          "paymentArticle": "Chiqimlar uchun modda",
+          "comment": "Izoh",
+          "noRequisites": "Tomon rekvizitlari mavjud emas",
+          "addRequisites": "Qo'shish",
+          "additionalKpp": "Qo'shimcha KPP",
+          "additionalAccounts": "Qo'shimcha hisob raqamlari"
+        },
+        "table": {
+          "date": "Sana",
+          "account": "Hisob",
+          "type": "Turi",
+          "counterparty": "Tomon",
+          "article": "Maqola",
+          "deal": "Bitim",
+          "amount": "Summa"
+        },
+        "sections": {
+          "future": "Keyin",
+          "today": "Bugun",
+          "before": "Kecha va oldin"
+        },
+        "empty": {
+          "title": "Tomon bilan operatsiyalar yarating",
+          "description": "To'lovlarni qo'shing va oldindan to'lovlarni yoki kechiktirilgan to'lovlarni hisobga oling."
+        },
+        "footer": {
+          "operations": "operatsiya",
+          "operationsPlural": "operatsiya",
+          "operationsPluralMany": "operatsiya",
+          "receipts": "kirim",
+          "receiptsPlural": "kirim",
+          "receiptsPluralMany": "kirim",
+          "payments": "chiqim",
+          "paymentsPlural": "chiqim",
+          "paymentsPluralMany": "chiqim",
+          "total": "Jami"
+        },
+        "actions": {
+          "edit": "Tahrirlash",
+          "delete": "O'chirish",
+          "deleting": "O'chirilmoqda..."
+        }
+      }
+    },
+    "legalEntity": {
+      "createTitle": "Yuridik shaxs yaratish",
+      "editTitle": "Yuridik shaxsni tahrirlash",
+      "fields": {
+        "name": "Nomi",
+        "fullName": "To'liq nomi",
+        "innKpp": "INN/KPP",
+        "comment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Masalan: Vasilyev",
+        "fullName": "Masalan: Vasilyev va sheriklari MChJ",
+        "comment": "Bu yuridik shaxsga qisqa izoh bering, agar kerak bo'lsa"
+      },
+      "errors": {
+        "nameRequired": "Nomini kiriting",
+        "createFailed": "Yuridik shaxs yaratib bo'lmadi",
+        "updateFailed": "Yuridik shaxsni yangilab bo'lmadi"
+      }
+    },
+    "accountGroup": {
+      "createTitle": "Guruh yaratish",
+      "editTitle": "Guruhni tahrirlash",
+      "fields": {
+        "name": "Guruh nomi",
+        "comment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Guruh nomini kiriting",
+        "comment": "Guruh tavsifini kiriting"
+      },
+      "errors": {
+        "nameRequired": "Guruh nomi majburiy",
+        "createFailed": "Guruh yaratishda xatolik"
+      }
+    },
+    "chartOfAccounts": {
+      "createTitle": "Hisob statyasini yaratish",
+      "editTitle": "Hisob statyasini tahrirlash",
+      "tabs": {
+        "income": "Daromadlar",
+        "expense": "Xarajatlar",
+        "assets": "Aktivlar",
+        "liabilities": "Majburiyatlar",
+        "capital": "Kapital"
+      },
+      "fields": {
+        "name": "Nomi",
+        "parent": "Tegishli",
+        "comment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Statya nomini kiriting",
+        "selectParent": "Ota-ona statyasini tanlang",
+        "comment": "Statyaga izoh"
+      },
+      "errors": {
+        "nameRequired": "Statya nomini kiriting"
+      }
+    },
+    "account": {
+      "createTitle": "Hisob yaratish",
+      "editTitle": "Hisobni tahrirlash",
+      "fields": {
+        "name": "Nomi",
+        "group": "Guruh",
+        "legalEntity": "Yuridik shaxs",
+        "type": "Hisob turini tanlang",
+        "bik": "BIK",
+        "bank": "Bank",
+        "accountNumber": "Hisob raqami №",
+        "corrAccount": "Kor. hisob №",
+        "number": "Raqam",
+        "initialBalance": "Boshlang'ich qoldiq",
+        "currency": "Hisob valyutasini tanlang",
+        "comment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Masalan, VTB",
+        "selectLegalEntity": "Yuridik shaxsni tanlang yoki yangi yaratish",
+        "selectType": "Turini tanlang",
+        "selectDate": "Sanani tanlang",
+        "comment": "Ushbu hisobga izoh yoki tushuntirish"
+      },
+      "types": {
+        "cash": "Naqd",
+        "nonCash": "Pul o'tkazmasi",
+        "card": "Jismoniy shaxs kartasi",
+        "electronic": "Elektron"
+      },
+      "requisites": {
+        "show": "Rekvizitlar",
+        "hide": "Rekvizitlarni yashirish"
+      },
+      "errors": {
+        "nameRequired": "Nomini kiriting",
+        "legalEntityRequired": "Yuridik shaxsni tanlang"
+      },
+      "deleteConfirmMessage": "Siz {name} hisobini o'chirishni xohlaysizmi?"
+    },
+    "product": {
+      "createProductTitle": "Tovar yaratish",
+      "editProductTitle": "Tovarni tahrirlash",
+      "createServiceTitle": "Xizmat yaratish",
+      "editServiceTitle": "Xizmatni tahrirlash",
+      "createGroupTitle": "Guruh yaratish",
+      "editGroupTitle": "Guruhni tahrirlash",
+      "createAnother": "Yana bir tovar yaratish",
+      "fields": {
+        "type": "Turi",
+        "name": "Tovar nomi",
+        "groupName": "Guruh nomi",
+        "groupComment": "Izoh",
+        "article": "Artikul",
+        "unit": "O'lchov birligi",
+        "group": "Tovarlar guruhi",
+        "price": "Sotish narxi",
+        "vat": "QQS",
+        "comment": "Izoh"
+      },
+      "placeholders": {
+        "name": "Masalan, kafel plitka",
+        "groupName": "Masalan, kafel plitka",
+        "groupComment": "Ushbu guruhga izoh qo'shing",
+        "article": "Artikul kiriting",
+        "selectUnit": "O'lchov birligini tanlang",
+        "selectGroup": "Guruhni tanlang",
+        "price": "0.00",
+        "vat": "0%",
+        "comment": "Ushbu tovarga izoh qo'shing"
+      },
+      "types": {
+        "products": "Tovarlar",
+        "services": "Xizmatlar"
+      },
+      "errors": {
+        "nameRequired": "Nomini kiriting"
+      }
+    }
+  },
+  "Auth": {
+    "title": {
+      "login": "Hisobga kirish",
+      "register": "Ro'yxatdan o'tish",
+      "forgot": "Parolni tiklash"
+    },
+    "fields": {
+      "branchName": "Tashkilot nomi",
+      "name": "Foydalanuvchi F.I.Sh.",
+      "email": "Email",
+      "phone": "+998 XX XXX XX XX",
+      "password": "Parol",
+      "passwordCreate": "Parol yaratish"
+    },
+    "errors": {
+      "branchNameRequired": "Tashkilot nomini kiriting",
+      "nameRequired": "F.I.Sh. ni kiriting",
+      "emailRequired": "Email kiriting",
+      "emailInvalid": "Email formati noto'g'ri",
+      "phoneIncomplete": "Telefon raqamini to'liq kiriting",
+      "termsRequired": "Shartlarga rozi bo'lish kerak",
+      "passwordRequired": "Parolni kiriting"
+    },
+    "forgotPasswordLink": "Parolni unutdingizmi?",
+    "termsCheckboxPrefix": "Men ",
+    "termsCheckboxAccent": "roziman",
+    "termsCheckboxSuffix": " — axborot va ma'lumotnoma materiallarini olishga",
+    "actions": {
+      "backToLoginPrefix": "Qaytish: ",
+      "backToLoginLink": "kirish",
+      "noAccount": "Hisobingiz yo'qmi? ",
+      "hasAccount": "Hisobingiz bormi? ",
+      "toRegister": "Ro'yxatdan o'tish",
+      "toLogin": "Kirish"
+    },
+    "submit": {
+      "login": "Kirish",
+      "register": "Ro'yxatdan o'tish",
+      "forgot": "Yuborish"
+    },
+    "termsNoticePrefix": "«",
+    "termsNoticeSuffix": "» tugmasini bosish orqali siz ",
+    "termsNoticeLink": "Maxfiylik siyosatini tasdiqlaysiz",
+    "notifications": {
+      "loginSuccess": "Muvaffaqiyatli kirish!",
+      "loginError": "Email yoki Parolda xatolik qayta urinib ko'ring",
+      "registerSuccess": "Muvaffaqiyatli ro'yxatdan o'tildi!",
+      "registerError": "Xatolik: token yoki foydalanuvchi ma'lumotlari olinmadi",
+      "registerGenericError": "Ro'yxatdan o'tishda xatolik",
+      "forgotSuccess": "Parolni tiklash bo'yicha ko'rsatmalar emailingizga yuborildi",
+      "forgotError": "So'rovni yuborishda xatolik"
+    }
+  },
+  "Sidebar": {
+    "nav": {
+      "indicators": "Ko'rsatkichlar",
+      "operations": "Operatsiyalar",
+      "counterparties": "Tomonlar",
+      "deals": "Bitimlar",
+      "reports": "Hisobotlar",
+      "directories": "Ma'lumotlar",
+      "settings": "Sozlamalar"
+    },
+    "reports": {
+      "cashflow": "Mablag'lari harakati (DDS)",
+      "pnl": "Foyda va zararlar (OPU)",
+      "balance": "Balans",
+      "students": "Talabalar"
+    },
+    "directories": {
+      "counterparties": "Tomonlar",
+      "transactionCategories": "Hisob moddalari",
+      "accounts": "Mening hisoblarim",
+      "legalEntities": "Mening yuridik shaxslarim",
+      "productsServices": "Tovarlar va xizmatlar"
+    },
+    "apiModal": {
+      "title": "Lokal API sozlamasi",
+      "label": "Lokal API URL",
+      "placeholder": "https://your-local-api-url.com",
+      "savedNotice": "URL allaqachon saqlangan va o'zgartirib bo'lmaydi",
+      "cancel": "Bekor qilish",
+      "clear": "Tozalash",
+      "save": "Saqlash"
+    }
+  },
+  "Header": {
+    "branches": {
+      "selectPlaceholder": "Filialni tanlang"
+    },
+    "profile": {
+      "fallbackName": "Foydalanuvchi",
+      "logout": "Hisobdan chiqish"
+    },
+    "balance": {
+      "label": "Hisoblarda",
+      "viewCompact": "Ixcham",
+      "viewFull": "To'liq",
+      "collapse": "Yig'ish",
+      "expand": "Yoyish",
+      "emptyGroup": "Hisoblarni shu guruhga ko'chiring"
+    }
+  },
+  "Operations": {
+    "page": {
+      "title": "Operatsiyalar",
+      "create": "Yaratish",
+      "import": "Import",
+      "export": "Excel'ga yuklash",
+      "searchPlaceholder": "Hisob, tomon yoki modda bo'yicha",
+      "delete": "O'chirish",
+      "noData": "Ma'lumot yo'q",
+      "sectionToday": "Bugun",
+      "sectionBefore": "Kecha va avvalroq",
+      "fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
+      "importedSuccess": "Operatsiyalar muvaffaqiyatli import qilindi.",
+      "importErrorPrefix": "Import xatoliklar bilan yakunlandi:",
+      "importFailed": "Operatsiyalarni import qilib bo'lmadi."
+    },
+    "columns": {
+      "date": "Sana",
+      "account": "Hisob",
+      "paymentType": "To'lov turi",
+      "type": "Turi",
+      "counterparty": "Tomon",
+      "statya": "Maqola",
+      "deal": "Bitim",
+      "amount": "Summa"
+    },
+    "filters": {
+      "operationType": "Operatsiya turi",
+      "paymentDate": "To'lov sanasi",
+      "accrualDate": "Hisoblanish sanasi",
+      "parameters": "Parametrlar",
+      "confirmed": "Tasdiqlangan",
+      "notConfirmed": "Tasdiqlanmagan",
+      "income": "Kirim",
+      "payout": "Chiqim",
+      "transfer": "Ko'chirish",
+      "writeOff": "Yechib olish",
+      "enrollment": "Hisobga olish",
+      "accrual": "Hisoblash",
+      "debit": "Debet",
+      "credit": "Kredit",
+      "shipment": "Jo'natma",
+      "legalEntitiesPlaceholder": "Yuridik shaxs va hisoblar",
+      "counterpartiesPlaceholder": "Tomonlar",
+      "chartOfAccountsPlaceholder": "Hisob moddalari",
+      "dealsPlaceholder": "Bitimlar",
+      "paymentTypePlaceholder": "To'lov turi",
+      "amountFrom": "Summa, dan",
+      "amountTo": "gacha"
+    },
+    "paymentTypes": {
+      "cash": "Naqd",
+      "card": "Karta",
+      "transfer": "O'tkazma"
+    },
+    "footer": {
+      "operations": "operatsiyalar",
+      "receipts": "kirimlar:",
+      "payments": "chiqimlar:",
+      "transfers": "ko'chirishlar:",
+      "total": "Jami:"
+    },
+    "deleteModal": {
+      "title": "O'chirishni tasdiqlash",
+      "confirmation": "Operatsiyani o'chirishga ishonchingiz komilmi?",
+      "description": "Tavsif:",
+      "amount": "Summa:",
+      "date": "Sana:",
+      "cancel": "Bekor qilish",
+      "delete": "O'chirish"
+    },
+    "menu": {
+      "edit": "Tahrirlash",
+      "copy": "Nusxalash",
+      "delete": "O'chirish",
+      "createdLabel": "Yaratilgan",
+      "updatedLabel": "O'zgartirilgan"
+    },
+    "modal": {
+      "createTitle": "Operatsiya yaratish",
+      "editTitle": "Operatsiyani tahrirlash",
+      "createdAt": "Yaratilgan {date}",
+      "tabIncome": "Kirim",
+      "tabPayment": "Chiqim",
+      "tabTransfer": "Ko'chirish",
+      "tabAccrual": "Hisoblash",
+      "cancel": "Bekor qilish",
+      "create": "Yaratish",
+      "save": "Saqlash"
+    },
+    "forms": {
+      "paymentDate": "To'lov sanasi",
+      "confirmPayment": "To'lovni tasdiqlash",
+      "accountAndLegalEntity": "Hisob va yuridik shaxs",
+      "selectAccountError": "Hisob va yuridik shaxsni tanlang",
+      "legalEntityPlaceholder": "Yuridik shaxs va hisoblar",
+      "amount": "Summa",
+      "amountPlaceholder": "Summa",
+      "amountZero": "0",
+      "accrualDate": "Hisoblanish sanasi",
+      "confirmAccrual": "Hisoblanishni tasdiqlash",
+      "counterparty": "Tomon",
+      "counterpartyPlaceholder": "Tanlanmagan.",
+      "statya": "Modda",
+      "statyaIncomePlaceholder": "Taqsimlanmagan daromad",
+      "statyaPaymentPlaceholder": "Taqsimlanmagan xarajat",
+      "paymentType": "To'lov turi",
+      "paymentTypePlaceholder": "To'lov turini tanlang...",
+      "salesDeal": "Sotuv bitimi",
+      "salesDealPlaceholder": "Bitimni tanlang...",
+      "purpose": "To'lov maqsadi",
+      "purposePlaceholder": "To'lov maqsadi",
+      "purposeRequired": "To'lov maqsadini kiriting",
+      "selectDate": "Sanani tanlang",
+      "debit": "Debet",
+      "credit": "Kredit",
+      "debitArticle": "Debet bo'yicha modda",
+      "debitArticleRequired": "Debet bo'yicha moddani tanlang",
+      "debitArticlePlaceholder": "Debet bo'yicha moddani tanlang...",
+      "creditArticle": "Kredit bo'yicha modda",
+      "creditArticleRequired": "Kredit bo'yicha moddani tanlang",
+      "creditArticlePlaceholder": "Kredit bo'yicha moddani tanlang...",
+      "legalEntity": "Yuridik shaxs",
+      "legalEntityRequired": "Yuridik shaxsni tanlang",
+      "legalEntityPlaceholderEntity": "Yuridik shaxsni tanlang...",
+      "selectCurrencyRequired": "Valyutani tanlang",
+      "sellingDealPlaceholder": "Sotuv bitimini tanlang...",
+      "fromAccountRequired": "Yechiladigan hisobni tanlang",
+      "toAccountRequired": "Hisobga olinadigan hisobni tanlang",
+      "purposeShort": "Maqsad",
+      "purposeShortRequired": "Maqsadni kiriting",
+      "fromSection": "QAYERDAN",
+      "toSection": "QAYERGA",
+      "transferDate": "Sana",
+      "writeOffAmount": "Yechiladigan summa",
+      "enrollAmount": "Hisobga olinadigan summa",
+      "enrollAmountRequired": "Hisobga olinadigan summani ko'rsating",
+      "canAllowOpiu": "OPiU kassa usulida hisobga olish",
+      "create": "Yaratish",
+      "save": "Saqlash",
+      "cancel": "Bekor qilish"
+    },
+    "splitAmount": {
+      "cancelSplit": "Bo'lishni bekor qilish",
+      "splitAmount": "Summani bo'lish",
+      "accrualDate": "Hisoblanish sanasi",
+      "confirm": "Tasdiqlash",
+      "counterparty": "Tomon",
+      "counterpartyPlaceholder": "Tanlanmagan",
+      "statya": "Modda",
+      "statyaPlaceholder": "Moddani tanlang...",
+      "amount": "Summa",
+      "share": "Ulush",
+      "addRow": "Qator qo'shish",
+      "removeRow": "Qatorni o'chirish",
+      "decreaseBy": "Quyidagiga kamaytiring",
+      "total": "Jami:",
+      "cancelDialogText": "Operatsiya summasini bo'lishni bekor qilishni tasdiqlang. Bu avval kiritilgan ma'lumotlarni o'chirishga olib keladi.",
+      "back": "Qaytish",
+      "confirmAction": "Tasdiqlash",
+      "splitAccrual": "Hisoblash",
+      "splitCounterparty": "Tomon",
+      "splitStatya": "Modda"
+    },
+    "comments": {
+      "plugTitle": "Operatsiyalarga fayllar, masalan, dalolatnomalar yoki schyotlarni biriktiring, izohlar qo'shing",
+      "plugMaxFiles": "Bir operatsiyaga 10 ta fayldan oshmasin",
+      "plugMaxSize": "Maksimal fayl hajmi — 5 MB",
+      "plugFormatsLabel": "Qo'llab-quvvatlanadigan formatlar:",
+      "plugFormats": "pdf, doc, docx, xls, xlsx, jpeg, png, zip, rar, txt, csv, xml",
+      "placeholder": "Izoh yozish",
+      "attachFile": "Fayl biriktirish",
+      "send": "Yuborish",
+      "edit": "Tahrirlash",
+      "delete": "O'chirish",
+      "cancel": "Bekor qilish",
+      "save": "Saqlash",
+      "download": "Yuklab olish",
+      "removeFile": "Faylni olib tashlash",
+      "deleteCommentTitle": "Izohni o'chirish",
+      "deleteCommentTextStart": "Izohni o'chirishga ishonchingiz komilmi? Uni tiklash ",
+      "deleteCommentTextEnd": ".",
+      "deleteCommentImpossible": "imkonsiz",
+      "deleteCancel": "Bekor qilish",
+      "deleteConfirm": "O'chirish"
+    },
+    "row": {
+      "accrualPlaceholder": "[Hisoblash]",
+      "counterpartiesCount": "{count} ta [tomon]",
+      "statyaCount": "{count} ta [modda]",
+      "dealsCount": "2 ta [bitim]",
+      "transferWriteOff": "[Ko'chirish — yechish]",
+      "transferEnrollment": "[Ko'chirish — hisobga olish]",
+      "byDebit": "[debet bo'yicha]",
+      "byCredit": "[kredit bo'yicha]"
+    }
+  },
+  "Deals": {
+    "pageTitle": "Sotish bo'yicha bitimlar",
+    "createDeal": "Yaratish",
+    "createStudent": "Talaba yaratish",
+    "searchPlaceholder": "Qisqa nom bo'yicha qidirish",
+    "downloadExcel": "Excel ga yuklash",
+    "fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
+    "methods": {
+      "accrual": "Hisoblash usuli",
+      "cash": "Kassa usuli"
+    },
+    "table": {
+      "date": "Sana",
+      "name": "Nomi",
+      "client": "Mijoz",
+      "status": "Status",
+      "dealAmount": "Bitim summasi",
+      "received": "Tushumlar",
+      "shipped": "Yuklangan",
+      "profit": "Foyda"
+    },
+    "empty": "Ma'lumot yo'q",
+    "statusNew": "Yangi",
+    "tooltips": {
+      "editContract": "Shartnomani tahrirlash",
+      "downloadContract": "Shartnomani yuklash",
+      "edit": "Tahrirlash",
+      "copy": "Nusxa olish",
+      "delete": "O'chirish"
+    },
+    "footer": {
+      "dealsCount": "{count} ta bitim, summasi:",
+      "totalProfit": "Umumiy foyda:"
+    },
+    "detail": {
+      "backToList": "Sotish bo'yicha bitimlar",
+      "noName": "Nomsiz",
+      "actions": {
+        "edit": "Tahrirlash",
+        "delete": "O'chirish"
+      },
+      "cards": {
+        "type": "Turi",
+        "client": "Mijoz",
+        "created": "Yaratilgan",
+        "sale": "Sotish",
+        "receipts": "Tushumlar",
+        "shipments": "Mijozga yuklash",
+        "profit": "Bitim foydasi",
+        "accounting": "Hisob",
+        "from": "dan",
+        "received": "Tushgan",
+        "clientDebt": "Mijoz qarzi:",
+        "shipped": "Yuklangan",
+        "weOwe": "Biz qarzdor:",
+        "profitability": "Rentabellik",
+        "income": "Daromadlar",
+        "expenses": "Xarajatlar"
+      },
+      "accountingMethods": {
+        "accrual": "Hisoblash usuli",
+        "cash": "Kassa usuli"
+      },
+      "tabs": {
+        "products": "Tovarlar va xizmatlar",
+        "receipts": "Tushumlar",
+        "expenses": "Xarajatlar",
+        "shipments": "Yuklashlar"
+      },
+      "tabDescriptions": {
+        "products": "Sotish uchun tovarlar yoki xizmatlarni tanlang",
+        "receipts": "Sotilgan tovarlar yoki ko'rsatilgan xizmatlar uchun mijoz to'lovlari",
+        "expenses": "Bitim bo'yicha xarajatlar",
+        "shipments": "Mijozga yuklagan tovarlar va xizmatlar"
+      },
+      "searchPlaceholder": "Qidirish",
+      "addButton": "Qo'shish"
+    },
+    "filters": {
+      "dealStatus": "Bitim statusi",
+      "selectCounterparties": "Tomonlarni tanlang",
+      "dealAmount": "Bitim summasi",
+      "dealProfit": "Bitim foydasi",
+      "from": "Dan",
+      "to": "Gacha"
+    }
+  }
+}
