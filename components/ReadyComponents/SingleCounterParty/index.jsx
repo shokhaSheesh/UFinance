@@ -1,5 +1,6 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { debounce } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
@@ -15,14 +16,22 @@ const SingleCounterParty = ({
   isClearable = true,
   hasError
 }) => {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+  [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
 
   const { data: counterpartiesGroupsData, isLoading } = useUcodeRequestQuery({
     method: 'get_counterparties_group',
     data: {
       page: 1,
       limit: 1000,
-      search: searchQuery
+      search: debouncedSearch
     }
   })
 
@@ -102,7 +111,7 @@ const SingleCounterParty = ({
       placeholder={isLoading ? "Загрузка..." : placeholder}
       value={value}
       onChange={handleSelect}
-      onSearch={setSearchQuery}
+      onSearch={handleSearch}
       isClearable={isClearable}
       className={className}
       dropdownClassName={dropdownClassName}

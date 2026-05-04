@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { appStore } from '../../../store/app.store'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder = 'Выберите валюту', wrapperClassName, isClearable = true }) => {
+const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = true, className, dropDownClassName, placeholder = 'Выберите валюту', wrapperClassName, isClearable = true }) => {
 
 
   const selectOptions = appStore.companyCurrencies

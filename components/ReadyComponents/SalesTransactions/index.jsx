@@ -1,30 +1,47 @@
-import React, { useMemo } from 'react'
+'use client'
 import MultiSelect from '@/components/shared/Selects/MultiSelect'
-import { useUcodeDefaultApiQuery } from '@/hooks/useDashboard'
+import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
 
 const SalesTransactions = ({ value = [], onChange, placeholder = "Выберите сделки", dropdownClassName, hasError }) => {
-  const { data: dealsData, isLoading } = useUcodeDefaultApiQuery({
-    queryKey: 'deals',
-    urlMethod: 'GET',
-    urlParams: '/items/sales_transactions?from-ofs=true&offset=0&limit=100',
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+  [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: dealsData, isLoading } = useUcodeRequestQuery({
+    method: 'get_sales_list_simple',
+    data: {
+      page: 1,
+      limit: 100,
+      search: debouncedSearch
+    },
     querySetting: {
-      staleTime: 1000 * 60 * 30, // 30 minutes
+      select: (response) => response?.data?.data,
+      staleTime: 1000 * 60 * 30,
       placeholder: keepPreviousData
     }
-  });
+  })
 
   const formattedDeals = useMemo(() => {
-    const items = dealsData?.data?.data?.response || [];
+    const items = Array.isArray(dealsData) ? dealsData : []
     return items.map(deal => ({
       value: deal.guid,
-      label: deal.name || 'Без названия',
-    }));
-  }, [dealsData]);
+      label: deal.Nazvanie || deal.name || 'Без названия',
+    }))
+  }, [dealsData])
 
   return (
     <MultiSelect
       data={formattedDeals}
+      onSearch={handleSearch}
       value={value}
       onChange={onChange}
       placeholder={isLoading ? "Загрузка..." : placeholder}
