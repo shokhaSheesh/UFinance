@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { appStore } from "../../../store/app.store"
 
 export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }) => {
+  const t = useTranslations('Common')
   const isStatic = category?.isStatic === true
 
   const categoriesPermissions = appStore.permission.directories.transactionCategories
@@ -62,7 +64,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
               onClick={handleAddChild}
             >
               <Plus size={16} />
-              <span>Создать подстатью</span>
+              <span>{t('tooltips.createChild')}</span>
             </button>
           </DropdownMenuItem>
         ) : (
@@ -73,7 +75,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                 onClick={handleAddChild}
               >
                   <Plus size={16} />
-                  <span className='flex-1 text-left'>Создать подстатью</span>
+                  <span className='flex-1 text-left'>{t('tooltips.createChild')}</span>
               </button>
               </DropdownMenuItem>}
               {categoriesPermissions.edit && <DropdownMenuItem asChild>
@@ -82,7 +84,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                 onClick={handleEdit}
               >
                   <Pencil size={16} />
-                  <span className='flex-1 text-left'>Редактировать</span>
+                  <span className='flex-1 text-left'>{t('tooltips.edit')}</span>
               </button>
               </DropdownMenuItem>}
               {categoriesPermissions.delete && <DropdownMenuItem asChild>
@@ -91,7 +93,7 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
                 onClick={handleDelete}
               >
                   <Trash2 size={16} />
-                  <span className='flex-1 text-left'>Удалить</span>
+                  <span className='flex-1 text-left'>{t('tooltips.delete')}</span>
               </button>
               </DropdownMenuItem>}
           </>

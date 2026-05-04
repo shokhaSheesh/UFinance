@@ -9,6 +9,7 @@ import {
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, MoreVertical, Pencil, Search, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import CreateGroup from '../../../../components/directories/ProductServices/CreateGroup'
 import CreateSingle from '../../../../components/directories/ProductServices/CreateSingle'
@@ -27,6 +28,8 @@ import { appStore } from '../../../../store/app.store'
 
 
 export default observer(function LegalEntitiesPage() {
+  const t = useTranslations('Directories.product')
+  const tc = useTranslations('Common')
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
@@ -124,7 +127,7 @@ export default observer(function LegalEntitiesPage() {
 
       const groupResponse = productServicesGrouped;
       const groupData = groupResponse?.find(g => g.guid === item?.product_and_service_group_id);
-      const groupName = groupData ? (groupData.name || groupData.nazvanie_gruppy || 'Без группы') : 'Товары & Услуги без группы ';
+      const groupName = groupData ? (groupData.name || groupData.nazvanie_gruppy || t('noGroup')) : t('noGroup');
       const groupId = item?.product_and_service_group_id || 'no-group';
 
       return {
@@ -137,7 +140,7 @@ export default observer(function LegalEntitiesPage() {
         vat: vatStr ? `${vatStr}%` : '—',
         priceWithVat: Math.round(priceWithVat),
         comment: item?.Kommentariy || '',
-        type: item?.Status ? item?.Status?.[0] === 'product' ? 'Товары' : 'Услуги' : '',
+        type: item?.Status ? item?.Status?.[0] === 'product' ? t('types.products') : t('types.services') : '',
         raw: item,
         currency: item?.currenies_symbol,
         groupName: groupName,
@@ -156,7 +159,7 @@ export default observer(function LegalEntitiesPage() {
         groupsMap.set(group.guid, {
           isGroup: true,
           guid: group.guid,
-          name: group.name || group.nazvanie_gruppy || 'Без названия',
+          name: group.name || group.nazvanie_gruppy || tc('noName'),
           items: [],
           raw: group,
           commentary: group.commentary,
@@ -184,7 +187,7 @@ export default observer(function LegalEntitiesPage() {
     });
 
     return groupedArray;
-  }, [productServices, productServicesGrouped, filters])
+  }, [productServices, productServicesGrouped, filters, t, tc])
 
   const isAllExpanded = useMemo(() => {
     const groupCount = productServicesList.filter(item => item.isGroup).length;
@@ -255,10 +258,10 @@ export default observer(function LegalEntitiesPage() {
       }
       queryClient.invalidateQueries({ queryKey: ['list_products_and_services'] });
       setItemToDelete(null);
-      showSuccessNotification('Успешно удалено');
+      showSuccessNotification(t('successDeleted'));
     } catch (error) {
       console.error('Delete error:', error);
-      showErrorNotification('Ошибка при удалении');
+      showErrorNotification(t('deleteError'));
     } finally {
       setIsDeletingItem(false);
     }
@@ -277,10 +280,10 @@ export default observer(function LegalEntitiesPage() {
       queryClient.invalidateQueries({ queryKey: ['list_products_and_services'] });
       setSelectedItems(new Set());
       setIsBulkDeleteModalOpen(false);
-      showSuccessNotification('Выбранные элементы успешно удалены');
+      showSuccessNotification(t('bulkSuccessDeleted'));
     } catch (error) {
       console.error('Bulk delete error:', error);
-      showErrorNotification('Ошибка при массовом удалении');
+      showErrorNotification(t('bulkDeleteError'));
     } finally {
       setIsBulkDeleting(false);
     }
@@ -347,10 +350,10 @@ export default observer(function LegalEntitiesPage() {
         {isLoading && <ScreenLoader />}
         <div className="flex items-center sticky top-0 bg-white z-10 p-3 justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="h1 text-xl text-neutral-700 font-semibold">Товары & Услуги</h1>
+            <h1 className="h1 text-xl text-neutral-700 font-semibold">{t('pageTitle')}</h1>
             {productsServicesPermissions.add && <div ref={menuRef} className="flex items-center z-20 gap-2 relative">
               <button onClick={handleMenuClick} className="primary-btn flex items-center gap-2 ">
-                Создать
+                {tc('create')}
                 {isMenuOpen ? (
                   <ChevronUp size={16} />
                 ) : (
@@ -363,13 +366,13 @@ export default observer(function LegalEntitiesPage() {
                     className=" text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer"
                     onClick={handleCreateSingle}
                   >
-                    Создать
+                    {tc('create')}
                   </button>
                   <button
                     className=" text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer"
                     onClick={handleCreateGroup}
                   >
-                    Создать группу
+                    {t('createGroupTitle')}
                   </button>
                 </div>
               )}
@@ -379,9 +382,9 @@ export default observer(function LegalEntitiesPage() {
             <div className="w-32 h-10">
               <SingleSelect
                 data={[
-                  { value: 'Все', label: 'Все' },
-                  { value: 'Товары', label: 'Товары' },
-                  { value: 'Услуги', label: 'Услуги' }
+                  { value: 'Все', label: t('types.all') },
+                  { value: 'Товары', label: t('types.products') },
+                  { value: 'Услуги', label: t('types.services') }
                 ]}
                 value={filters.type}
                 withSearch={false}
@@ -393,8 +396,8 @@ export default observer(function LegalEntitiesPage() {
             <div className="w-44 h-10">
               <SingleSelect
                 data={[
-                  { value: 'none', label: 'Без группировки' },
-                  { value: 'group', label: 'По группам' }
+                  { value: 'none', label: t('grouping.none') },
+                  { value: 'group', label: t('grouping.group') }
                 ]}
                 value={filters.group}
                 withSearch={false}
@@ -406,7 +409,7 @@ export default observer(function LegalEntitiesPage() {
             <div className="w-64 h-10">
               <Input
                 type="text"
-                placeholder="Поиск по краткому названию"
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 leftIcon={<Search size={18} />}
@@ -430,14 +433,14 @@ export default observer(function LegalEntitiesPage() {
                 {selectedItems.size > 0 ? (
                   <th colSpan={9} className='py-1 px-2'>
                     <div className='flex items-center gap-6'>
-                      <span className='font-semibold text-sm text-neutral-700'>Выбрано: {selectedItems.size}</span>
+                      <span className='font-semibold text-sm text-neutral-700'>{t('selected')}: {selectedItems.size}</span>
                       <div className='flex items-center gap-4'>
                         {productsServicesPermissions.delete && <button
                           onClick={() => setIsBulkDeleteModalOpen(true)}
                           className='flex items-center gap-1.5 text-red-500 hover:text-red-600 font-medium cursor-pointer'
                         >
                           <Trash2 size={16} />
-                          <span>Удалить</span>
+                          <span>{tc('delete')}</span>
                         </button>}
                       </div>
                     </div>
@@ -454,16 +457,16 @@ export default observer(function LegalEntitiesPage() {
                               {isAllExpanded ? <ExpendClose /> : <ExpendOpen />}
                             </button>
                           )}
-                          <span>Наименование</span>
+                          <span>{t('tableHeaders.name')}</span>
                         </div>
                       </th>
-                      <th className='p-2 text-start'> Тип</th>
-                      <th className='p-2 text-start'> Артикул</th>
-                      <th className='p-2 text-end'> Цена за ед.</th>
-                      <th className='p-2 text-center'> Единица</th>
-                      <th className='p-2 text-center'> НДС</th>
-                      <th className='p-2 text-end'> Цена с НДС</th>
-                      <th className='p-2 text-start'> Комментарий</th>
+                      <th className='p-2 text-start'> {t('tableHeaders.type')}</th>
+                      <th className='p-2 text-start'> {t('tableHeaders.article')}</th>
+                      <th className='p-2 text-end'> {t('tableHeaders.price')}</th>
+                      <th className='p-2 text-center'> {t('tableHeaders.unit')}</th>
+                      <th className='p-2 text-center'> {t('tableHeaders.vat')}</th>
+                      <th className='p-2 text-end'> {t('tableHeaders.priceWithVat')}</th>
+                      <th className='p-2 text-start'> {t('tableHeaders.comment')}</th>
                       <th className='p-2 text-start w-10'> &nbsp;</th>
                   </>
                 )}
@@ -473,7 +476,7 @@ export default observer(function LegalEntitiesPage() {
               {productServicesList.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-neutral-400">
-                    Нет данных
+                    {t('noData')}
                   </td>
                 </tr>
               ) : (
@@ -529,7 +532,7 @@ export default observer(function LegalEntitiesPage() {
                                       }}
                                     >
                                       <Pencil size={16} />
-                                      <span>Редактировать</span>
+                                      <span>{tc('edit')}</span>
                                     </button>
                                   </DropdownMenuItem>}
                                   {productsServicesPermissions.delete && <DropdownMenuItem asChild>
@@ -538,7 +541,7 @@ export default observer(function LegalEntitiesPage() {
                                       onClick={() => { setItemToDelete(item); }}
                                     >
                                       <Trash2 size={16} className='text-red-500' />
-                                      <span>Удалить</span>
+                                      <span>{tc('delete')}</span>
                                     </button>
                                   </DropdownMenuItem>}
                                 </DropdownMenuContent>
@@ -550,7 +553,7 @@ export default observer(function LegalEntitiesPage() {
                         {isExpanded && item.items.length === 0 && (
                           <tr>
                             <td colSpan={9} className="p-4 text-center text-neutral-400 text-sm">
-                              Нет данных
+                              {t('noData')}
                             </td>
                           </tr>
                         )}
@@ -587,7 +590,7 @@ export default observer(function LegalEntitiesPage() {
                                         onClick={() => { setItemToEdit(child.raw); setIsCopying(false); setIsCreateSingleOpen(true); }}
                                       >
                                         <Pencil size={16} />
-                                        <span>Редактировать</span>
+                                        <span>{tc('edit')}</span>
                                       </button>
                                     </DropdownMenuItem>}
                                     {productsServicesPermissions.add && <DropdownMenuItem asChild>
@@ -596,7 +599,7 @@ export default observer(function LegalEntitiesPage() {
                                         onClick={() => { setItemToEdit(child.raw); setIsCopying(true); setIsCreateSingleOpen(true); }}
                                       >
                                         <IoCopyOutline size={16} />
-                                        <span>Копировать</span>
+                                        <span>{tc('copy')}</span>
                                       </button>
                                     </DropdownMenuItem>}
                                     {productsServicesPermissions.delete && <DropdownMenuItem asChild>
@@ -605,7 +608,7 @@ export default observer(function LegalEntitiesPage() {
                                         onClick={() => { setItemToDelete(child); }}
                                       >
                                         <Trash2 size={16} className='text-red-500' />
-                                        <span>Удалить</span>
+                                        <span>{tc('delete')}</span>
                                       </button>
                                     </DropdownMenuItem>}
                                   </DropdownMenuContent>
@@ -665,7 +668,7 @@ export default observer(function LegalEntitiesPage() {
                                     onClick={() => { setItemToDelete(item); }}
                                   >
                                     <Trash2 size={16} className='text-red-500' />
-                                    <span>Удалить</span>
+                                    <span>{tc('delete')}</span>
                                   </button>
                                 </DropdownMenuItem>}
                               </DropdownMenuContent>
@@ -683,7 +686,7 @@ export default observer(function LegalEntitiesPage() {
       </div>
       <div className="fixed bottom-0 left-[80px] py-4 px-3 right-0 bg-white border-t border-gray-200">
         <span className={' lowercase'}>
-          {totalItemsCount} Товары & Услуги
+          {t('footer.total', { count: 3 })} 
         </span>
       </div>
 

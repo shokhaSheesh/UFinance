@@ -6,12 +6,11 @@ import TextArea from '@/components/shared/TextArea'
 import { useCreateLegalEntity, useUpdateLegalEntity } from '@/hooks/useDashboard'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { authStore } from '../../../store/auth.store'
-import styles from './CreateLegalEntityModal.module.scss'
+import CustomDialog from '../../shared/CustomDialog'
 
 export default observer(function CreateLegalEntityModal({ isOpen, onClose, legalEntity = null, legalEntityId }) {
   const t = useTranslations('Directories.legalEntity')
@@ -19,7 +18,6 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
   const createMutation = useCreateLegalEntity()
   const updateMutation = useUpdateLegalEntity()
   const isEdit = !!legalEntity && !!legalEntity.guid
-
 
   const { data } = useUcodeDefaultApiQuery({
     queryKey: "get_legal_entities",
@@ -31,7 +29,6 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
     }
   })
 
-
   const [formData, setFormData] = useState({
     nazvanie: data?.nazvanie || '',
     polnoe_nazvanie: data?.polnoe_nazvanie || '',
@@ -40,26 +37,12 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
     komentariy: data?.komentariy || ''
   })
 
-
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
-
-  const modalRef = useRef(null)
-  const overlayRef = useRef(null)
 
   useEffect(() => {
     if (isOpen) {
-      setIsClosing(false)
-      // Small delay to ensure smooth animation
-      requestAnimationFrame(() => {
-        setIsVisible(true)
-      })
-
-      // Initialize form data from props first
       if (isEdit && legalEntity && legalEntity.guid) {
-        // Editing existing legal entity
         setFormData({
           nazvanie: legalEntity.nazvanie || legalEntity.name || '',
           polnoe_nazvanie: legalEntity.polnoe_nazvanie || '',
@@ -68,7 +51,6 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
           komentariy: legalEntity.komentariy || ''
         })
       } else {
-        // Creating new legal entity
         setFormData({
           nazvanie: '',
           polnoe_nazvanie: '',
@@ -78,14 +60,11 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
         })
       }
       setErrors({})
-    } else {
-      setIsVisible(false)
     }
   }, [isOpen, legalEntity, isEdit])
 
-  // Update form data when async data arrives from API
   useEffect(() => {
-    if (data && isEdit) {
+    if (data && isEdit && isOpen) {
       setFormData({
         nazvanie: data.nazvanie || '',
         polnoe_nazvanie: data.polnoe_nazvanie || '',
@@ -94,14 +73,10 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
         komentariy: data.komentariy || ''
       })
     }
-  }, [data, isEdit])
+  }, [data, isEdit, isOpen])
 
   const handleClose = () => {
-    setIsClosing(true)
-    setTimeout(() => {
-      setIsVisible(false)
-      onClose()
-    }, 250)
+    onClose()
   }
 
   const validateForm = () => {
@@ -134,14 +109,11 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
         result = { ...submitData, guid: legalEntity.guid }
       } else {
         const response = await createMutation.mutateAsync(submitData)
-        // Extract the created entity from the API response
-        // Response structure: { status: 'OK', data: { data: { guid, nazvanie, ... } } }
         if (response?.data?.data) {
           result = response.data.data
         } else if (response?.data) {
           result = response.data
         } else {
-          // Fallback: construct from submitted data (guid will be missing but that's ok)
           result = submitData
         }
       }
@@ -149,11 +121,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
       queryClient.invalidateQueries({ queryKey: ['get_legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
 
-      setIsClosing(true)
-      setTimeout(() => {
-        setIsVisible(false)
-        onClose(result)
-      }, 250)
+      onClose(result)
     } catch (error) {
       console.error(`Error ${isEdit ? 'updating' : 'creating'} legal entity:`, error)
       setErrors({ submit: error.message || (isEdit ? t('errors.updateFailed') : t('errors.createFailed')) })
@@ -162,89 +130,69 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
     }
   }
 
-  if (!isVisible) return null
-
-  const modalContent = (
-    <>
-      <div
-        ref={overlayRef}
-        className={cn(styles.overlay, isClosing ? styles.closing : styles.opening)}
-        onClick={handleClose}
-      />
-      <div
-        ref={modalRef}
-        className={cn(styles.modal, isClosing ? styles.closing : styles.opening)}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-      >
-        <div className={styles.header}>
-          <h3 id="modal-title" className={styles.title}>
+  return (
+    <CustomDialog open={isOpen} onClose={handleClose} contentClass="p-0">
+      <div className="flex flex-col bg-white rounded-lg max-h-[90vh] w-[600px]" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
+          <h3 id="modal-title" className="text-[18px] font-semibold text-slate-900 m-0">
             {isEdit ? t('editTitle') : t('createTitle')}
-          </h3>
-          <button
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label={tc('close')}
-          >
-            <svg className={styles.closeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          </h3> 
         </div>
-        <div className={styles.content}>
-          <div className={styles.form}>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+          <div className="flex flex-col gap-6">
             {/* Название */}
-            <div className={styles.formRow}>
-              <label className={styles.label}>
-                {t('fields.name')} <span className={styles.required}>*</span>
+            <div className="flex flex-row gap-2.5">
+              <label className="text-sm font-medium w-[30%] text-slate-700">
+                {t('fields.name')} <span className="text-red-500">*</span>
               </label>
-              <div className={styles.inputContainer}>
+              <div className="flex flex-col gap-2 flex-1">
                 <Input
                   type="text"
                   value={formData.nazvanie}
                   onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
                   placeholder={t('placeholders.name')}
-                  className={cn(styles.input, errors.nazvanie && styles.inputError)}
+                  className={cn(errors.nazvanie && 'border-red-500')}
                 />
-                {errors.nazvanie && <p className={styles.errorMessage}>{errors.nazvanie}</p>}
+                {errors.nazvanie && <p className="text-xs text-red-500 mt-1">{errors.nazvanie}</p>}
               </div>
             </div>
 
             {/* Полное название */}
-            <div className={styles.formRow}>
-              <label className={styles.label}>{t('fields.fullName')}</label>
-              <div className={styles.inputContainer}>
+            <div className="flex flex-row gap-2.5">
+              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.fullName')}</label>
+              <div className="flex flex-col gap-2 flex-1">
                 <Input
                   type="text"
                   value={formData.polnoe_nazvanie}
                   onChange={(e) => setFormData({ ...formData, polnoe_nazvanie: e.target.value })}
                   placeholder={t('placeholders.fullName')}
-                  className={styles.input}
                 />
               </div>
             </div>
 
             {/* ИНН/КПП */}
-            <div className={styles.formRow}>
-              <label className={styles.label}>{t('fields.innKpp')}</label>
-              <div className={styles.inputContainer}>
-                <div className={styles.innKppContainer}>
+            <div className="flex flex-row gap-2.5">
+              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.innKpp')}</label>
+              <div className="flex flex-col gap-2 flex-1">
+                <div className="flex items-center gap-2">
                   <Input
                     type="number"
                     value={formData.inn}
                     onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
                     placeholder=""
-                    className={styles.input}
+                    className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     onWheel={(e) => e.target.blur()}
                   />
-                  <span className={styles.slash}>/</span>
+                  <span className="text-sm font-medium text-gray-500 shrink-0">/</span>
                   <Input
                     type="number"
                     value={formData.kpp}
                     onChange={(e) => setFormData({ ...formData, kpp: e.target.value })}
                     placeholder=""
-                    className={styles.input}
+                    className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     onWheel={(e) => e.target.blur()}
                   />
                 </div>
@@ -252,14 +200,13 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
             </div>
 
             {/* Комментарий */}
-            <div className={styles.formRow}>
-              <label className={styles.label}>{t('fields.comment')}</label>
-              <div className={styles.inputContainer}>
+            <div className="flex flex-row gap-2.5">
+              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.comment')}</label>
+              <div className="flex flex-col gap-2 flex-1">
                 <TextArea
                   value={formData.komentariy}
                   onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
                   placeholder={t('placeholders.comment')}
-                  className={styles.textarea}
                   rows={4}
                   hasError={!!errors.komentariy}
                 />
@@ -267,17 +214,21 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
             </div>
 
             {errors.submit && (
-              <div className={styles.errorMessage}>{errors.submit}</div>
+              <div className="text-xs text-red-500 mt-1">{errors.submit}</div>
             )}
           </div>
         </div>
 
-        <div className={styles.footer}>
-          <button className={styles.cancelButton} onClick={handleClose}>
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 p-2 border-t border-gray-200">
+          <button
+            className="secondary-btn"
+            onClick={handleClose}
+          >
             {tc('cancel')}
           </button>
           <button
-            className={styles.saveButton}
+            className="primary-btn disabled:opacity-60 disabled:cursor-not-allowed"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
@@ -285,8 +236,6 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
           </button>
         </div>
       </div>
-    </>
+    </CustomDialog>
   )
-
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null
 })

@@ -2,7 +2,7 @@
 
 import { cn } from '@/app/lib/utils'
 import { DealIcon, UsersIcon } from '@/constants/icons'
-import { ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
+import { CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -66,6 +66,13 @@ export const Sidebar = observer(() => {
             href: '/pages/deals',
             hasPage: true,
             canShow: permissions?.deals?.read
+        },
+        {
+            icon: CalendarCheck,
+            label: t('nav.deals'),
+            href: '/pages/deals',
+            hasPage: false,
+            canShow: true
         },
         {
             icon: ClipboardList,
@@ -162,7 +169,7 @@ export const Sidebar = observer(() => {
     }
 
     return (
-        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0" ref={sidebarRef}> 
+        <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-full z-10! items-center justify-start fixed left-0" ref={sidebarRef}>
             <nav className="flex flex-col   w-full">
                 <AppLogo size={44} strokeWidth={1.5} className='mt-2 mx-auto ml-5 mb-4' />
                 {navItems.filter(item => item.hasPage && item.canShow)
@@ -222,7 +229,7 @@ export const Sidebar = observer(() => {
                             </Link>
                         )
                     })}
-            </nav> 
+            </nav>
 
             {/* Modal for setting local API URL */}
             {modalOpen && (

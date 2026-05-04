@@ -1,9 +1,12 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import { useTranslations } from 'next-intl'
 import styles from './DeleteLegalEntityConfirmModal.module.scss'
 
 export default function DeleteLegalEntityConfirmModal({ isOpen, legalEntity, onConfirm, onCancel, isDeleting }) {
+  const t = useTranslations('Directories.legalEntity')
+  const tc = useTranslations('Common')
   if (!isOpen) return null
 
   return (
@@ -20,11 +23,11 @@ export default function DeleteLegalEntityConfirmModal({ isOpen, legalEntity, onC
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.header}>
-          <h3 id="modal-title" className={styles.title}>Удаление юрлица</h3>
+          <h3 id="modal-title" className={styles.title}>{t('deleteConfirmTitle')}</h3>
           <button 
             className={styles.closeButton}
             onClick={onCancel}
-            aria-label="Закрыть"
+            aria-label={tc('close')}
             disabled={isDeleting}
           >
             <svg className={styles.closeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -34,10 +37,10 @@ export default function DeleteLegalEntityConfirmModal({ isOpen, legalEntity, onC
         </div>
         <div className={styles.body}>
           <p className={styles.text}>
-            Вы уверены, что хотите удалить юрлицо <strong>{legalEntity?.nazvanie || 'Без названия'}</strong>?
+            {t('deleteConfirmMessage', { name: legalEntity?.nazvanie || tc('noName') })}
           </p>
           <p className={styles.warning}>
-            Это действие нельзя отменить.
+            {t('deleteWarning')}
           </p>
         </div>
         <div className={styles.footer}>
@@ -46,14 +49,14 @@ export default function DeleteLegalEntityConfirmModal({ isOpen, legalEntity, onC
             onClick={onCancel}
             disabled={isDeleting}
           >
-            Отменить
+            {tc('cancel')}
           </button>
           <button 
             className={styles.deleteButton}
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Удаление...' : 'Удалить'}
+            {isDeleting ? t('deleting') : tc('delete')}
           </button>
         </div>
       </div>

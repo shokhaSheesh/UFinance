@@ -7,6 +7,7 @@ import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashbo
 import { useMutation } from '@tanstack/react-query'
 import { Loader, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -44,6 +45,8 @@ function formatPhone998(raw) {
 /* ═══════════════════════════════════════════════════════ */
 
 function BranchModal({ open, onClose, onSubmit, initial }) {
+  const tb = useTranslations('Settings.branches')
+  const tc = useTranslations('Settings.common')
   const {
     register,
     handleSubmit,
@@ -125,17 +128,17 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
   return (
     <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-7">
       <h2 className="text-lg font-bold text-slate-900 mb-6">
-        {initial ? 'Редактировать филиал' : 'Добавить филиал'}
+        {initial ? tb('edit') : tb('create')}
       </h2>
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-4">
         {/* Branch name */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">Название филиала</label>
+          <label className="text-sm font-medium text-slate-500">{tb('name')}</label>
           <Input
-            placeholder="Название филиала"
+            placeholder={tb('namePlaceholder')}
             error={!!errors.name}
-            {...register('name', { required: 'Введите название филиала' })}
+            {...register('name', { required: tb('errors.nameRequired') })}
           />
           {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
         </div>
@@ -143,19 +146,19 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
         {!initial?.name && <>
           {/* Email with user search */}
           <div className="flex flex-col gap-1.5" ref={dropdownRef}>
-            <label className="text-sm font-medium text-slate-500">Электронная почта</label>
+            <label className="text-sm font-medium text-slate-500">{tb('email')}</label>
             <div className="relative">
               {(() => {
                 const { ref, name } = register('email', {
-                  required: 'Введите email',
-                  pattern: { value: EMAIL_RE, message: 'Неверный формат email' },
+                  required: tb('errors.emailRequired'),
+                  pattern: { value: EMAIL_RE, message: tb('errors.emailInvalid') },
                 })
                 return (
                   <Input
                     ref={ref}
                     name={name}
                     type="email"
-                    placeholder="example@mail.com"
+                    placeholder={tb('emailPlaceholder')}
                     error={!!errors.email}
                     value={emailSearch}
                     readOnly={!!initial?.email}
@@ -202,11 +205,11 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
 
           {/* Username */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-500">Имя пользователя</label>
+            <label className="text-sm font-medium text-slate-500">{tb('username')}</label>
             <Input
-              placeholder="Имя пользователя"
+              placeholder={tb('usernamePlaceholder')}
               error={!!errors.username}
-              {...register('username', { required: 'Введите имя пользователя' })}
+              {...register('username', { required: tb('errors.usernameRequired') })}
             />
             {errors.username && <span className="text-xs text-red-500">{errors.username.message}</span>}
           </div>
@@ -214,18 +217,18 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
 
           {/* Phone */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-500">Телефон</label>
+            <label className="text-sm font-medium text-slate-500">{tb('phone')}</label>
             <Controller
               name="phone"
               control={control}
               rules={{
                 validate: v =>
-                  v.replace(/\D/g, '').length >= 12 || 'Введите полный номер (+998 XX XXX XX XX)',
+                  v.replace(/\D/g, '').length >= 12 || tb('errors.phoneInvalid'),
               }}
               render={({ field }) => (
                 <Input
                   type="tel"
-                  placeholder="+998 XX XXX XX XX"
+                  placeholder={tb('phonePlaceholder')}
                   error={!!errors.phone}
                   value={field.value}
                   onChange={e => field.onChange(formatPhone998(e.target.value))}
@@ -244,7 +247,7 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
             disabled={isCreating}
             className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            Отменить
+            {tc('cancel')}
           </button>
           <button
             type="submit"
@@ -252,7 +255,7 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
             className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
           >
             {isCreating && <Loader size={14} className="animate-spin" />}
-            {isCreating ? 'Сохранение...' : initial ? 'Сохранить' : 'Создать'}
+            {isCreating ? tc('saving') : initial ? tc('save') : tc('create')}
           </button>
         </div>
       </form>
@@ -265,30 +268,32 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
 /* ═══════════════════════════════════════════════════════ */
 
 function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
+  const tb = useTranslations('Settings.branches')
+  const tc = useTranslations('Settings.common')
   return (
     <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-0 overflow-hidden">
       <div className="flex justify-between items-center px-7 pt-6 pb-4 border-b border-gray-200 pr-14">
-        <h3 className="text-lg font-bold text-slate-900">Подтверждение удаления</h3>
+        <h3 className="text-lg font-bold text-slate-900">{tb('delete.title')}</h3>
       </div>
 
       <div className="px-7 py-6">
         <p className="text-sm text-slate-600 mb-5 leading-relaxed">
-          Вы уверены, что хотите удалить филиал?
+          {tb('delete.confirm')}
         </p>
         {branch && (
           <div className="bg-gray-50 rounded-lg p-4 flex flex-col gap-2.5">
             <div className="flex gap-2 text-sm">
-              <span className="text-slate-500 font-medium min-w-[120px]">Название:</span>
+              <span className="text-slate-500 font-medium min-w-[120px]">{tb('delete.name')}</span>
               <span className="text-slate-900 font-medium">
                 {branch.branch_user?.branch_id_data?.name || '—'}
               </span>
             </div>
             <div className="flex gap-2 text-sm">
-              <span className="text-slate-500 font-medium min-w-[120px]">Email:</span>
+              <span className="text-slate-500 font-medium min-w-[120px]">{tb('delete.email')}</span>
               <span className="text-slate-900 font-medium">{branch.email || '—'}</span>
             </div>
             <div className="flex gap-2 text-sm">
-              <span className="text-slate-500 font-medium min-w-[120px]">Пользователь:</span>
+              <span className="text-slate-500 font-medium min-w-[120px]">{tb('delete.user')}</span>
               <span className="text-slate-900 font-medium">{branch.name || '—'}</span>
             </div>
           </div>
@@ -300,7 +305,7 @@ function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
           onClick={onClose}
           className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
         >
-          Отмена
+          {tc('cancel')}
         </button>
         <button
           onClick={onConfirm}
@@ -308,7 +313,7 @@ function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
           className="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
         >
           {loading && <Loader size={14} className="animate-spin" />}
-          Удалить
+          {tc('delete')}
         </button>
       </div>
     </CustomModal>
@@ -320,15 +325,16 @@ function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {
 /* ═══════════════════════════════════════════════════════ */
 
 function WarningModal({ open, onClose }) {
+  const tb = useTranslations('Settings.branches')
   return (
     <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-0 overflow-hidden">
       <div className="flex justify-between items-center px-7 pt-6 pb-4 border-b border-gray-200 pr-14">
-        <h3 className="text-lg font-bold text-slate-900">Внимание</h3>
+        <h3 className="text-lg font-bold text-slate-900">{tb('warning.title')}</h3>
       </div>
 
       <div className="px-7 py-6">
         <p className="text-sm text-slate-600 mb-5 leading-relaxed">
-          У вас уже есть транзакции, сначала удалите их.
+          {tb('warning.message')}
         </p>
       </div>
 
@@ -337,7 +343,7 @@ function WarningModal({ open, onClose }) {
           onClick={onClose}
           className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors cursor-pointer"
         >
-          Понятно
+          {tb('warning.understood')}
         </button>
       </div>
     </CustomModal>
@@ -349,6 +355,7 @@ function WarningModal({ open, onClose }) {
 /* ═══════════════════════════════════════════════════════ */
 
 function RowDropdown({ onEdit, onDelete }) {
+  const tc = useTranslations('Settings.common')
   const [open, setOpen] = useState(false)
   const btnRef = useRef(null)
   const menuRef = useRef(null)
@@ -393,14 +400,14 @@ function RowDropdown({ onEdit, onDelete }) {
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
           >
             <Pencil size={15} />
-            <span>Редактировать</span>
+            <span>{tc('edit')}</span>
           </li>
           <li
             onClick={() => { onDelete(); setOpen(false) }}
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 rounded-lg cursor-pointer hover:bg-red-50 transition-colors"
           >
             <Trash2 size={15} />
-            <span>Удалить</span>
+            <span>{tc('delete')}</span>
           </li>
         </ul>,
         document.body
@@ -415,6 +422,8 @@ function RowDropdown({ onEdit, onDelete }) {
 
 export default observer(function BranchesPage() {
   const router = useRouter()
+  const tb = useTranslations('Settings.branches')
+  const tc = useTranslations('Settings.common')
   const { data: branchesData, isLoading: branchesLoading, refetch: refetchBranches } =
     useUcodeRequestQuery({
       method: 'get_my_branches',
@@ -476,12 +485,12 @@ export default observer(function BranchesPage() {
     <div className="flex-1 overflow-y-auto  bg-white">
       {/* Header */}
       <div className="flex p-5 h-16 sticky top-0 bg-white  z-20 items-center gap-4 mb-6">
-        <h1 className="text-xl font-bold text-slate-900">Филиалы</h1>
+        <h1 className="text-xl font-bold text-slate-900">{tb('pageTitle')}</h1>
         <button
           onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
           className="px-5 py-2 primary-btn"
         >
-          Добавить
+          {tb('add')}
         </button>
       </div>
 
@@ -492,7 +501,7 @@ export default observer(function BranchesPage() {
             <thead className="sticky top-0 bg-gray-50 z-10">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                  Название филиала
+                  {tb('table.name')}
                 </th>
                 <th className="px-4 w-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
                   &nbsp;
@@ -519,7 +528,7 @@ export default observer(function BranchesPage() {
               <thead className="sticky top-16 bg-gray-50 z-10">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
-                    Название филиала
+                    {tb('table.name')}
                   </th>
                   <th className="px-4 w-4 py-3 text-left text-xs font-medium text-[#1D2939] border-b border-gray-200 whitespace-nowrap">
                     &nbsp;
@@ -531,9 +540,9 @@ export default observer(function BranchesPage() {
                   <tr key={branch?.guid} className="hover:bg-gray-50 transition-colors">
                     <td onClick={(event) => {
                       event.stopPropagation()
-                      router.push(`/pages/settings/branches/${branch?.guid}`)
+                      router.push(`/pages/settings/branches/${branch?.guid}?name=${branch?.name}`)
                     }} className="px-4 py-1.5 border-b border-gray-200 cursor-pointer text-xs text-[#344054] whitespace-nowrap">
-                    {branch?.name ?? 'Администратор'}
+                      {branch?.name ?? tb('admin')}
                   </td>
                     <td className="p-1 py-1.5 text-xs border border-gray-200">
                     <RowDropdown
@@ -555,21 +564,20 @@ export default observer(function BranchesPage() {
         </div>
       ) : (
             <div className="flex flex-col items-center text-center py-10 px-5">
-              <h2 className="text-2xl font-semibold text-[#1a1a1a] mb-4">Создайте филиал</h2>
+              <h2 className="text-2xl font-semibold text-[#1a1a1a] mb-4">{tb('empty.title')}</h2>
               <p className="text-base text-[#666] leading-relaxed max-w-xl mb-4">
-            Филиалы помогают сравнивать прибыль и рентабельность разных частей бизнеса.
-            Например, заказов, направлений или каналов продаж.
+                {tb('empty.description')}
           </p>
               <p className="text-sm text-[#999] leading-relaxed max-w-xl mb-8">
-            Для удобства филиалы можно объединять в группы.<br />
-                Как ими пользоваться,{' '}
-                <a href="#" className="text-[#00b8d4] no-underline hover:underline">посмотрите видео</a>
-                {' '}или{' '}
-                <a href="#" className="text-[#00b8d4] no-underline hover:underline">почитайте статью</a>.
+                {tb('empty.help')}<br />
+                {''}
+                <a href="#" className="text-[#00b8d4] no-underline hover:underline">{tb('empty.video')}</a>
+                {' '}{tb('common.or') || 'или'}{' '}
+                <a href="#" className="text-[#00b8d4] no-underline hover:underline">{tb('empty.article')}</a>.
           </p>
               <button
             onClick={() => { setEditingBranch(null); setBranchModalOpen(true) }}
-            aria-label="Создать филиал"
+                aria-label={tb('create')}
                 className="bg-transparent border-none text-[#d0d0d0] cursor-pointer p-0 hover:text-[#00b8d4] transition-colors"
           >
             <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">

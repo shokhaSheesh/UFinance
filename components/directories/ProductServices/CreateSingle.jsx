@@ -80,8 +80,6 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
     }))
   }, [units])
 
-  console.log('units', units)
-
   const defaultValues = useMemo(() => {
     if (initialData) {
       return {

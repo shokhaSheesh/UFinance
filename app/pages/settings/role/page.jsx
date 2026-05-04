@@ -6,6 +6,7 @@ import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader, Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -17,6 +18,8 @@ import { appStore } from '../../../../store/app.store'
 /* ═══════════════════════════════════════════════════════ */
 
 function RoleModal({ open, onClose, initialRole, onSuccess }) {
+  const tr = useTranslations('Settings.roles')
+  const tc = useTranslations('Settings.common')
   const {
     register,
     handleSubmit,
@@ -66,26 +69,26 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
   return (
     <CustomModal isOpen={open} onClose={handleClose} className="w-[480px] max-w-[95vw] p-7">
       <h2 className="text-lg font-bold text-slate-900 mb-6">
-        {initialRole ? 'Редактировать роль' : 'Добавить роль'}
+        {initialRole ? tr('edit') : tr('add')}
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {/* Role Name */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">Название роли</label>
+          <label className="text-sm font-medium text-slate-500">{tr('name')}</label>
           <Input
-            placeholder="Введите название роли"
+            placeholder={tr('namePlaceholder')}
             error={!!errors.name}
-            {...register('name', { required: 'Введите название роли' })}
+            {...register('name', { required: tr('errors.nameRequired') })}
           />
           {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
         </div>
 
         {/* Description */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">Описание</label>
+          <label className="text-sm font-medium text-slate-500">{tr('description')}</label>
           <Input
-            placeholder="Введите описание роли"
+            placeholder={tr('descriptionPlaceholder')}
             error={!!errors.description}
             {...register('description')}
           />
@@ -99,7 +102,7 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
             disabled={isSaving}
             className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            Отменить
+            {tc('cancel')}
           </button>
           <button
             type="submit"
@@ -107,7 +110,7 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
             className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
           >
             {isSaving && <Loader size={14} className="animate-spin" />}
-            {isSaving ? 'Сохранение...' : initialRole ? 'Сохранить' : 'Создать'}
+            {isSaving ? tc('saving') : initialRole ? tc('save') : tc('create')}
           </button>
         </div>
       </form>
@@ -120,25 +123,27 @@ function RoleModal({ open, onClose, initialRole, onSuccess }) {
 /* ═══════════════════════════════════════════════════════ */
 
 function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
+  const tr = useTranslations('Settings.roles')
+  const tc = useTranslations('Settings.common')
   return (
     <CustomModal isOpen={open} onClose={onClose} className="w-[480px] max-w-[95vw] p-0 overflow-hidden">
       <div className="flex justify-between items-center px-7 pt-6 pb-4 border-b border-gray-200 pr-14">
-        <h3 className="text-lg font-bold text-slate-900">Подтверждение удаления</h3>
+        <h3 className="text-lg font-bold text-slate-900">{tc('delete')}</h3>
       </div>
 
       <div className="px-7 py-6">
         <p className="text-sm text-slate-600 mb-5 leading-relaxed">
-          Вы уверены, что хотите удалить роль?
+          {tr('delete.confirm') || 'Вы уверены, что хотите удалить роль?'}
         </p>
         {role && (
           <div className="bg-gray-50 rounded-lg p-4 flex flex-col gap-2.5">
             <div className="flex gap-2 text-sm">
-              <span className="text-slate-500 font-medium min-w-[120px]">Название:</span>
+              <span className="text-slate-500 font-medium min-w-[120px]">{tr('name')}:</span>
               <span className="text-slate-900 font-medium">{role.name || '—'}</span>
             </div>
             {role.description && (
               <div className="flex gap-2 text-sm">
-                <span className="text-slate-500 font-medium min-w-[120px]">Описание:</span>
+                <span className="text-slate-500 font-medium min-w-[120px]">{tr('description')}:</span>
                 <span className="text-slate-900 font-medium">{role.description}</span>
               </div>
             )}
@@ -151,7 +156,7 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
           onClick={onClose}
           className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
         >
-          Отмена
+          {tc('cancel')}
         </button>
         <button
           onClick={onConfirm}
@@ -159,7 +164,7 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
           className="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
         >
           {loading && <Loader size={14} className="animate-spin" />}
-          Удалить
+          {tc('delete')}
         </button>
       </div>
     </CustomModal>
@@ -172,6 +177,8 @@ function DeleteRoleModal({ open, onClose, onConfirm, role, loading }) {
 
 const RolesPage = observer(() => {
   const router = useRouter()
+  const tr = useTranslations('Settings.roles')
+  const tc = useTranslations('Settings.common')
   const rolePermissions = appStore.permission?.settings?.users || { read: true, add: true, edit: true, delete: true }
   const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useQuery({
     queryKey: ['get_roles_list'],
@@ -227,7 +234,7 @@ const RolesPage = observer(() => {
     <div className="flex flex-col h-full w-full bg-white">
       {/* Header */}
       <div className="flex items-center h-16 sticky top-0 bg-white z-20  justify-start gap-5 px-6 py-4 border-b border-gray-100 shrink-0">
-        <h1 className="text-xl font-semibold text-gray-900">Роли</h1>
+        <h1 className="text-xl font-semibold text-gray-900">{tr('pageTitle')}</h1>
         {rolePermissions.add && (
           <button
             onClick={() => {
@@ -237,7 +244,7 @@ const RolesPage = observer(() => {
             className="primary-btn flex items-center gap-1.5"
           >
             <Plus size={16} />
-            Добавить
+            {tr('add')}
           </button>
         )}
       </div>
@@ -248,10 +255,10 @@ const RolesPage = observer(() => {
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
               <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide w-12">#</th>
-              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">Название</th>
-              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">Описание</th>
-              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Пользователей</th>
-              <th className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">Дата создания</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">{tr('name')}</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">{tr('description')}</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">{tc('noData')}</th>
+              <th className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide w-36">{tc('createdAt') || 'Дата создания'}</th>
               <th className="w-24 px-3 py-2"></th>
             </tr>
           </thead>
@@ -310,7 +317,7 @@ const RolesPage = observer(() => {
                   {roles.length === 0 && (
                     <tr>
                       <td colSpan={6} className="p-16 text-center text-sm text-gray-400">
-                        Нет ролей
+                        {tr('noData') || 'Нет ролей'}
                       </td>
                     </tr>
                   )}

@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'
 
 export const AccountMenu = observer(({ account, onEdit, onDelete }) => {
+  const t = useTranslations('Common')
   const accountPermissions = appStore.permission.directories.accounts
 
   const handleEdit = () => {
@@ -40,7 +42,7 @@ export const AccountMenu = observer(({ account, onEdit, onDelete }) => {
             onClick={handleEdit}
           >
             <Pencil size={16} />
-            <span>Редактировать</span>
+            <span>{t('tooltips.edit')}</span>
           </button>
         </DropdownMenuItem>}
         {accountPermissions.delete && <DropdownMenuItem asChild>
@@ -49,7 +51,7 @@ export const AccountMenu = observer(({ account, onEdit, onDelete }) => {
             onClick={handleDelete}
           >
             <Trash2 size={16} className='text-red-500' />
-            <span>Удалить</span>
+            <span>{t('tooltips.delete')}</span>
           </button>
         </DropdownMenuItem>}
       </DropdownMenuContent>

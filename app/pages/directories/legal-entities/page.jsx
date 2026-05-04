@@ -8,12 +8,15 @@ import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDas
 import { useQueryClient } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import Input from '../../../../components/shared/Input'
 import { appStore } from '../../../../store/app.store'
 import styles from './legal-entities.module.scss'
 
 export default observer(function LegalEntitiesPage() {
+  const t = useTranslations('Directories.legalEntity')
+  const tc = useTranslations('Common')
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
@@ -53,13 +56,13 @@ export default observer(function LegalEntitiesPage() {
     return legalEntitiesItems.map((item) => ({
       id: item.guid,
       guid: item.guid,
-      shortName: item.nazvanie || 'Без названия',
+      shortName: item.nazvanie || tc('noName'),
       fullName: item.polnoe_nazvanie || '-',
       inn: item.inn?.toString() || '-',
       kpp: item.kpp?.toString() || '-',
       rawData: item // Store raw data for editing
     }))
-  }, [legalEntitiesItems])
+  }, [legalEntitiesItems, tc])
 
   const filteredData = useMemo(() => {
     // Search is now handled by API, so just return entities
@@ -103,12 +106,12 @@ export default observer(function LegalEntitiesPage() {
         <div className="px-5 h-16 flex items-center bg-neutral-50 sticky top-0 z-10">
           <div className={styles.headerInner}>
             <div className={styles.titleRow}>
-              <h1 className={styles.title}>Мои юрлица</h1>
+              <h1 className={styles.title}>{t('pageTitle')}</h1>
               {legelEntityPermissions.add && <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className={styles.createButton}
               >
-                Создать
+                {tc('create')}
               </button>}
             </div>
 
@@ -116,7 +119,7 @@ export default observer(function LegalEntitiesPage() {
             <div className={styles.searchContainer}>
               <Input
                 leftIcon={<Search size={20} />}
-                placeholder="Поиск по краткому названию"
+                placeholder={t('searchPlaceholder')}
                 className={""}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -132,19 +135,19 @@ export default observer(function LegalEntitiesPage() {
               <thead className="bg-neutral-100 sticky top-16 z-20">
                 <tr>
                   <th className={cn(styles.th, styles.thIndex)}>
-                    №
+                    {t('tableHeaders.index')}
                   </th>
                   <th className={styles.th}>
                     <button className={styles.headerButton}>
-                      Краткое название
+                      {t('tableHeaders.shortName')}
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                   </th>
-                  <th className={styles.th}>Полное название</th>
-                  <th className={styles.th}>ИНН</th>
-                  <th className={styles.th}>КПП</th>
+                  <th className={styles.th}>{t('tableHeaders.fullName')}</th>
+                  <th className={styles.th}>{t('tableHeaders.inn')}</th>
+                  <th className={styles.th}>{t('tableHeaders.kpp')}</th>
                   <th className={cn(styles.th)}></th>
                 </tr>
               </thead>
@@ -153,13 +156,13 @@ export default observer(function LegalEntitiesPage() {
                 {isLoadingLegalEntities ? (
                   <tr>
                     <td colSpan={6} className={styles.td} style={{ textAlign: 'center', padding: '2rem' }}>
-                      Загрузка...
+                      {t('loading')}
                     </td>
                   </tr>
                 ) : filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className={styles.td} style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
-                      {searchQuery ? 'Ничего не найдено' : 'Нет данных'}
+                        {searchQuery ? t('noResults') : t('noData')}
                     </td>
                   </tr>
                 ) : (
@@ -191,7 +194,7 @@ export default observer(function LegalEntitiesPage() {
         <div className={styles.footer}>
           <div className={styles.footerText}>
             <span className={styles.footerCount}>
-              {isLoadingLegalEntities ? 'Загрузка...' : `${legalEntitiesItems.length} ${legalEntitiesItems.length === 1 ? 'юрлицо' : legalEntitiesItems.length < 5 ? 'юрлица' : 'юрлиц'}`}
+              {isLoadingLegalEntities ? t('loading') : t('entityCount', { count: legalEntitiesItems.length })}
             </span>
           </div>
         </div>

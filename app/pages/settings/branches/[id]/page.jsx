@@ -5,7 +5,8 @@ import Input from '@/components/shared/Input'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { debounce } from 'lodash'
 import { Loader, Pencil, Plus, Trash2 } from 'lucide-react'
-import { useParams } from "next/navigation"
+import { useTranslations } from 'next-intl'
+import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import SingleSelect from '../../../../../components/shared/Selects/SingleSelect'
@@ -18,6 +19,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const BranchStuffList = () => {
   const { id } = useParams()
   const queryClient = useQueryClient()
+  const tb = useTranslations('Settings.branches')
+  const tc = useTranslations('Settings.common')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [userToDelete, setUserToDelete] = useState(null)
@@ -25,6 +28,8 @@ const BranchStuffList = () => {
   const [selectedUser, setSelectedUser] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [roleSearch, setRoleSearch] = useState('')
+  const params = useSearchParams()
+  const branchName = params.get('name') 
 
   const debouncedRoleSearch = useMemo(() => debounce((value) => setRoleSearch(value), 400), [])
 
@@ -97,13 +102,13 @@ const BranchStuffList = () => {
       type: "role"
     }),
     onSuccess: () => {
-      showSuccessNotification('Пользователь успешно добавлен')
+      showSuccessNotification(tb('userAdded') || 'Пользователь успешно добавлен')
       queryClient.invalidateQueries({ queryKey: ['get_branch_users', id] })
       setIsModalOpen(false)
       reset()
     },
     onError: (error) => {
-      showErrorNotification(error?.message || 'Ошибка при добавлении пользователя')
+      showErrorNotification(error?.message || tb('userAddError') || 'Ошибка при добавлении пользователя')
     }
   })
 
@@ -114,14 +119,14 @@ const BranchStuffList = () => {
       type: "role"
     }),
     onSuccess: () => {
-      showSuccessNotification('Пользователь успешно обновлен')
+      showSuccessNotification(tb('userUpdated') || 'Пользователь успешно обновлен')
       queryClient.invalidateQueries({ queryKey: ['get_branch_users', id] })
       setIsModalOpen(false)
       setEditingUser(null)
       reset()
     },
     onError: (error) => {
-      showErrorNotification(error?.message || 'Ошибка при обновлении пользователя')
+      showErrorNotification(error?.message || tb('userUpdateError') || 'Ошибка при обновлении пользователя')
     }
   })
 
@@ -132,12 +137,12 @@ const BranchStuffList = () => {
       type: "role"
     }),
     onSuccess: () => {
-      showSuccessNotification('Пользователь успешно удален')
+      showSuccessNotification(tb('userDeleted') || 'Пользователь успешно удален')
       queryClient.invalidateQueries({ queryKey: ['get_branch_users', id] })
       setUserToDelete(null)
     },
     onError: (error) => {
-      showErrorNotification(error?.message || 'Ошибка при удалении пользователя')
+      showErrorNotification(error?.message || tb('userDeleteError') || 'Ошибка при удалении пользователя')
     }
   })
 
@@ -202,13 +207,13 @@ const BranchStuffList = () => {
   return (
     <div className=" flex-1 bg-white">
       <div className="flex p-4 sticky bg-white top-0 h-16 justify-start gap-2 items-center">
-        <h1 className="text-xl font-bold text-slate-900">Сотрудники филиала</h1>
+        <h1 className="text-xl font-bold text-slate-900">{branchName} {tb('branchStaff') || 'Сотрудники филиала'}</h1>
         <button
           onClick={handleCreate}
           className="flex items-center primary-btn"
         >
           <Plus size={18} />
-          Добавить
+          {tc('add')}
         </button>
       </div>
 
@@ -220,11 +225,11 @@ const BranchStuffList = () => {
           <table className="w-full border-collapse bg-white">
             <thead className="">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Имя</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Телефон</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">Роль</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-[#344054] border-b w-[100px]">Действия</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">{tb('staff.name') || 'Имя'}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">{tb('staff.email') || 'Email'}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">{tb('staff.phone') || 'Телефон'}</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#344054] border-b">{tb('staff.role') || 'Роль'}</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-[#344054] border-b w-[100px]">{tb('staff.actions') || 'Действия'}</th>
             </tr>
           </thead>
           <tbody>
@@ -255,7 +260,7 @@ const BranchStuffList = () => {
             {usersList?.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                  Нет сотрудников
+                    {tb('noStaff') || 'Нет сотрудников'}
                 </td>
               </tr>
               )}
@@ -268,22 +273,22 @@ const BranchStuffList = () => {
       <CustomDialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="p-6 w-[400px]">
           <h2 className="text-lg font-semibold mb-4">
-            {editingUser ? 'Редактировать сотрудника' : 'Добавить сотрудника'}
+            {editingUser ? tb('editStaff') || 'Редактировать сотрудника' : tb('addStaff') || 'Добавить сотрудника'}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{tb('staff.email')} *</label>
               {(() => {
                 const { ref, name } = register('email', {
-                  required: 'Введите email',
-                  pattern: { value: EMAIL_RE, message: 'Неверный формат email' },
+                  required: tb('errors.emailRequired'),
+                  pattern: { value: EMAIL_RE, message: tb('errors.emailInvalid') },
                 })
                 return (
                   <Input
                     ref={ref}
                     name={name}
                     type="email"
-                    placeholder="example@mail.com"
+                    placeholder={tb('emailPlaceholder')}
                     hasError={!!errors.email}
                     value={emailSearch}
                     readOnly={!!editingUser}
@@ -326,24 +331,24 @@ const BranchStuffList = () => {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{tb('staff.name')} *</label>
               <Input
-                placeholder="Введите имя"
+                placeholder={tb('usernamePlaceholder')}
                 hasError={!!errors.name}
                 disabled={!!editingUser}
                 {...register('name', { required: true })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{tb('staff.phone')}</label>
               <Input
-                placeholder="Введите телефон"
+                placeholder={tb('phonePlaceholder')}
                 disabled={!!editingUser}
                 {...register('phone')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Роли *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{tb('staff.role')} *</label>
               <Controller
                 name='role_id'
                 control={control}
@@ -358,7 +363,7 @@ const BranchStuffList = () => {
                   />
                 }}
               />
-              {errors.role_id && <span className="text-xs text-red-500">Выберите роль</span>}
+              {errors.role_id && <span className="text-xs text-red-500">{tb('errors.roleRequired') || 'Выберите роль'}</span>}
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button
@@ -366,14 +371,14 @@ const BranchStuffList = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
               >
-                Отмена
+                {tc('cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isPending}
                 className="px-4 py-2 text-sm font-medium text-white bg-[#0E73F6] rounded-md hover:bg-[#0b5fd4] transition-colors disabled:opacity-50"
               >
-                {isPending ? 'Сохранение...' : (editingUser ? 'Сохранить' : 'Добавить')}
+                {isPending ? tc('saving') : (editingUser ? tc('save') : tc('add'))}
               </button>
             </div>
           </form>
@@ -383,23 +388,23 @@ const BranchStuffList = () => {
       {/* Delete Confirmation */}
       <CustomDialog open={!!userToDelete} onClose={() => setUserToDelete(null)}>
         <div className="p-6 w-[350px]">
-          <h2 className="text-lg font-semibold mb-2">Подтверждение удаления</h2>
+          <h2 className="text-lg font-semibold mb-2">{tb('deleteStaffTitle') || 'Подтверждение удаления'}</h2>
           <p className="text-sm text-gray-600 mb-6">
-            Вы уверены, что хотите удалить сотрудника &quot;{userToDelete?.name}&quot;?
+            {tb('deleteStaffConfirm') || 'Вы уверены, что хотите удалить сотрудника'} &quot;{userToDelete?.name}&quot;?
           </p>
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setUserToDelete(null)}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
             >
-              Отмена
+              {tc('cancel')}
             </button>
             <button
               onClick={handleDelete}
               disabled={deleteUserMutation.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors disabled:opacity-50"
             >
-              {deleteUserMutation.isPending ? 'Удаление...' : 'Удалить'}
+              {deleteUserMutation.isPending ? tc('deleting') || 'Удаление...' : tc('delete')}
             </button>
           </div>
         </div>

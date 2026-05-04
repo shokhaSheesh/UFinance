@@ -4,67 +4,68 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader } from 'lucide-react'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { apiClient } from '../../../../../lib/api/ucode/base'
 
-const PERMISSIONS_DATA = [
-  { id: 'indicators', label: 'Показатели', hasSubmenu: false, allowedActions: ['read'], menuId: null },
+const getPermissionsData = (t) => [
+  { id: 'indicators', label: t('permissions.sections.indicators'), hasSubmenu: false, allowedActions: ['read'], menuId: null },
   {
     id: 'operations',
-    label: 'Операции',
+    label: t('permissions.sections.operations'),
     hasSubmenu: true,
     allowedActions: ['read', 'add', 'edit', 'delete'],
     menuId: null,
     children: [
-      { id: 'income', label: 'Поступление', menuId: null },
-      { id: 'expense', label: 'Выплата', menuId: null },
-      { id: 'transfer', label: 'Перемещение', menuId: null },
-      { id: 'accrual', label: 'Начисление', menuId: null },
-      { id: 'shipment', label: 'Отгрузка', menuId: null },
+      { id: 'income', label: t('permissions.sections.income'), menuId: null },
+      { id: 'expense', label: t('permissions.sections.expense'), menuId: null },
+      { id: 'transfer', label: t('permissions.sections.transfer'), menuId: null },
+      { id: 'accrual', label: t('permissions.sections.accrual'), menuId: null },
+      { id: 'shipment', label: t('permissions.sections.shipment'), menuId: null },
     ],
   },
-  { id: 'deals', label: 'Сделки', hasSubmenu: false, allowedActions: ['read', 'add', 'edit', 'delete'], menuId: null },
+  { id: 'deals', label: t('permissions.sections.deals'), hasSubmenu: false, allowedActions: ['read', 'add', 'edit', 'delete'], menuId: null },
   {
     id: 'reports',
-    label: 'Отчёты',
+    label: t('permissions.sections.reports'),
     hasSubmenu: true,
     allowedActions: ['read', 'add', 'edit', 'delete'],
     menuId: null,
     children: [
-      { id: 'cash_flow', label: 'Движение денег (ДДС)', menuId: null },
-      { id: 'p_and_l', label: 'Прибыли и убытки (ОПУ)', menuId: null },
-      { id: 'balance', label: 'Баланс', menuId: null },
-      { id: 'students_report', label: 'Студенти', menuId: null },
+      { id: 'cash_flow', label: t('permissions.sections.cash_flow'), menuId: null },
+      { id: 'p_and_l', label: t('permissions.sections.p_and_l'), menuId: null },
+      { id: 'balance', label: t('permissions.sections.balance'), menuId: null },
+      { id: 'students_report', label: t('permissions.sections.students_report'), menuId: null },
     ],
   },
   {
     id: 'directories',
-    label: 'Справочники',
+    label: t('permissions.sections.directories'),
     hasSubmenu: true,
     allowedActions: ['read', 'add', 'edit', 'delete'],
     menuId: null,
     children: [
-      { id: 'counterparties', label: 'Контрагенты', menuId: null },
-      { id: 'accounting_items', label: 'Учётные статьи', menuId: null },
-      { id: 'my_accounts', label: 'Мои счета', menuId: null },
-      { id: 'my_entities', label: 'Мои юрлица', menuId: null },
-      { id: 'products_and_services', label: 'Товары и услуги', menuId: null },
+      { id: 'counterparties', label: t('permissions.sections.counterparties'), menuId: null },
+      { id: 'accounting_items', label: t('permissions.sections.accounting_items'), menuId: null },
+      { id: 'my_accounts', label: t('permissions.sections.my_accounts'), menuId: null },
+      { id: 'my_entities', label: t('permissions.sections.my_entities'), menuId: null },
+      { id: 'products_and_services', label: t('permissions.sections.products_and_services'), menuId: null },
     ],
   },
   {
     id: 'settings',
-    label: 'Настройки',
+    label: t('permissions.sections.settings'),
     hasSubmenu: true,
     allowedActions: ['read', 'add', 'edit', 'delete'],
     menuId: null,
     children: [
-      { id: 'general_settings', label: 'Общие настройки', menuId: null },
-      { id: 'my_profile', label: 'Мой профиль', menuId: null },
-      { id: 'branches', label: 'Филиалы', menuId: null },
-      { id: 'exchange_rates', label: 'Курсы валют', menuId: null },
-      { id: 'users', label: 'Роли', menuId: null },
+      { id: 'general_settings', label: t('permissions.sections.general_settings'), menuId: null },
+      { id: 'my_profile', label: t('permissions.sections.my_profile'), menuId: null },
+      { id: 'branches', label: t('permissions.sections.branches'), menuId: null },
+      { id: 'exchange_rates', label: t('permissions.sections.exchange_rates'), menuId: null },
+      { id: 'users', label: t('permissions.sections.users'), menuId: null },
     ],
   },
 ]
@@ -74,10 +75,12 @@ const CreateRole = () => {
   const { guid } = useParams()
   const searchParams = useSearchParams()
   const roleName = searchParams.get('role_name') || ''
+  const tr = useTranslations('Settings.roles')
+  const tc = useTranslations('Settings.common')
   // Store menu_id mapping from fetched permissions
   const [menuIdMap, setMenuIdMap] = React.useState({})
-  const pathName = usePathname()
-  console.log('param', pathName)
+
+  const PERMISSIONS_DATA = useMemo(() => getPermissionsData(tr), [tr])
 
   const { data: rolePermission, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ['get_role_permissions', guid],
@@ -338,25 +341,25 @@ const CreateRole = () => {
     >
       {/* Header Section */}
       <h1 className="text-[18px] p-4 font-semibold text-[#1a1a1a] m-0 sticky top-0 z-10 bg-white">
-        Обновить права доступа {roleName}
+        {tr('permissions.title')} {roleName}
       </h1>
       {/* Permissions Table — Scrollable Table Wrapper */}
       <div className="w-fit rounded-[8px] mx-4 mb-[30px]">
         {isLoadingPermissions && (
           <div className="flex items-center justify-center py-8">
             <Loader size={24} className="animate-spin text-primary" />
-            <span className="ml-2 text-sm text-gray-500">Загрузка разрешений...</span>
+            <span className="ml-2 text-sm text-gray-500">{tc('loading')}...</span>
           </div>
         )}
         <table className="w-fit border-collapse">
           <thead className="bg-gray-ucode-50">
             <tr>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Меню</th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Подменю</th>
-              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Читать</th>
-              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Добавить</th>
-              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Редактировать</th>
-              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">Удалить</th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.menu') || 'Меню'}</th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.submenu') || 'Подменю'}</th>
+              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.read')}</th>
+              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.add')}</th>
+              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.edit')}</th>
+              <th className="px-4 py-3 text-center w-[100px] text-[11px] font-semibold capitalize text-[#344054] border-b border-[#f2f4f7]">{tr('permissions.delete')}</th>
             </tr>
           </thead>
           <tbody>
@@ -374,7 +377,7 @@ const CreateRole = () => {
             className="secondary-btn"
             onClick={() => router.back()}
           >
-            Отмена
+            {tc('cancel')}
           </button>
           <button
             type="submit"
@@ -384,10 +387,10 @@ const CreateRole = () => {
             {isUpdating ? (
               <div className='flex items-center gap-2'>
                 <Loader size={14} className="animate-spin" />
-                Сохранение...
+                {tc('saving')}...
               </div>
             ) : (
-              'Сохранить'
+                tc('save')
             )}
           </button>
         </div>

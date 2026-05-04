@@ -9,10 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'
 
 export const CounterpartyMenu = observer(({ counterparty, onEdit, onDelete }) => {
-
+  const t = useTranslations('Common')
   const directoryPermissions = appStore.permission.directories
   const canEdit = directoryPermissions.counterparties.edit
   const canDelete = directoryPermissions.counterparties.delete
@@ -42,7 +43,7 @@ export const CounterpartyMenu = observer(({ counterparty, onEdit, onDelete }) =>
             onClick={handleEdit}
           >
             <Pencil size={16} />
-            <span>Редактировать</span>
+            <span>{t('tooltips.edit')}</span>
           </button>
         </DropdownMenuItem>}
         {canDelete && <DropdownMenuItem asChild>
@@ -51,7 +52,7 @@ export const CounterpartyMenu = observer(({ counterparty, onEdit, onDelete }) =>
             onClick={handleDelete}
           >
             <Trash2 size={16} className='text-red-500' />
-            <span>Удалить</span>
+            <span>{t('tooltips.delete')}</span>
           </button>
         </DropdownMenuItem>}
       </DropdownMenuContent>

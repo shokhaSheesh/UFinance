@@ -5,6 +5,7 @@ import { showErrorNotification, showSuccessNotification } from '@/lib/utils/noti
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { authStore } from '../../../../store/auth.store'
@@ -42,6 +43,8 @@ const formatInitialPhone = (rawPhone) => {
 }
 
 const MyProfile = observer(() => {
+  const tp = useTranslations('Settings.profile')
+  const tc = useTranslations('Settings.common')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('+998')
   const [profileErrors, setProfileErrors] = useState({})
@@ -103,11 +106,11 @@ const MyProfile = observer(() => {
   const validateProfile = () => {
     const errors = {}
     if (!name.trim()) {
-      errors.name = 'Введите ФИО'
+      errors.name = tp('errors.nameRequired')
     }
     const cleanPhone = getCleanPhoneNumber(phone)
     if (cleanPhone.length !== 12) {
-      errors.phone = 'Введите полный номер телефона'
+      errors.phone = tp('errors.phoneRequired')
     }
     setProfileErrors(errors)
     return Object.keys(errors).length === 0
@@ -127,32 +130,32 @@ const MyProfile = observer(() => {
         name: name.trim(),
         phone: cleanPhone
       }
-      showSuccessNotification('Профиль успешно обновлен')
+      showSuccessNotification(tp('success'))
     } catch (error) {
-      showErrorNotification(error?.message || 'Ошибка при обновлении профиля')
+      showErrorNotification(error?.message || tp('error'))
     }
   }
 
   const validatePassword = () => {
     const errors = {}
     if (!currentPassword) {
-      errors.currentPassword = 'Введите текущий пароль'
+      errors.currentPassword = tp('password.errors.currentRequired')
     }
     if (!newPassword) {
-      errors.newPassword = 'Введите новый пароль'
+      errors.newPassword = tp('password.errors.newRequired')
     } else if (newPassword.length < 6) {
-      errors.newPassword = 'Пароль должен содержать минимум 6 символов'
+      errors.newPassword = tp('password.errors.minLength')
     } else if (!/[A-Z]/.test(newPassword)) {
-      errors.newPassword = 'Пароль должен содержать заглавную букву'
+      errors.newPassword = tp('password.errors.uppercase')
     } else if (!/[a-z]/.test(newPassword)) {
-      errors.newPassword = 'Пароль должен содержать строчную букву'
+      errors.newPassword = tp('password.errors.lowercase')
     } else if (!/[0-9]/.test(newPassword)) {
-      errors.newPassword = 'Пароль должен содержать цифру'
+      errors.newPassword = tp('password.errors.number')
     }
     if (!confirmPassword) {
-      errors.confirmPassword = 'Подтвердите новый пароль'
+      errors.confirmPassword = tp('password.errors.confirmRequired')
     } else if (confirmPassword !== newPassword) {
-      errors.confirmPassword = 'Пароли не совпадают'
+      errors.confirmPassword = tp('password.errors.match')
     }
     setPasswordErrors(errors)
     return Object.keys(errors).length === 0
@@ -166,25 +169,25 @@ const MyProfile = observer(() => {
         old_password: currentPassword,
         password: newPassword
       })
-      showSuccessNotification('Пароль успешно изменен')
+      showSuccessNotification(tp('password.success'))
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setPasswordErrors({})
     } catch (error) {
-      showErrorNotification(error?.message || 'Ошибка при смене пароля')
+      showErrorNotification(error?.message || tp('password.error'))
     }
   }
 
   return (
     <div className="flex w-full flex-col gap-6  overflow-auto bg-white">
       <div className="flex-1">
-        <h1 className="text-2xl sticky p-6 top-0 z-10 bg-white font-bold text-neutral-800">Мой профиль</h1>
+        <h1 className="text-2xl sticky p-6 top-0 z-10 bg-white font-bold text-neutral-800">{tp('pageTitle')}</h1>
 
         <div className="bg-white p-6 rounded-lg w-72  border-gray-200 py-6">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-neutral-700">ФИО</label>
+              <label className="text-sm font-medium text-neutral-700">{tp('fullName')}</label>
               <Input
                 type="text"
                 value={name}
@@ -192,7 +195,7 @@ const MyProfile = observer(() => {
                   setName(e.target.value)
                   setProfileErrors({ ...profileErrors, name: '' })
                 }}
-                placeholder="Введите ФИО"
+                placeholder={tp('fullNamePlaceholder')}
                 hasError={profileErrors.name}
                 className="h-10!"
               />
@@ -202,13 +205,13 @@ const MyProfile = observer(() => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-neutral-700">Телефон</label>
+              <label className="text-sm font-medium text-neutral-700">{tp('phone')}</label>
               <Input
                 ref={phoneInputRef}
                 type="tel"
                 value={phone}
                 onChange={handlePhoneChange}
-                placeholder="+998 XX XXX XX XX"
+                placeholder={tp('phonePlaceholder')}
                 hasError={profileErrors.phone}
                 className="h-10!"
               />
@@ -225,16 +228,16 @@ const MyProfile = observer(() => {
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {isUpdatingProfile ? 'Сохранение...' : 'Сохранить'}
+              {isUpdatingProfile ? tp('saving') : tp('save')}
             </button>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg w-72 border-gray-200 py-6">
-          <h2 className="text-lg font-semibold text-neutral-800 mb-4">Смена пароля</h2>
+          <h2 className="text-lg font-semibold text-neutral-800 mb-4">{tp('password.title')}</h2>
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-neutral-700">Текущий пароль</label>
+              <label className="text-sm font-medium text-neutral-700">{tp('password.current')}</label>
               <div className="relative">
                 <Input
                   type={showCurrentPassword ? 'text' : 'password'}
@@ -243,7 +246,7 @@ const MyProfile = observer(() => {
                     setCurrentPassword(e.target.value)
                     setPasswordErrors({ ...passwordErrors, currentPassword: '' })
                   }}
-                  placeholder="Введите текущий пароль"
+                  placeholder={tp('password.currentPlaceholder')}
                   hasError={passwordErrors.currentPassword}
                   className="h-10! pr-10!"
                 />
@@ -261,7 +264,7 @@ const MyProfile = observer(() => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-neutral-700">Новый пароль</label>
+              <label className="text-sm font-medium text-neutral-700">{tp('password.new')}</label>
               <div className="relative">
                 <Input
                   type={showNewPassword ? 'text' : 'password'}
@@ -270,7 +273,7 @@ const MyProfile = observer(() => {
                     setNewPassword(e.target.value)
                     setPasswordErrors({ ...passwordErrors, newPassword: '' })
                   }}
-                  placeholder="Введите новый пароль"
+                  placeholder={tp('password.newPlaceholder')}
                   hasError={passwordErrors.newPassword}
                   className="h-10! pr-10!"
                 />
@@ -288,7 +291,7 @@ const MyProfile = observer(() => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-neutral-700">Подтвердите пароль</label>
+              <label className="text-sm font-medium text-neutral-700">{tp('password.confirm')}</label>
               <div className="relative">
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -297,7 +300,7 @@ const MyProfile = observer(() => {
                     setConfirmPassword(e.target.value)
                     setPasswordErrors({ ...passwordErrors, confirmPassword: '' })
                   }}
-                  placeholder="Повторите новый пароль"
+                  placeholder={tp('password.confirmPlaceholder')}
                   hasError={passwordErrors.confirmPassword}
                   className="h-10! pr-10!"
                 />
@@ -322,7 +325,7 @@ const MyProfile = observer(() => {
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {isResetting ? 'Сохранение...' : 'Сменить пароль'}
+              {isResetting ? tp('saving') : tp('password.change')}
             </button>
           </div>
         </div>

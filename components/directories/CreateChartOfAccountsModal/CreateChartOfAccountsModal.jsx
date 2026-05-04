@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { cn } from "@/app/lib/utils"
@@ -22,21 +22,22 @@ const TAB_CONFIG = [
   { key: "capital", color: "text-violet-600 border-violet-600" },
 ]
 
-const getTabToTipMap = (t) => ({
-  income: t("tabs.income"),
-  expense: t("tabs.expense"),
-  assets: t("tabs.assets"),
-  liabilities: t("tabs.liabilities"),
-  capital: t("tabs.capital"),
-})
+// Hardcoded mapping for API - API expects Russian tip values
+const TAB_TO_API_TIP = {
+  income: "Доходы",
+  expense: "Расходы",
+  assets: "Актив",
+  liabilities: "Обязательства",
+  capital: "Капитал",
+}
 
-const getTipToTabMap = (t) => ({
-  [t("tabs.income")]: "income",
-  [t("tabs.expense")]: "expense",
-  [t("tabs.assets")]: "assets",
-  [t("tabs.liabilities")]: "liabilities",
-  [t("tabs.capital")]: "capital",
-})
+const API_TIP_TO_TAB = {
+  "Доходы": "income",
+  "Расходы": "expense",
+  "Актив": "assets",
+  "Обязательства": "liabilities",
+  "Капитал": "capital",
+}
 
 export default function CreateChartOfAccountsModal({
   isOpen,
@@ -51,8 +52,9 @@ export default function CreateChartOfAccountsModal({
   const isEditMode = Boolean(category?.guid)
   const queryClient = useQueryClient()
 
-  const tabToTipMap = useMemo(() => getTabToTipMap(t), [t])
-  const tipToTabMap = useMemo(() => getTipToTabMap(t), [t])
+  // Use hardcoded mappings for API compatibility
+  const tabToTipMap = TAB_TO_API_TIP
+  const tipToTabMap = API_TIP_TO_TAB
 
   const [activeTab, setActiveTab] = useState(initialTab)
 
@@ -77,7 +79,7 @@ export default function CreateChartOfAccountsModal({
     if (!isOpen) return
 
     if (isEditMode) {
-      const categoryTip = category.tip?.[0] ?? t("tabs.income")
+      const categoryTip = category.tip?.[0] ?? "Доходы"
       const tabKey = tipToTabMap[categoryTip] ?? "income"
       // Defer state updates to avoid cascading renders
       Promise.resolve().then(() => {
@@ -98,7 +100,7 @@ export default function CreateChartOfAccountsModal({
         })
       })
     }
-  }, [isOpen, isEditMode, category, initialTab, parentCategory, reset, t, tipToTabMap])
+  }, [isOpen, isEditMode, category, initialTab, parentCategory, reset, t])
 
   const buildSubmitData = (data) => {
     const baseData = {
@@ -172,7 +174,7 @@ export default function CreateChartOfAccountsModal({
                   type="button"
                   onClick={() => setActiveTab(tab.key)}
                   className={cn(
-                    "py-3 px-6 text-sm font-medium bg-transparent border-b-2 transition-all duration-200 cursor-pointer",
+                    "py-3 px-6 text-sm flex-1 font-medium bg-transparent border-b-2 transition-all duration-200 cursor-pointer",
                     isFirst && "pl-0",
                     isLast && "pr-0",
                     !isFirst && "ml-2",
@@ -243,7 +245,7 @@ export default function CreateChartOfAccountsModal({
                       selectedValue={field.value}
                       setSelectedValue={field.onChange}
                       placeholder={t("placeholders.selectParent")}
-                      shownParent={tabToTipMap[activeTab]}
+                      shownParent={TAB_TO_API_TIP[activeTab]}
                       hasError={!!errors.chart_of_accounts_id_2}
                       className="bg-white"
                     />

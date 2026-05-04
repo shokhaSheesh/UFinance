@@ -1,22 +1,20 @@
-import React, { useMemo, useState } from 'react'
-import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
-import { MdOutlineModeEdit } from 'react-icons/md'
-import { formatAmount } from '../../../../utils/helpers'
-import CreateShipment from '../CreatingShipment'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import { keepPreviousData } from '@tanstack/react-query'
-import { shipmentsDto } from '../../../../lib/dtos/shipmentsDto'
-import { Loader2 } from 'lucide-react'
-import CustomModal from '../../../shared/CustomModal'
-import { useQueryClient } from '@tanstack/react-query'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
+import { MdOutlineModeEdit } from 'react-icons/md'
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import { shipmentsDto } from '../../../../lib/dtos/shipmentsDto'
+import { formatAmount } from '../../../../utils/helpers'
+import CustomModal from '../../../shared/CustomModal'
+import CreateShipment from '../CreatingShipment'
 
 import EmptyState from '../EmptyState'
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
 
 const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
   const [showModal, setShowModal] = useState(false)
