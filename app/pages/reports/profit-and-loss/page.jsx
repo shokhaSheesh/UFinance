@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useState } from 'react'
 import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
@@ -27,18 +28,18 @@ const formatDateLocal = (date) => {
   return `${year}-${month}-${day}`
 }
 
-const accountingMethodOptions = [
-  { value: 'accrual', label: 'Метод начисления' },
-  { value: 'cash', label: 'Кассовый метод' }
-]
-
-const groupingOptions = [
-  { value: 'daily', label: 'День' },
-  { value: 'weekly', label: 'Неделя' },
-  { value: 'monthly', label: 'Месяц' }
-]
-
 const ProfitAndLossPage = observer(() => {
+  const t = useTranslations('Reports')
+  const accountingMethodOptions = useMemo(() => [
+    { value: 'accrual', label: t('pnl.accounting.accrual') },
+    { value: 'cash', label: t('pnl.accounting.cash') }
+  ], [t])
+  const groupingOptions = useMemo(() => [
+    { value: 'daily', label: t('pnl.grouping.daily') },
+    { value: 'weekly', label: t('pnl.grouping.weekly') },
+    { value: 'monthly', label: t('pnl.grouping.monthly') }
+  ], [t])
+
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(true)
@@ -85,7 +86,7 @@ const ProfitAndLossPage = observer(() => {
     mutationKey: ['export_profit_and_loss'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_profit_and_loss', data: filterData }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
+      showSuccessNotification(t('common.fileDownloaded'))
       const fileLink = uploadData?.data?.link
       console.log('uploadData', uploadData)
       if (fileLink) {
@@ -392,7 +393,7 @@ const ProfitAndLossPage = observer(() => {
         <div className='h-full flex flex-col'>
           <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
             <div className="flex items-center gap-4" >
-              <h1 className='text-xl whitespace-nowrap font-semibold'>Отчет о прибылях и убытках (P&L)</h1>
+              <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
               <SingleSelect
                 data={appStore.myCurrencies}
                 value={pnlStore.selectedCurrency}
@@ -412,7 +413,7 @@ const ProfitAndLossPage = observer(() => {
                 }}
                 isClearable={false}
                 withSearch={false}
-                placeholder="Способ построения"
+                placeholder={t('common.buildingMethod')}
                 className="bg-white w-44"
               />
               <SingleSelect
@@ -423,11 +424,11 @@ const ProfitAndLossPage = observer(() => {
                 }}
                 isClearable={false}
                 withSearch={false}
-                placeholder="Метод учета"
+                placeholder={t('common.accountingMethod')}
                 className="bg-white w-44"
                 autoHeight={true}
               />
-              <button onClick={exportProfitAndLoss} type='button' className="primary-btn">Скачать в Excel {isProfitAndLossLoading && <Loader2 size={16} className="animate-spin" />}</button>
+              <button onClick={exportProfitAndLoss} type='button' className="primary-btn">{t('common.downloadExcel')} {isProfitAndLossLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
           <div className='flex flex-1 overflow-hidden'>
@@ -438,8 +439,8 @@ const ProfitAndLossPage = observer(() => {
                     <path d="M8 16C8 11.5817 11.5817 8 16 8H48C52.4183 8 56 11.5817 56 16V48C56 52.4183 52.4183 56 48 56H16C11.5817 56 8 52.4183 8 48V16Z" stroke="currentColor" strokeWidth="2" />
                     <path d="M16 24H48M16 32H48M16 40H32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
-                  <p style={{ fontSize: '16px', color: '#667085', marginBottom: '8px' }}>Выберите период для отображения отчета</p>
-                  <p style={{ fontSize: '14px', color: '#98A2B3' }}>Используйте фильтры слева для настройки параметров отчета</p>
+                  <p style={{ fontSize: '16px', color: '#667085', marginBottom: '8px' }}>{t('pnl.emptyPeriod')}</p>
+                  <p style={{ fontSize: '14px', color: '#98A2B3' }}>{t('pnl.emptyHint')}</p>
                 </div>
               ) : (
                 <table className="w-full  mb-10">
@@ -449,7 +450,7 @@ const ProfitAndLossPage = observer(() => {
                         className="text-left text-xs font-medium sticky left-0 z-40 bg-neutral-100"
                         style={{ minWidth: 420 }}
                       >
-                        <p className='px-4 w-full border-r py-2'>Статья</p>
+                        <p className='px-4 w-full border-r py-2'>{t('pnl.article')}</p>
                       </th>
                       {legend.map(period => (
                         <th key={period.key} className="text-right bg-neutral-100 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] text-xs text-xss! font-medium">
@@ -457,7 +458,7 @@ const ProfitAndLossPage = observer(() => {
                         </th>
                       ))}
                       <th className="text-right bg-neutral-100 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium">
-                        Итого
+                        {t('common.total')}
                       </th>
                     </tr>
                   </thead>

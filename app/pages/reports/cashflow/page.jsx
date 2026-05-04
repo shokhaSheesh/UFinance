@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { cashFlowStore } from '../../../../components/reports/cashflow/cashflow.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
@@ -18,11 +19,6 @@ import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
 import { formatNumber, formatTotalSumma, handleDownload, isUUID } from '../../../../utils/helpers'
 
-const groupingOptions = [
-  { value: 'monthly', label: 'По месяцам' },
-  { value: 'quarterly', label: 'По кварталам' },
-  { value: 'yearly', label: 'По годам' }
-]
 
 // Format number: empty string for zero, otherwise locale-formatte
 
@@ -127,6 +123,13 @@ const nameMap = {
 
 
 export default observer(function CashFlowReportPage() {
+  const t = useTranslations('Reports')
+  const groupingOptions = useMemo(() => [
+    { value: 'monthly', label: t('cashflow.grouping.monthly') },
+    { value: 'quarterly', label: t('cashflow.grouping.quarterly') },
+    { value: 'yearly', label: t('cashflow.grouping.yearly') }
+  ], [t])
+
   const [expandedMap, setExpandedMap] = useState({})
   const [isFilterOpen, setIsFilterOpen] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -168,7 +171,7 @@ export default observer(function CashFlowReportPage() {
     mutationKey: ['export_cash_flow'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_cash_flow', data: filterData }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
+      showSuccessNotification(t('common.fileDownloaded'))
       const fileLink = uploadData?.data?.link
       console.log('uploadData', uploadData)
       if (fileLink) {
@@ -404,7 +407,7 @@ export default observer(function CashFlowReportPage() {
         <div className="h-full flex flex-col">
           <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
             <div className="flex items-center gap-4">
-              <h1 className='text-xl whitespace-nowrap font-semibold'>Отчет о движении денежных средств</h1>
+              <h1 className='text-xl whitespace-nowrap font-semibold'>{t('cashflow.title')}</h1>
               <SingleSelect
                 data={appStore.myCurrencies}
                 value={currencyCode}
@@ -424,13 +427,13 @@ export default observer(function CashFlowReportPage() {
                 onChange={(value) => {
                   cashFlowStore.setPeriodType(value)
                 }}
-                placeholder="Способ построения"
+                placeholder={t('common.buildingMethod')}
                 withSearch={false}
                 isClearable={false}
                 className="bg-white w-44"
                 dropdownClassName="bg-white"
               />
-              <button onClick={handleExportCashFlow} type='button' className="primary-btn">Скачать в Excel {isCashFlowLoading && <Loader2 size={16} className="animate-spin" />}</button>
+              <button onClick={handleExportCashFlow} type='button' className="primary-btn">{t('common.downloadExcel')} {isCashFlowLoading && <Loader2 size={16} className="animate-spin" />}</button>
             </div>
           </div>
 
@@ -445,7 +448,7 @@ export default observer(function CashFlowReportPage() {
                       )}
                       style={{ minWidth: 420 }}
                     >
-                      <p className='px-4 w-full border-r py-2'> По статьям учета</p>
+                      <p className='px-4 w-full border-r py-2'>{t('cashflow.articleHeader')}</p>
                     </th>
                     {legend.map(col => (
                       <th key={col.key} className="text-right bg-neutral-100 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px]  text-xs border-r border-neutral-200  text-xss! font-medium" >
@@ -453,7 +456,7 @@ export default observer(function CashFlowReportPage() {
                       </th>
                     ))}
                     <th className="text-right bg-neutral-100 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium" >
-                      Итого
+                      {t('common.total')}
                     </th>
                   </tr>
                 </thead>

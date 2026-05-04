@@ -2,6 +2,7 @@
 
 import { observer } from 'mobx-react-lite'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { useTranslations } from 'next-intl'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
@@ -10,7 +11,7 @@ import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
 import { pnlStore } from '../pnl.store'
 
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
-
+  const t = useTranslations('Reports')
 
   const handleDateRangeChange = (range) => {
     pnlStore.setDateRange(range)
@@ -25,7 +26,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
     >
       <div className="flex flex-col gap-4 pt-4">
         {/* Date range */}
-        <FilterSection title="Период">
+        <FilterSection title={t('common.period')}>
           <NewDateRangeComponent
             value={pnlStore.dateRange}
             onChange={handleDateRangeChange}
@@ -39,7 +40,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectMyAccounts
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
-            placeholder="Юрлица и счета"
+            placeholder={t('common.legalEntitiesAndAccounts')}
             valueKey="value"
           />
         </div>
@@ -49,18 +50,18 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectCounterParties
             value={pnlStore.selectedCounterparties}
             onChange={(val) => pnlStore.setSelectedCounterparties(val)}
-            placeholder="Все контрагенты"
+            placeholder={t('common.allCounterparties')}
             valueKey="value"
           />
         </div>
 
         {/* Profit types */}
-        <FilterSection title="Виды прибыли">
+        <FilterSection title={t('pnl.profitTypes')}>
           <div className="space-y-2 flex flex-col gap-2 justify-start items-start">
             <OperationCheckbox
               checked={pnlStore.operational}
               onChange={(value) => pnlStore.setOperational(value.target.checked)}
-              label={"Операционная"}
+              label={t('pnl.operational')}
             />
             <OperationCheckbox
               checked={pnlStore.ebitda}

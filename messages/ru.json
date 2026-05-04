@@ -653,6 +653,95 @@
       "byCredit": "[по кредиту]"
     }
   },
+  "Reports": {
+    "common": {
+      "downloadExcel": "Скачать в Excel",
+      "buildingMethod": "Способ построения",
+      "total": "Итого",
+      "period": "Период",
+      "allDeals": "Все сделки",
+      "allCounterparties": "Все контрагенты",
+      "legalEntitiesAndAccounts": "Юрлица и счета",
+      "fileDownloaded": "Файл успешно загружен.",
+      "accountingMethod": "Метод учета",
+      "date": "Дата",
+      "counterparty": "Контрагент",
+      "counterpartyGroup": "Группа контрагентов"
+    },
+    "cashflow": {
+      "title": "Отчет о движении денежных средств",
+      "articleHeader": "По статьям учета",
+      "grouping": {
+        "monthly": "По месяцам",
+        "quarterly": "По кварталам",
+        "yearly": "По годам"
+      }
+    },
+    "pnl": {
+      "title": "Отчет о прибылях и убытках (P&L)",
+      "grouping": {
+        "daily": "День",
+        "weekly": "Неделя",
+        "monthly": "Месяц"
+      },
+      "accounting": {
+        "accrual": "Метод начисления",
+        "cash": "Кассовый метод"
+      },
+      "article": "Статья",
+      "emptyPeriod": "Выберите период для отображения отчета",
+      "emptyHint": "Используйте фильтры слева для настройки параметров отчета",
+      "profitTypes": "Виды прибыли",
+      "operational": "Операционная"
+    },
+    "balance": {
+      "title": "Балансовый отчет",
+      "formula": "Активы = Обязательства + Капитал",
+      "accountHeader": "СЧЕТ",
+      "errorLoading": "Ошибка загрузки данных:",
+      "retry": "Повторить"
+    },
+    "students": {
+      "title": "Ежемесячный отчет по студентам",
+      "accounting": {
+        "accrual": "Метод начисления",
+        "cash": "Кассовый метод"
+      },
+      "columns": {
+        "fio": "ФИО",
+        "group": "Группа",
+        "status": "Статус",
+        "plan": "План",
+        "fact": "Факт",
+        "difference": "Разница",
+        "totalPlan": "Общий план",
+        "totalFact": "Общий факт",
+        "totalDifference": "Общая разница"
+      },
+      "status": {
+        "active": "Активный",
+        "passive": "Пассивный"
+      }
+    },
+    "modal": {
+      "title": "Операции",
+      "reportPeriod": "Период отчета",
+      "operationsSum": "Сумма операций",
+      "date": "Дата ▾",
+      "type": "Тип",
+      "from": "Откуда",
+      "counterparty": "Контрагент",
+      "to": "Куда",
+      "article": "Статья",
+      "amount": "Сумма",
+      "noData": "Нет данных",
+      "after": "После",
+      "today": "Сегодня",
+      "before": "До",
+      "openInOperations": "Открыть в разделе Операции",
+      "close": "Закрыть"
+    }
+  },
   "Deals": {
     "pageTitle": "Сделки по продажам",
     "createDeal": "Создать",

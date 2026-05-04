@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment/moment'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
@@ -21,6 +22,7 @@ const OperationCashFlowModal = observer(({
   dateRange,
   summaryData
 }) => {
+  const t = useTranslations('Reports')
   const tableRef = useRef(null)
   const router = useRouter()
 
@@ -104,17 +106,17 @@ const OperationCashFlowModal = observer(({
       <div className='w-[900px]!'>
         {/* Header */}
         <div className="text-lg font-semibold p-6 border-b">
-          {title || 'Операции'}
+          {title || t('modal.title')}
         </div>
 
         {/* Summary */}
         <div className="flex flex-col bg-neutral-50 py-4 border-b px-6 gap-2">
           <div className="flex text-sm items-center gap-10">
-            <span className=" font-medium">Период отчета</span>
+            <span className=" font-medium">{t('modal.reportPeriod')}</span>
             {operationsPeriod && <span className="">{operationsPeriod}</span>}
           </div>
           <div className="flex text-sm items-center gap-10">
-            <span className=" font-medium">Сумма операций</span>
+            <span className=" font-medium">{t('modal.operationsSum')}</span>
             {summaryData && <div className="flex items-center gap-1">
               <span>{(title === 'Списания' || title === '') ? "-" : ""}{totalValue !== undefined ? formatNumber(formatTotalSumma(totalValue)) : ''}</span>
               <span>{summaryData?.currencyCode || GlobalCurrency.code}</span>
@@ -134,24 +136,24 @@ const OperationCashFlowModal = observer(({
             <table className="w-full relative">
               <thead className="sticky top-0 z-10 h-10 bg-neutral-50 border-b box-content border-gray-300">
                 <tr className='text-xs text-neutral-600 '>
-                  <th className="min-w-32! px-4 text-start">Дата ▾</th>
-                  <th className=" px-4 text-center">Тип</th>
-                  <th className="min-w-44! px-2 text-start">{isTransfer ? 'Откуда' : 'Контрагент'}</th>
-                  <th className=" px-2 text-start">{isTransfer ? 'Куда' : 'Статья'}</th>
-                  <th className=" px-4 text-end">Сумма</th>
+                  <th className="min-w-32! px-4 text-start">{t('modal.date')}</th>
+                  <th className=" px-4 text-center">{t('modal.type')}</th>
+                  <th className="min-w-44! px-2 text-start">{isTransfer ? t('modal.from') : t('modal.counterparty')}</th>
+                  <th className=" px-2 text-start">{isTransfer ? t('modal.to') : t('modal.article')}</th>
+                  <th className=" px-4 text-end">{t('modal.amount')}</th>
                 </tr>
               </thead>
               <tbody>
                 {(!operationsList?.before?.length && !operationsList?.today?.length && !operationsList?.future?.length) ? (
                   <tr>
-                    <td colSpan={5} className="">Нет данных</td>
+                    <td colSpan={5} className="">{t('modal.noData')}</td>
                   </tr>
                 ) : (
                   <>
                     {operationsList?.future?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">После</h3>
+                          <h3 className="">{t('modal.after')}</h3>
                         </td>
                       </tr>
                     )}
@@ -160,7 +162,7 @@ const OperationCashFlowModal = observer(({
                     {operationsList?.today?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">Сегодня</h3>
+                          <h3 className="">{t('modal.today')}</h3>
                         </td>
                       </tr>
                     )}
@@ -169,7 +171,7 @@ const OperationCashFlowModal = observer(({
                     {operationsList?.before?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">До</h3>
+                          <h3 className="">{t('modal.before')}</h3>
                         </td>
                       </tr>
                     )}
@@ -194,9 +196,9 @@ const OperationCashFlowModal = observer(({
 
         {/* Footer */}
         <div className="p-2 px-4 h-20 flex justify-between gap-3 items-center border-t">
-          <span onClick={handleNavigateOperations} className='text-sm cursor-pointer text-primary font-medium'>Открыть в разделе Операции</span>
+          <span onClick={handleNavigateOperations} className='text-sm cursor-pointer text-primary font-medium'>{t('modal.openInOperations')}</span>
           <button onClick={onClose} className="primary-btn px-6! py-3!">
-            Закрыть
+            {t('modal.close')}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { observer } from "mobx-react-lite"
+import { useTranslations } from "next-intl"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import SelectCounterParties from "../../../../components/ReadyComponents/SelectCounterParties"
@@ -20,12 +21,13 @@ import { formatNumber, handleDownload } from "../../../../utils/helpers"
 
 const LIMIT = 50
 
-const accountingMethodOptions = [
-  { value: 'accrual', label: 'Метод начисления' },
-  { value: 'cash', label: 'Кассовый метод' }
-]
-
 const Students = observer(() => {
+  const t = useTranslations('Reports')
+  const accountingMethodOptions = useMemo(() => [
+    { value: 'accrual', label: t('students.accounting.accrual') },
+    { value: 'cash', label: t('students.accounting.cash') }
+  ], [t])
+
   const [open, setOpen] = useState(true)
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
@@ -74,7 +76,7 @@ const Students = observer(() => {
     mutationKey: ['export_students'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_students', data: filterData }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
+      showSuccessNotification(t('common.fileDownloaded'))
       const fileLink = uploadData?.data?.link
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`
@@ -132,9 +134,9 @@ const Students = observer(() => {
   // Build unified columns array - nested structure for months
   const columns = useMemo(() => {
     const cols = [
-      { key: 'fio', type: 'sticky', label: 'ФИО', width: 'w-[400px] line-clamp-1 max-w-[500px]' },
-      { key: 'group', type: 'sticky', label: 'Группа', width: 'w-44 line-clamp-1  left-[400px]! line-clamp-1' },
-      { key: 'status', type: 'sticky', label: 'Статус', width: 'w-24 line-clamp-1 left-[576px] max-w-32' }
+      { key: 'fio', type: 'sticky', label: t('students.columns.fio'), width: 'w-[400px] line-clamp-1 max-w-[500px]' },
+      { key: 'group', type: 'sticky', label: t('students.columns.group'), width: 'w-44 line-clamp-1  left-[400px]! line-clamp-1' },
+      { key: 'status', type: 'sticky', label: t('students.columns.status'), width: 'w-24 line-clamp-1 left-[576px] max-w-32' }
     ]
 
     monthsData.forEach(month => {
@@ -144,9 +146,9 @@ const Students = observer(() => {
         label: month.label,
         width: 'min-w-96 max-w-[500px]',
         children: [
-          { key: `${month.key}-plan`, type: 'data', label: 'План' },
-          { key: `${month.key}-fact`, type: 'data', label: 'Факт' },
-          { key: `${month.key}-planFact`, type: 'data', label: 'Разница' }
+          { key: `${month.key}-plan`, type: 'data', label: t('students.columns.plan') },
+          { key: `${month.key}-fact`, type: 'data', label: t('students.columns.fact') },
+          { key: `${month.key}-planFact`, type: 'data', label: t('students.columns.difference') }
         ],
         totalPrices: [
           { total: month.total_plan },
@@ -157,9 +159,9 @@ const Students = observer(() => {
     })
 
     cols.push(
-      { key: 'totalPlan', type: 'total', label: 'Общий план', width: 'min-w-44 max-w-44' },
-      { key: 'totalFact', type: 'total', label: 'Общий факт', width: 'min-w-44 max-w-44' },
-      { key: 'totalPlanFact', type: 'total', label: 'Общая разница', width: 'min-w-44 max-w-44' }
+      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44' },
+      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44' },
+      { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44' }
     )
 
     return cols
@@ -182,7 +184,7 @@ const Students = observer(() => {
         isOpen={open}
         onClose={() => setOpen(prev => !prev)}
       >
-        <FilterSection title="Дата">
+        <FilterSection title={t('common.date')}>
           <CustomRangeMonthPicker
             value={rangeMonth}
             handleSubmit={() => {
@@ -192,13 +194,13 @@ const Students = observer(() => {
             range
           />
         </FilterSection>
-        <FilterSection title="Контрагент">
+        <FilterSection title={t('common.counterparty')}>
           <SelectCounterParties
             value={student.selectedCounterParties}
             onChange={(value) => student.setState('selectedCounterParties', value)}
           />
         </FilterSection>
-        <FilterSection title="Группа контрагентов">
+        <FilterSection title={t('common.counterpartyGroup')}>
           <SelectCounterPartyGroup
             multi={true}
             value={student.selectedCounterPartiesGroups}
@@ -210,7 +212,7 @@ const Students = observer(() => {
         {/* Header */}
         <div className="flex items-center top-0 sticky z-100  py-4 bg-white justify-between">
           <div className="flex gap-2 flex-1">
-            <h1 className="text-xl font-semibold text-gray-900 text-nowrap">Отчет о движении денежных средствь - Ежемесячный отчет студента</h1>
+            <h1 className="text-xl font-semibold text-gray-900 text-nowrap">{t('students.title')}</h1>
 
           </div>
           <div className="flex items-center gap-2">
@@ -227,7 +229,7 @@ const Students = observer(() => {
                 className="bg-white w-44"
               />
             )}
-            <button onClick={exportStudents} type='button' className="primary-btn">Скачать в Excel {isStudentsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <button onClick={exportStudents} type='button' className="primary-btn">{t('common.downloadExcel')} {isStudentsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
           </div>
         </div>
 
@@ -294,13 +296,14 @@ const Students = observer(() => {
 
 // Body rows component - no separate scroll container, sticky works with parent
 const StudentsBody = ({ studentList, columns }) => {
+  const t = useTranslations('Reports')
   return (
     <div>
       {studentList.map((studentItem, index) => (
         <div key={studentItem.counterparty_id} className="flex hover:bg-neutral-100 h-9">
           {columns.map((col) => {
             if (col.type === 'sticky') {
-              const name = col.key === 'fio' ? studentItem.counterparty_name : col.key === 'group' ? studentItem.counterparties_group_nazvanie : (studentItem.contract_status ? 'Active' : "Passive");
+              const name = col.key === 'fio' ? studentItem.counterparty_name : col.key === 'group' ? studentItem.counterparties_group_nazvanie : (studentItem.contract_status ? t('students.status.active') : t('students.status.passive'));
               const prefix = col.key === 'fio' ? <span className="pr-2 w-8! text-center">{index + 1}</span> : null;
               const textCenter = col.key !== 'fio' ? 'text-center!' : '';
               return (

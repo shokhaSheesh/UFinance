@@ -653,6 +653,95 @@
       "byCredit": "[kredit bo'yicha]"
     }
   },
+  "Reports": {
+    "common": {
+      "downloadExcel": "Excel ga yuklash",
+      "buildingMethod": "Qurilish usuli",
+      "total": "Jami",
+      "period": "Davr",
+      "allDeals": "Barcha bitimlar",
+      "allCounterparties": "Barcha tomonlar",
+      "legalEntitiesAndAccounts": "Yuridik shaxslar va hisoblar",
+      "fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
+      "accountingMethod": "Hisob usuli",
+      "date": "Sana",
+      "counterparty": "Tomon",
+      "counterpartyGroup": "Tomonlar guruhi"
+    },
+    "cashflow": {
+      "title": "Pul mablag'larining harakati to'g'risida hisobot",
+      "articleHeader": "Hisob moddalari bo'yicha",
+      "grouping": {
+        "monthly": "Oylar bo'yicha",
+        "quarterly": "Choraklar bo'yicha",
+        "yearly": "Yillar bo'yicha"
+      }
+    },
+    "pnl": {
+      "title": "Foyda va zararlar to'g'risida hisobot (P&L)",
+      "grouping": {
+        "daily": "Kun",
+        "weekly": "Hafta",
+        "monthly": "Oy"
+      },
+      "accounting": {
+        "accrual": "Hisoblash usuli",
+        "cash": "Kassa usuli"
+      },
+      "article": "Modda",
+      "emptyPeriod": "Hisobotni ko'rish uchun davrni tanlang",
+      "emptyHint": "Hisobot parametrlarini sozlash uchun chap tarafdagi filtrlardan foydalaning",
+      "profitTypes": "Foyda turlari",
+      "operational": "Operatsion"
+    },
+    "balance": {
+      "title": "Balans hisoboti",
+      "formula": "Aktivlar = Majburiyatlar + Kapital",
+      "accountHeader": "HISOB",
+      "errorLoading": "Ma'lumotlarni yuklashda xatolik:",
+      "retry": "Qayta urinish"
+    },
+    "students": {
+      "title": "Talabalar bo'yicha oylik hisobot",
+      "accounting": {
+        "accrual": "Hisoblash usuli",
+        "cash": "Kassa usuli"
+      },
+      "columns": {
+        "fio": "F.I.SH.",
+        "group": "Guruh",
+        "status": "Status",
+        "plan": "Reja",
+        "fact": "Fakt",
+        "difference": "Farq",
+        "totalPlan": "Umumiy reja",
+        "totalFact": "Umumiy fakt",
+        "totalDifference": "Umumiy farq"
+      },
+      "status": {
+        "active": "Faol",
+        "passive": "Passiv"
+      }
+    },
+    "modal": {
+      "title": "Operatsiyalar",
+      "reportPeriod": "Hisobot davri",
+      "operationsSum": "Operatsiyalar summasi",
+      "date": "Sana ▾",
+      "type": "Turi",
+      "from": "Qayerdan",
+      "counterparty": "Tomon",
+      "to": "Qayerga",
+      "article": "Modda",
+      "amount": "Summa",
+      "noData": "Ma'lumot yo'q",
+      "after": "Keyin",
+      "today": "Bugun",
+      "before": "Oldin",
+      "openInOperations": "Operatsiyalar bo'limida ochish",
+      "close": "Yopish"
+    }
+  },
   "Deals": {
     "pageTitle": "Sotish bo'yicha bitimlar",
     "createDeal": "Yaratish",
