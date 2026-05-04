@@ -16,7 +16,7 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
     return () => handleSearch.cancel()
   }, [handleSearch])
 
-  const { data: dealsData, isLoading } = useUcodeRequestQuery({
+  const { data: dealsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: 'get_sales_list_simple',
     data: {
       page: 1,
@@ -47,6 +47,7 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
       placeholder={isLoading ? "Загрузка..." : placeholder}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      isSearching={isFetching}
     />
   )
 }

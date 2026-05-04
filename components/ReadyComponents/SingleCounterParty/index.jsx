@@ -26,7 +26,7 @@ const SingleCounterParty = ({
     return () => handleSearch.cancel()
   }, [handleSearch])
 
-  const { data: counterpartiesGroupsData, isLoading } = useUcodeRequestQuery({
+  const { data: counterpartiesGroupsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: 'get_counterparties_group',
     data: {
       page: 1,
@@ -117,6 +117,7 @@ const SingleCounterParty = ({
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       disabled={disabled}
+      isSearching={isFetching}
     />
   )
 }

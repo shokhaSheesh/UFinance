@@ -14,7 +14,7 @@ const SelectCounterParties = ({ value = [], onChange, placeholder = "Выбер�
     return () => handleSearch.cancel()
   }, [handleSearch])
 
-  const { data: counterpartiesFilterData, isLoading } = useUcodeRequestQuery({
+  const { data: counterpartiesFilterData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_counterparties",
     data: {
       page: 1,
@@ -44,6 +44,7 @@ const SelectCounterParties = ({ value = [], onChange, placeholder = "Выбер�
       placeholder={actualPlaceholder}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      isSearching={isFetching}
     />
   )
 }

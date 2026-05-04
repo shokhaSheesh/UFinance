@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
-import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -15,7 +15,8 @@ const MultiSelect = ({
     dropdownClassName,
     hasError,
     onSearch = () => { },
-    disabled = false
+    disabled = false,
+    isSearching = false
 }) => {
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -169,7 +170,7 @@ const MultiSelect = ({
                                 <input
                                     ref={inputRef}
                                     type='text'
-                                    className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
+                                    className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-8 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                                     placeholder='Поиск по списку'
                                     value={searchQuery}
                                     onChange={(e) => {
@@ -177,11 +178,18 @@ const MultiSelect = ({
                                         onSearch(e.target.value)
                                     }}
                                 />
+                                {isSearching && (
+                                    <Loader2 size={16} className='absolute right-4 text-primary animate-spin' />
+                                )}
                             </div>
                         )}
 
                         <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
-                            {filteredData.length === 0 ? (
+                            {isSearching ? (
+                                <div className='p-4 flex items-center justify-center'>
+                                    <Loader2 size={20} className='text-primary animate-spin' />
+                                </div>
+                            ) : filteredData.length === 0 ? (
                                 <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
                             ) : (
                                     filteredData.map(node => {

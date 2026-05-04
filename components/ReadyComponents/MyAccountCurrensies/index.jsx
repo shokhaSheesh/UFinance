@@ -28,6 +28,7 @@ const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = true
       onChange={onChange}
       isClearable={isClearable}
       className={className}
+
       dropDownClassName={dropDownClassName}
       placeholder={placeholder}
       wrapperClassName={wrapperClassName}
