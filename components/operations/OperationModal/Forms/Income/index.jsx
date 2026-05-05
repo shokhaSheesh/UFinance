@@ -352,7 +352,7 @@ const IncomeForm = observer(({
       data_operatsii: moment(data?.paymentDate).format('YYYY-MM-DD'),
       data_nachisleniya: moment(data?.accrualDate).format('YYYY-MM-DD'),
       payment_confirmed: data?.confirmPayment,
-      payment_accrual: data?.confirmAccrual,
+      payment_accrual: watchSalesDeal ? false : data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
       my_accounts_id: watchAccount,
       legal_entity_id: authStore?.userData?.legal_entity_id,

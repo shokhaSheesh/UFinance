@@ -3,12 +3,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import { useUcodeRequestMutation } from '../../../../hooks/useDashboard'
+import { apiClient } from '../../../../lib/api/ucode/base'
 import { shipmentsDto } from '../../../../lib/dtos/shipmentsDto'
 import { formatAmount } from '../../../../utils/helpers'
 import CustomModal from '../../../shared/CustomModal'
@@ -24,35 +25,67 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [shipmentToDelete, setShipmentToDelete] = useState(null)
   const queryClient = useQueryClient()
+  const scrollContainerRef = useRef(null)
+  const LIMIT = 8
 
-
-  const { data: shipments, isLoading } = useUcodeRequestQuery({
-    method: "list_sales_operations",
-    data: {
-      object_data: {
-        sales_transaction_id: dealGuid,
-        tab: 'shipment',
-        search: "",
-        page: 1,
-        limit: 20
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading
+  } = useInfiniteQuery({
+    queryKey: ['list_sales_operations', dealGuid, 'shipment'],
+    queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
+      method: "list_sales_operations",
+      data: {
+        object_data: {
+          sales_transaction_id: dealGuid,
+          tab: 'shipment',
+          search: "",
+          page: pageParam,
+          limit: LIMIT
+        }
       }
+    }),
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage?.data?.data?.pagination
+      if (!pagination) return undefined
+      const { page, totalPages } = pagination
+      return page < totalPages ? page + 1 : undefined
     },
-    skip: !dealGuid,
-    querySetting: {
-      select: (response) => response?.data?.data,
-      placeholderData: keepPreviousData,
-    }
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    enabled: !!dealGuid
   })
 
   const { mutateAsync: deleteShipment, isPending: isDeleting } = useUcodeRequestMutation()
 
   const shipmentsList = useMemo(() => {
-    return shipmentsDto(shipments?.items)
-  }, [shipments])
+    const allItems = infiniteData?.pages?.flatMap(page => page?.data?.data?.items || []) || []
+    return shipmentsDto(allItems)
+  }, [infiniteData])
 
   const summury = useMemo(() => {
-    return shipments?.summary
-  }, [shipments])
+    const lastPage = infiniteData?.pages?.[infiniteData.pages.length - 1]
+    return lastPage?.data?.data?.summary
+  }, [infiniteData])
+
+  // Infinite scroll detection
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container || !hasNextPage || isFetchingNextPage) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      if (scrollHeight - scrollTop - clientHeight < 100) {
+        fetchNextPage()
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const handleEditShipment = (shipment) => {
     setSelectedShipment(shipment)
@@ -111,8 +144,8 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
 
   return (
     <>
-      <div className="h-96 overflow-auto min-w-full">
-        <table className="w-full overflow-auto">
+      <div ref={scrollContainerRef} className="max-h-[300px] overflow-auto min-w-full">
+        <table className="w-full">
           <thead className='sticky top-0 z-10'>
             <tr className='bg-neutral-100  text-neutral-600 font-normal text-xs w-full border-b border-gray-200'>
               <th className='px-3 py-2 text-left w-[150px]'>Дата</th>
@@ -185,6 +218,11 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
             })}
           </tbody>
         </table>
+        {isFetchingNextPage && (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className='animate-spin text-primary' size={20} />
+          </div>
+        )}
       </div>
       {/* <div className='flex justify-end'>
         <div className="p-4 text-right text-neutral-700 font-semibold">Итого:</div>

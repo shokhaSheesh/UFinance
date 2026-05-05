@@ -56,6 +56,7 @@ const ProfitAndLossPage = observer(() => {
     ebitda,
     deals,
     ebit,
+    selectedAccounts,
     ebt, isCalculation }
     = pnlStore
 
@@ -66,6 +67,7 @@ const ProfitAndLossPage = observer(() => {
     periodType: selectedGrouping,
     userCurrencyCode: selectedCurrency,
     accounting_method: isCalculation,
+    my_accounts_ids: selectedAccounts,
     sellingDealId: deals,
     isEbitda: ebitda,
     isEbit: ebit,

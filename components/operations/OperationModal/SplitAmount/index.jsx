@@ -1,3 +1,4 @@
+import CustomDialog from '@/components/shared/CustomDialog'
 import { useEffect, useState } from 'react'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
 import { appStore } from '../../../../store/app.store'
@@ -6,7 +7,6 @@ import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/help
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
-import CustomModal from '../../../shared/CustomModal'
 import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
 import CustomMultipleSelect from '../../../shared/Selects/MultipleSelect'
 import './style.scss'
@@ -331,7 +331,7 @@ const SplitAmount = ({ amount, onChange, rows,
         </div>
       )}
 
-      <CustomModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} >
+      <CustomDialog open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} >
         <div className='flex items-center justify-between px-4 py-5'>
           <h3 className='text-base font-medium text-gray-900 '>Подтвердите, что вы хотите отменить разбиение суммы операции. Это приведет к удалению ранее введенных данных.</h3>
         </div>
@@ -349,7 +349,7 @@ const SplitAmount = ({ amount, onChange, rows,
             Подтвердить
           </button>
         </div>
-      </CustomModal>
+      </CustomDialog>
     </div>
   )
 }
