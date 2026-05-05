@@ -1,11 +1,11 @@
 'use client'
 
-import { observer } from 'mobx-react-lite'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
-import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import '@/styles/report-filters.css'
+import { observer } from 'mobx-react-lite'
 import { queryClient } from '../../../../lib/queryClient'
 import { balanceStore } from '../balance.store'
 

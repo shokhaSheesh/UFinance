@@ -1,12 +1,12 @@
 'use client'
 
-import { observer } from 'mobx-react-lite'
+import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import { observer } from 'mobx-react-lite'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
-import SelectMyAccounts from '../../../ReadyComponents/SelectMyAccounts'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
+import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import { pnlStore } from '../pnl.store'
 
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
@@ -36,7 +36,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
 
         {/* Accounts */}
         <div>
-          <SelectMyAccounts
+          <SelectMyAccoutGroup
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
             placeholder="Юрлица и счета"

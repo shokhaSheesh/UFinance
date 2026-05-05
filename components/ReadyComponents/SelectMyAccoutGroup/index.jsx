@@ -1,13 +1,12 @@
-import React, { useMemo } from 'react'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import MultiSelect from '../../shared/Selects/MultiSelect'
-import SingleSelect from '../../shared/Selects/SingleSelect'
 import { keepPreviousData } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import GroupSelect from '../../shared/Selects/GroupSelect'
 
-const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Выберите группу", className, dropdownClassName, multi = false, hasError }) => {
+const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Юрлица и счета", className, dropdownClassName, hasError }) => {
 
-  const { data: groupsData, isLoading } = useUcodeRequestQuery({
-    method: "get_account_groups",
+  const { data: accountsData, isLoading } = useUcodeRequestQuery({
+    method: "get_my_accounts",
     data: {
       page: 1,
       limit: 100,
@@ -19,23 +18,24 @@ const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Выберите 
     }
   })
 
+  // Transform accounts data to group by legal_entity_name
+  // GroupSelect expects: { value, label, groupName }
   const mappedData = useMemo(() => {
-    return (groupsData || []).map(item => ({
+    return (accountsData || []).map(item => ({
       value: item.guid,
-      label: item.name || item.nazvanie || 'Без названия'
+      label: item.nazvanie,
+      groupName: item.legal_entity_name || 'Без юрлица'
     }))
-  }, [groupsData])
+  }, [accountsData])
 
   if (isLoading) {
     return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">Загрузка...</div>
   }
 
-  const Component = multi ? MultiSelect : SingleSelect;
-
   return (
-    <Component
+    <GroupSelect
       data={mappedData}
-      value={value}
+      value={value || []}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
