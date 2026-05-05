@@ -14,7 +14,6 @@ import { shipmentsDto } from '../../../../lib/dtos/shipmentsDto'
 import { formatAmount } from '../../../../utils/helpers'
 import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
-
 import EmptyState from '../EmptyState'
 
 const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
@@ -26,7 +25,10 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
   const [shipmentToDelete, setShipmentToDelete] = useState(null)
   const queryClient = useQueryClient()
   const scrollContainerRef = useRef(null)
-  const LIMIT = 8
+  const sentinelRef = useRef(null)
+  // Always holds the latest fetch callback without recreating the observer
+  const onIntersectRef = useRef(null)
+  const LIMIT = 20
 
   const {
     data: infiniteData,
@@ -71,21 +73,25 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
     return lastPage?.data?.data?.summary
   }, [infiniteData])
 
-  // Infinite scroll detection
+  // Keep latest fetch state in a ref so the observer never goes stale
+  useEffect(() => {
+    onIntersectRef.current = hasNextPage && !isFetchingNextPage ? fetchNextPage : null
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  // IntersectionObserver created once — no stale closures, no duplicate fetches
   useEffect(() => {
     const container = scrollContainerRef.current
-    if (!container || !hasNextPage || isFetchingNextPage) return
+    const sentinel = sentinelRef.current
+    if (!container || !sentinel) return
 
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container
-      if (scrollHeight - scrollTop - clientHeight < 100) {
-        fetchNextPage()
-      }
-    }
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) onIntersectRef.current?.() },
+      { root: container, threshold: 0 }
+    )
 
-    container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   const handleEditShipment = (shipment) => {
     setSelectedShipment(shipment)
@@ -223,6 +229,7 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
             <Loader2 className='animate-spin text-primary' size={20} />
           </div>
         )}
+        <div ref={sentinelRef} />
       </div>
       {/* <div className='flex justify-end'>
         <div className="p-4 text-right text-neutral-700 font-semibold">Итого:</div>
