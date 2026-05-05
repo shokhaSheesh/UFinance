@@ -105,7 +105,8 @@
 			"deals": "Сделки",
 			"reports": "Отчёты",
 			"directories": "Справочники",
-			"settings": "Настройки"
+			"settings": "Настройки",
+			"plans": "Планы"
 		},
 		"reports": {
 			"cashflow": "Движение денег (ДДС)",
@@ -231,6 +232,11 @@
 					"balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
 				}
 			}
+		},
+		"plans": {
+			"cash_flow_budget": "Бюджет денежных потоков",
+			"income_expense_budget": "Бюджет доходов и расходов",
+			"payment_calendar": "Платежный календарь"
 		},
 		"apiModal": {
 			"title": "Настройка локального API",
@@ -469,7 +475,8 @@
 			"accountingMethod": "Метод учета",
 			"date": "Дата",
 			"counterparty": "Контрагент",
-			"counterpartyGroup": "Группа контрагентов"
+			"counterpartyGroup": "Группа контрагентов",
+			"deals": "Сделки"
 		},
 		"cashflow": {
 			"title": "Отчет о движении денежных средств",
@@ -1334,6 +1341,163 @@
 				"totalCapital": "ИТОГО КАПИТАЛ",
 				"balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
 			}
+		}
+	},
+	"Plans": {
+		"cashFlowBudget": {
+			"title": "Бюджет движения денег",
+			"searchPlaceholder": "Поиск по названию",
+			"columns": {
+				"name": "Название",
+				"currency": "Валюта",
+				"legalEntity": "Юрлицо",
+				"project": "Проект",
+				"period": "Период",
+				"modifiedDate": "Обновлено",
+				"modifiedBy": "Кто изменил"
+			},
+			"noData": "Нет данных для отображения",
+			"footer": {
+				"total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
+				"lastUpdated": "Обновлено: сегодня"
+			}
+		},
+		"incomeExpenseBudget": {
+			"title": "Бюджет доходов и расходов",
+			"searchPlaceholder": "Поиск по названию",
+			"columns": {
+				"name": "Название",
+				"currency": "Валюта",
+				"legalEntity": "Юрлицо",
+				"project": "Проект",
+				"period": "Период",
+				"modifiedDate": "Обновлено",
+				"modifiedBy": "Кто изменил"
+			},
+			"noData": "Нет данных для отображения",
+			"footer": {
+				"total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
+				"lastUpdated": "Обновлено: сегодня"
+			}
+		},
+		"CashFlowBudgetSingle": {
+			"breadcrumb": {
+				"list": "Список бюджетов"
+			},
+			"title": "Общий 2025",
+			"type": "БДДС",
+			"period": "Ноя '25 — сен '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "По месяцам",
+				"quarters": "По кварталам",
+				"years": "По годам"
+			},
+			"columns": {
+				"article": "Общий бюджет",
+				"plan": "План",
+				"fact": "Факт",
+				"planExec": "Вып. плана, %",
+				"deviation": "Откл.",
+				"deviationPct": "Откл., %"
+			},
+			"periodTotal": "Итого",
+			"months": {
+				"1": "Янв",
+				"2": "Фев",
+				"3": "Мар",
+				"4": "Апр",
+				"5": "Май",
+				"6": "Июн",
+				"7": "Июл",
+				"8": "Авг",
+				"9": "Сен",
+				"10": "Окт",
+				"11": "Ноя",
+				"12": "Дек"
+			},
+			"rows": {
+				"balanceStart": "Остаток средств на начало",
+				"operating": "Операционный поток",
+				"income": "Поступления",
+				"revenue": "Доходы",
+				"currentAssets": "Оборотные активы",
+				"shortLiabilities": "Краткосрочные обязательства",
+				"expense": "Выплаты",
+				"expenses": "Расходы",
+				"investing": "Инвестиционный поток",
+				"investingOut": "Инвестиционные выплаты",
+				"financing": "Финансовый поток",
+				"financingOps": "Финансовые операции",
+				"totalFlow": "Общий денежный поток",
+				"closingBalance": "Остаток на конец периода"
+			},
+			"na": "н/о",
+			"actions": {
+				"expand": "Развернуть",
+				"collapse": "Свернуть"
+			}
+		},
+		"IncomeExpenseBudgetSingle": {
+			"breadcrumb": { "list": "Список бюджетов" },
+			"title": "Куйбышева, 45",
+			"type": "БДР",
+			"period": "Ноя '25 — сен '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "По месяцам",
+				"quarters": "По кварталам",
+				"years": "По годам"
+			},
+			"method": {
+				"cash": "Кассовый метод",
+				"accrual": "Метод начисления"
+			},
+			"indicators": {
+				"profit": "Показатели прибыли",
+				"revenue": "Показатели выручки"
+			},
+			"columns": {
+				"article": "Все юрлица",
+				"plan": "План",
+				"fact": "Факт",
+				"planExec": "Вып. плана, %",
+				"deviation": "Откл.",
+				"deviationPct": "Откл., %"
+			},
+			"periodTotal": "Итого",
+			"months": {
+				"1": "Янв",
+				"2": "Фев",
+				"3": "Мар",
+				"4": "Апр",
+				"5": "Май",
+				"6": "Июн",
+				"7": "Июл",
+				"8": "Авг",
+				"9": "Сен",
+				"10": "Окт",
+				"11": "Ноя",
+				"12": "Дек"
+			},
+			"entityHeader": "Куйбышева, 45",
+			"rows": {
+				"income": "Доходы",
+				"undistributedIncome": "Нераспределенный доход",
+				"otherIncome": "Прочие доходы",
+				"repairServices": "Услуги ремонта",
+				"clientIncome": "Поступление от заказчика",
+				"expense": "Расходы",
+				"staffCosts": "Затраты на персонал",
+				"rentCosts": "Аренда и коммунальные",
+				"otherCosts": "Прочие расходы",
+				"netProfit": "Чистая прибыль/убыток",
+				"profitability": "Рентабельность, %"
+			},
+			"na": "н/о",
+			"actions": { "expand": "Развернуть", "collapse": "Свернуть" }
 		}
 	}
 }

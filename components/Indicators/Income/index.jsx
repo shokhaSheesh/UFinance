@@ -306,7 +306,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
           </div>
           <div className="flex-1 pl-6 space-y-4 items-start">
             {stats?.details?.map(item => (
-              <div key={item?.id} className="flex items-center gap-5">
+              <div key={item?.id} className="flex flex-wrap justify-between items-center ">
                 <div className="flex items-center gap-2">
                   <div className="size-3" style={{ backgroundColor: item?.color }}></div>
                   <span className="text-sm text-gray-600">{item?.label}</span>

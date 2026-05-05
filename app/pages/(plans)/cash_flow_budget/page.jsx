@@ -1,8 +1,7 @@
+import CashFlowBudget from "@/modules/plans/CashFlowBudget"
 
-const CashFlowBudgets = () => {
-  return (
-    <div>CashFlowBudgets</div>
-  )
+const CashFlowBudgetsPage = () => {
+  return <CashFlowBudget />
 }
 
-export default CashFlowBudgets
+export default CashFlowBudgetsPage

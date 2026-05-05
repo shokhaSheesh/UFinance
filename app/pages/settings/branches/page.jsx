@@ -33,11 +33,17 @@ function formatPhone998(raw) {
   digits = digits.slice(0, 12)
   let result = '+998'
   const rest = digits.slice(3)
-  if (rest.length > 0) result += ' ' + rest.slice(0, 2)
+  if (rest.length > 0) result += ' (' + rest.slice(0, 2)
+  if (rest.length >= 2) result += ')'
   if (rest.length > 2) result += ' ' + rest.slice(2, 5)
   if (rest.length > 5) result += ' ' + rest.slice(5, 7)
   if (rest.length > 7) result += ' ' + rest.slice(7, 9)
   return result
+}
+
+function isValidPhone998(value) {
+  const digits = String(value || '').replace(/\D/g, '')
+  return digits.length === 12 && digits.startsWith('998')
 }
 
 /* ═══════════════════════════════════════════════════════ */
@@ -222,8 +228,7 @@ function BranchModal({ open, onClose, onSubmit, initial }) {
               name="phone"
               control={control}
               rules={{
-                validate: v =>
-                  v.replace(/\D/g, '').length >= 12 || tb('errors.phoneInvalid'),
+                validate: v => isValidPhone998(v) || tb('errors.phoneInvalid'),
               }}
               render={({ field }) => (
                 <Input

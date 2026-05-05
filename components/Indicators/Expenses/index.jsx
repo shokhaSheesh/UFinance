@@ -261,7 +261,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Donut Pane */}
-                <div className="w-full flex-1 shrink-0 flex items-center justify-between relative z-10">
+                <div className="w-full flex-1 shrink-0 flex items-start justify-between relative z-10">
                     <div className="relative shrink-0 overflow-visible">
                         <ReactECharts
                             option={donutOption}
@@ -270,7 +270,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                     </div>
                     <div className="flex-1 pl-6 space-y-4">
                         {stats?.details?.map(item => (
-                            <div key={item?.id} className="flex items-center gap-5">
+                            <div key={item?.id} className="flex items-center flex-wrap justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="size-3" style={{ backgroundColor: item?.color }}></div>
                                     <span className="text-sm text-gray-600">{item?.label}</span>

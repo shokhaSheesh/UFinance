@@ -105,7 +105,13 @@
 			"deals": "Bitimlar",
 			"reports": "Hisobotlar",
 			"directories": "Ma'lumotlar",
-			"settings": "Sozlamalar"
+			"settings": "Sozlamalar",
+			"plans": "Rejalar"
+		},
+		"plans": {
+			"cash_flow_budget": "Pul oqimi byudjeti",
+			"income_expense_budget": "Daromad & xarajat byudjeti",
+			"payment_calendar": "To'lov taqvimi"
 		},
 		"reports": {
 			"cashflow": "Mablag'lari harakati (MH)",
@@ -469,7 +475,8 @@
 			"accountingMethod": "Hisob usuli",
 			"date": "Sana",
 			"counterparty": "Tomon",
-			"counterpartyGroup": "Tomonlar guruhi"
+			"counterpartyGroup": "Tomonlar guruhi",
+			"deals": "Bitimlar"
 		},
 		"cashflow": {
 			"title": "Pul mablag'larining harakati to'g'risida hisobot",
@@ -1386,6 +1393,163 @@
 			"delete": "O'chirish",
 			"edit": "Tahrirlash",
 			"add": "Qo'shish"
+		}
+	},
+	"Plans": {
+		"cashFlowBudget": {
+			"title": "Pul oqimi byudjeti",
+			"searchPlaceholder": "Nom bo'yicha qidirish",
+			"columns": {
+				"name": "Nomi",
+				"currency": "Valyuta",
+				"legalEntity": "Yuridik shaxs",
+				"project": "Loyiha",
+				"period": "Davr",
+				"modifiedDate": "O'zgartirildi",
+				"modifiedBy": "Kim o'zgartirdi"
+			},
+			"noData": "Ko'rsatish uchun ma'lumot yo'q",
+			"footer": {
+				"total": "{count, plural, one {# ta byudjet} other {# ta byudjet}}",
+				"lastUpdated": "Yangilandi: bugun"
+			}
+		},
+		"incomeExpenseBudget": {
+			"title": "Daromad va xarajat byudjeti",
+			"searchPlaceholder": "Nom bo'yicha qidirish",
+			"columns": {
+				"name": "Nomi",
+				"currency": "Valyuta",
+				"legalEntity": "Yuridik shaxs",
+				"project": "Loyiha",
+				"period": "Davr",
+				"modifiedDate": "O'zgartirildi",
+				"modifiedBy": "Kim o'zgartirdi"
+			},
+			"noData": "Ko'rsatish uchun ma'lumot yo'q",
+			"footer": {
+				"total": "{count, plural, one {# ta byudjet} other {# ta byudjet}}",
+				"lastUpdated": "Yangilandi: bugun"
+			}
+		},
+		"CashFlowBudgetSingle": {
+			"breadcrumb": {
+				"list": "Byudjetlar ro'yxati"
+			},
+			"title": "Umumiy 2025",
+			"type": "PHB",
+			"period": "Noy '25 — sen '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "Oylar bo'yicha",
+				"quarters": "Choraklar bo'yicha",
+				"years": "Yillar bo'yicha"
+			},
+			"columns": {
+				"article": "Umumiy byudjet",
+				"plan": "Reja",
+				"fact": "Fakt",
+				"planExec": "Reja bajarilishi, %",
+				"deviation": "Og'ish",
+				"deviationPct": "Og'ish, %"
+			},
+			"periodTotal": "Jami",
+			"months": {
+				"1": "Yan",
+				"2": "Fev",
+				"3": "Mar",
+				"4": "Apr",
+				"5": "May",
+				"6": "Iyn",
+				"7": "Iyl",
+				"8": "Avg",
+				"9": "Sen",
+				"10": "Okt",
+				"11": "Noy",
+				"12": "Dek"
+			},
+			"rows": {
+				"balanceStart": "Davr boshidagi qoldiq",
+				"operating": "Operatsion oqim",
+				"income": "Tushumlar",
+				"revenue": "Daromadlar",
+				"currentAssets": "Aylanma aktivlar",
+				"shortLiabilities": "Qisqa muddatli majburiyatlar",
+				"expense": "To'lovlar",
+				"expenses": "Xarajatlar",
+				"investing": "Investitsion oqim",
+				"investingOut": "Investitsion to'lovlar",
+				"financing": "Moliyaviy oqim",
+				"financingOps": "Moliyaviy operatsiyalar",
+				"totalFlow": "Umumiy pul oqimi",
+				"closingBalance": "Davr oxiridagi qoldiq"
+			},
+			"na": "n/a",
+			"actions": {
+				"expand": "Yoyish",
+				"collapse": "Yig'ish"
+			}
+		},
+		"IncomeExpenseBudgetSingle": {
+			"breadcrumb": { "list": "Byudjetlar ro'yxati" },
+			"title": "Kuybыsheva, 45",
+			"type": "DXB",
+			"period": "Noy '25 — sen '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "Oylar bo'yicha",
+				"quarters": "Choraklar bo'yicha",
+				"years": "Yillar bo'yicha"
+			},
+			"method": {
+				"cash": "Kassa usuli",
+				"accrual": "Hisoblash usuli"
+			},
+			"indicators": {
+				"profit": "Foyda ko'rsatkichlari",
+				"revenue": "Daromad ko'rsatkichlari"
+			},
+			"columns": {
+				"article": "Barcha yuridik shaxslar",
+				"plan": "Reja",
+				"fact": "Fakt",
+				"planExec": "Reja bajarilishi, %",
+				"deviation": "Og'ish",
+				"deviationPct": "Og'ish, %"
+			},
+			"periodTotal": "Jami",
+			"months": {
+				"1": "Yan",
+				"2": "Fev",
+				"3": "Mar",
+				"4": "Apr",
+				"5": "May",
+				"6": "Iyn",
+				"7": "Iyl",
+				"8": "Avg",
+				"9": "Sen",
+				"10": "Okt",
+				"11": "Noy",
+				"12": "Dek"
+			},
+			"entityHeader": "Kuybыsheva, 45",
+			"rows": {
+				"income": "Daromadlar",
+				"undistributedIncome": "Taqsimlanmagan daromad",
+				"otherIncome": "Boshqa daromadlar",
+				"repairServices": "Ta'mirlash xizmatlari",
+				"clientIncome": "Buyurtmachidan tushum",
+				"expense": "Xarajatlar",
+				"staffCosts": "Xodimlar xarajatlari",
+				"rentCosts": "Ijara va kommunal",
+				"otherCosts": "Boshqa xarajatlar",
+				"netProfit": "Sof foyda/zarar",
+				"profitability": "Rentabellik, %"
+			},
+			"na": "n/a",
+			"actions": { "expand": "Yoyish", "collapse": "Yig'ish" }
 		}
 	}
 }

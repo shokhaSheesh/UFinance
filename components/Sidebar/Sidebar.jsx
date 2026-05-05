@@ -69,10 +69,24 @@ export const Sidebar = observer(() => {
         },
         {
             icon: CalendarCheck,
-            label: t('nav.deals'),
-            href: '/pages/deals',
-            hasPage: false,
-            canShow: true
+            label: t('nav.plans'),
+            href: '/pages',
+            hasPage: true,
+            canShow: true,
+            submenu: [
+                {
+                    label: t('plans.income_expense_budget'),
+                    href: '/pages/income_expense_budget',
+                    hasPage: true,
+                    canShow: true
+                },
+                {
+                    label: t('plans.cash_flow_budget'),
+                    href: '/pages/cash_flow_budget',
+                    hasPage: true,
+                    canShow: true
+                }
+            ]
         },
         {
             icon: ClipboardList,
@@ -231,21 +245,28 @@ export const Sidebar = observer(() => {
                     })}
             </nav>
 
+            {/* Invisible clickable button at bottom - opens modal when clicked */}
+            <button
+                onClick={() => setModalOpen(true)}
+                className="mt-auto w-full h-12 opacity-0 cursor-pointer"
+                aria-hidden="true"
+            />
+
             {/* Modal for setting local API URL */}
             {modalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
                     <div className="bg-white rounded-lg p-6 w-[500px] max-w-[95vw]">
                         <h2 className="text-lg font-bold text-slate-900 mb-4">
-                            {t('apiModal.title')}
+                            API URL sozlamalari
                         </h2>
 
                         <div className="flex flex-col gap-1.5 mb-4">
-                            <label className="text-sm font-medium text-slate-500">{t('apiModal.label')}</label>
+                            <label className="text-sm font-medium text-slate-500">API URL</label>
                             <textarea
                                 value={apiUrl}
                                 onChange={(e) => setApiUrl(e.target.value)}
                                 disabled={hasSavedUrl}
-                                placeholder={t('apiModal.placeholder')}
+                                placeholder="API URL manzilini kiriting..."
                                 className={cn(
                                     "w-full p-3 border border-gray-300 rounded-lg text-sm resize-none",
                                     hasSavedUrl && "bg-gray-100 cursor-not-allowed"
@@ -254,7 +275,7 @@ export const Sidebar = observer(() => {
                             />
                             {hasSavedUrl && (
                                 <p className="text-xs text-gray-500">
-                                    {t('apiModal.savedNotice')}
+                                    URL saqlandi
                                 </p>
                             )}
                         </div>
@@ -263,13 +284,13 @@ export const Sidebar = observer(() => {
                                 onClick={() => setModalOpen(false)}
                                 className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                             >
-                                {t('apiModal.cancel')}
+                                Bekor qilish
                             </button>
                             {apiUrl && <button
                                 onClick={handleClearApiUrl}
                                 className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                             >
-                                {t('apiModal.clear')}
+                                Tozalash
                             </button>}
                             {!hasSavedUrl && (
                                 <button
@@ -277,7 +298,7 @@ export const Sidebar = observer(() => {
                                     disabled={!apiUrl.trim()}
                                     className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                                 >
-                                    {t('apiModal.save')}
+                                    Saqlash
                                 </button>
                             )}
                         </div>

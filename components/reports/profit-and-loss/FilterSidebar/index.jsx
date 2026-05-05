@@ -1,13 +1,14 @@
 'use client'
 
-import { observer } from 'mobx-react-lite'
-import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
-import { useTranslations } from 'next-intl'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
-import SelectMyAccounts from '../../../ReadyComponents/SelectMyAccounts'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
+import SelectMyAccounts from '../../../ReadyComponents/SelectMyAccounts'
 import { pnlStore } from '../pnl.store'
 
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
@@ -52,6 +53,14 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             onChange={(val) => pnlStore.setSelectedCounterparties(val)}
             placeholder={t('common.allCounterparties')}
             valueKey="value"
+          />
+        </div>
+        {/* deals */}
+        <div>
+          <MultiSelectZdelka
+            value={pnlStore.deals}
+            onChange={(val) => pnlStore.setDeals(val)}
+            placeholder={t('common.deals')}
           />
         </div>
 

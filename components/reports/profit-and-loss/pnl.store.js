@@ -1,7 +1,6 @@
-import { makeAutoObservable, runInAction } from 'mobx'
-import { ucodeRequest } from '@/lib/api/ucode/base'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 
 const formatDate = date => {
 	const d = typeof date === 'string' ? new Date(date) : date
@@ -26,6 +25,7 @@ class PnLStore {
 	ebitda = false
 	ebit = false
 	ebt = false
+	deals = []
 	selectedAccounts = []
 	selectedCounterparties = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
@@ -43,6 +43,7 @@ class PnLStore {
 					'selectedCurrency',
 					'selectedPeriod',
 					'selectedGrouping',
+					'deals',
 					'isCalculation',
 					'dateRange',
 				],
@@ -89,6 +90,9 @@ class PnLStore {
 	}
 	setEbt(value) {
 		this.ebt = value
+	}
+	setDeals(value) {
+		this.deals = value
 	}
 }
 
