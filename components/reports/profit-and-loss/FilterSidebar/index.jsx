@@ -6,6 +6,7 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
+import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import { pnlStore } from '../pnl.store'
 
@@ -14,8 +15,6 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
 
   const handleDateRangeChange = (range) => {
     pnlStore.setDateRange(range)
-    console.log(range)
-    // queryClient.invalidateQueries({ queryKey: ['profit_and_loss'] })
   }
 
   return (
@@ -39,8 +38,15 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectMyAccoutGroup
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
-            placeholder="Юрлица и счета"
-            valueKey="value"
+            placeholder="Счета"
+          />
+        </div>
+        {/* SelectLegelEntitties */}
+        <div>
+          <SelectLegelEntitties
+            value={pnlStore.selectedLegalEntities}
+            onChange={(val) => pnlStore.setSelectedLegalEntities(val)}
+            placeholder="Юрлица"
           />
         </div>
 
@@ -50,7 +56,6 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             value={pnlStore.selectedCounterparties}
             onChange={(val) => pnlStore.setSelectedCounterparties(val)}
             placeholder="Все контрагенты"
-            valueKey="value"
           />
         </div>
 
