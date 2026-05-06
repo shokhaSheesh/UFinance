@@ -1,9 +1,18 @@
 import { keepPreviousData } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import GroupSelect from '../../shared/Selects/GroupSelect'
 
-const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Юрлица и счета", className, dropdownClassName, hasError }) => {
+const SelectMyAccoutGroup = ({
+  value,
+  onChange,
+  placeholder = "Юрлица и счета",
+  className,
+  dropdownClassName,
+  hasError,
+  returnParentId = false,
+  onReturnParentId
+}) => {
 
   const { data: accountsData, isLoading } = useUcodeRequestQuery({
     method: "get_my_accounts",
@@ -24,9 +33,56 @@ const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Юрлица и �
     return (accountsData || []).map(item => ({
       value: item.guid,
       label: item.nazvanie,
+      groupId: item.legal_entity_id,
       groupName: item.legal_entity_name || 'Без юрлица'
     }))
   }, [accountsData])
+
+  // Group data by groupId for checking full selection
+  const groupedByParent = useMemo(() => {
+    const groups = {}
+    mappedData.forEach(item => {
+      const parentId = item.groupId
+      if (!groups[parentId]) {
+        groups[parentId] = []
+      }
+      groups[parentId].push(item.value)
+    })
+    return groups
+  }, [mappedData])
+
+  // Check if all children of a parent are selected
+  const isGroupFullySelected = useCallback((parentId, selectedValues) => {
+    const children = groupedByParent[parentId] || []
+    if (children.length === 0) return false
+    return children.every(childId => selectedValues.includes(childId))
+  }, [groupedByParent])
+
+  // Handle selection change - always return selectedValues, return parent IDs via onReturnParentId when enabled
+  const handleOnChange = useCallback((selectedValues) => {
+    // Always return original selected values (account GUIDs)
+    onChange?.(selectedValues)
+
+    // If returnParentId is enabled, find and return parent IDs via callback
+    if (returnParentId && onReturnParentId) {
+      // Find which parents have all children selected
+      const parentIdsToReturn = []
+
+      // Check each parent group
+      Object.keys(groupedByParent).forEach(parentId => {
+        if (isGroupFullySelected(parentId, selectedValues)) {
+          parentIdsToReturn.push(parentId)
+        }
+      })
+
+      // Call the callback with parent IDs if any fully selected groups found
+      if (parentIdsToReturn.length > 0) {
+        onReturnParentId(parentIdsToReturn)
+      } else {
+        onReturnParentId([])
+      }
+    }
+  }, [groupedByParent, isGroupFullySelected, returnParentId, onChange, onReturnParentId])
 
   if (isLoading) {
     return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">Загрузка...</div>
@@ -36,7 +92,7 @@ const SelectMyAccoutGroup = ({ value, onChange, placeholder = "Юрлица и �
     <GroupSelect
       data={mappedData}
       value={value || []}
-      onChange={onChange}
+      onChange={handleOnChange}
       placeholder={placeholder}
       className={className}
       dropdownClassName={dropdownClassName}

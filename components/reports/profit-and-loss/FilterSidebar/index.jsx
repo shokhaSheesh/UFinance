@@ -6,7 +6,6 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
-import SelectLegelEntitties from '../../../ReadyComponents/SelectLegelEntitties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import { pnlStore } from '../pnl.store'
 
@@ -39,14 +38,8 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
             placeholder="Счета"
-          />
-        </div>
-        {/* SelectLegelEntitties */}
-        <div>
-          <SelectLegelEntitties
-            value={pnlStore.selectedLegalEntities}
-            onChange={(val) => pnlStore.setSelectedLegalEntities(val)}
-            placeholder="Юрлица"
+            returnParentId={true}
+            onReturnParentId={(parentIds) => pnlStore.setSelectedLegalEntities(parentIds)}
           />
         </div>
 

@@ -69,7 +69,7 @@ const ProfitAndLossPage = observer(() => {
     accounting_method: isCalculation,
     my_accounts_ids: selectedAccounts,
     counterparties_ids: selectedCounterparties,
-    legal_entity_ids: selectedLegalEntities?.length > 1 ? [selectedLegalEntities] : selectedLegalEntities,
+    legal_entity_ids: selectedLegalEntities,
     isEbitda: ebitda,
     isEbit: ebit,
     isEbt: ebt,
