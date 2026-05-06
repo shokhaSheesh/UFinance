@@ -68,7 +68,7 @@ export default observer(function DealsPage() {
 
 
   const dealsFilters = {
-    limit: 50,
+    limit: 30,
     search: search,
     from_date: dateRange?.start || null,
     to_date: dateRange?.end || null,

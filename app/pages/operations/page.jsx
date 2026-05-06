@@ -82,7 +82,7 @@ const OperationsPage = observer(() => {
 		accrualNotConfirm
 	} = operationFilterStore
 
-	const LIMIT = 50
+	const LIMIT = 30
 
 
 	// Debounce search query
