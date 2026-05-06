@@ -1,12 +1,14 @@
 'use client'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { formatAmount } from '@/utils/helpers'
-import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useDeleteOperation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
+import { useDeleteOperation } from '../../../../hooks/useDashboard'
+import { apiClient } from '../../../../lib/api/ucode/base'
 import operationsDto from '../../../../lib/dtos/operationsDto'
 import CustomModal from '../../../shared/CustomModal'
 
@@ -16,6 +18,8 @@ import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
 const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
+  const t = useTranslations('Directories.details.incomeOperationsTable')
+
   const [showModal, setShowModal] = useState(false)
   const [selectedOperation, setSelectedOperation] = useState(null)
   const [modalType, setModalType] = useState('income')
@@ -25,38 +29,73 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
   const [operationToDelete, setOperationToDelete] = useState(null)
   const deleteOperationMutation = useDeleteOperation()
   const queryClient = useQueryClient()
+  const scrollContainerRef = useRef(null)
+  const LIMIT = 10
 
-  const { data: operations, isLoading } = useUcodeRequestQuery({
-    method: "find_operations",
-    data: {
-      selling_deal_ids: sellingDealId,
-      tip: ['Поступление'],
-      accrualConfirmed: true,
-      accrualNotConfirmed: true,
-      paymentConfirmed: true,
-      paymentNotConfirmed: true,
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading
+  } = useInfiniteQuery({
+    queryKey: ['find_operations', sellingDealId, 'income'],
+    queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
+      method: "find_operations",
+      data: {
+        selling_deal_ids: [sellingDealId],
+        tip: ['Поступление'],
+        accrualConfirmed: true,
+        accrualNotConfirmed: true,
+        paymentConfirmed: true,
+        paymentNotConfirmed: true,
+        page: pageParam,
+        limit: LIMIT
+      }
+    }),
+    getNextPageParam: (lastPage) => {
+      const pagination = lastPage?.data?.pagination
+      if (!pagination) return undefined
+      const { page, totalPages } = pagination
+      return page < totalPages ? page + 1 : undefined
     },
-    querySetting: {
-      select: (response) => response?.data,
-      placeholderData: keepPreviousData,
-    }
+    initialPageParam: 1,
+    placeholderData: keepPreviousData
   })
 
   const dealOperations = useMemo(() => {
-    return operationsDto(operations?.data)
-  }, [operations])
+    const allData = infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
+    return operationsDto(allData)
+  }, [infiniteData])
 
   const summury = useMemo(() => {
-    return operations?.totalSummary?.by_type?.receipt
-  }, [operations])
+    const lastPage = infiniteData?.pages?.[infiniteData.pages.length - 1]
+    return lastPage?.data?.totalSummary?.by_type?.receipt
+  }, [infiniteData])
+
+  // Infinite scroll detection
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container || !hasNextPage || isFetchingNextPage) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      if (scrollHeight - scrollTop - clientHeight < 100) {
+        fetchNextPage()
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
 
 
   if (dealOperations?.length === 0) {
     return (
       <EmptyState
-        title="Добавьте поступления по сделке"
-        subtitle="Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
+        title={t('emptyTitle')}
+        subtitle={t('emptySubtitle')}
         onAdd={onAdd}
       />
     )
@@ -126,15 +165,15 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
     <>
       {/* emptyState div is moved to top EmptyState component */}
       {dealOperations?.length > 0 && <>
-        <div className="h-96 overflow-y-auto">
+        <div ref={scrollContainerRef} className="max-h-[500px] overflow-y-auto">
           <table className="w-full">
             <thead className='sticky top-0 z-10'>
               <tr className='bg-neutral-100 text-neutral-600 font-normal text-sm w-full border-b border-gray-200'>
-                <th className='px-3 py-2 text-left w-[150px]'>Дата</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Счет</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Контрагент</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Статья</th>
-                <th className='px-3 py-2 text-right w-[150px]'>Сумма</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('date')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('account')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('counterparty')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('article')}</th>
+                <th className='px-3 py-2 text-right w-[150px]'>{t('amount')}</th>
               </tr>
             </thead>
             <tbody className='w-full'>
@@ -174,9 +213,14 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
               })}
             </tbody>
           </table>
+          {isFetchingNextPage && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className='animate-spin text-primary' size={20} />
+            </div>
+          )}
         </div>
         <div className='flex justify-end'>
-          <div className="p-4 text-right text-neutral-700 font-semibold">Итого:</div>
+          <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
           <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(summury?.total_summa)} {GlobalCurrency.name}</div>
         </div>
       </>}
@@ -206,27 +250,28 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
         <CustomModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
           <div className='p-6 flex flex-col'>
             <div className='flex justify-between items-center border-b border-gray-100 pb-4'>
-              <h2 className='text-xl font-bold text-neutral-800'>Удалить операцию</h2>
+              <h2 className='text-xl font-bold text-neutral-800'>{t('deleteOperationTitle')}</h2>
             </div>
 
-            <div className='py-6 text-base text-neutral-700'>
-              Вы действительно хотите удалить операцию на сумму <span className='font-bold'>{formatAmount(operationToDelete?.summa)} UZS</span>? <br />
-              Восстановить её будет невозможно.
-            </div>
+            <div className='py-6 text-base text-neutral-700'
+              dangerouslySetInnerHTML={{
+                __html: t('deleteOperationConfirm', { amount: formatAmount(operationToDelete?.summa) + ' UZS' })
+              }}
+            />
 
             <div className='flex justify-end gap-4'>
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className='px-4 py-2 text-sm text-primary hover:bg-gray-50 rounded-md font-semibold'
               >
-                Отменить
+                {t('cancel')}
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deleteOperationMutation.isPending}
                 className='px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-md flex items-center justify-center min-w-[100px]'
               >
-                {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : 'Удалить'}
+                {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : t('delete')}
               </button>
             </div>
           </div>

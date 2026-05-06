@@ -1,5 +1,6 @@
 'use client'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
@@ -7,7 +8,7 @@ import TreeSelect from '../../shared/Selects/TreeSelect'
 const SingleCounterParty = ({
   value,
   onChange,
-  placeholder = 'Выберите контрагента',
+  placeholder,
   className,
   disabled,
   dropdownClassName,
@@ -16,6 +17,7 @@ const SingleCounterParty = ({
   isClearable = true,
   hasError
 }) => {
+  const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
   const handleSearch = useMemo(() =>
@@ -44,12 +46,12 @@ const SingleCounterParty = ({
       if (item.children && Array.isArray(item.children) && item.children.length > 0) {
         return {
           value: item.guid,
-          label: item.nazvanie_gruppy || 'Без названия',
+          label: item.nazvanie_gruppy || t('noName'),
           bold: true,
           isSelectable: false, // Groups are not selectable
           children: item.children.map(child => ({
             value: child.guid,
-            label: child.nazvanie || 'Без названия',
+            label: child.nazvanie || t('noName'),
             isSelectable: true,
             rawData: child // Store raw data for lookup
           }))
@@ -59,14 +61,14 @@ const SingleCounterParty = ({
       // This is a standalone item (no children)
       return {
         value: item.guid,
-        label: item.nazvanie_gruppy || item.nazvanie || 'Без названия',
+        label: item.nazvanie_gruppy || item.nazvanie || t('noName'),
         isSelectable: true,
         rawData: item // Store raw data for lookup
       }
     }
 
     return groups.filter(item => item.children && item.children.length > 0).map(buildTree)
-  }, [counterpartiesGroupsData])
+  }, [counterpartiesGroupsData, t])
 
   const autoSelectChartOfAccount = (name, val) => {
     // Find the item in the tree to get its rawData
@@ -108,7 +110,7 @@ const SingleCounterParty = ({
     <TreeSelect
       data={result}
       multi={false}
-      placeholder={isLoading ? "Загрузка..." : placeholder}
+      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterparty'))}
       value={value}
       onChange={handleSelect}
       onSearch={handleSearch}

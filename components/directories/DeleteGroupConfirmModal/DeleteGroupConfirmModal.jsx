@@ -1,9 +1,11 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { useTranslations } from 'next-intl'
 import styles from './DeleteGroupConfirmModal.module.scss'
 
 export function DeleteGroupConfirmModal({ isOpen, group, onConfirm, onCancel, isDeleting = false }) {
+  const t = useTranslations('Directories.counterparty')
+  const tc = useTranslations('Common')
   if (!isOpen) return null
 
   return (
@@ -15,7 +17,7 @@ export function DeleteGroupConfirmModal({ isOpen, group, onConfirm, onCancel, is
       />
       <div className={styles.deleteModal} style={{ zIndex: 1101 }}>
         <div className={styles.deleteModalHeader}>
-          <h3 className={styles.deleteModalTitle}>Подтверждение удаления</h3>
+          <h3 className={styles.deleteModalTitle}>{t('deleteConfirmTitle')}</h3>
           <button 
             className={styles.deleteModalClose}
             onClick={onCancel}
@@ -27,17 +29,17 @@ export function DeleteGroupConfirmModal({ isOpen, group, onConfirm, onCancel, is
         </div>
         <div className={styles.deleteModalBody}>
           <p className={styles.deleteModalText}>
-            Вы уверены, что хотите удалить группу контрагентов?
+            {t('deleteConfirmMessage')}
           </p>
           {group && (
             <div className={styles.deleteModalInfo}>
               <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>Название группы:</span>
+                <span className={styles.deleteModalInfoLabel}>{t('groupNameLabel')}</span>
                 <span className={styles.deleteModalInfoValue}>{group.nazvanie_gruppy || '—'}</span>
               </div>
               {group.opisanie_gruppy && (
                 <div className={styles.deleteModalInfoItem}>
-                  <span className={styles.deleteModalInfoLabel}>Описание:</span>
+                  <span className={styles.deleteModalInfoLabel}>{t('groupDescriptionLabel')}</span>
                   <span className={styles.deleteModalInfoValue}>{group.opisanie_gruppy}</span>
                 </div>
               )}
@@ -49,14 +51,14 @@ export function DeleteGroupConfirmModal({ isOpen, group, onConfirm, onCancel, is
             className={styles.deleteModalButtonCancel}
             onClick={onCancel}
           >
-            Отмена
+            {tc('cancel')}
           </button>
           <button 
             className={styles.deleteModalButtonConfirm}
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Удаление...' : 'Удалить'}
+            {isDeleting ? tc('deleting') : tc('delete')}
           </button>
         </div>
       </div>

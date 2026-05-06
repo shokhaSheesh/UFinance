@@ -1,9 +1,11 @@
 "use client"
 
-import styles from './OperationsTable.module.scss'
+import { useTranslations } from 'next-intl'
 import Loader from '../../shared/Loader'
+import styles from './OperationsTable.module.scss'
 
 export function DeleteConfirmModal({ isOpen, operation, onConfirm, onCancel, isDeleting = false }) {
+  const t = useTranslations('Operations')
   if (!isOpen) return null
 
   return (
@@ -14,7 +16,7 @@ export function DeleteConfirmModal({ isOpen, operation, onConfirm, onCancel, isD
       />
       <div className={styles.deleteModal}>
         <div className={styles.deleteModalHeader}>
-          <h3 className={styles.deleteModalTitle}>Подтверждение удаления</h3>
+          <h3 className={styles.deleteModalTitle}>{t('deleteModal.title')}</h3>
           <button
             className={styles.deleteModalClose}
             onClick={onCancel}
@@ -24,20 +26,20 @@ export function DeleteConfirmModal({ isOpen, operation, onConfirm, onCancel, isD
         </div>
         <div className={styles.deleteModalBody}>
           <p className={styles.deleteModalText}>
-            Вы уверены, что хотите удалить операцию?
+            {t('deleteModal.confirmation')}
           </p>
           {operation && (
             <div className={styles.deleteModalInfo}>
               <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>Описание:</span>
+                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.description')}</span>
                 <span className={styles.deleteModalInfoValue}>{operation.opisanie || '—'}</span>
               </div>
               <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>Сумма:</span>
+                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.amount')}</span>
                 <span className={styles.deleteModalInfoValue}>{operation.summa || '—'}</span>
               </div>
               <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>Дата:</span>
+                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.date')}</span>
                 <span className={styles.deleteModalInfoValue}>{operation.operationDate || '—'}</span>
               </div>
             </div>
@@ -48,14 +50,14 @@ export function DeleteConfirmModal({ isOpen, operation, onConfirm, onCancel, isD
             className={styles.deleteModalButtonCancel}
             onClick={onCancel}
           >
-            Отмена
+            {t('deleteModal.cancel')}
           </button>
           <button
             className={styles.deleteModalButtonConfirm}
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? <Loader /> : 'Удалить'}
+            {isDeleting ? <Loader /> : t('deleteModal.delete')}
           </button>
         </div>
       </div>

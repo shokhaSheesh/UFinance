@@ -20,6 +20,7 @@ export const GlobalCurrency = {
 };
 
 export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b"; 
+export const testDonoSchool = '29af6d7a-3fb3-476e-8fce-e0a8cfab975e'
 
 export const isDonoSchool = authStore.userData?.company_id === donoSchool ? true : false;
 

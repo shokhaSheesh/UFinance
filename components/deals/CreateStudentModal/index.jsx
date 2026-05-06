@@ -3,6 +3,7 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { Edit2, Loader2, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -27,17 +28,19 @@ const academicYears = Array.from({ length: 20 }, (_, i) => {
 })
 
 const today = moment(new Date()).format('YYYY-MM-DD')
-const sostayaniya = [
-  { value: 'active', label: 'Faol' },
-  { value: 'passive', label: 'Faol emas' },
-]
-
-const clientType = [
-  { value: 'new', label: 'Yangi' },
-  { value: 'old', label: 'Eski' },
-]
 
 const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canUpdateForms }) => {
+  const t = useTranslations('Deals.createStudentModal')
+
+  const clientType = [
+    { value: 'new', label: t('new') },
+    { value: 'old', label: t('old') },
+]
+
+  const sostayaniya = [
+    { value: 'active', label: t('statusActive') },
+    { value: 'passive', label: t('statusPassive') },
+  ]
   const [step, setStep] = useState('form') // 'form' | 'preview'
   const [isSaving, setIsSaving] = useState(false)
   const [contractTemplate, setContractTemplate] = useState('')
@@ -544,10 +547,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
           queryClient.invalidateQueries({ queryKey: ['classes'] })
           setOpenClassModal(false)
           setClassNameInput('')
-          showSuccessNotification('Класс успешно создан')
+          showSuccessNotification(t('classCreated'))
         },
         onError: (error) => {
-          showErrorNotification(error?.message || 'Ошибка при создании класса')
+          showErrorNotification(error?.message || t('classCreateError'))
         }
       })
     } else if (classModalMode === 'edit' && editingClass) {
@@ -566,10 +569,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
           setOpenClassModal(false)
           setEditingClass(null)
           setClassNameInput('')
-          showSuccessNotification('Класс успешно обновлен')
+          showSuccessNotification(t('classUpdated'))
         },
         onError: (error) => {
-          showErrorNotification(error?.message || 'Ошибка при обновлении класса')
+          showErrorNotification(error?.message || t('classUpdateError'))
         }
       })
     }
@@ -585,10 +588,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['classes'] })
         setDeleteConfirmItem(null)
-        showSuccessNotification('Класс успешно удален')
+        showSuccessNotification(t('classDeleted'))
       },
       onError: (error) => {
-        showErrorNotification(error?.message || 'Ошибка при удалении класса')
+        showErrorNotification(error?.message || t('classDeleteError'))
       }
     })
   }
@@ -629,10 +632,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
           queryClient.invalidateQueries({ queryKey: ['guardian_types'] })
           setOpenGuardianModal(false)
           setGuardianTypeInput('')
-          showSuccessNotification('Тип опекуна успешно создан')
+          showSuccessNotification(t('guardianTypeCreated'))
         },
         onError: (error) => {
-          showErrorNotification(error?.message || 'Ошибка при создании типа опекуна')
+          showErrorNotification(error?.message || t('guardianTypeCreateError'))
         }
       })
     } else if (guardianModalMode === 'edit' && editingGuardian) {
@@ -651,10 +654,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
           setOpenGuardianModal(false)
           setEditingGuardian(null)
           setGuardianTypeInput('')
-          showSuccessNotification('Тип опекуна успешно обновлен')
+          showSuccessNotification(t('guardianTypeUpdated'))
         },
         onError: (error) => {
-          showErrorNotification(error?.message || 'Ошибка при обновлении типа опекуна')
+          showErrorNotification(error?.message || t('guardianTypeUpdateError'))
         }
       })
     }
@@ -670,10 +673,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['guardian_types'] })
         setDeleteGuardianItem(null)
-        showSuccessNotification('Тип опекуна успешно удален')
+        showSuccessNotification(t('guardianTypeDeleted'))
       },
       onError: (error) => {
-        showErrorNotification(error?.message || 'Ошибка при удалении типа опекуна')
+        showErrorNotification(error?.message || t('guardianTypeDeleteError'))
       }
     })
   }
@@ -707,7 +710,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-3 py-4">
           <h2 className="text-lg font-bold text-gray-900 font-sans">
-            {step === 'form' ? (initialData ? 'Редактирование продажи' : 'Новая продажа') : 'Предварительный просмотр договора'}
+            {step === 'form' ? (initialData ? t('titleEditSale') : t('titleNewSale')) : t('titlePreview')}
           </h2>
         </div>
         {isLoading ? (
@@ -723,18 +726,18 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                   <form id="student-form" onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-3 gap-3">
                     <fieldset className="contents">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Номер договора *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('contractNumber')} *</label>
                         <Input
-                          placeholder="Введите номер договора"
+                          placeholder={t('contractNumberPlaceholder')}
                           error={!!errors.contractNumber}
-                          {...register('contractNumber', { required: 'Введите номер договора' })}
+                          {...register('contractNumber', { required: !isEditing ? t('contractNumberRequired') : false })}
                           disabled={isEditing}
                         />
                         {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
                       </div>
                       {/* Row 1 */}
                       <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
-                        <label className="text-xs font-medium text-gray-700">Дата договора *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('contractDate')} *</label>
                         <Controller
                           name="contractDate"
                           control={control}
@@ -755,24 +758,24 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Ф.И.О. опекуна *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('guardianName')} *</label>
                         <Input
-                          placeholder="Введите Ф.И.О. опекуна"
+                          placeholder={t('guardianNamePlaceholder')}
                           error={!!errors.guardianName}
-                          {...register('guardianName', { required: !isEditing ? 'Введите Ф.И.О. опекуна' : false })}
+                          {...register('guardianName', { required: !isEditing ? t('guardianNameRequired') : false })}
                           disabled={isEditing}
                         />
                         {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Название филиала</label>
+                        <label className="text-xs font-medium text-gray-700">{t('branchName')}</label>
                         <Controller
                           name="branchName"
                           control={control}
                           render={({ field }) => (
                             <Input
-                              placeholder="Название филиала"
+                              placeholder={t('branchName')}
                               value={field.value}
                               disabled
                             />
@@ -781,17 +784,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Выберите тип опекуна *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('guardianType')} *</label>
                         <Controller
                           name="guardianType"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите тип опекуна' : false }}
+                          rules={{ required: !isEditing ? t('guardianTypeRequired') : false }}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Выберите тип опекуна"
+                              placeholder={t('guardianTypePlaceholder')}
                               value={field.value}
                               customButton={<div onClick={openCreateGuardianModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                                <span className='text-sm text-primary'>Добавить тип опекуна</span>
+                                <span className='text-sm text-primary'>{t('addGuardianType')}</span>
                               </div>}
                               onChange={field.onChange}
                               elementAfter={(item) => (
@@ -811,14 +814,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Выберите учебный год *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('academicYear')} *</label>
                         <Controller
                           name="academicYear"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите учебный год' : false }}
+                          rules={{ required: !isEditing ? t('academicYearRequired') : false }}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Выберите учебный год"
+                              placeholder={t('academicYearPlaceholder')}
                               value={field.value}
                               onChange={field.onChange}
                               data={academicYears}
@@ -832,16 +835,16 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Телефон 1 *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('phone1')} *</label>
                         <Controller
                           name="phone1"
                           control={control}
-                          rules={{ required: !isEditing ? 'Введите номер телефона' : false }}
+                          rules={{ required: !isEditing ? t('phone1Required') : false }}
                           render={({ field }) => (
                             <div className="flex">
                               <input
                                 type="text"
-                                placeholder="XX XXX XX XX"
+                                placeholder={t('phone1Placeholder')}
                                 value={field.value}
                                 disabled={isEditing}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
@@ -854,14 +857,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
                       {/* Row 3 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Ф.И.О. ученика *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('studentName')} *</label>
                         <Controller
                           name="counterparties_id"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите ученика' : false }}
+                          rules={{ required: !isEditing ? t('studentNameRequired') : false }}
                           render={({ field }) => (
                             <SingleCounterParty
-                              placeholder="Введите Ф.И.О. ученика"
+                              placeholder={t('studentNamePlaceholder')}
                               value={field.value}
                               name='nazvanie'
                               returnChartOfAccount={(value) => setValue('studentName', value)}
@@ -876,7 +879,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Телефон 2</label>
+                        <label className="text-xs font-medium text-gray-700">{t('phone2')}</label>
                         <Controller
                           name="phone2"
                           control={control}
@@ -884,7 +887,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                             <div className="flex">
                               <input
                                 type="text"
-                                placeholder="XX XXX XX XX"
+                                placeholder={t('phone2Placeholder')}
                                 value={field.value}
                                 disabled={isEditing}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
@@ -896,11 +899,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Серия и номер паспорта *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('passport')} *</label>
                         <Input
-                          placeholder="Введите серию и номер паспорта"
+                          placeholder={t('passportPlaceholder')}
                           error={!!errors.passport}
-                          {...register('passport', { required: !isEditing ? 'Введите серию и номер паспорта' : false })}
+                          {...register('passport', { required: !isEditing ? t('passportRequired') : false })}
                           disabled={isEditing}
                         />
                         {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
@@ -908,33 +911,33 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
                       {/* Row 4 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">ПИНФЛ опекуна *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('pinfl')} *</label>
                         <Input
-                          placeholder="Введите ПИНФЛ опекуна"
+                          placeholder={t('pinflPlaceholder')}
                           maxLength={14}
                           disabled={isEditing}
                           error={!!errors.pinf}
                           {...register('pinf', {
-                            required: !isEditing ? 'Введите ПИНФЛ опекуна' : false,
-                            pattern: { value: /^\d{14}$/, message: 'ПИНФЛ должен содержать 14 цифр' }
+                            required: !isEditing ? t('pinflRequired') : false,
+                            pattern: { value: /^\d{14}$/, message: t('pinflInvalid') }
                           })}
                         />
                         {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Место выдачи *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('issuedBy')} *</label>
                         <Input
-                          placeholder="Введите место выдачи"
+                          placeholder={t('issuedByPlaceholder')}
                           disabled={isEditing}
                           error={!!errors.issuedBy}
-                          {...register('issuedBy', { required: !isEditing ? 'Введите место выдачи' : false })}
+                          {...register('issuedBy', { required: !isEditing ? t('issuedByRequired') : false })}
                         />
                         {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Название тарифа</label>
+                        <label className="text-xs font-medium text-gray-700">{t('tariffName')}</label>
                         <Controller
                           name="product_and_service_id"
                           control={control}
@@ -946,7 +949,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               returnFieldValue={(value) => {
                                 setValue('monthlyPayment', value)
                               }}
-                              placeholder="Выберите тариф"
+                              placeholder={t('tariffPlaceholder')}
                               className={'w-full! bg-white'}
                               disabled={isEditing}
                             />
@@ -956,16 +959,16 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
                       {/* Row 5 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Дата рождения ученика *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('birthDate')} *</label>
                         <Controller
                           name="birthDate"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите дату рождения' : false }}
+                          rules={{ required: !isEditing ? t('birthDateRequired') : false }}
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
                               onChange={field.onChange}
-                              placeholder="Выберите дату"
+                              placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
                               className={'w-full!'}
                               inputClass={'bg-white!'}
@@ -977,11 +980,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Срок действия договора от *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('validFrom')} *</label>
                         <Controller
                           name="validFrom"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите дату начала' : false }}
+                          rules={{ required: !isEditing ? t('validFromRequired') : false }}
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
@@ -989,7 +992,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                                 field.onChange(value)
                                 setValue('the_contract_period_is_from', value)
                               }}
-                              placeholder="Выберите дату"
+                              placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
                               className={'w-full!'}
                               inputClass={'bg-white!'}
@@ -1001,17 +1004,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Выберите пол *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('gender')} *</label>
                         <Controller
                           name="gender"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите пол' : false }}
+                          rules={{ required: !isEditing ? t('genderRequired') : false }}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Выберите пол"
+                              placeholder={t('gender')}
                               value={field.value}
                               onChange={field.onChange}
-                              data={[{ value: 'male', label: 'Мужской' }, { value: 'female', label: 'Женский' }]}
+                              data={[{ value: 'male', label: t('genderMale') }, { value: 'female', label: t('genderFemale') }]}
                               className='bg-white'
                               isClearable={false}
                               disabled={isEditing}
@@ -1022,11 +1025,11 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
                       {/* Row 6 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Срок действия договора до *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('validTo')} *</label>
                         <Controller
                           name="validTo"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите дату окончания' : false }}
+                          rules={{ required: !isEditing ? t('validToRequired') : false }}
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
@@ -1034,7 +1037,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                                 field.onChange(value)
                                 setValue('the_contract_period_is_to', value)
                               }}
-                              placeholder="Выберите дату"
+                              placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
                               className={'w-full!'}
                               inputClass={'bg-white!'}
@@ -1045,17 +1048,17 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Введите класс *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('class')} *</label>
                         <Controller
                           name="classes_id"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите класс' : false }}
+                          rules={{ required: !isEditing ? t('classRequired') : false }}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Введите класс"
+                              placeholder={t('classPlaceholder')}
                               value={field.value}
                               customButton={<div onClick={openCreateModal} className='flex cursor-pointer items-center gap-2 px-3 py-2'>
-                                <span className='text-sm text-primary'>Добавить класс</span>
+                                <span className='text-sm text-primary'>{t('addClass')}</span>
                               </div>}
                               onChange={(value) => {
                                 field.onChange(value)
@@ -1078,13 +1081,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Тип клиента</label>
+                        <label className="text-xs font-medium text-gray-700">{t('clientType')}</label>
                         <Controller
                           name="clientType"
                           control={control}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Тип клиента"
+                              placeholder={t('clientTypePlaceholder')}
                               value={field.value}
                               onChange={field.onChange}
                               data={clientType}
@@ -1101,18 +1104,18 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                     {/* Row 7 */}
                     {isEditing && (
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Пассивная дата *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('passiveDate')} *</label>
                         <Controller
                           name="passiveDate"
                           control={control}
-                          rules={{ required: 'Выберите пассивную дату' }}
+                          rules={{ required: t('passiveDateRequired') }}
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
                               onChange={field.onChange}
                               minDate={new Date(defaultValues.validFrom)}
                               maxDate={new Date(defaultValues.validTo)}
-                              placeholder="Выберите дату"
+                              placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
                               className={'w-full! bg-white px-2  py-1 border border-gray-ucode-200!'}
                               inputClass={`bg-white! ${errors?.passiveDate?.message && ' border border-red-ucode!'}`}
@@ -1124,13 +1127,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
                     <fieldset disabled className="contents pointer-events-none opacity-70">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Состояние</label>
+                        <label className="text-xs font-medium text-gray-700">{t('status')}</label>
                         <Controller
                           name="status"
                           control={control}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Состояние"
+                              placeholder={t('statusPlaceholder')}
                               value={field.value}
                               onChange={field.onChange}
                               data={sostayaniya}
@@ -1145,26 +1148,26 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
                     <fieldset disabled={isEditing} className={`contents ${isEditing ? 'pointer-events-none opacity-70' : ''}`}>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Адрес *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('address')} *</label>
                         <Input
-                          placeholder="Адрес"
+                          placeholder={t('addressPlaceholder')}
                           error={!!errors.address}
                           disabled={isEditing}
-                          {...register('address', { required: !isEditing ? 'Введите адрес' : false })}
+                          {...register('address', { required: !isEditing ? t('addressRequired') : false })}
                         />
                         {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
                       </div>
 
                       {/* Row 8 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Выберите язык *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('language')} *</label>
                         <Controller
                           name="language_classes_id"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите язык' : false }}
+                          rules={{ required: !isEditing ? t('languageRequired') : false }}
                           render={({ field }) => (
                             <SingleSelect
-                              placeholder="Выберите язык"
+                              placeholder={t('languagePlaceholder')}
                               value={field.value}
                               onChange={(value) => {
                                 field.onChange(value)
@@ -1182,7 +1185,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
                       {/* Row 9 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Статья</label>
+                        <label className="text-xs font-medium text-gray-700">{t('chartOfAccounts')}</label>
                         <Controller
                           name="chart_of_accounts_id"
                           control={control}
@@ -1190,7 +1193,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                             <SinglSelectStatiya
                               selectedValue={field.value}
                               setSelectedValue={field.onChange}
-                              placeholder='Нераспределенный доход'
+                              placeholder={t('undistributedIncome')}
                               className=' bg-white'
                               isClearable={false}
                               disabled={isEditing}
@@ -1200,16 +1203,16 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
                       {/* Row 10 */}
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">Юрлица *</label>
+                        <label className="text-xs font-medium text-gray-700">{t('legalEntity')} *</label>
                         <Controller
                           name="legal_entity_id"
                           control={control}
-                          rules={{ required: !isEditing ? 'Выберите юрлицо' : false }}
+                          rules={{ required: !isEditing ? t('legalEntityRequired') : false }}
                           render={({ field }) => (
                             <SelectLegelEntitties
                               value={field.value}
                               onChange={field.onChange}
-                              placeholder='Выберите юрлицо'
+                              placeholder={t('legalEntityPlaceholder')}
                               className=' bg-white'
                               isClearable={false}
                               disabled={isEditing}
@@ -1225,14 +1228,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 {/* Footer */}
                 <div className="flex items-center justify-end gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
                   <button type="button" className="px-5 py-2 border cursor-pointer border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors" onClick={handleClose}>
-                    Отменить
+                    {t('cancel')}
                   </button>
                   <button
                     type="button"
                     onClick={handlePreview}
                     className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
                   >
-                    Предпросмотр
+                    {t('preview')}
                   </button>
                   <button
                     type="submit"
@@ -1240,7 +1243,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                     disabled={isSubmitting}
                     className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}
+                    {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
                   </button>
                 </div>
               </>
@@ -1252,7 +1255,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                     <iframe
                       srcDoc={getContractHtml()}
                       className="w-full h-full border-0 px-2"
-                      title="Предпросмотр договора"
+                        title={t('showContractPreview')}
                     />
                   </div>
                 </div>
@@ -1272,7 +1275,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         onClick={handleBackToForm}
                         className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                       >
-                        Назад к форме
+                        {t('back')}
                       </button>
                       <button
                         type="button"
@@ -1282,7 +1285,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         }}
                         className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
                       >
-                        Печать
+                        {t('print')}
                       </button>
                       <button
                         type="submit"
@@ -1290,7 +1293,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       disabled={isSubmitting}
                         className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                      {isSubmitting || isPending ? 'Сохранение...' : isEditing ? 'Обновить' : 'Добавить'}
+                        {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
                       </button>
                     </div>
                 </div>
@@ -1307,14 +1310,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       >
         <div className="flex flex-col gap-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            {classModalMode === 'create' ? 'Создать класс' : 'Редактировать класс'}
+            {classModalMode === 'create' ? t('createClass') : t('editClass')}
           </h3>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">Название класса</label>
+            <label className="text-sm font-medium text-gray-700">{t('className')}</label>
             <Input
               value={classNameInput}
               onChange={(e) => setClassNameInput(e.target.value)}
-              placeholder="Введите название класса"
+              placeholder={t('classNamePlaceholder')}
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -1322,14 +1325,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
               onClick={() => setOpenClassModal(false)}
               className="px-4 py-2 border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
             >
-              Отмена
+              {t('cancel')}
             </button>
             <button
               onClick={handleSaveClass}
               disabled={!classNameInput.trim()}
               className="px-4 py-2 bg-blue-600 flex items-center gap-1 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50"
             >
-              {classModalMode === 'create' ? 'Создать' : 'Сохранить'}
+              {classModalMode === 'create' ? t('create') : t('save')}
               {createClassPending && <Loader />}
             </button>
           </div>
@@ -1343,22 +1346,22 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         contentClass="min-w-[400px] p-6"
       >
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Подтверждение удаления</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('deleteConfirmation')}</h3>
           <p className="text-sm text-gray-600">
-            Вы уверены, что хотите удалить класс &quot;{deleteConfirmItem?.label}&quot;?
+            {t('deleteClassConfirm', { name: deleteConfirmItem?.label })}
           </p>
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setDeleteConfirmItem(null)}
               className="px-4 py-2 border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
             >
-              Отмена
+              {t('cancel')}
             </button>
             <button
               onClick={handleDeleteClass}
               className="px-4 py-2 bg-red-600 flex items-center gap-1 text-white rounded-md text-sm hover:bg-red-700"
             >
-              Удалить
+              {t('delete')}
               {createClassPending && <Loader />}
             </button>
           </div>
@@ -1373,14 +1376,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       >
         <div className="flex flex-col gap-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            {guardianModalMode === 'create' ? 'Создать тип опекуна' : 'Редактировать тип опекуна'}
+            {guardianModalMode === 'create' ? t('createGuardianType') : t('editGuardianType')}
           </h3>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">Название типа опекуна</label>
+            <label className="text-sm font-medium text-gray-700">{t('guardianTypeName')}</label>
             <Input
               value={guardianTypeInput}
               onChange={(e) => setGuardianTypeInput(e.target.value)}
-              placeholder="Введите название типа опекуна"
+              placeholder={t('guardianTypeNamePlaceholder')}
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -1388,14 +1391,14 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
               onClick={() => setOpenGuardianModal(false)}
               className="px-4 py-2 border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
             >
-              Отмена
+              {t('cancel')}
             </button>
             <button
               onClick={handleSaveGuardianType}
               disabled={!guardianTypeInput.trim()}
               className="px-4 py-2 bg-blue-600 flex items-center gap-1 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50"
             >
-              {guardianModalMode === 'create' ? 'Создать' : 'Сохранить'}
+              {guardianModalMode === 'create' ? t('create') : t('save')}
               {createGuardianPending && <Loader />}
             </button>
           </div>
@@ -1409,22 +1412,22 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         contentClass="min-w-[400px] p-6"
       >
         <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Подтверждение удаления</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('deleteConfirmation')}</h3>
           <p className="text-sm text-gray-600">
-            Вы уверены, что хотите удалить тип опекуна &quot;{deleteGuardianItem?.label}&quot;?
+            {t('deleteGuardianConfirm', { name: deleteGuardianItem?.label })}
           </p>
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setDeleteGuardianItem(null)}
               className="px-4 py-2 border border-gray-200 rounded-md text-sm text-gray-700 hover:bg-gray-50"
             >
-              Отмена
+              {t('cancel')}
             </button>
             <button
               onClick={handleDeleteGuardianType}
               className="px-4 py-2 bg-red-600 flex items-center gap-1 text-white rounded-md text-sm hover:bg-red-700"
             >
-              Удалить
+              {t('delete')}
               {createGuardianPending && <Loader />}
             </button>
           </div>

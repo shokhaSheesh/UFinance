@@ -4,8 +4,9 @@ import { cn } from '@/app/lib/utils'
 import { keepPreviousData } from '@tanstack/react-query'
 import { ChevronDown, Maximize2, MoreVertical } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { currencyInfo, donoSchool, GlobalCurrency } from '../../../constants/globalCurrency'
+import { currencyInfo, donoSchool, GlobalCurrency, testDonoSchool } from '../../../constants/globalCurrency'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
@@ -14,6 +15,7 @@ import { formatAmount, formatNumber, formatTotalSumma } from '../../../utils/hel
 import styles from '../Header.module.scss'
 
 const TotalPrice = observer(() => {
+    const t = useTranslations('Header.balance')
     const [isBalanceOpen, setIsBalanceOpen] = useState(false)
 
     const [expandedGroups, setExpandedGroups] = useState(['unallocated'])
@@ -60,7 +62,7 @@ const TotalPrice = observer(() => {
 
     const Summary = myaccounts?.summary
     const Compactlist = useMemo(() => {
-        appStore.setisDonoschool(authStore.userData?.company_id === donoSchool ? true : false)
+        appStore.setisDonoschool((authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool) ? true : false)
         return myaccounts?.data?.map((item) => {
             return [...item.children]?.map((child) => ({
                 name: child?.nazvanie,
@@ -129,8 +131,8 @@ const TotalPrice = observer(() => {
     }, [legalEntitiesData]);
 
     const viewOptions = [
-        { value: 'compact', label: 'Компактный' },
-        { value: 'full', label: 'Полный' }
+        { value: 'compact', label: t('viewCompact') },
+        { value: 'full', label: t('viewFull') }
     ];
 
 
@@ -155,7 +157,7 @@ const TotalPrice = observer(() => {
                             <div className="" />
                             <div className="flex items-center gap-2">
                                 <p className="text-white">
-                                    На счетах {mounted ? `${formatNumber(Summary?.current_balance)} ${GlobalCurrency?.name}` : '0'}
+                                    {t('label')} {mounted ? `${formatNumber(Summary?.current_balance)} ${GlobalCurrency?.name}` : '0'}
                                 </p>
                             </div>
                             <ChevronDown size={14} className={cn(styles.balanceChevron, isBalanceOpen && styles.open)} />
@@ -298,7 +300,7 @@ const TotalPrice = observer(() => {
                                                         className={styles.balanceGroupMenuItem}
                                                     >
                                                         <Maximize2 size={16} className={styles.balanceGroupMenuIcon} />
-                                                        <span>{expandedGroups.includes(group.id) ? 'Свернуть' : 'Развернуть'}</span>
+                                                        <span>{expandedGroups.includes(group.id) ? t('collapse') : t('expand')}</span>
                                                     </button>
                                                 </div>
                                             )}
@@ -329,7 +331,7 @@ const TotalPrice = observer(() => {
                                         )}
                                         {group?.total_items === 0 && (
                                             <div className={styles.balanceGroupEmpty} style={{ padding: '24px', textAlign: 'center' }}>
-                                                <span className={styles.balanceGroupEmptyText} style={{ color: '#94a3b8', fontSize: '14px' }}>Переместите счета в эту группу</span>
+                                                <span className={styles.balanceGroupEmptyText} style={{ color: '#94a3b8', fontSize: '14px' }}>{t('emptyGroup')}</span>
                                             </div>
                                         )}
                                     </div>

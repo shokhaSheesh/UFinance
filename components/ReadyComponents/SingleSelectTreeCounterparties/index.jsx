@@ -1,8 +1,10 @@
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useCounterpartiesGroupsPlanFact } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
-const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, placeholder = 'Выберите контрагента...', className, dropdownClassName, hasError }) => {
+const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, placeholder, className, dropdownClassName, hasError }) => {
+  const t = useTranslations('Common')
 
   const { data: counterpartiesGroupsData } = useCounterpartiesGroupsPlanFact({
     page: 1,
@@ -20,12 +22,12 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
       if (item.children && Array.isArray(item.children) && item.children.length > 0) {
         return {
           value: item.guid,
-          label: item.nazvanie_gruppy || 'Без названия',
+          label: item.nazvanie_gruppy || t('noName'),
           isSelectable: false, // Groups are not selectable
           bold: true,
           children: item.children.map(child => ({
             value: child.guid,
-            label: child.nazvanie || 'Без названия',
+            label: child.nazvanie || t('noName'),
             isSelectable: true,
           }))
         }
@@ -34,18 +36,18 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
       // This is a standalone item (no children)
       return {
         value: item.guid,
-        label: item.nazvanie_gruppy || item.nazvanie || 'Без названия',
+        label: item.nazvanie_gruppy || item.nazvanie || t('noName'),
         isSelectable: true,
       }
     }
 
     return groups.map(buildTree)
-  }, [counterpartiesGroupsData])
+  }, [counterpartiesGroupsData, t])
 
   return <TreeSelect
     data={result}
     multi={false}
-    placeholder={placeholder}
+    placeholder={placeholder || t('placeholders.selectCounterparty')}
     value={selectedValue}
     onChange={setSelectedValue}
     className={className}

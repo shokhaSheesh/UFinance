@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Search } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { OperationsFooter } from '../../../components/operations/OperationsFooter/OperationsFooter'
@@ -22,8 +23,9 @@ import Input from '../../../components/shared/Input'
 import ScreenLoader from '../../../components/shared/ScreenLoader'
 import { apiClient } from '../../../lib/api/ucode/base'
 import operationsDto from '../../../lib/dtos/operationsDto'
-import { showSuccessNotification } from '../../../lib/utils/notifications'
+import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { appStore } from '../../../store/app.store'
+import { authStore } from '../../../store/auth.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatDate } from '../../../utils/formatDate'
 import { handleDownload } from '../../../utils/helpers'
@@ -31,6 +33,7 @@ import { handleDownload } from '../../../utils/helpers'
 
 
 const OperationsPage = observer(() => {
+	const t = useTranslations('Operations')
 	const [isModalClosing, setIsModalClosing] = useState(false)
 	const [isModalOpening, setIsModalOpening] = useState(false)
 
@@ -79,7 +82,7 @@ const OperationsPage = observer(() => {
 		accrualNotConfirm
 	} = operationFilterStore
 
-	const LIMIT = 50
+	const LIMIT = 30
 
 
 	// Debounce search query
@@ -174,8 +177,8 @@ const OperationsPage = observer(() => {
 		mutationKey: ['export_operations'],
 		mutationFn: () => apiClient.invokeFunction({ method: 'export_operations', data: requestOperationFilters }),
 		onSuccess: (uploadData) => {
-			showSuccessNotification('Файл успешно загружен.')
-			const fileLink = uploadData?.data?.export?.file_url
+			showSuccessNotification(t('page.fileDownloaded'))
+			const fileLink = uploadData?.data?.link
 
 			if (fileLink) {
 				const contractFileLink = `https://cdn.u-code.io/${fileLink}`
@@ -445,6 +448,79 @@ const OperationsPage = observer(() => {
 		}, 50)
 	}
 
+	const [isImporting, setIsImporting] = useState(false)
+
+	const handleImportOperations = () => {
+		const input = document.createElement('input')
+		input.type = 'file'
+		input.accept = '.xlsx,.xls,.csv'
+		input.onchange = async (event) => {
+			const file = event.target.files?.[0]
+			if (!file) return
+
+			try {
+				setIsImporting(true)
+
+				const formData = new FormData()
+				formData.append('file', file, file.name)
+
+				const uploadResponse = await fetch(
+					'https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png',
+					{
+						method: 'POST',
+						headers: {
+							Authorization: `Bearer ${authStore.authToken}`,
+						},
+						body: formData,
+					},
+				)
+
+				if (!uploadResponse.ok) {
+					throw new Error('Failed to upload file')
+				}
+
+				const uploadData = await uploadResponse.json()
+				const fileLink = uploadData?.data?.link
+
+				if (!fileLink) {
+					throw new Error('File link not returned from upload')
+				}
+
+				const fileUrl = `https://cdn.u-code.io/${fileLink}`
+
+				const importResult = await apiClient.invokeFunction({
+					method: 'import_operations',
+					data: { url: fileUrl },
+				})
+
+				const errors = importResult?.data?.errors || []
+				const failedExport = importResult?.data?.failed_rows_export
+
+				if (errors.length > 0) {
+					// // Show warning with error details
+					const errorMessage = errors.join('\n')
+					showErrorNotification(`${t('page.importErrorPrefix')}\n${errorMessage}`)
+
+					// // Auto-download failed rows file if available
+					if (failedExport?.file_url) {
+						const failedFileUrl = `https://cdn.u-code.io/${failedExport.file_url}`
+						handleDownload(failedFileUrl, failedExport.file_name || 'import_failed.xlsx')
+					}
+				} else {
+					showSuccessNotification(t('page.importedSuccess'))
+				}
+
+				// queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+			} catch (error) {
+				console.error('Error importing operations:', error)
+				showErrorNotification(t('page.importFailed'))
+			} finally {
+				setIsImporting(false)
+			}
+		}
+		input.click()
+	}
+
 
 	return (
 		<div className="fixed left-[80px] top-[60px]  w-[calc(100%-80px)] flex h-[calc(100%-60px)]">
@@ -458,24 +534,25 @@ const OperationsPage = observer(() => {
 			<div className="w-full flex flex-col">
 				<div className=" h-16 px-4 flex items-center justify-between bg-white ">
 					<div className="flex items-center gap-4 ">
-						<h1 className="text-xl font-semibold">Операции</h1>
+						<h1 className="text-xl font-semibold">{t('page.title')}</h1>
 						{canAdd && <button
 							onClick={handleCreate}
 							className="primary-btn"
 						>
-							Создать
+							{t('page.create')}
 						</button>}
 					</div>
 					<div className=" flex items-center justify-self-center gap-2">
 						<Input
 							type="text"
 							leftIcon={<Search size={20} />}
-							placeholder="По счету, контрагенту, или статья"
+							placeholder={t('page.searchPlaceholder')}
 							value={searchQuery}
 							className="w-[300px]"
 							onChange={(e) => operationFilterStore.setSearchQuery(e.target.value)}
 						/>
-						<button onClick={handleExportOperations} type='button' className="primary-btn">Скачать в Excel {isExporting && <Loader2 size={16} className="animate-spin" />}</button>
+						<button onClick={handleImportOperations} type='button' disabled={isImporting} className="primary-btn">{t('page.import')} {isImporting && <Loader2 size={16} className="animate-spin" />}</button>
+						<button onClick={handleExportOperations} type='button' className="primary-btn">{t('page.export')} {isExporting && <Loader2 size={16} className="animate-spin" />}</button>
 						{/* <button className=" bg-white rounded-md border  flex items-center justify-center p-2">
 							<EllipsisVertical size={20} className='text-neutral-500' />
 						</button> */}
@@ -491,32 +568,32 @@ const OperationsPage = observer(() => {
 						</div>
 						{isAllSelected && selectedOperations.length > 0 && <div className="flex items-center gap-2">
 							<p>{selectedOperations.length}</p>
-							<button className="primary-btn">Удалить</button>
+							<button className="primary-btn">{t('page.delete')}</button>
 						</div>}
 						{!isAllSelected && <>
 							<div className='min-w-36  pl-5 flex p-3 items-center justify-start '>
-								Дата
+								{t('columns.date')}
 							</div>
 							<div className='min-w-18 max-w-52 flex-1  flex p-3 items-center justify-start '>
-								Счет
+								{t('columns.account')}
 							</div>
 							{appStore.isPayment && <div className='min-w-14   flex p-3 items-center justify-center '>
-								Тип платежа
+								{t('columns.paymentType')}
 							</div>}
 							<div className='min-w-14   flex p-3 items-center justify-center '>
-								Тип
+								{t('columns.type')}
 							</div>
 							<div className='min-w-20 flex-1  flex p-3 items-center justify-start '>
-								Контрагент
+								{t('columns.counterparty')}
 							</div>
 							<div className='min-w-20 flex-1   text-start  p-3 items-center justify-start '>
-								Статья
+								{t('columns.statya')}
 							</div>
 							<div className='min-w-20 flex-1  flex p-3 items-center justify-center '>
-								Сделка
+								{t('columns.deal')}
 							</div>
 							<div className='min-w-36  flex p-3 items-center justify-end '>
-								Сумма
+								{t('columns.amount')}
 							</div>
 							<div className='min-w-5  flex p-3 items-center justify-center'>
 								&nbsp;
@@ -525,7 +602,7 @@ const OperationsPage = observer(() => {
 					</div>
 					{allOperations.length === 0 && !isLoadingOperations &&
 						<div className="py-20 text-center text-neutral-500 bg-white">
-							Нет данных
+							{t('page.noData')}
 						</div>
 					}
 					<InfiniteScroll
@@ -552,7 +629,7 @@ const OperationsPage = observer(() => {
 							{/* Сегодня - Section Header */}
 							{operationsList?.today?.length > 0 && (
 								<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
-									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Сегодня</h3>
+									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t('page.sectionToday')}</h3>
 								</div>
 							)}
 
@@ -572,7 +649,7 @@ const OperationsPage = observer(() => {
 							{/* Вчера и ранее - Section Header */}
 							{operationsList?.before?.length > 0 && (
 								<div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
-									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Вчера и ранее</h3>
+									<h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">{t('page.sectionBefore')}</h3>
 								</div>
 							)}
 							{operationsList?.before?.map(op => (

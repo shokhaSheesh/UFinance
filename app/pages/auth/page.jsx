@@ -4,10 +4,12 @@ import Input from '@/components/shared/Input'
 import { AuthLogo } from '@/constants/icons'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
 import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
 import Loader from '../../../components/shared/Loader'
+import LocaleSwitcher from '../../../components/shared/LocaleSwitcher/LocaleSwitcher'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
@@ -16,6 +18,7 @@ import { authStore } from '../../../store/auth.store'
 import styles from './styles.module.scss'
 
 export default function LoginPage() {
+  const t = useTranslations('Auth')
   const [fromType, setFromType] = useState('login')
   const router = useRouter()
   const [useFound, setUseFound] = useState(false)
@@ -92,7 +95,7 @@ export default function LoginPage() {
         console.error('Missing token or user data!')
       }
 
-      showSuccessNotification('Успешный вход!')
+      showSuccessNotification(t('notifications.loginSuccess'))
       const useFound = responseData?.user_found
       setUseFound(useFound)
 
@@ -138,8 +141,8 @@ export default function LoginPage() {
       authStore.selectBranch = branches[0]
       router.push('/pages/operations') // 7445
     },
-    onError: (error) => {
-      const errorMessage = error.message || 'Ошибка при входе'
+    onError: () => {
+      const errorMessage = t('notifications.loginError')
       showErrorNotification(errorMessage)
     },
   })
@@ -163,15 +166,15 @@ export default function LoginPage() {
           refresh_token: refreshToken,
           user_data: userData
         })
-        showSuccessNotification('Успешная регистрация!')
+        showSuccessNotification(t('notifications.registerSuccess'))
         router.push('/pages/operations')
       } else {
-        showErrorNotification('Ошибка: токен или данные пользователя не получены')
+        showErrorNotification(t('notifications.registerError'))
       }
     },
     onError: (error) => {
-      const errorMessage = error.message || 'Ошибка при регистрации'
-      showErrorNotification('Error while registeration')
+      const errorMessage = error.message || t('notifications.registerGenericError')
+      showErrorNotification(errorMessage)
     },
   })
 
@@ -272,31 +275,31 @@ export default function LoginPage() {
     const errors = {}
     if (fromType === 'register') {
       if (!formData.branchName.trim()) {
-        errors.branchName = 'Введите название организации'
+        errors.branchName = t('errors.branchNameRequired')
       }
       if (!formData.name.trim()) {
-        errors.name = 'Введите ФИО'
+        errors.name = t('errors.nameRequired')
       }
       if (!formData.email.trim()) {
-        errors.email = 'Введите email'
+        errors.email = t('errors.emailRequired')
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = 'Неверный формат email'
+        errors.email = t('errors.emailInvalid')
       }
       const cleanPhone = getCleanPhoneNumber(formData.phone)
       if (cleanPhone.length !== 12) {
-        errors.phone = 'Введите полный номер телефона'
+        errors.phone = t('errors.phoneIncomplete')
       }
       if (!formData.checked) {
-        errors.terms = 'Необходимо согласиться с условиями'
+        errors.terms = t('errors.termsRequired')
       }
     } else if (fromType === 'login') {
       if (!formData.email.trim()) {
-        errors.email = 'Введите email'
+        errors.email = t('errors.emailRequired')
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = 'Неверный формат email'
+        errors.email = t('errors.emailInvalid')
       }
       if (!formData.password) {
-        errors.password = 'Введите пароль'
+        errors.password = t('errors.passwordRequired')
       }
     }
 
@@ -322,21 +325,21 @@ export default function LoginPage() {
         })
       } else if (fromType === 'forgot') {
         if (!forgotPasswordEmail) {
-          setForgotPasswordError('Введите email')
+          setForgotPasswordError(t('errors.emailRequired'))
           return
         }
         if (!/\S+@\S+\.\S+/.test(forgotPasswordEmail)) {
-          setForgotPasswordError('Неверный формат email')
+          setForgotPasswordError(t('errors.emailInvalid'))
           return
         }
         try {
           await forgotPasswordMutation({ email: forgotPasswordEmail })
-          showSuccessNotification('Инструкции по восстановлению пароля отправлены на ваш email')
+          showSuccessNotification(t('notifications.forgotSuccess'))
           setForgotPasswordEmail('')
           setForgotPasswordError('')
           setFromType('login')
         } catch (error) {
-          showErrorNotification(error?.message || 'Ошибка при отправке запроса')
+          showErrorNotification(error?.message || t('notifications.forgotError'))
         }
       } else {
         const cleanPhone = getCleanPhoneNumber(formData.phone)
@@ -370,6 +373,9 @@ export default function LoginPage() {
       <div className="absolute top-10 left-10">
         <AuthLogo color="#ffffff" width="114" height="27" />
       </div>
+      <div className="absolute top-10 right-10">
+        <LocaleSwitcher />
+      </div>
       {/* Login Card */}
       <div className=" w-[450px] rounded-md p-6">
         <div className={styles.card}>
@@ -380,7 +386,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className={styles.cardTitle}>
-            {fromType === 'login' ? 'Вход в аккаунт' : fromType === 'forgot' ? 'Восстановление пароля' : 'Регистрация'}
+            {fromType === 'login' ? t('title.login') : fromType === 'forgot' ? t('title.forgot') : t('title.register')}
           </h1>
 
           {/* Form */}
@@ -403,7 +409,7 @@ export default function LoginPage() {
                         focusedField === 'branchName' && 'focus:border-primary',
                       )}
                       hasError={fieldErrors.branchName}
-                      placeholder="Название организации"
+                      placeholder={t('fields.branchName')}
                     />
                   </div>
                   {fieldErrors.branchName && (
@@ -427,7 +433,7 @@ export default function LoginPage() {
                         focusedField === 'name' && 'focus:border-primary',
                       )}
                       hasError={fieldErrors.name}
-                      placeholder="ФИО пользователя"
+                      placeholder={t('fields.name')}
                     />
                   </div>
                   {fieldErrors.name && (
@@ -451,7 +457,7 @@ export default function LoginPage() {
                         focusedField === 'email' && 'focus:border-primary',
                       )}
                       hasError={fieldErrors.email}
-                      placeholder="Email"
+                      placeholder={t('fields.email')}
                     />
                   </div>
                   {fieldErrors.email && (
@@ -473,7 +479,7 @@ export default function LoginPage() {
                         focusedField === 'phone' && 'focus:border-primary',
                       )}
                       hasError={fieldErrors.phone}
-                      placeholder="+998 XX XXX XX XX"
+                      placeholder={t('fields.phone')}
                     />
                   </div>
                   {fieldErrors.phone && (
@@ -522,7 +528,7 @@ export default function LoginPage() {
                     focusedField === 'password' && 'focus:border-primary',
                   )}
                   hasError={fieldErrors.password}
-                  placeholder={fromType === 'register' ? "Создать пароль" : "Пароль"}
+                  placeholder={fromType === 'register' ? t('fields.passwordCreate') : t('fields.password')}
                 />
                 <button
                   type="button"
@@ -550,7 +556,7 @@ export default function LoginPage() {
                   }}
                   className="text-sm text-[#0E73F6] hover:text-[#0b5fd4] cursor-pointer"
                 >
-                  Забыли пароль?
+                  {t('forgotPasswordLink')}
                 </span>
               </div>
             )}
@@ -595,7 +601,7 @@ export default function LoginPage() {
                   }}
                 />
                 <label htmlFor="terms" className={styles.checkboxLabel}>
-                  Я <span className={styles.highlight}>соглашаюсь</span> на получение информационных и справочных материалов
+                  {t('termsCheckboxPrefix')}<span className={styles.highlight}>{t('termsCheckboxAccent')}</span>{t('termsCheckboxSuffix')}
                 </label>
               </div>
             )}
@@ -614,7 +620,7 @@ export default function LoginPage() {
             <div className={styles.actionLinks}>
               {fromType === 'forgot' ? (
                 <span>
-                  Вернуться ко{' '}
+                  {t('actions.backToLoginPrefix')}
                   <span
                     onClick={() => {
                       setFromType('login')
@@ -624,17 +630,17 @@ export default function LoginPage() {
                     }}
                     className={styles.actionToggle}
                   >
-                    входу
+                    {t('actions.backToLoginLink')}
                   </span>
                 </span>
               ) : (
                   <span>
-                    {fromType === 'login' ? 'Нет учётной записи? ' : 'Есть учётная запись? '}
+                    {fromType === 'login' ? t('actions.noAccount') : t('actions.hasAccount')}
                     <span
                       onClick={toggleFormType}
                       className={styles.actionToggle}
                     >
-                      {fromType === 'login' ? 'Зарегистрироваться' : 'Войти'}
+                      {fromType === 'login' ? t('actions.toRegister') : t('actions.toLogin')}
                     </span>
                   </span>
               )}
@@ -655,17 +661,17 @@ export default function LoginPage() {
                 )}
               >
                 {fromType === 'login'
-                  ? (loginMutation.isPending ? (<Loader />) : 'Войти')
+                  ? (loginMutation.isPending ? (<Loader />) : t('submit.login'))
                   : fromType === 'forgot'
-                    ? (isForgotPasswordLoading ? (<Loader />) : 'Отправить')
-                    : (isRegistering ? (<Loader />) : 'Зарегистрироваться')}
+                    ? (isForgotPasswordLoading ? (<Loader />) : t('submit.forgot'))
+                    : (isRegistering ? (<Loader />) : t('submit.register'))}
               </button>
             </div>
 
             {fromType !== 'forgot' && (
               <div className={styles.termsText}>
-                Нажав кнопку «{fromType === 'login' ? 'Войти' : 'Зарегистрироваться'}», вы подтверждаете{' '}
-                <a href="#">Политика конфеденциальности</a>
+                {t('termsNoticePrefix')}{fromType === 'login' ? t('submit.login') : t('submit.register')}{t('termsNoticeSuffix')}
+                <a href="#">{t('termsNoticeLink')}</a>
               </div>
             )}
           </form>

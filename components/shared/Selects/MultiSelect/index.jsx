@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -8,7 +9,7 @@ const MultiSelect = ({
     data = [],
     value, // don't default here — normalize below
     onChange = () => { },
-    placeholder = "Выберите",
+    placeholder,
     withSearch = true,
     isClearable = true,
     className,
@@ -18,6 +19,8 @@ const MultiSelect = ({
     disabled = false,
     isSearching = false
 }) => {
+    const t = useTranslations('Common.selects')
+    const placeholderText = placeholder ?? t('placeholder')
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [openUpwards, setOpenUpwards] = useState(false)
@@ -90,11 +93,11 @@ const MultiSelect = ({
     }, [data, searchQuery]);
 
     const getSelectedLabel = () => {
-        if (safeValue.length === 0) return placeholder;
+        if (safeValue.length === 0) return placeholderText;
         const selectedItems = data.filter(item => safeValue.includes(item.value));
         if (selectedItems.length === 1) return selectedItems[0].label;
-        if (selectedItems.length > 1) return `Выбрано: ${selectedItems.length}`;
-        return placeholder;
+        if (selectedItems.length > 1) return `${t('selectedPrefix')}: ${selectedItems.length}`;
+        return placeholderText;
     }
 
     const handleSelect = (val) => {
@@ -170,8 +173,8 @@ const MultiSelect = ({
                                 <input
                                     ref={inputRef}
                                     type='text'
-                                    className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-8 py-1.5 text-sm outline-none placeholder:text-neutral-400'
-                                    placeholder='Поиск по списку'
+                                    className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
+                                    placeholder={t('searchInList')}
                                     value={searchQuery}
                                     onChange={(e) => {
                                         setSearchQuery(e.target.value)
@@ -185,30 +188,26 @@ const MultiSelect = ({
                         )}
 
                         <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
-                            {isSearching ? (
-                                <div className='p-4 flex items-center justify-center'>
-                                    <Loader2 size={20} className='text-primary animate-spin' />
-                                </div>
-                            ) : filteredData.length === 0 ? (
-                                <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
+                            {filteredData.length === 0 ? (
+                                <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
                             ) : (
                                     filteredData.map(node => {
                                         const isSelected = value?.includes(node.value);
 
-                                        return (
-                                            <div
-                                                key={node.value}
+                                    return (
+                                        <div
+                                            key={node.value}
                                             className={cn(
                                                 "w-full px-4 py-2 hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
                                                 isSelected && "bg-neutral-100/60"
                                             )}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSelect(node.value);
-                                                }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelect(node.value);
+                                            }}
                                         >
-                                                <span>{node.label}</span>
-                                                {isSelected && <Check size={16} className={cn('text-primary transition-transform duration-200')} />}
+                                            <span>{node.label}</span>
+                                            {isSelected && <Check size={16} className={cn('text-primary transition-transform duration-200')} />}
                                         </div>
                                     )
                                 })

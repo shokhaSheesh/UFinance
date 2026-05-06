@@ -1,9 +1,11 @@
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 import { appStore } from '../../../store/app.store'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = true, className, dropDownClassName, placeholder = 'Выберите валюту', wrapperClassName, isClearable = true }) => {
+const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder, wrapperClassName, isClearable = true }) => {
+  const t = useTranslations('Common')
 
 
   const selectOptions = appStore.companyCurrencies
@@ -30,7 +32,7 @@ const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = true
       className={className}
 
       dropDownClassName={dropDownClassName}
-      placeholder={placeholder}
+      placeholder={placeholder || t('placeholders.selectCurrency')}
       wrapperClassName={wrapperClassName}
     />
   )

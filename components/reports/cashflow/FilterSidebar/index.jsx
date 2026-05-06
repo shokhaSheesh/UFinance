@@ -6,10 +6,12 @@ import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import { cashFlowStore } from '../cashflow.store'
 
 const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
+  const t = useTranslations('Reports')
   const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, defaultDate } = cashFlowStore
 
   const handleDateRangeChange = (range) => {
@@ -23,7 +25,7 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
     >
 
       {/* Date range */}
-      <FilterSection title="Период">
+      <FilterSection title={t('common.period')}>
         <NewDateRangeComponent
           value={{
             start: periodStartDate,
@@ -55,7 +57,7 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
         <SalesTransactions
           value={sellingDealId}
           onChange={(val) => cashFlowStore.setDeals(val)}
-          placeholder="Все сделки"
+          placeholder={t('common.allDeals')}
           dropdownClassName="w-56"
         />
       </div>

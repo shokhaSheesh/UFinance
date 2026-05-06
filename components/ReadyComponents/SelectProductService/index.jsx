@@ -1,5 +1,6 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { productServiceDto } from '../../../lib/dtos/productServiceDto'
@@ -9,7 +10,7 @@ import SingleSelect from '../../shared/Selects/SingleSelect'
 const SelectProductService = ({
   value,
   onChange,
-  placeholder = "Выберите товар или услугу",
+  placeholder,
   className,
   dropdownClassName,
   multi = false,
@@ -21,6 +22,7 @@ const SelectProductService = ({
   returnFieldValue,
   disabled = false
 }) => {
+  const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
 
   // Debounced search update
@@ -91,7 +93,7 @@ const SelectProductService = ({
   }
 
   if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">Загрузка...</div>
+    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">{t('loading')}</div>
   }
 
   const Component = multi ? MultiSelect : SingleSelect;
@@ -102,7 +104,7 @@ const SelectProductService = ({
       value={value}
       onChange={handleChange}
       onSearch={handleSearch}
-      placeholder={placeholder}
+      placeholder={placeholder || t('placeholders.selectProduct')}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

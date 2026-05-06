@@ -1,4 +1,5 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useCallback, useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import GroupSelect from '../../shared/Selects/GroupSelect'
@@ -6,13 +7,15 @@ import GroupSelect from '../../shared/Selects/GroupSelect'
 const SelectMyAccoutGroup = ({
   value,
   onChange,
-  placeholder = "Юрлица и счета",
+  placeholder,
   className,
   dropdownClassName,
   hasError,
   returnParentId = false,
   onReturnParentId
 }) => {
+  const t = useTranslations('Common')
+  const tr = useTranslations('Reports.common')
 
   const { data: accountsData, isLoading } = useUcodeRequestQuery({
     method: "get_my_accounts",
@@ -85,7 +88,7 @@ const SelectMyAccoutGroup = ({
   }, [groupedByParent, isGroupFullySelected, returnParentId, onChange, onReturnParentId])
 
   if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">Загрузка...</div>
+    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">{t('loading')}</div>
   }
 
   return (
@@ -93,7 +96,7 @@ const SelectMyAccoutGroup = ({
       data={mappedData}
       value={value || []}
       onChange={handleOnChange}
-      placeholder={placeholder}
+      placeholder={placeholder || tr('legalEntitiesAndAccounts')}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

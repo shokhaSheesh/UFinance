@@ -9,9 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'
 
 export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) => {
+  const t = useTranslations('Operations')
+
 
   const operationPermissions = appStore.permission.operations
   const canAdd = operationPermissions.income.add && operation.operationType === 'income' || operationPermissions.payout.add && operation.operationType === 'payment' || operationPermissions.transfer.add && operation.operationType === 'transfer' || operationPermissions.accrual.add && operation.operationType === 'accrual' || operationPermissions.shipment.add && operation.operationType === 'shipment'
@@ -34,6 +38,7 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
     return null
   }
 
+
   return (
     <DropdownMenu >
       <DropdownMenuTrigger>
@@ -49,7 +54,7 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
               onClick={handleEdit}
             >
               <Pencil size={16} />
-              <span>Редактировать</span>
+              <span>{t('menu.edit')}</span>
             </button>
           </DropdownMenuItem>
         }
@@ -60,7 +65,7 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
               onClick={handleCopy}
             >
               <Copy size={16} />
-              <span>Копировать</span>
+              <span>{t('menu.copy')}</span>
             </button>
           </DropdownMenuItem>
         }
@@ -71,11 +76,18 @@ export const OperationMenu = observer(({ operation, onEdit, onDelete, onCopy }) 
               onClick={handleDelete}
             >
               <Trash2 size={16} className='text-red-500' />
-              <span>Удалить</span>
+              <span>{t('menu.delete')}</span>
             </button>
           </DropdownMenuItem>
         }
+        <div className='border-t border-neutral-200 pt-2 text-[9px] text-neutral-400'>
+          <p className="line-clamp-1">{t('menu.createdLabel')} {operation?.createdAt && moment(operation?.createdAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">{operation?.createdBy || ''}</p>
+          <p className="line-clamp-1">{t('menu.updatedLabel')} {operation?.updatedAt && moment(operation?.updatedAt).format('MMM, DD YYYY HH:mm')}</p>
+          <p className="line-clamp-1">{operation?.updatedBy || ''}</p>
+        </div>
       </DropdownMenuContent>
+
     </DropdownMenu>
   )
 })

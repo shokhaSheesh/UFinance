@@ -6,6 +6,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
@@ -17,16 +18,27 @@ import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import { localizeMonthTitle } from '../utils/localizeMonth'
 
 
 const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
 const Profit = () => {
+  const t = useTranslations('Indicators')
   const chartRef = useRef(null);
   const mounted = useMounted()
   const router = useRouter()
   const [zoomRange, setZoomRange] = useState([0, 100]); // [start, end] percentage
   const indicatorsStore = indicators
+
+  const billion = t('common.billion')
+  const million = t('common.million')
+  const thousand = t('common.thousand')
+  const incomeLabel = t('profit.series.income')
+  const expensesLabel = t('profit.series.expenses')
+  const netProfitLabel = t('profit.series.netProfit')
+  const dividendsLabel = t('profit.series.dividends')
+  const monthsShort = t('common.monthNamesShort').split(',')
 
   const filterData = {
     periodStartDate: moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD'),
@@ -178,7 +190,7 @@ const Profit = () => {
       const rows = profitAndLossDataList?.rows || []
 
       const keys = legend.map((l) => l?.key).filter(Boolean)
-      const titles = legend.map((l) => l?.title || l?.key || '')
+      const titles = legend.map((l) => localizeMonthTitle(l?.title || l?.key || '', monthsShort))
 
       const revenueRow = findRowById(rows, 'revenue')
       const expensesRow = findRowById(rows, 'expenses')
@@ -200,7 +212,7 @@ const Profit = () => {
         expenseTotal: expensesRow?.totalValue,
         dividendsTotal: dividendsRow?.totalValue
       }
-    }, [profitAndLossDataList])
+    }, [profitAndLossDataList, monthsShort])
 
   const handleIncomePress = useCallback(() => {
     const filterdata = {
@@ -210,7 +222,9 @@ const Profit = () => {
     }
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-    window.open('/pages/operations', '_blank')
+    if (typeof window !== 'undefined') {
+      window.open('/pages/operations', '_blank')
+    }
   }, [rows, filterOperationData])
 
   const handleExpensePress = useCallback(() => {
@@ -221,7 +235,9 @@ const Profit = () => {
     }
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-    window.open('/pages/operations', '_blank')
+    if (typeof window !== 'undefined') {
+      window.open('/pages/operations', '_blank')
+    }
   }, [rows, filterOperationData])
 
   const stats = useMemo(() => {
@@ -230,11 +246,11 @@ const Profit = () => {
     const margin = incomeTotal ? (netProfitTotal / incomeTotal) * 100 : 0
 
     return [
-      { label: 'Доходы', value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
-      { label: 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
-      { label: 'Чистая прибыль', value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
-      { label: 'Рентабельность, %', value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: 'Дивиденды', value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.income'), value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
+      { label: t('profit.stats.expenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
+      { label: t('profit.stats.netProfit'), value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.profitability'), value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
+      { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress])
   const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
@@ -276,7 +292,7 @@ const Profit = () => {
       itemWidth: 14,
       itemHeight: 14,
       textStyle: { color: '#6b7280', fontSize: 12 },
-      data: ['Доходы', 'Расходы', 'Чистая прибыль', 'Дивиденды']
+      data: [incomeLabel, expensesLabel, netProfitLabel, dividendsLabel]
     },
     dataZoom: [{
       type: 'slider',
@@ -302,16 +318,16 @@ const Profit = () => {
         formatter: (value) => {
           if (value === 0) return '0'
           const abs = Math.abs(value)
-          if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
-          if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
-          if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+          if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} ${billion}`
+          if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} ${million}`
+          if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} ${thousand}`
           return `${value}`
         }
       }
     },
     series: [
       {
-        name: 'Доходы',
+        name: incomeLabel,
         type: 'bar',
         data: incomeData,
         barWidth: 20,
@@ -321,7 +337,7 @@ const Profit = () => {
         }
       },
       {
-        name: 'Расходы',
+        name: expensesLabel,
         type: 'bar',
         data: expenseData,
         barWidth: 20,
@@ -331,7 +347,7 @@ const Profit = () => {
         }
       },
       {
-        name: 'Чистая прибыль',
+        name: netProfitLabel,
         type: 'line',
         data: netProfitData,
         smooth: true,
@@ -341,7 +357,7 @@ const Profit = () => {
         itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' }
       },
       {
-        name: 'Дивиденды',
+        name: dividendsLabel,
         type: 'line',
         data: dividendData,
         smooth: true,
@@ -351,7 +367,7 @@ const Profit = () => {
         itemStyle: { color: '#920DF8', borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval])
+  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval, incomeLabel, expensesLabel, netProfitLabel, dividendsLabel, billion, million, thousand])
 
 
 
@@ -361,14 +377,14 @@ const Profit = () => {
     <div className="w-full bg-white p-6">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">Прибыль, {GlobalCurrency?.name || ''}</h2>
+          <h2 className="text-[22px] font-bold text-[#111827]">{t('profit.title')}, {GlobalCurrency?.name || ''}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HelpCircle className="size-3 text-neutral-400" />
           </div>
         </div>
         <div className="items-center rounded-md">
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accrual')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accrual' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accrual')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accrual' ? 'border-primary rounded-l-md ' : ''}`}>{t('profit.accrualMethod')}</button>
+          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-r-md ' : ''}`}>{t('profit.cashMethod')}</button>
         </div>
       </div>
 
@@ -378,7 +394,7 @@ const Profit = () => {
           <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
-              <span className="text-sm text-neutral-600">Загрузка...</span>
+              <span className="text-sm text-neutral-600">{t('common.loading')}</span>
             </div>
           </div>
         )}

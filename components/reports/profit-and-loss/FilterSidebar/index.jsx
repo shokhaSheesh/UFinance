@@ -2,15 +2,17 @@
 
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import { pnlStore } from '../pnl.store'
 
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
-
+  const t = useTranslations('Reports')
 
   const handleDateRangeChange = (range) => {
     pnlStore.setDateRange(range)
@@ -23,7 +25,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
     >
       <div className="flex flex-col gap-4 pt-4">
         {/* Date range */}
-        <FilterSection title="Период">
+        <FilterSection title={t('common.period')}>
           <NewDateRangeComponent
             value={pnlStore.dateRange}
             onChange={handleDateRangeChange}
@@ -51,14 +53,22 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             placeholder="Все контрагенты"
           />
         </div>
+        {/* deals */}
+        <div>
+          <MultiSelectZdelka
+            value={pnlStore.deals}
+            onChange={(val) => pnlStore.setDeals(val)}
+            placeholder={t('common.deals')}
+          />
+        </div>
 
         {/* Profit types */}
-        <FilterSection title="Виды прибыли">
+        <FilterSection title={t('pnl.profitTypes')}>
           <div className="space-y-2 flex flex-col gap-2 justify-start items-start">
             <OperationCheckbox
               checked={pnlStore.operational}
               onChange={(value) => pnlStore.setOperational(value.target.checked)}
-              label={"Операционная"}
+              label={t('pnl.operational')}
             />
             <OperationCheckbox
               checked={pnlStore.ebitda}

@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import CustomDialog from '@/components/shared/CustomDialog'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useState } from 'react'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
 import { appStore } from '../../../../store/app.store'
 import { isFuture } from '../../../../utils/formatDate'
@@ -6,17 +8,10 @@ import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/help
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
-import CustomModal from '../../../shared/CustomModal'
 import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
 import CustomMultipleSelect from '../../../shared/Selects/MultipleSelect'
 import './style.scss'
 
-
-const defaultOptions = [
-  { value: 'Начисление', label: 'Начисление' },
-  { value: 'Контрагент', label: 'Контрагент' },
-  { value: 'Статья', label: 'Статья' },
-]
 
 const today = new Date().getDate()
 
@@ -56,8 +51,15 @@ const DateCell = ({ row, i, dispatch, disabled }) => {
 // ── Main component ──────────────────────────────────────────
 const SplitAmount = ({ amount, onChange, rows,
   dispatch, selectedSplits, setSelectedSplits, confirmPayment, initiallyOpen = false, modalType, salesDeal }) => {
+  const t = useTranslations('Operations.splitAmount')
   const [open, setOpen] = useState(initiallyOpen)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+
+  const defaultOptions = useMemo(() => [
+    { value: 'Начисление', label: t('splitAccrual') },
+    { value: 'Контрагент', label: t('splitCounterparty') },
+    { value: 'Статья', label: t('splitStatya') },
+  ], [t])
 
   const [prevInitiallyOpen, setPrevInitiallyOpen] = useState(initiallyOpen)
 
@@ -127,7 +129,7 @@ const SplitAmount = ({ amount, onChange, rows,
         className="text-primary-dark text-xs cursor-pointer"
         onClick={handleToggleSplit}
       >
-        {open ? 'Отменить разбиение' : 'Разбить сумму'}
+        {open ? t('cancelSplit') : t('splitAmount')}
       </button>
 
       {open && (
@@ -151,30 +153,30 @@ const SplitAmount = ({ amount, onChange, rows,
                       <>
                         <th className="split-th col-date">
                           <span className="th-icon"><CalendarIcon /></span>
-                          <strong>Дата начисления</strong>
+                          <strong>{t('accrualDate')}</strong>
                         </th>
                         <th className="split-th col-confirm">
-                          <strong>Подтвердить</strong>
+                          <strong>{t('confirm')}</strong>
                         </th>
                       </>
                     )}
                     {showAgent && (
                       <th className="split-th col-agent">
-                        <strong>Контрагент</strong>
+                        <strong>{t('counterparty')}</strong>
                       </th>
                     )}
                     {showStatya && (
                       <th className="split-th col-statya">
-                        <strong>Статья</strong>
+                        <strong>{t('statya')}</strong>
                       </th>
                     )}
                     <th className="split-th col-value">
                       <span className="th-icon" onClick={() => dispatch({ type: 'DIVIDE_EQUAL', amount })} style={{ cursor: 'pointer' }}><MergeArrowsIcon /></span>
-                      <strong>Сумма <span className="sort-arrow"><SortArrow /></span></strong>
+                      <strong>{t('amount')} <span className="sort-arrow"><SortArrow /></span></strong>
                     </th>
                     <th className="split-th col-percent">
                       <span className="th-icon" onClick={() => dispatch({ type: 'DIVIDE_EQUAL', amount })} style={{ cursor: 'pointer' }}><MergeArrowsIcon /></span>
-                      <strong>Доля</strong>
+                      <strong>{t('share')}</strong>
                     </th>
                     <th className="split-th col-remove" />
                   </tr>
@@ -219,7 +221,7 @@ const SplitAmount = ({ amount, onChange, rows,
                               <SingleCounterParty
                                 value={row.contrAgentId}
                                 onChange={(value) => dispatch({ type: 'UPDATE', index: i, field: 'contrAgentId', value: value || '' })}
-                                placeholder="Не выбран"
+                                placeholder={t('counterpartyPlaceholder')}
                                 className="bg-transparent border-none p-0 py-2"
                                 dropdownClassName="w-64"
                               />
@@ -234,7 +236,7 @@ const SplitAmount = ({ amount, onChange, rows,
                               <SinglSelectStatiya
                                 selectedValue={row.operationCategoryId}
                                 setSelectedValue={value => dispatch({ type: 'UPDATE', index: i, field: 'operationCategoryId', value })}
-                                placeholder='Выберите статью...'
+                                placeholder={t('statyaPlaceholder')}
                                 className="bg-transparent border-none p-0 py-2"
                                 dropdownClassName="w-64"
                                 type={modalType === 'income' ? 'Расходы' : modalType === 'payment' ? 'Доходы' : "Расходы"}
@@ -288,7 +290,7 @@ const SplitAmount = ({ amount, onChange, rows,
                               type="button"
                               className="remove-row-btn"
                               onClick={() => dispatch({ type: 'REMOVE', index: i, amount })}
-                              title="Удалить строку"
+                              title={t('removeRow')}
                             >×</button>
                           )}
                         </td>
@@ -307,13 +309,13 @@ const SplitAmount = ({ amount, onChange, rows,
                         className="add-row-btn block"
                         onClick={() => dispatch({ type: 'ADD', amount })}
                       >
-                        Добавить строку
+                        {t('addRow')}
                       </button>
-                      {isExceeded && <div className="text-red-500 text-xs font-semibold text-right mt-3">Уменьшите на</div>}
+                      {isExceeded && <div className="text-red-500 text-xs font-semibold text-right mt-3">{t('decreaseBy')}</div>}
                     </td>
                     <td className="footer-total align-top pt-3 border-none flex flex-col justify-start">
                       <div>
-                        <span className="total-label text-xss text-gray-800" style={{ fontWeight: 'bold' }}>Итого:</span>
+                        <span className="total-label text-xss text-gray-800" style={{ fontWeight: 'bold' }}>{t('total')}</span>
                         <span className="total-value text-xss pl-1 text-gray-800" style={{ fontWeight: 'bold' }}>{formatAmount(String(rawValueSum))}</span>
                       </div>
                       {isExceeded && <div className="text-red-500 text-xs font-semibold mt-3 text-right pr-2">{formatAmount(String(difference))}</div>}
@@ -331,25 +333,25 @@ const SplitAmount = ({ amount, onChange, rows,
         </div>
       )}
 
-      <CustomModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} >
+      <CustomDialog open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} >
         <div className='flex items-center justify-between px-4 py-5'>
-          <h3 className='text-base font-medium text-gray-900 '>Подтвердите, что вы хотите отменить разбиение суммы операции. Это приведет к удалению ранее введенных данных.</h3>
+          <h3 className='text-base font-medium text-gray-900 '>{t('cancelDialogText')}</h3>
         </div>
         <div className='flex items-center justify-end gap-4'>
           <button
             className={'secondary-btn'}
             onClick={() => setIsCancelModalOpen(false)}
           >
-            Вернуться
+            {t('back')}
           </button>
           <button
             className={'primary-btn'}
             onClick={handleConfirmCancel}
           >
-            Подтвердить
+            {t('confirmAction')}
           </button>
         </div>
-      </CustomModal>
+      </CustomDialog>
     </div>
   )
 }

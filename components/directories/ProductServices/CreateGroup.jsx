@@ -1,14 +1,17 @@
-import Modal from '../../common/Modal/Modal'
-import styles from './style.module.scss'
 import { X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import Input from '../../shared/Input'
-import TextArea from '../../shared/TextArea'
 import { useUcodeDefaultApiMutation } from '../../../hooks/useDashboard'
-import Loader from '../../shared/Loader'
 import { queryClient } from '../../../lib/queryClient'
+import Modal from '../../common/Modal/Modal'
+import Input from '../../shared/Input'
+import Loader from '../../shared/Loader'
+import TextArea from '../../shared/TextArea'
+import styles from './style.module.scss'
 
 const CreateGroup = ({ open = true, setOpen, initialData }) => {
+  const t = useTranslations('Directories.product')
+  const tc = useTranslations('Common')
 
   const { mutateAsync: createProductServiceGroup, isPending } = useUcodeDefaultApiMutation({
     mutationKey: 'product_services_groups'
@@ -68,7 +71,7 @@ const CreateGroup = ({ open = true, setOpen, initialData }) => {
       <div className={styles.groupcontainer}>
         <div className={styles.header}>
           <h2 className={styles.title}>
-            {initialData?.guid ? 'Редактирование группы' : 'Создание группы'}
+            {initialData?.guid ? t('editGroupTitle') : t('createGroupTitle')}
           </h2>
 
           <div className={styles.headerActions}>
@@ -81,24 +84,24 @@ const CreateGroup = ({ open = true, setOpen, initialData }) => {
         <div className={styles.body}>
 
           <div className={styles.formRow}>
-            <div className={styles.label}>Название группы</div>
+            <div className={styles.label}>{t('fields.groupName')}</div>
             <div className={styles.fieldContainer}>
               <Input
-                placeholder="Например, кафельная плитка"
+                placeholder={t('placeholders.groupName')}
                 className={styles.fullWidth}
                 value={formData.name}
                 error={isSubmitted && !formData.name}
                 onChange={e => handleFieldChange('name', e.target.value)}
               />
-              {isSubmitted && !formData.name && <span className={styles.errorMessage}>Укажите название</span>}
+              {isSubmitted && !formData.name && <span className={styles.errorMessage}>{t('errors.nameRequired')}</span>}
             </div>
           </div>
 
           <div className={styles.formRowTop}>
-            <div className={styles.label}>Комментарий</div>
+            <div className={styles.label}>{t('fields.groupComment')}</div>
             <div className={styles.fieldContainer}>
               <TextArea
-                placeholder="Добавьте комментарий к этой группе"
+                placeholder={t('placeholders.groupComment')}
                 className={styles.textArea}
                 rows={4}
                 value={formData.commentary}
@@ -113,10 +116,10 @@ const CreateGroup = ({ open = true, setOpen, initialData }) => {
         <div className={styles.footer}>
           <div className={styles.footerButtons}>
             <button type="button" className={styles.cancelButton} onClick={setOpen}>
-              Отменить
+              {tc('cancel')}
             </button>
             <button type="button" className={styles.saveButton} onClick={handleSubmit}>
-              {isPending ? <Loader /> : initialData?.guid ? 'Сохранить' : 'Создать'}
+              {isPending ? <Loader /> : initialData?.guid ? tc('save') : tc('create')}
             </button>
           </div>
         </div>

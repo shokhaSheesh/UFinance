@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { cn } from '@/app/lib/utils'
+import { useTranslations } from 'next-intl'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import styles from './TreeSelect.module.scss'
 
 function TreeNode({ node, level = 0, selectedValue, onSelect, expandedNodes, toggleNode, alwaysExpanded = false, showTypeBadge = false }) {
@@ -138,7 +139,7 @@ export function TreeSelect({
   data = [],
   value,
   onChange,
-  placeholder = "Выберите статью...",
+  placeholder,
   className = "",
   disabled = false,
   loading = false,
@@ -161,6 +162,7 @@ export function TreeSelect({
   const [isRoot, setIsRoot] = useState(!value)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 'auto', bottom: 'auto', left: 0, width: 0 })
   const [isPositioned, setIsPositioned] = useState(false)
+  const t = useTranslations('Common')
   const [openUpwards, setOpenUpwards] = useState(false)
   const dropdownRef = useRef(null)
   const buttonRef = useRef(null)
@@ -319,10 +321,10 @@ export function TreeSelect({
 
   const selectedNode = findNodeByValue(data, value)
   const selectedLabel = isRoot && allowRoot
-    ? "Корневой элемент"
+    ? t('rootElement')
     : selectedNode
       ? selectedNode.title
-      : placeholder
+      : (placeholder || t('placeholders.select'))
   const filteredData = onSearch ? data : filterTree(data, search)
 
   // Auto-expand nodes marked as expanded
@@ -473,7 +475,7 @@ export function TreeSelect({
         )}
       >
         <div className={styles.buttonContent}>
-          <span className={styles.buttonText}>{loading ? "Загрузка..." : selectedLabel}</span>
+          <span className={styles.buttonText}>{loading ? t('loading') : selectedLabel}</span>
           <svg
             className={cn(styles.buttonIcon, isOpen && styles.open)}
             fill="none"
@@ -514,7 +516,7 @@ export function TreeSelect({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Поиск..."
+                placeholder={t('search')}
               className={styles.searchInput}
               autoFocus
               onClick={(e) => e.stopPropagation()}
@@ -557,7 +559,7 @@ export function TreeSelect({
                   onMouseDown={(e) => e.stopPropagation()}
                   className={styles.rootCheckbox}
                 />
-                <span className={styles.rootCheckboxText}>Создать как корневой элемент</span>
+                  <span className={styles.rootCheckboxText}>{t('createAsRoot')}</span>
               </label>
             </div>
           )}
@@ -566,7 +568,7 @@ export function TreeSelect({
           <div className={styles.treeList} ref={listRef}>
             {filteredData.length === 0 ? (
               <div className={styles.emptyState}>
-                {isSearching ? 'Поиск...' : 'Ничего не найдено'}
+                  {isSearching ? t('searching') : t('empty')}
               </div>
             ) : (
               <>
@@ -588,7 +590,7 @@ export function TreeSelect({
                 {isLoadingMore && (
                   <div className={styles.loadingMore}>
                     <div className={styles.loadingSpinner}></div>
-                    <span>Загрузка...</span>
+                        <span>{t('loading')}</span>
                   </div>
                 )}
               </>

@@ -1,26 +1,27 @@
+import CustomDialog from '@/components/shared/CustomDialog'
 import { keepPreviousData } from '@tanstack/react-query'
-import { X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
-import Modal from '../../common/Modal/Modal'
 import Input from '../../shared/Input'
 import Loader from '../../shared/Loader'
 import SegmentedControl from '../../shared/SegmentedControl'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 import TextArea from '../../shared/TextArea'
-import styles from './style.module.scss'
 
 const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false }) => {
+  const t = useTranslations('Directories.product')
+  const tc = useTranslations('Common')
   const viewOptions = !appStore.isDonoSchool ? [
-    { value: 'product', label: 'Товары' },
-    { value: 'service', label: 'Услуги' }
+    { value: 'product', label: t('types.products') },
+    { value: 'service', label: t('types.services') }
   ] : [
-      { value: 'service', label: 'Услуги' }
+      { value: 'service', label: t('types.services') }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
@@ -154,32 +155,23 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
   }
 
   return (
-    <Modal
+    <CustomDialog
       open={open}
-      className={styles.modalBackdrop}
       onClose={() => setOpen(false)}
+      contentClass={'p-0! rounded-xl'}
     >
-      <div className={styles.singlecontainer}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>
-            {isEditing
-              ? (viewMode === 'product' ? 'Редактирование товара' : 'Редактирование услуги')
-              : (viewMode === 'product' ? 'Создание товара' : 'Создание услуги')}
-          </h2>
-
-          <div className={styles.headerActions}>
-            <button type="button" className={styles.closeButton} onClick={() => setOpen(false)}>
-              <X size={20} color="#9ca3af" />
-            </button>
-          </div>
-        </div>
+      <div className="">
+        <h2 className="text-lg font-semibold p-4 border-b border-gray-200">
+          {isEditing
+            ? (viewMode === 'product' ? t('editProductTitle') : t('editServiceTitle'))
+            : (viewMode === 'product' ? t('createProductTitle') : t('createServiceTitle'))}
+        </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
-          <div className={styles.body}>
-
-            <div className={styles.formRow}>
-              <div className={styles.label}>Тип</div>
-              <div className={styles.fieldContainer}>
+          <div className="p-6 flex flex-col gap-5">
+            <div className="flex items-start gap-4">
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.type')}</div>
+              <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="viewMode"
                   control={control}
@@ -194,37 +186,37 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </div>
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.label}>Название товара</div>
-              <div className={styles.fieldContainer}>
+            <div className="flex items-start gap-4">
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{viewMode === 'product' ? t('fields.name') : t('fields.name').replace('товара', 'услуги')}</div>
+              <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="name"
                   control={control}
-                  rules={{ required: 'Укажите название' }}
+                  rules={{ required: t('errors.nameRequired') }}
                   render={({ field }) => (
                     <Input
-                      placeholder="Например, кафельная плитка"
-                      className={styles.fullWidth}
+                      placeholder={t('placeholders.name')}
+                      className="w-full"
                       value={field.value}
                       error={!!errors.name}
                       onChange={e => field.onChange(e.target.value)}
                     />
                   )}
                 />
-                {errors.name && <span className={styles.errorMessage}>{errors.name.message}</span>}
+                {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
               </div>
             </div>
 
-            <div className={styles.formRow}>
+            <div className="flex items-start gap-4">
               {viewMode === 'product' && <>
-                <div className={styles.label}>Артикул</div>
-                <div className={styles.fieldContainer}>
+                <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.article')}</div>
+                <div className="flex-1 flex flex-col gap-1">
                   <Controller
                     name="article"
                     control={control}
                     render={({ field }) => (
                       <Input
-                        placeholder="Введите артикул"
+                        placeholder={t('placeholders.article')}
                         style={{ width: '140px' }}
                         value={field.value}
                         onChange={e => field.onChange(e.target.value)}
@@ -234,10 +226,10 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                 </div>
               </>}
 
-              <div className={styles.label}>
-                Единица измерения
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">
+                {t('fields.unit')}
               </div>
-              <div className={`${styles.fieldContainer} ${viewMode === 'service' ? styles.service : ''}`}>
+              <div className={`flex-1 flex flex-col gap-1 ${viewMode === 'service' ? 'max-w-[250px]' : ''}`}>
                 <Controller
                   name="unit"
                   control={control}
@@ -246,7 +238,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       data={apiOptions}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите единицу измерения"
+                      placeholder={t('placeholders.selectUnit')}
                       className={'bg-white'}
                       isClearable={false}
                     />
@@ -255,9 +247,9 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </div>
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.label}>Группа товаров</div>
-              <div className={styles.fieldContainer}>
+            <div className="flex items-start gap-4">
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{viewMode === 'product' ? t('fields.group') : t('fields.group').replace('товаров', 'услуг')}</div>
+              <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="group"
                   control={control}
@@ -266,7 +258,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       data={groupsList}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Выберите группу"
+                      placeholder={t('placeholders.selectGroup')}
                       className={'bg-white'}
                     />
                   )}
@@ -274,18 +266,18 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </div>
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.labelWithHelp}>
-                Цена продажи
+            <div className="flex items-start gap-4">
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0 flex items-center gap-2">
+                {t('fields.price')}
               </div>
-              <div className={styles.priceGroup}>
+              <div className="flex items-center gap-2 flex-1">
                 <Controller
                   name="price"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      className={styles.priceInput}
-                      placeholder="0.00"
+                      className="flex-1 min-w-0"
+                      placeholder={t('placeholders.price')}
                       value={formatNumber(field.value)}
                       onChange={e => field.onChange(formatNumber(e.target.value))}
                     />
@@ -308,17 +300,17 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                 />
               </div>
 
-              <div className={styles.label} style={{ marginLeft: 'auto', width: 'auto', marginRight: '1rem' }}>
-                НДС
+              <div className="text-sm py-1.5 text-gray-700 font-medium shrink-0 ml-auto mr-4 w-auto">
+                {t('fields.vat')}
               </div>
-              <div className={styles.fieldContainer} style={{ width: '120px' }}>
+              <div className="flex-1 flex flex-col gap-1 w-[120px]">
                 <Controller
                   name="vat"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      placeholder="0%"
-                      className={styles.fullWidth}
+                      placeholder={t('placeholders.vat')}
+                      className="w-full"
                       value={field.value ? `${field.value}%` : ''}
                       onChange={e => {
                         const raw = e.target.value.replace(/%/g, '').replace(/\D/g, '').slice(0, 2);
@@ -337,16 +329,16 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               </div>
             </div>
 
-            <div className={styles.formRowTop}>
-              <div className={styles.label}>Комментарий</div>
-              <div className={styles.fieldContainer}>
+            <div className="flex items-start gap-4">
+              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.comment')}</div>
+              <div className="flex-1 flex flex-col gap-1">
                 <Controller
                   name="comment"
                   control={control}
                   render={({ field }) => (
                     <TextArea
-                      placeholder="Добавьте комментарий к этому товару"
-                      className={styles.textArea}
+                      placeholder={viewMode === 'product' ? t('placeholders.comment') : t('placeholders.comment').replace('товару', 'услуге')}
+                      className="w-full resize-y min-h-20"
                       rows={4}
                       value={field.value}
                       hasError={false}
@@ -356,22 +348,20 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                 />
               </div>
             </div>
-
           </div>
-
-          <div className={styles.footer}>
-            <div className={styles.footerButtons}>
-              <button type="button" className={styles.cancelButton} onClick={() => setOpen(false)}>
-                Отменить
+          <div className="flex items-center justify-end py-5 px-6 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+            <div className="flex items-center gap-3">
+              <button type="button" className="bg-transparent border-none text-sm font-semibold text-sky-500 cursor-pointer py-2 px-4 hover:opacity-80 transition-opacity" onClick={() => setOpen(false)}>
+                {tc('cancel')}
               </button>
-              <button type="submit" className={styles.saveButton} disabled={isPending}>
-                {isPending ? <Loader /> : isEditing ? "Сохранить" : "Создать"}
+              <button type="submit" className="bg-primary text-white border-none rounded-md text-sm font-semibold py-2.5 px-6 cursor-pointer hover:bg-primary-dark transition-colors" disabled={isPending}>
+                {isPending ? <Loader /> : isEditing ? tc('save') : tc('create')}
               </button>
             </div>
           </div>
         </form>
       </div>
-    </Modal>
+    </CustomDialog>
   )
 })
 

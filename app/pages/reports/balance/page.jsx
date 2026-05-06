@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useState } from 'react'
 import { balanceStore } from '../../../../components/reports/balance/balance.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
@@ -17,6 +18,7 @@ import { formatNumber, formatTotalSumma, handleDownload } from '../../../../util
 import styles from './balance.module.scss'
 
 export default observer(function BalancePage() {
+  const t = useTranslations('Reports')
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(true)
@@ -45,8 +47,8 @@ export default observer(function BalancePage() {
     mutationKey: ['export_balance_report'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_balance_report', data: filterData }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
-      const fileLink = uploadData?.data?.export?.file_url
+      showSuccessNotification(t('common.fileDownloaded'))
+      const fileLink = uploadData?.data?.link
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`
         handleDownload(contractFileLink, 'balance_report.xlsx')
@@ -144,7 +146,7 @@ export default observer(function BalancePage() {
       <div className={"w-full relative bg-white overflow-auto pb-10"}>
         <div className="flex px-4 h-16 items-center sticky top-0 z-20 bg-white justify-between">
           <div className="flex items-center gap-4">
-            <h1 className='text-xl whitespace-nowrap font-semibold'>Балансовый отчет</h1>
+            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
             <SingleSelect
               data={appStore.myCurrencies}
               value={balanceStore.selectedCurrency}
@@ -159,12 +161,12 @@ export default observer(function BalancePage() {
             />
           </div>
           <div>
-            <button onClick={exportBalanceReport} type='button' className="primary-btn">Скачать в Excel {isExportBalanceReportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <button onClick={exportBalanceReport} type='button' className="primary-btn">{t('common.downloadExcel')} {isExportBalanceReportLoading && <Loader2 size={16} className="animate-spin" />}</button>
           </div>
         </div>
 
         <div className="px-4 text-center mb-4 text-sm font-medium ">
-          Активы = Обязательства + Капитал
+          {t('balance.formula')}
         </div>
 
         {/* Table with loading overlay */}
@@ -173,17 +175,17 @@ export default observer(function BalancePage() {
 
           {error && !isLoading && !isFetching ? (
             <div className={styles.tableError}>
-              <p>Ошибка загрузки данных: {error.message}</p>
+              <p>{t('balance.errorLoading')} {error.message}</p>
               <button onClick={() => balanceStore.fetchBalance()} className={styles.retryButton}>
-                Повторить
+                {t('balance.retry')}
               </button>
             </div>
           ) : (
               <table className="w-full">
                 <thead className=" bg-neutral-100 sticky top-16 z-10">
                   <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium">СЧЕТ</th>
-                  <th className="text-right px-4 py-2 text-xs font-medium">Итого</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium">{t('balance.accountHeader')}</th>
+                  <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
                 </tr>
               </thead>
               <tbody className={styles.tbody}>

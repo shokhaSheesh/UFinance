@@ -4,7 +4,6 @@ import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/Coun
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import { DeleteCounterpartyConfirmModal } from '@/components/directories/DeleteCounterpartyConfirmModal/DeleteCounterpartyConfirmModal'
 import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
-import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import { GroupMenu } from '@/components/directories/GroupMenu/GroupMenu'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
@@ -19,6 +18,7 @@ import { formatDate } from '@/utils/formatDate'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
 import { BsList } from 'react-icons/bs'
@@ -35,13 +35,15 @@ import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
 import { formatAmount, handleDownload } from '../../../../utils/helpers'
 
-const calculationOptions = [
-  { value: "Cashflow", label: 'Учет по денежному потоку' },
-  { value: "Cash", label: 'Учет кассовым методом' },
-  { value: "Calculation", label: 'Учет методом начисления' },
+const getCalculationOptions = (t) => [
+  { value: "Cashflow", label: t('list.calculationOptions.cashflow') },
+  { value: "Cash", label: t('list.calculationOptions.cash') },
+  { value: "Calculation", label: t('list.calculationOptions.calculation') },
 ]
 
 const CounterpartiesPage = observer(() => {
+  const t = useTranslations('Directories.counterparty')
+  const tc = useTranslations('Common')
   const router = useRouter()
   const queryClient = useQueryClient()
   const [isFilterOpen, setIsFilterOpen] = useState(true)
@@ -81,7 +83,7 @@ const CounterpartiesPage = observer(() => {
 
   const filterData = useMemo(() => {
     return {
-      limit: 50,
+      limit: 35,
       debitPaymentTypes: filters.debitPaymentTypes,
       creditPaymentTypes: filters.creditPaymentTypes,
       operationDateStart: filters.operationDateStart,
@@ -108,7 +110,8 @@ const CounterpartiesPage = observer(() => {
     data: filterData,
     querySetting: {
       select: response => response,
-      staleTime: 1000 * 60,
+      staleTime: 0,
+      cacheTime: 0,
     },
   })
 
@@ -116,8 +119,8 @@ const CounterpartiesPage = observer(() => {
     mutationKey: ['export_counterparties'],
     mutationFn: () => apiClient.invokeFunction({ method: 'export_counterparties', data: filterData }),
     onSuccess: (uploadData) => {
-      showSuccessNotification('Файл успешно загружен.')
-      const fileLink = uploadData?.data?.export?.file_url
+      showSuccessNotification(tc('fileDownloaded'))
+      const fileLink = uploadData?.data?.link
       if (fileLink) {
         const contractFileLink = `https://cdn.u-code.io/${fileLink}`
         handleDownload(contractFileLink, 'balance_report.xlsx')
@@ -282,7 +285,7 @@ const CounterpartiesPage = observer(() => {
         clearCount={counterpartiesStore.activeFilterCount}
         onClear={counterpartiesStore.resetFilters}
       >
-        <FilterSection title="Параметры">
+        <FilterSection title={t('list.filters.parameters')}>
           <div className="space-y-2.5">
             <SelectCounterParties
               value={filters.selectedCounterparties}
@@ -292,7 +295,7 @@ const CounterpartiesPage = observer(() => {
             <MultiSelectStatiya
               value={filters.selectedChartOfAccounts}
               onChange={(values) => setFilters(prev => ({ ...prev, selectedChartOfAccounts: values }))}
-              placeholder="Выберите статьи учета"
+              placeholder={t('list.filters.selectChartOfAccounts')}
               dropdownClassName="w-64"
             />
             <MultiSelectZdelka
@@ -303,13 +306,13 @@ const CounterpartiesPage = observer(() => {
             <SelectLegelEntitties
               value={filters.selectedLegalEntities}
               onChange={(values) => setFilters(prev => ({ ...prev, selectedLegalEntities: values }))}
-              placeholder="Выберите юрлицо"
+              placeholder={t('list.filters.selectLegalEntities')}
               multi={true}
             />
           </div>
         </FilterSection>
 
-        <FilterSection title="Период аналитики">
+        <FilterSection title={t('list.filters.period')}>
           <NewDateRangeComponent
             value={filters.dateRange}
             onChange={(range) => {
@@ -325,9 +328,9 @@ const CounterpartiesPage = observer(() => {
           />
         </FilterSection>
 
-        <FilterSection title="Дебиторка">
+        <FilterSection title={t('list.filters.receivables')}>
           <div className="space-y-2.5 flex flex-col items-start">
-            {[{ label: 'Денежная', value: 'Cash' }, { label: 'Неденежная', value: 'NonCash' }, { label: 'Без дебиторки', value: 'WithoutCash' }].map(item => (
+            {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
               <OperationCheckbox
                 key={`deb-${item.value}`}
                 checked={filters.debitPaymentTypes?.includes(item.value)}
@@ -345,11 +348,23 @@ const CounterpartiesPage = observer(() => {
           </div>
         </FilterSection>
 
-        <FilterSection title="Кредиторка">
+        <FilterSection title={t('list.filters.payables')}>
           <div className="space-y-2.5 flex flex-col items-start">
-            {[{ label: 'Денежная', value: 'Cash' }, { label: 'Неденежная', value: 'NonCash' }, { label: 'Без кредиторки', value: 'WithoutCash' }].map(item => (
+            {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
               <OperationCheckbox
                 key={`kred-${item.value}`}
+                checked={(filters.creditPaymentTypes || [])?.includes(item.value)}
+                onChange={() => {
+                  setFilters(prev => {
+                    const currentArray = prev.creditPaymentTypes || []
+                    return {
+                      ...prev,
+                      creditPaymentTypes: currentArray?.includes(item.value)
+                        ? currentArray?.filter(v => v !== item.value)
+                        : [...currentArray, item.value]
+                    }
+                  })
+                }}
                 label={item.label}
               />
             ))}
@@ -362,25 +377,25 @@ const CounterpartiesPage = observer(() => {
       <div id="scrollableDiv" className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex items-center gap-4 '>
-            <h1 className="text-xl font-semibold">Контрагенты</h1>
+            <h1 className="text-xl font-semibold">{t('list.title')}</h1>
             {canAdd && <button
               onClick={() => setIsCreateModalOpen(true)}
               className="primary-btn"
             >
-              Создать
+              {t('list.createButton')}
             </button>}
           </div> 
           <div className=" flex items-center justify-self-center gap-2">
             <div className='w-[250px]'>
               <SingleSelect
-                data={calculationOptions}
+                data={getCalculationOptions(t)}
                 value={filters.calculationMethod}
                 onChange={(selected) => setFilters(prev => ({
                   ...prev,
                   calculationMethod: selected
                 }))}
                 className={'bg-white'}
-                placeholder="Выбирать"
+                placeholder={tc('placeholders.select')}
                 withSearch={false}
                 isClearable={false}
               />
@@ -389,20 +404,20 @@ const CounterpartiesPage = observer(() => {
               <button
                 className={cn("border-l border-t border-b border-neutral-200 cursor-pointer rounded-l-md py-2 px-2", viewMode === 'list' && 'border-primary border-r')}
                 onClick={() => setViewMode('list')}
-                title="Список"
+                title={t('list.viewModes.list')}
               >
                 <BsList size={18} strokeWidth={.5} />
               </button>
               <button
                 className={cn(" border-neutral-200 border-r border-t border-b cursor-pointer rounded-r-md py-2 px-2", viewMode === 'nested' && 'border-primary border-l')}
                 onClick={() => setViewMode('nested')}
-                title="Вложенный вид"
+                title={t('list.viewModes.nested')}
               >
                 <LuListTree size={18} />
               </button>
             </div>
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <button onClick={exportCounterparties} type='button' className="primary-btn">Скачать в Excel {isCounterpartiesExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <button onClick={exportCounterparties} type='button' className="primary-btn">{t('list.downloadExcel')} {isCounterpartiesExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
           </div>
         </div>
 
@@ -413,31 +428,31 @@ const CounterpartiesPage = observer(() => {
           </div>
           {selectedRows.length > 0 && <>
             <div className='flex-1 px-3 items-center justify-center'>
-              Выбрано: {selectedRows.length}
+              {tc('selected', { count: selectedRows.length })}
             </div>
           </>}
           {selectedRows.length === 0 && <>
             <div className='flex-1 min-w-[200px] flex px-3 items-center justify-start cursor-pointer hover:text-neutral-700'>
-              {viewMode === 'nested' ? 'Группа контрагентов' : 'Контрагент'}
+              {viewMode === 'nested' ? t('list.tableHeaders.group') : t('list.tableHeaders.counterparty')}
               <ChevronDown className='size-4' />
             </div>
             {viewMode !== 'nested' && (
-              <div className='w-40 flex px-2 items-center justify-start'>Группа</div>
+              <div className='w-40 flex px-2 items-center justify-start'>{t('list.tableHeaders.group')}</div>
             )}
             {filters.calculationMethod !== 'Cashflow' && (
-              <div className='w-32 flex px-2 items-center justify-start'>ИНН</div>
+              <div className='w-32 flex px-2 items-center justify-start'>{t('list.tableHeaders.inn')}</div>
             )}
-            <div className='w-24 flex px-2 items-center justify-center'>Операций</div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>Дебит., {GlobalCurrency.name}</div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>Кредит., {GlobalCurrency.name}</div>
+            <div className='w-24 flex px-2 items-center justify-center'>{t('list.tableHeaders.operations')}</div>
+            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>{t('list.tableHeaders.receivables')}, {GlobalCurrency.name}</div>
+            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>{t('list.tableHeaders.payables')}, {GlobalCurrency.name}</div>
             <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? 'Поступ. ' : 'Доходы '}
+              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.receipts') : t('list.tableHeaders.income')}
             </div>
             <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? 'Выплаты ' : 'Расходы '}
+              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.payments') : t('list.tableHeaders.expense')}
             </div>
             <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? 'Разница ' : 'Прибыль '}
+              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.difference') : t('list.tableHeaders.profit')}
             </div>
             <div className='w-10 flex px-2 items-center justify-center'>&nbsp;</div>
           </>}
@@ -644,14 +659,14 @@ const CounterpartiesPage = observer(() => {
         )}>
           <div className="text-sm text-slate-900">
             <span className="font-semibold text-slate-900 whitespace-nowrap">
-              {totalCountData} {totalCountData === 1 ? 'контрагент' : totalCountData < 5 ? 'контрагента' : 'контрагентов'}
+              {totalCountData} {totalCountData === 1 ? t('list.counterpartyCount', { count: totalCountData }) : totalCountData < 5 ? t('list.counterpartyCountPlural', { count: totalCountData }) : t('list.counterpartyCountPluralMany', { count: totalCountData })}
             </span>
           </div>
 
           <div className="w-px h-6 bg-gray-200 shrink-0" />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">Дебиторка</span>
+            <span className="text-xs text-gray-500 font-medium">{t('list.summary.receivables')}</span>
             <div className="flex items-center gap-0.5">
               <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.receivables)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
@@ -661,7 +676,7 @@ const CounterpartiesPage = observer(() => {
           <div className="w-px h-6 bg-gray-200 shrink-0" />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">Кредиторка</span>
+            <span className="text-xs text-gray-500 font-medium">{t('list.summary.payables')}</span>
             <div className="flex items-center gap-0.5">
               <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.payables)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
@@ -671,7 +686,7 @@ const CounterpartiesPage = observer(() => {
           <div className="w-px h-6 bg-gray-200 shrink-0" />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">Поступления</span>
+            <span className="text-xs text-gray-500 font-medium">{t('list.summary.receipts')}</span>
             <div className="flex items-center gap-0.5">
               <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.income)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
@@ -681,7 +696,7 @@ const CounterpartiesPage = observer(() => {
           <div className="w-px h-6 bg-gray-200 shrink-0" />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">Выплаты</span>
+            <span className="text-xs text-gray-500 font-medium">{t('list.summary.payments')}</span>
             <div className="flex items-center gap-0.5">
               <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.expense)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
@@ -691,7 +706,7 @@ const CounterpartiesPage = observer(() => {
           <div className="w-px h-6 bg-gray-200 shrink-0" />
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">Разница</span>
+            <span className="text-xs text-gray-500 font-medium">{t('list.summary.difference')}</span>
             <div className="flex items-center gap-0.5">
               <span className={cn(
                 'text-xs font-semibold',
@@ -723,16 +738,7 @@ const CounterpartiesPage = observer(() => {
         }}
         preselectedGroupId={preselectedGroupId}
         counterpartyData={editingCounterparty}
-      />
-      <EditCounterpartyGroupModal
-        isOpen={!!editingGroup}
-        onClose={() => {
-          setEditingGroup(null)
-          // Invalidate queries to refresh data
-          queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
-        }}
-        group={editingGroup}
-      />
+      /> 
       <DeleteGroupConfirmModal
         isOpen={!!deletingGroup}
         group={deletingGroup}

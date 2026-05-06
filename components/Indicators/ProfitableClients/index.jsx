@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useMemo, useRef } from 'react'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { appStore } from '../../../store/app.store'
@@ -10,18 +11,26 @@ import { indicators } from '../../../store/indicatos.store'
 import Loader from '../../shared/Loader'
 import { STATIC_PROFITABLE_CLIENTS_DATA } from '../constants/staticChartData'
 
-const formatValue = (val) => {
-  if (!val && val !== 0) return '0'
-  const abs = Math.abs(val)
-  if (abs >= 1_000_000_000) return `${(abs / 1_000_000_000).toFixed(1)} млрд`
-  if (abs >= 1_000_000) return `${(Math.round(abs / 1_000_000)).toLocaleString('ru-RU')} млн`
-  return abs.toLocaleString('ru-RU')
-}
-
 const ProfitableClients = observer(() => {
+  const t = useTranslations('Indicators')
   const chartRef = useRef(null)
 
   const { rangeMonth, profitableclientsMethod, setState, deals, accounts } = indicators
+
+  const billion = t('common.billion')
+  const million = t('common.million')
+
+  const formatValue = (val) => {
+    if (!val && val !== 0) return '0'
+    const abs = Math.abs(val)
+    if (abs >= 1_000_000_000) return `${(abs / 1_000_000_000).toFixed(1)} ${billion}`
+    if (abs >= 1_000_000) return `${(Math.round(abs / 1_000_000)).toLocaleString('ru-RU')} ${million}`
+    return abs.toLocaleString('ru-RU')
+  }
+
+  const clients80Label = t('profitableClients.legend.clients80')
+  const incomeShareLabel = t('profitableClients.legend.incomeShare')
+  const clients20Label = t('profitableClients.legend.clients20')
 
   const filterData = {
     period_from: rangeMonth?.start,
@@ -58,13 +67,13 @@ const ProfitableClients = observer(() => {
     const lineData = counterparties80.map(c => c.percent_sum)
 
     if (counterparties20) {
-      names.push('Не выбран')
+      names.push(t('profitableClients.notSelected'))
       barData.push(counterparties20.summa)
       lineData.push(100)
     }
 
     return { names, barData, lineData, counterparties80, counterparties20 }
-  }, [profitableClientsData])
+  }, [profitableClientsData, t])
 
   // option — ikkita alohida series, har biri o'z joyida
   const inteval = chartData?.names?.length > 100 ? 30 : chartData?.names?.length > 50 ? 10 : chartData?.names?.length > 20 ? 4 : 0
@@ -130,9 +139,9 @@ const ProfitableClients = observer(() => {
       },
       legend: {
         data: [
-          { name: 'Клиенты, приносящие более 80% доходов', icon: 'roundRect', itemStyle: { color: '#22c5fd' } },
-          { name: 'Доля доходов с накопительным итогом, %', icon: 'circle', itemStyle: { color: '#6366f1' } },
-          { name: 'Клиенты, приносящие менее 20% доходов', icon: 'roundRect', itemStyle: { color: '#a855f7' } },
+          { name: clients80Label, icon: 'roundRect', itemStyle: { color: '#22c5fd' } },
+          { name: incomeShareLabel, icon: 'circle', itemStyle: { color: '#6366f1' } },
+          { name: clients20Label, icon: 'roundRect', itemStyle: { color: '#a855f7' } },
         ],
         bottom: 0,
         itemWidth: 12,
@@ -164,21 +173,21 @@ const ProfitableClients = observer(() => {
       ],
       series: [
         {
-          name: 'Клиенты, приносящие более 80% доходов',
+          name: clients80Label,
           type: 'bar',
           stack: 'clients',
           data: blueSeriesData,
           barWidth: '90%',
         },
         {
-          name: 'Клиенты, приносящие менее 20% доходов',
+          name: clients20Label,
           type: 'bar',
           stack: 'clients',
           data: purpleSeriesData,
           barWidth: '90%',
         },
         {
-          name: 'Доля доходов с накопительным итогом, %',
+          name: incomeShareLabel,
           type: 'line',
           yAxisIndex: 1,
           data: lineData,
@@ -190,20 +199,20 @@ const ProfitableClients = observer(() => {
         },
       ],
     }
-  }, [chartData])
+  }, [chartData, clients80Label, incomeShareLabel, clients20Label])
 
   return (
     <div className="h-full flex flex-col relative">
       {/* Header with method toggle */}
       <div className="flex items-center gap-10 mb-4 border-b py-5">
         <h3 className="text-sm font-medium text-slate-700">
-          Самые доходные клиенты,
+          {t('profitableClients.title')},
           <span className="ml-1 text-slate-500" suppressHydrationWarning>{appStore.currency?.name || '₽'}</span>
         </h3>
 
         <div className="items-center rounded-md">
-          <button type="button" onClick={() => setState('profitableclientsMethod', 'cash')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'cash' ? 'border-primary rounded-l-md ' : ''}`}>Метод начисления</button>
-          <button type="button" onClick={() => setState('profitableclientsMethod', 'accural')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'accural' ? 'border-primary rounded-r-md ' : ''}`}>Кассовый метод</button>
+          <button type="button" onClick={() => setState('profitableclientsMethod', 'cash')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'cash' ? 'border-primary rounded-l-md ' : ''}`}>{t('profitableClients.accrualMethod')}</button>
+          <button type="button" onClick={() => setState('profitableclientsMethod', 'accural')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'accural' ? 'border-primary rounded-r-md ' : ''}`}>{t('profitableClients.cashMethod')}</button>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { CalendarRange } from 'lucide-react'
 import moment from 'moment/moment'
+import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
 import { CgClose } from 'react-icons/cg'
 import { formatDate } from '../../../utils/formatDate'
@@ -79,20 +80,31 @@ const getPresetRange = (key) => {
   }
 }
 
-const PRESETS = {
-  day: [{ key: 'yesterday', label: 'Вчера' },
-  { key: 'today', label: 'Сегодня' },],
-  week: [{ key: 'prev_week', label: 'Прошлая неделя' },
-    { key: 'week', label: 'Эта неделя' },],
-  month: [{ key: 'prev_month', label: 'Прошлый месяц' },
-    { key: 'month', label: 'Этот месяц' },],
-  quarter: [{ key: 'prev_quarter', label: 'Прошлый квартал' },
-    { key: 'quarter', label: 'Этот квартал' },],
-  year: [{ key: 'prev_year', label: 'Прошлый год' },
-    { key: 'year', label: 'Этот год' },]
+const PRESET_GROUPS = {
+  day: [
+    { key: 'yesterday', tKey: 'yesterday' },
+    { key: 'today', tKey: 'today' },
+  ],
+  week: [
+    { key: 'prev_week', tKey: 'prevWeek' },
+    { key: 'week', tKey: 'week' },
+  ],
+  month: [
+    { key: 'prev_month', tKey: 'prevMonth' },
+    { key: 'month', tKey: 'month' },
+  ],
+  quarter: [
+    { key: 'prev_quarter', tKey: 'prevQuarter' },
+    { key: 'quarter', tKey: 'quarter' },
+  ],
+  year: [
+    { key: 'prev_year', tKey: 'prevYear' },
+    { key: 'year', tKey: 'year' },
+  ],
 }
 
 export default function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null } }) {
+  const t = useTranslations('NewDateRangeComponent')
   const [startDate, setStartDate] = useState(value?.start)
   const [endDate, setEndDate] = useState(value?.end)
   const [activePreset, setActivePreset] = useState(value?.start ? null : 'year')
@@ -142,11 +154,11 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
             <input
               type="text"
               value={singleDateMode
-                ? (startDate ? moment(startDate).format('DD.MM.YYYY') : 'Выберите дату')
-                : `${startDate ? moment(startDate).format('DD.MM.YYYY') + ' ~' : 'Укажите '} ${endDate ? moment(endDate).format('DD.MM.YYYY') : 'период'}`
+                ? (startDate ? moment(startDate).format('DD.MM.YYYY') : t('selectDate'))
+                : `${startDate ? moment(startDate).format('DD.MM.YYYY') + ' ~' : t('specifyPrefix')} ${endDate ? moment(endDate).format('DD.MM.YYYY') : t('periodWord')}`
               }
               className="border-none outline-none bg-transparent text-gray-ucode-400 text-xs font-normal w-full"
-              placeholder={singleDateMode ? "Выберите дату" : "Укажите период"}
+              placeholder={singleDateMode ? t('selectDate') : t('selectPeriod')}
               readOnly
             />
             {(startDate || endDate) && clearable && <CgClose onClick={(e) => { e.stopPropagation(); handleReset(); }} className="cursor-pointer absolute right-3 text-gray-400 hover:text-gray-600" />}
@@ -155,9 +167,9 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
 
         <DropdownMenuContent className="w-[340px] p-3 overflow-visible! border-none! bg-white  rounded-lg">
           <div className="flex flex-col gap-1">
-            {Object.entries(PRESETS).map(([key, label]) => (
-              <div key={key} className="flex gap-2 w-full">
-                {label.map((item) => (
+            {Object.entries(PRESET_GROUPS).map(([groupKey, items]) => (
+              <div key={groupKey} className="flex gap-2 w-full">
+                {items.map((item) => (
                   <button
                     key={item.key}
                     type="button"
@@ -165,7 +177,7 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
                       }`}
                     onClick={() => handlePreset(item.key)}
                   >
-                    {item.label}
+                    {t(`presets.${item.tKey}`)}
                   </button>
                 ))}
               </div>
@@ -178,7 +190,7 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
               <CalendarRange strokeWidth={1} className='text-neutral-400' />
               <input
                 type="text"
-                value={startDate ? formatDate(startDate) : (singleDateMode ? 'Выберите дату' : 'Начало')}
+                value={startDate ? formatDate(startDate) : (singleDateMode ? t('selectDate') : t('start'))}
                 onClick={() => handleDateType('startDate')}
                 readOnly
                 className="border-none outline-none bg-transparent text-gray-600 text-[11px] w-full"
@@ -189,7 +201,7 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
                 <CalendarRange strokeWidth={1} className='text-neutral-400' />
                 <input
                   type="text"
-                  value={endDate ? formatDate(endDate) : 'Конец'}
+                  value={endDate ? formatDate(endDate) : t('end')}
                   onClick={() => handleDateType('endDate')}
                   readOnly
                   className="border-none outline-none bg-transparent text-gray-600 text-[11px] w-full"
@@ -205,14 +217,14 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
               className="secondary-btn"
               onClick={handleReset}
             >
-              Сбросить
+              {t('reset')}
             </button>
             <button
               type="button"
               className="primary-btn"
               onClick={handleApply}
             >
-              Применить
+              {t('apply')}
             </button>
           </div>
 

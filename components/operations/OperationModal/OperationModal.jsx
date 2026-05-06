@@ -3,6 +3,7 @@
 import { cn } from '@/app/lib/utils'
 import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useMounted from '../../../hooks/useMounted'
 import { useOperationComments } from '../../../hooks/useOperationComments'
@@ -27,6 +28,7 @@ const OperationModal = observer(({
 	chart_of_accounts_id = null,
 	chart_of_accounts_id_2 = null
 }) => {
+	const t = useTranslations('Operations')
 	const mounted = useMounted()
 	const isNew = operation?.isNew || false
 
@@ -85,12 +87,12 @@ const OperationModal = observer(({
 					<div className="flex items-center justify-between mb-2">
 						<div className="flex items-center gap-2">
 							<h2 className="text-lg font-bold text-neutral-900">
-								{isNew ? 'Создание операции' : 'Редактирование операции'}
+								{isNew ? t('modal.createTitle') : t('modal.editTitle')}
 							</h2>
 							{!isNew && (
 								<div className="flex items-center gap-1 text-sm text-neutral-600">
 									<Clock size={15} />
-									<span>Создана {formatDateRu(operationData?.createdAt) || '—'}</span>
+									<span>{t('modal.createdAt', { date: formatDateRu(operationData?.createdAt) || '—' })}</span>
 								</div>
 							)}
 						</div>
@@ -102,10 +104,10 @@ const OperationModal = observer(({
 					{/* Tabs */}
 					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
 						{[
-							{ id: 'income', label: 'Поступление', color: 'bg-green-600', canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
-							{ id: 'payment', label: 'Выплата', color: 'bg-red-600', canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
-							{ id: 'transfer', label: 'Перемещение', color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
-							{ id: 'accrual', label: 'Начисление', color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew }
+							{ id: 'income', label: t('modal.tabIncome'), color: 'bg-green-600', canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
+							{ id: 'payment', label: t('modal.tabPayment'), color: 'bg-red-600', canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
+							{ id: 'transfer', label: t('modal.tabTransfer'), color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
+							{ id: 'accrual', label: t('modal.tabAccrual'), color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew }
 						].filter(tab => tab.canShow).map(tab => (
 							<button
 								key={tab.id}

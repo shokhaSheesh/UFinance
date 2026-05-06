@@ -2,19 +2,21 @@
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import { useCallback, useMemo, useState } from 'react'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const SingleZdelka = ({
   value,
   onChange,
-  placeholder = 'Выберите сделку',
+  placeholder,
   className,
   dropdownClassName,
   hasError,
   withSearch = true,
   defaultDealGuid
 }) => {
+  const t = useTranslations('Common')
   const [search, setSearch] = useState('')
   const [autoSearchSinglbyID, setAutoSearchSinglbyID] = useState(defaultDealGuid)
 
@@ -56,9 +58,9 @@ const SingleZdelka = ({
 
     return deals?.map(deal => ({
       value: deal.guid,
-      label: deal?.Nazvanie || 'Без названия'
+      label: deal?.Nazvanie || t('noName')
     }))
-  }, [deals])
+  }, [deals, t])
 
   return (
     <SingleSelect
@@ -67,7 +69,7 @@ const SingleZdelka = ({
       value={autoSearchSinglbyID || value}
       onChange={handleChange}
       onSearch={handleSearch}
-      placeholder={isLoading ? "Загрузка..." : placeholder}
+      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectDeal'))}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

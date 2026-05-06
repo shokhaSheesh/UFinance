@@ -7,6 +7,7 @@ import CreateShipment from '@/components/deals/details/CreatingShipment';
 import DealStatus from '@/components/deals/details/Status';
 import OperationModal from '@/components/operations/OperationModal/OperationModal';
 import Input from '@/components/shared/Input';
+import ScreenLoader from '@/components/shared/ScreenLoader';
 import {
   Popover,
   PopoverContent,
@@ -18,6 +19,7 @@ import { formatAmount } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { HiOutlineDatabase } from "react-icons/hi";
@@ -30,7 +32,6 @@ import ProductServiceTable from '../../../../components/deals/details/ProductSer
 import ShipmenTable from '../../../../components/deals/details/ShipmenTable';
 import CustomProgress from '../../../../components/shared/Progress';
 import CustomRadio from '../../../../components/shared/Radio';
-import ScreenLoader from '../../../../components/shared/ScreenLoader';
 import { GlobalCurrency } from '../../../../constants/globalCurrency';
 import { useUcodeRequestMutation } from '../../../../hooks/useDashboard';
 import { sealDeal } from '../../../../store/saleDeal.store';
@@ -41,6 +42,8 @@ import styles from './deal-detail.module.scss';
 export default observer(function DealDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations('Deals.detail');
+  const tc = useTranslations('Common');
   const dealId = params.id;
 
   const { data: dealData, isLoading } = useUcodeRequestQuery({
@@ -178,16 +181,16 @@ export default observer(function DealDetailPage() {
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
         <button onClick={() => router.push('/pages/deals')} className={styles.breadcrumbLink}>
-          Сделки по продажам
+          {t('backToList')}
         </button>
         <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>{deal?.name || 'Без названия'}</span>
+        <span className={styles.breadcrumbCurrent}>{deal?.name || t('noName')}</span>
       </div>
 
       {/* Header */}
       <div className='flex items-center justify-between px-3 '>
         <div className={styles.header}>
-          <h1 className={styles.title}>{deal?.name || 'Без названия'}</h1>
+          <h1 className={styles.title}>{deal?.name || t('noName')}</h1>
         </div>
         <Popover>
           <PopoverTrigger asChild>
@@ -205,14 +208,14 @@ export default observer(function DealDetailPage() {
                 }}
               >
                 <Pencil size={16} className="text-neutral-600" />
-                <span>Редактировать</span>
+                <span>{t('actions.edit')}</span>
               </button>
               <button
                 className="flex items-center gap-2 p-2.5 text-sm text-red-500 hover:bg-red-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
                 onClick={() => setDealToDelete(dealData)}
               >
                 <Trash size={16} className="text-red-500" />
-                <span>Удалить</span>
+                <span>{t('actions.delete')}</span>
               </button>
             </div>
           </PopoverContent>
@@ -242,15 +245,15 @@ export default observer(function DealDetailPage() {
           <div className="border-b border-gray-100 my-2 xl:my-3"></div>
 
           <div className="grid grid-cols-[70px_1fr] xl:grid-cols-[100px_1fr] gap-y-2 mt-1 xl:mt-2 font-sans">
-            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">Тип</span>
+            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">{t('cards.type')}</span>
             <div className="flex items-center">
               <span className="flex items-center gap-1 md:gap-1.5 bg-[#F2F4F7] rounded-lg xl:rounded-[10px] px-2 xl:px-3 py-0.5 xl:py-1 text-xs xl:text-sm font-semibold text-neutral-800">
                 <PiDatabaseFill size={14} className='text-[#9aa4b3] xl:w-4 xl:h-4 w-3.5 h-3.5' />
-                Продажа
+                {t('cards.sale')}
               </span>
             </div>
 
-            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">Клиент</span>
+            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">{t('cards.client')}</span>
             <div className="flex items-center w-full min-w-0 overflow-hidden">
               <span
                 className="text-xs xl:text-sm font-medium text-neutral-800 border-b border-dotted border-gray-400 pb-0.5 cursor-pointer hover:text-primary transition-colors flex items-center gap-1 group truncate w-full"
@@ -261,7 +264,7 @@ export default observer(function DealDetailPage() {
               </span>
             </div>
 
-            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">Создана</span>
+            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">{t('cards.created')}</span>
             <div className="flex items-center">
               <span
                 className="text-xs xl:text-sm font-medium text-neutral-800 border-b border-dotted border-gray-400 pb-0.5 cursor-pointer flex items-center gap-1 group whitespace-nowrap"
@@ -277,7 +280,7 @@ export default observer(function DealDetailPage() {
         {/* Card 2: Receipts */}
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">Поступления</span>
+            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.receipts')}</span>
             <button onClick={() => { handleCreateOperation(); setActiveTab('receipts'); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <CirclePlus size={20} strokeWidth={1.5} className='text-neutral-300 w-4 h-4 xl:w-5 xl:h-5' />
             </button>
@@ -290,17 +293,17 @@ export default observer(function DealDetailPage() {
 
             <div className="flex flex-col gap-0 min-w-0">
               <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(received)} {GlobalCurrency.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">из {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
+              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
             </div>
           </div>
 
           <div className="w-full h-1.5 xl:h-2 bg-[#F2F4F7] rounded-md overflow-hidden mb-1 xl:mb-2 mt-auto">
             <CustomProgress min={0} value={received} max={dealAmount} fillColor="#12B76A" />
           </div>
-          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">Поступило: {calculatePercent(dealAmount, received)}</div>
+          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.received')}: {calculatePercent(dealAmount, received)}</div>
 
           <div className="flex text-mini xl:text-xs flex-wrap items-end gap-1 xl:gap-2">
-            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">Клиент должен:</span>
+            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.clientDebt')}</span>
             <p className="truncate">
               <span className="font-medium text-[#344054]">{formatAmount(clientDebt)} </span>
               <span>{GlobalCurrency.name}</span>
@@ -311,7 +314,7 @@ export default observer(function DealDetailPage() {
         {/* Card 3: Shipments */}
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">Отгрузки клиенту</span>
+            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.shipments')}</span>
             <button onClick={() => setShowShipmentModal(true)} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <div className="scale-75 xl:scale-100 origin-right transition-transform"><ShipmentPlusIcon /></div>
             </button>
@@ -324,17 +327,17 @@ export default observer(function DealDetailPage() {
 
             <div className="flex flex-col gap-0 min-w-0">
               <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(shipped)} {GlobalCurrency.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">из {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
+              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
             </div>
           </div>
 
           <div className="w-full h-1.5 xl:h-2 bg-[#F2F4F7] rounded-md overflow-hidden mb-1 xl:mb-2 mt-auto">
             <CustomProgress min={0} value={shipped} max={dealAmount} fillColor="#12B76A" />
           </div>
-          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">Отгружено: {calculatePercent(dealAmount, shipped)}</div>
+          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.shipped')}: {calculatePercent(dealAmount, shipped)}</div>
 
           <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
-            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">Мы должны:</span>
+            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
             <span className="font-medium text-[#344054] truncate">{formatAmount(remainingShipment)} {GlobalCurrency.name}</span>
           </div>
         </div>
@@ -342,11 +345,11 @@ export default observer(function DealDetailPage() {
         {/* Card 4: Profit */}
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-1">Прибыль сделки</span>
+            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-1">{t('cards.profit')}</span>
             <Popover open={showAccounting} onOpenChange={setShowAccounting}>
               <PopoverTrigger className="relative bg-primary/10 cursor-pointer text-primary px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-full text-mini xl:text-xs border-none outline-none shrink-0">
                 <div className="flex items-center gap-1 xl:gap-2">
-                  <p className="text-mini xl:text-xs">Учет</p>
+                  <p className="text-mini xl:text-xs">{t('cards.accounting')}</p>
                   <ChevronUp size={12} className={`transition-all duration-300 ${showAccounting ? 'rotate-180' : ''}`} />
                 </div>
               </PopoverTrigger>
@@ -354,11 +357,11 @@ export default observer(function DealDetailPage() {
                 <div className="flex flex-col bg-white">
                   <label htmlFor="accrual" className="flex p-3 items-center gap-2 cursor-pointer hover:bg-neutral-50">
                     <CustomRadio name="accounting" id="accrual" value="accrual" checked={accounting === 'accrual'} onChange={(e) => { sealDeal.setState('accounting', e.target.value); setShowAccounting(false); }} />
-                    <span className="whitespace-nowrap text-xs text-neutral-800">Методом начисления</span>
+                    <span className="whitespace-nowrap text-xs text-neutral-800">{t('accountingMethods.accrual')}</span>
                   </label>
                   <label htmlFor="cash" className="flex p-3 items-center gap-2 cursor-pointer hover:bg-neutral-50">
                     <CustomRadio name="accounting" id="cash" value="cash" checked={accounting === 'cash'} onChange={(e) => { sealDeal.setState('accounting', e.target.value); setShowAccounting(false); }} />
-                    <span className="whitespace-nowrap text-xs text-neutral-800">Кассовым методом</span>
+                    <span className="whitespace-nowrap text-xs text-neutral-800">{t('accountingMethods.cash')}</span>
                   </label>
                 </div>
               </PopoverContent>
@@ -372,7 +375,7 @@ export default observer(function DealDetailPage() {
 
             <div className="flex flex-col gap-0 min-w-0">
               <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(profit)} {GlobalCurrency.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">Рентабельность {profitPercent}%</div>
+              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.profitability')} {profitPercent}%</div>
             </div>
           </div>
 
@@ -388,12 +391,12 @@ export default observer(function DealDetailPage() {
           <div className="flex flex-1 items-end gap-1.5 xl:gap-2">
             <div className="flex flex-col flex-1 min-w-0">
               <div className={styles.profitBarDot} style={{ backgroundColor: '#12B76A', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
-              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">Доходы</span>
+              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.income')}</span>
               <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">+{formatAmount(income)} {GlobalCurrency.name}</span>
             </div>
             <div className="flex flex-col flex-1 min-w-0">
               <div className={styles.profitBarDot} style={{ backgroundColor: '#FFC609', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
-              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">Расходы</span>
+              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.expenses')}</span>
               <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">-{formatAmount(expenses)} {GlobalCurrency.name}</span>
             </div>
           </div>
@@ -408,44 +411,44 @@ export default observer(function DealDetailPage() {
                   }`}
                 onClick={() => setActiveTab('products')}
               >
-                Товары и услуги ({summeryCards?.products_count ?? 0})
+                {t('tabs.products')} ({summeryCards?.products_count ?? 0})
               </button>
               <button
                 className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'receipts' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('receipts')}
               >
-                Поступления ({summeryCards?.receipts_count ?? 0})
+                {t('tabs.receipts')} ({summeryCards?.receipts_count ?? 0})
               </button>
               <button
                 className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'expenses' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('expenses')}
               >
-                Расходы ({summeryCards?.expenses_count ?? 0})
+                {t('tabs.expenses')} ({summeryCards?.expenses_count ?? 0})
               </button>
               <button
                 className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'shipments' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('shipments')}
               >
-                Отгрузки ({summeryCards?.shipments_count ?? 0})
+                {t('tabs.shipments')} ({summeryCards?.shipments_count ?? 0})
               </button>
             </div>
             {/* Tab Content */}
             <div className="p-2  rounded-b-xl">
               <div className={styles.sectionHeader}>
                 <div className={`${styles.sectionTitle} text-xs xl:text-sm pr-2 truncate`}>
-                  {activeTab === 'products' && 'Выберите товары или услуги для продажи'}
-                  {activeTab === 'receipts' && 'Платежи от клиентов за проданные товары или оказанные услуги '}
-                  {activeTab === 'expenses' && 'Понесенные затраты по сделке'}
-                  {activeTab === 'shipments' && 'Товары и услуги, которые вы отгрузили клиенту '}
+                  {activeTab === 'products' && t('tabDescriptions.products')}
+                  {activeTab === 'receipts' && t('tabDescriptions.receipts')}
+                  {activeTab === 'expenses' && t('tabDescriptions.expenses')}
+                  {activeTab === 'shipments' && t('tabDescriptions.shipments')}
                 </div>
                 <div className={styles.searchContainer}>
                   <Input
                     leftIcon={<Search size={16} className="xl:w-[18px] xl:h-[18px]" />}
                     type="text"
-                    placeholder="Поиск"
+                    placeholder={t('searchPlaceholder')}
                     className={` w-[240px] xl:w-[200px] text-xs xl:text-sm`}
                   />
                   <button
@@ -460,7 +463,7 @@ export default observer(function DealDetailPage() {
                       }
                     }}
                   >
-                    Добавить
+                    {t('addButton')}
                   </button>
                 </div>
               </div>

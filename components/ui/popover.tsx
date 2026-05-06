@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -9,7 +9,13 @@ function Popover({ ...props }) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
 }
 
-function PopoverTrigger({ ...props }) { 
+type PopoverTriggerProps = React.ComponentProps<typeof PopoverPrimitive.Trigger> & {
+  asChild?: boolean
+}
+
+function PopoverTrigger({ asChild, ...props }: PopoverTriggerProps) {
+  // asChild is intentionally destructured to prevent passing to DOM
+  void asChild
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
 }
 
@@ -86,5 +92,6 @@ export {
   PopoverDescription,
   PopoverHeader,
   PopoverTitle,
-  PopoverTrigger,
+  PopoverTrigger
 }
+

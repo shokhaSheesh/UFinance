@@ -1,7 +1,8 @@
+import { keepPreviousData } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
-import { keepPreviousData } from '@tanstack/react-query'
 
 const mapNode = (item) => {
   const idValue = item.guid || item.chart_of_accounts_id_2 || item.id || `fallback-key-${Math.random().toString(36).substring(2, 9)}`
@@ -19,7 +20,8 @@ const mapTree = (data) => {
     .filter(Boolean)
 }
 
-const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выберите статью', className, shownParent, hasError }) => {
+const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, shownParent, hasError }) => {
+  const t = useTranslations('Common')
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
@@ -54,7 +56,7 @@ const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder = 'Выб�
   return <TreeSelect
     data={result}
     multi={false}
-    placeholder={placeholder}
+    placeholder={placeholder || t('placeholders.selectStatiya')}
     value={selectedValue}
     onChange={handleSelect}
     hasError={hasError}

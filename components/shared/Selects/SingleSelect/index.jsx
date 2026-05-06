@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -8,7 +9,7 @@ const SingleSelect = ({
   data = [],
   value,
   onChange = () => { },
-  placeholder = "Выберите",
+  placeholder,
   withSearch = true,
   isClearable = true,
   className,
@@ -22,6 +23,8 @@ const SingleSelect = ({
   elementAfter,
   isSearching = false
 }) => {
+  const t = useTranslations('Common.selects')
+  const placeholderText = placeholder ?? t('placeholder')
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [openUpwards, setOpenUpwards] = useState(false)
@@ -83,9 +86,9 @@ const SingleSelect = ({
   }, [open])
 
   const getSelectedLabel = () => {
-    if (!value) return placeholder;
+    if (!value) return placeholderText;
     const selectedItem = data.find(item => item.value === value);
-    return selectedItem ? selectedItem.label : placeholder;
+    return selectedItem ? selectedItem.label : placeholderText;
   }
 
   const filteredData = useMemo(() => {
@@ -192,7 +195,7 @@ const SingleSelect = ({
                   <Loader2 size={20} className='text-primary animate-spin' />
                 </div>
               ) : filteredData.length === 0 ? (
-                <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
+                  <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
               ) : (
                 filteredData.map(node => {
                   const isSelected = value === node.value;

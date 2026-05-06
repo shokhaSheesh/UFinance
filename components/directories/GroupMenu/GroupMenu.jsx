@@ -1,15 +1,17 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
+  const t = useTranslations('Common')
   const handleEdit = () => {
     if (onEdit) onEdit(group)
   }
@@ -36,7 +38,7 @@ export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
             onClick={handleEdit}
           >
             <Pencil size={16} />
-            <span>Редактировать</span>
+            <span>{t('tooltips.editGroup')}</span>
           </button>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -45,7 +47,7 @@ export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
             onClick={handleCreateCounterparty}
           >
             <Plus size={16} />
-            <span>Создать контрагента</span>
+            <span>{t('tooltips.createCounterparty')}</span>
           </button>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -54,7 +56,7 @@ export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
             onClick={handleDelete}
           >
             <Trash2 size={16} className='text-red-500' />
-            <span>Удалить</span>
+            <span>{t('tooltips.deleteGroup')}</span>
           </button>
         </DropdownMenuItem>
       </DropdownMenuContent>

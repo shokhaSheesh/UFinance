@@ -3,9 +3,11 @@ import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 
 const SalesTransactions = ({ value = [], onChange, placeholder = "Выберите сделки", dropdownClassName, hasError }) => {
+  const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
   const handleSearch = useMemo(() =>
@@ -44,7 +46,7 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
       onSearch={handleSearch}
       value={value}
       onChange={onChange}
-      placeholder={isLoading ? "Загрузка..." : placeholder}
+      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectDeals'))}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isSearching={isFetching}

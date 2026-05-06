@@ -13,6 +13,7 @@ import { accountsStore } from '@/store/accounts.store'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import GroupMyAccounts from '../../../../components/ReadyComponents/GroupMyAccouts'
 import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
@@ -29,7 +30,9 @@ import { formatAmount } from '../../../../utils/helpers'
 import styles from './accounts.module.scss'
 
 export default observer(function AccountsPage() {
-  // Block body scroll for this page only 
+  const t = useTranslations('Directories.account')
+  const tc = useTranslations('Common')
+  // Block body scroll for this page only
   const mounted = useMounted()
   const accountPermissions = appStore.permission.directories.accounts
 
@@ -187,9 +190,9 @@ export default observer(function AccountsPage() {
       ...group,
       isGroup: true,
       guid: group.id || group.guid,
-      name: group.name || group.legal_entity_name || 'Без названия',
+      name: group.name || group.legal_entity_name || tc('noName'),
     }))
-  }, [dataArray, filteredBankAccountsItems, selectedGrouping])
+  }, [dataArray, filteredBankAccountsItems, selectedGrouping, tc])
 
   // Get all field keys from API response - only show needed fields
   const allFields = useMemo(() => {
@@ -313,44 +316,44 @@ export default observer(function AccountsPage() {
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)]  fixed left-[80px] top-[60px]">
       <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)}>
-        <FilterSection title="Тип">
+        <FilterSection title={t('types.type')}>
           <div className="space-y-2.5 flex flex-col items-start">
             <OperationCheckbox
               checked={accountsStore.isCash}
               onChange={() => toggleFilter('Наличный')}
-              label="Наличный"
+              label={t('types.cash')}
             />
             <OperationCheckbox
               checked={accountsStore.isNonCash}
               onChange={() => toggleFilter('Безналичный')}
-              label="Безналичный"
+              label={t('types.nonCash')}
             />
             <OperationCheckbox
               checked={accountsStore.isCard}
               onChange={() => toggleFilter('Карта физлица')}
-              label="Карта физлица"
+              label={t('types.card')}
             />
             <OperationCheckbox
               checked={accountsStore.isElectronic}
               onChange={() => toggleFilter('Электронный')}
-              label="Электронный"
+              label={t('types.electronic')}
             />
           </div>
         </FilterSection>
 
-        <FilterSection title="Параметры">
+        <FilterSection title={tc('parameters')}>
           <div className="space-y-3">
             <GroupMyAccounts
               value={selectedAccounts}
               onChange={setSelectedAccounts}
-              placeholder="Выберите счета"
+              placeholder={t('selectAccounts')}
               multi={true}
             />
 
             <SelectLegelEntitties
               value={selectedEntity}
               onChange={setSelectedEntity}
-              placeholder="Выберите юрлицо"
+              placeholder={t('selectLegalEntity')}
               multi={true}
             />
           </div>
@@ -361,10 +364,10 @@ export default observer(function AccountsPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.titleRow}>
-              <h1 className={styles.title}>Мои счета</h1>
+              <h1 className={styles.title}>{t('pageTitle')}</h1>
               <div ref={menuRef} className="flex items-center gap-2 relative">
                 {accountPermissions.add && <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
-                  Создать
+                  {tc('create')}
                   {isMenuOpen ? (
                     <ChevronUp size={16} />
                   ) : (
@@ -377,13 +380,13 @@ export default observer(function AccountsPage() {
                       className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
                       onClick={handleCreateSingle}
                     >
-                      Создать
+                      {tc('create')}
                     </button>
                     <button
                       className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
                       onClick={handleCreateGroup}
                     >
-                      Создать группу
+                      {t('createGroup')}
                     </button>
                   </div>
                 )}
@@ -394,9 +397,9 @@ export default observer(function AccountsPage() {
                 {/* Search */}
                 <SingleSelect
                   data={[
-                    { value: 'none', label: 'Без группировки' },
-                    { value: 'groups', label: 'По группам' },
-                    { value: 'legal_entities', label: 'По юрлицам' },
+                    { value: 'none', label: t('grouping.none') },
+                    { value: 'groups', label: t('grouping.groups') },
+                    { value: 'legal_entities', label: t('grouping.legalEntities') },
                   ]}
                   value={selectedGrouping}
                   withSearch={false}
@@ -407,7 +410,7 @@ export default observer(function AccountsPage() {
                   leftIcon={<Search size={16} />}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Поиск по названию"
+                  placeholder={t('searchPlaceholder')}
                   className="bg-white w-56"
                 />
               </div>
@@ -436,15 +439,15 @@ export default observer(function AccountsPage() {
                           {isAllExpanded ? <ExpendClose /> : <ExpendOpen />}
                         </button>
                       )}
-                      <span>Название</span>
+                      <span>{t('tableHeaders.name')}</span>
                     </div>
                   </th>
-                  <th className='p-2 text-start font-medium'>Начальный остаток</th>
-                  <th className='p-2 text-start font-medium'>Текущий остаток</th>
-                  <th className='p-2 text-start font-medium'>Валюта</th>
-                  <th className='p-2 text-start font-medium'>Тип</th>
-                  <th className='p-2 text-start font-medium text-nowrap'>Юрлицо</th>
-                  <th className='p-2 text-start font-medium'>Реквизиты</th>
+                  <th className='p-2 text-start font-medium'>{t('tableHeaders.initialBalance')}</th>
+                  <th className='p-2 text-start font-medium'>{t('tableHeaders.balance')}</th>
+                  <th className='p-2 text-start font-medium'>{t('tableHeaders.currency')}</th>
+                  <th className='p-2 text-start font-medium'>{t('tableHeaders.type')}</th>
+                  <th className='p-2 text-start font-medium text-nowrap'>{t('tableHeaders.legalEntity')}</th>
+                  <th className='p-2 text-start font-medium'>{t('tableHeaders.requisites')}</th>
                   <th className='p-2 text-end w-12 pr-4'>&nbsp;</th>
                 </tr>
               </thead>
@@ -452,7 +455,7 @@ export default observer(function AccountsPage() {
                 {accountsList.length === 0 ? (
                   <tr>
                     <td colSpan={allFields.length + 2} className="p-8 text-center text-neutral-400">
-                      Нет данных
+                      {t('noData')}
                     </td>
                   </tr>
                 ) : (
@@ -572,18 +575,18 @@ export default observer(function AccountsPage() {
         <div className={cn("absolute flex gap-2 items-center bottom-0 z-10 bg-neutral-100  p-2 w-full ")}>
           <div className={styles.footerText}>
             <span className={styles.footerTextBold}>
-              {summary?.accounts_count} {'счетов'}
+              {t('accountCount', { count: summary?.accounts_count || 0 })}
             </span>
           </div>
           <div className={styles.footerTextMuted}>
             {isLoadingBankAccounts ? (
-              'Загрузка...'
+              <span>{t('loading')}</span>
             ) : (
                 <div className='flex items-center gap-1 text-xs'>
-                  <p>Текущий остаток:</p>
+                  <p>{t('currentBalance')}:</p>
                   <span className={styles.footerTextBold}>
                     {summary?.current_balance_val.toLocaleString('ru-RU')}
-                </span>
+                  </span>
                   <span>
                     {GlobalCurrency.name}
                   </span>

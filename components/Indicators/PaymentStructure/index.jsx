@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { observer } from "mobx-react-lite"
 import moment from "moment"
+import { useTranslations } from "next-intl"
 import { GlobalCurrency } from "../../../constants/globalCurrency"
 import { apiClient } from "../../../lib/api/ucode/base"
 import { indicators } from '../../../store/indicatos.store'
@@ -10,6 +11,7 @@ import Income from '../Income'
 import { STATIC_CASHFLOW_DATA, STATIC_PROFIT_DATA } from "../constants/staticChartData"
 
 const PaymentStructure = observer(() => {
+  const t = useTranslations('Indicators')
   const { paymentStructureMethod, setState } = indicators
 
   const filterData = {
@@ -66,10 +68,10 @@ const PaymentStructure = observer(() => {
   return (
     <div className="w-full">
       <div className="flex items-center gap-10">
-        <h4 className="text-lg font-semibold">Структура платежей</h4>
+        <h4 className="text-lg font-semibold">{t('paymentStructure.title')}</h4>
         <div className="items-center rounded-md">
-          <button type="button" onClick={() => setState('paymentStructureMethod', 'income_expenses')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${paymentStructureMethod === 'income_expenses' ? 'border-primary rounded-l-md ' : ''}`}>Доходы и расходы</button>
-          <button type="button" onClick={() => setState('paymentStructureMethod', 'receipts_payments')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${paymentStructureMethod === 'receipts_payments' ? 'border-primary rounded-r-md ' : ''}`}>Поступления и выплаты</button>
+          <button type="button" onClick={() => setState('paymentStructureMethod', 'income_expenses')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${paymentStructureMethod === 'income_expenses' ? 'border-primary rounded-l-md ' : ''}`}>{t('paymentStructure.incomeExpenses')}</button>
+          <button type="button" onClick={() => setState('paymentStructureMethod', 'receipts_payments')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${paymentStructureMethod === 'receipts_payments' ? 'border-primary rounded-r-md ' : ''}`}>{t('paymentStructure.receiptsPayments')}</button>
         </div>
       </div>
       <Income method={paymentStructureMethod} profitAndLossDataList={profitAndLossDataList} cashFlowDataList={cashFlowDataList} isLoading={profitAndLossLoading || profitPending ||

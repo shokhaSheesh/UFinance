@@ -8,6 +8,7 @@ import {
   Save
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { queryClient } from '../../../../lib/queryClient'
@@ -15,6 +16,8 @@ import { showErrorNotification, showSuccessNotification } from '../../../../lib/
 import { authStore } from '../../../../store/auth.store'
 
 const ContractPage = observer(() => {
+  const tco = useTranslations('Settings.contract')
+  const tc = useTranslations('Settings.common')
   const branchId = authStore.branch_id
   const [editing, setEditing] = useState(null)
 
@@ -47,24 +50,24 @@ const ContractPage = observer(() => {
   return (
     <div className="flex flex-col w-full h-full p-6 gap-4 overflow-auto">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Договоры</h1>
-        <p className="text-sm text-slate-500 mt-1">Список договоров по филиалам</p>
+        <h1 className="text-xl font-bold text-slate-900">{tco('pageTitle')}</h1>
+        <p className="text-sm text-slate-500 mt-1">{tco('subtitle')}</p>
       </div>
 
       <div className="overflow-hidden border border-gray-200 rounded-lg bg-white">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-slate-600">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Филиал</th>
-              <th className="text-left px-4 py-3 font-medium">Файл</th>
-              <th className="text-right px-4 py-3 font-medium w-32">Действия</th>
+              <th className="text-left px-4 py-3 font-medium">{tco('branch')}</th>
+              <th className="text-left px-4 py-3 font-medium">{tco('file')}</th>
+              <th className="text-right px-4 py-3 font-medium w-32">{tco('actions')}</th>
             </tr>
           </thead>
           <tbody>
             {contracts.length === 0 ? (
               <tr>
                 <td colSpan={3} className="px-4 py-8 text-center text-slate-400">
-                  Договоры не найдены
+                  {tco('empty')}
                 </td>
               </tr>
             ) : (
@@ -82,7 +85,7 @@ const ContractPage = observer(() => {
                         {c.file.split('/').pop()}
                       </a>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                        <span className="text-slate-400">{tc('noData')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -93,7 +96,7 @@ const ContractPage = observer(() => {
                         className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#0E73F6] border border-[#0E73F6]/30 rounded-md hover:bg-[#0E73F6]/5"
                       >
                         <Pencil size={14} />
-                        Редактировать
+                        {tco('edit')}
                       </button>
                     </div>
                   </td>
@@ -168,7 +171,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
         setLoading(false)
       })
       .catch(() => {
-        if (!cancelled) showErrorNotification('Не удалось загрузить договор')
+        if (!cancelled) showErrorNotification(tco('editDialog.loading'))
         setLoading(false)
       })
     return () => { cancelled = true }
@@ -188,11 +191,11 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
         data: payload,
       }),
     onSuccess: () => {
-      showSuccessNotification('Договор успешно сохранён')
+      showSuccessNotification(tco('editDialog.save'))
       onSuccess?.()
     },
     onError: () => {
-      showErrorNotification('Не удалось сохранить договор')
+      showErrorNotification(tco('editDialog.saveError'))
     },
   })
 
@@ -227,7 +230,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
       })
     } catch (error) {
       console.error('Error uploading file:', error)
-      showErrorNotification('Не удалось загрузить файл договора')
+      showErrorNotification(tco('editDialog.uploadError'))
     } finally {
       setIsSaving(false)
     }
@@ -241,7 +244,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
     >
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Редактирование договора</h2>
+          <h2 className="text-lg font-bold text-slate-900">{tco('editDialog.title')}</h2>
           {contract.branch_name && (
             <p className="text-sm text-slate-500 mt-0.5">{contract.branch_name}</p>
           )}
@@ -306,7 +309,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
           disabled={isPending || isSaving}
           className="px-4 py-2 text-sm font-medium text-slate-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
         >
-          Отмена
+          {tco('editDialog.cancel')}
         </button>
         <button
           type="button"
@@ -315,7 +318,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
           className="flex items-center gap-2 px-4 py-2 bg-[#0E73F6] text-white text-sm font-medium rounded-lg hover:bg-[#0a5fd1] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isPending || isSaving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />}
-          Сохранить
+          {tco('editDialog.save')}
         </button>
       </div>
     </CustomDialog>

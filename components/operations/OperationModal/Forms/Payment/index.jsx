@@ -26,6 +26,7 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
@@ -245,7 +246,8 @@ const PaymentForm = observer(({
   chart_of_accounts_id = null
 }) => {
 
-
+  const t = useTranslations('Operations.forms')
+  const tPay = useTranslations('Operations.paymentTypes')
 
   // Form State
   const isNew = initialData?.isNew
@@ -426,7 +428,7 @@ const PaymentForm = observer(({
           {/* SECTION: ОПЛАТА */}
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
-              <label className="w-[150px] text-xss!">Дата оплаты</label>
+              <label className="w-[150px] text-xss!">{t('paymentDate')}</label>
               <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                 <Controller
                   name="paymentDate"
@@ -441,7 +443,7 @@ const PaymentForm = observer(({
                           setValue('accrualDate', val)
                         }
                       }}
-                      placeholder="Выберите дату"
+                      placeholder={t('selectDate')}
                       format='YYYY-MM-DD'
                       inputClass={cn("bg-white border", errors.paymentDate && "border-red-500")}
                     />
@@ -454,7 +456,7 @@ const PaymentForm = observer(({
                   render={({ field }) => (
                     <OperationCheckbox
                       checked={field.value}
-                      label="Подтвердить оплату"
+                      label={t('confirmPayment')}
                       onChange={(e) => {
                         if (isFuture(watchPaymentDate)) return
                         field.onChange(e.target.checked)
@@ -466,12 +468,12 @@ const PaymentForm = observer(({
             </div>
             {/* Счет и юрлицо */}
             <div className="flex items-center gap-4">
-              <label className="w-[150px] text-xss">Счет и юрлицо <span className="text-red-500 ml-0.5">*</span></label>
+              <label className="w-[150px] text-xss">{t('accountAndLegalEntity')} <span className="text-red-500 ml-0.5">*</span></label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
                 <Controller
                   name="accountAndLegalEntity"
                   control={control}
-                  rules={{ required: 'Выберите счет и юрлицо' }}
+                  rules={{ required: t('selectAccountError') }}
                   render={({ field }) => (
                     <SelectMyAccounts
                       value={field.value}
@@ -484,7 +486,7 @@ const PaymentForm = observer(({
                       isClearable={false}
                       extraValue="currenies_id"
                       returnValue={handleSelectMyAccount}
-                      placeholder="Юрлица и счета"
+                      placeholder={t('legalEntityPlaceholder')}
                       className="bg-white border rounded-md h-[36px]!"
                       hasError={errors.accountAndLegalEntity}
                     />
@@ -497,7 +499,7 @@ const PaymentForm = observer(({
             {/* Сумма */}
             <div className="flex flex-col gap-2 max-w-full">
               <div className="flex items-start gap-4">
-                <label className="min-w-[150px] text-xss mt-2">Сумма</label>
+                <label className="min-w-[150px] text-xss mt-2">{t('amount')}</label>
                 <div className="flex-1 flex flex-col gap-1 overflow-hidden">
                   <div className="flex items-center gap-3">
                     <Controller
@@ -509,7 +511,7 @@ const PaymentForm = observer(({
                             type="text"
                             value={formatNumber(field.value)}
                             onChange={(e) => field.onChange(formatNumber(e.target.value))}
-                            placeholder="Сумму"
+                            placeholder={t('amountPlaceholder')}
                             className={cn("w-[230px]", errors.amount && "border-red-500")}
                           />
                           <span className="flex items-center gap-2">
@@ -549,7 +551,7 @@ const PaymentForm = observer(({
 
             {!showDate && (
               <div className={cn("flex items-center gap-4 ")}>
-                <label className="w-[150px] text-xss!">Дата начисления</label>
+                <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
                     name="accrualDate"
@@ -561,7 +563,7 @@ const PaymentForm = observer(({
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
-                        placeholder="Выберите дату"
+                        placeholder={t('selectDate')}
                         format='YYYY-MM-DD'
                         inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
                       />
@@ -574,7 +576,7 @@ const PaymentForm = observer(({
                     render={({ field }) => (
                       <OperationCheckbox
                         checked={field.value}
-                        label="Подтвердить начисление"
+                        label={t('confirmAccrual')}
                         onChange={(e) => {
                           if ((isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
@@ -588,7 +590,7 @@ const PaymentForm = observer(({
 
             {!showAgent && (
               <div className="flex items-center gap-4">
-                <label className="w-[150px] text-xss">Контрагент</label>
+                <label className="w-[150px] text-xss">{t('counterparty')}</label>
                 <div className="flex-1 max-w-[600px]">
                   <Controller
                     name="counterparty"
@@ -598,7 +600,7 @@ const PaymentForm = observer(({
                         value={field.value}
                         onChange={field.onChange}
                         name='chart_of_accounts_id_2'
-                        placeholder='Не выбран.'
+                        placeholder={t('counterpartyPlaceholder')}
                         className='bg-white border rounded-md h-[36px]!'
                         returnChartOfAccount={(val) => setValue('chartOfAccount', val)}
                       />
@@ -610,7 +612,7 @@ const PaymentForm = observer(({
 
             {!showStatya && (
               <div className="flex items-center gap-4">
-                <label className="w-[150px] text-xss">Статья</label>
+                <label className="w-[150px] text-xss">{t('statya')}</label>
                 <div className="flex-1 max-w-[600px]">
                   <Controller
                     name="chartOfAccount"
@@ -619,7 +621,7 @@ const PaymentForm = observer(({
                       <SinglSelectStatiya
                         selectedValue={field.value}
                         setSelectedValue={field.onChange}
-                        placeholder='Нераспределенный расход'
+                        placeholder={t('statyaPaymentPlaceholder')}
                         className='bg-white border rounded-md h-[36px]!'
                         type={'Доходы'}
                       />
@@ -631,7 +633,7 @@ const PaymentForm = observer(({
 
             {appStore.isPayment && (
               <div className="flex items-center gap-4">
-                <label className="w-[150px] text-xss">Тип платежа</label>
+                <label className="w-[150px] text-xss">{t('paymentType')}</label>
                 <div className="flex-1 max-w-[600px]">
                   <Controller
                     name="paymentType"
@@ -639,13 +641,13 @@ const PaymentForm = observer(({
                     render={({ field }) => (
                       <SingleSelect
                         data={[
-                          { label: 'Наличный', value: 'cash' },
-                          { label: 'Карта', value: 'card' },
-                          { label: 'Перечисление', value: 'transfer' },
+                          { label: tPay('cash'), value: 'cash' },
+                          { label: tPay('card'), value: 'card' },
+                          { label: tPay('transfer'), value: 'transfer' },
                         ]}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder='Выберите тип платежа...'
+                        placeholder={t('paymentTypePlaceholder')}
                         withSearch={false}
                         isClearable={false}
                         className='bg-white border rounded-md'
@@ -657,7 +659,7 @@ const PaymentForm = observer(({
             )}
 
             <div className="flex items-center gap-4">
-              <label className="w-[150px] text-xss">Сделка продажи</label>
+              <label className="w-[150px] text-xss">{t('salesDeal')}</label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
                 <Controller
                   name="salesDeal"
@@ -666,7 +668,7 @@ const PaymentForm = observer(({
                     <SingleZdelka
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder='Выберите сделку...'
+                      placeholder={t('salesDealPlaceholder')}
                       className='bg-white border rounded-md h-[36px]!'
                       hasError={!!errors.salesDeal}
                       defaultDealGuid={defaultDealGuid}
@@ -681,17 +683,17 @@ const PaymentForm = observer(({
           {/* SECTION: ОПИСАНИЕ */}
           <div className="flex flex-col gap-5 mt-4">
             <div className="flex items-start gap-4">
-              <label className="w-[150px] text-xss pt-2">Назначение платежа <span className="text-red-500 ml-0.5">*</span></label>
+              <label className="w-[150px] text-xss pt-2">{t('purpose')} <span className="text-red-500 ml-0.5">*</span></label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
                 <Controller
                   name="purpose"
                   control={control}
-                  rules={{ required: 'Введите назначение платежа' }}
+                  rules={{ required: t('purposeRequired') }}
                   render={({ field }) => (
                     <TextArea
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Назначение платежа"
+                      placeholder={t('purposePlaceholder')}
                       rows={3}
                       className={cn("border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F51B9] focus:border-[#0F51B9]")}
                       hasError={!!errors.purpose}
@@ -705,8 +707,8 @@ const PaymentForm = observer(({
         </div>
 
         <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
-          <button type="button" onClick={() => onClose?.()} className="secondary-btn py-2!">Отмена</button>
-          <button type="submit" disabled={isPending || !canSubmit} className={cn("primary-btn py-2!", (!canSubmit || isPending) && 'opacity-60 cursor-not-allowed')}>{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}</button>
+          <button type="button" onClick={() => onClose?.()} className="secondary-btn py-2!">{t('cancel')}</button>
+          <button type="submit" disabled={isPending || !canSubmit} className={cn("primary-btn py-2!", (!canSubmit || isPending) && 'opacity-60 cursor-not-allowed')}>{isPending ? <Loader2 className='animate-spin' /> : isNew ? t('create') : t('save')}</button>
         </div>
       </form>
 

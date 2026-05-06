@@ -25,6 +25,7 @@ class PnLStore {
 	ebitda = false
 	ebit = false
 	ebt = false
+	deals = []
 	selectedAccounts = []
 	selectedLegalEntities = []
 	selectedCounterparties = []
@@ -44,6 +45,7 @@ class PnLStore {
 					'selectedCurrency',
 					'selectedPeriod',
 					'selectedGrouping',
+					'deals',
 					'isCalculation',
 					'dateRange',
 				],
@@ -93,6 +95,9 @@ class PnLStore {
 	}
 	setEbt(value) {
 		this.ebt = value
+	}
+	setDeals(value) {
+		this.deals = value
 	}
 }
 

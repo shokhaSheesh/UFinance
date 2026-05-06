@@ -9,19 +9,11 @@ import { showErrorNotification } from '@/lib/utils/notifications'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useCallback, useState } from 'react'
 import Input from '../../../../components/shared/Input'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { appStore } from '../../../../store/app.store'
-
-// Map tab keys to root category names from API
-const TABS_TO_ROOT_NAME = {
-	income: 'Доходы',
-	expense: 'Расходы',
-	assets: 'Актив',
-	liabilities: 'Обязательства',
-	capital: 'Капитал',
-}
 
 // Recursively convert API structure to display format
 const convertToCategory = (node, level = 0) => {
@@ -218,6 +210,7 @@ function CategoryTreeItem({
 }
 
 export default observer(function TransactionCategoriesPage() {
+	const t = useTranslations('TransactionCategories')
 	const [activeTab, setActiveTab] = useState('income')
 	const [expandedCategories, setExpandedCategories] = useState([])
 	const [closingCategories, setClosingCategories] = useState([])
@@ -251,12 +244,21 @@ export default observer(function TransactionCategoriesPage() {
 	const categoriesPermissions = appStore.permission.directories.transactionCategories
 
 
+	// Hardcoded mapping for API filtering (API returns Russian names)
+	const TAB_TO_API_NAME = {
+		income: 'Доходы',
+		expense: 'Расходы',
+		assets: 'Актив',
+		liabilities: 'Обязательства',
+		capital: 'Капитал',
+	}
+
 	const categories = (() => {
 		if (!Array.isArray(chartOfAccountsTree) || chartOfAccountsTree.length === 0) {
 			return []
 		}
 
-		const rootName = TABS_TO_ROOT_NAME[activeTab]
+		const rootName = TAB_TO_API_NAME[activeTab]
 		if (!rootName) return []
 
 		// Find the root node for this tab (e.g., "Доходы", "Расходы")
@@ -307,11 +309,11 @@ export default observer(function TransactionCategoriesPage() {
 	)
 
 	const tabs = [
-		{ key: 'income', label: 'Доходы' },
-		{ key: 'expense', label: 'Расходы' },
-		{ key: 'assets', label: 'Актив' },
-		{ key: 'liabilities', label: 'Обязательства' },
-		{ key: 'capital', label: 'Капитал' },
+		{ key: 'income', label: t('tabs.income'), name: 'Доходы' },
+		{ key: 'expense', label: t('tabs.expense'), name: "Расходы" },
+		{ key: 'assets', label: t('tabs.assets'), name: "Актив" },
+		{ key: 'liabilities', label: t('tabs.liabilities'), name: "Обязательства" },
+		{ key: 'capital', label: t('tabs.capital'), name: "Капитал" },
 	]
 
 	const handleTabChange = tabKey => {
@@ -329,9 +331,9 @@ export default observer(function TransactionCategoriesPage() {
 			<div className="bg-white h-[120px] border-b sticky top-0 z-50 border-gray-200 p-4 px-6 shrink-0">
 				<div className="flex items-center justify-between mb-4">
 					<div className="flex items-center gap-4">
-						<h1 className="text-xl font-semibold text-slate-900">Учетные статьи</h1>
+						<h1 className="text-xl font-semibold text-slate-900">{t('pageTitle')}</h1>
 						{categoriesPermissions.add && <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn px-5 py-2 text-sm font-medium">
-							Создать
+							{t('create')}
 						</button>}
 					</div>
 					<div className="relative">
@@ -339,7 +341,7 @@ export default observer(function TransactionCategoriesPage() {
 							leftIcon={<Search size={16} />}
 							value={searchQuery}
 							className='bg-white w-64'
-							placeholder='Поиск по названию'
+							placeholder={t('searchPlaceholder')}
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
@@ -369,18 +371,18 @@ export default observer(function TransactionCategoriesPage() {
 				{/* Left Sidebar - Category Tree */}
 				<div className=" w-1/2 h-full stiky top-[120px] bg-white border-r border-gray-200 p-4 pb-6 " key={activeTab}>
 					{isLoadingChartOfAccountsV2 && (
-						<div style={{ padding: '20px', textAlign: 'center' }}>Загрузка...</div>
+						<div style={{ padding: '20px', textAlign: 'center' }}>{t('loading')}...</div>
 					)}
 					{chartOfAccountsErrorV2 && (
 						<div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
-							Ошибка: {chartOfAccountsErrorV2.message || 'Не удалось загрузить данные'}
+							{t('error')}: {chartOfAccountsErrorV2.message || t('errorLoading')}
 						</div>
 					)}
 					{!isLoadingChartOfAccountsV2 &&
 						!chartOfAccountsErrorV2 &&
 						categories.length === 0 && (
 							<div className="p-8 text-center bg-gray-100 text-slate-400 pointer-events-none select-none rounded-md my-4">
-								{searchQuery ? 'Ничего не найдено' : 'Нет данных для отображения'}
+							{searchQuery ? t('noResults') : t('noData')}
 							</div>
 						)}
 					{categories.map((category, categoryIndex) => (
@@ -417,102 +419,102 @@ export default observer(function TransactionCategoriesPage() {
 				{/* Right Content - Cards */}
 				<div className="w-1/2 px-6 pt-6 mx-auto">
 					<p className="text-sm text-slate-500 mb-6 text-center">
-						Эта схема наглядно показывает, как статьи участвуют в формировании отчета Баланс
+						{t('info.title')}
 					</p>
 
 					<div className="flex gap-4">
 						{/* Left Column - 2 cards vertically */}
 						<div className="flex-1">
 							<div className="flex flex-col gap-4">
-								{/* Движение денег */}
+								{/* Cash Flow */}
 								<div className="bg-white rounded-lg border border-primary p-4">
-									<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">Движение денег</h3>
+									<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.cashFlow.title')}</h3>
 
 									<div className="flex flex-col gap-3">
 										<div className="flex flex-col">
-											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">Операционный поток</div>
+											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">{t('reports.cashFlow.operational')}</div>
 											<div className="flex flex-col gap-0.5 ml-4">
-												<div className="text-sm text-slate-700">Поступления</div>
-												<div className="text-sm text-slate-700">Выплаты</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.receipts')}</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.payments')}</div>
 											</div>
 										</div>
 
 										<div className="flex flex-col pt-2 border-t border-gray-200">
-											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">Инвестиционный поток</div>
+											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">{t('reports.cashFlow.investment')}</div>
 											<div className="flex flex-col gap-0.5 ml-4">
-												<div className="text-sm text-slate-700">Поступления</div>
-												<div className="text-sm text-slate-700">Выплаты</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.receipts')}</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.payments')}</div>
 											</div>
 										</div>
 
 										<div className="flex flex-col pt-2 border-t border-gray-200">
-											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">Финансовый поток</div>
+											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">{t('reports.cashFlow.financial')}</div>
 											<div className="flex flex-col gap-0.5 ml-4">
-												<div className="text-sm text-slate-700">Поступления</div>
-												<div className="text-sm text-slate-700">Выплаты</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.receipts')}</div>
+												<div className="text-sm text-slate-700">{t('reports.cashFlow.payments')}</div>
 											</div>
 										</div>
 
 										<div className="flex flex-col pt-3 border-t border-gray-300">
-											<div className="text-[15px] font-bold text-slate-900">ОБЩИЙ ДЕНЕЖНЫЙ ПОТОК</div>
+											<div className="text-[15px] font-bold text-slate-900">{t('reports.cashFlow.total')}</div>
 										</div>
 									</div>
 								</div>
 
-								{/* Прибыли и убытки */}
+								{/* P&L */}
 								<div className="bg-white rounded-lg border border-primary p-4">
-									<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">Прибыли и убытки</h3>
+									<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.pAndL.title')}</h3>
 
 									<div className="flex flex-col gap-3">
 										<div className="flex flex-col">
 											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
-												<span>Доходы</span>
+												<span>{t('reports.pAndL.income')}</span>
 												<span className="px-2 py-0.5 text-[11px] bg-slate-200 text-slate-700 rounded font-medium">0</span>
 											</div>
 											<div className="flex flex-col gap-0.5 ml-4">
-												<div className="text-sm text-slate-700">Продажа товаров</div>
-												<div className="text-sm text-slate-700">Оказание услуг</div>
-												<div className="text-sm text-slate-700">Прочие доходы</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.incomeItems.goodsSales')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.incomeItems.services')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.incomeItems.other')}</div>
 											</div>
 										</div>
 
 										<div className="flex flex-col pt-2 border-t border-gray-200">
 											<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
 												<div className="flex items-center gap-2">
-													<span className="text-xs text-red-500">минус</span>
-													<span>Расходы</span>
+													<span className="text-xs text-red-500">{t('reports.pAndL.minus')}</span>
+													<span>{t('reports.pAndL.expenses')}</span>
 												</div>
 												<span className="px-2 py-0.5 text-[11px] bg-slate-200 text-slate-700 rounded font-medium">0</span>
 											</div>
 											<div className="flex flex-col gap-0.5 ml-4">
-												<div className="text-sm text-slate-700">Производственный персонал</div>
-												<div className="text-sm text-slate-700">Покупка товаров</div>
-												<div className="text-sm text-slate-700">Административный персонал</div>
-												<div className="text-sm text-slate-700">Аренда</div>
-												<div className="text-sm text-slate-700">Прочие расходы</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.expenseItems.productionStaff')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.expenseItems.goodsPurchase')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.expenseItems.adminStaff')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.expenseItems.rent')}</div>
+												<div className="text-sm text-slate-700">{t('reports.pAndL.expenseItems.other')}</div>
 												<div className="text-sm text-slate-700 ml-4">
-													Банковские услуги
+													{t('reports.pAndL.expenseItems.bankServices')}
 												</div>
 												<div
 													className="text-sm text-slate-700 ml-4 flex items-center gap-2"
 												>
-													<span className="px-2 py-0.5 text-[10px] bg-slate-400 text-white rounded">скоро</span>
-													<span>Курсовая разница минус</span>
+													<span className="px-2 py-0.5 text-[10px] bg-slate-400 text-white rounded">{t('reports.pAndL.expenseItems.soon')}</span>
+													<span>{t('reports.pAndL.expenseItems.exchangeDiff')}</span>
 												</div>
 												<div className="text-sm text-slate-700 ml-4">
-													Амортизация
+													{t('reports.pAndL.expenseItems.depreciation')}
 												</div>
 												<div className="text-sm text-slate-700 ml-4">
-													Проценты
+													{t('reports.pAndL.expenseItems.interest')}
 												</div>
 												<div className="text-sm text-slate-700 ml-4">
-													Налог на прибыль (доходы)
+													{t('reports.pAndL.expenseItems.incomeTax')}
 												</div>
 											</div>
 										</div>
 
 										<div className="flex flex-col pt-3 border-t border-gray-300">
-											<div className="text-[15px] font-bold text-slate-900">НЕРАСПРЕДЕЛЕННАЯ ПРИБЫЛЬ</div>
+											<div className="text-[15px] font-bold text-slate-900">{t('reports.pAndL.undistributedProfit')}</div>
 										</div>
 									</div>
 								</div>
@@ -521,26 +523,26 @@ export default observer(function TransactionCategoriesPage() {
 
 						{/* Right Column - 1 big card */}
 						<div className="flex-1 pb-10">
-							{/* Баланс */}
+							{/* Balance */}
 							<div className="bg-white rounded-lg border border-primary p-4 h-full">
-								<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">Баланс</h3>
+								<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.balance.title')}</h3>
 
 								<div className="flex flex-col gap-3">
 									<div className="flex flex-col">
 										<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
-											<span>Оборотные активы</span>
+											<span>{t('reports.balance.currentAssets.title')}</span>
 											<span className="px-2 py-0.5 text-[11px] bg-slate-200 text-slate-700 rounded font-medium">0</span>
 										</div>
 										<div className="flex flex-col gap-0.5 ml-4">
-											<div className="text-sm text-slate-700">Дебиторская задолженность</div>
-											<div className="text-sm text-slate-700">Денежные средства</div>
-											<div className="text-sm text-slate-700">Запасы</div>
-											<div className="text-sm text-slate-700">Другие оборотные</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentAssets.receivables')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentAssets.cash')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentAssets.inventory')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentAssets.other')}</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Заготовые платежи
+												{t('reports.balance.currentAssets.advancePayments')}
 											</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Выданные займы (до 1 года)
+												{t('reports.balance.currentAssets.loansShort')}
 											</div>
 										</div>
 									</div>
@@ -548,44 +550,44 @@ export default observer(function TransactionCategoriesPage() {
 									<div className="flex flex-col pt-2 border-t border-gray-200">
 										<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
 											<div className="flex items-center gap-2">
-												<span>Внеоборотные активы</span>
-												<span className="px-2 py-0.5 text-[11px] bg-slate-600 text-white rounded font-medium">И</span>
+												<span>{t('reports.balance.nonCurrentAssets.title')}</span>
+												<span className="px-2 py-0.5 text-[11px] bg-slate-600 text-white rounded font-medium">{t('reports.balance.nonCurrentAssets.and')}</span>
 											</div>
 										</div>
 										<div className="flex flex-col gap-0.5 ml-4">
-											<div className="text-sm text-slate-700">Основные средства</div>
-											<div className="text-sm text-slate-700">Оборудование</div>
-											<div className="text-sm text-slate-700">Транспорт</div>
-											<div className="text-sm text-slate-700">Другие внеоборотные</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.nonCurrentAssets.fixedAssets')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.nonCurrentAssets.equipment')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.nonCurrentAssets.transport')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.nonCurrentAssets.other')}</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Выданные займы (от 1 года)
+												{t('reports.balance.nonCurrentAssets.loansLong')}
 											</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Финансовые вложения
+												{t('reports.balance.nonCurrentAssets.financialInvestments')}
 											</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Нематериальные активы
+												{t('reports.balance.nonCurrentAssets.intangible')}
 											</div>
 										</div>
 									</div>
 
 									<div className="flex flex-col pt-3 border-t border-gray-300">
-										<div className="text-[15px] font-bold text-slate-900">ИТОГО АКТИВЫ</div>
+										<div className="text-[15px] font-bold text-slate-900">{t('reports.balance.totalAssets')}</div>
 									</div>
 
 									<div className="flex flex-col pt-2 border-t border-gray-200">
 										<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
-											<span>Краткосрочные обязательства</span>
+											<span>{t('reports.balance.currentLiabilities.title')}</span>
 											<span className="px-2 py-0.5 text-[11px] bg-slate-200 text-slate-700 rounded font-medium">0</span>
 										</div>
 										<div className="flex flex-col gap-0.5 ml-4">
-											<div className="text-sm text-slate-700">Кредиторская задолженность</div>
-											<div className="text-sm text-slate-700">Другие краткосрочные</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentLiabilities.payables')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.currentLiabilities.other')}</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Платежи третьим лицам
+												{t('reports.balance.currentLiabilities.thirdParty')}
 											</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Полученные займы (до 1 года)
+												{t('reports.balance.currentLiabilities.loansShort')}
 											</div>
 										</div>
 									</div>
@@ -593,45 +595,45 @@ export default observer(function TransactionCategoriesPage() {
 									<div className="flex flex-col pt-2 border-t border-gray-200">
 										<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
 											<div className="flex items-center gap-2">
-												<span>Долгосрочные обязательства</span>
-												<span className="px-2 py-0.5 text-[11px] bg-primary text-white rounded font-medium">Ф</span>
+												<span>{t('reports.balance.longTermLiabilities.title')}</span>
+												<span className="px-2 py-0.5 text-[11px] bg-primary text-white rounded font-medium">{t('reports.balance.longTermLiabilities.fin')}</span>
 											</div>
 										</div>
 										<div className="flex flex-col gap-0.5 ml-4">
-											<div className="text-sm text-slate-700">Кредиты</div>
-											<div className="text-sm text-slate-700">Другие долгосрочные</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.longTermLiabilities.credits')}</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.longTermLiabilities.other')}</div>
 											<div className="text-sm text-slate-700 ml-4">
-												Полученные займы (от 1 года)
+												{t('reports.balance.longTermLiabilities.loansLong')}
 											</div>
 										</div>
 									</div>
 
 									<div className="flex flex-col pt-3 border-t border-gray-300">
-										<div className="text-[15px] font-bold text-slate-900">ИТОГО ОБЯЗАТЕЛЬСТВА</div>
+										<div className="text-[15px] font-bold text-slate-900">{t('reports.balance.totalLiabilities')}</div>
 									</div>
 
 									<div className="flex flex-col pt-2 border-t border-gray-200">
 										<div className="text-[15px] font-semibold text-slate-900 mb-1.5 flex items-center justify-between">
 											<div className="flex items-center gap-2">
-												<span>Капитал</span>
-												<span className="px-2 py-0.5 text-[11px] bg-primary text-white rounded font-medium">Ф</span>
+												<span>{t('reports.balance.capital.title')}</span>
+												<span className="px-2 py-0.5 text-[11px] bg-primary text-white rounded font-medium">{t('reports.balance.capital.fin')}</span>
 											</div>
 										</div>
 										<div className="flex flex-col gap-0.5 ml-4">
-											<div className="text-sm text-slate-700">Вложения учредителей</div>
+											<div className="text-sm text-slate-700">{t('reports.balance.capital.founderInvestments')}</div>
 											<div className="text-sm text-slate-700 flex items-center gap-2">
-												<span className="text-xs text-green-500">плюс</span>
-												<span>Нераспределенная прибыль</span>
+												<span className="text-xs text-green-500">{t('reports.balance.capital.plus')}</span>
+												<span>{t('reports.balance.capital.undistributedProfit')}</span>
 											</div>
 										</div>
 									</div>
 
 									<div className="flex flex-col pt-3 border-t border-gray-300">
-										<div className="text-[15px] font-bold text-slate-900">ИТОГО КАПИТАЛ</div>
+										<div className="text-[15px] font-bold text-slate-900">{t('reports.balance.totalCapital')}</div>
 									</div>
 
 									<div className="flex flex-col pt-3 border-t-2 border-slate-900">
-										<div className="text-[15px] font-bold text-slate-900">АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ</div>
+										<div className="text-[15px] font-bold text-slate-900">{t('reports.balance.balanceEquation')}</div>
 									</div>
 								</div>
 							</div>
@@ -671,7 +673,7 @@ export default observer(function TransactionCategoriesPage() {
 							setCategoryToDelete(null)
 
 							// Extract error message from API response
-							let errorMessage = 'Не удалось удалить учетную статью'
+							let errorMessage = t('deleteError')
 							if (error.response?.data?.data) {
 								errorMessage = error.response.data.data
 							} else if (error.message) {

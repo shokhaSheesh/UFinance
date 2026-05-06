@@ -11,6 +11,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
   const isZachisleniya = !operationFilterStore.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
   const isCredit = !operationFilterStore.selectedFilters?.includes('Кредит')
+
   return (
     <div
       className={cn(
@@ -35,7 +36,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
         <CreditIcon />
       )}
 
-      {isPastDate(op?.operationDate) && ((tab === 'Начисление' && !accrual) || ((tab === 'Выплата' || tab === 'Поступление' || tab ===
+      {isPastDate(op?.data_operatsii) && ((tab === 'Начисление' && !accrual) || ((tab === 'Выплата' || tab === 'Поступление' || tab ===
         'Перемещение'
       ) && !confirmed) || (tab === 'Отгрузка' && !op?.payment_shipment)) && (
           <WarnIcon />

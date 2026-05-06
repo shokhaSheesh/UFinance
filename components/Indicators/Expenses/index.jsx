@@ -4,12 +4,14 @@ import { cn } from '@/app/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import { findByName } from '../Income'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import { localizeMonthTitle } from '../utils/localizeMonth'
 import './style.scss'
 
 const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
@@ -48,8 +50,14 @@ const mergeValues = (nodes) => {
 
 
 const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowDataList }) => {
+    const t = useTranslations('Indicators')
     const chartRef = useRef(null)
     const [zoomRange, setZoomRange] = useState([0, 100])
+
+    const billion = t('common.billion')
+    const million = t('common.million')
+    const thousand = t('common.thousand')
+    const monthsShort = t('common.monthNamesShort').split(',')
 
 
 
@@ -77,8 +85,8 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             return activeKeys.map((k) => Number(src?.[k] ?? 0))
         }
 
-        const titles = profitAndLossDataList?.legend.map((item) => String(item.title)?.replace(/\d/g, ''))
-        const cashTitles = cashFlowLegend?.map((item) => String(item.title)?.replace(/\d/g, ''))
+        const titles = profitAndLossDataList?.legend.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
+        const cashTitles = cashFlowLegend?.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
 
         const childrens = method === 'income_expenses'
             ? (profit?.details?.filter(i => i?.total !== 0).map(i => ({ ...i, values: readValues(i) })) || [])
@@ -89,7 +97,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             expenseData: method === 'income_expenses' ? readValues(expensesRow) : readValues({ values: mergeValues(income) }),
             childrens
         }
-    }, [profitAndLossDataList, cashFlowDataList, method])
+    }, [profitAndLossDataList, cashFlowDataList, method, monthsShort])
 
     const stats = useMemo(() => {
         const expenseTotal = expenseData?.reduce((a, b) => a + b, 0)
@@ -107,7 +115,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
         }) || []
 
         return {
-            expense: { label: method === 'income_expenses' ? 'Выплаты' : 'Расходы', value: formatNumber(formatTotalSumma(expenseTotal, 0))?.replace(/\-/g, ''), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+            expense: { label: method === 'income_expenses' ? t('expenses.labelPayments') : t('expenses.labelExpenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0))?.replace(/\-/g, ''), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
             details
         }
     }, [expenseData, childrens, method])
@@ -225,9 +233,9 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                     formatter: (value) => {
                         if (value === 0) return '0'
                         const abs = Math.abs(value)
-                        if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
-                        if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
-                        if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+                        if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} ${billion}`
+                        if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} ${million}`
+                        if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} ${thousand}`
                         return `${formatTotalSumma(value, 0)}`
                     }
                 }
@@ -252,7 +260,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
     return (
         <div className="w-full bg-white p-6 rounded-lg  mt-6">
             <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-[14px] font-medium text-[#111827]">Расходы, {GlobalCurrency?.name}</h2>
+                <h2 className="text-[14px] font-medium text-[#111827]">{t('expenses.title')}, {GlobalCurrency?.name}</h2>
                 <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
                     <HelpCircle className="size-2.5 text-neutral-400" />
                 </div>
@@ -261,7 +269,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Donut Pane */}
-                <div className="w-full flex-1 shrink-0 flex items-center justify-between relative z-10">
+                <div className="w-full flex-1 shrink-0 flex items-start justify-between relative z-10">
                     <div className="relative shrink-0 overflow-visible">
                         <ReactECharts
                             option={donutOption}
@@ -270,7 +278,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                     </div>
                     <div className="flex-1 pl-6 space-y-4">
                         {stats?.details?.map(item => (
-                            <div key={item?.id} className="flex items-center gap-5">
+                            <div key={item?.id} className="flex items-center flex-wrap justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="size-3" style={{ backgroundColor: item?.color }}></div>
                                     <span className="text-sm text-gray-600">{item?.label}</span>

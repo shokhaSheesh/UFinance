@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -8,7 +9,7 @@ const CustomMultipleSelect = ({
     data = [],
     value = [], // Array of values (strings or objects depending on your data)
     onChange = () => { },
-    placeholder = "Выберите",
+    placeholder,
     withSearch = true,
     isClearable = true,
     className,
@@ -16,6 +17,8 @@ const CustomMultipleSelect = ({
     hasError,
     disabled = false
 }) => {
+    const t = useTranslations('Common.selects')
+    const placeholderText = placeholder ?? t('placeholder')
     const [open, setOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [openUpwards, setOpenUpwards] = useState(false)
@@ -133,7 +136,7 @@ const CustomMultipleSelect = ({
                             </div>
                         ))
                     ) : (
-                            <span className="text-neutral-400 text-xss! ml-1">{placeholder}</span>
+                            <span className="text-neutral-400 text-xss! ml-1">{placeholderText}</span>
                     )}
                 </div>
 
@@ -177,7 +180,7 @@ const CustomMultipleSelect = ({
                                     autoFocus
                                     type='text'
                                     className='w-full h-9 border border-neutral-200 rounded-md pl-8 pr-2 py-1.5 text-xss! outline-none focus:border-primary/40'
-                                    placeholder='Поиск...'
+                                    placeholder={t('search')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />

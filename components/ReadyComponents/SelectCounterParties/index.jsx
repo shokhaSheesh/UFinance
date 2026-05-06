@@ -1,9 +1,11 @@
 import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 
-const SelectCounterParties = ({ value = [], onChange, placeholder = "Выберите контрагентов", dropdownClassName, className, hasError }) => {
+const SelectCounterParties = ({ value = [], onChange, placeholder, dropdownClassName, className, hasError }) => {
+  const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
   const handleSearch = useMemo(() => 
@@ -28,11 +30,11 @@ const SelectCounterParties = ({ value = [], onChange, placeholder = "Выбер�
     if (!items || items.length === 0) return []
     return items.map(item => ({
       value: item.guid,
-      label: item.nazvanie || 'Без названия'
+      label: item.nazvanie || t('noName')
     }))
-  }, [counterpartiesFilterData])
+  }, [counterpartiesFilterData, t])
 
-  const actualPlaceholder = isLoading ? "Загрузка..." : placeholder;
+  const actualPlaceholder = isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterparties'));
 
   return (
     <MultiSelect
