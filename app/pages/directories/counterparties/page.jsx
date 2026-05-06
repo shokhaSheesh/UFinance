@@ -384,7 +384,7 @@ const CounterpartiesPage = observer(() => {
             >
               {t('list.createButton')}
             </button>}
-          </div> 
+          </div>
           <div className=" flex items-center justify-self-center gap-2">
             <div className='w-[250px]'>
               <SingleSelect
@@ -659,7 +659,7 @@ const CounterpartiesPage = observer(() => {
         )}>
           <div className="text-sm text-slate-900">
             <span className="font-semibold text-slate-900 whitespace-nowrap">
-              {totalCountData} {totalCountData === 1 ? t('list.counterpartyCount', { count: totalCountData }) : totalCountData < 5 ? t('list.counterpartyCountPlural', { count: totalCountData }) : t('list.counterpartyCountPluralMany', { count: totalCountData })}
+              {totalCountData === 1 ? t('list.counterpartyCount', { count: totalCountData }) : totalCountData < 5 ? t('list.counterpartyCountPlural', { count: totalCountData }) : t('list.counterpartyCountPluralMany', { count: totalCountData })}
             </span>
           </div>
 
@@ -738,7 +738,7 @@ const CounterpartiesPage = observer(() => {
         }}
         preselectedGroupId={preselectedGroupId}
         counterpartyData={editingCounterparty}
-      /> 
+      />
       <DeleteGroupConfirmModal
         isOpen={!!deletingGroup}
         group={deletingGroup}
