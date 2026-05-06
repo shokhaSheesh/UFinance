@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import SelectAccountGroups from '@/components/ReadyComponents/SelectAccountGroups'
 import Input from '@/components/shared/Input'
 import { useCreateMyAccount, useUpdateMyAccount } from '@/hooks/useDashboard'
 import moment from 'moment'
@@ -11,7 +12,6 @@ import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
-import SelectMyAccoutGroup from '../../ReadyComponents/SelectMyAccoutGroup'
 import CustomDialog from '../../shared/CustomDialog'
 import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Loader from '../../shared/Loader'
@@ -203,7 +203,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   name="account_group_id"
                   control={control}
                   render={({ field }) => (
-                    <SelectMyAccoutGroup
+                    <SelectAccountGroups
                       value={field.value}
                       onChange={field.onChange}
                       className="bg-white"
@@ -354,21 +354,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   />
                 </div>
               </div>
-            )}
-
-            {/* {isEdit && <div className="flex  gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">Расч. счет №</label>
-              <div className="flex-1">
-
-                <Input
-                  type="text"
-                  value={formData.rasch_schet}
-                  onChange={(e) => setFormData({ ...formData, rasch_schet: e.target.value })}
-                  className={cn(errors.rasch_schet && "border-red-500")}
-                />
-              </div>
-            </div>} */}
-
+            )} 
             {/* Начальный остаток */}
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.initialBalance')}</label>

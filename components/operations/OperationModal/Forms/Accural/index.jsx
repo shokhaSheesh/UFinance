@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
@@ -24,6 +25,7 @@ import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => {
+  const t = useTranslations('Operations.forms')
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
   const [isToRasxodChild, setIsToRasxodChild] = useState(false)
   const [title, setTitle] = useState()
@@ -178,13 +180,13 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Дебит</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">{t('debit')}</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
           {/* Дата начисления */}
           <div className="flex items-center gap-4">
-            <label className="w-[150px] text-xss!">Дата начисления</label>
+            <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
             <div className="flex-1 flex  gap-2 max-w-[600px]">
               <Controller
                 name="accuralDate"
@@ -196,7 +198,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                       field.onChange(val)
                       setValue('confirmAccrual', !isFuture(val))
                     }}
-                    placeholder="Выберите дату"
+                    placeholder={t('selectDate')}
                     format='YYYY-MM-DD'
                     inputClass={cn("bg-white border", errors.accuralDate && "border-red-500")}
                   />
@@ -210,7 +212,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                 render={({ field }) => (
                   <OperationCheckbox
                     checked={field.value}
-                    label="Подтвердить начисление"
+                    label={t('confirmAccrual')}
                     onChange={(e) => field.onChange(e.target.checked)}
                   />
                 )}
@@ -220,12 +222,12 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
           {/* Юрлицо */}
           <div className="flex items-center gap-4">
-            <label className="w-[150px] text-[13px]">Юрлицо <span className="text-red-500 ml-0.5">*</span></label>
+            <label className="w-[150px] text-[13px]">{t('legalEntity')} <span className="text-red-500 ml-0.5">*</span></label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="legalEntity"
                 control={control}
-                rules={{ required: 'Выберите юрлицо' }}
+                rules={{ required: t('legalEntityRequired') }}
                 render={({ field }) => (
                   <SelectLegelEntitties
                     value={field.value}
@@ -240,7 +242,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                       }
                     }}
                     isClearable={false}
-                    placeholder="Выберите юрлицо..."
+                    placeholder={t('legalEntityPlaceholderEntity')}
                     className="bg-white border rounded-md flex-1 h-[36px]!"
                     hasError={errors.legalEntity}
                   />
@@ -252,7 +254,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
               <Controller
                 name="currency"
                 control={control}
-                rules={{ required: 'Выберите валюту' }}
+                rules={{ required: t('selectCurrencyRequired') }}
                 render={({ field }) => (
                   <MyAccountCurrensies isClearable={false} guid={legalEntityGuid} value={field.value} onChange={field.onChange} className="w-40 bg-white " wrapperClassName={'w-40'} />
                 )}
@@ -263,17 +265,17 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
           {/* Статья списания */}
           <div className="flex items-center gap-4">
-            <label className="w-[150px] text-[13px]">Статья по дебету <span className="text-red-500 ml-0.5">*</span></label>
+            <label className="w-[150px] text-[13px]">{t('debitArticle')} <span className="text-red-500 ml-0.5">*</span></label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="chartOfAccountWriteOff"
                 control={control}
-                rules={{ required: 'Выберите статью по дебету' }}
+                rules={{ required: t('debitArticleRequired') }}
                 render={({ field }) => (
                   <SinglSelectStatiya
                     selectedValue={field.value}
                     setSelectedValue={field.onChange}
-                    placeholder="Выберите статью по дебету..."
+                    placeholder={t('debitArticlePlaceholder')}
                     className="flex-1 bg-white border rounded-md"
                     type="Доходы"
                     parent="Расходы"
@@ -288,7 +290,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
           </div>
 
           {isFromRasxodChild && <div className="flex items-center gap-4">
-            <label className="w-[150px] text-[13px]">Сделка продажи</label>
+            <label className="w-[150px] text-[13px]">{t('salesDeal')}</label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="sellingDealId"
@@ -297,7 +299,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                   <SingleZdelka
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Выберите сделку продажи..."
+                    placeholder={t('sellingDealPlaceholder')}
                     className="flex-1 bg-white border rounded-md"
                     withSearch={false}
                   />
@@ -308,7 +310,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
           {/* Сумма */}
           <div className="flex items-center gap-4">
-            <label className="w-[150px] text-[13px]">Сумма</label>
+            <label className="w-[150px] text-[13px]">{t('amount')}</label>
             <div className="flex-1 flex gap-1 max-w-[600px]">
               <div className="flex items-center gap-3">
                 <Controller
@@ -319,7 +321,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                       type="text"
                       value={formatNumber(field.value)}
                       onChange={(e) => field.onChange(formatNumber(e.target.value))}
-                      placeholder="0"
+                      placeholder={t('amountZero')}
                       className={cn("w-[200px]", errors.summa && "border-red-500")}
                     />
                   )}
@@ -338,7 +340,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
               render={({ field }) => (
                 <OperationCheckbox
                   checked={field.value}
-                  label="Учитывать в ОПиУ кассовым методом"
+                  label={t('canAllowOpiu')}
                   onChange={(e) => field.onChange(e.target.checked)}
                 />
               )}
@@ -350,23 +352,23 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
         <div className="flex flex-col gap-5 mt-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">Кредит</h3>
+            <h3 className="text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider">{t('credit')}</h3>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
           {/* Статья зачисления */}
           <div className="flex items-center gap-4">
-            <label className="w-[150px] text-xss!">Статья по кредиту <span className="text-red-500 ml-0.5">*</span></label>
+            <label className="w-[150px] text-xss!">{t('creditArticle')} <span className="text-red-500 ml-0.5">*</span></label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="chartOfAccountEnrollment"
                 control={control}
-                rules={{ required: 'Выберите статью по кредиту' }}
+                rules={{ required: t('creditArticleRequired') }}
                 render={({ field }) => (
                   <SinglSelectStatiya
                     selectedValue={field.value}
                     setSelectedValue={field.onChange}
-                    placeholder="Выберите статью по кредиту..."
+                    placeholder={t('creditArticlePlaceholder')}
                     className="flex-1 bg-white border rounded-md"
                     type=""
                     isClearable={false}
@@ -381,7 +383,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
             </div>
           </div>
           {isToRasxodChild && <div className="flex items-center gap-4">
-            <label className="w-[150px] text-xss!">Сделка продажи</label>
+            <label className="w-[150px] text-xss!">{t('salesDeal')}</label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="sellingDealId2"
@@ -390,7 +392,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                   <SingleZdelka
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Выберите сделку продажи..."
+                    placeholder={t('sellingDealPlaceholder')}
                     className="flex-1 bg-white border rounded-md"
                     withSearch={false}
                   />
@@ -419,17 +421,17 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
           {/* Назначение */}
           <div className="flex items-start gap-4">
-            <label className="w-[150px] text-[13px] pt-2">Назначение <span className="text-red-500 ml-0.5">*</span></label>
+            <label className="w-[150px] text-[13px] pt-2">{t('purposeShort')} <span className="text-red-500 ml-0.5">*</span></label>
             <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
               <Controller
                 name="comment"
                 control={control}
-                rules={{ required: 'Введите назначение' }}
+                rules={{ required: t('purposeShortRequired') }}
                 render={({ field }) => (
                   <TextArea
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Назначение платежа"
+                    placeholder={t('purposePlaceholder')}
                     rows={3}
                     className={cn("border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F51B9] focus:border-[#0F51B9]")}
                     hasError={!!errors.comment}
@@ -444,8 +446,8 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
       {/* Footer Actions */}
       <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
-        <button type="button" onClick={onCancel} className="secondary-btn py-2!">Отмена</button>
-        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}</button>
+        <button type="button" onClick={onCancel} className="secondary-btn py-2!">{t('cancel')}</button>
+        <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : isNew ? t('create') : t('save')}</button>
       </div>
     </form>
   )

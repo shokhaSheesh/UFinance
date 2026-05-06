@@ -4,22 +4,25 @@ import CustomDatePicker from '@/components/shared/DatePicker';
 import Input from '@/components/shared/Input';
 import { useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard';
 import { appStore } from '../../../store/app.store';
 import { formatDate } from '../../../utils/formatDate';
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty';
+import CustomDialog from '../../shared/CustomDialog';
 import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
 import TextArea from '../../shared/TextArea';
-import styles from './CreateDealModal.module.scss';
-
-const ndsOptions = [
-  { value: 'true', label: 'С учетом НДС' },
-  { value: 'false', label: 'Без учета НДС' }
-];
 
 export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
+  const t = useTranslations('Deals.createDealModal');
+
+  const ndsOptions = [
+    { value: 'true', label: t('vatWith') },
+    { value: 'false', label: t('vatWithout') }
+  ];
+
   const [dealName, setDealName] = useState('');
   const [dealDate, setDealDate] = useState();
   const [client, setClient] = useState('');
@@ -52,14 +55,12 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
   const { mutateAsync: createDeal, isPending: isCreatingDeal } = useUcodeRequestMutation()
 
 
-  if (!isOpen) return null;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
     if (!dealName.trim()) {
-      newErrors.dealName = 'Название сделки обязательно';
+      newErrors.dealName = t('dealNameRequired');
     }
 
     setErrors(newErrors);
@@ -108,22 +109,29 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>{isEditing ? 'Редактирование продажи' : 'Новая продажа'}</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            <X />
-          </button>
-        </div>
+    <CustomDialog open={isOpen} onClose={onClose} contentClass="min-w-[600px]! max-w-[600px] p-0 overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+        <h2 className="font-sans font-semibold text-lg leading-7 text-gray-900 m-0">
+          {isEditing ? t('titleEdit') : t('titleNew')}
+        </h2>
+        <button
+          type="button"
+          className="bg-transparent border-none cursor-pointer p-1 flex items-center justify-center transition-opacity hover:opacity-70"
+          onClick={onClose}
+        >
+          <X size={24} />
+        </button>
+      </div>
 
-        <form id="create-deal-form" className="space-y-3 p-5 text-sm font-normal" onSubmit={handleSubmit}>
+      {/* Form */}
+      <form id="create-deal-form" className="space-y-3 p-5 text-sm font-normal overflow-y-auto flex-1" onSubmit={handleSubmit}>
           <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center">Название сделки</label>
+          <label className=" col-span-2 flex items-center">{t('dealName')}</label>
             <div className=" col-span-5">
               <Input
                 type="text"
-                placeholder="Например, разработка сайта"
+              placeholder={t('dealNamePlaceholder')}
                 value={dealName}
                 onChange={(e) => {
                   setDealName(e.target.value);
@@ -138,39 +146,39 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
           </div>
 
           <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center">Дата сделки</label>
+          <label className=" col-span-2 flex items-center">{t('dealDate')}</label>
             <div className=" col-span-5">
-              <CustomDatePicker
+            <CustomDatePicker
                 value={dealDate}
                 onChange={(val) => setDealDate(val)}
-                placeholder="Выберите дату"
+              placeholder={t('dealDatePlaceholder')}
                 format="YYYY-MM-DD"
-                className={styles.datePicker}
+              className="w-full"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center">Клиент</label>
+          <label className=" col-span-2 flex items-center">{t('client')}</label>
             <div className=" col-span-5">
               <SingleCounterParty
                 value={client}
                 onChange={value => setClient(value)}
-                placeholder="Укажите кому падаете товар или услугу"
+              placeholder={t('clientPlaceholder')}
                 className={'bg-white'}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center"> НДС </label>
+          <label className=" col-span-2 flex items-center">{t('vat')}</label>
             <div className=" col-span-5">
               <SingleSelect
                 data={ndsOptions}
                 value={nds}
                 onChange={(val) => setNds(val || '')}
                 withSearch={false}
-                placeholder="Выберите опцию"
+              placeholder={t('vatPlaceholder')}
                 className={'bg-white'}
                 isClearable={false}
               />
@@ -178,22 +186,30 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
           </div>
 
           <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center"> Комментарий </label>
+          <label className=" col-span-2 flex items-center">{t('comment')}</label>
             <div className=" col-span-5">
               <TextArea value={comment} onChange={(e) => setComment(e.target.value)} />
             </div>
           </div>
         </form>
 
-        <div className={styles.footer}>
-          <button type="button" className="secondary-btn" onClick={onClose}>
-            Отменить
+      {/* Footer */}
+      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0">
+        <button
+          type="button"
+          className="min-w-[102px] h-10 rounded-lg border border-gray-300 px-4 py-2 bg-white font-sans font-semibold text-sm text-gray-700 cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-400"
+          onClick={onClose}
+        >
+          {t('cancel')}
           </button>
-          <button type="submit" form="create-deal-form" className="primary-btn">
-            {isCreatingDeal ? <Loader /> : (isEditing ? 'Сохранить' : 'Создать')}
+        <button
+          type="submit"
+          form="create-deal-form"
+          className="min-w-[102px] h-10 rounded-lg border border-blue-700 px-4 py-2 bg-blue-700 font-sans font-semibold text-sm text-white cursor-pointer transition-all hover:bg-blue-800 hover:border-blue-800 flex items-center justify-center"
+        >
+          {isCreatingDeal ? <Loader /> : (isEditing ? t('save') : t('create'))}
           </button>
         </div>
-      </div>
-    </div>
+    </CustomDialog>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useSaleComments } from '@/hooks/useSaleComments';
 import { Check, Download, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 
 const ACCEPTED_FORMATS = '.pdf,.doc,.docx,.xls,.xlsx,.jpeg,.png,.jpg,.zip,.rar,.txt,.csv,.xml';
@@ -45,6 +46,7 @@ async function downloadFile(file) {
 }
 
 const CommentChat = ({ dealGuid }) => {
+  const t = useTranslations('Deals.commentChat');
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
   const {
@@ -78,7 +80,7 @@ const CommentChat = ({ dealGuid }) => {
     <div className="flex w-full flex-col h-full bg-white rounded-lg shadow-[0_10px_10px_rgba(118,164,172,0.1)] max-h-[500px] border border-gray-100/50">
       {/* Header */}
       <div className="p-5 border-b border-gray-100 inline-flex items-center justify-between">
-        <h3 className="text-sm font-bold text-gray-800 tracking-wider">ФАЙЛЫ И КОММЕНТАРИИ</h3>
+        <h3 className="text-sm font-bold text-gray-800 tracking-wider">{t('title')}</h3>
       </div>
 
       {/* Main Content */}
@@ -92,7 +94,7 @@ const CommentChat = ({ dealGuid }) => {
               </svg>
             </div>
             <p className="text-xs text-gray-400 max-w-[200px] leading-relaxed">
-              Прикрепляйте файлы и оставляйте комментарии для себя и своих коллег
+              {t('emptyState')}
             </p>
           </div>
         ) : (
@@ -157,19 +159,19 @@ const CommentChat = ({ dealGuid }) => {
                     </div>
                     {isEditing ? (
                       <div className="flex items-center gap-1">
-                        <button onClick={handleEditCancel} className="p-1 text-gray-500 hover:text-gray-700" title="Отмена">
+                        <button onClick={handleEditCancel} className="p-1 text-gray-500 hover:text-gray-700" title={t('cancel')}>
                           <X size={14} />
                         </button>
-                        <button onClick={handleEditConfirm} className="p-1 text-cyan-600 hover:text-cyan-700" title="Сохранить">
+                        <button onClick={handleEditConfirm} className="p-1 text-cyan-600 hover:text-cyan-700" title={t('save')}>
                           <Check size={14} />
                         </button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleEdit(msg)} className="p-1 text-gray-500 hover:text-cyan-600" title="Редактировать">
+                          <button onClick={() => handleEdit(msg)} className="p-1 text-gray-500 hover:text-cyan-600" title={t('edit')}>
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => handleDeleteRequest(msg.id)} className="p-1 text-gray-500 hover:text-red-600" title="Удалить">
+                          <button onClick={() => handleDeleteRequest(msg.id)} className="p-1 text-gray-500 hover:text-red-600" title={t('delete')}>
                           <Trash2 size={13} />
                         </button>
                       </div>
@@ -214,7 +216,7 @@ const CommentChat = ({ dealGuid }) => {
               value={text}
               onChange={e => setText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Написать комментарий"
+              placeholder={t('writeComment')}
               className="w-full bg-transparent border-b border-gray-200 focus:border-cyan-500 outline-none text-sm pb-1 resize-none pr-8"
               rows={1}
             />

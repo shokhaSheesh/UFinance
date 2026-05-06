@@ -72,7 +72,7 @@ export const Sidebar = observer(() => {
             label: t('nav.plans'),
             href: '/pages',
             hasPage: true,
-            canShow: true,
+            canShow: false,
             submenu: [
                 {
                     label: t('plans.income_expense_budget'),

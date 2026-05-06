@@ -1,16 +1,15 @@
 'use client'
-import React, { useState, useEffect, useMemo } from 'react'
-import { X } from 'lucide-react'
-import styles from './style.module.scss'
-import { useUcodeDefaultApiQuery } from '@/hooks/useDashboard'
-import { queryClient } from '../../../../lib/queryClient'
-import { formatAmount, formatNumber } from '../../../../utils/helpers'
-import Input from '../../../shared/Input'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import Loader from '../../../shared/Loader'
-import SingleSelect from '../../../shared/Selects/SingleSelect'
-import { keepPreviousData } from '@tanstack/react-query'
-import CustomModal from '../../../shared/CustomModal'
+import CustomDialog from '@/components/shared/CustomDialog';
+import { keepPreviousData } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard';
+import { queryClient } from '../../../../lib/queryClient';
+import { formatAmount, formatNumber } from '../../../../utils/helpers';
+import Input from '../../../shared/Input';
+import Loader from '../../../shared/Loader';
+import SingleSelect from '../../../shared/Selects/SingleSelect';
+import styles from './style.module.scss';
 
 const CreateProductService = ({
   open,
@@ -19,6 +18,7 @@ const CreateProductService = ({
   isEditing = false,
   dealGuid = null
 }) => {
+  const t = useTranslations('Deals.createProductService');
 
 
   const [formData, setFormData] = useState({
@@ -166,9 +166,9 @@ const CreateProductService = ({
 
   const validate = () => {
     const newErrors = {}
-    if (!formData.product_and_service_id) newErrors.product_and_service_id = 'Выберите наименование'
-    if (!formData.quantity) newErrors.quantity = 'Введите количество'
-    if (!formData.tsena_za_ed) newErrors.tsena_za_ed = 'Введите цену'
+    if (!formData.product_and_service_id) newErrors.product_and_service_id = t('productRequired')
+    if (!formData.quantity) newErrors.quantity = t('quantityRequired')
+    if (!formData.tsena_za_ed) newErrors.tsena_za_ed = t('priceRequired')
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -240,13 +240,12 @@ const CreateProductService = ({
 
 
   return (
-    <CustomModal isOpen={open} onClose={onClose} className={'w-[500px]! p-0'}>
-      <div className="">
+    <CustomDialog open={open} onClose={onClose} contentClass={' p-0'}>
+      <div className="w-[450px]!">
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold">
-            {isEditing ? 'Редактировать позицию' : 'Добавить товар/услугу'}
+            {isEditing ? t('titleEdit') : t('titleNew')}
           </h2>
-          <p className="text-sm text-gray-ucode-500">Заполните данные позиции сделки</p>
         </div>
 
         {/* Body */}
@@ -254,13 +253,13 @@ const CreateProductService = ({
           {/* Наименование */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
-              Наименование <span className="text-red-500">*</span>
+              {t('product')} <span className="text-red-500">*</span>
             </label>
             <SingleSelect
               data={productServicesList}
               value={formData.product_and_service_id}
               onChange={handleProductServiceChange}
-              placeholder='Наименование'
+              placeholder={t('productPlaceholder')}
               className={'h-[38]! bg-white'}
             />
             {errors.product_and_service_id && (
@@ -269,10 +268,10 @@ const CreateProductService = ({
           </div>
 
           {/* Кол-во / Единица */}
-          <div className={styles.twoCol}>
-            <div className={styles.colItem}>
-              <label className={styles.label}>
-                Кол-во <span className={styles.required}>*</span>
+          <div className="flex gap-2 mb-2">
+            <div className="flex-1">
+              <label className="">
+                {t('quantity')} <span className={styles.required}>*</span>
               </label>
               <Input
                 type='text'
@@ -283,37 +282,37 @@ const CreateProductService = ({
               />
               {errors.quantity && <span className={styles.errorText}>{errors.quantity}</span>}
             </div>
-            <div className={styles.colItem}>
-              <label className={styles.label}>Единица</label>
+            <div className="flex-1">
+              <label className="">{t('unit')}</label>
               <Input
                 type='text'
                 value={formData.unit_name || ''}
                 className={styles.input}
-                placeholder='Единица'
+                placeholder=''
                 readOnly
               />
             </div>
           </div>
 
           {/* Цена за ед. */}
-          <div className={styles.formRow}>
+          <div className="mb-2">
             <label className={styles.label}>
-              Цена за ед. <span className={styles.required}>*</span>
+              {t('price')} <span className={styles.required}>*</span>
             </label>
             <Input
               type='text'
               value={formatNumber(formData.tsena_za_ed)}
               onChange={(e) => setFormData(prev => ({ ...prev, tsena_za_ed: formatNumber(e.target.value) }))}
               className={`${styles.input} ${styles.textRight} ${errors.tsena_za_ed ? styles.inputError : ''}`}
-              placeholder='Цена за ед.'
+              placeholder={t('pricePerUnit')}
             />
             {errors.tsena_za_ed && <span className={styles.errorText}>{errors.tsena_za_ed}</span>}
           </div>
 
           {/* Скидка / НДС */}
-          <div className={styles.twoCol}>
-            <div className={styles.colItem}>
-              <label className={styles.label}>Скидка</label>
+          <div className="flex gap-2 mb-2">
+            <div className="flex-1">
+              <label className={styles.label}>{t('discount')}</label>
               <Input
                 type='text'
                 maxLength={3}
@@ -324,8 +323,8 @@ const CreateProductService = ({
                 placeholder='0%'
               />
             </div>
-            <div className={styles.colItem}>
-              <label className={styles.label}>НДС</label>
+            <div className="flex-1">
+              <label className={styles.label}>{t('nds')}</label>
               <Input
                 type='text'
                 maxLength={3}
@@ -340,7 +339,7 @@ const CreateProductService = ({
 
           {/* Сумма */}
           <div className={styles.formRow}>
-            <label className={styles.label}>Сумма</label>
+            <label className={styles.label}>{t('total')}</label>
             <div className={`text-end border border-gray-ucode-200 rounded-lg px-3 py-2`}>
               {formatAmount(totalSum)}
             </div>
@@ -350,18 +349,18 @@ const CreateProductService = ({
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 p-3 border-t">
           <button className="secondary-btn" onClick={onClose}>
-            Отменить
+            {t('cancel')}
           </button>
           <button
             className='primary-btn'
             onClick={handleCreate}
             disabled={isProductServiceCustomPending}
           >
-            {isProductServiceCustomPending ? <Loader /> : isEditing ? 'Сохранить' : 'Создать'}
+            {isProductServiceCustomPending ? <Loader /> : isEditing ? t('save') : t('add')}
           </button>
         </div>
       </div>
-    </CustomModal>
+    </CustomDialog>
   )
 }
 

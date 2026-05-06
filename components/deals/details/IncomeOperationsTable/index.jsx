@@ -3,6 +3,7 @@ import OperationModal from '@/components/operations/OperationModal/OperationModa
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
@@ -17,6 +18,8 @@ import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
 const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
+  const t = useTranslations('Directories.details.incomeOperationsTable')
+
   const [showModal, setShowModal] = useState(false)
   const [selectedOperation, setSelectedOperation] = useState(null)
   const [modalType, setModalType] = useState('income')
@@ -91,8 +94,8 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
   if (dealOperations?.length === 0) {
     return (
       <EmptyState
-        title="Добавьте поступления по сделке"
-        subtitle="Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
+        title={t('emptyTitle')}
+        subtitle={t('emptySubtitle')}
         onAdd={onAdd}
       />
     )
@@ -166,11 +169,11 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
           <table className="w-full">
             <thead className='sticky top-0 z-10'>
               <tr className='bg-neutral-100 text-neutral-600 font-normal text-sm w-full border-b border-gray-200'>
-                <th className='px-3 py-2 text-left w-[150px]'>Дата</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Счет</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Контрагент</th>
-                <th className='px-3 py-2 text-left w-[150px]'>Статья</th>
-                <th className='px-3 py-2 text-right w-[150px]'>Сумма</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('date')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('account')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('counterparty')}</th>
+                <th className='px-3 py-2 text-left w-[150px]'>{t('article')}</th>
+                <th className='px-3 py-2 text-right w-[150px]'>{t('amount')}</th>
               </tr>
             </thead>
             <tbody className='w-full'>
@@ -217,7 +220,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
           )}
         </div>
         <div className='flex justify-end'>
-          <div className="p-4 text-right text-neutral-700 font-semibold">Итого:</div>
+          <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
           <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(summury?.total_summa)} {GlobalCurrency.name}</div>
         </div>
       </>}
@@ -247,27 +250,28 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
         <CustomModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
           <div className='p-6 flex flex-col'>
             <div className='flex justify-between items-center border-b border-gray-100 pb-4'>
-              <h2 className='text-xl font-bold text-neutral-800'>Удалить операцию</h2>
+              <h2 className='text-xl font-bold text-neutral-800'>{t('deleteOperationTitle')}</h2>
             </div>
 
-            <div className='py-6 text-base text-neutral-700'>
-              Вы действительно хотите удалить операцию на сумму <span className='font-bold'>{formatAmount(operationToDelete?.summa)} UZS</span>? <br />
-              Восстановить её будет невозможно.
-            </div>
+            <div className='py-6 text-base text-neutral-700'
+              dangerouslySetInnerHTML={{
+                __html: t('deleteOperationConfirm', { amount: formatAmount(operationToDelete?.summa) + ' UZS' })
+              }}
+            />
 
             <div className='flex justify-end gap-4'>
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className='px-4 py-2 text-sm text-primary hover:bg-gray-50 rounded-md font-semibold'
               >
-                Отменить
+                {t('cancel')}
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deleteOperationMutation.isPending}
                 className='px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-md flex items-center justify-center min-w-[100px]'
               >
-                {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : 'Удалить'}
+                {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : t('delete')}
               </button>
             </div>
           </div>

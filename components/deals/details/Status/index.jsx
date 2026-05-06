@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
-import { ChevronUp, Check, Pencil, Trash2, Loader2 } from 'lucide-react'
-import styles from './style.module.scss'
 import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery } from '@/hooks/useDashboard'
 import { useQueryClient } from '@tanstack/react-query'
+import { Check, ChevronUp, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import styles from './style.module.scss'
 
 const DEFAULT_COLORS = [
   '#F79009', // orange
@@ -79,12 +80,13 @@ export default function DealStatus({
     }
   }, [contextMenu])
 
+  const t = useTranslations('Directories.details.status')
+
   const activeStatus = statuses.find(status => status.name === currentStatus?.[0])
   const activeColor = activeStatus?.color || '#F79009'
-  const activeName = activeStatus?.name || 'Новая'
+  const activeName = activeStatus?.name || t('defaultStatus')
 
   const handleSelect = (status) => {
-    console.log(status)
     onStatusChange?.(status)
     setIsOpen(false)
     setContextMenu(null)
@@ -223,8 +225,8 @@ export default function DealStatus({
                         ))}
                       </div>
                       <div className={styles.editActions}>
-                        <button className={styles.cancelBtn} onClick={handleCancelEdit}>Отменить</button>
-                        <button className={styles.saveBtn} onClick={handleSaveEdit}>Сохранить</button>
+                        <button className={styles.cancelBtn} onClick={handleCancelEdit}>{t('cancel')}</button>
+                        <button className={styles.saveBtn} onClick={handleSaveEdit}>{t('save')}</button>
                       </div>
                     </div>
                   )
@@ -252,11 +254,11 @@ export default function DealStatus({
                       <div className={styles.contextMenu} ref={contextRef}>
                         <button className={styles.contextItem} onClick={() => handleEdit(status, index)}>
                           <Pencil size={14} />
-                          <span>Редактировать</span>
+                          <span>{t('edit')}</span>
                         </button>
                         <button className={`${styles.contextItem} ${styles.contextDelete}`} onClick={() => handleDelete(status)}>
                           <Trash2 size={14} />
-                          <span>Удалить</span>
+                          <span>{t('delete')}</span>
                         </button>
                       </div>
                     )}
@@ -271,7 +273,7 @@ export default function DealStatus({
             <div className={styles.newStatusForm}>
               <input
                 className={styles.editInput}
-                placeholder="Название статуса"
+                placeholder={t('statusNamePlaceholder')}
                 value={newStatusName}
                 onChange={(e) => setNewStatusName(e.target.value)}
                 autoFocus
@@ -287,13 +289,13 @@ export default function DealStatus({
                 ))}
               </div>
               <div className={styles.editActions}>
-                <button className={styles.cancelBtn} onClick={handleCancelNew}>Отменить</button>
-                <button className={styles.saveBtn} onClick={handleSaveNew}>Сохранить</button>
+                <button className={styles.cancelBtn} onClick={handleCancelNew}>{t('cancel')}</button>
+                <button className={styles.saveBtn} onClick={handleSaveNew}>{t('save')}</button>
               </div>
             </div>
           ) : (
             <button className={styles.addStatusBtn} onClick={() => setShowNewForm(true)}>
-              + Добавить статус
+                + {t('addStatus')}
             </button>
           )}
         </div>

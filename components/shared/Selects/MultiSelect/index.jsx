@@ -190,20 +190,20 @@ const MultiSelect = ({
                                     filteredData.map(node => {
                                         const isSelected = value?.includes(node.value);
 
-                                        return (
-                                            <div
-                                                key={node.value}
+                                    return (
+                                        <div
+                                            key={node.value}
                                             className={cn(
                                                 "w-full px-4 py-2 hover:bg-neutral-50 flex items-center justify-between text-xss! transition-colors cursor-pointer",
                                                 isSelected && "bg-neutral-100/60"
                                             )}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSelect(node.value);
-                                                }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelect(node.value);
+                                            }}
                                         >
-                                                <span>{node.label}</span>
-                                                {isSelected && <Check size={16} className={cn('text-primary transition-transform duration-200')} />}
+                                            <span>{node.label}</span>
+                                            {isSelected && <Check size={16} className={cn('text-primary transition-transform duration-200')} />}
                                         </div>
                                     )
                                 })

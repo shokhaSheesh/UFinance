@@ -4,6 +4,7 @@ import { TrashIcon, X } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { GlobalCurrency } from '../../../../constants/globalCurrency'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
@@ -24,6 +25,7 @@ import Loader from '../../../shared/Loader'
 import styles from './style.module.scss'
 
 const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragentId, initialData = null, isEditing = false, isCopying = false, onSuccess }) => {
+  const t = useTranslations('Deals.createShipment')
   const today = useMemo(() => new Date(), [])
 
   const [shipmentDate, setShipmentDate] = useState(today.toISOString().split('T')[0])
@@ -175,12 +177,12 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
 
   const handleCreate = async () => {
     const newErrors = {}
-    if (!shipmentDate) newErrors.shipmentDate = 'Выберите дату'
-    if (!legalEntity) newErrors.legalEntity = 'Выберите юрлицо'
-    if (!client) newErrors.client = 'Выберите клиента'
+    if (!shipmentDate) newErrors.shipmentDate = t('shipmentDateRequired')
+    if (!legalEntity) newErrors.legalEntity = t('legalEntityRequired')
+    if (!client) newErrors.client = t('clientRequired')
 
     const productData = rows.filter(row => row.name)
-    if (productData.length === 0) newErrors.products = 'Добавьте хотя бы одну позицию'
+    if (productData.length === 0) newErrors.products = t('productsRequired')
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -334,11 +336,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
           <div className="p-4 border-b relative">
             <div>
               <h2 className="text-lg font-semibold">
-                {isEditing ? 'Редактирование отгрузки' : isCopying ? 'Копирование отгрузки' : 'Создание отгрузки'}
+                {isEditing ? t('titleEdit') : t('titleNew')}
               </h2>
-              <div className="text-sm text-gray-600">
-                Сделка: <span className={styles.dealLink}>{dealName}</span>
-              </div>
             </div>
             <button className="p-2 absolute right-4 top-2 hover:bg-gray-100 rounded-full" onClick={onClose}>
               <X size={20} />
@@ -350,7 +349,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
             {/* Date + Planned */}
             <div className="flex gap-2 mb-4">
               <label className=" w-40 text-sm font-medium text-gray-700">
-                Дата отгрузки <span className="text-red-500">*</span>
+                {t('shipmentDate')} <span className="text-red-500">*</span>
               </label>
               <div className={styles.fieldGroup} style={{ flex: 1, maxWidth: '600px' }}>
                 <div className="flex w-full items-center gap-4">
@@ -365,7 +364,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                       }}
                       format='YYYY-MM-DD'
                       inputClass={'w-44!'}
-                      placeholder='Выберите дату'
+                      placeholder={t('dealDatePlaceholder')}
                     />
                     <div className='flex items-center' style={{ opacity: isFutureDate ? 0.5 : 1, pointerEvents: isFutureDate ? 'none' : 'auto' }}>
                       <OperationCheckbox
@@ -376,7 +375,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                           }
                         }}
                         className={'w-44'}
-                        label='Плановая отгрузка'
+                        label={t('plannedShipment')}
                       />
                     </div>
                   </div>
@@ -390,14 +389,14 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
             {/* Legal Entity */}
             <div className="w-full flex items-center gap-2 pb-2">
               <label className="w-40 text-xss!">
-                Юрлицо <span className={styles.required}>*</span>
+                {t('legalEntity')} <span className={styles.required}>*</span>
               </label>
               <div className="w-80!">
                 <SelectLegelEntitties
                   multi={false}
                   value={legalEntity}
                   onChange={handleSelect}
-                  placeholder="Выберите юрлицо"
+                  placeholder={t('legalEntityRequired')}
                   childFieldName={'currenies_id'}
                   returnFieldValue={handleChangeCurrency}
                   className="w-80! bg-white"
@@ -412,13 +411,13 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
             {/* Client */}
             <div className="w-full flex items-center gap-2 pb-2">
               <label className="w-40! text-xss!">
-                Клиент <span className="text-red-500">*</span>
+                {t('client')} <span className="text-red-500">*</span>
               </label>
               <div className="flex-1">
                 <SingleCounterParty
                   value={client}
                   onChange={value => setClient(value)}
-                  placeholder='Выберите клиента...'
+                  placeholder={t('clientRequired')}
                   name='chart_of_accounts_id'
                   returnChartOfAccount={value => setChartOfAccounts(value)}
                   className="w-80! bg-white"
@@ -433,13 +432,13 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
             {showChartOfAccounts && (
               <div className="w-full flex items-center gap-2 pb-2">
                 <label className="w-40! text-xss!">
-                  Статья доходов
+                  {t('incomeArticle')}
                 </label>
                 <div className="flex-1">
                   <SinglSelectStatiya
                     selectedValue={chartOfAccounts}
                     setSelectedValue={value => setChartOfAccounts(value)}
-                    placeholder='Нераспределенный доход'
+                    placeholder={t('undistributedIncome')}
                     className='w-80! bg-white'
                   />
                 </div>
@@ -450,7 +449,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
             <div className={styles.productsSection}>
               <div className={styles.productsSectionHeader}>
                 <div className='flex flex-col gap-1'>
-                  <span className={styles.productsTitle}>Товары/услуги для отгрузки</span>
+                  <span className={styles.productsTitle}>{t('products')}</span>
                   {errors.products && <span className='text-[10px] text-red-500 font-medium'>{errors.products}</span>}
                 </div>
                 {/* <button
@@ -486,7 +485,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                               onClick={handleRemoveRow}
                             >
                               <TrashIcon size={16} className='text-red-500' />
-                              Убрать из отгрузки
+                              {t('removeFromShipment')}
                             </button>
                           </div>
                           <button
@@ -498,12 +497,12 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                         </div>
                       </th>}
                       {selectedProducts?.size === 0 && <>
-                        <th className='w-[150px]  text-left'>Наименование</th>
-                        <th className="w-[80px] border-l text-right px-1">Кол-во</th>
-                        <th className="w-[120px] border-l text-right px-1">Цена за ед. {code}</th>
-                        <th className="w-[80px] border-l text-right px-2">Скидка</th>
-                        <th className="w-[80px] border-l text-right px-2">НДС</th>
-                        <th className=" border-l text-right px-2">Сумма {code}</th>
+                        <th className='w-[150px]  text-left'>{t('productName')}</th>
+                        <th className="w-[80px] border-l text-right px-1">{t('quantity')}</th>
+                        <th className="w-[120px] border-l text-right px-1">{t('price')} {code}</th>
+                        <th className="w-[80px] border-l text-right px-2">{t('discount')}</th>
+                        <th className="w-[80px] border-l text-right px-2">{t('nds')}</th>
+                        <th className=" border-l text-right px-2">{t('sum')} {code}</th>
                       </>}
                     </tr>
                   </thead>
@@ -534,7 +533,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
                             <SelectProductService
                               value={row.name}
                               onChange={(value) => handleSelectProductSerice(row?.id, value)}
-                              placeholder="Выберите позицию"
+                              placeholder={t('selectPosition')}
                               className="bg-white border-none"
                             />
                           </div>
@@ -593,8 +592,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
               </div>
 
               <div className={styles.tableFooter}>
-                <button className={styles.addRowBtn} onClick={addRow}>Добавить...</button>
-                <p className={styles.totalSum}>Сумма отгрузки: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
+                <button className={styles.addRowBtn} onClick={addRow}>{t('addRow')}</button>
+                <p className={styles.totalSum}>{t('shipmentSum')}: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
                   <span className='text-neutral-600 ml-1'>{code}</span>
                 </p>
               </div>
@@ -604,12 +603,12 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
           {/* Footer */}
           <div className={styles.footer}>
             <span className={styles.requiredNote}>
-              <span className={styles.required}>*</span> Обязательные поля
+              <span className={styles.required}>*</span> {t('requiredFields')}
             </span>
             <div className={styles.footerActions}>
-              <button className={styles.cancelBtn} onClick={onClose}>Отменить</button>
+              <button className={styles.cancelBtn} onClick={onClose}>{t('cancel')}</button>
               <button className="primary-btn" onClick={handleCreate}>{
-                isCreating ? <Loader /> : 'Создать'
+                isCreating ? <Loader /> : (isEditing ? t('save') : t('create'))
               }</button>
             </div>
           </div>

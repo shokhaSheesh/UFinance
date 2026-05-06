@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
@@ -15,6 +16,8 @@ import Loader from '../../../shared/Loader'
 import EmptyState from '../EmptyState'
 
 const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
+  const t = useTranslations('Directories.details.productServiceTable')
+
   const [selectedItems, setSelectedItems] = useState(new Set())
   const [selectedItem, setSelectedItem] = useState([])
   const [open, setOpen] = useState(false)
@@ -125,16 +128,13 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
   if (productServicesList.length === 0) {
     return (
       <EmptyState
-        title="Добавьте товары или услуги в сделку"
-        subtitle="Наполните сделку товарами/услугами, которые покупаете или продаете своим клиентам"
+        title={t('emptyTitle')}
+        subtitle={t('emptySubtitle')}
         onAdd={onAdd}
       />
     )
   }
 
-  // "1e1e3673-95aa-4651-8b2e-649c583a2c26"
-  // "acc59c68-cb5f-4c74-b943-d531b25107c5"
-  // "275ceb8e-5b2f-40bd-9d96-4036bc6c5e1a"
 
 
   if (isLoading) {
@@ -157,10 +157,10 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
               {selectedItems.size > 0 && <th colSpan={7} className='text-lef'>
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm text-neutral-600">{selectedItems.size} выбрано</p>
+                    <p className="text-sm text-neutral-600">{selectedItems.size} {t('selected')}</p>
                     <button onClick={handleSelectCancel} className='text-red-400  hover:text-red-600 cursor-pointer flex items-center justify-center gap-2 px-2 py-1 '>
                       <BsTrash size={16} className='' />
-                      <p className='text-sm '>Удалить</p>
+                      <p className='text-sm '>{t('delete')}</p>
                     </button>
                   </div>
                   <button onClick={handleSelectCancel} className='text-neutral-600 size-6 mr-4 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
@@ -169,13 +169,13 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
                 </div>
               </th>}
               {selectedItems.size == 0 && <>
-                <th className='px-3 py-2 font-medium text-left border-r border-neutral-200'>Наименование</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>Кол-во</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>Единица</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>Цена за ед.</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>Скидка</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>НДС</th>
-                <th className='px-4 py-1 font-medium text-right'>Сумма</th>
+                <th className='px-3 py-2 font-medium text-left border-r border-neutral-200'>{t('title')}</th>
+                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('quantity')}</th>
+                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('unit')}</th>
+                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('pricePerUnit')}</th>
+                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('discount')}</th>
+                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('vat')}</th>
+                <th className='px-4 py-1 font-medium text-right'>{t('sum')}</th>
               </>}
             </tr>
           </thead>
@@ -239,14 +239,14 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
       </div> */}
       <CustomModal isOpen={open} onClose={() => setOpen(false)}>
         <div className='p-4'>
-          <h1 className='text-lg font-semibold text-neutral-900'>Удалить позиции из сделки</h1>
-          <p className='text-sm text-neutral-600'>Вы действительно хотите удалить {selectedItems.size} {selectedItems.size === 1 ? 'позицию' : 'позиции'} из сделки?</p>
+          <h1 className='text-lg font-semibold text-neutral-900'>{t('deletePositionsTitle')}</h1>
+          <p className='text-sm text-neutral-600'>{t('deletePositionsConfirm', { count: selectedItems.size })}</p>
           <div className='flex justify-end gap-2 mt-4'>
             <button onClick={() => setOpen(false)} className='secondary-btn'>
-              Отмена
+              {t('cancel')}
             </button>
             <button onClick={handleDelete} className='delete-btn'>
-              {isProductServiceCustomPending ? <Loader /> : 'Удалить'}
+              {isProductServiceCustomPending ? <Loader /> : t('delete')}
             </button>
           </div>
         </div>

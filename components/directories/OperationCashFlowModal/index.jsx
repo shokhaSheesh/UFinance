@@ -22,7 +22,7 @@ const OperationCashFlowModal = observer(({
   dateRange,
   summaryData
 }) => {
-  const t = useTranslations('Reports')
+  const t = useTranslations('OperationCashFlowModal')
   const tableRef = useRef(null)
   const router = useRouter()
 
@@ -106,17 +106,17 @@ const OperationCashFlowModal = observer(({
       <div className='w-[900px]!'>
         {/* Header */}
         <div className="text-lg font-semibold p-6 border-b">
-          {title || t('modal.title')}
+          {title || t('title')}
         </div>
 
         {/* Summary */}
         <div className="flex flex-col bg-neutral-50 py-4 border-b px-6 gap-2">
           <div className="flex text-sm items-center gap-10">
-            <span className=" font-medium">{t('modal.reportPeriod')}</span>
+            <span className=" font-medium">{t('reportPeriod')}</span>
             {operationsPeriod && <span className="">{operationsPeriod}</span>}
           </div>
           <div className="flex text-sm items-center gap-10">
-            <span className=" font-medium">{t('modal.operationsSum')}</span>
+            <span className=" font-medium">{t('operationsSum')}</span>
             {summaryData && <div className="flex items-center gap-1">
               <span>{(title === 'Списания' || title === '') ? "-" : ""}{totalValue !== undefined ? formatNumber(formatTotalSumma(totalValue)) : ''}</span>
               <span>{summaryData?.currencyCode || GlobalCurrency.code}</span>
@@ -136,24 +136,24 @@ const OperationCashFlowModal = observer(({
             <table className="w-full relative">
               <thead className="sticky top-0 z-10 h-10 bg-neutral-50 border-b box-content border-gray-300">
                 <tr className='text-xs text-neutral-600 '>
-                  <th className="min-w-32! px-4 text-start">{t('modal.date')}</th>
-                  <th className=" px-4 text-center">{t('modal.type')}</th>
-                  <th className="min-w-44! px-2 text-start">{isTransfer ? t('modal.from') : t('modal.counterparty')}</th>
-                  <th className=" px-2 text-start">{isTransfer ? t('modal.to') : t('modal.article')}</th>
-                  <th className=" px-4 text-end">{t('modal.amount')}</th>
+                  <th className="min-w-32! px-4 text-start">{t('date')}</th>
+                  <th className=" px-4 text-center">{t('type')}</th>
+                  <th className="min-w-44! px-2 text-start">{isTransfer ? t('from') : t('counterparty')}</th>
+                  <th className=" px-2 text-start">{isTransfer ? t('to') : t('article')}</th>
+                  <th className=" px-4 text-end">{t('amount')}</th>
                 </tr>
               </thead>
               <tbody>
                 {(!operationsList?.before?.length && !operationsList?.today?.length && !operationsList?.future?.length) ? (
                   <tr>
-                    <td colSpan={5} className="">{t('modal.noData')}</td>
+                    <td colSpan={5} className="">{t('noData')}</td>
                   </tr>
                 ) : (
                   <>
                     {operationsList?.future?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">{t('modal.after')}</h3>
+                          <h3 className="">{t('after')}</h3>
                         </td>
                       </tr>
                     )}
@@ -162,7 +162,7 @@ const OperationCashFlowModal = observer(({
                     {operationsList?.today?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">{t('modal.today')}</h3>
+                          <h3 className="">{t('today')}</h3>
                         </td>
                       </tr>
                     )}
@@ -171,7 +171,7 @@ const OperationCashFlowModal = observer(({
                     {operationsList?.before?.length > 0 && (
                       <tr className=" border-y border-y-gray-100 bg-neutral-50">
                         <td colSpan='5' className=" py-1 text-xs px-4">
-                          <h3 className="">{t('modal.before')}</h3>
+                          <h3 className="">{t('before')}</h3>
                         </td>
                       </tr>
                     )}
@@ -196,9 +196,9 @@ const OperationCashFlowModal = observer(({
 
         {/* Footer */}
         <div className="p-2 px-4 h-20 flex justify-between gap-3 items-center border-t">
-          <span onClick={handleNavigateOperations} className='text-sm cursor-pointer text-primary font-medium'>{t('modal.openInOperations')}</span>
+          <span onClick={handleNavigateOperations} className='text-sm cursor-pointer text-primary font-medium'>{t('openInOperations')}</span>
           <button onClick={onClose} className="primary-btn px-6! py-3!">
-            {t('modal.close')}
+            {t('close')}
           </button>
         </div>
       </div>

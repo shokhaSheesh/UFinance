@@ -20,6 +20,7 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { WarnIcon } from '../../../../../constants/icons'
 import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
@@ -29,6 +30,7 @@ import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
+	const t = useTranslations('Operations.forms')
 	const [title, setTitle] = useState({
 		currency_1: '',
 		currency_2: '',
@@ -175,13 +177,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					<div className='flex items-center gap-3 mb-2'>
 						<div className='flex-1 h-px bg-gray-200'></div>
 						<h3 className='text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider'>
-							ОТКУДА
+							{t('fromSection')}
 						</h3>
 						<div className='flex-1 h-px bg-gray-200'></div>
 					</div>
 
 					<div className='flex items-center gap-4'>
-						<label className='w-[150px] text-xss!'>Дата оплаты</label>
+						<label className='w-[150px] text-xss!'>{t('paymentDate')}</label>
 						<div className='flex-1 flex gap-2 items-center max-w-[600px]'>
 							<Controller
 								name='fromDate'
@@ -193,7 +195,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 											field.onChange(val)
 											setValue('confirmPayment', !isFuture(val))
 										}}
-										placeholder='Выберите дату'
+										placeholder={t('selectDate')}
 										format='YYYY-MM-DD'
 										inputClass={cn('bg-white border', errors.fromDate && 'border-red-500')}
 									/>
@@ -206,7 +208,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 								render={({ field }) => (
 									<OperationCheckbox
 										checked={field.value}
-										label='Подтвердить оплату'
+										label={t('confirmPayment')}
 										onChange={e => {
 											if (isFuture(watchFromDate)) return
 											field.onChange(e.target.checked)
@@ -219,13 +221,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 					<div className='flex items-center gap-4'>
 						<label className='w-[150px] text-xss'>
-							Счет и юрлицо <span className='text-red-500 ml-0.5'>*</span>
+							{t('accountAndLegalEntity')} <span className='text-red-500 ml-0.5'>*</span>
 						</label>
 						<div className='flex-1 flex flex-col gap-1 max-w-[600px]'>
 							<Controller
 								name='fromAccount'
 								control={control}
-								rules={{ required: 'Выберите счет списания' }}
+								rules={{ required: t('fromAccountRequired') }}
 								render={({ field }) => (
 									<SelectMyAccounts
 										value={field.value}
@@ -238,7 +240,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										type='show'
 										extraValue='currenies_id'
 										returnValue={value => handleSelectMyAccount('currency_1', value)}
-										placeholder='Юрлица и счета'
+										placeholder={t('legalEntityPlaceholder')}
 										className='bg-white border rounded-md h-[36px]!'
 										hasError={errors.fromAccount}
 									/>
@@ -251,7 +253,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					</div>
 
 					<div className='flex items-center gap-4'>
-						<label className='w-[150px] text-xss'>Сумма списания</label>
+						<label className='w-[150px] text-xss'>{t('writeOffAmount')}</label>
 						<div className='flex-1 max-w-[600px]'>
 							<div className='flex items-center'>
 								<Controller
@@ -282,13 +284,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					<div className='flex items-center gap-3 mb-2'>
 						<div className='flex-1 h-px bg-gray-200'></div>
 						<h3 className='text-[11px] font-semibold text-gray-400 uppercase whitespace-nowrap tracking-wider'>
-							КУДА
+							{t('toSection')}
 						</h3>
 						<div className='flex-1 h-px bg-gray-200'></div>
 					</div>
 
 					<div className='flex items-center gap-4'>
-						<label className='w-[150px] text-xss!'>Дата</label>
+						<label className='w-[150px] text-xss!'>{t('transferDate')}</label>
 						<div className='flex-1 max-w-[600px]'>
 							<Controller
 								name='toDate'
@@ -297,7 +299,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 									<FormDatepicker
 										value={field.value}
 										onChange={field.onChange}
-										placeholder='Выберите дату'
+										placeholder={t('selectDate')}
 										format='YYYY-MM-DD'
 										inputClass={cn('bg-white w-52! border', errors.toDate && 'border-red-500')}
 									/>
@@ -308,13 +310,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 					<div className='flex items-center gap-4'>
 						<label className='w-[150px] text-xss'>
-							Счет и юрлицо <span className='text-red-500 ml-0.5'>*</span>
+							{t('accountAndLegalEntity')} <span className='text-red-500 ml-0.5'>*</span>
 						</label>
 						<div className='flex-1 flex flex-col gap-1 max-w-[600px]'>
 							<Controller
 								name='toAccount'
 								control={control}
-								rules={{ required: 'Выберите счет зачисления' }}
+								rules={{ required: t('toAccountRequired') }}
 								render={({ field }) => (
 									<SelectMyAccounts
 										value={field.value}
@@ -327,7 +329,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										type='show'
 										extraValue='currenies_id'
 										returnValue={value => handleSelectMyAccount('currency_2', value)}
-										placeholder='Юрлица и счета'
+										placeholder={t('legalEntityPlaceholder')}
 										className='bg-white border rounded-md h-[36px]!'
 										hasError={errors.toAccount}
 									/>
@@ -342,20 +344,20 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					{!isSameCurrency && (
 						<div className='flex items-center gap-4'>
 							<label className='w-[150px] text-xss'>
-								Сумма зачисления <span className='text-red-500 ml-0.5'>*</span>
+								{t('enrollAmount')} <span className='text-red-500 ml-0.5'>*</span>
 							</label>
 							<div className='flex-1 flex flex-col gap-1 max-w-[600px]'>
 								<div className='flex items-center'>
 									<Controller
 										name='toAmount'
 										control={control}
-										rules={{ required: 'Укажите сумму зачисления' }}
+										rules={{ required: t('enrollAmountRequired') }}
 										render={({ field }) => (
 											<Input
 												type='text'
 												value={formatNumber(field.value)}
 												onChange={e => field.onChange(formatNumber(e.target.value))}
-												placeholder='0'
+												placeholder={t('amountZero')}
 												className={cn('w-56', errors.toAmount && 'border-red-500')}
 											/>
 										)}
@@ -373,18 +375,18 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 					<div className='flex items-start gap-4'>
 						<label className='w-[150px] text-xss pt-2'>
-							Назначение платежа <span className='text-red-500 ml-0.5'>*</span>
+							{t('purpose')} <span className='text-red-500 ml-0.5'>*</span>
 						</label>
 						<div className='flex-1 flex flex-col gap-1 max-w-[600px]'>
 							<Controller
 								name='purpose'
 								control={control}
-								rules={{ required: 'Введите назначение платежа' }}
+								rules={{ required: t('purposeRequired') }}
 								render={({ field }) => (
 									<TextArea
 										value={field.value}
 										onChange={field.onChange}
-										placeholder='Назначение платежа'
+										placeholder={t('purposePlaceholder')}
 										rows={3}
 										className={cn(
 											'border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#0F51B9] focus:border-[#0F51B9]',
@@ -403,10 +405,10 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 			<div className='flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white'>
 				<button type='button' onClick={() => onClose?.()} className='secondary-btn py-2!'>
-					Отмена
+					{t('cancel')}
 				</button>
 				<button type='submit' className='primary-btn py-2!'>
-					{isPending ? <Loader2 className='animate-spin' /> : isNew ? 'Создать' : 'Сохранить'}
+					{isPending ? <Loader2 className='animate-spin' /> : isNew ? t('create') : t('save')}
 				</button>
 			</div>
 		</form>
