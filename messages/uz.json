@@ -20,6 +20,7 @@
 		"parameters": "Parametrlar",
 		"rootElement": "Asosiy element",
 		"createAsRoot": "Asosiy element sifatida yaratish",
+		"deleteConfirmTitle": "O'chirishni tasdiqlang",
 		"placeholders": {
 			"select": "Tanlang...",
 			"selectAccount": "Hisobni tanlang",
@@ -287,7 +288,11 @@
 			"fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
 			"importedSuccess": "Operatsiyalar muvaffaqiyatli import qilindi.",
 			"importErrorPrefix": "Import xatoliklar bilan yakunlandi:",
-			"importFailed": "Operatsiyalarni import qilib bo'lmadi."
+			"importFailed": "Operatsiyalarni import qilib bo'lmadi.",
+			"importErrorTitle": "Import muammolari",
+			"importErrorDescription": "Sizning xlsx faylingizda xatoliklar aniqlandi. Iltimos, tafsilotlarni ko'rish uchun xatoliklar faylini yuklab oling.",
+			"downloadErrorFile": "Xatoliklar faylini yuklab olish",
+			"cancel": "Bekor qilish"
 		},
 		"columns": {
 			"date": "Sana",
@@ -1455,6 +1460,7 @@
 		"chartOfAccounts": {
 			"createTitle": "Hisob statyasini yaratish",
 			"editTitle": "Hisob statyasini tahrirlash",
+			"deleteConfirmMessage": "{name} maqolasini o'chirmoqchi ekanligingizga aminmisiz?",
 			"tabs": {
 				"income": "Daromadlar",
 				"expense": "Xarajatlar",

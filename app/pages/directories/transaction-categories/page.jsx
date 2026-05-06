@@ -4,9 +4,9 @@ import { cn } from '@/app/lib/utils'
 import { CategoryMenu } from '@/components/directories/CategoryMenu/CategoryMenu'
 import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { DeleteCategoryConfirmModal } from '@/components/directories/DeleteCategoryConfirmModal/DeleteCategoryConfirmModal'
-import { useDeleteChartOfAccounts } from '@/hooks/useDashboard'
+import { queryClient } from '@/lib/queryClient'
 import { showErrorNotification } from '@/lib/utils/notifications'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -271,7 +271,18 @@ export default observer(function TransactionCategoriesPage() {
 		return rootNode.children.map(child => convertToCategory(child, 0))
 	})()
 
-	const deleteMutation = useDeleteChartOfAccounts()
+	const deleteMutation = useMutation({
+		mutationKey: ['delete_chartofaccount'],
+		mutationFn: (data) => apiClient.invokeFunction({ method: "delete_chart_of_account", data }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['chartOfAccountsPlanFact'] })
+			queryClient.invalidateQueries({ queryKey: ['chartOfAccountsV2'] })
+		},
+		onError: (err) => {
+			console.log('eror', err)
+			// showErrorNotification(err?.data?.error)
+		}
+	})
 
 	const toggleCategory = useCallback(
 		id => {
@@ -667,6 +678,7 @@ export default observer(function TransactionCategoriesPage() {
 							await deleteMutation.mutateAsync({ guid: categoryToDelete.guid })
 							setIsDeleteModalOpen(false)
 							setCategoryToDelete(null)
+							queryClient.invalidateQueries({ queryKey: ['get_chart_of_accounts'] })
 						} catch (error) {
 							// Close modal first
 							setIsDeleteModalOpen(false)
@@ -674,8 +686,8 @@ export default observer(function TransactionCategoriesPage() {
 
 							// Extract error message from API response
 							let errorMessage = t('deleteError')
-							if (error.response?.data?.data) {
-								errorMessage = error.response.data.data
+							if (error.data?.error) {
+								errorMessage = error.data?.error
 							} else if (error.message) {
 								errorMessage = error.message
 							}

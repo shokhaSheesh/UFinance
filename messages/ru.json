@@ -36,6 +36,7 @@
 			"selectGroup": "Выберите группу",
 			"selectCounterpartyGroup": "Выберите группу контрагентов"
 		},
+		"deleteConfirmTitle": "Подтверждение удаления",
 		"tooltips": {
 			"editGroup": "Редактировать группу",
 			"deleteGroup": "Удалить группу",
@@ -287,7 +288,11 @@
 			"fileDownloaded": "Файл успешно загружен.",
 			"importedSuccess": "Операции успешно импортированы.",
 			"importErrorPrefix": "Импорт завершен с ошибками:",
-			"importFailed": "Не удалось импортировать операции."
+			"importFailed": "Не удалось импортировать операции.",
+			"importErrorTitle": "Проблемы с импортом",
+			"importErrorDescription": "В вашем xlsx файле обнаружены ошибки. Пожалуйста, скачайте файл с ошибками, чтобы увидеть детали.",
+			"downloadErrorFile": "Скачать файл с ошибками",
+			"cancel": "Отмена"
 		},
 		"columns": {
 			"date": "Дата",
@@ -1415,6 +1420,7 @@
 		},
 		"chartOfAccounts": {
 			"createTitle": "Создать учетную статью",
+			"deleteConfirmMessage": "Вы действительно хотите удалить статью «{name}»?",
 			"editTitle": "Редактировать учетную статью",
 			"tabs": {
 				"income": "Доходы",

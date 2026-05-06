@@ -5,6 +5,7 @@ import OperationModal from '@/components/operations/OperationModal/OperationModa
 import { OperationsFiltersSidebar } from '@/components/operations/OperationsFiltersSidebar/OperationsFiltersSidebar'
 import { DeleteConfirmModal } from '@/components/operations/OperationsTable/DeleteConfirmModal'
 import OperationTableRow from '@/components/operations/TableRow/new'
+import CustomDialog from '@/components/shared/CustomDialog'
 import {
 	useDeleteOperation,
 	useUcodeRequestInfinite,
@@ -449,6 +450,8 @@ const OperationsPage = observer(() => {
 	}
 
 	const [isImporting, setIsImporting] = useState(false)
+	const [importErrorModalOpen, setImportErrorModalOpen] = useState(false)
+	const [importErrorData, setImportErrorData] = useState(null)
 
 	const handleImportOperations = () => {
 		const input = document.createElement('input')
@@ -497,15 +500,9 @@ const OperationsPage = observer(() => {
 				const failedExport = importResult?.data?.failed_rows_export
 
 				if (errors.length > 0) {
-					// // Show warning with error details
-					const errorMessage = errors.join('\n')
-					showErrorNotification(`${t('page.importErrorPrefix')}\n${errorMessage}`)
-
-					// // Auto-download failed rows file if available
-					if (failedExport?.file_url) {
-						const failedFileUrl = `https://cdn.u-code.io/${failedExport.file_url}`
-						handleDownload(failedFileUrl, failedExport.file_name || 'import_failed.xlsx')
-					}
+					// Show modal with error details and download option
+					setImportErrorData({ errors, failedExport })
+					setImportErrorModalOpen(true)
 				} else {
 					showSuccessNotification(t('page.importedSuccess'))
 				}
@@ -712,6 +709,52 @@ const OperationsPage = observer(() => {
 					kontragentId={selectedShipment?.counterparties_id}
 				/>
 			)}
+
+			{/* Import Error Modal */}
+			<CustomDialog
+				open={importErrorModalOpen}
+				onClose={() => setImportErrorModalOpen(false)}
+				contentClass="p-6 rounded-xl w-[400px]"
+			>
+				<div className="flex flex-col gap-4">
+					<h2 className="text-lg font-semibold text-neutral-800">
+						{t('page.importErrorTitle')}
+					</h2>
+					<p className="text-sm text-neutral-600">
+						{t('page.importErrorDescription')}
+					</p>
+					{importErrorData?.errors?.length > 0 && (
+						<div className="bg-red-50 p-3 rounded-md max-h-32 overflow-y-auto">
+							<ul className="text-xs text-red-600 list-disc pl-4">
+								{importErrorData.errors.map((error, idx) => (
+									<li key={idx}>{error}</li>
+								))}
+							</ul>
+						</div>
+					)}
+					<div className="flex gap-3 justify-end pt-2">
+						<button
+							type="button"
+							onClick={() => setImportErrorModalOpen(false)}
+							className="px-4 py-2 text-sm font-semibold text-sky-500 hover:bg-gray-50 rounded-md transition-colors"
+						>
+							{t('page.cancel')}
+						</button>
+						{importErrorData?.failedExport?.file_url && (
+							<button
+								type="button"
+								onClick={() => {
+									const failedFileUrl = `https://cdn.u-code.io/${importErrorData.failedExport.file_url}`
+									handleDownload(failedFileUrl, importErrorData.failedExport.file_name || 'import_failed.xlsx')
+								}}
+								className="px-4 py-2 cursor-pointer text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors"
+							>
+								{t('page.downloadErrorFile')}
+							</button>
+						)}
+					</div>
+				</div>
+			</CustomDialog>
 		</div>
 	)
 })
