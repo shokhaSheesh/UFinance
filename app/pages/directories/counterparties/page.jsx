@@ -352,6 +352,18 @@ const CounterpartiesPage = observer(() => {
             {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
               <OperationCheckbox
                 key={`kred-${item.value}`}
+                checked={(filters.creditPaymentTypes || [])?.includes(item.value)}
+                onChange={() => {
+                  setFilters(prev => {
+                    const currentArray = prev.creditPaymentTypes || []
+                    return {
+                      ...prev,
+                      creditPaymentTypes: currentArray?.includes(item.value)
+                        ? currentArray?.filter(v => v !== item.value)
+                        : [...currentArray, item.value]
+                    }
+                  })
+                }}
                 label={item.label}
               />
             ))}
