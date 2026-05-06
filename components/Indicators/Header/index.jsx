@@ -50,7 +50,7 @@ const IndicatorsNavbar = () => {
                     <CustomRangeMonthPicker
                         value={rangeMonth}
                         onChange={(months) => setState('rangeMonth', months)}
-                        format="MMM, 'YY"
+                        format="MMM 'YY"
                         range
                     />
                 </div>
