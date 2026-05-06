@@ -4,11 +4,13 @@ import { cn } from '@/app/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import { localizeMonthTitle } from '../utils/localizeMonth'
 
 const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
@@ -60,8 +62,14 @@ export function findByName(data, targetName) {
 
 
 const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLoading }) => {
+  const t = useTranslations('Indicators')
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 100])
+
+  const billion = t('common.billion')
+  const million = t('common.million')
+  const thousand = t('common.thousand')
+  const monthsShort = t('common.monthNamesShort').split(',')
 
 
   const { months, incomeData, childrens } = useMemo(() => {
@@ -71,7 +79,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
     const rows = profitAndLossDataList?.rows || []
 
     const keys = Object.entries(legend).map(([key]) => key).filter(Boolean)
-    const titles = profitAndLossDataList?.legend.map((item) => String(item.title)?.replace(/\D/g, ''))
+    const titles = profitAndLossDataList?.legend.map((item) => localizeMonthTitle(String(item.title)?.replace(/\D/g, ''), monthsShort))
 
     const revenueRow = findRowById(rows, 'revenue')
 
@@ -95,7 +103,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
       ...item,
       values: readValues(item)
     })) || []
-    const monthsCashFlow = cashFlowLegend?.map((item) => String(item.title)?.replace(/\d/g, ''))
+    const monthsCashFlow = cashFlowLegend?.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
     const cashFlowRevenueRow = income?.map(item => item?.totalValue)
 
     return {
@@ -103,7 +111,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
       incomeData: method === 'income_expenses' ? readValues(revenueRow) : cashFlowRevenueRow,
       childrens: method === 'income_expenses' ? childrens : childrensForCashFlow
     }
-  }, [profitAndLossDataList, cashFlowDataList, method])
+  }, [profitAndLossDataList, cashFlowDataList, method, monthsShort])
 
 
   const stats = useMemo(() => {
@@ -123,7 +131,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
 
 
     return {
-      income: { label: method === 'income_expenses' ? 'Доходы' : "Поступления", value: formatNumber(formatTotalSumma(revenueTotal, 0)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
+      income: { label: method === 'income_expenses' ? t('income.labelIncome') : t('income.labelReceipts'), value: formatNumber(formatTotalSumma(revenueTotal, 0)), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
       details
     }
   }, [incomeData, childrens, method])
@@ -252,9 +260,9 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
           formatter: (value) => {
             if (value === 0) return '0'
             const abs = Math.abs(value)
-            if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} млрд`
-            if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} млн`
-            if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} тыс`
+            if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} ${billion}`
+            if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} ${million}`
+            if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} ${thousand}`
             return `${formatTotalSumma(value, 0)}`
           }
         }
@@ -290,7 +298,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
         <div className="absolute inset-0 bg-white/80 z-50 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
-            <span className="text-sm text-neutral-600">Загрузка...</span>
+            <span className="text-sm text-neutral-600">{t('common.loading')}</span>
           </div>
         </div>
       )}

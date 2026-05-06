@@ -6,6 +6,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { apiClient } from '../../../lib/api/ucode/base'
@@ -13,29 +14,43 @@ import { indicators } from '../../../store/indicatos.store'
 import { formatNumber } from '../../../utils/helpers'
 import { STATIC_CASHFLOW_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
-
-const formatValue = (val) => {
-  if (!val && val !== 0) return '0'
-  const abs = Math.abs(val)
-  if (abs >= 1_000_000_000) return `${(abs / 1_000_000_000).toFixed(1)} млрд`
-  if (abs >= 1_000_000) return `${(Math.round(abs / 1_000_000)).toLocaleString('ru-RU')} млн`
-  return abs.toLocaleString('ru-RU')
-}
-
-// Constants outside component — never recreated
-const TABS = ['Общий', 'Операционный', 'Инвестиционный', 'Финансовый']
+import { localizeMonthTitle } from '../utils/localizeMonth'
 
 const TAB_TO_POTOK = {
-  'Общий': ['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'],
-  'Операционный': ['Операционный поток'],
-  'Инвестиционный': ['Инвестиционный поток'],
-  'Финансовый': ['Финансовый поток'],
+  'total': ['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'],
+  'operational': ['Операционный поток'],
+  'investment': ['Инвестиционный поток'],
+  'financial': ['Финансовый поток'],
 }
 
 const CashFlow = () => {
+  const t = useTranslations('Indicators')
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 100])
-  const [activeTab, setActiveTab] = useState('Общий')
+  const [activeTab, setActiveTab] = useState('total')
+
+  const billion = t('common.billion')
+  const million = t('common.million')
+
+  const formatValue = (val) => {
+    if (!val && val !== 0) return '0'
+    const abs = Math.abs(val)
+    if (abs >= 1_000_000_000) return `${(abs / 1_000_000_000).toFixed(1)} ${billion}`
+    if (abs >= 1_000_000) return `${(Math.round(abs / 1_000_000)).toLocaleString('ru-RU')} ${million}`
+    return abs.toLocaleString('ru-RU')
+  }
+
+  const TABS = [
+    { value: 'total', label: t('cashFlow.tabs.total') },
+    { value: 'operational', label: t('cashFlow.tabs.operational') },
+    { value: 'investment', label: t('cashFlow.tabs.investment') },
+    { value: 'financial', label: t('cashFlow.tabs.financial') },
+  ]
+
+  const receiptsLabel = t('cashFlow.series.receipts')
+  const paymentsLabel = t('cashFlow.series.payments')
+  const differenceLabel = t('cashFlow.series.difference')
+  const monthsShort = t('common.monthNamesShort').split(',')
 
   const { rangeMonth, periodType, deals, accounts } = indicators
 
@@ -62,7 +77,7 @@ const CashFlow = () => {
   const cashFlowDataList = apiCashFlowData || STATIC_CASHFLOW_DATA
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
-  const months = useMemo(() => legend.map(l => l.title), [legend])
+  const months = useMemo(() => legend.map(l => localizeMonthTitle(l.title, monthsShort)), [legend, monthsShort])
   const monthKeys = useMemo(() => legend.map(l => l.key), [legend])
   const rows = useMemo(() => cashFlowDataList?.rows || [], [cashFlowDataList])
 
@@ -150,7 +165,7 @@ const CashFlow = () => {
       itemWidth: 14,
       itemHeight: 14,
       textStyle: { color: '#6b7280', fontSize: 12 },
-      data: ['Поступления', 'Выплаты', 'Разница']
+      data: [receiptsLabel, paymentsLabel, differenceLabel]
     },
     dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
     xAxis: {
@@ -174,21 +189,21 @@ const CashFlow = () => {
     },
     series: [
       {
-        name: 'Поступления',
+        name: receiptsLabel,
         type: 'bar',
         data: receiptsData,
         barWidth: 20,
         itemStyle: { borderRadius: [4, 4, 0, 0], color: '#3b82f6' },
       },
       {
-        name: 'Выплаты',
+        name: paymentsLabel,
         type: 'bar',
         data: paymentsData,
         barWidth: 20,
         itemStyle: { borderRadius: [4, 4, 0, 0], color: '#fb923c' },
       },
       {
-        name: 'Разница',
+        name: differenceLabel,
         type: 'line',
         data: differenceData,
         smooth: true,
@@ -198,12 +213,12 @@ const CashFlow = () => {
         itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' },
       }
     ]
-  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval])
+  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval, receiptsLabel, paymentsLabel, differenceLabel])
 
   const stats = [
-    { label: 'Поступления', value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
-    { label: 'Выплаты', value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
-    { label: 'Разница', value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: receiptsLabel, value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: paymentsLabel, value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: differenceLabel, value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
   ]
 
 
@@ -213,13 +228,13 @@ const CashFlow = () => {
         <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#0E73F6] rounded-full animate-spin" />
-            <span className="text-sm text-neutral-600">Загрузка...</span>
+            <span className="text-sm text-neutral-600">{t('common.loading')}</span>
           </div>
         </div>
       )}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">Денежный поток, {GlobalCurrency?.name}</h2>
+          <h2 className="text-[22px] font-bold text-[#111827]">{t('cashFlow.title')}, {GlobalCurrency?.name}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HelpCircle className="size-3 text-neutral-400" />
           </div>
@@ -227,13 +242,13 @@ const CashFlow = () => {
         <div className="flex flex-wrap bg-[#f3f4f624]  rounded-md p-1">
           {TABS.map((tab, idx) => (
             <button
-              key={tab}
+              key={tab.value}
               type="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab.value)}
               className={`text-neutral-700 border cursor-pointer text-sm p-2 w-32 ${idx === 0 ? 'rounded-l-md' : idx === TABS.length - 1 ? 'rounded-r-md' : ''
-                } ${activeTab === tab ? 'border-primary' : ''}`}
+                } ${activeTab === tab.value ? 'border-primary' : ''}`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>

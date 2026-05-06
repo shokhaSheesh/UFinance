@@ -42,6 +42,13 @@
 			"delete": "O'chirish",
 			"createChild": "Bo'lim yaratish",
 			"createCounterparty": "Tomon yaratish"
+		},
+		"selects": {
+			"placeholder": "Tanlang",
+			"searchInList": "Ro'yxat bo'yicha qidirish",
+			"search": "Qidirish...",
+			"notFound": "Topilmadi",
+			"selectedPrefix": "Tanlandi"
 		}
 	},
 	"Auth": {
@@ -1550,6 +1557,95 @@
 			},
 			"na": "n/a",
 			"actions": { "expand": "Yoyish", "collapse": "Yig'ish" }
+		}
+	},
+	"Indicators": {
+		"common": {
+			"loading": "Yuklanmoqda...",
+			"billion": "mlrd",
+			"million": "mln",
+			"thousand": "ming",
+			"monthNamesShort": "Yan,Fev,Mar,Apr,May,Iyun,Iyul,Avg,Sen,Okt,Noy,Dek",
+			"monthNamesFull": "yanvar,fevral,mart,aprel,may,iyun,iyul,avgust,sentyabr,oktyabr,noyabr,dekabr",
+			"weekdayNames": "yakshanba,dushanba,seshanba,chorshanba,payshanba,juma,shanba"
+		},
+		"header": {
+			"title": "Mening kompaniyam",
+			"reset": "Tozalash",
+			"displayOptions": {
+				"weekly": "Haftalar bo'yicha",
+				"monthly": "Oylar bo'yicha",
+				"quarterly": "Kvartallar bo'yicha",
+				"yearly": "Yillar bo'yicha"
+			},
+			"placeholders": {
+				"display": "Ko'rinish",
+				"account": "Hisob",
+				"deal": "Bitim"
+			}
+		},
+		"accountBalance": {
+			"title": "Hisoblardagi qoldiq",
+			"totalBalance": "Umumiy qoldiq",
+			"today": "Bugun",
+			"monthNames": "yan,fev,mar,apr,may,iyun,iyul,avg,sen,okt,noy,dek"
+		},
+		"cashFlow": {
+			"title": "Pul oqimi",
+			"tabs": {
+				"total": "Umumiy",
+				"operational": "Operatsion",
+				"investment": "Investitsion",
+				"financial": "Moliyaviy"
+			},
+			"series": {
+				"receipts": "Tushumlar",
+				"payments": "To'lovlar",
+				"difference": "Farq"
+			}
+		},
+		"income": {
+			"labelIncome": "Daromadlar",
+			"labelReceipts": "Tushumlar"
+		},
+		"expenses": {
+			"title": "Xarajatlar",
+			"labelExpenses": "Xarajatlar",
+			"labelPayments": "To'lovlar"
+		},
+		"paymentStructure": {
+			"title": "To'lovlar tuzilishi",
+			"incomeExpenses": "Daromadlar va xarajatlar",
+			"receiptsPayments": "Tushumlar va to'lovlar"
+		},
+		"profit": {
+			"title": "Foyda",
+			"accrualMethod": "Hisoblash usuli",
+			"cashMethod": "Kassa usuli",
+			"series": {
+				"income": "Daromadlar",
+				"expenses": "Xarajatlar",
+				"netProfit": "Sof foyda",
+				"dividends": "Dividendlar"
+			},
+			"stats": {
+				"income": "Daromadlar",
+				"expenses": "Xarajatlar",
+				"netProfit": "Sof foyda",
+				"profitability": "Rentabellik, %",
+				"dividends": "Dividendlar"
+			}
+		},
+		"profitableClients": {
+			"title": "Eng daromadli mijozlar",
+			"accrualMethod": "Hisoblash usuli",
+			"cashMethod": "Kassa usuli",
+			"notSelected": "Tanlanmagan",
+			"legend": {
+				"clients80": "Daromadlarning 80% dan ortig'ini keltiradigan mijozlar",
+				"incomeShare": "Jamg'arma daromad ulushi, %",
+				"clients20": "Daromadlarning 20% dan kamini keltiradigan mijozlar"
+			}
 		}
 	}
 }

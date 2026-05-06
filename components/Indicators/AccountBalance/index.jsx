@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
@@ -14,22 +15,27 @@ import Loader from '../../shared/Loader'
 import { STATIC_ACCOUNT_BALANCE_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 
-const formatValue = (val) => {
-    if (!val && val !== 0) return '0'
-    const abs = Math.abs(val)
-    if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} млрд`
-    if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} млн`
-    return val.toLocaleString('ru-RU')
-}
-
-const MONTH_NAMES = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-
 const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308', '#535364', '#0404DE', '#0059FF']
 
 const AccountBalance = () => {
+    const t = useTranslations('Indicators')
     const chartRef = useRef(null)
     const [zoomRange, setZoomRange] = useState([0, 50])
     const mounted = useMounted()
+
+    const billion = t('common.billion')
+    const million = t('common.million')
+    const MONTH_NAMES = t('accountBalance.monthNames').split(',')
+    const totalBalanceLabel = t('accountBalance.totalBalance')
+    const todayLabel = t('accountBalance.today')
+
+    const formatValue = (val) => {
+        if (!val && val !== 0) return '0'
+        const abs = Math.abs(val)
+        if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
+        if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} ${million}`
+        return val.toLocaleString('ru-RU')
+    }
 
     const { rangeMonth, accounts } = indicators
 
@@ -70,7 +76,7 @@ const AccountBalance = () => {
     // Compute total balance (sum of all accounts per day) and per-account data
     const { totalBalanceData, accountSeries, legendData } = useMemo(() => {
         if (!accountBalanceList?.length) {
-            return { totalBalanceData: [], accountSeries: [], legendData: ['Общий остаток'] }
+            return { totalBalanceData: [], accountSeries: [], legendData: [totalBalanceLabel] }
         }
 
         const dayCount = accountBalanceList[0].totalValuesByDays?.length || 0
@@ -95,10 +101,10 @@ const AccountBalance = () => {
             itemStyle: { color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length], fontSize: 10 },
         }))
 
-        const names = ['Общий остаток', ...accountBalanceList.map(a => a.account.title)]
+        const names = [totalBalanceLabel, ...accountBalanceList.map(a => a.account.title)]
 
         return { totalBalanceData: total, accountSeries: series, legendData: names }
-    }, [accountBalanceList])
+    }, [accountBalanceList, totalBalanceLabel])
 
     // Find today's index
     const todayIndex = useMemo(() => {
@@ -166,7 +172,7 @@ const AccountBalance = () => {
         },
         series: [
             {
-                name: 'Общий остаток',
+                name: totalBalanceLabel,
                 type: 'line',
                 step: 'end',
                 data: totalBalanceData,
@@ -190,7 +196,7 @@ const AccountBalance = () => {
                         data: [{
                             xAxis: dates[todayIndex],
                             lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
-                            label: { show: true, formatter: 'Сегодня', position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
+                            label: { show: true, formatter: todayLabel, position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
                         }],
                     },
                     markPoint: {
@@ -207,7 +213,7 @@ const AccountBalance = () => {
             },
             ...accountSeries,
         ],
-    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval])
+    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel])
 
     // if (!mounted) return null
 
@@ -224,7 +230,7 @@ const AccountBalance = () => {
             )}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-[20px] font-bold text-[#111827]">Остатки на счетах, {GlobalCurrency?.name}</h2>
+                    <h2 className="text-[20px] font-bold text-[#111827]">{t('accountBalance.title')}, {GlobalCurrency?.name}</h2>
                     <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
                         <HelpCircle className="size-3 text-neutral-400" />
                     </div>

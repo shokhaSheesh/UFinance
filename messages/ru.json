@@ -42,6 +42,13 @@
 			"delete": "Удалить",
 			"createChild": "Создать подстатью",
 			"createCounterparty": "Создать контрагента"
+		},
+		"selects": {
+			"placeholder": "Выберите",
+			"searchInList": "Поиск по списку",
+			"search": "Поиск...",
+			"notFound": "Не найдено",
+			"selectedPrefix": "Выбрано"
 		}
 	},
 	"Auth": {
@@ -1498,6 +1505,95 @@
 			},
 			"na": "н/о",
 			"actions": { "expand": "Развернуть", "collapse": "Свернуть" }
+		}
+	},
+	"Indicators": {
+		"common": {
+			"loading": "Загрузка...",
+			"billion": "млрд",
+			"million": "млн",
+			"thousand": "тыс",
+			"monthNamesShort": "Янв,Фев,Мар,Апр,Май,Июн,Июл,Авг,Сен,Окт,Ноя,Дек",
+			"monthNamesFull": "января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря",
+			"weekdayNames": "воскресенье,понедельник,вторник,среда,четверг,пятница,суббота"
+		},
+		"header": {
+			"title": "Моя компания",
+			"reset": "Сбросить",
+			"displayOptions": {
+				"weekly": "По неделям",
+				"monthly": "По месяцам",
+				"quarterly": "По кварталам",
+				"yearly": "По годам"
+			},
+			"placeholders": {
+				"display": "Отображение",
+				"account": "Счет",
+				"deal": "Сделка"
+			}
+		},
+		"accountBalance": {
+			"title": "Остатки на счетах",
+			"totalBalance": "Общий остаток",
+			"today": "Сегодня",
+			"monthNames": "янв,фев,мар,апр,май,июн,июл,авг,сен,окт,ноя,дек"
+		},
+		"cashFlow": {
+			"title": "Денежный поток",
+			"tabs": {
+				"total": "Общий",
+				"operational": "Операционный",
+				"investment": "Инвестиционный",
+				"financial": "Финансовый"
+			},
+			"series": {
+				"receipts": "Поступления",
+				"payments": "Выплаты",
+				"difference": "Разница"
+			}
+		},
+		"income": {
+			"labelIncome": "Доходы",
+			"labelReceipts": "Поступления"
+		},
+		"expenses": {
+			"title": "Расходы",
+			"labelExpenses": "Расходы",
+			"labelPayments": "Выплаты"
+		},
+		"paymentStructure": {
+			"title": "Структура платежей",
+			"incomeExpenses": "Доходы и расходы",
+			"receiptsPayments": "Поступления и выплаты"
+		},
+		"profit": {
+			"title": "Прибыль",
+			"accrualMethod": "Метод начисления",
+			"cashMethod": "Кассовый метод",
+			"series": {
+				"income": "Доходы",
+				"expenses": "Расходы",
+				"netProfit": "Чистая прибыль",
+				"dividends": "Дивиденды"
+			},
+			"stats": {
+				"income": "Доходы",
+				"expenses": "Расходы",
+				"netProfit": "Чистая прибыль",
+				"profitability": "Рентабельность, %",
+				"dividends": "Дивиденды"
+			}
+		},
+		"profitableClients": {
+			"title": "Самые доходные клиенты",
+			"accrualMethod": "Метод начисления",
+			"cashMethod": "Кассовый метод",
+			"notSelected": "Не выбран",
+			"legend": {
+				"clients80": "Клиенты, приносящие более 80% доходов",
+				"incomeShare": "Доля доходов с накопительным итогом, %",
+				"clients20": "Клиенты, приносящие менее 20% доходов"
+			}
 		}
 	}
 }

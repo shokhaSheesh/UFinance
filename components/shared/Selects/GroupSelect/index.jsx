@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -8,13 +9,15 @@ const GroupSelect = ({
   data = [],
   value = [],
   onChange = () => { },
-  placeholder = "Выберите",
+  placeholder,
   isClearable = true,
   dropdownClassName,
   className,
   hasError,
   disabled = false
 }) => {
+  const t = useTranslations('Common.selects')
+  const placeholderText = placeholder ?? t('placeholder')
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [openUpwards, setOpenUpwards] = useState(false)
