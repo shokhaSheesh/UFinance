@@ -513,6 +513,7 @@ const OperationsPage = observer(() => {
 				showErrorNotification(t('page.importFailed'))
 			} finally {
 				setIsImporting(false)
+				queryClient.invalidateQueries({ queryKey: ['find_operations'] })
 			}
 		}
 		input.click()
