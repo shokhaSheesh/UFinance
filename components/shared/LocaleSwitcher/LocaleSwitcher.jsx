@@ -51,7 +51,7 @@ export default function LocaleSwitcher({ className = '' }) {
   const isLoading = isPending
 
 
-  return null
+  // return null
 
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
