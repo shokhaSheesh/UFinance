@@ -77,6 +77,7 @@ body {
 			.rmdp-left {
 				&::before {
 					content: '«';
+					cursor: pointer;
 					font-size: 18px;
 					position: absolute;
 					z-index: 100;
@@ -87,6 +88,7 @@ body {
 			.rmdp-right {
 				&::before {
 					content: '»';
+					cursor: pointer;
 					font-size: 18px;
 					position: absolute;
 

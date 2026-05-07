@@ -11,7 +11,7 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { queryClient } from '../../../lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
 import { authStore } from '../../../store/auth.store'
-import { formatNumber, formatPhoneNumber, getMonthPeriods } from '../../../utils/helpers'
+import { formatNumber, formatPhoneNumber, getPeriodLength } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '../../ReadyComponents/SelectProductService'
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
@@ -35,7 +35,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   const clientType = [
     { value: 'new', label: t('new') },
     { value: 'old', label: t('old') },
-]
+  ]
 
   const sostayaniya = [
     { value: 'active', label: t('statusActive') },
@@ -44,6 +44,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   const [step, setStep] = useState('form') // 'form' | 'preview'
   const [isSaving, setIsSaving] = useState(false)
   const [contractTemplate, setContractTemplate] = useState('')
+  const [activeContractIndex, setActiveContractIndex] = useState(0)
   const [openClassModal, setOpenClassModal] = useState(false)
   const [classModalMode, setClassModalMode] = useState('create') // 'create' | 'edit' | 'delete'
   const [editingClass, setEditingClass] = useState(null)
@@ -161,23 +162,27 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
   const { data: contract } = useQuery({
     queryKey: ['get_contract', authStore.branch_id],
-    queryFn: () =>
-      apiClient.defaultUcodeFunction({ urlMethod: 'GET', urlParams: `/items/templates?from-ofs=true` }),
+    queryFn: () => apiClient.defaultUcodeFunction({
+      urlMethod: 'GET',
+      urlParams: `/items/templates?from-ofs=true`
+    }),
     enabled: !!authStore.branch_id,
     refetchOnMount: true,
     staleTime: 0,
     cacheTime: 0,
-    select: (data) => data?.data?.data?.response?.[0],
+    select: (data) => data?.data?.data?.response,
   })
 
-
-  const contractData = useMemo(() => ({
-    branch_id: contract?.branch_id,
-    guid: contract?.guid,
-    file: contract?.file,
-    company_id: contract?.company_id,
-    branchName: contract?.branch_id_data?.name
-  }), [contract])
+  const contractData = useMemo(() => {
+    const existFileContract = contract?.find(item => item.file !== null)
+    return {
+      branch_id: existFileContract?.branch_id,
+      guid: existFileContract?.guid,
+      file: existFileContract?.file,
+      company_id: existFileContract?.company_id,
+      branchName: existFileContract?.branch_id_data?.name
+    }
+  }, [contract])
 
   useEffect(() => {
     if (!contractData.file) return
@@ -286,16 +291,15 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   // Contract data mapper for different contract types
   const getContractDataForType = () => {
     const values = getValues()
-    // Calculate contract duration and total payment
-    const endDate = moment(values.validTo)
-
     // Get years and months difference
-    const totalMonths = getMonthPeriods(values.validFrom, values.validTo)
+    const from = moment(values.validFrom).format('YYYY-MM-DD')
+    const to = moment(values.validTo).format('YYYY-MM-DD')
+    const totalMonths = getPeriodLength(from, to)
 
     const monthlyAmount = formatNumber(values.monthlyPayment)
 
     // totalContractPayment = total months * monthly amount
-    const totalContractPayment = (totalMonths.length * monthlyAmount).toLocaleString('ru-RU')
+    const totalContractPayment = formatNumber(totalMonths * values.monthlyPayment)
 
     const baseData = {
       contractNumber: values.contractNumber || '___',
@@ -309,7 +313,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       guardianPinfl: values.pinf || '________________________',
       studentName: values.studentName || '________________________',
       guardianType: values.guardianType || '________________________',
-      monthlyPayment: values.monthlyPayment,
+      monthlyPayment: monthlyAmount,
       yearlyPayment: totalContractPayment,
       guardianName: values.guardianName,
       academicYear: values.academicYear || '2025-2026',
@@ -437,7 +441,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         guid: initialData.guid,
         passive_date: moment(data.passiveDate).format('YYYY-MM-DD')
       }
-    } 
+    }
 
     createStudent(requestData, {
       onSuccess: () => {
@@ -452,6 +456,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     })
   }
 
+  // never change this btn submit funtionolities. Because this is only  developer 
   const handleFormUpdateSubmit = async () => {
     let contractFileLink = ''
 

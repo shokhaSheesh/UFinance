@@ -218,6 +218,42 @@ export const getMonthPeriods = (startDate, endDate) => {
   return months
 }
 
+
+export function getPeriodLength(fromDate, toDate, unit = 'months') {
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+
+  if (isNaN(from) || isNaN(to)) {
+    throw new Error('Invalid date');
+  }
+
+  const diffMs = to - from;
+
+  switch (unit) {
+    case 'ms': return diffMs;
+    case 'seconds': return Math.floor(diffMs / 1000);
+    case 'minutes': return Math.floor(diffMs / (1000 * 60));
+    case 'hours': return Math.floor(diffMs / (1000 * 60 * 60));
+    case 'days': return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    case 'weeks': return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+    case 'months': {
+      let months = (to.getFullYear() - from.getFullYear()) * 12;
+      months += to.getMonth() - from.getMonth();
+      if (to.getDate() < from.getDate()) months--;
+      return months;
+    }
+    case 'years': {
+      let years = to.getFullYear() - from.getFullYear();
+      const m = to.getMonth() - from.getMonth();
+      if (m < 0 || (m === 0 && to.getDate() < from.getDate())) years--;
+      return years;
+    }
+    default:
+      throw new Error(`Unknown unit: ${unit}`);
+  }
+}
+
+
 export const isUUID = (str) => {
   if (typeof str !== 'string') return false
   const regex = /^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/i

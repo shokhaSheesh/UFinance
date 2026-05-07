@@ -75,6 +75,12 @@ export const Sidebar = observer(() => {
             canShow: false,
             submenu: [
                 {
+                    label: t('plans.payment_calendar'),
+                    href: '/pages/payment_calendar',
+                    hasPage: true,
+                    canShow: true
+                },
+                {
                     label: t('plans.income_expense_budget'),
                     href: '/pages/income_expense_budget',
                     hasPage: true,

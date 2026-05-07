@@ -36,6 +36,7 @@ const ContractPage = observer(() => {
       file: item?.file || '',
       company_id: item?.company_id || '',
       guid: item?.guid,
+      name: item?.name,
       branch_name: item?.branch_id_data?.name,
     })) || []
 
@@ -59,6 +60,7 @@ const ContractPage = observer(() => {
           <thead className="bg-gray-50 text-slate-600">
             <tr>
               <th className="text-left px-4 py-3 font-medium">{tco('branch')}</th>
+              <th className="text-start px-4 py-3 font-medium w-32">{tco('name')}</th>
               <th className="text-left px-4 py-3 font-medium">{tco('file')}</th>
               <th className="text-right px-4 py-3 font-medium w-32">{tco('actions')}</th>
             </tr>
@@ -74,6 +76,7 @@ const ContractPage = observer(() => {
               contracts.map((c) => (
                 <tr key={c.guid} className="border-t border-gray-100 hover:bg-gray-50">
                   <td className="px-4 py-3 text-slate-900">{c.branch_name || '—'}</td>
+                  <td className="px-4 py-3 text-start text-slate-900">{c.name || '—'}</td>
                   <td className="px-4 py-3">
                     {c.file ? (
                       <a
@@ -115,6 +118,8 @@ const ContractPage = observer(() => {
             queryClient.invalidateQueries({ queryKey: ['get_contract', branchId] })
             setEditing(null)
           }}
+          tco={tco}
+          tc={tc}
         />
       )}
     </div>
@@ -143,7 +148,7 @@ function Separator() {
 }
 
 // ─── Contract edit dialog ────────────────────────────────────────────────────
-function ContractEditDialog({ contract, onClose, onSuccess }) {
+function ContractEditDialog({ contract, onClose, onSuccess, tco, tc }) {
   const [isSaving, setIsSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const iframeRef = useRef(null)
@@ -175,7 +180,7 @@ function ContractEditDialog({ contract, onClose, onSuccess }) {
         setLoading(false)
       })
     return () => { cancelled = true }
-  }, [contract?.file])
+  }, [contract?.file, tco])
 
   const exec = (cmd, value = null) => {
     iframeRef.current?.contentDocument?.execCommand(cmd, false, value)

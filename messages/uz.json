@@ -500,6 +500,9 @@
 				"yearly": "Yillar bo'yicha"
 			}
 		},
+		"paymentCalendar": {
+			"title": "To'lov kalendari"
+		},
 		"pnl": {
 			"title": "Foyda va zararlar to'g'risida hisobot (F&Z)",
 			"grouping": {
@@ -1625,6 +1628,7 @@
 			"pageTitle": "Shartnomalar",
 			"subtitle": "Filiallar bo'yicha shartnomalar ro'yxati",
 			"branch": "Filial",
+			"name": "Nomi",
 			"file": "Fayl",
 			"actions": "Amallar",
 			"edit": "Tahrirlash",
