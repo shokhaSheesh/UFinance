@@ -1,12 +1,12 @@
 'use client'
 
+import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useRef } from 'react'
 import { apiClient } from '../../../lib/api/ucode/base'
-import { appStore } from '../../../store/app.store'
 import { indicators } from '../../../store/indicatos.store'
 import Loader from '../../shared/Loader'
 import { STATIC_PROFITABLE_CLIENTS_DATA } from '../constants/staticChartData'
@@ -207,7 +207,7 @@ const ProfitableClients = observer(() => {
       <div className="flex items-center gap-10 mb-4 border-b py-5">
         <h3 className="text-sm font-medium text-slate-700">
           {t('profitableClients.title')},
-          <span className="ml-1 text-slate-500" suppressHydrationWarning>{appStore.currency?.name || '₽'}</span>
+          <span className="ml-1 text-slate-500" suppressHydrationWarning>{GlobalCurrency?.name || ''}</span>
         </h3>
 
         <div className="items-center rounded-md">

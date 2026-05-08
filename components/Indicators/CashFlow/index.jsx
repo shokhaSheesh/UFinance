@@ -1,12 +1,13 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import useMounted from '@/hooks/useMounted'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { apiClient } from '../../../lib/api/ucode/base'
@@ -28,6 +29,8 @@ const CashFlow = () => {
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 100])
   const [activeTab, setActiveTab] = useState('total')
+  const locale = useLocale()
+  const mounted = useMounted()
 
   const billion = t('common.billion')
   const million = t('common.million')
@@ -77,7 +80,7 @@ const CashFlow = () => {
   const cashFlowDataList = apiCashFlowData || STATIC_CASHFLOW_DATA
 
   const legend = useMemo(() => cashFlowDataList?.legend || [], [cashFlowDataList])
-  const months = useMemo(() => legend.map(l => localizeMonthTitle(l.title, monthsShort)), [legend, monthsShort])
+  const months = useMemo(() => legend.map((l) => localizeMonthTitle(locale, l.startDate)), [legend, locale])
   const monthKeys = useMemo(() => legend.map(l => l.key), [legend])
   const rows = useMemo(() => cashFlowDataList?.rows || [], [cashFlowDataList])
 
@@ -173,7 +176,7 @@ const CashFlow = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#9ca3af', fontSize: 11, interval: inteval, rotate: 40 }
+      axisLabel: { color: '#0F0F0F', fontSize: 12, interval: inteval, rotate: 0 }
     },
     yAxis: {
       type: 'value',
@@ -213,7 +216,7 @@ const CashFlow = () => {
         itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' },
       }
     ]
-  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval, receiptsLabel, paymentsLabel, differenceLabel])
+  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval, receiptsLabel, paymentsLabel, differenceLabel, formatValue])
 
   const stats = [
     { label: receiptsLabel, value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
@@ -221,6 +224,7 @@ const CashFlow = () => {
     { label: differenceLabel, value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
   ]
 
+  if (!mounted) return null
 
   return (
     <div className="w-full bg-white p-6 mt-6 relative">

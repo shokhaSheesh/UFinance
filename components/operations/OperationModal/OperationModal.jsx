@@ -43,6 +43,7 @@ const OperationModal = observer(({
 	}
 
 
+
 	const operationData = useMemo(() => {
 		if (isNew) return operation
 		return operation
@@ -127,7 +128,7 @@ const OperationModal = observer(({
 						{activeTab === 'income' && (
 							<IncomeForm
 								onClose={onClose}
-								initialData={operationData}
+								initialData={operationData?.operationType === 'income' ? operationData : null}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id}
@@ -137,7 +138,7 @@ const OperationModal = observer(({
 						{activeTab === 'payment' && (
 							<PaymentForm
 								onClose={onClose}
-								initialData={operationData}
+								initialData={operationData?.operationType === 'expense' ? operationData : null}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id_2}
@@ -147,7 +148,7 @@ const OperationModal = observer(({
 						{activeTab === 'transfer' && (
 							<TransferForm
 								onClose={onClose}
-								initialData={operationData}
+								initialData={operationData?.operationType === 'transfer' ? operationData : null}
 								onSuccess={handleFormSuccess}
 							/>
 						)}
@@ -156,7 +157,7 @@ const OperationModal = observer(({
 								onCancel={onClose}
 								onClose={onClose}
 								onSuccess={handleFormSuccess}
-								initialData={operationData}
+								initialData={operationData?.operationType === 'accrual' ? operationData : null}
 							/>
 						)}
 					</div>

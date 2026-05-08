@@ -565,3 +565,33 @@
 .only.rmdp-month-picker {
 	width: 100% !important;
 }
+
+
+
+mark.page-search-highlight {
+  background: #ffeb3b;
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 2px;
+  /* user-select muammolari bo'lmasligi uchun */
+  display: inline;
+}
+ 
+mark.page-search-highlight.page-search-current {
+  background: #ff9800 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.35) !important;
+}
+ 
+/* Dark mode (agar kerak bo'lsa) */
+@media (prefers-color-scheme: dark) {
+  mark.page-search-highlight {
+    background: #facc15 !important;
+    color: #111 !important;
+  }
+  mark.page-search-highlight.page-search-current {
+    background: #f97316 !important;
+    color: #fff !important;
+  }
+}
+ 

@@ -72,7 +72,7 @@ export const Sidebar = observer(() => {
             label: t('nav.plans'),
             href: '/pages',
             hasPage: true,
-            canShow: false,
+            canShow: true,
             submenu: [
                 {
                     label: t('plans.payment_calendar'),
