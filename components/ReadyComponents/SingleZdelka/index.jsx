@@ -18,13 +18,15 @@ const SingleZdelka = ({
 }) => {
   const t = useTranslations('Common')
   const [search, setSearch] = useState('')
-  const [autoSearchSinglbyID, setAutoSearchSinglbyID] = useState(defaultDealGuid)
+  const [autoSearchSinglbyID, setAutoSearchSinglbyID] = useState(value)
+
+  console.log('defaultDealGuid', defaultDealGuid)
 
   const filterData = {
     page: 1,
     limit: 100,
     search,
-    ids: autoSearchSinglbyID && !search ? typeof autoSearchSinglbyID === 'string' ? [autoSearchSinglbyID] : autoSearchSinglbyID : []
+    ids: autoSearchSinglbyID && !search ? [autoSearchSinglbyID] : null
   }
 
   const { data: deals, isLoading } = useUcodeRequestQuery({
@@ -54,13 +56,10 @@ const SingleZdelka = ({
     onChange?.(newValue)
   }, [onChange])
 
-  const options = useMemo(() => {
-
-    return deals?.map(deal => ({
-      value: deal.guid,
-      label: deal?.Nazvanie || t('noName')
-    }))
-  }, [deals, t])
+  const options = useMemo(() => deals?.map(deal => ({
+    value: deal.guid,
+    label: deal?.Nazvanie || t('noName')
+  })), [deals, t])
 
   return (
     <SingleSelect
