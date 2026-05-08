@@ -128,7 +128,7 @@ const OperationModal = observer(({
 						{activeTab === 'income' && (
 							<IncomeForm
 								onClose={onClose}
-								initialData={operationData?.operationType === 'income' ? operationData : null}
+								initialData={operationData}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id}
@@ -138,7 +138,7 @@ const OperationModal = observer(({
 						{activeTab === 'payment' && (
 							<PaymentForm
 								onClose={onClose}
-								initialData={operationData?.operationType === 'expense' ? operationData : null}
+								initialData={operationData}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id_2}
@@ -148,7 +148,7 @@ const OperationModal = observer(({
 						{activeTab === 'transfer' && (
 							<TransferForm
 								onClose={onClose}
-								initialData={operationData?.operationType === 'transfer' ? operationData : null}
+								initialData={operationData}
 								onSuccess={handleFormSuccess}
 							/>
 						)}
@@ -157,7 +157,7 @@ const OperationModal = observer(({
 								onCancel={onClose}
 								onClose={onClose}
 								onSuccess={handleFormSuccess}
-								initialData={operationData?.operationType === 'accrual' ? operationData : null}
+								initialData={operationData}
 							/>
 						)}
 					</div>
