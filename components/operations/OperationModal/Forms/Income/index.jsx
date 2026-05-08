@@ -255,7 +255,7 @@ const IncomeForm = observer(({
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
       const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-      const accrualDate = raw.data_nachisleniya ? formatDate(raw.data_nachisleniya) : paymentDate
+      const accrualDate = !raw?.sales_transactions_id ? formatDate(raw.data_nachisleniya) : paymentDate
 
 
       return {
@@ -349,11 +349,14 @@ const IncomeForm = observer(({
 
   const onSubmit = async (data) => {
 
+    const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
+    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.paymentDate).format('YYYY-MM-DD')
+
     const payload = {
       tip: ['Поступление'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: moment(data?.paymentDate).format('YYYY-MM-DD'),
-      data_nachisleniya: moment(data?.accrualDate).format('YYYY-MM-DD'),
+      data_operatsii: dataOplata,
+      data_nachisleniya: dataNachisleniya,
       payment_confirmed: data?.confirmPayment,
       payment_accrual: watchSalesDeal ? false : data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
@@ -453,7 +456,7 @@ const IncomeForm = observer(({
                     />
                   )}
                 />
-                <span className="flex items-center w-5">{isPastDate(watchPaymentDate) && !watchConfirmPayment && <WarnIcon />}</span>
+                <span className="flex items-center w-5">{isPastDate(watchPaymentDate) && !watchConfirmPayment && (!watchSalesDeal) && <WarnIcon />}</span>
                 <Controller
                   name="confirmPayment"
                   control={control}
@@ -580,7 +583,7 @@ const IncomeForm = observer(({
                       />
                     )}
                   />
-                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && (!watchConfirmAccrual) && <WarnIcon />}</span>
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && (!watchConfirmAccrual) && (!watchSalesDeal) && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}

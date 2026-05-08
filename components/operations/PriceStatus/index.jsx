@@ -12,7 +12,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
   const isCredit = !operationFilterStore.selectedFilters?.includes('Кредит')
 
-  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && ((op.tip === 'Поступление' && !op?.selling_deal_id) || op.tip === 'Выплата')
+  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && ((op.tip === 'Поступление' && !op?.sales_transactions_id) || op.tip === 'Выплата')
 
   return (
     <div
@@ -24,14 +24,14 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
       )}
     >
       {/* Debit icon (Д) - показываем когда НЕ confirmed И accrual = true */}
-      {!confirmed && accrual && (tab === 'Поступление') && !dealId && (
+      {!confirmed && accrual && (tab === 'Поступление') && !op?.sales_transactions_id && (
         <DebitIcon />
       )}
       {confirmed && !accrual && (tab === 'Выплата') && (
         <DebitIcon />
       )}
       {/* Credit icon (К) - показываем когда confirmed = true И НЕ accrual */}
-      {confirmed && !accrual && (tab === 'Поступление') && !dealId && (
+      {confirmed && !accrual && (tab === 'Поступление') && !op?.sales_transactions_id && (
         <CreditIcon />
       )}
       {!confirmed && accrual && (tab === 'Выплата') && (

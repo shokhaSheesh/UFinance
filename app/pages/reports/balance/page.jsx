@@ -79,9 +79,7 @@ export default observer(function BalancePage() {
       })
     }
 
-    addFirstLevel(data.assets || [])
-    addFirstLevel(data.liabilities || [])
-    addFirstLevel(data.equity || [])
+    addFirstLevel(data.data || [])
 
     setExpandedRows(firstLevelIds)
     setIsInitialLoad(false)
@@ -189,9 +187,9 @@ export default observer(function BalancePage() {
                 </tr>
               </thead>
               <tbody className={styles.tbody}>
-                  {data?.assets?.map(row => renderRow(row))}
-                  {data?.liabilities?.map(row => renderRow(row))}
-                  {data?.equity?.map(row => renderRow(row))}
+                  {data?.data?.map(row => renderRow(row))}
+                  {/* {data?.liabilities?.map(row => renderRow(row))}
+                  {data?.equity?.map(row => renderRow(row))} */}
               </tbody>
             </table>
           )}
