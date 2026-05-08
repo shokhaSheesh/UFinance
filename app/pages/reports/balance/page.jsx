@@ -15,7 +15,6 @@ import { apiClient } from '../../../../lib/api/ucode/base'
 import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
 import { formatNumber, formatTotalSumma, handleDownload } from '../../../../utils/helpers'
-import styles from './balance.module.scss'
 
 export default observer(function BalancePage() {
   const t = useTranslations('Reports')
@@ -101,25 +100,29 @@ export default observer(function BalancePage() {
     const isExpanded = item.name === 'active' || item.name === 'passive' || expandedRows.has(item.id)
     const indent = level * 24
     const isTotalRow = level === 0
+    const isActiveOrPassive = item?.id === 'active' || item?.id === 'passive'
 
     return (
       <React.Fragment key={item.id}>
-        <tr className={`${styles.tr} ${isTotalRow ? styles.totalRow : ''}`}>
-          <td className={styles.td} style={{ paddingLeft: `${indent + 16}px`, backgroundColor: '#fff' }}>
+        <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
+          <td
+            className={`sticky left-0  z-1 min-w-[250px] px-2 py-1.5 text-xs text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+            style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#007bff' : '#fff' }}
+          >
             <div
-              className={`${styles.cellContent} ${hasChildren ? styles.clickable : ''}`}
+              className={`flex  items-center gap-2 ${hasChildren ? 'cursor-pointer select-none hover:opacity-80' : ''}`}
               onClick={() => hasChildren && toggleRow(item.id)}
             >
               {hasChildren && (
-                <button className={styles.expandButton}>
-                  {isExpanded ? <ExpendClose /> : <ExpendOpen />}
+                <button className="bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center text-gray-ucode-500 rounded transition-colors duration-200 hover:bg-gray-100 [&_svg]:w-5 [&_svg]:h-5">
+                  {isExpanded ? <ExpendClose color={isActiveOrPassive ? '#fff' : '#667085'} /> : <ExpendOpen color={isActiveOrPassive ? '#fff' : '#667085'} />}
                 </button>
               )}
-              <span className={isTotalRow ? styles.boldText : ''}>{item.name}</span>
+              <span className={isTotalRow ? 'font-semibold' : ''}>{item.name}</span>
             </div>
           </td>
-          <td className={styles.td}>
-            <span className={isTotalRow ? styles.boldNumber : ''}>
+          <td className={`px-2 py-1.5  text-xs text-slate-900 border-b border-gray-200 text-right font-semibold whitespace-nowrap ${isActiveOrPassive && 'bg-primary! text-white!'}`}>
+            <span className={isTotalRow ? 'text-xs font-semibold' : ''}>
               {(item.value === 0 || item.value == null)
                 ? '–'
                 : formatNumber(formatTotalSumma(item.value))}
@@ -172,9 +175,9 @@ export default observer(function BalancePage() {
           {/* Spinner overlay on filter change (data already present) */}
 
           {error && !isLoading && !isFetching ? (
-            <div className={styles.tableError}>
+            <div className="flex flex-col items-center justify-center h-[300px] gap-4 bg-white rounded-lg [&>p]:text-base [&>p]:text-red-600 [&>p]:m-0 [&>p]:text-center">
               <p>{t('balance.errorLoading')} {error.message}</p>
-              <button onClick={() => balanceStore.fetchBalance()} className={styles.retryButton}>
+              <button onClick={() => balanceStore.fetchBalance()} className="px-4 py-2 bg-[#0E73F6] text-white border-0 rounded-md cursor-pointer text-sm transition-colors hover:bg-[#0d5fd6]">
                 {t('balance.retry')}
               </button>
             </div>
@@ -186,7 +189,7 @@ export default observer(function BalancePage() {
                   <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
                 </tr>
               </thead>
-              <tbody className={styles.tbody}>
+                <tbody className="bg-white">
                   {data?.data?.map(row => renderRow(row))}
                   {/* {data?.liabilities?.map(row => renderRow(row))}
                   {data?.equity?.map(row => renderRow(row))} */}
