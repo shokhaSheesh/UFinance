@@ -4,9 +4,10 @@ import { cn } from '@/app/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import useMounted from '../../../hooks/useMounted'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
@@ -65,11 +66,13 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
   const t = useTranslations('Indicators')
   const chartRef = useRef(null)
   const [zoomRange, setZoomRange] = useState([0, 100])
+  const locale = useLocale()
+  const mounted = useMounted()
 
   const billion = t('common.billion')
   const million = t('common.million')
   const thousand = t('common.thousand')
-  const monthsShort = t('common.monthNamesShort').split(',')
+
 
 
   const { months, incomeData, childrens } = useMemo(() => {
@@ -79,7 +82,8 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
     const rows = profitAndLossDataList?.rows || []
 
     const keys = Object.entries(legend).map(([key]) => key).filter(Boolean)
-    const titles = profitAndLossDataList?.legend.map((item) => localizeMonthTitle(String(item.title)?.replace(/\D/g, ''), monthsShort))
+
+    const titles = profitAndLossDataList?.legend.map((l) => localizeMonthTitle(locale, l.startDate))
 
     const revenueRow = findRowById(rows, 'revenue')
 
@@ -103,7 +107,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
       ...item,
       values: readValues(item)
     })) || []
-    const monthsCashFlow = cashFlowLegend?.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
+    const monthsCashFlow = cashFlowLegend?.map((l) => localizeMonthTitle(locale, l.startDate))
     const cashFlowRevenueRow = income?.map(item => item?.totalValue)
 
     return {
@@ -111,7 +115,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
       incomeData: method === 'income_expenses' ? readValues(revenueRow) : cashFlowRevenueRow,
       childrens: method === 'income_expenses' ? childrens : childrensForCashFlow
     }
-  }, [profitAndLossDataList, cashFlowDataList, method, monthsShort])
+  }, [profitAndLossDataList, cashFlowDataList, method, locale])
 
 
   const stats = useMemo(() => {
@@ -153,7 +157,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
         {
           name: 'Income Breakdown',
           type: 'pie',
-          radius: ['50%', '90%'],
+          radius: ['60%', '90%'],
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 0,
@@ -286,7 +290,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
   return (
     <div className="w-full p-6 rounded-lg mt-6 relative">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-[14px] font-medium text-[#111827]">{stats.income.label}, {GlobalCurrency.name}</h2>
+        <h2 className="text-[14px] font-medium text-[#111827]">{stats.income.label}, {mounted ? GlobalCurrency.name : ''}</h2>
         <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
           <HelpCircle className="size-2.5 text-neutral-400" />
         </div>

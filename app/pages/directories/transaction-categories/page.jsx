@@ -4,14 +4,13 @@ import { cn } from '@/app/lib/utils'
 import { CategoryMenu } from '@/components/directories/CategoryMenu/CategoryMenu'
 import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { DeleteCategoryConfirmModal } from '@/components/directories/DeleteCategoryConfirmModal/DeleteCategoryConfirmModal'
+import { PageSearchBar } from '@/components/PageSearchbar'
 import { queryClient } from '@/lib/queryClient'
 import { showErrorNotification } from '@/lib/utils/notifications'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useCallback, useState } from 'react'
-import Input from '../../../../components/shared/Input'
+import { useCallback, useRef, useState } from 'react'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { appStore } from '../../../../store/app.store'
 
@@ -221,6 +220,7 @@ export default observer(function TransactionCategoriesPage() {
 	const [isEditMode, setIsEditMode] = useState(false)
 	const [categoryToDelete, setCategoryToDelete] = useState(null)
 	const [searchQuery, setSearchQuery] = useState('')
+	const contentRef = useRef(null);
 
 	// get_chart_of_accounts
 	const { data: chartOfAccountsData, isLoading: isLoadingChartOfAccounts, error: chartOfAccountsError } = useQuery({
@@ -348,12 +348,16 @@ export default observer(function TransactionCategoriesPage() {
 						</button>}
 					</div>
 					<div className="relative">
-						<Input
+						{/* <Input
 							leftIcon={<Search size={16} />}
 							value={searchQuery}
 							className='bg-white w-64'
 							placeholder={t('searchPlaceholder')}
 							onChange={(e) => setSearchQuery(e.target.value)}
+						/> */}
+						<PageSearchBar
+							contentRef={contentRef}
+							placeholder="Прочие"
 						/>
 					</div>
 				</div>
@@ -378,7 +382,7 @@ export default observer(function TransactionCategoriesPage() {
 			</div>
 
 			{/* Content */}
-			<div className="flex-1 flex">
+			<div ref={contentRef} className="flex-1 flex">
 				{/* Left Sidebar - Category Tree */}
 				<div className=" w-1/2 h-full stiky top-[120px] bg-white border-r border-gray-200 p-4 pb-6 " key={activeTab}>
 					{isLoadingChartOfAccountsV2 && (

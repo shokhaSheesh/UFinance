@@ -1,5 +1,12 @@
 "use client"
 
+import { STATIC_ACCOUNT_BALANCE_DATA } from '@/components/Indicators/constants/staticChartData'
+import CustomMonthSlider from '@/components/Indicators/shared/CustomMonthSlider'
+import Loader from '@/components/shared/Loader'
+import { GlobalCurrency } from '@/constants/globalCurrency'
+import useMounted from '@/hooks/useMounted'
+import { apiClient } from '@/lib/api/ucode/base'
+import { indicators } from '@/store/indicatos.store'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
@@ -7,13 +14,6 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
-import useMounted from '../../../hooks/useMounted'
-import { apiClient } from '../../../lib/api/ucode/base'
-import { indicators } from '../../../store/indicatos.store'
-import Loader from '../../shared/Loader'
-import { STATIC_ACCOUNT_BALANCE_DATA } from '../constants/staticChartData'
-import CustomMonthSlider from '../shared/CustomMonthSlider'
 
 const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308', '#535364', '#0404DE', '#0059FF']
 
@@ -29,13 +29,6 @@ const AccountBalance = () => {
     const totalBalanceLabel = t('accountBalance.totalBalance')
     const todayLabel = t('accountBalance.today')
 
-    const formatValue = (val) => {
-        if (!val && val !== 0) return '0'
-        const abs = Math.abs(val)
-        if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
-        if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} ${million}`
-        return val.toLocaleString('ru-RU')
-    }
 
     const { rangeMonth, accounts } = indicators
 
@@ -71,7 +64,7 @@ const AccountBalance = () => {
             const year = dt.getFullYear().toString().slice(-2)
             return `${day} ${month} ${year}`
         })
-    }, [accountBalanceList])
+    }, [accountBalanceList, MONTH_NAMES])
 
     // Compute total balance (sum of all accounts per day) and per-account data
     const { totalBalanceData, accountSeries, legendData } = useMemo(() => {
@@ -116,104 +109,113 @@ const AccountBalance = () => {
 
     const inteval = dates?.length > 5000 ? 400 : dates?.length > 1500 ? 300 : dates?.length > 1000 ? 100 : dates?.length > 500 ? 50 : 10
 
-    const options = useMemo(() => ({
-        tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            borderColor: '#e5e7eb',
-            borderWidth: 1,
-            textStyle: { color: '#111827', fontSize: 12 },
-            formatter: (params) => {
-                let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
-                params.forEach(item => {
-                    res += `<div class="flex items-center justify-between gap-4 py-0.5">
+    const options = useMemo(() => {
+        const formatValue = (val) => {
+            if (!val && val !== 0) return '0'
+            const abs = Math.abs(val)
+            if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
+            if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} ${million}`
+            return val.toLocaleString('ru-RU')
+        }
+
+        return {
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e5e7eb',
+                borderWidth: 1,
+                textStyle: { color: '#111827', fontSize: 12 },
+                formatter: (params) => {
+                    let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
+                    params.forEach(item => {
+                        res += `<div class="flex items-center justify-between gap-4 py-0.5">
             <div class="flex items-center gap-2 text-gray-500">
               <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
               ${item.seriesName}
             </div>
             <div class="font-medium text-slate-900">${formatValue(item.value)}</div>
           </div>`
-                })
-                return res
-            }
-        },
-        grid: { left: '2%', right: '2%', bottom: '10%', top: '10%', containLabel: true },
-        legend: {
-            bottom: 0,
-            left: 'left',
-            icon: 'roundRect',
-            itemWidth: 14,
-            itemHeight: 14,
-            textStyle: { color: '#6b7280', fontSize: 14, marginTop: 10 },
-            itemStyle: { marginTop: '20px' },
-            data: legendData,
-            selected: legendData.slice(1).reduce((acc, name) => ({ ...acc, [name]: false }), {}),
-        },
-        dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
-        xAxis: {
-            type: 'category',
-            data: dates,
-            axisLine: { show: false },
+                    })
+                    return res
+                }
+            },
+            grid: { left: '2%', right: '2%', bottom: '10%', top: '10%', containLabel: true },
+            legend: {
+                bottom: 0,
+                left: 'left',
+                icon: 'roundRect',
+                itemWidth: 14,
+                itemHeight: 14,
+                textStyle: { color: '#6b7280', fontSize: 14, marginTop: 10 },
+                itemStyle: { marginTop: '20px' },
+                data: legendData,
+                selected: legendData.slice(1).reduce((acc, name) => ({ ...acc, [name]: false }), {}),
+            },
+            dataZoom: [{ type: 'slider', show: false, start: zoomRange[0], end: zoomRange[1] }],
+            xAxis: {
+                type: 'category',
+                data: dates,
+                axisLine: { show: false },
 
-            axisTick: { show: false },
-            axisLabel: {
-                color: '#9ca3af',
-                fontSize: 12,
-                interval: inteval,
-                rotate: 45,
-            },
-        },
-        yAxis: {
-            type: 'value',
-            axisLine: { show: false },
-            axisTick: { show: false },
-            splitLine: { lineStyle: { color: '#f3f4f6' } },
-            axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValue(v) },
-        },
-        series: [
-            {
-                name: totalBalanceLabel,
-                type: 'line',
-                step: 'end',
-                data: totalBalanceData,
-                symbol: 'circle',
-                symbolSize: 0,
-                showSymbol: true,
-                lineStyle: { width: 2, color: '#22c55e' },
-                areaStyle: {
-                    color: {
-                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                        colorStops: [
-                            { offset: 0, color: 'rgba(34, 197, 94, 0.2)' },
-                            { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
-                        ],
-                    },
+                axisTick: { show: false },
+                axisLabel: {
+                    color: '#0F0F0F', fontSize: 12,
+                    interval: inteval, 
+                    rotate: 10,
                 },
-                itemStyle: { color: '#22c55e' },
-                ...(todayIndex >= 0 ? {
-                    markLine: {
-                        symbol: 'none',
-                        data: [{
-                            xAxis: dates[todayIndex],
-                            lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
-                            label: { show: true, formatter: todayLabel, position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
-                        }],
-                    },
-                    markPoint: {
-                        data: [{
-                            xAxis: dates[todayIndex],
-                            yAxis: totalBalanceData[todayIndex],
-                            symbol: 'circle',
-                            symbolSize: 8,
-                            itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2, fontSize: 18 },
-                        }],
-                        label: { show: false },
-                    },
-                } : {}),
             },
-            ...accountSeries,
-        ],
-    }), [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel])
+            yAxis: {
+                type: 'value',
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { lineStyle: { color: '#f3f4f6' } },
+                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValue(v) },
+            },
+            series: [
+                {
+                    name: totalBalanceLabel,
+                    type: 'line',
+                    step: 'end',
+                    data: totalBalanceData,
+                    symbol: 'circle',
+                    symbolSize: 0,
+                    showSymbol: true,
+                    lineStyle: { width: 2, color: '#22c55e' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(34, 197, 94, 0.2)' },
+                                { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
+                            ],
+                        },
+                    },
+                    itemStyle: { color: '#22c55e' },
+                    ...(todayIndex >= 0 ? {
+                        markLine: {
+                            symbol: 'none',
+                            data: [{
+                                xAxis: dates[todayIndex],
+                                lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
+                                label: { show: true, formatter: todayLabel, position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
+                            }],
+                        },
+                        markPoint: {
+                            data: [{
+                                xAxis: dates[todayIndex],
+                                yAxis: totalBalanceData[todayIndex],
+                                symbol: 'circle',
+                                symbolSize: 8,
+                                itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2, fontSize: 18 },
+                            }],
+                            label: { show: false },
+                        },
+                    } : {}),
+                },
+                ...accountSeries,
+            ],
+        }
+    }, [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel, billion, million])
 
     // if (!mounted) return null
 
@@ -230,7 +232,7 @@ const AccountBalance = () => {
             )}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-[20px] font-bold text-[#111827]">{t('accountBalance.title')}, {GlobalCurrency?.name}</h2>
+                    <h2 className="text-[20px] font-bold text-[#111827]">{t('accountBalance.title')}, {mounted ? GlobalCurrency?.name : ''}</h2>
                     <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
                         <HelpCircle className="size-3 text-neutral-400" />
                     </div>

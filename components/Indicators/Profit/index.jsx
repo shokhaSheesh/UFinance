@@ -6,8 +6,7 @@ import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
-import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
@@ -25,9 +24,9 @@ const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
 
 const Profit = () => {
   const t = useTranslations('Indicators')
+  const locale = useLocale()
   const chartRef = useRef(null);
   const mounted = useMounted()
-  const router = useRouter()
   const [zoomRange, setZoomRange] = useState([0, 100]); // [start, end] percentage
   const indicatorsStore = indicators
 
@@ -38,7 +37,6 @@ const Profit = () => {
   const expensesLabel = t('profit.series.expenses')
   const netProfitLabel = t('profit.series.netProfit')
   const dividendsLabel = t('profit.series.dividends')
-  const monthsShort = t('common.monthNamesShort').split(',')
 
   const filterData = {
     periodStartDate: moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD'),
@@ -190,7 +188,8 @@ const Profit = () => {
       const rows = profitAndLossDataList?.rows || []
 
       const keys = legend.map((l) => l?.key).filter(Boolean)
-      const titles = legend.map((l) => localizeMonthTitle(l?.title || l?.key || '', monthsShort))
+      const titles = legend.map((l) => localizeMonthTitle(locale, l.startDate))
+
 
       const revenueRow = findRowById(rows, 'revenue')
       const expensesRow = findRowById(rows, 'expenses')
@@ -212,7 +211,7 @@ const Profit = () => {
         expenseTotal: expensesRow?.totalValue,
         dividendsTotal: dividendsRow?.totalValue
       }
-    }, [profitAndLossDataList, monthsShort])
+    }, [profitAndLossDataList, locale])
 
   const handleIncomePress = useCallback(() => {
     const filterdata = {
@@ -252,8 +251,10 @@ const Profit = () => {
       { label: t('profit.stats.profitability'), value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
       { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
     ]
-  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress])
-  const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
+  }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress, t,])
+  const inteval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0
+
+  console.log('months', months)
 
   const options = useMemo(() => ({
     tooltip: {
@@ -305,7 +306,7 @@ const Profit = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#9ca3af', fontSize: 11, interval: inteval, rotate: 40 }
+      axisLabel: { color: '#0F0F0F', fontSize: 12, interval: inteval, rotate: 0 }
     },
     yAxis: {
       type: 'value',

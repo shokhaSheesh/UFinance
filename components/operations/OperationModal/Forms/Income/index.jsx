@@ -262,7 +262,7 @@ const IncomeForm = observer(({
         paymentDate,
         confirmPayment: raw?.payment_confirmed !== undefined ? raw?.payment_confirmed : !!raw?.oplata_podtverzhdena,
         accountAndLegalEntity: raw?.my_accounts_id || raw?.bank_accounts_id || null,
-        amount: preselectedCounterparty ? (raw?.operationParts?.reduce((acc, part) => acc + part.summa, 0) || 0) : raw?.summa || 0,
+        amount: raw?.operationParts?.length ? (raw?.operationParts?.reduce((acc, part) => acc + part.summa, 0) || 0) : raw?.summa || 0,
         accrualDate,
         confirmAccrual: raw?.payment_accrual !== undefined ? raw?.payment_accrual : false,
         counterparty: raw?.counterparties_id || preselectedCounterparty || null,

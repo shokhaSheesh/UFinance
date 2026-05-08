@@ -1,12 +1,14 @@
 "use client"
 
 import { cn } from '@/app/lib/utils'
+import { indicators } from '@/store/indicatos.store'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import useMounted from '../../../hooks/useMounted'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import { findByName } from '../Income'
@@ -53,13 +55,14 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
     const t = useTranslations('Indicators')
     const chartRef = useRef(null)
     const [zoomRange, setZoomRange] = useState([0, 100])
+    const locale = useLocale()
+    const mounted = useMounted()
 
     const billion = t('common.billion')
     const million = t('common.million')
     const thousand = t('common.thousand')
-    const monthsShort = t('common.monthNamesShort').split(',')
 
-
+    const { periodType } = indicators
 
     const { months, expenseData, childrens } = useMemo(() => {
         const rows = profitAndLossDataList?.rows || []
@@ -85,8 +88,8 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             return activeKeys.map((k) => Number(src?.[k] ?? 0))
         }
 
-        const titles = profitAndLossDataList?.legend.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
-        const cashTitles = cashFlowLegend?.map((item) => localizeMonthTitle(String(item.title)?.replace(/\d/g, ''), monthsShort))
+        const titles = profitAndLossDataList?.legend.map((l) => localizeMonthTitle(locale, l.startDate))
+        const cashTitles = cashFlowLegend?.map((l) => localizeMonthTitle(locale, l.startDate))
 
         const childrens = method === 'income_expenses'
             ? (profit?.details?.filter(i => i?.total !== 0).map(i => ({ ...i, values: readValues(i) })) || [])
@@ -97,7 +100,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             expenseData: method === 'income_expenses' ? readValues(expensesRow) : readValues({ values: mergeValues(income) }),
             childrens
         }
-    }, [profitAndLossDataList, cashFlowDataList, method, monthsShort])
+    }, [profitAndLossDataList, cashFlowDataList, method, locale])
 
     const stats = useMemo(() => {
         const expenseTotal = expenseData?.reduce((a, b) => a + b, 0)
@@ -134,7 +137,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             {
                 name: 'Expense Breakdown',
                 type: 'pie',
-                radius: ['50%', '90%'],
+                radius: ['60%', '90%'],
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 0,
@@ -260,7 +263,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
     return (
         <div className="w-full bg-white p-6 rounded-lg  mt-6">
             <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-[14px] font-medium text-[#111827]">{t('expenses.title')}, {GlobalCurrency?.name}</h2>
+                <h2 className="text-[14px] font-medium text-[#111827]">{t('expenses.title')}, {mounted ? GlobalCurrency?.name : ''}</h2>
                 <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
                     <HelpCircle className="size-2.5 text-neutral-400" />
                 </div>
