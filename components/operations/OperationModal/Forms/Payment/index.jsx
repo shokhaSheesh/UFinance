@@ -315,6 +315,7 @@ const PaymentForm = observer(({
       setSelectedSplits(newSplits)
 
       const mappedRows = parts.map(p => ({
+        guid: p.guid,
         calculationDate: p.data_nachisleniya ? formatDate(p.data_nachisleniya) : today,
         isCalculationCommitted: p.payment_accrual ?? true,
         contrAgentId: p.counterparties_id || '',
@@ -367,6 +368,7 @@ const PaymentForm = observer(({
 
     if (divivedAmounts.length > 0) {
       payload.items = divivedAmounts.map(item => ({
+        ...(item?.guid ? { guid: item?.guid } : null),
         summa: formatDecimal(StringtoNumber(item?.value)),
         percent: Number(item?.percent),
         data_nachisleniya: moment(showDate && !watchSalesDeal ? (item?.calculationDate) : data?.accrualDate).format('YYYY-MM-DD'),

@@ -1,6 +1,7 @@
 'use client'
+import { MessageSquareText, Minimize2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FilesPlugIcon } from '../../../../constants/icons'
 import './style.scss'
@@ -237,100 +238,117 @@ const SentMessages = ({
   onDeleteConfirm,
   onDeleteCancel,
 }) => {
+  const [open, setOpen] = useState(false)
   const t = useTranslations('Operations.comments')
   const fileInputRef = useRef(null)
 
   return (
-    <div className='sm-root'>
-      {messages.length === 0 && attachedFiles.length === 0 && (
-        <div className='sm-plug-wrapper'>
-          <div className='sm-plug'>
-            <FilesPlugIcon className='sm-plug__icon' />
-            <div className='sm-plug__title'>
-              {t('plugTitle')}
-            </div>
-            <div className='sm-plug__desc'>{t('plugMaxFiles')}</div>
-            <div className='sm-plug__desc'>{t('plugMaxSize')}</div>
-            <div className='sm-plug__desc'>
-              {t('plugFormatsLabel')}<br />
-              {t('plugFormats')}
-            </div>
-          </div>
-        </div>
-      )}
+    <>
 
-      {(messages.length > 0 || attachedFiles.length > 0) && (
-        <div className='sm-list'>
-          {messages.map(msg => (
-            <MessageCard
-              key={msg.id}
-              msg={msg}
-              isEditing={editingId === msg.id}
-              editText={editText}
-              editFiles={editFiles}
-              onEditChange={onEditChange}
-              onEditFileChange={onEditFileChange}
-              onEditConfirm={onEditConfirm}
-              onEditCancel={onEditCancel}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
-      )}
+      {!open && <div className='flex h-fit p-2 m-2 rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(true)}>
+        <MessageSquareText />
+        <p>Файлы и комментарии</p>
+      </div>}
 
-      <div className='sm-input-bar'>
-        {attachedFiles.length > 0 && (
-          <div className='sm-input-bar__files'>
-            {attachedFiles.map((file, i) => (
-              <div className='sm-input-bar__file' key={i}>
-                <span className='sm-input-bar__file-name'>{file.name}</span>
-                <button className='sm-input-bar__file-remove' onClick={() => onRemoveAttach(i)} title={t('removeFile')}>
-                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
-                    <polyline points='3 6 5 6 21 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                    <path d='M19 6L18.1429 20.1429C18.0627 21.1941 17.1845 22 16.1304 22H7.86957C6.81549 22 5.93726 21.1941 5.85714 20.1429L5 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                    <path d='M9 6V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                  </svg>
-                </button>
+      <div className='sm-root' style={{ display: open ? 'flex' : 'none' }}>
+        <div className="flex items-center justify-end">
+          {open && <div className='flex h-fit self-end p-2 m-2 rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(false)}>
+            <Minimize2 size={16} />
+            <p>Свернуть</p>
+          </div>}
+        </div>
+        <>
+          {messages.length === 0 && attachedFiles.length === 0 && (
+            <div className='sm-plug-wrapper'>
+              <div className='sm-plug'>
+                <FilesPlugIcon className='sm-plug__icon' />
+                <div className='sm-plug__title'>
+                  {t('plugTitle')}
+                </div>
+                <div className='sm-plug__desc'>{t('plugMaxFiles')}</div>
+                <div className='sm-plug__desc'>{t('plugMaxSize')}</div>
+                <div className='sm-plug__desc'>
+                  {t('plugFormatsLabel')}<br />
+                  {t('plugFormats')}
+                </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
 
-        <div className='sm-input-bar__row'>
-          <label className='sm-input-bar__clip' title={t('attachFile')}>
-            <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
-              <path d='M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59723 21.9983 8.005 21.9983C6.41277 21.9983 4.88584 21.3658 3.76 20.24C2.63416 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63416 12.8758 3.76 11.75L12.95 2.56C13.7006 1.80944 14.7185 1.38778 15.78 1.38778C16.8415 1.38778 17.8594 1.80944 18.61 2.56C19.3606 3.31056 19.7822 4.32855 19.7822 5.39C19.7822 6.45145 19.3606 7.46944 18.61 8.22L9.41 17.41C9.03472 17.7853 8.52573 17.9961 7.995 17.9961C7.46427 17.9961 6.95528 17.7853 6.58 17.41C6.20472 17.0347 5.99389 16.5257 5.99389 15.995C5.99389 15.4643 6.20472 14.9553 6.58 14.58L15.07 6.1' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-            </svg>
-            <input ref={fileInputRef} type='file' accept={ACCEPTED_FORMATS} multiple style={{ display: 'none' }} onChange={onFileChange} />
-          </label>
-          <div className='sm-input-bar__field'>
-            <textarea
-              className='sm-input-bar__textarea'
-              rows={1}
-              placeholder={t('placeholder')}
-              maxLength={256}
-              value={text}
-              onChange={e => onTextChange(e.target.value)}
-              onKeyDown={onKeyDown}
-            />
-            <span className='sm-input-bar__underline' />
+          {(messages.length > 0 || attachedFiles.length > 0) && (
+            <div className='sm-list'>
+              {messages.map(msg => (
+                <MessageCard
+                  key={msg.id}
+                  msg={msg}
+                  isEditing={editingId === msg.id}
+                  editText={editText}
+                  editFiles={editFiles}
+                  onEditChange={onEditChange}
+                  onEditFileChange={onEditFileChange}
+                  onEditConfirm={onEditConfirm}
+                  onEditCancel={onEditCancel}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className='sm-input-bar'>
+            {attachedFiles.length > 0 && (
+              <div className='sm-input-bar__files'>
+                {attachedFiles.map((file, i) => (
+                  <div className='sm-input-bar__file' key={i}>
+                    <span className='sm-input-bar__file-name'>{file.name}</span>
+                    <button className='sm-input-bar__file-remove' onClick={() => onRemoveAttach(i)} title={t('removeFile')}>
+                      <svg width='16' height='16' viewBox='0 0 24 24' fill='none'>
+                        <polyline points='3 6 5 6 21 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                        <path d='M19 6L18.1429 20.1429C18.0627 21.1941 17.1845 22 16.1304 22H7.86957C6.81549 22 5.93726 21.1941 5.85714 20.1429L5 6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                        <path d='M9 6V4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V6' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className='sm-input-bar__row'>
+              <label className='sm-input-bar__clip' title={t('attachFile')}>
+                <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
+                  <path d='M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59723 21.9983 8.005 21.9983C6.41277 21.9983 4.88584 21.3658 3.76 20.24C2.63416 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63416 12.8758 3.76 11.75L12.95 2.56C13.7006 1.80944 14.7185 1.38778 15.78 1.38778C16.8415 1.38778 17.8594 1.80944 18.61 2.56C19.3606 3.31056 19.7822 4.32855 19.7822 5.39C19.7822 6.45145 19.3606 7.46944 18.61 8.22L9.41 17.41C9.03472 17.7853 8.52573 17.9961 7.995 17.9961C7.46427 17.9961 6.95528 17.7853 6.58 17.41C6.20472 17.0347 5.99389 16.5257 5.99389 15.995C5.99389 15.4643 6.20472 14.9553 6.58 14.58L15.07 6.1' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                </svg>
+                <input ref={fileInputRef} type='file' accept={ACCEPTED_FORMATS} multiple style={{ display: 'none' }} onChange={onFileChange} />
+              </label>
+              <div className='sm-input-bar__field'>
+                <textarea
+                  className='sm-input-bar__textarea'
+                  rows={1}
+                  placeholder={t('placeholder')}
+                  maxLength={256}
+                  value={text}
+                  onChange={e => onTextChange(e.target.value)}
+                  onKeyDown={onKeyDown}
+                />
+                <span className='sm-input-bar__underline' />
+              </div>
+              <button className='sm-input-bar__send' onClick={onSend} title={t('send')}>
+                <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
+                  <line x1='22' y1='2' x2='11' y2='13' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                  <polygon points='22 2 15 22 11 13 2 9 22 2' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' fill='none' />
+                </svg>
+              </button>
+            </div>
           </div>
-          <button className='sm-input-bar__send' onClick={onSend} title={t('send')}>
-            <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
-              <line x1='22' y1='2' x2='11' y2='13' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-              <polygon points='22 2 15 22 11 13 2 9 22 2' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' fill='none' />
-            </svg>
-          </button>
-        </div>
+
+          <DeleteConfirmModal
+            isOpen={deleteTargetId !== null}
+            onCancel={onDeleteCancel}
+            onConfirm={onDeleteConfirm}
+          />
+        </>
       </div>
-
-      <DeleteConfirmModal
-        isOpen={deleteTargetId !== null}
-        onCancel={onDeleteCancel}
-        onConfirm={onDeleteConfirm}
-      />
-    </div>
+    </>
   )
 }
 

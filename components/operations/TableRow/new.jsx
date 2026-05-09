@@ -253,7 +253,7 @@ const TableRow = observer(({
             confirmed={op.payment_confirmed}
             accrual={op.payment_accrual}
             currency={op.currency}
-            dealId={op?.selling_deal_id}
+            dealId={op?.sales_transactions_id}
             toCurrency={op?.to_currenies_kod}
           />
         </div>
@@ -273,24 +273,20 @@ const TableRow = observer(({
       </div>
 
       {/* Child Rows (Operation Parts) */}
-      {open && op.operationParts?.map(part => (
-        <div
+      {open && op.operationParts?.map(part => {
+
+        return <div
           key={part.id}
           className={cn(
             'flex text-mini gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50',
             counterpartyGuid && counterpartyGuid !== part?.counterparties_id && 'opacity-40 grayscale-[0.5] pointer-events-none'
           )}
-          onClick={e => {
-            if (!e.target.closest('input') && !e.target.closest('button') && (!counterpartyGuid || counterpartyGuid === part?.counterparties_id)) {
-              openOperationModal(part)
-            }
-          }}
         >
           {/* Empty Space for Checkbox + padding for index */}
-          <div className={!toggleOperation ? "w-24" : "w-36"} />
+          <div className={!toggleOperation ? "w-32" : "w-40"} />
 
           {/* Date Part */}
-          <div className="w-32 flex px-2 py-1 items-center justify-start  pl-4">
+          <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">
             <span className="text-[11px] text-gray-500 font-medium">↳ {part?.accrualDate}</span>
           </div>
 
@@ -307,7 +303,7 @@ const TableRow = observer(({
           </div>
 
           {/* Counterparty Part */}
-          <div className="w-52 flex px-2 py-1 items-center justify-start ">
+          <div className="w-52 flex-1 flex px-2 py-1 items-center justify-start ">
             <span className="text-xs text-gray-600  ">{part.counterparty || ''}</span>
           </div>
 
@@ -331,14 +327,14 @@ const TableRow = observer(({
               confirmed={part.payment_confirmed}
               accrual={part.payment_accrual}
               currency={part.currency}
-              dealId={op?.selling_deal_id}
+              dealId={op?.sales_transactions_id}
             />
           </div>
 
           {/* Empty Menu Space for children */}
           {/* <div className="w-8" /> */}
         </div>
-      ))}
+      })}
     </>
   )
 })
