@@ -682,10 +682,10 @@ const OperationsPage = observer(() => {
 					isClosing={isModalClosing}
 					isOpening={isModalOpening}
 					onClose={closeOperationModal}
-					onSuccess={() => {
-						queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-						queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-					}}
+					// onSuccess={() => {
+					// 	queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+					// 	queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+					// }}
 				/>
 			)}
 

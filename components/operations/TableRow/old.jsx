@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
 import { cn } from '@/app/lib/utils'
-import styles from './style.module.scss'
+import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
-import { ExpendClose, ExpendOpen, TypeIncomeIcon, TypeExpenseIcon, TypeTransferIcon, ShipmentIcon } from '../../../constants/icons'
 import { observer } from 'mobx-react-lite'
+import { useMemo, useState } from 'react'
+import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
 import { operationFilterStore } from '../../../store/operationFilter.store'
+import styles from './style.module.scss'
 
 const OperationTableRow = observer(({
   op,
@@ -112,6 +112,7 @@ const OperationTableRow = observer(({
             openOperationModal(op)
           }
         }}
+        style={{ backgroundColor: 'red !important' }}
       >
         {/*  checkbox */}
         {(toggleOperation || showIndex) && <td
@@ -242,11 +243,6 @@ const OperationTableRow = observer(({
             <tr
               key={part.id}
               className={`${styles.tableRow} ${styles.child} ${counterpartyGuid && counterpartyGuid !== part?.counterparties_id ? styles.disabled : ''}`}
-              onClick={e => {
-                if (!e.target.closest('input') && !e.target.closest('button') && counterpartyGuid === part?.counterparties_id) {
-                  openOperationModal(part)
-                }
-              }}
             >
               <td colSpan={2}
                 className={cn(styles.tableCell, styles.tableCellIndex)}

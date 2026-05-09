@@ -1,9 +1,9 @@
 import { cn } from '@/app/lib/utils'
+import { CreditIcon, DebitIcon, WarnIcon } from '@/constants/icons'
+import { operationFilterStore } from '@/store/operationFilter.store'
+import { isPastDate } from '@/utils/formatDate'
+import { formatAmount } from '@/utils/helpers'
 import { observer } from 'mobx-react-lite'
-import { CreditIcon, DebitIcon, WarnIcon } from '../../../constants/icons'
-import { operationFilterStore } from '../../../store/operationFilter.store'
-import { isPastDate } from '../../../utils/formatDate'
-import { formatAmount } from '../../../utils/helpers'
 import styles from './style.module.scss'
 
 const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, op, percent, toCurrency, toAmount, debit, kredit }) => {
@@ -12,7 +12,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
   const isCredit = !operationFilterStore.selectedFilters?.includes('Кредит')
 
-  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && ((op.tip === 'Поступление' && !op?.sales_transactions_id) || op.tip === 'Выплата')
+  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && ((op.tip === 'Поступление' && !dealId) || op.tip === 'Выплата')
 
   return (
     <div
@@ -24,14 +24,14 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
       )}
     >
       {/* Debit icon (Д) - показываем когда НЕ confirmed И accrual = true */}
-      {!confirmed && accrual && (tab === 'Поступление') && !op?.sales_transactions_id && (
+      {!confirmed && accrual && (tab === 'Поступление') && !dealId && (
         <DebitIcon />
       )}
       {confirmed && !accrual && (tab === 'Выплата') && (
         <DebitIcon />
       )}
       {/* Credit icon (К) - показываем когда confirmed = true И НЕ accrual */}
-      {confirmed && !accrual && (tab === 'Поступление') && !op?.sales_transactions_id && (
+      {confirmed && !accrual && (tab === 'Поступление') && !dealId && (
         <CreditIcon />
       )}
       {!confirmed && accrual && (tab === 'Выплата') && (

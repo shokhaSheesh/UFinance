@@ -22,6 +22,7 @@ import TextArea from '../../../../shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
+import { queryClient } from '@/lib/queryClient'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -29,7 +30,6 @@ import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
@@ -315,6 +315,7 @@ const IncomeForm = observer(({
       setSelectedSplits(newSplits)
 
       const mappedRows = parts.map(p => ({
+        guid: p.guid,
         calculationDate: p.data_nachisleniya ? formatDate(p.data_nachisleniya) : today,
         isCalculationCommitted: p.payment_accrual ?? true,
         contrAgentId: p.counterparties_id || '',
@@ -372,6 +373,7 @@ const IncomeForm = observer(({
 
     if (divivedAmounts.length > 0) {
       payload.items = divivedAmounts.map(item => ({
+        ...(item?.guid && { guid: item?.guid }),
         summa: formatDecimal(StringtoNumber(item?.value)),
         percent: Number(item?.percent),
         data_nachisleniya: showDate && !watchSalesDeal ? (item?.calculationDate || null) : null,
@@ -393,21 +395,24 @@ const IncomeForm = observer(({
         method: isNew ? 'create_operation' : 'update_operation',
         data: payload
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onClose()
+          // queryClient.setQueryData(['find_operations'], (oldData) => {
+          //   return oldData
+          // })]
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+          queryClient.invalidateQueries({ queryKey: ['operationsList'] })
+          queryClient.invalidateQueries({ queryKey: ['operations'] })
+          queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+          queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+          queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+          queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
+          queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
+          queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
+          queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+          queryClient.invalidateQueries({ queryKey: ['balance_report'] })
         }
       })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['operationsList'] })
-      queryClient.invalidateQueries({ queryKey: ['operations'] })
-      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-      queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
-      queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
-      queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
-      queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
-      queryClient.invalidateQueries({ queryKey: ['balance_report'] })
       const operationId = isNew
         ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
         : initialData.guid
