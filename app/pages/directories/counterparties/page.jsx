@@ -79,9 +79,8 @@ const CounterpartiesPage = observer(() => {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
-
-
-  const filterData = useMemo(() => {
+  // Build filters object immediately (for debouncing)
+  const immediateFilterData = useMemo(() => {
     return {
       limit: 35,
       debitPaymentTypes: filters.debitPaymentTypes,
@@ -97,6 +96,18 @@ const CounterpartiesPage = observer(() => {
     }
   }, [filters, debouncedSearchQuery, viewMode])
 
+  // State for debounced filters (1 second delay)
+  const [requestFilterData, setRequestFilterData] = useState(immediateFilterData)
+
+  // Debounce all filter changes with 1 second
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRequestFilterData(immediateFilterData)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [immediateFilterData])
+
   // Fetch counterparties using infinite scroll API
   const {
     data: infiniteData,
@@ -107,7 +118,7 @@ const CounterpartiesPage = observer(() => {
     isLoading: isLoadingCounterparties
   } = useUcodeRequestInfinite({
     method: 'get_counterparties',
-    data: filterData,
+    data: requestFilterData,
     querySetting: {
       select: response => response,
       staleTime: 0,
@@ -117,7 +128,7 @@ const CounterpartiesPage = observer(() => {
 
   const { mutate: exportCounterparties, isPending: isCounterpartiesExportLoading } = useMutation({
     mutationKey: ['export_counterparties'],
-    mutationFn: () => apiClient.invokeFunction({ method: 'export_counterparties', data: filterData }),
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_counterparties', data: requestFilterData }),
     onSuccess: (uploadData) => {
       showSuccessNotification(tc('fileDownloaded'))
       const fileLink = uploadData?.data?.link

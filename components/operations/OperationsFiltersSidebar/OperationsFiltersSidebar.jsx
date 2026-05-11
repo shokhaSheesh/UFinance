@@ -85,20 +85,14 @@ export const OperationsFiltersSidebar = observer(({
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
   }, [queryClient])
 
-  const handleChangeFilter = useCallback(() => {
-    // control all filters values here adter that call find_operations with queryClient.invalidateQueries
-    queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-  }, [queryClient])
-
   const handleAmountChange = useCallback((field, rawValue) => {
     const digitsOnly = rawValue.replace(/[^0-9]/g, '')
     setLocalAmount(prev => ({ ...prev, [field]: digitsOnly }))
     if (amountDebounceRef.current) clearTimeout(amountDebounceRef.current)
     amountDebounceRef.current = setTimeout(() => {
       operationFilterStore.setAmountRange(prev => ({ ...prev, [field]: digitsOnly }))
-      handleChangeFilter()
     }, 200)
-  }, [handleChangeFilter])
+  }, [])
 
 
 
@@ -112,20 +106,14 @@ export const OperationsFiltersSidebar = observer(({
           <div className="flex flex-col gap-3 justify-start items-start">
             {allowedTip.allowIncome && <OperationCheckbox
               checked={safeSelectedFilters.includes('Поступление')}
-              onChange={() => {
-                operationFilterStore.toggleFilter('Поступление')
-                handleChangeFilter()
-              }}
+              onChange={() => operationFilterStore.toggleFilter('Поступление')}
               label={t('filters.income')}
             />}
 
             {/* Выплата */}
             {allowedTip.allowPayout && <OperationCheckbox
               checked={safeSelectedFilters.includes('Выплата')}
-              onChange={() => {
-                operationFilterStore.toggleFilter('Выплата')
-                handleChangeFilter()
-              }}
+              onChange={() => operationFilterStore.toggleFilter('Выплата')}
               label={t('filters.payout')}
             />}
 
@@ -135,10 +123,7 @@ export const OperationsFiltersSidebar = observer(({
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
                 <OperationCheckbox
                   checked={safeSelectedFilters.includes('Перемещение')}
-                  onChange={() => {
-                    operationFilterStore.toggleComplexFilter('Перемещение')
-                    handleChangeFilter()
-                  }}
+                  onChange={() => operationFilterStore.toggleComplexFilter('Перемещение')}
                   label={t('filters.transfer')}
                 />
                 <FaSortDown
@@ -157,18 +142,12 @@ export const OperationsFiltersSidebar = observer(({
                 <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
                   <OperationCheckbox
                     checked={safeSelectedFilters.includes('Списание')}
-                    onChange={() => {
-                      operationFilterStore.toggleFilter('Списание')
-                      handleChangeFilter()
-                    }}
+                    onChange={() => operationFilterStore.toggleFilter('Списание')}
                     label={t('filters.writeOff')}
                   />
                   <OperationCheckbox
                     checked={safeSelectedFilters.includes('Зачисление')}
-                    onChange={() => {
-                      operationFilterStore.toggleFilter('Зачисление')
-                      handleChangeFilter()
-                    }}
+                    onChange={() => operationFilterStore.toggleFilter('Зачисление')}
                     label={t('filters.enrollment')}
                   />
                 </div>
@@ -180,10 +159,7 @@ export const OperationsFiltersSidebar = observer(({
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
                 <OperationCheckbox
                   checked={safeSelectedFilters.includes('Начисление')}
-                  onChange={() => {
-                    operationFilterStore.toggleComplexFilter('Начисление')
-                    handleChangeFilter()
-                  }}
+                  onChange={() => operationFilterStore.toggleComplexFilter('Начисление')}
                   label={t('filters.accrual')}
                 />
                 <FaSortDown
@@ -202,18 +178,12 @@ export const OperationsFiltersSidebar = observer(({
                 <div style={{ paddingLeft: '1.25rem', display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '0.75rem' }}>
                   <OperationCheckbox
                     checked={safeSelectedFilters.includes('Дебет')}
-                    onChange={() => {
-                      operationFilterStore.toggleFilter('Дебет')
-                      handleChangeFilter()
-                    }}
+                    onChange={() => operationFilterStore.toggleFilter('Дебет')}
                     label={t('filters.debit')}
                   />
                   <OperationCheckbox
                     checked={safeSelectedFilters.includes('Кредит')}
-                    onChange={() => {
-                      operationFilterStore.toggleFilter('Кредит')
-                      handleChangeFilter()
-                    }}
+                    onChange={() => operationFilterStore.toggleFilter('Кредит')}
                     label={t('filters.credit')}
                   />
                 </div>
@@ -222,10 +192,7 @@ export const OperationsFiltersSidebar = observer(({
             {/* Отгрузка */}
             {allowedTip.allowShipment && <OperationCheckbox
               checked={safeSelectedFilters.includes('Отгрузка')}
-              onChange={() => {
-                operationFilterStore.toggleFilter('Отгрузка')
-                handleChangeFilter()
-              }}
+              onChange={() => operationFilterStore.toggleFilter('Отгрузка')}
               label={t('filters.shipment')}
             />}
           </div>
@@ -236,28 +203,19 @@ export const OperationsFiltersSidebar = observer(({
           <div className="space-y-3">
             <OperationCheckbox
               checked={paymentConfirm}
-              onChange={(event) => {
-                operationFilterStore.setState('paymentConfirm', event.target?.checked)
-                handleChangeFilter()
-              }}
+              onChange={(event) => operationFilterStore.setState('paymentConfirm', event.target?.checked)}
               label={t('filters.confirmed')}
             />
             <OperationCheckbox
               checked={paymentNotConfirm}
-              onChange={(event) => {
-                operationFilterStore.setState('paymentNotConfirm', event.target?.checked)
-                handleChangeFilter()
-              }}
+              onChange={(event) => operationFilterStore.setState('paymentNotConfirm', event.target?.checked)}
               label={t('filters.notConfirmed')}
             />
           </div>
           {/* CustomDatePicker for date payment range */}
           <NewDateRangeComponent
             value={selectedDatePaymentRange}
-            onChange={(val) => {
-              operationFilterStore.setSelectedDatePaymentRange(val)
-              handleChangeFilter()
-            }}
+            onChange={(val) => operationFilterStore.setSelectedDatePaymentRange(val)}
           />
         </FilterSection>
 
@@ -265,28 +223,19 @@ export const OperationsFiltersSidebar = observer(({
           <div className="space-y-3">
             <OperationCheckbox
               checked={accrualConfirm}
-              onChange={(event) => {
-                operationFilterStore.setState('accrualConfirm', event.target?.checked)
-                handleChangeFilter()
-              }}
+              onChange={(event) => operationFilterStore.setState('accrualConfirm', event.target?.checked)}
               label={t('filters.confirmed')}
             />
             <OperationCheckbox
               checked={accrualNotConfirm}
-              onChange={(event) => {
-                operationFilterStore.setState('accrualNotConfirm', event.target?.checked)
-                handleChangeFilter()
-              }}
+              onChange={(event) => operationFilterStore.setState('accrualNotConfirm', event.target?.checked)}
               label={t('filters.notConfirmed')}
             />
           </div>
           {/* CustomDatePicker for date start range */}
           <NewDateRangeComponent
             value={selectedDateStartRange}
-            onChange={(val) => {
-              operationFilterStore.setSelectedDateStartRange(val)
-              handleChangeFilter()
-            }}
+            onChange={(val) => operationFilterStore.setSelectedDateStartRange(val)}
           />
         </FilterSection>
 
@@ -296,10 +245,7 @@ export const OperationsFiltersSidebar = observer(({
             {/* Юрлица */}
             <SelectMyAccounts
               value={selectedLegalEntities}
-              onChange={(val) => {
-                operationFilterStore.setSelectedLegalEntities(val)
-                handleChangeFilter()
-              }}
+              onChange={(val) => operationFilterStore.setSelectedLegalEntities(val)}
               placeholder={t('filters.legalEntitiesPlaceholder')}
               className={'bg-gray-ucode-25'}
             />
@@ -307,10 +253,7 @@ export const OperationsFiltersSidebar = observer(({
             {/* Контрагенты */}
             <SelectCounterParties
               value={selectedCounterAgents}
-              onChange={(val) => {
-                operationFilterStore.setSelectedCounterAgents(val)
-                handleChangeFilter()
-              }}
+              onChange={(val) => operationFilterStore.setSelectedCounterAgents(val)}
               placeholder={t('filters.counterpartiesPlaceholder')}
               className={'bg-gray-ucode-25'}
             />
@@ -319,10 +262,7 @@ export const OperationsFiltersSidebar = observer(({
             {appStore.isPayment && <SingleSelect
               data={[{ label: t('paymentTypes.cash'), value: 'cash' }, { label: t('paymentTypes.card'), value: 'card' }, { value: 'transfer', label: t('paymentTypes.transfer') }]}
               value={paymentType}
-              onChange={(val) => {
-                operationFilterStore.setPaymentType(val)
-                handleChangeFilter()
-              }}
+              onChange={(val) => operationFilterStore.setPaymentType(val)}
               isClearable={false}
               placeholder={t('filters.paymentTypePlaceholder')}
               className={'bg-gray-ucode-25'}
@@ -332,10 +272,7 @@ export const OperationsFiltersSidebar = observer(({
             {/* Статьи учета */}
             <MultiSelectStatiya
               value={selectedChartOfAccounts}
-              onChange={(val) => {
-                operationFilterStore.setSelectedChartOfAccounts(val)
-                handleChangeFilter()
-              }}
+              onChange={(val) => operationFilterStore.setSelectedChartOfAccounts(val)}
               placeholder={t('filters.chartOfAccountsPlaceholder')}
               type=""
               dropdownClassName={'w-64'}
@@ -344,10 +281,7 @@ export const OperationsFiltersSidebar = observer(({
 
             <MultiSelectZdelka
               value={deals}
-              onChange={(val) => {
-                operationFilterStore.setSelectedDeals(val)
-                handleChangeFilter()
-              }}
+              onChange={(val) => operationFilterStore.setSelectedDeals(val)}
               placeholder={t('filters.dealsPlaceholder')}
               className={'bg-gray-ucode-25'}
             />

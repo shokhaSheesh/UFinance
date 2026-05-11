@@ -36,10 +36,13 @@ const Branches = observer(() => {
       branches_id: authStore.branch_id,
     }),
     select: (data) => data?.data?.data?.role_permissions,
-    enabled: userData?.role === 'employees' && appStore.branches?.length > 0,
+    enabled: userData?.role === 'employees' && authStore.branches?.length > 0,
     staleTime: 1000 * 60 * 60,
     refetchOnMount: true
   })
+
+  console.log('validation', userData?.role === 'employees' && appStore.branches?.length > 0)
+  console.log('role', userData?.role, 'branches', appStore.branches?.length)
 
   const branches = useMemo(() => branchesData?.data?.data, [branchesData])
   const selectedBranch = authStore.selectBranch

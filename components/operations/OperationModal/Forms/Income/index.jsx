@@ -35,6 +35,31 @@ import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
+// Helper to update find_operations infinite query cache
+const updateOperationsCache = (updatedOperation) => {
+  queryClient.setQueriesData({ queryKey: ['find_operations'] }, (oldData) => {
+    if (!oldData) return oldData
+
+    const operationGuid = updatedOperation.guid || updatedOperation.id
+    if (!operationGuid) return oldData
+
+    return {
+      ...oldData,
+      pages: oldData.pages.map(page => ({
+        ...page,
+        data: {
+          ...page.data,
+          data: page.data.data.map(op =>
+            (op.guid === operationGuid || op.id === operationGuid)
+              ? { ...op, ...updatedOperation }
+              : op
+          )
+        }
+      }))
+    }
+  })
+}
+
 // ── Reducer Logic ──────────────────────────────────────────
 
 const today = new Date().toISOString().split('T')[0]
@@ -243,7 +268,8 @@ const IncomeForm = observer(({
   onSuccess,
   preselectedCounterparty = null,
   defaultDealGuid = null,
-  chart_of_accounts_id = null
+  chart_of_accounts_id = null,
+  currentPage
 }) => {
 
   const t = useTranslations('Operations.forms')
@@ -295,7 +321,6 @@ const IncomeForm = observer(({
   })
 
   const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
-
 
 
   // Amount Splitting State
@@ -351,7 +376,7 @@ const IncomeForm = observer(({
   const onSubmit = async (data) => {
 
     const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
-    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.paymentDate).format('YYYY-MM-DD')
+    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.accrualDate).format('YYYY-MM-DD')
 
     const payload = {
       tip: ['Поступление'],
@@ -397,25 +422,22 @@ const IncomeForm = observer(({
       }, {
         onSuccess: (data) => {
           onClose()
-          // queryClient.setQueryData(['find_operations'], (oldData) => {
-          //   return oldData
-          // })]
-          queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-          queryClient.invalidateQueries({ queryKey: ['operationsList'] })
-          queryClient.invalidateQueries({ queryKey: ['operations'] })
-          queryClient.invalidateQueries({ queryKey: ['find_operations'] })
-          queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
-          queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-          queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
-          queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
-          queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
-          queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
-          queryClient.invalidateQueries({ queryKey: ['balance_report'] })
         }
       })
+
       const operationId = isNew
         ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
         : initialData.guid
+
+      // Update cache with new operation data for immediate UI update
+      if (res?.data?.data && !isNew) {
+        updateOperationsCache(res.data.data)
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
+      queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
+      queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['balance_report'] })
       await onSuccess?.(operationId)
     } catch (error) {
       console.error('IncomeForm onSubmit error', error)
@@ -731,38 +753,6 @@ const IncomeForm = observer(({
           <button type="submit" disabled={isPending || !canSubmit} className={cn("primary-btn py-2!", (!canSubmit || isPending) && 'opacity-60 cursor-not-allowed')}>{isPending ? <Loader2 className='animate-spin' /> : isNew ? t('create') : t('save')}</button>
         </div>
       </form>
-
-      {/* <CustomModal
-        isOpen={isDateModalOpen}
-        onClose={() => {
-          setIsDateModalOpen(false)
-          setTempSalesDeal(null)
-        }}
-      >
-        <div className='p-4'>
-          <h3 className='text-lg font-bold text-neutral-900'>Дата начисления станет равна дате оплаты</h3>
-          <p className='text-neutral-600 text-sm py-3'>У оплаты, которую вы собираетесь прикрепить к сделке, дата начисления имеет статус «Подтверждена» или отличается от даты оплаты.</p>
-          <p className='text-neutral-600 text-sm pb-6'>После прикреплении такого платежа дата начисления будет равна дате оплаты и получит статус «Не подтверждена».</p>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
-            <button className='secondary-btn' onClick={() => {
-              setIsDateModalOpen(false)
-              setTempSalesDeal(null)
-            }}>
-              Отменить
-            </button>
-            <button className='primary-btn' onClick={() => {
-              setValue('salesDeal', tempSalesDeal)
-              setValue('accrualDate', watchPaymentDate || watchAccrualDate)
-              setValue('confirmAccrual', false)
-              setIsDateModalOpen(false)
-              setSelectedSplits((prev) => prev.filter(item => item.value !== 'Начисление'))
-              setTempSalesDeal(null)
-            }}>
-              Продолжить
-            </button>
-          </div>
-        </div>
-      </CustomModal> */}
     </>
   )
 })

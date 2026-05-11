@@ -40,6 +40,18 @@ export default observer(function LegalEntitiesPage() {
     group: 'none',
   })
 
+  // State for debounced filters (1 second delay)
+  const [requestFilters, setRequestFilters] = useState(filters)
+
+  // Debounce filter changes with 1 second
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRequestFilters(filters)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [filters])
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [isDeletingItem, setIsDeletingItem] = useState(false)
@@ -102,7 +114,7 @@ export default observer(function LegalEntitiesPage() {
       from_date: "",
       to_date: "",
       search: debouncedSearchQuery,
-      type: filters?.type,
+      type: requestFilters?.type,
     },
     querySetting: {
       select: data => data?.data

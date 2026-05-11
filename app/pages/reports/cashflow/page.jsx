@@ -124,6 +124,7 @@ const nameMap = {
 export default observer(function CashFlowReportPage() {
   const t = useTranslations('Reports')
   const groupingOptions = useMemo(() => [
+    { value: 'daily', label: t('cashflow.grouping.daily') },
     { value: 'monthly', label: t('cashflow.grouping.monthly') },
     { value: 'quarterly', label: t('cashflow.grouping.quarterly') },
     { value: 'yearly', label: t('cashflow.grouping.yearly') }

@@ -102,6 +102,7 @@
 			"registerSuccess": "Muvaffaqiyatli ro'yxatdan o'tildi!",
 			"registerError": "Xatolik: token yoki foydalanuvchi ma'lumotlari olinmadi",
 			"registerGenericError": "Ro'yxatdan o'tishda xatolik",
+			"registerExistEmailError": "Bunday email mavjud",
 			"forgotSuccess": "Parolni tiklash bo'yicha ko'rsatmalar emailingizga yuborildi",
 			"forgotError": "So'rovni yuborishda xatolik"
 		}
@@ -284,6 +285,7 @@
 			"delete": "O'chirish",
 			"noData": "Ma'lumot yo'q",
 			"sectionToday": "Bugun",
+			"sectionFuture": "Kegin",
 			"sectionBefore": "Kecha va avvalroq",
 			"fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
 			"importedSuccess": "Operatsiyalar muvaffaqiyatli import qilindi.",
@@ -495,6 +497,7 @@
 			"title": "Pul mablag'larining harakati to'g'risida hisobot",
 			"articleHeader": "Hisob moddalari bo'yicha",
 			"grouping": {
+				"daily": "Kun bo'yicha",
 				"monthly": "Oylar bo'yicha",
 				"quarterly": "Choraklar bo'yicha",
 				"yearly": "Yillar bo'yicha"

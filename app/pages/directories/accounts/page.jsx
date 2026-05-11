@@ -85,7 +85,8 @@ export default observer(function AccountsPage() {
 
 
 
-  const requestBankAccounts = useMemo(() => {
+  // Build filters immediately (for debouncing)
+  const immediateBankAccountsFilter = useMemo(() => {
     return {
       page: 1,
       limit: 100,
@@ -100,6 +101,18 @@ export default observer(function AccountsPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery, selectedGrouping, accountsStore.isCash, accountsStore.isNonCash, accountsStore.isCard, accountsStore.isElectronic, selectedEntity, selectedAccounts])
+
+  // State for debounced filters (1 second delay)
+  const [requestBankAccounts, setRequestBankAccounts] = useState(immediateBankAccountsFilter)
+
+  // Debounce all filter changes with 1 second
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRequestBankAccounts(immediateBankAccountsFilter)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [immediateBankAccountsFilter])
 
   // Fetch bank accounts using new invoke_function API
   const { data: bankAccountsData, isLoading: isLoadingBankAccounts } = useUcodeRequestQuery({

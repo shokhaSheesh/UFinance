@@ -142,7 +142,7 @@ const TableRow = observer(({
                 <span className="text-sm flex-1">{op?.operationDate}</span>
               </div>
             ) : (
-                <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
+              <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
                 <span className='text-sm'>{op?.operationDate}</span>
                 {isDifferentDate && <span className="text-sm text-neutral-400">{op?.accrualDate}</span>}
               </div>
@@ -161,7 +161,7 @@ const TableRow = observer(({
             ) : (op.tip === "Поступление" || op.tip === "Выплата") ? (
               <span className="truncate w-full text-sm">{op.my_account_name}</span>
             ) : (op?.tip === "Начисление" || op?.tip === "Отгрузка") ? (
-                  <span className={cn("truncate w-full text-sm text-neutral-500 font-normal", textPrimary)}>[{op.legal_entity_name}]</span>
+              <span className={cn("truncate w-full text-sm text-neutral-500 font-normal", textPrimary)}>[{op.legal_entity_name}]</span>
             ) : null}
           </div>
         </div>
@@ -207,8 +207,8 @@ const TableRow = observer(({
               </>
             ) : op?.tip === "Начисление" ? (
               <>
-                    <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
-                    <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
               </>
             ) : (op?.tip === "Отгрузка") && (
               <span className="text-sm line-clamp-1  w-full">{op.chartOfAccounts}</span>

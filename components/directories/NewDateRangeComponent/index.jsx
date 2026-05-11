@@ -1,9 +1,10 @@
 'use client'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { CalendarRange } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment/moment'
 import { useTranslations } from 'next-intl'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CgClose } from 'react-icons/cg'
 import { formatDate } from '../../../utils/formatDate'
 import CustomCalendar from '../../shared/Calendar'
@@ -103,7 +104,7 @@ const PRESET_GROUPS = {
   ],
 }
 
-export default function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null } }) {
+export default observer(function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null } }) {
   const t = useTranslations('NewDateRangeComponent')
   const [startDate, setStartDate] = useState(value?.start)
   const [endDate, setEndDate] = useState(value?.end)
@@ -113,7 +114,12 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
   const wrapperRef = useRef(null)
   const [open, setOpen] = useState(false)
 
-
+  // Sync internal state with external value changes (e.g., when clearing filters)
+  useEffect(() => {
+    setStartDate(value?.start || null)
+    setEndDate(value?.end || null)
+    setActivePreset(value?.start ? null : 'year')
+  }, [value?.start, value?.end])
 
   const handlePreset = (key) => {
     const [s, e] = getPresetRange(key)
@@ -257,4 +263,4 @@ export default function NewDateRangeComponent({ value, onChange, singleDateMode 
       </DropdownMenu>
     </div>
   )
-}
+})
