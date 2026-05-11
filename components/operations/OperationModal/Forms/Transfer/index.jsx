@@ -171,9 +171,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 				updateOperationsCache(res.data.data)
 			}
 
+			if (isNew) {
+				queryClient.refetchQueries({ queryKey: ['find_operations'] })
+			}
+
 			queryClient.invalidateQueries({ queryKey: ['dashboard'] })
 			queryClient.invalidateQueries({ queryKey: ['operationsList'] })
-			queryClient.invalidateQueries({ queryKey: ['operations'] }) 
+			queryClient.invalidateQueries({ queryKey: ['operations'] })
 			queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
 			queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
 			queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })

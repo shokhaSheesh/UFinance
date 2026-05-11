@@ -10,7 +10,6 @@ import {
 } from '@tanstack/react-query'
 
 
-
 // Get chart of accounts using v2/items/chart_of_accounts endpoint (GET)
 export const useChartOfAccountsV2 = (params = {}) => {
 	return useQuery({
@@ -36,8 +35,6 @@ export const useChartOfAccountsV2 = (params = {}) => {
 		retry: false,
 	})
 }
-
-
 
 // Get bank accounts using invoke_function planfact-plan-fact (POST)
 export const useBankAccountsPlanFact = (params = {}) => {
@@ -143,8 +140,6 @@ export const useDeleteOperation = () => {
 	})
 }
 
-
-
 // Create counterparty mutation
 export const useCreateCounterparty = () => {
 	const queryClient = useQueryClient()
@@ -162,7 +157,6 @@ export const useCreateCounterparty = () => {
 		},
 	})
 }
-
 
 // Get counterparties groups using invoke_function planfact-plan-fact (POST)
 export const useCounterpartiesGroupsPlanFact = (params = {}) => {

@@ -426,6 +426,10 @@ const PaymentForm = observer(({
         updateOperationsCache(res.data.data)
       }
 
+      if (isNew) {
+        queryClient.refetchQueries({ queryKey: ['find_operations'] })
+      }
+
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })
       queryClient.invalidateQueries({ queryKey: ['operations'] })

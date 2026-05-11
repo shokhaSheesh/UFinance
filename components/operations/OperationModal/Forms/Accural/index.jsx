@@ -135,7 +135,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'), 
+        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
@@ -174,8 +174,10 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
       }
+      if (isNew) {
+        queryClient.refetchQueries({ queryKey: ['find_operations'] })
+      }
 
-      queryClient.invalidateQueries({ queryKey: ['operations'] }) 
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
