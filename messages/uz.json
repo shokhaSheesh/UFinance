@@ -5,6 +5,7 @@
 		"loading": "Yuklanmoqda...",
 		"noName": "Nomsiz",
 		"search": "Qidirish...",
+		"pay": "To'lov qilish",
 		"searching": "Qidirilmoqda...",
 		"empty": "Hech narsa topilmadi",
 		"noGroup": "Guruhsiz",
@@ -669,7 +670,18 @@
 				"shipments": "Mijozga yuklagan tovarlar va xizmatlar"
 			},
 			"searchPlaceholder": "Qidirish",
-			"addButton": "Qo'shish"
+			"addButton": "Qo'shish",
+			"payment": {
+				"createPayment": "To'lov yaratish",
+				"paymentAmount": "To'lov summasi",
+				"enterAmount": "Summani kiriting",
+				"paymentLink": "To'lov havolasi",
+				"copy": "Nusxa olish",
+				"copied": "Nusxalandi",
+				"cancel": "Bekor qilish",
+				"createLink": "Havola yaratish",
+				"creating": "Yaratilmoqda..."
+			}
 		},
 		"filters": {
 			"dealStatus": "Bitim statusi",
@@ -2027,7 +2039,7 @@
 			"text": "«To'lash» tugmasini bosish orqali siz Taklif shartlariga rozilik bildirasiz"
 		},
 		"payButton": {
-			"text": "To'lash"
+			"text": "To'lash {amount} "
 		}
 	}
 }

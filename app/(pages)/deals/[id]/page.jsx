@@ -5,13 +5,14 @@ import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealMo
 import CreateProductService from '@/components/deals/details/CreateProductService';
 import CreateShipment from '@/components/deals/details/CreatingShipment';
 import DealStatus from '@/components/deals/details/Status';
+import PaymentModal from '@/components/deals/PaymentModal';
 import OperationModal from '@/components/operations/OperationModal/OperationModal';
 import Input from '@/components/shared/Input';
 import ScreenLoader from '@/components/shared/ScreenLoader';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
 import { useUcodeRequestQuery } from '@/hooks/useDashboard';
@@ -40,6 +41,7 @@ import styles from './deal-detail.module.scss';
 
 
 export default observer(function DealDetailPage() {
+  const [openPayment, setOpenPayment] = useState(false)
   const params = useParams();
   const router = useRouter();
   const t = useTranslations('Deals.detail');
@@ -74,7 +76,6 @@ export default observer(function DealDetailPage() {
     commentary: summeryCards?.commentary
   }
 
-  console.log(deal)
 
   const handleUpdateStatus = async (status) => {
     try {
@@ -144,9 +145,6 @@ export default observer(function DealDetailPage() {
   const expenses = (accounting === 'accrual' ? summeryCards?.accrual_method?.expenses : summeryCards?.cash_method?.expenses) || 0;
   const income = (accounting === 'accrual' ? summeryCards?.accrual_method?.income : summeryCards?.cash_method?.income) || 0;
 
-  const receivedPercent = summeryCards?.receipts_percentage != null ? Math.round(Number(summeryCards.receipts_percentage) * 100) : 0;
-  const shippedPercent = summeryCards?.shipments_percentage != null ? Math.round(Number(summeryCards.shipments_percentage)) : 0;
-
 
   const profitPercent = Math.round(Number(accounting === 'accrual' ? summeryCards?.accrual_method?.profitability : summeryCards?.cash_method?.profitability)) || 0;
 
@@ -192,34 +190,37 @@ export default observer(function DealDetailPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>{deal?.name || t('noName')}</h1>
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
-              <Ellipsis size={18} className='text-neutral-800' />
-            </span>
-          </PopoverTrigger>
-          <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
-            <div className="flex flex-col">
-              <button
-                className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
-                onClick={() => {
-                  setDealToEdit(deal);
-                  setIsCreateModalOpen(true);
-                }}
-              >
-                <Pencil size={16} className="text-neutral-600" />
-                <span>{t('actions.edit')}</span>
-              </button>
-              <button
-                className="flex items-center gap-2 p-2.5 text-sm text-red-500 hover:bg-red-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
-                onClick={() => setDealToDelete(dealData)}
-              >
-                <Trash size={16} className="text-red-500" />
-                <span>{t('actions.delete')}</span>
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className='flex items-center gap-2'>
+          <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
+                <Ellipsis size={18} className='text-neutral-800' />
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
+              <div className="flex flex-col">
+                <button
+                  className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                  onClick={() => {
+                    setDealToEdit(deal);
+                    setIsCreateModalOpen(true);
+                  }}
+                >
+                  <Pencil size={16} className="text-neutral-600" />
+                  <span>{t('actions.edit')}</span>
+                </button>
+                <button
+                  className="flex items-center gap-2 p-2.5 text-sm text-red-500 hover:bg-red-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                  onClick={() => setDealToDelete(dealData)}
+                >
+                  <Trash size={16} className="text-red-500" />
+                  <span>{t('actions.delete')}</span>
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Info Cards */}
@@ -492,7 +493,12 @@ export default observer(function DealDetailPage() {
         dealGuid={dealId}
         kontragentId={summeryCards?.counterparties_id}
       />
-
+      {/* create payment */}
+      <PaymentModal
+        open={openPayment}
+        onClose={() => setOpenPayment(false)}
+        dealId={dealId}
+      />
 
 
       {/* Operation Modal */}
