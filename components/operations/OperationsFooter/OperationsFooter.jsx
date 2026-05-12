@@ -1,5 +1,5 @@
 "use client"
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { GlobalCurrency } from '../../../constants/globalCurrency'

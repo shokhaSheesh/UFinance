@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'

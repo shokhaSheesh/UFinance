@@ -96,7 +96,7 @@ const OperationCashFlowModal = observer(({
     operationFilterStore.setAutoFilter(filterData)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     if (typeof window !== 'undefined') {
-      window.open('/pages/operations', '_blank')
+      window.open('/operations', '_blank')
     }
   }
 

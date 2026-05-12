@@ -1,4 +1,4 @@
-import { cn } from '@/app/lib/utils';
+import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import useMounted from '../../../hooks/useMounted';
 

@@ -1,9 +1,9 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import SelectAccountGroups from '@/components/ReadyComponents/SelectAccountGroups'
 import Input from '@/components/shared/Input'
 import { useCreateMyAccount, useUpdateMyAccount } from '@/hooks/useDashboard'
+import { cn } from '@/lib/utils'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'

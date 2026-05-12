@@ -2014,5 +2014,40 @@
 				"clients20": "Клиенты, приносящие менее 20% доходов"
 			}
 		}
+	},
+	"Payment": {
+		"header": {
+			"to": "to",
+			"uFinance": "UFinance"
+		},
+		"paymentAmount": {
+			"label": "СУММА ПЛАТЕЖА",
+			"currency": "сум"
+		},
+		"byCard": {
+			"title": "Картой",
+			"commission": "КОМИССИЯ 0%",
+			"cardNumber": "Номер карты",
+			"cardPlaceholder": "0000 0000 0000 0000",
+			"expiry": "Срок",
+			"expiryPlaceholder": "ММ/ГГ"
+		},
+		"onlinePayment": {
+			"title": "Онлайн платеж"
+		},
+		"paymentMethods": {
+			"click": "Click",
+			"clickCommission": "1.5%",
+			"uzum": "Uzum",
+			"uzumCommission": "1%",
+			"payme": "Payme",
+			"paymeCommission": "1%"
+		},
+		"terms": {
+			"text": "Нажимая «Оплатить», вы соглашаетесь с условиями Оферты"
+		},
+		"payButton": {
+			"text": "Оплатить"
+		}
 	}
 }

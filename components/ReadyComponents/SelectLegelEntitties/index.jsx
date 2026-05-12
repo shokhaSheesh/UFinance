@@ -1,15 +1,28 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: legalEntitiesData, isLoading } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: legalEntitiesData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_legal_entities",
+    data: {
+      search: debouncedSearch
+    },
     querySetting: {
       select: (response) => response?.data?.data || [],
       staleTime: 1000 * 60 * 30, // 30 minutes
@@ -42,6 +55,8 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
       hasError={hasError}
       isClearable={isClearable}
       disabled={disabled}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

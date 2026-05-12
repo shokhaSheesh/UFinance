@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
 import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
 import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
@@ -8,6 +7,7 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
 import { useCreateCounterpartiesGroup, useCreateCounterparty, useDeleteCounterpartiesGroups, useUpdateCounterparty } from '@/hooks/useDashboard'
+import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'

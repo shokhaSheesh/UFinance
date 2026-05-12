@@ -1,4 +1,4 @@
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { ChevronDown, LogOut } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -29,7 +29,7 @@ export const Profile = observer(() => {
 
   const handleLogout = () => {
     authStore.logout()
-    window.location.href = '/pages/auth'
+    window.location.href = '/auth'
   }
 
   return (

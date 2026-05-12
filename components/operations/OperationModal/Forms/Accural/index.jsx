@@ -5,7 +5,7 @@ import TextArea from '@/components/shared/TextArea'
 import { memo, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'

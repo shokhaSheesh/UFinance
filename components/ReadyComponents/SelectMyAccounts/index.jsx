@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
@@ -8,9 +9,21 @@ import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: accountsData, isLoading } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: accountsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_my_accounts",
+    data: {
+      search: debouncedSearch
+    },
     querySetting: {
       select: (response) => response?.data?.data || [],
       staleTime: 1000 * 60 * 30, // 30 minutes
@@ -60,6 +73,8 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isClearable={isClearable}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

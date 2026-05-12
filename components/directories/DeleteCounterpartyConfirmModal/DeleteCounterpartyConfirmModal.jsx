@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import styles from './DeleteCounterpartyConfirmModal.module.scss'
 
 export function DeleteCounterpartyConfirmModal({ isOpen, counterparty, onConfirm, onCancel, isDeleting = false }) {

@@ -1,7 +1,7 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import { DealIcon, UsersIcon } from '@/constants/icons'
+import { cn } from '@/lib/utils'
 import { CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -45,50 +45,50 @@ export const Sidebar = observer(() => {
     const permissions = toJS(appStore.permission)
 
     const navItems = [
-        { icon: ChartLine, label: t('nav.indicators'), href: '/pages/indicators', hasPage: true, canShow: permissions?.indicators?.read },
+        { icon: ChartLine, label: t('nav.indicators'), href: '/indicators', hasPage: true, canShow: permissions?.indicators?.read },
         {
             icon: RefreshCw,
             label: t('nav.operations'),
-            href: '/pages/operations',
+            href: '/operations',
             hasPage: true,
             canShow: permissions?.operations?.income?.read || permissions?.operations?.payout?.read || permissions?.operations?.transfer?.read || permissions?.operations?.accrual?.read || permissions?.operations?.shipment?.read
         },
         {
             icon: UsersIcon,
             label: t('nav.counterparties'),
-            href: '/pages/directories/counterparties',
+            href: '/directories/counterparties',
             hasPage: true,
             canShow: permissions?.directories?.counterparties?.read
         },
         {
             icon: DealIcon,
             label: t('nav.deals'),
-            href: '/pages/deals',
+            href: '/deals',
             hasPage: true,
             canShow: permissions?.deals?.read
         },
         {
             icon: CalendarCheck,
             label: t('nav.plans'),
-            href: '/pages',
+            href: '',
             hasPage: true,
             canShow: true,
             submenu: [
                 {
                     label: t('plans.payment_calendar'),
-                    href: '/pages/payment_calendar',
+                    href: '/payment_calendar',
                     hasPage: true,
                     canShow: true
                 },
                 {
                     label: t('plans.income_expense_budget'),
-                    href: '/pages/income_expense_budget',
+                    href: '/income_expense_budget',
                     hasPage: true,
                     canShow: true
                 },
                 {
                     label: t('plans.cash_flow_budget'),
-                    href: '/pages/cash_flow_budget',
+                    href: '/cash_flow_budget',
                     hasPage: true,
                     canShow: true
                 }
@@ -97,31 +97,31 @@ export const Sidebar = observer(() => {
         {
             icon: ClipboardList,
             label: t('nav.reports'),
-            href: '/pages/reports',
+            href: '/reports',
             hasPage: true,
             canShow: (permissions?.reports?.cashflow?.read || permissions?.reports?.pnl?.read || permissions?.reports?.balance?.read),
             submenu: [
                 {
                     label: t('reports.cashflow'),
-                    href: '/pages/reports/cashflow',
+                    href: '/reports/cashflow',
                     hasPage: true,
                     canShow: permissions?.reports?.cashflow?.read
                 },
                 {
                     label: t('reports.pnl'),
-                    href: '/pages/reports/profit-and-loss',
+                    href: '/reports/profit-and-loss',
                     hasPage: true,
                     canShow: permissions?.reports?.pnl?.read
                 },
                 {
                     label: t('reports.balance'),
-                    href: '/pages/reports/balance',
+                    href: '/reports/balance',
                     hasPage: true,
                     canShow: permissions?.reports?.balance?.read
                 },
                 {
                     label: t('reports.students'),
-                    href: '/pages/reports/students',
+                    href: '/reports/students',
                     hasPage: true,
                     canShow: appStore.isDonoSchool
                 },
@@ -130,37 +130,37 @@ export const Sidebar = observer(() => {
         {
             icon: Library,
             label: t('nav.directories'),
-            href: '/pages/directories',
+            href: '/directories',
             hasPage: true,
             canShow: (permissions?.directories?.counterparties?.read || permissions?.directories?.transactionCategories?.read || permissions?.directories?.accounts?.read || permissions?.directories?.legalentities?.read || permissions?.directories?.productsServices?.read),
             submenu: [
                 {
                     label: t('directories.counterparties'),
-                    href: '/pages/directories/counterparties',
+                    href: '/directories/counterparties',
                     hasPage: true,
                     canShow: permissions?.directories?.counterparties?.read
                 },
                 {
                     label: t('directories.transactionCategories'),
-                    href: '/pages/directories/transaction-categories',
+                    href: '/directories/transaction-categories',
                     hasPage: true,
                     canShow: permissions?.directories?.transactionCategories?.read
                 },
                 {
                     label: t('directories.accounts'),
-                    href: '/pages/directories/accounts',
+                    href: '/directories/accounts',
                     hasPage: true,
                     canShow: permissions?.directories?.accounts?.read
                 },
                 {
                     label: t('directories.legalEntities'),
-                    href: '/pages/directories/legal-entities',
+                    href: '/directories/legal-entities',
                     hasPage: true,
                     canShow: permissions?.directories?.legalentities?.read
                 },
                 {
                     label: t('directories.productsServices'),
-                    href: '/pages/directories/product-service',
+                    href: '/directories/product-service',
                     hasPage: true,
                     canShow: permissions?.directories?.productsServices?.read
                 }
@@ -169,7 +169,7 @@ export const Sidebar = observer(() => {
         {
             icon: IoSettingsOutline,
             label: t('nav.settings'),
-            href: '/pages/settings',
+            href: '/settings',
             hasPage: true,
             canShow: (permissions?.settings?.general?.read || permissions?.settings?.users?.read || permissions?.settings?.profile?.read || permissions?.settings?.exchangerates?.read),
         },

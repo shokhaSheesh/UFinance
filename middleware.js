@@ -4,15 +4,15 @@ export function middleware(request) {
   const { pathname } = request.nextUrl
   
   // Allow login page
-  if (pathname === '/pages/auth') {
+  if (pathname === '/auth') {
     return NextResponse.next()
   }
   
   // Check authentication for all other pages
   const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true'
 
-  if (!isAuthenticated && pathname !== '/pages/auth') {
-    return NextResponse.redirect(new URL('/pages/auth', request.url))
+  if (!isAuthenticated && pathname !== '/auth') {
+    return NextResponse.redirect(new URL('/auth', request.url))
   }
   
   return NextResponse.next()

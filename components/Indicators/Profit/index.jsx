@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
@@ -222,7 +222,7 @@ const Profit = () => {
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     if (typeof window !== 'undefined') {
-      window.open('/pages/operations', '_blank')
+      window.open('/operations', '_blank')
     }
   }, [rows, filterOperationData])
 
@@ -235,7 +235,7 @@ const Profit = () => {
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     if (typeof window !== 'undefined') {
-      window.open('/pages/operations', '_blank')
+      window.open('/operations', '_blank')
     }
   }, [rows, filterOperationData])
 

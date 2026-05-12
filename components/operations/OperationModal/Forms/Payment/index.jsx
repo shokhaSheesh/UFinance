@@ -1,5 +1,5 @@
 'use client'
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { appStore } from '../../../../../store/app.store'

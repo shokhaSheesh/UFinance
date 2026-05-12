@@ -1,9 +1,9 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
 import { useCreateLegalEntity, useUpdateLegalEntity } from '@/hooks/useDashboard'
+import { cn } from '@/lib/utils'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'

@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { indicators } from '@/store/indicatos.store'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'

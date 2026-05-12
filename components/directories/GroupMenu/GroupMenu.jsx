@@ -1,12 +1,12 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from '@/lib/utils'
 import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 

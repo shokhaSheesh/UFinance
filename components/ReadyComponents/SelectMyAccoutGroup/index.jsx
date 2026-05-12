@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import GroupSelect from '../../shared/Selects/GroupSelect'
 
@@ -16,12 +17,22 @@ const SelectMyAccoutGroup = ({
 }) => {
   const t = useTranslations('Common')
   const tr = useTranslations('Reports.common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: accountsData, isLoading } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: accountsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_my_accounts",
     data: {
       page: 1,
       limit: 100,
+      search: debouncedSearch
     },
     querySetting: {
       select: (response) => response?.data?.data || [],
@@ -100,6 +111,8 @@ const SelectMyAccoutGroup = ({
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

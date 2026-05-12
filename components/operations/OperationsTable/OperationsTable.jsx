@@ -1,11 +1,11 @@
 "use client"
 
+import { cn } from '@/lib/utils'
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { useState } from 'react'
-import { cn } from '@/app/lib/utils'
 import { OperationModal } from '../OperationModal/OperationModal'
-import { OperationMenu } from './OperationMenu'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
-import { showSuccessNotification, showErrorNotification } from '@/lib/utils/notifications'
+import { OperationMenu } from './OperationMenu'
 import styles from './OperationsTable.module.scss'
 
 export function OperationsTable({ operations = [], onRowClick }) {

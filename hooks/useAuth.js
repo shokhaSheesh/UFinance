@@ -82,7 +82,7 @@ export function useLogin() {
       }
 
       authStore.selectBranch = branches[0]
-      router.push('/pages/operations') // 7445
+      router.push('/operations') // 7445
     },
     onError: () => {
       const errorMessage = t('notifications.loginError')
@@ -103,11 +103,28 @@ export function useRegister() {
   return useMutation({
     mutationKey: ['register'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const responseData = data?.data?.data
       const tokenData = responseData?.token?.access_token
       const refreshToken = responseData?.token?.refresh_token
       const userData = responseData?.user_data || responseData?.userData || responseData?.user
+
+
+      const branchesResponse = await getMyBranches({
+        method: 'get_my_branches',
+        data: { page: 1, limit: 200 },
+      })
+
+
+      const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
+
+      if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
+        authStore.setBranches(branches)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
+      }
 
       if (responseData?.role === "plan_fakt_admins") {
         appStore.setEmployerPermission()
@@ -120,7 +137,7 @@ export function useRegister() {
           user_data: userData
         })
         showSuccessNotification(t('notifications.registerSuccess'))
-        router.push('/pages/operations')
+        router.push('/operations')
       } else {
         showErrorNotification(t('notifications.registerError'))
       }

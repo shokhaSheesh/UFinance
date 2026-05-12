@@ -1,7 +1,7 @@
 "use client"
 
+import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { cn } from '@/app/lib/utils'
 import styles from './CategoryTree.module.scss'
 
 export function CategoryTree({ data, onSelect }) {

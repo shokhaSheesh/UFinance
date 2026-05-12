@@ -1,7 +1,7 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import useMounted from '@/hooks/useMounted'
+import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'

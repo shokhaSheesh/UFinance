@@ -1,8 +1,9 @@
 'use client'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
 const MultiSelectZdelka = ({
@@ -14,11 +15,22 @@ const MultiSelectZdelka = ({
   hasError
 }) => {
   const t = useTranslations('Common')
-  const { data: deals, isLoading } = useUcodeRequestQuery({
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: deals, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_sales_list_simple",
     data: { 
       page: 1,
       limit: 100,
+      search: debouncedSearch
     },
     querySetting: {
       select: (response) => response?.data?.data,
@@ -45,6 +57,8 @@ const MultiSelectZdelka = ({
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

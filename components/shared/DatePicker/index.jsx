@@ -1,4 +1,4 @@
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { CalendarRange } from "lucide-react";
 import DatePicker from "react-multi-date-picker";
 import './style.scss';

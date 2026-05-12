@@ -88,7 +88,7 @@ const Branches = observer(() => {
     } else if (userData?.role === 'plan_fakt_admins' && !branch?.is_employee) {
       appStore.setPlanfactPermission()
     }
-    router.push('/pages/operations')
+    router.push('/operations')
     window.location.reload()
   }
 

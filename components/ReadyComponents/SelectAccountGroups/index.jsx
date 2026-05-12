@@ -2,17 +2,28 @@ import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdownClassName, multi = false, hasError }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: groupsData, isLoading } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: groupsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_account_groups",
     data: {
       page: 1,
       limit: 100,
+      search: debouncedSearch
     },
     querySetting: {
       select: (response) => response?.data?.data || [],
@@ -43,6 +54,8 @@ const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdown
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

@@ -1,12 +1,23 @@
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { useCounterpartiesGroupsPlanFact } from '@/hooks/useDashboard'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
 const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasError, isClearable = true, multi = false }) => {
   const t = useTranslations('Common')
-  const { data: counterpartiesGroupsData, isLoading } = useCounterpartiesGroupsPlanFact({ page: 1, limit: 100 })
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: counterpartiesGroupsData, isLoading, isFetching } = useCounterpartiesGroupsPlanFact({ page: 1, limit: 100, search: debouncedSearch })
 
   const counterpartiesGroupsOptions = useMemo(() => {
     const items = counterpartiesGroupsData?.data?.data || []
@@ -28,6 +39,8 @@ const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasE
       className={className}
       hasError={hasError}
       isClearable={isClearable}
+      onSearch={handleSearch}
+      isSearching={isFetching}
     />
   )
 }

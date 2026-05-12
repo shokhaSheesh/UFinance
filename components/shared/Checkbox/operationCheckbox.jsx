@@ -1,7 +1,7 @@
 'use client'
-import { cn } from '@/app/lib/utils'
-import styles from './operationCheckbox.module.scss'
+import { cn } from '@/lib/utils'
 import { LuCheck } from 'react-icons/lu'
+import styles from './operationCheckbox.module.scss'
 
 const OperationCheckbox = ({ checked = false, onChange, className, ...props }) => {
   return (

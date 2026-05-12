@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { keepPreviousData } from '@tanstack/react-query'
 import { ChevronDown, Maximize2, MoreVertical } from 'lucide-react'
 import { observer } from 'mobx-react-lite'

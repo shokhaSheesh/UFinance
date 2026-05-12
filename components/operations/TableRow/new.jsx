@@ -1,7 +1,7 @@
-import { cn } from '@/app/lib/utils'
 import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { cn } from '@/lib/utils'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { memo, useMemo, useState } from 'react'
