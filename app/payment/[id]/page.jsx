@@ -16,18 +16,12 @@ export async function generateMetadata({
       images: [
         {
           url: payment.qrcode,
-          width: 1200,
-          height: 1200,
+          width: 1024,
+          height: 1024,
           alt: `QR-код для оплаты ${payment.amount} сум`,
         },
       ],
       type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `Оплата ${payment.amount} сум — UFinance`,
-      description: `Отсканируйте QR-код для оплаты через платформу UFinance.`,
-      images: [payment.qrcode],
     },
   }
 }

@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   sassOptions: {
     additionalData: `@use "${path.resolve(process.cwd(), 'styles/_variables.scss').replace(/\\/g, '/')}" as *;`,
   },
-  allowedDevOrigins: ["a899-84-54-116-4.ngrok-free.app"], // Next.js 15+
+  allowedDevOrigins: ["e789-84-54-116-4.ngrok-free.app"], // Next.js 15+
 };
 
 export default withNextIntl(nextConfig);

@@ -107,6 +107,12 @@ const PaymentModal = ({ open, onClose, dealId }) => {
                     </>
                   )}
                 </button>
+                <button onClick={() => {
+                  setAmount('')
+                  setLink('')
+                }} className='primary-btn'>
+                  {t('change_price')}
+                </button>
               </div>
             </div>
           )}

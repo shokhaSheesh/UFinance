@@ -679,7 +679,8 @@
 				"copied": "Скопировано",
 				"cancel": "Отмена",
 				"createLink": "Создать ссылку",
-				"creating": "Создание..."
+				"creating": "Создание...",
+				"change_price": "Изменение цены"
 			}
 		},
 		"filters": {

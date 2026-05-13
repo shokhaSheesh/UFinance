@@ -680,7 +680,8 @@
 				"copied": "Nusxalandi",
 				"cancel": "Bekor qilish",
 				"createLink": "Havola yaratish",
-				"creating": "Yaratilmoqda..."
+				"creating": "Yaratilmoqda...",
+				"change_price": "Narxni o'zgartirish"
 			}
 		},
 		"filters": {
