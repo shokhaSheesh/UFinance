@@ -206,7 +206,7 @@ const Payment = ({ payment }) => {
 
   return (
     <div className="min-h-screen bg-white flex items-start justify-center">
-      <div className="rounded-2xl px-8 pt-5 w-full max-w-2xl">
+      <div className="rounded-2xl px-8 py-10 w-full max-w-2xl">
 
         {/* Header */}
         <div className="text-center mb-8">
@@ -245,7 +245,7 @@ const Payment = ({ payment }) => {
             <span className="text-green-600 font-medium text-sm">{t('byCard.commission')}</span>
           </div>
 
-          <div className="flex items-center space-y-3 gap-2 border-2 border-primary rounded-xl p-3">
+          <div className="flex flex-col lg:flex-row items-center space-y-3 gap-2 border-2 border-primary rounded-xl p-3">
             <label htmlFor="card_number" className="w-full m-0">
               <span>{t('byCard.cardNumber')}</span>
               <input
@@ -259,7 +259,7 @@ const Payment = ({ payment }) => {
               />
             </label>
 
-            <label htmlFor="expited_date">
+            <label htmlFor="expited_date" className='flex flex-col lg:w-fit w-full'>
               <span>{t('byCard.expiry')}</span>
               <input
                 type="text"

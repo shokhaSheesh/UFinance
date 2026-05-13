@@ -16,8 +16,8 @@ export async function generateMetadata({
       images: [
         {
           url: payment.qrcode,
-          width: 512,
-          height: 512,
+          width: 1200,
+          height: 1200,
           alt: `QR-код для оплаты ${payment.amount} сум`,
         },
       ],
