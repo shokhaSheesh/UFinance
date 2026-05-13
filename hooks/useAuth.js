@@ -99,6 +99,7 @@ export function useLogin() {
 export function useRegister() {
   const t = useTranslations('Auth')
   const router = useRouter()
+  const { mutateAsync: getMyBranches } = useUcodeRequestMutation()
 
   return useMutation({
     mutationKey: ['register'],

@@ -42,6 +42,7 @@ const PaymentModal = ({ open, onClose, dealId }) => {
     createWLCMLink({
       amount: parseFloat(amount),
       sales_transactions_id: dealId,
+      path: `${linkHead}/payment/`,
       branch_id: 'd597e800-2643-4446-8d69-5b35bd6b208b'
     })
   }
@@ -87,7 +88,7 @@ const PaymentModal = ({ open, onClose, dealId }) => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('paymentLink')}
               </label>
-              <div className="flex gap-2"> 
+              <div className="flex gap-2">
                 <button
                   onClick={handleCopy}
                   className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
@@ -111,7 +112,7 @@ const PaymentModal = ({ open, onClose, dealId }) => {
           )}
         </div>
 
-       {!link && <div className="flex justify-end space-x-3 mt-6">
+        {!link && <div className="flex justify-end space-x-3 mt-6">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-600 hover:text-gray-800"

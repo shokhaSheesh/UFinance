@@ -7,9 +7,11 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { ClickLogo, PaymeLogo, UzumLogo } from '@/constants/icons';
 import { useLocaleSwitcher } from '@/hooks/useLocaleSwitcher';
 import { apiClient } from '@/lib/api/ucode/base';
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications';
 import { formatNumber } from '@/utils/helpers';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Lobster } from "next/font/google";
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 const lobster = Lobster({
@@ -18,7 +20,7 @@ const lobster = Lobster({
   subsets: ['latin']
 })
 
-const Payment = () => {
+const Payment = ({ payment }) => {
   const { id } = useParams()
   const t = useTranslations('Payment');
   const { changeLocale, locale, locales } = useLocaleSwitcher();
@@ -26,6 +28,12 @@ const Payment = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(locale)
   const [cardNumber, setCardNumber] = useState('')
   const [expiry, setExpiry] = useState('')
+
+  let originUrl = ''
+
+  if (typeof window !== 'undefined') {
+    originUrl = `${window.location.origin}/operations`
+  }
 
   // OTP dialog state
   const [otpOpen, setOtpOpen] = useState(false)
@@ -35,23 +43,11 @@ const Payment = () => {
 
   // ─── Queries ────────────────────────────────────────────────────────────────
 
-  const { data } = useQuery({
-    queryKey: ['get-wlcm-link'],
-    queryFn: () => apiClient.invokeFunction({
-      type: 'role',
-      method: 'get_wlcm_link',
-      data: { guid: id }
-    }),
-    select: (data) => data?.data,
-    enabled: !!id
-  })
-
   const paymentData = useMemo(() => ({
-    amount: data?.amount,
-    guid: data?.guid,
-    salesId: data?.sales_transactions_id,
-    branchId: data?.branch_id,
-  }), [data])
+    amount: payment?.amount,
+    guid: payment?.guid,
+    salesId: payment?.sales_transactions_id,
+  }), [payment])
 
   // ─── Payment Methods ─────────────────────────────────────────────────────────
 
@@ -105,11 +101,9 @@ const Payment = () => {
       method: 'create_wlcm_payment_for_card',
       type: 'role',
       data: {
-        branch_id: paymentData?.branchId,
-        wlcm_link_id: id,
-        payment_type: selectedPaymentMethod,        // active payment method
+        wlcm_link_id: id,        // active payment method
         card_number: cardNumber.replace(/\s/g, ''),
-        card_expiry_date: expiry.replace('/', ''),     // "MM/YY" → "MMYY"
+        card_expiry_date: expiry.replace('/', '').replace(/^(\d{2})(\d{2})$/, '$2$1')     // "MM/YY" → "MMYY"
       }
     }),
     onSuccess: (res) => {
@@ -119,8 +113,8 @@ const Payment = () => {
         setOtpOpen(true)
       }
     },
-    onError: (err) => {
-      console.error('Card payment error', err)
+    onError: () => {
+      showErrorNotification(t('error_card'))
     }
   })
 
@@ -133,7 +127,6 @@ const Payment = () => {
       method: 'wlcm_payment_for_card_otp_check',
       type: 'role',
       data: {
-        branch_id: paymentData?.branchId,
         wlcm_link_id: id,
         transaction_id: otpMeta?.transactionId,
         cid: otpMeta?.cid,
@@ -145,6 +138,9 @@ const Payment = () => {
       setOtp('')
       setOtpMeta(null)
       // TODO: navigate to success page or show toast
+      showSuccessNotification(t('success'))
+      setCardNumber('')
+      setExpiry('')
     },
     onError: (err) => {
       console.error('OTP verification error', err)
@@ -161,15 +157,14 @@ const Payment = () => {
       method: 'create_wlcm_payment_for_online',
       type: 'role',
       data: {
-        branch_id: paymentData?.branchId,
         wlcm_link_id: id,
         payment_type: selectedPaymentMethod,   // 'payme' | 'click' | 'uzum'
       }
     }),
     onSuccess: (res) => {
-      const redirectUrl = res?.data?.redirect_url
+      const redirectUrl = res?.data?.checkout_url
       if (redirectUrl) {
-        window.location.href = redirectUrl
+        window.open(redirectUrl, '_blank')
       }
     },
     onError: (err) => {
@@ -218,7 +213,9 @@ const Payment = () => {
           <h1 className="gap-2 text-center text-4xl tracking-tighter text-brand-orange">
             <span className={`${lobster.className} text-[#db8a53]`}>wlcm</span>
             <span className="px-6 font-sans text-neutral-300">{t('header.to')}</span>
-            <span className="font-sans text-gray-800">{t('header.uFinance')}</span>
+            <Link href={originUrl}>
+              <span className="font-sans hover:text-primary text-gray-800">{t('header.uFinance')}</span>
+            </Link>
           </h1>
         </div>
 
@@ -286,7 +283,7 @@ const Payment = () => {
             {paymentMethods.map((method) => (
               <div
                 key={method.id}
-                onClick={() => setSelectedPaymentMethod(method.id)}
+                onClick={() => setSelectedPaymentMethod(prev => prev === method.id ? '' : method.id)}
                 className={`flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all ${selectedPaymentMethod === method.id
                   ? 'border-primary bg-orange-50'
                   : 'border-gray-200 hover:border-gray-300'
@@ -331,7 +328,7 @@ const Payment = () => {
           disabled={isLoadingOnline}
           className="w-full bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
         >
-          {isLoadingOnline ? (
+          {isLoadingOnline || isLoadingWithCard ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

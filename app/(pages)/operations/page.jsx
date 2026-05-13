@@ -538,6 +538,10 @@ const OperationsPage = observer(() => {
 		}, 50)
 	}
 
+	const handleDeleteAll = () => {
+
+	}
+
 	const [isImporting, setIsImporting] = useState(false)
 	const [importErrorModalOpen, setImportErrorModalOpen] = useState(false)
 	const [importErrorData, setImportErrorData] = useState(null)
