@@ -6,6 +6,7 @@ import CustomDialog from '@/components/shared/CustomDialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'; // shadcn
 import { ClickLogo, PaymeLogo, UzumLogo } from '@/constants/icons';
 import { useLocaleSwitcher } from '@/hooks/useLocaleSwitcher';
+import useMounted from '@/hooks/useMounted';
 import { apiClient } from '@/lib/api/ucode/base';
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications';
 import { formatNumber } from '@/utils/helpers';
@@ -22,12 +23,14 @@ const lobster = Lobster({
 
 const Payment = ({ payment }) => {
   const { id } = useParams()
+  const mounted = useMounted()
   const t = useTranslations('Payment');
   const { changeLocale, locale, locales } = useLocaleSwitcher();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState(locale)
   const [cardNumber, setCardNumber] = useState('')
   const [expiry, setExpiry] = useState('')
+  const [amount, setAmount] = useState('')
 
   let originUrl = ''
 
@@ -41,6 +44,8 @@ const Payment = ({ payment }) => {
   // Stored from card payment response to use in OTP check
   const [otpMeta, setOtpMeta] = useState(null)
 
+
+
   // ─── Queries ────────────────────────────────────────────────────────────────
 
   const paymentData = useMemo(() => ({
@@ -48,6 +53,13 @@ const Payment = ({ payment }) => {
     guid: payment?.guid,
     salesId: payment?.sales_transactions_id,
   }), [payment])
+
+  // ─── Derived state ────────────────────────────────────────────────────────────
+  const isReadOnly = Boolean(payment?.amount) // null, 0, undefined → editable
+
+  const displayAmount = isReadOnly
+    ? formatNumber(payment.amount)
+    : formatNumber(amount)
 
   // ─── Payment Methods ─────────────────────────────────────────────────────────
 
@@ -60,7 +72,10 @@ const Payment = ({ payment }) => {
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   const calculateFinalAmount = () => {
-    const baseAmount = paymentData?.amount ?? 0
+    const baseAmount = isReadOnly
+      ? payment.amount
+      : parseInt(amount?.replace(/\s/g, '')) || 0
+
     const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethod)
     const fee = selectedMethod?.fee || 0
     return (baseAmount + (baseAmount * fee / 100)).toLocaleString('uz-UZ')
@@ -101,6 +116,7 @@ const Payment = ({ payment }) => {
       method: 'create_wlcm_payment_for_card',
       type: 'role',
       data: {
+        amount: parseInt(amount) || 0,
         wlcm_link_id: id,        // active payment method
         card_number: cardNumber.replace(/\s/g, ''),
         card_expiry_date: expiry.replace('/', '').replace(/^(\d{2})(\d{2})$/, '$2$1')     // "MM/YY" → "MMYY"
@@ -127,6 +143,7 @@ const Payment = ({ payment }) => {
       method: 'wlcm_payment_for_card_otp_check',
       type: 'role',
       data: {
+        amount: parseInt(amount) || 0,
         wlcm_link_id: id,
         transaction_id: otpMeta?.transactionId,
         cid: otpMeta?.cid,
@@ -157,6 +174,7 @@ const Payment = ({ payment }) => {
       method: 'create_wlcm_payment_for_online',
       type: 'role',
       data: {
+        amount: parseInt(amount) || 0,
         wlcm_link_id: id,
         payment_type: selectedPaymentMethod,   // 'payme' | 'click' | 'uzum'
       }
@@ -202,7 +220,7 @@ const Payment = ({ payment }) => {
     }
   }
 
-
+  if (!mounted) return null
 
   // ─── Render ───────────────────────────────────────────────────────────────────
 
@@ -232,14 +250,15 @@ const Payment = ({ payment }) => {
             </div>
             <input
               type="text"
-              value={formatNumber(paymentData?.amount)}
-              readOnly
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl outline-none text-lg text-gray-900 bg-gray-50"
+              value={displayAmount}
+              readOnly={isReadOnly}
+              onChange={isReadOnly ? undefined : (e) => setAmount(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-2xl outline-none text-lg text-gray-900 ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50'
+                }`}
               placeholder="0"
             />
           </div>
         </div>
-
         {/* By Card Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">

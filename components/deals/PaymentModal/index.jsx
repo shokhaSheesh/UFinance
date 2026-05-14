@@ -1,16 +1,14 @@
 'use client'
 import CustomDialog from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
-import { usePathname } from '@/i18n/navigation'
 import { apiClient } from '@/lib/api/ucode/base'
 import { useMutation } from '@tanstack/react-query'
-import { Copy } from 'lucide-react'
+import { CircleQuestionMark, Copy } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 const PaymentModal = ({ open, onClose, dealId }) => {
   const t = useTranslations('Deals.detail.payment')
-  const pathName = usePathname()
   const [amount, setAmount] = useState('')
   const [link, setLink] = useState('')
   const [copied, setCopied] = useState(false)
@@ -37,10 +35,9 @@ const PaymentModal = ({ open, onClose, dealId }) => {
   })
 
   const handleSubmit = () => {
-    if (!amount || parseFloat(amount) <= 0) return
 
     createWLCMLink({
-      amount: parseFloat(amount),
+      amount: parseFloat(amount) || 0,
       sales_transactions_id: dealId,
       path: `${linkHead}/payment/`,
       branch_id: 'd597e800-2643-4446-8d69-5b35bd6b208b'
@@ -62,16 +59,16 @@ const PaymentModal = ({ open, onClose, dealId }) => {
 
   return (
     <CustomDialog open={open} onClose={onClose}>
-      <div className="bg-white rounded-lg p-3 w-full">
+      <div className="bg-white rounded-lg p-3  w-[500px]">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">{t('createPayment')}</h2>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-2">
               {t('paymentAmount')}
-            </label>
+            </label> */}
             <Input
               type="number"
               value={amount}
@@ -81,6 +78,10 @@ const PaymentModal = ({ open, onClose, dealId }) => {
               min="0"
               step="0.01"
             />
+            <div className="flex items-start gap-2 mt-2">
+              <CircleQuestionMark color='#4a5565' size={20} />
+              <p className="text-sm text-gray-600">{t('payment_rule')}</p>
+            </div>
           </div>
 
           {link && (
@@ -127,8 +128,7 @@ const PaymentModal = ({ open, onClose, dealId }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isPending || !amount || parseFloat(amount) <= 0}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-blue-500 cursor-pointer text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? t('creating') : t('createLink')}
           </button>

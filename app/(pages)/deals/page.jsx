@@ -280,7 +280,7 @@ export default observer(function DealsPage() {
         </header>
 
         {/* Sticky column header */}
-        <div className='flex h-12 sticky top-[60px] z-10 text-xs gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+        <div className='flex h-12 sticky top-[60px] z-10 text-xs  font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
           <div className='w-10 flex items-center justify-center'>
             <OperationCheckbox checked={isAllSelected} onChange={handleSelectAll} />
           </div>

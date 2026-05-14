@@ -681,7 +681,8 @@
 				"cancel": "Bekor qilish",
 				"createLink": "Havola yaratish",
 				"creating": "Yaratilmoqda...",
-				"change_price": "Narxni o'zgartirish"
+				"change_price": "Narxni o'zgartirish",
+				"payment_rule": "Agar qat'iy summa yozmasangiz. To'lovchi shaxs istalgan miqdorda to'lov qilishi mumkin."
 			}
 		},
 		"filters": {

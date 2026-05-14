@@ -338,7 +338,7 @@ export const ClickLogo = ({ width = 44, height = 44 }) => {
   return <svg viewBox="0 0 200 200" width={width} height={height}>
     <path
       fill="#1A6BFF"
-      fill-rule="evenodd"
+      fillRule="evenodd"
       d="M100,18
        C60,18 18,58 18,100
        C18,142 58,182 100,182
@@ -374,12 +374,12 @@ export const PaymeLogo = ({ width = 44, height = 24 }) => {
     <text
       x="92"
       y="116"
-      font-family="'Arial Black', Arial, sans-serif"
-      font-weight="900"
-      font-size="52"
-      font-style="italic"
+      fontFamily="'Arial Black', Arial, sans-serif"
+      fontWeight="900"
+      fontSize="52"
+      fontStyle="italic"
       fill="#006B68"
-      text-anchor="middle"
+      textAnchor="middle"
     >me</text>
   </svg>
 }
