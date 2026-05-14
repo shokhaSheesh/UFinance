@@ -4,6 +4,7 @@ import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
 import { useCreateLegalEntity, useUpdateLegalEntity } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
+import { returnNumber } from '@/utils/helpers'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
@@ -137,7 +138,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
         <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
           <h3 id="modal-title" className="text-[18px] font-semibold text-slate-900 m-0">
             {isEdit ? t('editTitle') : t('createTitle')}
-          </h3> 
+          </h3>
         </div>
 
         {/* Content */}
@@ -181,7 +182,9 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
                   <Input
                     type="number"
                     value={formData.inn}
-                    onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, inn: returnNumber(e.target.value) })
+                    }}
                     placeholder=""
                     className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     onWheel={(e) => e.target.blur()}
@@ -190,7 +193,7 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
                   <Input
                     type="number"
                     value={formData.kpp}
-                    onChange={(e) => setFormData({ ...formData, kpp: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, kpp: returnNumber(e.target.value) })}
                     placeholder=""
                     className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     onWheel={(e) => e.target.blur()}
