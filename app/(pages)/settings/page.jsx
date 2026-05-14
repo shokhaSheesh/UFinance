@@ -1,5 +1,8 @@
 'use client'
 
+import Input from '@/components/shared/Input'
+import { apiClient } from '@/lib/api/ucode/base'
+import { useMutation } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -31,10 +34,18 @@ const SettingsPage = observer(() => {
   const tg = useTranslations('Settings.general')
   const tc = useTranslations('Settings.common')
   const { mutateAsync: updateSettings, isPending: isSaving } = useUcodeRequestMutation()
+  const { mutateAsync: createWlcmToken, isPending: isSavingToken } = useMutation({
+    mutationKey: ['set_wlcm_token'],
+    mutationFn: (data) => apiClient.invokeFunction({ ...data, type: 'role' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
+    }
+  })
 
   const [isPayment, setIsPayment] = useState(appStore.isPayment)
   const [isAccrualDate, setIsAccrualDate] = useState(appStore.isAccrualDate)
   const [currencyId, setCurrencyId] = useState(appStore?.currency?.guid)
+  const [wlcmHashcode, setWlcmHashcode] = useState('')
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
@@ -44,13 +55,28 @@ const SettingsPage = observer(() => {
   const isPaymentChanged = isPayment !== appStore.isPayment
   const isAccrualDateChanged = isAccrualDate !== appStore.isAccrualDate
   const isCurrencyChanged = currencyId !== appStore?.currency?.guid
-  const hasChanges = isPaymentChanged || isAccrualDateChanged || isCurrencyChanged
+  const hasChanges = isPaymentChanged || isAccrualDateChanged || isCurrencyChanged || wlcmHashcode
+
 
   const handleSaveSettings = async () => {
     const data = {}
 
     if (isPaymentChanged) data.is_payment = isPayment
     if (isAccrualDateChanged) data.is_accural_date = isAccrualDate
+    if (wlcmHashcode) {
+      try {
+        await createWlcmToken({
+          method: "wlcm_onboarding_payment_create",
+          data: {
+            token: wlcmHashcode
+          }
+        })
+        queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
+      } catch (error) {
+        console.log('Error', error?.message)
+      }
+      return
+    }
     if (isCurrencyChanged) {
       const selected = appStore.currencies.find(c => c.guid === currencyId)
       data.default_currency_id = currencyId
@@ -91,6 +117,10 @@ const SettingsPage = observer(() => {
     }
   }
 
+
+
+  const isSavingData = isSaving || isSavingToken
+
   return (
     <div className=" bg-white w-full">
       <h1 className="text-xl sticky top-0 bg-white p-3 font-bold text-slate-900 mb-7">{tg('pageTitle')}</h1>
@@ -115,7 +145,6 @@ const SettingsPage = observer(() => {
 
       {/* Accounting settings */}
       <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
-        <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">{tg('accounting.title')}</h2>
         <section className="flex flex-col gap-1.5 items-start">
           <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
             {tg('accounting.operations')}
@@ -132,15 +161,27 @@ const SettingsPage = observer(() => {
           />
         </section>
       </section>
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+        <section className="flex flex-col gap-1.5 items-start">
+          <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
+            {tg('accounting.wlcm_title')}
+          </h2>
+          <Input
+            value={wlcmHashcode}
+            onChange={(event) => setWlcmHashcode(event?.target?.value)}
+            placeholder={tg('accounting.wlcm')}
+          />
+        </section>
+      </section>
 
       <div className="sticky bottom-0 bg-white  p-3 flex justify-start">
         <button
           onClick={handleSaveSettings}
-          disabled={!hasChanges || isSaving}
+          disabled={!hasChanges || isSavingData}
           className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
-          {isSaving && <Loader2 size={16} className="animate-spin" />}
-          {isSaving ? tc('saving') : tc('save')}
+          {isSavingData && <Loader2 size={16} className="animate-spin" />}
+          {isSavingData ? tc('saving') : tc('save')}
         </button>
       </div>
     </div>

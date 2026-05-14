@@ -143,11 +143,11 @@ const Payment = ({ payment }) => {
       method: 'wlcm_payment_for_card_otp_check',
       type: 'role',
       data: {
-        amount: parseInt(amount) || 0,
+        amount: parseInt(displayAmount) || 0,
         wlcm_link_id: id,
         transaction_id: otpMeta?.transactionId,
         cid: otpMeta?.cid,
-        otp: Number(otp),
+        otp: otp,
       }
     }),
     onSuccess: () => {
@@ -396,7 +396,7 @@ const Payment = ({ payment }) => {
             </InputOTPGroup>
           </InputOTP>
 
-          <div className="flex gap-3 w-full">
+          <div className="flex flex-col gap-3 w-full lg:flex-row ">
             <button
               onClick={handleOtpClose}
               className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"

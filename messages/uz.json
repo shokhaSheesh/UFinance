@@ -682,6 +682,11 @@
 				"createLink": "Havola yaratish",
 				"creating": "Yaratilmoqda...",
 				"change_price": "Narxni o'zgartirish",
+				"send": "Yuborish",
+				"sending": "Yuborilmoqda...",
+				"enterEmail": "Email Manzilni kiring",
+				"emailSentSuccess": "Xabar muvaffaqiyatli yuborildi",
+				"sendToEmail": "QR code ni emailga jo'natish",
 				"payment_rule": "Agar qat'iy summa yozmasangiz. To'lovchi shaxs istalgan miqdorda to'lov qilishi mumkin."
 			}
 		},
@@ -919,6 +924,8 @@
 				"title": "Hisob sozlamalari",
 				"operations": "Operatsiyalarni yaratish va tahrirlash",
 				"paymentType": "To'lov turi",
+				"wlcm_title": "WLCM dagi shaxsiy kabinetingiz joylash",
+				"wlcm": "WLCM.uz tokeningizni joylang",
 				"accrualDate": "Sotuvni tanlashda << Hisoblanish sanasi >> maydonini yoqish"
 			},
 			"save": "Saqlash",
