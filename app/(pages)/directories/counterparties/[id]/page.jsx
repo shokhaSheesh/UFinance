@@ -21,6 +21,7 @@ import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import operationsDto from '@/lib/dtos/operationsDto'
@@ -140,6 +141,8 @@ const KontragentDetailPage = observer(() => {
   const operations = useMemo(() => {
     return operationsDto(counterpartyOperations || [], 'all')
   }, [counterpartyOperations])
+
+  console.log('counterparty', counterparty)
 
 
   const operationsList = useMemo(() => {
@@ -470,31 +473,33 @@ const KontragentDetailPage = observer(() => {
             </div>
             {/* dots button */}
             <div className="relative" ref={dropdownRef}>
-              {canEdit && canDelete && <button
-                className={cn(
-                  'flex items-center justify-center w-[38px] h-[38px] rounded-md border border-gray-300 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400',
-                  isDropdownOpen && 'bg-slate-100 border-gray-400'
-                )}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <MoreHorizontal size={20} />
-              </button>}
+              <Popover>
+                {(canEdit || canDelete) && <PopoverTrigger asChild>
+                  <span
+                    className={
+                      'flex items-center justify-center w-[38px] h-[38px] rounded-md border border-gray-200 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400'
+                    }
+                  >
+                    <MoreHorizontal size={20} />
+                  </span>
+                </PopoverTrigger>}
+                <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1">
+                  <div className="flex flex-col">
+                    {canEdit && <span className="flex items-center px-4 py-3 text-sm text-slate-900 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-slate-100" onClick={() => {
+                      setIsDropdownOpen(false)
+                      setIsEditCounterpartyModalOpen(true)
+                    }}>
+                      <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
+                      {tc('edit')}
+                    </span>}
+                    <span className="flex items-center px-4 py-3 text-sm text-red-500 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-red-50" onClick={handleDeleteCounterparty}>
+                      <Trash2 size={18} className="mr-3 text-red-500" />
+                      {tc('delete')}
+                    </span>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
-              {isDropdownOpen && (
-                <div className="absolute top-full right-0 w-[220px] bg-white border border-gray-300 rounded shadow-md z-50 py-1 flex flex-col">
-                  {canEdit && <button className="flex items-center px-4 py-3 text-sm text-slate-900 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-slate-100" onClick={() => {
-                    setIsDropdownOpen(false)
-                    setIsEditCounterpartyModalOpen(true)
-                  }}>
-                    <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
-                    {tc('edit')}
-                  </button>}
-                  <button className="flex items-center px-4 py-3 text-sm text-red-500 bg-none border-none cursor-pointer w-full text-left transition-colors hover:bg-red-50" onClick={handleDeleteCounterparty}>
-                    <Trash2 size={18} className="mr-3 text-red-500" />
-                    {tc('delete')}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 

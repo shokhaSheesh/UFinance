@@ -1,6 +1,6 @@
 'use client';
 import { useSaleComments } from '@/hooks/useSaleComments';
-import { Check, Download, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react';
+import { Check, Download, Loader2, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 
@@ -153,10 +153,12 @@ const CommentChat = ({ dealGuid }) => {
                   )}
 
                   <div className="flex items-center justify-between mt-2 text-[11px] text-gray-400">
-                    <div className="flex flex-col items-start">
-                      <span>{msg.email}</span>
-                      <span>{formatDateRu(msg.createdAt)}</span>
-                    </div>
+                    <>
+                      {isSending ? <Loader2 className='animate-spin' /> : <div className="flex flex-col items-start">
+                        <span>{msg.email}</span>
+                        <span>{formatDateRu(msg.createdAt)}</span>
+                      </div>}
+                    </>
                     {isEditing ? (
                       <div className="flex items-center gap-1">
                         <button onClick={handleEditCancel} className="p-1 text-gray-500 hover:text-gray-700" title={t('cancel')}>

@@ -68,6 +68,10 @@ class AuthStore {
 
   }
 
+  setToken(tokenName, token) {
+    this[tokenName] = token;
+  }
+
   setCompanyId(companyId) {
     this.userData = { ...this.userData, company_id: companyId };
   }
@@ -92,7 +96,7 @@ class AuthStore {
     this.refreshToken = '';
     this.selectBranch = null;
     this.branch_id = '';
-    this.branches = [];  
+    this.branches = [];
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('userEmail');
