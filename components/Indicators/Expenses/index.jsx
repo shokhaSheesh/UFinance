@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
-import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import { formatNumber, formatTotalSumma, formatValueLength } from '../../../utils/helpers'
 import { getRandomColor } from '../../../utils/randomColor'
 import { findByName } from '../Income'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
@@ -121,7 +121,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             expense: { label: method === 'income_expenses' ? t('expenses.labelPayments') : t('expenses.labelExpenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0))?.replace(/\-/g, ''), plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
             details
         }
-    }, [expenseData, childrens, method])
+    }, [expenseData, childrens, method, t])
 
     const donutOption = useMemo(() => ({
         tooltip: {
@@ -193,7 +193,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                           <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                           ${item.seriesName}
                         </div>
-                        <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
+                        <div class="font-medium text-slate-900">${formatValueLength(item.value ?? 0, billion, million, thousand)}  ${GlobalCurrency?.name}</div>
                       </div>`
                     })
                     return res
@@ -235,11 +235,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                     fontSize: 12,
                     formatter: (value) => {
                         if (value === 0) return '0'
-                        const abs = Math.abs(value)
-                        if (abs >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)} ${billion}`
-                        if (abs >= 1_000_000) return `${(value / 1_000_000).toFixed(1)} ${million}`
-                        if (abs >= 1_000) return `${(value / 1_000).toFixed(0)} ${thousand}`
-                        return `${formatTotalSumma(value, 0)}`
+                        return formatValueLength(value ?? 0, billion, million, thousand)
                     }
                 }
             },

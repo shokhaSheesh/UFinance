@@ -31,8 +31,6 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
     }
   })
 
-  console.log(accountsData)
-
   const mappedData = useMemo(() => {
     const data = (accountsData || []).map(item => ({
       value: item.guid,

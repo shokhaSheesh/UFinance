@@ -245,8 +245,8 @@ const SentMessages = ({
   return (
     <>
 
-      {!open && <div className='flex h-fit p-2 m-2 rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(true)}>
-        <MessageSquareText />
+      {!open && <div className='flex h-fit p-2 m-2 text-sm rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(true)}>
+        <MessageSquareText size={18} />
         <p>Файлы и комментарии</p>
       </div>}
 

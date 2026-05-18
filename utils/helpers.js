@@ -264,3 +264,13 @@ export const isUUID = (str) => {
   const regex = /^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/i
   return regex.test(str)
 }
+
+
+export const formatValueLength = (val, billion, million, thousand) => {
+  if (!val && val !== 0) return '0'
+  const abs = Math.abs(val)
+  if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
+  if (abs >= 1_000_000) return `${(val / 1_000_000).toFixed(1)} ${million}`
+  if (abs >= 1_000) return `${(val / 1_000).toFixed(0)} ${thousand}`
+  return formatNumber(val)
+}

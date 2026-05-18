@@ -132,7 +132,7 @@ const ProfitableClients = observer(() => {
             min-width: 140px;
           ">
             <div style="font-size: 14px; margin-bottom: 4px; opacity: 0.95;">${name}</div>
-            <div style="font-size: 20px; font-weight: 600;">${formattedValue} ${percentText}</div>
+            <div style="font-size: 20px; font-weight: 600;">${formattedValue} ${percentText} ${GlobalCurrency?.name}</div>
           </div>
         `
         }

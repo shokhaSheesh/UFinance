@@ -7,6 +7,7 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import useMounted from '@/hooks/useMounted'
 import { apiClient } from '@/lib/api/ucode/base'
 import { indicators } from '@/store/indicatos.store'
+import { formatValueLength } from '@/utils/helpers'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
@@ -109,14 +110,7 @@ const AccountBalance = () => {
 
     const inteval = dates?.length > 5000 ? 400 : dates?.length > 1500 ? 300 : dates?.length > 1000 ? 100 : dates?.length > 500 ? 50 : 10
 
-    const options = useMemo(() => {
-        const formatValue = (val) => {
-            if (!val && val !== 0) return '0'
-            const abs = Math.abs(val)
-            if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
-            if (abs >= 1_000_000) return `${(Math.round(val / 1_000_000)).toLocaleString('ru-RU')} ${million}`
-            return val.toLocaleString('ru-RU')
-        }
+    const options = useMemo(() => { 
 
         return {
             tooltip: {
@@ -133,7 +127,7 @@ const AccountBalance = () => {
               <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
               ${item.seriesName}
             </div>
-            <div class="font-medium text-slate-900">${formatValue(item.value)}</div>
+            <div class="font-medium text-slate-900">${formatValueLength(item.value, billion, million)} ${GlobalCurrency?.name}</div>
           </div>`
                     })
                     return res
@@ -169,7 +163,7 @@ const AccountBalance = () => {
                 axisLine: { show: false },
                 axisTick: { show: false },
                 splitLine: { lineStyle: { color: '#f3f4f6' } },
-                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValue(v) },
+                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValueLength(v) },
             },
             series: [
                 {

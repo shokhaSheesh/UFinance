@@ -154,7 +154,7 @@ const CashFlow = () => {
                       <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${formatValue(item.value)}</div>
+                    <div class="font-medium text-slate-900">${formatValue(item.value)} ${GlobalCurrency?.name}</div>
                   </div>`
         })
         return res

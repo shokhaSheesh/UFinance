@@ -470,7 +470,7 @@ const CounterpartiesPage = observer(() => {
 
         {allCounterparties.length === 0 && !isLoadingCounterparties && (
           <div className="py-20 text-center text-neutral-500 bg-white">
-            Нет данных
+            {t('list.empty')}
           </div>
         )}
 

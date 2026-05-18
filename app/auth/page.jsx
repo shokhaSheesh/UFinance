@@ -391,8 +391,7 @@ export default function LoginPage() {
 
             {formType !== 'forgot' && (
               <div className={styles.termsText}>
-                {t('termsNoticePrefix')}{t(`submit.${formType}`)}{t('termsNoticeSuffix')}
-                <a href="#">{t('termsNoticeLink')}</a>
+                {t('termsNoticePrefix')}{t(`submit.${formType}`)}{t('termsNoticeSuffix')} {t('termsNoticeLink')}
               </div>
             )}
           </form>

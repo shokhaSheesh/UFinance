@@ -1049,7 +1049,7 @@
 			"name": "Название роли",
 			"namePlaceholder": "Введите название роли",
 			"description": "Описание",
-
+			"noData": "Нет данных",
 			"descriptionPlaceholder": "Введите описание роли",
 			"errors": {
 				"nameRequired": "Введите название роли"

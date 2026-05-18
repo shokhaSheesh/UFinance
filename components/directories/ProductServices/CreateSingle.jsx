@@ -276,7 +276,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                   control={control}
                   render={({ field }) => (
                     <Input
-                      className="flex-1 min-w-0"
+                      className="flex-1 w-32"
                       placeholder={t('placeholders.price')}
                       value={formatNumber(field.value)}
                       onChange={e => field.onChange(formatNumber(e.target.value))}
@@ -294,7 +294,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       isClearable={false}
                       withSearch={false}
                       disabled={isEditing}
-                      className={'bg-white'}
+                      className={'bg-white w-20'}
                     />
                   )}
                 />
