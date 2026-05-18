@@ -110,6 +110,16 @@ export function useRegister() {
       const refreshToken = responseData?.token?.refresh_token
       const userData = responseData?.user_data || responseData?.userData || responseData?.user
 
+      // Set authentication state through MobX store
+      if (tokenData && userData) {
+        authStore.setAuthentication({
+          token: tokenData,
+          refresh_token: refreshToken,
+          user_data: userData
+        })
+      } else {
+        console.error('Missing token or user data!')
+      }
 
       const branchesResponse = await getMyBranches({
         method: 'get_my_branches',
@@ -131,17 +141,9 @@ export function useRegister() {
         appStore.setEmployerPermission()
       }
 
-      if (tokenData && userData) {
-        authStore.setAuthentication({
-          token: tokenData,
-          refresh_token: refreshToken,
-          user_data: userData
-        })
-        showSuccessNotification(t('notifications.registerSuccess'))
-        router.push('/operations')
-      } else {
-        showErrorNotification(t('notifications.registerError'))
-      }
+      authStore.selectBranch = branches[0]
+      showSuccessNotification(t('notifications.registerSuccess'))
+      router.push('/operations')
     },
     onError: (error) => {
       console.log('Register error:', error)
