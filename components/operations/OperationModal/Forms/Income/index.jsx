@@ -254,8 +254,9 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
+      console.log('raw', raw)
       const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-      const accrualDate = !raw?.sales_transactions_id ? formatDate(raw.data_nachisleniya) : paymentDate
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDate(raw.data_nachisleniya) : paymentDate
 
 
       return {
@@ -351,7 +352,7 @@ const IncomeForm = observer(({
   const onSubmit = async (data) => {
 
     const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
-    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.paymentDate).format('YYYY-MM-DD')
+    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.accrualDate).format('YYYY-MM-DD')
 
     const payload = {
       tip: ['Поступление'],
