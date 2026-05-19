@@ -299,7 +299,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     const monthlyAmount = formatNumber(values.monthlyPayment)
 
     // totalContractPayment = total months * monthly amount
-    const totalContractPayment = formatNumber(totalMonths * values.monthlyPayment)
+    const totalContractPayment = formatNumber((totalMonths + 1) * values.monthlyPayment)
 
     const baseData = {
       contractNumber: values.contractNumber || '___',
