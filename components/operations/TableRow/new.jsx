@@ -219,7 +219,7 @@ const TableRow = observer(({
         {/* Project/Deal */}
         <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
           {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка") && (
-            <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)} title={op?.selling_deal_name}>{op?.selling_deal_name || '-'}</p>
+            <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op?.sales_transaction_name || '-'}</p>
           )}
           {op.tip === "Начисление" && (
             <div className='flex flex-col items-center justify-center relative group w-full'>

@@ -165,7 +165,7 @@ const Students = observer(() => {
     )
 
     return cols
-  }, [monthsData])
+  }, [monthsData, t])
 
   const handleScroll = () => {
     const container = scrollContainerRef.current

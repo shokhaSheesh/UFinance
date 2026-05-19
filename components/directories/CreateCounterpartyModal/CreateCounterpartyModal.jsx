@@ -15,7 +15,7 @@ import {
   useUpdateCounterparty,
 } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
-import { returnNumber } from '@/utils/helpers'
+import { includeNumber, returnNumber } from '@/utils/helpers'
 import { useQueryClient } from '@tanstack/react-query'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -59,7 +59,7 @@ function DynamicFieldList({ fields, onAppend, onRemove, renderInput }) {
             <button
               type="button"
               onClick={onAppend}
-              className="text-neutral-400 hover:text-[#0e73f6] shrink-0 outline-none"
+              className="text-neutral-400 hover:text-primary shrink-0 outline-none"
             >
               <PlusCircle size={20} />
             </button>
@@ -354,7 +354,7 @@ export default function CreateCounterpartyModal({
                           placeholder={t('placeholders.inn')}
                           className={cn(styles.input, styles.requisitesInput)}
                           value={field.value}
-                          onChange={e => field.onChange(returnNumber(e.target.value))}
+                          onChange={e => field.onChange(includeNumber(e.target.value))}
                         />
                       )}
                     />
@@ -379,7 +379,7 @@ export default function CreateCounterpartyModal({
                             placeholder={t('placeholders.kpp')}
                             className={cn(styles.input, styles.requisitesInput)}
                             value={field.value}
-                            onChange={e => field.onChange(returnNumber(e.target.value))}
+                            onChange={e => field.onChange(includeNumber(e.target.value))}
                           />
                         )}
                       />
@@ -395,11 +395,19 @@ export default function CreateCounterpartyModal({
                     onAppend={() => appendAccount({ value: '' })}
                     onRemove={removeAccount}
                     renderInput={(index) => (
-                      <Input
-                        autoComplete="off"
-                        placeholder={t('placeholders.account')}
-                        className={cn(styles.input, styles.requisitesInput)}
-                        {...register(`account_number.${index}.value`)}
+                      <Controller
+                        name={`account_number.${index}.value`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder={t('placeholders.account')}
+                            className={cn(styles.input, styles.requisitesInput)}
+                            value={field.value}
+                            onChange={e => field.onChange(includeNumber(e.target.value))}
+                          />
+                        )}
                       />
                     )}
                   />
@@ -430,9 +438,9 @@ export default function CreateCounterpartyModal({
                     label: 'fields.articleIn',
                     placeholder: 'fields.articleIn'
                   }, {
-                      name: 'chart_of_accounts_id_2',
-                      label: 'fields.articleIn',
-                      placeholder: 'fields.articleIn'
+                    name: 'chart_of_accounts_id_2',
+                    label: 'fields.articleIn',
+                    placeholder: 'fields.articleIn'
 
                     }]).map((fieldName, i) => (
                       <div key={fieldName.name} className={styles.formRow}>
@@ -441,7 +449,7 @@ export default function CreateCounterpartyModal({
                         </label>
                       <div className={styles.inputContainer}>
                         <Controller
-                            name={fieldName?.name}
+                          name={fieldName?.name}
                           control={control}
                           render={({ field }) => (
                             <SinglSelectStatiya
@@ -455,7 +463,7 @@ export default function CreateCounterpartyModal({
                         />
                       </div>
                     </div>
-                    ))}
+                  ))}
                 </>
               )}
 

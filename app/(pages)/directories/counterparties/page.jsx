@@ -23,7 +23,7 @@ import { showSuccessNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { formatAmount, handleDownload } from '@/utils/helpers'
+import { formatNumber, handleDownload } from '@/utils/helpers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -678,7 +678,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.receivables')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.receivables)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.receivables)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -688,7 +688,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.payables')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.payables)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.payables)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -698,7 +698,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.receipts')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.income)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.income)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -708,7 +708,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.payments')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatAmount(SummaryTotal?.expense)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.expense)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -722,7 +722,7 @@ const CounterpartiesPage = observer(() => {
                 'text-xs font-semibold',
                 SummaryTotal?.difference > 0 ? 'text-emerald-500' : SummaryTotal?.difference < 0 ? 'text-red-500' : 'text-slate-900'
               )}>
-                {SummaryTotal?.difference === 0 ? '0' : `${SummaryTotal?.difference > 0 ? '+' : ''}${formatAmount(SummaryTotal?.difference)}`}
+                {SummaryTotal?.difference === 0 ? '0' : `${SummaryTotal?.difference > 0 ? '+' : ''}${formatNumber(SummaryTotal?.difference)}`}
               </span>
               <span className={cn(
                 'text-xs',

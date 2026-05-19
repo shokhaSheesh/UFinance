@@ -128,6 +128,13 @@ export function formatNumber(value) {
   return formatted + decPart.slice(0, 3)
 }
 
+export function includeNumber(value) {
+  // strip everything except digits and dot
+  const clean = String(value).replace(/[^\d.-]/g, '')
+
+  return clean
+}
+
 export function handleInput(e) {
   const raw = e.target.value
   const cursor = e.target.selectionStart

@@ -7,10 +7,13 @@ import { AuthLogo } from '@/constants/icons'
 import { useLogin, useRegister } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
+import { showSuccessNotification } from '@/lib/utils/notifications'
+import { authStore } from '@/store/auth.store'
 import { formatPhoneNumber, getCleanPhoneNumber } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { redirect } from 'next/navigation'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import styles from './styles.module.scss'
@@ -43,7 +46,10 @@ export default function LoginPage() {
   const { mutateAsync: registerAsync, isPending: isRegistering } = useRegister()
   const { mutateAsync: forgotPasswordMutation, isPending: isForgotPasswordLoading } = useMutation({
     mutationKey: ['auth_forgot_password'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data })
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data }),
+    onSuccess: () => {
+
+    }
   })
 
   const toggleFormType = () => {
@@ -82,10 +88,12 @@ export default function LoginPage() {
     } else if (formType === 'forgot') {
       try {
         await forgotPasswordMutation({ email: data.forgotEmail })
-        showSuccessNotification(t('notifications.forgotSuccess'))
-        setFormType('login')
+
       } catch (error) {
         showErrorNotification(error?.message || t('notifications.forgotError'))
+      } finally {
+        showSuccessNotification(t('notifications.forgotSuccess'))
+        setFormType('login')
       }
     } else {
       const cleanPhone = getCleanPhoneNumber(data.phone)
@@ -120,6 +128,10 @@ export default function LoginPage() {
       required: t('errors.emailRequired'),
       pattern: { value: /\S+@\S+\.\S+/, message: t('errors.emailInvalid') }
     }
+  }
+
+  if (authStore.isAuthenticated) {
+    return redirect('/operations')
   }
 
   return (
