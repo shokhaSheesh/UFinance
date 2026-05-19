@@ -41,7 +41,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
   } = useInfiniteQuery({
     queryKey: ['find_operations', sellingDealId, 'income'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
-      method: "find_operations",
+      method: "list_operations_by_query",
       data: {
         selling_deal_ids: [sellingDealId],
         tip: ['Поступление'],

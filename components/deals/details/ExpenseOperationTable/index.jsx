@@ -1,5 +1,9 @@
 'use client'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
+import CustomModal from '@/components/shared/CustomModal'
+import { useDeleteOperation } from '@/hooks/useDashboard'
+import { apiClient } from '@/lib/api/ucode/base'
+import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
@@ -7,13 +11,9 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useDeleteOperation } from '../../../../hooks/useDashboard'
-import { apiClient } from '../../../../lib/api/ucode/base'
-import operationsDto from '../../../../lib/dtos/operationsDto'
-import CustomModal from '../../../shared/CustomModal'
 
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
-import { CreditIcon, DebitIcon } from '../../../../constants/icons'
+import { GlobalCurrency } from '@/constants/globalCurrency'
+import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
@@ -41,7 +41,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd }) => {
   } = useInfiniteQuery({
     queryKey: ['find_operations', sellingDealId, 'expense'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
-      method: "find_operations",
+      method: "list_operations_by_query",
       data: {
         selling_deal_ids: [sellingDealId],
         tip: ["Выплата", "Начисление"],

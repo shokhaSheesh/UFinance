@@ -434,7 +434,7 @@ const IncomeForm = observer(({
         updateOperationsCache(res.data.data)
       }
       if (isNew) {
-        queryClient.refetchQueries({ queryKey: ['find_operations'] })
+        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
       }
 
       queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })

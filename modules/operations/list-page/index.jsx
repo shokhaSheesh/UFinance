@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -108,10 +108,22 @@ const OperationsListPage = observer(() => {
     isFetching: isFetchingOperations,
     isLoading: isLoadingOperations,
   } = useUcodeRequestInfinite({
-    method: 'find_operations',
+    method: 'list_operations_by_query',
     data: requestOperationFilters,
     querySetting: { staleTime: 1000 * 60, gcTime: 1000 * 60 },
   })
+
+
+  const { data: operationsTotal } = useQuery({
+    queryKey: ['get_operations_total', requestOperationFilters],
+    queryFn: () => apiClient.invokeFunction({ method: "summary_operations", data: requestOperationFilters, }),
+    staleTime: 1000 * 60,
+    gcTime: 1000 * 60,
+    placeholderData: keepPreviousData,
+    select: (response) => response?.data?.data
+  })
+
+  console.log('operationsTotal', operationsTotal)
 
   const allOperations = useMemo(
     () => infiniteData?.pages?.flatMap(p => p?.data?.data || []) || [],
@@ -119,8 +131,8 @@ const OperationsListPage = observer(() => {
   )
 
   const totalSummary = useMemo(
-    () => infiniteData?.pages?.[0]?.data?.totalSummary,
-    [infiniteData]
+    () => operationsTotal,
+    [operationsTotal]
   )
 
   const currentPage = useMemo(

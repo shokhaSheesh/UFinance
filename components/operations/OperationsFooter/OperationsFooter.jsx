@@ -8,6 +8,8 @@ import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import styles from './OperationsFooter.module.scss'
 
 export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }) => {
+
+
   const t = useTranslations('Operations')
   const mounted = useMounted()
 
@@ -79,7 +81,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
             </strong>
             <span>{GlobalCurrency?.name}</span>
           </div>
-        </div> 
+        </div>
       </div>
     </div>
   )

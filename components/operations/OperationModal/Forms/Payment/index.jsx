@@ -427,7 +427,7 @@ const PaymentForm = observer(({
       }
 
       if (isNew) {
-        queryClient.refetchQueries({ queryKey: ['find_operations'] })
+        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
       }
 
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })

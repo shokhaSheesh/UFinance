@@ -140,10 +140,7 @@ const KontragentDetailPage = observer(() => {
   // Unified operations data from find_operations
   const operations = useMemo(() => {
     return operationsDto(counterpartyOperations || [], 'all')
-  }, [counterpartyOperations])
-
-  console.log('counterparty', counterparty)
-
+  }, [counterpartyOperations]) 
 
   const operationsList = useMemo(() => {
     return {

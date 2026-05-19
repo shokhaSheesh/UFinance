@@ -99,8 +99,7 @@ const TableRow = observer(({
       default:
         return ''
     }
-  }, [op])
-
+  }, [op]) 
 
   return (
     <>
