@@ -106,7 +106,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         classes_id: initialData?.classes_id || null,
         language_classes_id: initialData?.language_classes_id || null,
         legal_entity_id: initialData?.legal_entity_id || null,
-        monthlyPayment: ""
+        monthlyPayment: initialData?.product_and_service_id_data?.summa
       }
     }
     return {
@@ -183,6 +183,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       branchName: existFileContract?.branch_id_data?.name
     }
   }, [contract])
+
 
   useEffect(() => {
     if (!contractData.file) return
@@ -328,7 +329,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   }
 
   const getContractHtml = () => {
-    if (initialData && !canUpdateForms) return initialData?.contract_file
+    // if (initialData && !canUpdateForms) return initialData?.contract_file
     if (!contractTemplate) return '<p style="padding:20px;font-family:sans-serif">Загрузка шаблона договора...</p>'
     const data = getContractDataForType()
     return Object.entries(data).reduce(
@@ -336,6 +337,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       contractTemplate,
     )
   }
+
+
+  console.log('getContractHtml', getContractHtml())
+
 
   const handleClose = () => {
     setStep('form')
@@ -1258,7 +1263,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="flex-1 overflow-hidden">
                     <iframe
-                      srcDoc={getContractHtml()}
+                        srcDoc={html}
                       className="w-full h-full border-0 px-2"
                         title={t('showContractPreview')}
                     />
