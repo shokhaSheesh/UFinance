@@ -405,6 +405,7 @@ const PaymentForm = observer(({
 
     if (!isNew) {
       payload.guid = initialData.guid
+      payload.is_group = divivedAmounts.length > 0 ? true : false
     }
 
     try {

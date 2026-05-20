@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
@@ -13,9 +13,11 @@ import { apiClient } from '@/lib/api/ucode/base'
 import { showSuccessNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import { sealDeal } from '@/store/saleDeal.store'
-import { formatAmount, handleDownload } from '@/utils/helpers'
+import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
 
 
+import { toJS } from 'mobx'
+import moment from 'moment'
 import DealsFooter from '../components/DealsFooter'
 import DealsHeader from '../components/DealsHeader'
 import DealsTable from '../components/DealsTable'
@@ -91,25 +93,34 @@ export default observer(function DealsPage() {
     debouncedSetSearch(value)
   }
 
+  const dateRanges = toJS(dateRange)
   // ── Filters ────────────────────────────────────────────────────────────────
   const dealsFilters = useMemo(() => ({
     limit: 30,
     search,
-    from_date: dateRange?.start || null,
-    to_date: dateRange?.end || null,
-    amount_from: Number(amountFrom) || null,
-    amount_to: Number(amountTo) || null,
-    profit_from: Number(profitFrom) || null,
-    profit_to: Number(profitTo) || null,
+    from_date: dateRanges?.start ? moment(dateRanges?.start).format('YYYY-MM-DD') : null,
+    to_date: dateRanges?.end ? moment(dateRanges?.end).format('YYYY-MM-DD') : null,
+    amount_from: StringtoNumber(amountFrom) || null,
+    amount_to: StringtoNumber(amountTo) || null,
+    profit_from: StringtoNumber(profitFrom) || null,
+    profit_to: StringtoNumber(profitTo) || null,
     counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
     status: status?.length > 0 ? status : null,
     accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }), [
-    search, dateRange, amountFrom, amountTo,
+    search, dateRanges, amountFrom, amountTo,
     profitFrom, profitTo, selectedCounterparties,
     status, dealsMethod, t
   ])
+
+  // Outer debounce: delays actual request (1 second)
+  const [requestOperationFilters, setRequestOperationFilters] = useState(dealsFilters)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRequestOperationFilters(dealsFilters), 1000)
+    return () => clearTimeout(timer)
+  }, [dealsFilters])
 
   // ── Data fetching ──────────────────────────────────────────────────────────
   const {
@@ -121,8 +132,8 @@ export default observer(function DealsPage() {
     isLoading,
   } = useUcodeRequestInfinite({
     method: 'get_sales_list_simple',
-    data: dealsFilters,
-    querySetting: { staleTime: 0 },
+    data: requestOperationFilters,
+    querySetting: { staleTime: 0, cacheTime: 0 },
   })
 
   const allDeals = useMemo(

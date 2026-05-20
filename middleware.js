@@ -5,9 +5,10 @@ const includedPaths = ['auth', 'payment']
 export function middleware(request) {
   const { pathname } = request.nextUrl
 
+
   // Allow paths that don't require auth
   if (includedPaths.some(path => pathname.startsWith(`/${path}`))) {
-    return NextResponse.next()
+    return NextResponse.next() // is_group=false/true
   }
 
   // Check authentication for all other pages

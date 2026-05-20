@@ -281,7 +281,7 @@ const IncomeForm = observer(({
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
       const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-      const accrualDate = !raw?.sales_transactions_id ? formatDate(raw.data_nachisleniya) : paymentDate
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDate(raw.data_nachisleniya) : paymentDate
 
 
       return {
@@ -411,6 +411,7 @@ const IncomeForm = observer(({
 
     if (!isNew) {
       payload.guid = initialData.guid
+      payload.is_group = divivedAmounts.length > 0 ? true : false
     }
 
 

@@ -39,7 +39,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd }) => {
     isFetchingNextPage,
     isLoading
   } = useInfiniteQuery({
-    queryKey: ['find_operations', sellingDealId, 'expense'],
+    queryKey: ['list_operations_by_query', sellingDealId, 'expense'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_operations_by_query",
       data: {

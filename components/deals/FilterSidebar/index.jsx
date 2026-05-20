@@ -1,7 +1,6 @@
 import { FilterSidebar as FilterSidebarComponent } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { keepPreviousData } from '@tanstack/react-query'
-import { debounce } from 'lodash'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
@@ -72,15 +71,15 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 		profitTo,
 	])
 
-	const debounceSetParams = useMemo(
-		() => debounce((field, value) => {
-			setState(field, value)
-		}, 300),
-		[setState]
-	)
+	// const debounceSetParams = useMemo(
+	// 	() => debounce((field, value) => {
+	// 		setState(field, value)
+	// 	}, 300),
+	// 	[setState]
+	// )
 
 	const handlePriceDebouce = (field, value) => {
-		debounceSetParams(field, value)
+		setState(field, value)
 	}
 
 
@@ -122,6 +121,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						onChange={range =>
 							handleFilterChange('dateRange', { start: range.start, end: range.end })
 						}
+
 					/>
 				</div>
 

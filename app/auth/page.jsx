@@ -13,13 +13,14 @@ import { formatPhoneNumber, getCleanPhoneNumber } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import styles from './styles.module.scss'
 
 export default function LoginPage() {
   const t = useTranslations('Auth')
+  const router = useRouter()
   const [formType, setFormType] = useState('login')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -130,8 +131,8 @@ export default function LoginPage() {
     }
   }
 
-  if (authStore.isAuthenticated) {
-    return redirect('/operations')
+  if (authStore.authToken) {
+    return router.back()
   }
 
   return (
