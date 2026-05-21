@@ -1,6 +1,5 @@
 
 import { toJS } from "mobx"
-import moment from "moment"
 import { appStore } from "../store/app.store"
 
 // ── Format helpers ──────────────────────────────────────────
@@ -15,7 +14,7 @@ export const formatDateRu = (dateStr) => {
 
 export const FormatDateRu = (dateStr, locale = 'ru') => {
   if (!dateStr) return ''
-  const formated = moment(dateStr).format('YYYY-MM-DD')
+  const formated = dateStr
   const [year, month, day] = formated.split('-')
   const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
   return `${parseInt(day)} ${months[parseInt(month) - 1]}, ${year}`
