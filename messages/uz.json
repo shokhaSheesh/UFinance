@@ -856,6 +856,7 @@
 			"titleEdit": "Jo'natmani tahrirlash",
 			"shipmentDate": "Jo'natma sanasi",
 			"shipmentDateRequired": "Sanani tanlang",
+			"dealDatePlaceholder": "Sanani tanlang",
 			"legalEntity": "Yuridik shaxs",
 			"legalEntityRequired": "Yuridik shaxsni tanlang",
 			"client": "Mijoz",

@@ -856,6 +856,7 @@
 			"titleEdit": "Редактирование отгрузки",
 			"shipmentDate": "Дата отгрузки",
 			"shipmentDateRequired": "Выберите дату",
+			"dealDatePlaceholder": "Выберите дату",
 			"legalEntity": "Юрлицо",
 			"legalEntityRequired": "Выберите юрлицо",
 			"client": "Клиент",
