@@ -179,9 +179,15 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
             <tbody className='w-full'>
               {dealOperations?.map((item) => {
                 const isActive = !item?.payment_confirmed && !item?.payment_accrual
+                const isDifferentDate = item?.accrualDate !== item?.operationDate
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
-                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.operationDate}</td>
+                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>
+                      <div className='flex flex-col items-start leading-tight'>
+                        <span className='text-xs'>{item?.operationDate}</span>
+                        {isDifferentDate && <span className="text-xs text-neutral-400">{item?.accrualDate}</span>}
+                      </div>
+                    </td>
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.my_account_name}</td>
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.counterparty}</td>
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>

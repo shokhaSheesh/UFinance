@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal';
 import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealModal';
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
 import { useUcodeRequestQuery } from '@/hooks/useDashboard';
+import useMounted from '@/hooks/useMounted';
 import { formatAmount } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
@@ -42,6 +43,7 @@ import styles from './deal-detail.module.scss';
 export default observer(function DealDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const mounted = useMounted()
   const t = useTranslations('Deals.detail');
   const tc = useTranslations('Common');
   const dealId = params.id;
@@ -73,8 +75,6 @@ export default observer(function DealDetailPage() {
     nds: summeryCards?.nds,
     commentary: summeryCards?.commentary
   }
-
-  console.log(deal)
 
   const handleUpdateStatus = async (status) => {
     try {
@@ -175,6 +175,8 @@ export default observer(function DealDetailPage() {
     }
   }
 
+  if (!mounted) return null
+
   return (
     <div className="flex overflow-hidden overflow-y-auto  flex-col space-y-4 fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
       {isLoading && <ScreenLoader />}
@@ -229,7 +231,7 @@ export default observer(function DealDetailPage() {
           <div className="flex items-center justify-between">
             <p className='text-base xl:text-xl flex gap-1 font-semibold text-neutral-800 mt-2 truncate'>
               <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.total_products_summa))}</span>
-              <span>{GlobalCurrency.name}</span>
+              <span>{GlobalCurrency && GlobalCurrency?.name}</span>
             </p>
             <div className="shrink-0 ml-1">
               <DealStatus

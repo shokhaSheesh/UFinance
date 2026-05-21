@@ -2,7 +2,6 @@
 import { toJS } from "mobx"
 import { appStore } from "../store/app.store"
 
-
 // ── Format helpers ──────────────────────────────────────────
 export const formatDateRu = (dateStr) => {
   if (!dateStr) return ''
@@ -10,6 +9,17 @@ export const formatDateRu = (dateStr) => {
   const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
+
+
+
+export const FormatDateRu = (dateStr, locale = 'ru') => {
+  if (!dateStr) return ''
+  const formated = moment(dateStr).format('YYYY-MM-DD')
+  const [year, month, day] = formated.split('-')
+  const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+  return `${parseInt(day)} ${months[parseInt(month) - 1]}, ${year}`
+}
+
 
 export const formatPeriod = (startDate, endDate) => {
   if (!startDate || !endDate) return '';
@@ -80,13 +90,13 @@ export const calculatePercent = (totalAmount, minAmount) => {
 
 
 export const returnNumber = (text) => {
-	if (!text) return ''
-	const raw = text
-		.replace(/\s/g, '')
-		.replace(/[^0-9.]/g, '')
-		.replace(/(\..*?)\..*/g, '$1') // keep only first dot
-	const num = parseFloat(raw)
-	return num
+  if (!text) return ''
+  const raw = text
+    .replace(/\s/g, '')
+    .replace(/[^0-9.]/g, '')
+    .replace(/(\..*?)\..*/g, '$1') // keep only first dot
+  const num = parseFloat(raw)
+  return num
 }
 
 
@@ -114,43 +124,43 @@ export const formatTotalSumma = (summa, fixed = 2) => {
 //  format number with thousand separators
 
 export function formatNumber(value) {
-	// strip everything except digits and dot
-	const clean = String(value).replace(/[^\d.-]/g, '')
+  // strip everything except digits and dot
+  const clean = String(value).replace(/[^\d.-]/g, '')
 
-	// keep only the first dot
-	const parts = clean.split('.')
-	const intPart = parts[0] || ''
-	const decPart = parts.length > 1 ? '.' + parts[1] : ''
+  // keep only the first dot
+  const parts = clean.split('.')
+  const intPart = parts[0] || ''
+  const decPart = parts.length > 1 ? '.' + parts[1] : ''
 
-	// add thousand separators to the integer part only
-	const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  // add thousand separators to the integer part only
+  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-	return formatted + decPart.slice(0, 3)
+  return formatted + decPart.slice(0, 3)
 }
 
 export function handleInput(e) {
-	const raw = e.target.value
-	const cursor = e.target.selectionStart
-	// count real digits+dot before the cursor (ignoring commas)
-	const before = raw.slice(0, cursor).replace(/,/g, '').length
+  const raw = e.target.value
+  const cursor = e.target.selectionStart
+  // count real digits+dot before the cursor (ignoring commas)
+  const before = raw.slice(0, cursor).replace(/,/g, '').length
 
-	e.target.value = formatNumber(raw)
+  e.target.value = formatNumber(raw)
 
-	// walk the new string and restore cursor at the same logical position
-	let newPos = 0,
-		count = 0
-	for (let i = 0; i < e.target.value.length; i++) {
-		if (e.target.value[i] !== ',') count++
-		if (count === before) {
-			newPos = i + 1
-			break
-		}
-	}
-	e.target.setSelectionRange(newPos, newPos)
+  // walk the new string and restore cursor at the same logical position
+  let newPos = 0,
+    count = 0
+  for (let i = 0; i < e.target.value.length; i++) {
+    if (e.target.value[i] !== ',') count++
+    if (count === before) {
+      newPos = i + 1
+      break
+    }
+  }
+  e.target.setSelectionRange(newPos, newPos)
 }
 
 export function formatDecimal(num, decimalPlaces = 2) {
-	return parseFloat(Number(num).toFixed(decimalPlaces))
+  return parseFloat(Number(num).toFixed(decimalPlaces))
 }
 
 export const handleDownload = (pdfurl, name) => {

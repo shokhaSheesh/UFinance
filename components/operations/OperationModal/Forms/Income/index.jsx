@@ -249,6 +249,8 @@ const IncomeForm = observer(({
   const t = useTranslations('Operations.forms')
   const tPay = useTranslations('Operations.paymentTypes')
 
+  console.log('initialData', initialData)
+
   // Form State
   const isNew = initialData?.isNew
   const defaultValues = useMemo(() => {
@@ -294,6 +296,8 @@ const IncomeForm = observer(({
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     defaultValues
   })
+
+  console.log('defaultValues', defaultValues)
 
   const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 

@@ -23,6 +23,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.2.1",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.6",
     "firebase": "^12.12.1",
