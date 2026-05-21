@@ -496,11 +496,15 @@
 	height: 100% !important;
 	flex: 1 !important;
 }
-.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-day .sd:hover {
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-day span:hover {
 	color: #0e73f6 !important;
 }
-.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-selected .sd:hover {
-	color: white !important;
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-selected span {
+	color: royalblue !important;
+}
+
+.form_date_picker_corner.rmdp-wrapper .rmdp-ym .rmdp-today span {
+	color: firebrick !important;
 }
 
 .custom_month_picker,
@@ -547,7 +551,7 @@
 
 .custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day:hover .sd {
 	background-color: transparent !important;
-}
+} 
 .custom_month_picker .rmdp-calendar .rmdp-month-picker .rmdp-ym .rmdp-day:hover {
 	background-color: #0f55ea !important;
 }
