@@ -249,7 +249,6 @@ const IncomeForm = observer(({
   const t = useTranslations('Operations.forms')
   const tPay = useTranslations('Operations.paymentTypes')
 
-  console.log('initialData', defaultValues)
 
   // Form State
   const isNew = initialData?.isNew
@@ -297,7 +296,6 @@ const IncomeForm = observer(({
     defaultValues
   })
 
-  console.log('defaultValues', defaultValues)
 
   const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 

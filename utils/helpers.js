@@ -12,7 +12,7 @@ export const formatDateRu = (dateStr) => {
 
 
 
-export const FormatDateRu = (dateStr, locale = 'ru') => {
+export const FormatDateRu = (dateStr) => {
   if (!dateStr) return ''
   const formated = dateStr
   const [year, month, day] = formated.split('-')
