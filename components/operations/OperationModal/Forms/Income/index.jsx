@@ -249,7 +249,7 @@ const IncomeForm = observer(({
   const t = useTranslations('Operations.forms')
   const tPay = useTranslations('Operations.paymentTypes')
 
-  console.log('initialData', initialData)
+  console.log('initialData', defaultValues)
 
   // Form State
   const isNew = initialData?.isNew
