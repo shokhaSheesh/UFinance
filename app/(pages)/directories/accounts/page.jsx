@@ -1,40 +1,40 @@
 "use client"
 
-import { AccountMenu } from '@/components/directories/AccountMenu/AccountMenu'
-import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
-import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
-import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
+import { CreateAccountGroupModal } from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
+import { CreateLegalEntityModal } from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
+import { CreateMyAccountModal } from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
 import { DeleteAccountConfirmModal } from '@/components/directories/DeleteAccountConfirmModal/DeleteAccountConfirmModal'
-import DeleteAccountGroupModal from '@/components/directories/DeleteAccountGroupModal/DeleteAccountGroupModal'
+import { DeleteAccountGroupModal } from '@/components/directories/DeleteAccountGroupModal/DeleteAccountGroupModal'
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
+import { AccountsTable } from '@/components/directories/AccountsTable/AccountsTable'
 import GroupMyAccounts from '@/components/ReadyComponents/GroupMyAccouts'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { useAccountsModals } from '@/hooks/useAccountsModals'
+import { useAccountsFilter } from '@/hooks/useAccountsFilter'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { accountsStore } from '@/store/accounts.store'
 import { appStore } from '@/store/app.store'
-import { formatAmount } from '@/utils/helpers'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import styles from './accounts.module.scss'
 
 export default observer(function AccountsPage() {
   const t = useTranslations('Directories.account')
   const tc = useTranslations('Common')
-  // Block body scroll for this page only
   const mounted = useMounted()
   const accountPermissions = appStore.permission.directories.accounts
+  const queryClient = useQueryClient()
 
+  // Store state
   const {
     searchQuery, setSearchQuery,
     toggleType,
@@ -44,76 +44,30 @@ export default observer(function AccountsPage() {
     isFilterOpen, setIsFilterOpen
   } = accountsStore
 
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  // Custom hooks for modals and filters
+  const modals = useAccountsModals()
+  const { requestBankAccounts } = useAccountsFilter(accountsStore)
+
+  // Menu state
   const menuRef = useRef(null)
-  const [editingAccount, setEditingAccount] = useState(null)
-  const [editingGroup, setEditingGroup] = useState(null)
-  const [editingLegalEntity, setEditingLegalEntity] = useState(null)
-  const [deletingGroup, setDeletingGroup] = useState(null)
-  const [deletingAccount, setDeletingAccount] = useState(null)
-  const deleteMutation = useDeleteMyAccounts()
-  const queryClient = useQueryClient()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [searchQuery])
-
-
-
+  // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
-  const toggleGroup = (id) => {
-    setExpandedGroups(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+  // Delete mutations
+  const deleteMutation = useDeleteMyAccounts()
+  const { mutateAsync: deleteGroupMutate, isPending: isPendingDeleteGroup } = useUcodeRequestMutation({
+    mutationSetting: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+        queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
+        modals.closeDeleteGroupModal()
       }
-      return next
-    })
-  }
-
-
-
-  // Build filters immediately (for debouncing)
-  const immediateBankAccountsFilter = useMemo(() => {
-    return {
-      page: 1,
-      limit: 100,
-      search: debouncedSearchQuery.toLowerCase() || "",
-      groupBy: selectedGrouping,
-      nalichnye: accountsStore.isCash,
-      beznalichnye: accountsStore.isNonCash,
-      kartaFizlica: accountsStore.isCard,
-      elektronnye: accountsStore.isElectronic,
-      legal_entity_ids: selectedEntity,
-      accounts_and_groups_ids: selectedAccounts,
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchQuery, selectedGrouping, accountsStore.isCash, accountsStore.isNonCash, accountsStore.isCard, accountsStore.isElectronic, selectedEntity, selectedAccounts])
+  })
 
-  // State for debounced filters (1 second delay)
-  const [requestBankAccounts, setRequestBankAccounts] = useState(immediateBankAccountsFilter)
-
-  // Debounce all filter changes with 1 second
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRequestBankAccounts(immediateBankAccountsFilter)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [immediateBankAccountsFilter])
-
-  // Fetch bank accounts using new invoke_function API
+  // Fetch bank accounts
   const { data: bankAccountsData, isLoading: isLoadingBankAccounts } = useUcodeRequestQuery({
     method: "get_my_accounts",
     data: requestBankAccounts,
@@ -126,51 +80,7 @@ export default observer(function AccountsPage() {
     return bankAccountsData?.summary
   }, [bankAccountsData])
 
-
-  const { mutateAsync: deleteGroupMutate, isPending: isPendingDeleteGroup } = useUcodeRequestMutation({
-    mutationSetting: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
-        queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
-        setDeletingGroup(null)
-        setIsCreateGroupModalOpen(false)
-      }
-    }
-  })
-
-  const handleDeleteGroup = async () => {
-    try {
-      await deleteGroupMutate({
-        method: "delete_account_group",
-        data: {
-          guid: deletingGroup.guid
-        }
-      })
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const toggleFilter = (key) => {
-    toggleType(key)
-  }
-
-  const isAllExpanded = useMemo(() => {
-    const groupCount = bankAccountsData?.data?.length || 0
-    return groupCount > 0 && expandedGroups.size === groupCount
-  }, [expandedGroups, bankAccountsData])
-
-  const toggleExpandAll = () => {
-    if (isAllExpanded) {
-      setExpandedGroups(new Set())
-    } else {
-      const allGroupIds = bankAccountsData?.data?.map(g => g.guid) || []
-      setExpandedGroups(new Set(allGroupIds))
-    }
-  }
-
-  // Unify data extraction from API response
+  // Get dataArray for table rendering
   const dataArray = useMemo(() => {
     const rawData = bankAccountsData?.data
     if (Array.isArray(rawData)) return rawData
@@ -178,162 +88,98 @@ export default observer(function AccountsPage() {
     return []
   }, [bankAccountsData])
 
-
-  // Filter bank accounts on frontend if needed
-  const filteredBankAccountsItems = useMemo(() => {
-    if (selectedGrouping !== 'none') return dataArray // Grouping handled by backend
-
-    return dataArray.filter(item => {
-      // Filter by selected accounts
-      if (selectedAccounts.length > 0) {
-        if (!selectedAccounts.includes(item.guid)) return false
+  // Group toggle handlers
+  const toggleGroup = (id) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
       }
-      return true
+      return next
     })
-  }, [dataArray, selectedAccounts, selectedGrouping])
+  }
 
-  const accountsList = useMemo(() => {
-    if (selectedGrouping === 'none') {
-      return filteredBankAccountsItems
+  const isAllExpanded = useMemo(() => {
+    const groupCount = dataArray.length || 0
+    return groupCount > 0 && expandedGroups.size === groupCount
+  }, [expandedGroups, dataArray])
+
+  const toggleExpandAll = () => {
+    if (isAllExpanded) {
+      setExpandedGroups(new Set())
+    } else {
+      const allGroupIds = dataArray.map(g => g.guid) || []
+      setExpandedGroups(new Set(allGroupIds))
     }
+  }
 
-    // For 'groups' or 'legal_entities', the backend returns a hierarchical structure
-    return dataArray.map(group => ({
-      ...group,
-      isGroup: true,
-      guid: group.id || group.guid,
-      name: group.name || group.legal_entity_name || tc('noName'),
-    }))
-  }, [dataArray, filteredBankAccountsItems, selectedGrouping, tc])
-
-  // Get all field keys from API response - only show needed fields
-  const allFields = useMemo(() => {
-    // Define only the fields we want to display
-    const standardFields = [
-      'nazvanie',
-      'nachalьnyy_ostatok_val',
-      'current_balance_val',
-      'currenies_kod',
-      "tip",
-      "legal_entity_id",
-      "requisites",
-    ]
-
-    return standardFields
-  }, [])
+  // Delete handlers
+  const handleDeleteGroup = async () => {
+    try {
+      await deleteGroupMutate({
+        method: "delete_account_group",
+        data: {
+          guid: modals.deletingGroup.guid
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleDeleteConfirm = async () => {
-    if (!deletingAccount) return
+    if (!modals.deletingAccount) return
 
     try {
-      await deleteMutation.mutateAsync([deletingAccount.guid])
-      setDeletingAccount(null)
+      await deleteMutation.mutateAsync([modals.deletingAccount.guid])
+      modals.closeDeleteAccountModal()
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
     } catch (error) {
       console.error('Error deleting account:', error)
     }
   }
 
-  const handleDeleteCancel = () => {
-    setDeletingAccount(null)
-  }
-
-  const formatFieldValue = (item, field) => {
-    const value = item[field]
-
-    switch (field) {
-      case 'nazvanie':
-        return value || '–'
-      case 'nomer_scheta':
-        return value || '–'
-      case 'current_balance_val':
-        return typeof value === 'number' ? formatAmount(value) : '–'
-      case 'nachalьnyy_ostatok_val':
-        return formatAmount(value)
-      case 'currenies_kod':
-        return value || '–'
-      case 'tip':
-        return Array.isArray(value) ? value.join(', ') : value
-      case 'data_sozdaniya':
-        if (value) {
-          const date = new Date(value)
-          return date?.toLocaleDateString('ru-RU')
-        }
-        return '–'
-      case 'currenies_id':
-        return item.currenies_id_data
-          ? `${item.currenies_id_data.kod || ''} (${item.currenies_id_data.nazvanie || ''})`.trim()
-          : value
-      case 'legal_entity_id':
-        return item.legal_entity_id
-          ? item.legal_entity_name || value
-          : '–'
-      case 'komentariy':
-        // Remove HTML tags if present
-        if (typeof value === 'string') {
-          return value.replace(/<[^>]*>/g, '').trim() || '–'
-        }
-        return value || '–'
-      case 'requisites':
-        // Remove HTML tags if present
-        const requisitesValue = (item?.tip?.[0] === "Безналичный" || item?.tip?.[0] === "Карта физлица") ? <div className='flex flex-col'>
-          <span className='text-xs'>{item?.bank_name}</span>
-          <span className='text-xs'>{item?.nomer}</span>
-        </div> : item?.tip?.[0] === 'Электронный' ? <div className='flex flex-col'>
-          <span className='text-xs'>{item?.nomer}</span>
-        </div> : '–'
-        if (typeof requisitesValue === 'string') {
-          return requisitesValue.replace(/<[^>]*>/g, '').trim() || '–'
-        }
-        return requisitesValue || '–'
-      default:
-        if (value === null || value === undefined) return '–'
-        return value
-    }
-  }
-
-  // Prevent hydration mismatch
-  if (!mounted) return null
-
+  // Menu handlers
   const handleMenuClick = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
   const handleCreateSingle = () => {
-    setIsCreateModalOpen(true)
-    setIsMenuOpen(false)
+    modals.openCreateAccountModal()
   }
 
   const handleCreateGroup = () => {
-    setIsCreateGroupModalOpen(true)
-    setIsMenuOpen(false)
+    modals.openCreateGroupModal()
   }
 
-
+  // Prevent hydration mismatch
+  if (!mounted) return null
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)]  fixed left-[80px] top-[60px]">
+    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
       <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)}>
         <FilterSection title={t('types.type')}>
           <div className="space-y-2.5 flex flex-col items-start">
             <OperationCheckbox
               checked={accountsStore.isCash}
-              onChange={() => toggleFilter('Наличный')}
+              onChange={() => toggleType('Наличный')}
               label={t('types.cash')}
             />
             <OperationCheckbox
               checked={accountsStore.isNonCash}
-              onChange={() => toggleFilter('Безналичный')}
+              onChange={() => toggleType('Безналичный')}
               label={t('types.nonCash')}
             />
             <OperationCheckbox
               checked={accountsStore.isCard}
-              onChange={() => toggleFilter('Карта физлица')}
+              onChange={() => toggleType('Карта физлица')}
               label={t('types.card')}
             />
             <OperationCheckbox
               checked={accountsStore.isElectronic}
-              onChange={() => toggleFilter('Электронный')}
+              onChange={() => toggleType('Электронный')}
               label={t('types.electronic')}
             />
           </div>
@@ -358,20 +204,22 @@ export default observer(function AccountsPage() {
         </FilterSection>
       </FilterSidebar>
 
-      <div className={cn(` pb-40 w-full h-dvh  overflow-y-auto flex-1 bg-white `)}>
+      <div className={cn(`pb-40 w-full h-dvh overflow-y-auto flex-1 bg-white`)}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{t('pageTitle')}</h1>
               <div ref={menuRef} className="flex items-center gap-2 relative">
-                {accountPermissions.add && <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
-                  {tc('create')}
-                  {isMenuOpen ? (
-                    <ChevronUp size={16} />
-                  ) : (
-                    <ChevronDown size={16} />
-                  )}
-                </button>}
+                {accountPermissions.add && (
+                  <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
+                    {tc('create')}
+                    {isMenuOpen ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </button>
+                )}
                 {isMenuOpen && (
                   <div className="absolute top-full w-40 p-2 flex flex-col justify-start items-start left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <button
@@ -390,9 +238,7 @@ export default observer(function AccountsPage() {
                 )}
               </div>
 
-              {/* Search - pushed to the right */}
               <div className={styles.headerActionsRight}>
-                {/* Search */}
                 <SingleSelect
                   data={[
                     { value: 'none', label: t('grouping.none') },
@@ -403,7 +249,8 @@ export default observer(function AccountsPage() {
                   withSearch={false}
                   isClearable={false}
                   className={'bg-white w-44'}
-                  onChange={setSelectedGrouping} />
+                  onChange={setSelectedGrouping}
+                />
                 <Input
                   leftIcon={<Search size={16} />}
                   value={searchQuery}
@@ -418,159 +265,31 @@ export default observer(function AccountsPage() {
 
         <div className="flex-1 overflow-y-auto px-3 relative bg-white pb-20">
           <div className="z-50">
-            <table className={styles.table}>
-              <thead className="bg-neutral-100 sticky top-0 z-20 text-neutral-500 font-normal text-xs w-full border-b border-gray-300">
-                <tr className=''>
-                  <th className='w-12'>
-                    <div className='flex items-center justify-center p-2'>
-                      {/* Checkbox for all selection */}
-                      <OperationCheckbox onChange={() => { }} />
-                    </div>
-                  </th>
-                  <th className='p-2 text-start font-medium'>
-                    <div className="flex items-center gap-2">
-                      {selectedGrouping !== 'none' && (
-                        <button
-                          onClick={toggleExpandAll}
-                          className="p-1 hover:bg-neutral-200 rounded cursor-pointer transition-colors"
-                        >
-                          {isAllExpanded ? <ExpendClose /> : <ExpendOpen />}
-                        </button>
-                      )}
-                      <span>{t('tableHeaders.name')}</span>
-                    </div>
-                  </th>
-                  <th className='p-2 text-start font-medium'>{t('tableHeaders.initialBalance')}</th>
-                  <th className='p-2 text-start font-medium'>{t('tableHeaders.balance')}</th>
-                  <th className='p-2 text-start font-medium'>{t('tableHeaders.currency')}</th>
-                  <th className='p-2 text-start font-medium'>{t('tableHeaders.type')}</th>
-                  <th className='p-2 text-start font-medium text-nowrap'>{t('tableHeaders.legalEntity')}</th>
-                  <th className='p-2 text-start font-medium'>{t('tableHeaders.requisites')}</th>
-                  <th className='p-2 text-end w-12 pr-4'>&nbsp;</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
-                {accountsList.length === 0 ? (
-                  <tr>
-                    <td colSpan={allFields.length + 2} className="p-8 text-center text-neutral-400">
-                      {t('noData')}
-                    </td>
-                  </tr>
-                ) : (
-                    accountsList.map((item) => {
-                      if (item.isGroup) {
-                        const isExpanded = expandedGroups.has(item.guid)
-                        return (
-                          <React.Fragment key={item.guid}>
-                            <tr
-                              className="hover:bg-neutral-50 bg-neutral-50/50  font-medium text-xs! cursor-pointer border-b border-gray-200 h-12"
-                              onClick={() => toggleGroup(item.guid)}
-                            >
-                              <td className="p-2 text-center">
-                                <div className="flex items-center justify-center">
-                                  <OperationCheckbox onChange={() => { }} />
-                                </div>
-                              </td>
-                              <td className="p-2">
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); toggleGroup(item.guid); }}
-                                    className="p-1 hover:bg-neutral-100 rounded transition-colors"
-                                  >
-                                    {isExpanded ? <ExpendClose /> : <ExpendOpen />}
-                                  </button>
-                                  <span className=" text-slate-900">{item.name}</span>
-                                  {item.items_count !== undefined ? (
-                                    <span className="ml-1  text-neutral-400">({item.items_count})</span>
-                                  ) : item.items?.length > 0 && (
-                                    <span className="ml-1  text-neutral-400 ">({item.items.length})</span>
-                                  )}
-                                </div>
-                              </td>
-                              {/* Group summary columns if needed, else empty */}
-                              <td className="p-2 text-nowrap">
-                                {item.nachalьnyy_ostatok_val !== undefined ? `${formatAmount(item.nachalьnyy_ostatok_val)}  ${GlobalCurrency.name}` : ''}
-                              </td>
-                              <td className="p-2 text-nowrap">
-                                {item.current_balance_val !== undefined ? `${formatAmount(item.current_balance_val)}  ${GlobalCurrency.name}` : ''}
-                              </td>
-                              <td className="p-2"></td>
-                              <td className="p-2"></td>
-                              <td className="p-2"></td>
-                              <td className="p-2"></td>
-                              <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
-                                <AccountMenu
-                                  onEdit={() => {
-                                    if (selectedGrouping === 'legal_entities') {
-                                      setEditingLegalEntity(item)
-                                    } else {
-                                      setIsCreateGroupModalOpen(true)
-                                      setEditingGroup(item)
-                                    }
-                                  }}
-                                  onDelete={() => { setDeletingGroup(item) }}
-                                  isGroup={true}
-                                />
-                              </td>
-                            </tr>
-                            {isExpanded && (item.children || []).map((account) => {
-                              return (
-                              <tr key={account.guid} className="hover:bg-neutral-50 border-b border-gray-100 transition-colors h-14">
-                                <td className="p-2">
-                                  <div className="flex items-center justify-center">
-                                    <OperationCheckbox onChange={() => { }} />
-                                  </div>
-                                </td>
-                                <td className="p-2 text-sm text-[#0f172a] pl-10 font-medium">
-                                  {account.nazvanie}
-                                </td>
-                                {allFields.slice(1).map((field) => (
-                                  <td key={field} className="p-2 text-sm text-[#0f172a]">
-                                    {formatFieldValue(account, field)}
-                                  </td>
-                                ))}
-                                <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
-                                  <AccountMenu
-                                    onEdit={() => setEditingAccount(account)}
-                                    onDelete={() => setDeletingAccount(account)}
-                                  />
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </React.Fragment>
-                      )
-                    }
-                    // Non-grouped (flat list)
-                    return (
-                      <tr key={item.guid} className="hover:bg-neutral-50 border-b  border-gray-100 transition-colors h-14">
-                        <td className="p-2 text-center text-xs text-neutral-400">
-                          <div className="flex items-center justify-center">
-                            <OperationCheckbox onChange={() => { }} />
-                          </div>
-                        </td>
-                        {allFields.map((field) => (
-                          <td key={field} className="p-2 text-xs text-[#0f172a] ">
-                            {formatFieldValue(item, field)}
-                          </td>
-                        ))}
-                        <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
-                          <AccountMenu
-                            onEdit={() => setEditingAccount(item)}
-                            onDelete={() => setDeletingAccount(item)}
-                          />
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
+            <AccountsTable
+              dataArray={dataArray}
+              selectedGrouping={selectedGrouping}
+              expandedGroups={expandedGroups}
+              onToggleGroup={toggleGroup}
+              onAccountEdit={modals.openEditAccountModal}
+              onAccountDelete={modals.openDeleteAccountModal}
+              onGroupEdit={(group) => {
+                if (selectedGrouping === 'legal_entities') {
+                  modals.openEditLegalEntityModal(group)
+                } else {
+                  modals.openEditGroupModal(group)
+                }
+              }}
+              onGroupDelete={modals.openDeleteGroupModal}
+              onExpandAll={toggleExpandAll}
+              isAllExpanded={isAllExpanded}
+              t={t}
+              tc={tc}
+            />
           </div>
         </div>
 
         {/* Footer - Always visible at bottom */}
-        <div className={cn("absolute flex gap-2 items-center bottom-0 z-10 bg-neutral-100  p-2 w-full ")}>
+        <div className={cn("absolute flex gap-2 items-center bottom-0 z-10 bg-neutral-100 p-2 w-full")}>
           <div className={styles.footerText}>
             <span className={styles.footerTextBold}>
               {t('accountCount', { count: summary?.accounts_count || 0 })}
@@ -580,15 +299,13 @@ export default observer(function AccountsPage() {
             {isLoadingBankAccounts ? (
               <span>{t('loading')}</span>
             ) : (
-                <div className='flex items-center gap-1 text-xs'>
-                  <p>{t('currentBalance')}:</p>
-                  <span className={styles.footerTextBold}>
-                    {summary?.current_balance_val.toLocaleString('ru-RU')}
-                  </span>
-                  <span>
-                    {GlobalCurrency.name}
-                  </span>
-                </div>
+              <div className='flex items-center gap-1 text-xs'>
+                <p>{t('currentBalance')}:</p>
+                <span className={styles.footerTextBold}>
+                  {summary?.current_balance_val.toLocaleString('ru-RU')}
+                </span>
+                <span>{GlobalCurrency.name}</span>
+              </div>
             )}
           </div>
         </div>
@@ -596,11 +313,11 @@ export default observer(function AccountsPage() {
       </div>
 
       {/* Create Account Modal */}
-      {isCreateModalOpen && (
+      {modals.isCreateModalOpen && (
         <CreateMyAccountModal
-          isOpen={isCreateModalOpen}
+          isOpen={modals.isCreateModalOpen}
           onClose={() => {
-            setIsCreateModalOpen(false)
+            modals.closeCreateAccountModal()
             queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
             queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
           }}
@@ -608,67 +325,65 @@ export default observer(function AccountsPage() {
       )}
 
       {/* Create Account Group Modal */}
-      {isCreateGroupModalOpen && (
+      {modals.isCreateGroupModalOpen && (
         <CreateAccountGroupModal
-          isOpen={isCreateGroupModalOpen}
-          editingGroup={editingGroup}
-          editId={editingGroup?.id}
+          isOpen={modals.isCreateGroupModalOpen}
+          editingGroup={modals.editingGroup}
+          editId={modals.editingGroup?.id}
           onClose={() => {
-            setIsCreateGroupModalOpen(false)
-            setEditingGroup(null)
+            modals.closeCreateGroupModal()
             queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
             queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
           }}
         />
       )}
-
 
       {/* Edit Account Modal */}
-      {editingAccount && (
+      {modals.editingAccount && (
         <CreateMyAccountModal
-          isOpen={!!editingAccount}
+          isOpen={!!modals.editingAccount}
           onClose={() => {
-            setEditingAccount(null)
+            modals.closeDeleteAccountModal()
             queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
             queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
           }}
-          account={editingAccount}
+          account={modals.editingAccount}
         />
       )}
 
-      {/* Delete Confirm Modal */}
-      {deletingAccount && (
+      {/* Delete Account Confirm Modal */}
+      {modals.deletingAccount && (
         <DeleteAccountConfirmModal
-          isOpen={!!deletingAccount}
-          account={deletingAccount}
+          isOpen={!!modals.deletingAccount}
+          account={modals.deletingAccount}
           onConfirm={handleDeleteConfirm}
-          onCancel={handleDeleteCancel}
+          onCancel={modals.closeDeleteAccountModal}
           isDeleting={deleteMutation.isPending}
         />
       )}
-      {/* delelet group modal by customModal if children show other modal  */}
-      {deletingGroup && (
+
+      {/* Delete Group Modal */}
+      {modals.deletingGroup && (
         <DeleteAccountGroupModal
-          isOpen={!!deletingGroup}
-          onClose={() => setDeletingGroup(null)}
+          isOpen={!!modals.deletingGroup}
+          onClose={modals.closeDeleteGroupModal}
           onConfirm={handleDeleteGroup}
-          groupName={deletingGroup.name}
+          groupName={modals.deletingGroup.name}
           isDeleting={isPendingDeleteGroup}
         />
       )}
 
       {/* Edit Legal Entity Modal */}
-      {editingLegalEntity && (
+      {modals.editingLegalEntity && (
         <CreateLegalEntityModal
-          isOpen={!!editingLegalEntity}
+          isOpen={!!modals.editingLegalEntity}
           onClose={() => {
-            setEditingLegalEntity(null)
-            // Invalidate queries to refresh data
+            modals.closeEditLegalEntityModal()
             queryClient.invalidateQueries({ queryKey: ['bankAccountsPlanFact'] })
             queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
           }}
-          legalEntity={editingLegalEntity}
-          legalEntityId={editingLegalEntity.legal_entity_id}
+          legalEntity={modals.editingLegalEntity}
+          legalEntityId={modals.editingLegalEntity.legal_entity_id}
         />
       )}
     </div>
