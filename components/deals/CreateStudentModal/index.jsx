@@ -106,7 +106,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         classes_id: initialData?.classes_id || null,
         language_classes_id: initialData?.language_classes_id || null,
         legal_entity_id: initialData?.legal_entity_id || null,
-        monthlyPayment: ""
+        monthlyPayment: initialData?.product_and_service_id_data?.summa
       }
     }
     return {
@@ -300,6 +300,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
     // totalContractPayment = total months * monthly amount
     const totalContractPayment = formatNumber(totalMonths * values.monthlyPayment)
+    // master changes const totalContractPayment = formatNumber((totalMonths + 1) * values.monthlyPayment)
 
     const baseData = {
       contractNumber: values.contractNumber || '___',

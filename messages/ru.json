@@ -790,6 +790,7 @@
 			"languagePlaceholder": "Выберите язык",
 			"chartOfAccounts": "Статья",
 			"undistributedIncome": "Нераспределенный доход",
+			"dealDatePlaceholder": "Выберите дату",
 			"legalEntity": "Юрлица",
 			"legalEntityRequired": "Выберите юрлицо",
 			"legalEntityPlaceholder": "Выберите юрлицо",

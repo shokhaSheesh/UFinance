@@ -798,6 +798,7 @@
 			"classCreated": "Sinf muvaffaqiyatli yaratildi",
 			"classUpdated": "Sinf muvaffaqiyatli yangilandi",
 			"classDeleted": "Sinf muvaffaqiyatli o'chirildi",
+			"dealDatePlaceholder": "Sanani tanlang",
 			"classCreateError": "Sinf yaratishda xatolik",
 			"guardianTypeCreated": "Vasiy turi muvaffaqiyatli yaratildi",
 			"guardianTypeUpdated": "Vasiy turi muvaffaqiyatli yangilandi",
