@@ -150,7 +150,7 @@ export default function LoginPage() {
   const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
     mutationKey: ['register'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const responseData = data?.data?.data
       const tokenData = responseData?.token?.access_token
       const refreshToken = responseData?.token?.refresh_token
@@ -160,17 +160,32 @@ export default function LoginPage() {
         appStore.setEmployerPermission()
       }
 
-      if (tokenData && userData) {
-        authStore.setAuthentication({
-          token: tokenData,
-          refresh_token: refreshToken,
-          user_data: userData
-        })
-        showSuccessNotification(t('notifications.registerSuccess'))
-        router.push('/pages/operations')
-      } else {
-        showErrorNotification(t('notifications.registerError'))
+      authStore.setAuthentication({
+        token: tokenData,
+        refresh_token: refreshToken,
+        user_data: userData
+      })
+
+
+      const branchesResponse = await getMyBranches({
+        method: 'get_my_branches',
+        data: { page: 1, limit: 200 },
+      })
+
+
+      const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
+
+      if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
+        authStore.setBranches(branches)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
       }
+
+
+      showSuccessNotification(t('notifications.registerSuccess'))
+      router.push('/pages/operations')
     },
     onError: (error) => {
       const errorMessage = error.message || t('notifications.registerGenericError')
