@@ -7,26 +7,25 @@ import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/
 import { DeleteAccountConfirmModal } from '@/components/directories/DeleteAccountConfirmModal/DeleteAccountConfirmModal'
 import DeleteAccountGroupModal from '@/components/directories/DeleteAccountGroupModal/DeleteAccountGroupModal'
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
-import { useDeleteMyAccounts } from '@/hooks/useDashboard'
+import GroupMyAccounts from '@/components/ReadyComponents/GroupMyAccouts'
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import Input from '@/components/shared/Input'
+import ScreenLoader from '@/components/shared/ScreenLoader'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { GlobalCurrency } from '@/constants/globalCurrency'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { accountsStore } from '@/store/accounts.store'
+import { appStore } from '@/store/app.store'
+import { formatAmount } from '@/utils/helpers'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import GroupMyAccounts from '../../../../components/ReadyComponents/GroupMyAccouts'
-import SelectLegelEntitties from '../../../../components/ReadyComponents/SelectLegelEntitties'
-import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
-import Input from '../../../../components/shared/Input'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
-import { GlobalCurrency } from '../../../../constants/globalCurrency'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
-import useMounted from '../../../../hooks/useMounted'
-import { appStore } from '../../../../store/app.store'
-import { formatAmount } from '../../../../utils/helpers'
 import styles from './accounts.module.scss'
 
 export default observer(function AccountsPage() {
@@ -293,20 +292,6 @@ export default observer(function AccountsPage() {
     }
   }
 
-  // Handle click outside menu
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
   // Prevent hydration mismatch
   if (!mounted) return null
 
@@ -544,18 +529,18 @@ export default observer(function AccountsPage() {
                                     {formatFieldValue(account, field)}
                                   </td>
                                 ))}
-                                  <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
-                                    <AccountMenu
-                                      onEdit={() => setEditingAccount(account)}
-                                      onDelete={() => setDeletingAccount(account)}
-                                    />
-                                  </td>
-                                </tr>
-                              )
-                            })}
-                          </React.Fragment>
-                        )
-                      }
+                                <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
+                                  <AccountMenu
+                                    onEdit={() => setEditingAccount(account)}
+                                    onDelete={() => setDeletingAccount(account)}
+                                  />
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </React.Fragment>
+                      )
+                    }
                     // Non-grouped (flat list)
                     return (
                       <tr key={item.guid} className="hover:bg-neutral-50 border-b  border-gray-100 transition-colors h-14">
