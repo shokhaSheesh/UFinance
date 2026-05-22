@@ -201,7 +201,7 @@ const GroupSelect = ({
                 ref={inputRef}
                 type='text'
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
-                placeholder='Поиск по списку'
+                placeholder={t('searchInList')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

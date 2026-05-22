@@ -5,7 +5,7 @@ import TextArea from '@/components/shared/TextArea'
 import { memo, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { formatDate } from '@/utils/formatDate'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
@@ -23,6 +23,31 @@ import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitti
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
+
+// Helper to update find_operations infinite query cache
+const updateOperationsCache = (updatedOperation) => {
+  queryClient.setQueriesData({ queryKey: ['find_operations'] }, (oldData) => {
+    if (!oldData) return oldData
+
+    const operationGuid = updatedOperation.guid || updatedOperation.id
+    if (!operationGuid) return oldData
+
+    return {
+      ...oldData,
+      pages: oldData.pages.map(page => ({
+        ...page,
+        data: {
+          ...page.data,
+          data: page.data.data.map(op =>
+            (op.guid === operationGuid || op.id === operationGuid)
+              ? { ...op, ...updatedOperation }
+              : op
+          )
+        }
+      }))
+    }
+  })
+}
 
 const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => {
   const t = useTranslations('Operations.forms')
@@ -110,7 +135,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'), 
+        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
@@ -141,10 +166,18 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
           onClose()
         }
       })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['operationsList'] })
-      queryClient.invalidateQueries({ queryKey: ['operations'] })
-      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+
+      // Update cache with new operation data for immediate UI update
+      if (res?.data?.data && !isNew) {
+        updateOperationsCache(res.data.data)
+      }
+      if (isNew) {
+        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+      }
+
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
@@ -152,14 +185,13 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      const operationId = isNew
-        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
-        : initialData.guid
       await onSuccess?.(operationId)
     } catch (error) {
       console.error('Error in AccuralForm handleSubmit:', error)
     }
   }
+
+
   const handleSelectCurrency = (value) => {
     setValue('currency', value)
     const selected = getCurrencyIcon(value)

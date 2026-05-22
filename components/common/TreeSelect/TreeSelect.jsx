@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'

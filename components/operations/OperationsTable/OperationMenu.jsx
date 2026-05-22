@@ -1,12 +1,12 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { cn } from '@/lib/utils'
 import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'

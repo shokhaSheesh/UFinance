@@ -138,6 +138,13 @@ export function formatNumber(value) {
   return formatted + decPart.slice(0, 3)
 }
 
+export function includeNumber(value) {
+  // strip everything except digits and dot
+  const clean = String(value).replace(/[^\d.-]/g, '')
+
+  return clean
+}
+
 export function handleInput(e) {
   const raw = e.target.value
   const cursor = e.target.selectionStart
@@ -198,6 +205,11 @@ export const formatPhoneNumber = (value) => {
     return `+998 ${limitedDigits.slice(3, 5)} ${limitedDigits.slice(5, 8)} ${limitedDigits.slice(8, 10)} ${limitedDigits.slice(10)}`
   }
 }
+
+export const getCleanPhoneNumber = (formattedPhone) => {
+  return formattedPhone.replace(/[^\d]/g, '')
+}
+
 
 
 export const getMonthPeriods = (startDate, endDate) => {
@@ -268,4 +280,14 @@ export const isUUID = (str) => {
   if (typeof str !== 'string') return false
   const regex = /^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/i
   return regex.test(str)
+}
+
+
+export const formatValueLength = (val, billion, million, thousand) => {
+  if (!val && val !== 0) return '0'
+  const abs = Math.abs(val)
+  if (abs >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)} ${billion}`
+  if (abs >= 1_000_000) return `${(val / 1_000_000).toFixed(1)} ${million}`
+  if (abs >= 1_000) return `${(val / 1_000).toFixed(0)} ${thousand}`
+  return formatNumber(val)
 }

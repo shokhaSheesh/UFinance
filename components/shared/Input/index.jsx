@@ -1,4 +1,4 @@
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { forwardRef } from 'react'
 
 const Input = forwardRef(({
@@ -26,7 +26,7 @@ const Input = forwardRef(({
           "placeholder:text-gray-400 placeholder:opacity-100",
           "focus:outline-none focus:border-gray-400",
           "disabled:text-gray-500 disabled:cursor-not-allowed",
-          (error || hasError) && "border-red-ucode! border-2!",
+          (error || hasError) && "border-red-ucode! border",
           action === 'filter' && "bg-slate-50",
           leftIcon && "pl-9",
           rightIcon && "pr-9",

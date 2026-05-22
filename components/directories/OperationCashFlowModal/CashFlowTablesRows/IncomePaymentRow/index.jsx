@@ -1,6 +1,6 @@
-import { cn } from '@/app/lib/utils'
 import PriceStatus from '@/components/operations/PriceStatus'
 import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
+import { cn } from '@/lib/utils'
 import { observer } from 'mobx-react-lite'
 import { useMemo, useState } from 'react'
 import { formatAmount, formatNumber } from '../../../../../utils/helpers'

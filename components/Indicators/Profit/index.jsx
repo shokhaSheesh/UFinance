@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import { HelpCircle } from 'lucide-react'
@@ -222,7 +222,7 @@ const Profit = () => {
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     if (typeof window !== 'undefined') {
-      window.open('/pages/operations', '_blank')
+      window.open('/operations', '_blank')
     }
   }, [rows, filterOperationData])
 
@@ -235,7 +235,7 @@ const Profit = () => {
     operationFilterStore.setAutoFilter(filterdata)
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     if (typeof window !== 'undefined') {
-      window.open('/pages/operations', '_blank')
+      window.open('/operations', '_blank')
     }
   }, [rows, filterOperationData])
 
@@ -254,8 +254,6 @@ const Profit = () => {
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress, t,])
   const inteval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0
 
-  console.log('months', months)
-
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
@@ -273,7 +271,7 @@ const Profit = () => {
                       <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
                       ${item.seriesName}
                     </div>
-                    <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} $</div>
+                    <div class="font-medium text-slate-900">${Number(item.value ?? 0).toLocaleString('ru-RU')} ${GlobalCurrency?.name}</div>
                   </div>`
         })
         return res

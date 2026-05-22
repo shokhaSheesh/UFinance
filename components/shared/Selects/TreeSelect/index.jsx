@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -55,6 +56,7 @@ const TreeSelect = ({
   disabled = false,
   isSearching = false
 }) => {
+  const t = useTranslations('Common.selects')
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [openUpwards, setOpenUpwards] = useState(false)
@@ -267,7 +269,7 @@ const TreeSelect = ({
                 ref={inputRef}
                 type='text'
                 className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-8 py-1.5 text-sm outline-none placeholder:text-neutral-400'
-                placeholder='Поиск по списку'
+                placeholder={t('searchInList')}
                 value={searchQuery}
                 onChange={(e) => {
                   const value = e.target.value

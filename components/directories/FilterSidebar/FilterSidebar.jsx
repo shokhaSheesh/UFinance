@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { ChevronsLeft, ChevronsRightIcon, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import styles from './FilterSidebar.module.scss'

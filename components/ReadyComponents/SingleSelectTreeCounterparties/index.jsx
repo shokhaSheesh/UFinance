@@ -1,15 +1,25 @@
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useCounterpartiesGroupsPlanFact } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
 const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, placeholder, className, dropdownClassName, hasError }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: counterpartiesGroupsData } = useCounterpartiesGroupsPlanFact({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: counterpartiesGroupsData, isFetching } = useCounterpartiesGroupsPlanFact({
     page: 1,
     limit: 100,
-    
+    search: debouncedSearch
   })
 
   const result = useMemo(() => {
@@ -53,6 +63,8 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
     className={className}
     dropdownClassName={dropdownClassName}
     hasError={hasError}
+    onSearch={handleSearch}
+    isSearching={isFetching}
   />
 }
 

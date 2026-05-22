@@ -1,8 +1,8 @@
-import { Roboto } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import "./globals.css";
+import { Roboto } from "next/font/google";
 import ClientLayout from "./ClientLayout";
+import "./globals.css";
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],

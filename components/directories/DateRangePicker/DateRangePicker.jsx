@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
+import { cn } from '@/lib/utils'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/app/lib/utils'
-import styles from './DateRangePicker.module.scss'
-import { CalendarIcon } from '../../../constants/icons'
 import CustomDatePicker from '../../shared/DatePicker'
+import styles from './DateRangePicker.module.scss'
 
 export function DateRangePicker({ selectedRange, onChange, placeholder = "Выберите период" }) {
   const [isOpen, setIsOpen] = useState(false)

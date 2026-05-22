@@ -6,12 +6,12 @@ import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
-import { cn } from "@/app/lib/utils"
 import SelectStatiya from "@/components/ReadyComponents/SelectStatiya"
 import CustomDialog from "@/components/shared/CustomDialog"
 import Input from "@/components/shared/Input"
 import TextArea from "@/components/shared/TextArea"
 import { useUcodeRequestMutation, useUpdateChartOfAccounts } from "@/hooks/useDashboard"
+import { cn } from "@/lib/utils"
 import { authStore } from "@/store/auth.store"
 
 const TAB_CONFIG = [

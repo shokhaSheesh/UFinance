@@ -101,7 +101,7 @@ styles/                 # Global styles
 ### Authentication
 - Token stored in `localStorage` as `authToken`
 - Cookie `isAuthenticated=true` for Next.js middleware redirect
-- Middleware redirects unauthenticated users to `/pages/auth`
+- Middleware redirects unauthenticated users to `/auth`
 - Token refresh via `api.auth.u-code.io/v2/refresh`
 
 ### Component Patterns

@@ -1,6 +1,5 @@
-import React, { forwardRef } from 'react'
-import { cn } from '@/app/lib/utils'
-import styles from './style.module.scss'
+import { cn } from '@/lib/utils'
+import { forwardRef } from 'react'
 
 const TextArea = forwardRef(({ 
   className, 

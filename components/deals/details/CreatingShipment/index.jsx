@@ -1,4 +1,4 @@
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { keepPreviousData } from '@tanstack/react-query'
 import { TrashIcon, X } from 'lucide-react'
 import { toJS } from 'mobx'

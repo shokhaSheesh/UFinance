@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from 'react'
-import { cn } from '@/app/lib/utils'
-import styles from './DropdownFilter.module.scss'
+import { cn } from '@/lib/utils'
+import { useEffect, useRef, useState } from 'react'
 import { FiCheck } from 'react-icons/fi'
+import styles from './DropdownFilter.module.scss'
 
 export function DropdownFilter({ label, options, selectedValues = [], onChange, placeholder = "Выберите...", grouped = false, disabled = false }) {
   const [isOpen, setIsOpen] = useState(false)

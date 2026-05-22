@@ -1,10 +1,10 @@
-import { cn } from '@/app/lib/utils'
 import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { cn } from '@/lib/utils'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
 import { appStore } from '../../../store/app.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
@@ -99,8 +99,7 @@ const TableRow = observer(({
       default:
         return ''
     }
-  }, [op])
-
+  }, [op]) 
 
   return (
     <>
@@ -112,7 +111,7 @@ const TableRow = observer(({
         )}
         onClick={e => {
           if (!e.target.closest('input') && !e.target.closest('button')) {
-            openOperationModal(op)
+            handleEditOperation(op)
           }
         }}
       >
@@ -219,7 +218,7 @@ const TableRow = observer(({
         {/* Project/Deal */}
         <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
           {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка") && (
-            <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)} title={op?.selling_deal_name}>{op?.selling_deal_name || '-'}</p>
+            <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op?.sales_transaction_name || '-'}</p>
           )}
           {op.tip === "Начисление" && (
             <div className='flex flex-col items-center justify-center relative group w-full'>
@@ -339,4 +338,4 @@ const TableRow = observer(({
   )
 })
 
-export default TableRow
+export default memo(TableRow)

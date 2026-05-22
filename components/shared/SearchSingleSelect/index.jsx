@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react'
+import { Check, ChevronDown, ChevronUp, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useMemo, useState } from 'react'
 import ReactSelect, { components } from 'react-select'
-import { Search, Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 
 // Custom MenuList wrapper
 const MenuList = (props) => {
+  const t = useTranslations('Common.selects')
   const { selectProps, children } = props
   const { searchValue, onSearchChange, onCreateCounterparty, createButtonLabel } = selectProps
 
@@ -15,7 +17,7 @@ const MenuList = (props) => {
           <input
             type="text"
             className="w-full focus:outline-none text-sm text-gray-700 bg-transparent placeholder-gray-400"
-            placeholder="Поиск по списку"
+            placeholder={t('searchInList')}
             value={searchValue || ''}
             onChange={(e) => onSearchChange(e.target.value)}
             onClick={(e) => e.stopPropagation()}

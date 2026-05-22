@@ -5,6 +5,7 @@
 		"loading": "Yuklanmoqda...",
 		"noName": "Nomsiz",
 		"search": "Qidirish...",
+		"pay": "To'lov qilish",
 		"searching": "Qidirilmoqda...",
 		"empty": "Hech narsa topilmadi",
 		"noGroup": "Guruhsiz",
@@ -102,6 +103,7 @@
 			"registerSuccess": "Muvaffaqiyatli ro'yxatdan o'tildi!",
 			"registerError": "Xatolik: token yoki foydalanuvchi ma'lumotlari olinmadi",
 			"registerGenericError": "Ro'yxatdan o'tishda xatolik",
+			"registerExistEmailError": "Bunday email mavjud",
 			"forgotSuccess": "Parolni tiklash bo'yicha ko'rsatmalar emailingizga yuborildi",
 			"forgotError": "So'rovni yuborishda xatolik"
 		}
@@ -284,6 +286,7 @@
 			"delete": "O'chirish",
 			"noData": "Ma'lumot yo'q",
 			"sectionToday": "Bugun",
+			"sectionFuture": "Kegin",
 			"sectionBefore": "Kecha va avvalroq",
 			"fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
 			"importedSuccess": "Operatsiyalar muvaffaqiyatli import qilindi.",
@@ -495,6 +498,7 @@
 			"title": "Pul mablag'larining harakati to'g'risida hisobot",
 			"articleHeader": "Hisob moddalari bo'yicha",
 			"grouping": {
+				"daily": "Kun bo'yicha",
 				"monthly": "Oylar bo'yicha",
 				"quarterly": "Choraklar bo'yicha",
 				"yearly": "Yillar bo'yicha"
@@ -666,7 +670,25 @@
 				"shipments": "Mijozga yuklagan tovarlar va xizmatlar"
 			},
 			"searchPlaceholder": "Qidirish",
-			"addButton": "Qo'shish"
+			"addButton": "Qo'shish",
+			"payment": {
+				"createPayment": "To'lov yaratish",
+				"paymentAmount": "To'lov summasi",
+				"enterAmount": "Summani kiriting",
+				"paymentLink": "To'lov havolasi",
+				"copy": "Nusxa olish",
+				"copied": "Nusxalandi",
+				"cancel": "Bekor qilish",
+				"createLink": "Havola yaratish",
+				"creating": "Yaratilmoqda...",
+				"change_price": "Narxni o'zgartirish",
+				"send": "Yuborish",
+				"sending": "Yuborilmoqda...",
+				"enterEmail": "Email Manzilni kiring",
+				"emailSentSuccess": "Xabar muvaffaqiyatli yuborildi",
+				"sendToEmail": "QR code ni emailga jo'natish",
+				"payment_rule": "Agar qat'iy summa yozmasangiz. To'lovchi shaxs istalgan miqdorda to'lov qilishi mumkin."
+			}
 		},
 		"filters": {
 			"dealStatus": "Bitim statusi",
@@ -776,6 +798,7 @@
 			"classCreated": "Sinf muvaffaqiyatli yaratildi",
 			"classUpdated": "Sinf muvaffaqiyatli yangilandi",
 			"classDeleted": "Sinf muvaffaqiyatli o'chirildi",
+			"dealDatePlaceholder": "Sanani tanlang",
 			"classCreateError": "Sinf yaratishda xatolik",
 			"guardianTypeCreated": "Vasiy turi muvaffaqiyatli yaratildi",
 			"guardianTypeUpdated": "Vasiy turi muvaffaqiyatli yangilandi",
@@ -903,6 +926,8 @@
 				"title": "Hisob sozlamalari",
 				"operations": "Operatsiyalarni yaratish va tahrirlash",
 				"paymentType": "To'lov turi",
+				"wlcm_title": "WLCM dagi shaxsiy kabinetingiz joylash",
+				"wlcm": "WLCM.uz tokeningizni joylang",
 				"accrualDate": "Sotuvni tanlashda << Hisoblanish sanasi >> maydonini yoqish"
 			},
 			"save": "Saqlash",
@@ -947,6 +972,7 @@
 				}
 			}
 		},
+
 		"branches": {
 			"pageTitle": "Filiallar",
 			"add": "Qo'shish",
@@ -1025,6 +1051,7 @@
 			"name": "Rol nomi",
 			"namePlaceholder": "Rol nomini kiriting",
 			"description": "Tavsif",
+			"noData": "Ma'lumot yo'q",
 			"descriptionPlaceholder": "Rol tavsifini kiriting",
 			"errors": {
 				"nameRequired": "Rol nomini kiriting"
@@ -1990,6 +2017,50 @@
 				"incomeShare": "Jamg'arma daromad ulushi, %",
 				"clients20": "Daromadlarning 20% dan kamini keltiradigan mijozlar"
 			}
+		}
+	},
+	"Payment": {
+		"header": {
+			"to": "to",
+			"uFinance": "UFinance"
+		},
+		"paymentAmount": {
+			"label": "TO'LOV SUMMASI",
+			"currency": "so'm"
+		},
+		"byCard": {
+			"title": "Karta orqali",
+			"commission": "KOMISSIYA 0%",
+			"cardNumber": "Karta raqami",
+			"cardPlaceholder": "0000 0000 0000 0000",
+			"expiry": "Muddati",
+			"expiryPlaceholder": "MM/YY"
+		},
+		"onlinePayment": {
+			"title": "Onlayn to'lov"
+		},
+		"paymentMethods": {
+			"click": "Click",
+			"clickCommission": "1.5%",
+			"uzum": "Uzum",
+			"uzumCommission": "1%",
+			"payme": "Payme",
+			"paymeCommission": "1%"
+		},
+		"terms": {
+			"text": "«To'lash» tugmasini bosish orqali siz Taklif shartlariga rozilik bildirasiz"
+		},
+		"payButton": {
+			"text": "To'lash {amount} ",
+			"processing": "To'lov amalga oshirilmoqda"
+		},
+		"success": "To'lov muvaffaqiyatli yakunlandi",
+		"error_card": "Bunday karta ma'lumoti mavjud emas",
+		"otp": {
+			"title": "To'lovni tasdiqlash",
+			"description": "Telefon raqamingizga yuborilgan 6 xonali kodni kiriting",
+			"confirm": "Tasdiqlash",
+			"cancel": "Bekor qilish"
 		}
 	}
 }

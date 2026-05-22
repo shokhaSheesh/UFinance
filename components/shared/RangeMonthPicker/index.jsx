@@ -1,5 +1,5 @@
 "use client"
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import DatePicker from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";

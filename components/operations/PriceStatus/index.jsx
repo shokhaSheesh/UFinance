@@ -1,5 +1,5 @@
-import { cn } from '@/app/lib/utils'
 import { CreditIcon, DebitIcon, WarnIcon } from '@/constants/icons'
+import { cn } from '@/lib/utils'
 import { operationFilterStore } from '@/store/operationFilter.store'
 import { isPastDate } from '@/utils/formatDate'
 import { formatAmount } from '@/utils/helpers'

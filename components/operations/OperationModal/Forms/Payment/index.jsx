@@ -1,5 +1,5 @@
 'use client'
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { appStore } from '../../../../../store/app.store'
@@ -34,6 +34,31 @@ import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
+
+// Helper to update find_operations infinite query cache
+const updateOperationsCache = (updatedOperation) => {
+  queryClient.setQueriesData({ queryKey: ['find_operations'] }, (oldData) => {
+    if (!oldData) return oldData
+
+    const operationGuid = updatedOperation.guid || updatedOperation.id
+    if (!operationGuid) return oldData
+
+    return {
+      ...oldData,
+      pages: oldData.pages.map(page => ({
+        ...page,
+        data: {
+          ...page.data,
+          data: page.data.data.map(op =>
+            (op.guid === operationGuid || op.id === operationGuid)
+              ? { ...op, ...updatedOperation }
+              : op
+          )
+        }
+      }))
+    }
+  })
+}
 
 // ── Reducer Logic ──────────────────────────────────────────
 
@@ -380,6 +405,7 @@ const PaymentForm = observer(({
 
     if (!isNew) {
       payload.guid = initialData.guid
+      payload.is_group = divivedAmounts.length > 0 ? true : false
     }
 
     try {
@@ -392,10 +418,22 @@ const PaymentForm = observer(({
           onClose()
         }
       })
+      const operationId = isNew
+        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
+        : initialData.guid
+
+      // Update cache with new operation data for immediate UI update
+      if (res?.data?.data && !isNew) {
+        updateOperationsCache(res.data.data)
+      }
+
+      if (isNew) {
+        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+      }
+
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })
       queryClient.invalidateQueries({ queryKey: ['operations'] })
-      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
@@ -403,9 +441,6 @@ const PaymentForm = observer(({
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })
-      const operationId = isNew
-        ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
-        : initialData.guid
       await onSuccess?.(operationId)
     } catch (error) {
       console.error('PaymentForm onSubmit error', error)

@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import styles from './OperationsHeader.module.scss'
 
 export function OperationsHeader({ 

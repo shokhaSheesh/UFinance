@@ -5,11 +5,11 @@ import { X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 
-import { cn } from "@/app/lib/utils"
 import CustomDialog from "@/components/shared/CustomDialog"
 import Input from "@/components/shared/Input"
 import TextArea from "@/components/shared/TextArea"
 import { useUpdateCounterpartiesGroup } from "@/hooks/useDashboard"
+import { cn } from "@/lib/utils"
 
 export default function EditCounterpartyGroupModal({ isOpen, onClose, group }) {
   const t = useTranslations("Directories.counterparty")

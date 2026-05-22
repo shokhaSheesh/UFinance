@@ -1,4 +1,5 @@
 'use client'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import { useCallback, useEffect, useState } from 'react'
 import { apiClient } from '../lib/api/ucode/base'
 import { authStore } from '../store/auth.store'
@@ -112,14 +113,14 @@ export function useSaleComments({ salesId }) {
     const files = Array.from(e.target.files || [])
     const oversized = files.filter(f => f.size > MAX_FILE_SIZE)
     if (oversized.length > 0) {
-      alert(`Максимальный размер файла — 5 МБ. Файлы слишком большие: ${oversized.map(f => f.name).join(', ')}`)
+      showErrorNotification(`Максимальный размер файла — 5 МБ. Файлы слишком большие: ${oversized.map(f => f.name).join(', ')}`)
       e.target.value = ''
       return
     }
     const availableSlots = MAX_FILES - attachedFiles.length
     const filesToAdd = files.length > availableSlots ? files.slice(0, availableSlots) : files
     if (files.length > availableSlots) {
-      alert(`Внимание: можно прикрепить не более ${MAX_FILES} файлов. Добавлено ${availableSlots}.`)
+      showErrorNotification(`Внимание: можно прикрепить не более ${MAX_FILES} файлов. Добавлено ${availableSlots}.`)
     }
     if (filesToAdd.length > 0) setAttachedFiles(prev => [...prev, ...filesToAdd])
     e.target.value = ''
@@ -196,8 +197,12 @@ export function useSaleComments({ salesId }) {
   const handleEditFileChange = (e) => {
     const files = Array.from(e.target.files || [])
     const oversized = files.filter(f => f.size > MAX_FILE_SIZE)
+    if (files.length > MAX_FILES) {
+      showErrorNotification(`Внимание: можно прикрепить не более ${MAX_FILES} файлов. Добавлено ${files.length}.`)
+      return
+    }
     if (oversized.length > 0) {
-      alert(`Максимальный размер файла — 5 МБ. Файлы слишком большие: ${oversized.map(f => f.name).join(', ')}`)
+      showErrorNotification(`Максимальный размер файла — 5 МБ. Файлы слишком большие: ${oversized.map(f => f.name).join(', ')}`)
       e.target.value = ''
       return
     }

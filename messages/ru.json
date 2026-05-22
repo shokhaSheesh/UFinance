@@ -3,6 +3,7 @@
 	"search": "Поиск...",
 	"Common": {
 		"loading": "Загрузка...",
+		"pay": "Оплата",
 		"noName": "Без названия",
 		"search": "Поиск...",
 		"parameters": "Параметры",
@@ -14,6 +15,8 @@
 		"create": "Создать",
 		"save": "Сохранить",
 		"cancel": "Отменить",
+		"creating": "Создание...",
+		"saving": "Сохранение...",
 		"delete": "Удалить",
 		"edit": "Редактировать",
 		"copy": "Копировать",
@@ -102,6 +105,7 @@
 			"registerSuccess": "Успешная регистрация!",
 			"registerError": "Ошибка: токен или данные пользователя не получены",
 			"registerGenericError": "Ошибка при регистрации",
+			"registerExistEmailError": "Подобное электронное письмо существует.",
 			"forgotSuccess": "Инструкции по восстановлению пароля отправлены на ваш email",
 			"forgotError": "Ошибка при отправке запроса"
 		}
@@ -495,6 +499,7 @@
 			"title": "Отчет о движении денежных средств",
 			"articleHeader": "По статьям учета",
 			"grouping": {
+				"daily": "День",
 				"monthly": "По месяцам",
 				"quarterly": "По кварталам",
 				"yearly": "По годам"
@@ -666,7 +671,25 @@
 				"shipments": "Товары и услуги, которые вы отгрузили клиенту"
 			},
 			"searchPlaceholder": "Поиск",
-			"addButton": "Добавить"
+			"addButton": "Добавить",
+			"payment": {
+				"createPayment": "Создать платеж",
+				"paymentAmount": "Сумма платежа",
+				"enterAmount": "Введите сумму",
+				"paymentLink": "Платежная ссылка",
+				"copy": "Копировать",
+				"copied": "Скопировано",
+				"cancel": "Отмена",
+				"createLink": "Создать ссылку",
+				"creating": "Создание...",
+				"change_price": "Изменение цены",
+				"send": "Отправить",
+				"sending": "Отправка...",
+				"enterEmail": "Введите свой адрес электронной почты.",
+				"emailSentSuccess": "Сообщение успешно отправлено.",
+				"sendToEmail": "Отправить QR-код на электронную почту",
+				"payment_rule": "Если вы не укажете фиксированную сумму, плательщик может оплатить любую сумму."
+			}
 		},
 		"filters": {
 			"dealStatus": "Статус сделки",
@@ -767,6 +790,7 @@
 			"languagePlaceholder": "Выберите язык",
 			"chartOfAccounts": "Статья",
 			"undistributedIncome": "Нераспределенный доход",
+			"dealDatePlaceholder": "Выберите дату",
 			"legalEntity": "Юрлица",
 			"legalEntityRequired": "Выберите юрлицо",
 			"legalEntityPlaceholder": "Выберите юрлицо",
@@ -903,6 +927,8 @@
 				"title": "Настройки учета",
 				"operations": "Создание и редактирование операций",
 				"paymentType": "Тип платежа",
+				"wlcm_title": "Создайте личный аккаунт на WLCM.",
+				"wlcm": "Внесите свой токен WLCM.uz",
 				"accrualDate": "Включить в работу поле << Дата начисления >> при выборе Сделка"
 			},
 			"save": "Сохранить",
@@ -1025,7 +1051,7 @@
 			"name": "Название роли",
 			"namePlaceholder": "Введите название роли",
 			"description": "Описание",
-
+			"noData": "Нет данных",
 			"descriptionPlaceholder": "Введите описание роли",
 			"errors": {
 				"nameRequired": "Введите название роли"
@@ -1236,6 +1262,7 @@
 			"save": "Сохранить",
 			"saving": "Сохранение...",
 			"creating": "Создание...",
+			"save": "Сохранить",
 			"cancel": "Отменить",
 			"create": "Создать",
 			"requisites": "Реквизиты",
@@ -2013,6 +2040,50 @@
 				"incomeShare": "Доля доходов с накопительным итогом, %",
 				"clients20": "Клиенты, приносящие менее 20% доходов"
 			}
+		}
+	},
+	"Payment": {
+		"header": {
+			"to": "to",
+			"uFinance": "UFinance"
+		},
+		"paymentAmount": {
+			"label": "СУММА ПЛАТЕЖА",
+			"currency": "сум"
+		},
+		"byCard": {
+			"title": "Картой",
+			"commission": "КОМИССИЯ 0%",
+			"cardNumber": "Номер карты",
+			"cardPlaceholder": "0000 0000 0000 0000",
+			"expiry": "Срок",
+			"expiryPlaceholder": "ММ/ГГ"
+		},
+		"onlinePayment": {
+			"title": "Онлайн платеж"
+		},
+		"paymentMethods": {
+			"click": "Click",
+			"clickCommission": "1.5%",
+			"uzum": "Uzum",
+			"uzumCommission": "1%",
+			"payme": "Payme",
+			"paymeCommission": "1%"
+		},
+		"terms": {
+			"text": "Нажимая «Оплатить», вы соглашаетесь с условиями Оферты"
+		},
+		"payButton": {
+			"text": "Оплатить {amount}",
+			"processing": "Платеж обрабатывается"
+		},
+		"success": "Оплата успешно завершена.",
+		"error_card": "Информация о такой карте отсутствует.",
+		"otp": {
+			"title": "Подтверждение оплаты",
+			"description": "Введите 6-значный код, отправленный на ваш номер телефона",
+			"confirm": "Подтвердить",
+			"cancel": "Отмена"
 		}
 	}
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -19,6 +19,7 @@ const OperationModal = observer(({
 	operation,
 	isClosing,
 	// isOpening,
+	currentPage,
 	onClose,
 	onSuccess,
 	preselectedCounterparty = null,
@@ -128,6 +129,7 @@ const OperationModal = observer(({
 						{activeTab === 'income' && (
 							<IncomeForm
 								onClose={onClose}
+								currentPage={currentPage}
 								initialData={operationData}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
@@ -139,6 +141,7 @@ const OperationModal = observer(({
 							<PaymentForm
 								onClose={onClose}
 								initialData={operationData}
+								currentPage={currentPage}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id_2}
@@ -148,6 +151,7 @@ const OperationModal = observer(({
 						{activeTab === 'transfer' && (
 							<TransferForm
 								onClose={onClose}
+								currentPage={currentPage}
 								initialData={operationData}
 								onSuccess={handleFormSuccess}
 							/>
@@ -155,6 +159,7 @@ const OperationModal = observer(({
 						{activeTab === 'accrual' && (
 							<AccuralForm
 								onCancel={onClose}
+								currentPage={currentPage}
 								onClose={onClose}
 								onSuccess={handleFormSuccess}
 								initialData={operationData}

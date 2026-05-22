@@ -1,5 +1,4 @@
-import React from 'react'
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib/utils'
 import styles from './Loader.module.scss'
 
 const Loader = ({ size = 20, color = 'white', className = '' }) => {

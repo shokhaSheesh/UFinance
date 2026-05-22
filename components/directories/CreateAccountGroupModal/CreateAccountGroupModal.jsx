@@ -1,8 +1,8 @@
 "use client"
 
-import { cn } from '@/app/lib/utils'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
+import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard'

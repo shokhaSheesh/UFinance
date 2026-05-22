@@ -1,94 +1,91 @@
-import { apiConfig } from '@/lib/config/api'
+import { apiClient } from '@/lib/api/ucode/base'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
 import { useMutation } from '@tanstack/react-query'
-/**
- * Login mutation hook
- * Handles user authentication - direct call to u-code API
- */
+import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
+import { useUcodeRequestMutation } from './useDashboard'
+
 export function useLogin() {
+  const t = useTranslations('Auth')
+  const router = useRouter()
+
+  const { mutateAsync: getMyBranches } = useUcodeRequestMutation()
+  const { mutateAsync: getMyPermissions } = useMutation({
+    mutationKey: ['get_my_permissions'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_user_role_permissions', data, type: 'role' })
+  })
+
   return useMutation({
-    mutationFn: async ({ email, password }) => {
-      const baseURL = apiConfig.ucode.authBaseURL
-      const projectId = apiConfig.ucode.projectId
-      const environmentId = apiConfig.ucode.environmentId
-      const clientTypeId = apiConfig.ucode.clientTypeId
-      const roleId = apiConfig.ucode.roleId
+    mutationKey: ['login'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_login', data }),
+    onSuccess: async (data) => {
+      const responseData = data?.data?.data
+      let permissions = 0
 
-      const url = `https://api.admin.u-code.io/v2/invoke_function/planfact-plan-fact?project-id=${projectId}`
-
-
-      const requestBody = {
-        data: {
-        method: "auth_login",
-        object_data: { email, password }
-    }
-        // login_strategy: "EMAIL",
-        // data: {
-        //     email,
-        //     password,
-        //     client_type_id: clientTypeId,
-        //     role_id: roleId
-        // }
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'environment-Id': environmentId,
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      const responseText = await response.text()
-
-      let data
-      try {
-        data = JSON.parse(responseText)
-      } catch (e) {
-        throw new Error('Invalid response from server')
-      }
-
-      if (!response.ok || data.status === 'ERROR' || data.status === 'BAD_REQUEST' || data.status === 'INVALID_ARGUMENT') {
-        const errorMessage = typeof data.data === 'string' ? data.data : (data.description || data.message || 'Ошибка при входе')
-        throw new Error(errorMessage)
-      }
-
-      return data
-    },
-    onSuccess: (data) => { 
-      // Response structure: { status: "CREATED", data: { status: "success", data: { data: {...} } } }
-      const responseData = data.data 
-      
-      // Токен находится глубже в структуре
-      const innerData = responseData?.data?.data 
-      
-      const tokenData = innerData?.token?.access_token
-      const refreshToken = innerData?.token?.refresh_token
-      const userData = innerData?.user_data || innerData?.userData || innerData?.user
+      const tokenData = responseData?.token?.access_token
+      const refreshToken = responseData?.token?.refresh_token
+      const userData = responseData?.user_data || responseData?.userData || responseData?.user
 
 
       // Set authentication state through MobX store
-      if (tokenData && userData) { 
-        authStore.setAuthentication({ 
+      if (tokenData && userData) {
+        authStore.setAuthentication({
           token: tokenData,
           refresh_token: refreshToken,
-          user_data: userData 
-        })  
-        // setTimeout(() => {
-        //   window.location.href = '/pages/operations'
-        // }, 100)
+          user_data: userData
+        })
       } else {
         console.error('Missing token or user data!')
       }
 
-      showSuccessNotification('Успешный вход!')
-      console.log('=== LOGIN SUCCESS END ===')
+      showSuccessNotification(t('notifications.loginSuccess'))
+
+      const branchesResponse = await getMyBranches({
+        method: 'get_my_branches',
+        data: { page: 1, limit: 200 },
+      })
+
+
+      const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
+
+      if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
+        authStore.setBranches(branches)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
+      }
+
+      if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
+        permissions = await getMyPermissions({
+          branches_id: branch?.guid || branches[0]?.guid,
+          role_id: responseData?.role?.id
+        })
+      } else {
+        appStore.setEmployerPermission()
+      }
+
+
+      if (responseData?.role?.name === 'employees') {
+        if (permissions?.data?.message === 'error') {
+          appStore.setPlanfactPermission()
+        } else if (permissions?.data?.data?.role_permissions) {
+          console.log('change permissions', permissions?.data?.data?.role_permissions)
+          appStore.setNewPermission(permissions?.data?.data?.role_permissions)
+        } else {
+          appStore.setPlanfactPermission()
+        }
+      } else if (responseData?.role?.name === 'plan_fakt_admins') {
+        appStore.setEmployerPermission()
+      }
+
+      authStore.selectBranch = branches[0]
+      router.push('/operations') // 7445
     },
-    onError: (error) => {
-      const errorMessage = error.message || 'Ошибка при входе'
+    onError: () => {
+      const errorMessage = t('notifications.loginError')
       showErrorNotification(errorMessage)
     },
   })
@@ -100,97 +97,60 @@ export function useLogin() {
  * After successful registration, automatically logs in the user
  */
 export function useRegister() {
-  const loginMutation = useLogin()
-  
+  const t = useTranslations('Auth')
+  const router = useRouter()
+  const { mutateAsync: getMyBranches } = useUcodeRequestMutation()
+
   return useMutation({
-    mutationFn: async ({ fullname, email, phone, password }) => {
-      const baseURL = apiConfig.ucode.authBaseURL
-      const projectId = apiConfig.ucode.projectId
-      const environmentId = apiConfig.ucode.environmentId
-      const clientTypeId = apiConfig.ucode.clientTypeId
-      const roleId = apiConfig.ucode.roleId
+    mutationKey: ['register'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_register_legal_entity', data }),
+    onSuccess: async (data) => {
+      const responseData = data?.data?.data
+      const tokenData = responseData?.token?.access_token
+      const refreshToken = responseData?.token?.refresh_token
+      const userData = responseData?.user_data || responseData?.userData || responseData?.user
 
-      const url = `${baseURL}/v2/register?project-id=${projectId}`
-
-      const requestBody = {
-        data: {
-          type: 'email',
-          name: fullname,
-          phone: phone,
-          password: password,
-          email: email,
-          client_type_id: clientTypeId,
-          role_id: roleId
-        }
-      } 
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Environment-Id': environmentId,
-        },
-        body: JSON.stringify(requestBody),
-      })
-
-      const responseText = await response.text()
-
-      let data
-      try {
-        data = JSON.parse(responseText)
-      } catch (e) {
-        throw new Error('Invalid JSON response from server')
-      }
-
-      if (!response.ok || data.status === 'ERROR' || data.status === 'BAD_REQUEST' || data.status === 'INVALID_ARGUMENT') {
-        const errorMessage = typeof data.data === 'string' ? data.data : (data.message || data.description || 'Ошибка при регистрации')
-        throw new Error(errorMessage)
-      }
-
-      // Return both registration data and credentials for auto-login
-      return { 
-        registrationData: data,
-        credentials: { email, password }
-      }
-    },
-    onSuccess: async ({ registrationData, credentials }) => {
-      const responseData = registrationData.data
-      
-      // Check if token is provided in registration response
-      if (responseData?.token?.access_token) {
-        // Token provided - use it directly
-        const tokenData = responseData.token.access_token
-        const refreshToken = responseData.token.refresh_token
-        const userData = responseData.user
-        
-        // Build user_data object
-        const userDataForStore = {
-          id: userData?.id || responseData.user_id,
-          email: userData?.email || credentials.email,
-          phone: userData?.phone,
-          ...userData
-        }
-        
-        authStore.setAuthentication({ 
+      // Set authentication state through MobX store
+      if (tokenData && userData) {
+        authStore.setAuthentication({
           token: tokenData,
           refresh_token: refreshToken,
-          user_data: userDataForStore
+          user_data: userData
         })
       } else {
-        // Token not provided - need to login
-        try {
-          await loginMutation.mutateAsync(credentials)
-        } catch (error) {
-          showErrorNotification('Регистрация успешна, но не удалось войти автоматически. Пожалуйста, войдите вручную.')
-          return
-        }
+        console.error('Missing token or user data!')
       }
-      
-      showSuccessNotification('Успешная регистрация!')
+
+      const branchesResponse = await getMyBranches({
+        method: 'get_my_branches',
+        data: { page: 1, limit: 200 },
+      })
+
+
+      const branches = branchesResponse?.data?.data || []
+      const branch = branches?.find(item => item?.is_employee == true)
+
+      if (branches.length > 0) {
+        const id = (branch?.guid || branches[0]?.guid)
+        authStore.setBranches(branches)
+        authStore.setBranchId(id)
+        appStore.setBranchIsAccrualDate(id)
+      }
+
+      if (responseData?.role === "plan_fakt_admins") {
+        appStore.setEmployerPermission()
+      }
+
+      authStore.selectBranch = branches[0]
+      showSuccessNotification(t('notifications.registerSuccess'))
+      router.push('/operations')
     },
     onError: (error) => {
-      const errorMessage = error.message || 'Ошибка при регистрации'
+      console.log('Register error:', error)
+      const apiError = error?.data?.error || error?.message || ''
+      const errorMessage = typeof apiError === 'string' && apiError.toLowerCase().includes('exist')
+        ? t('notifications.registerExistEmailError')
+        : t('notifications.registerGenericError')
       showErrorNotification(errorMessage)
     },
   })

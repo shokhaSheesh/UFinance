@@ -1,4 +1,19 @@
 'use client'
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
+import SelectProductService from '@/components/ReadyComponents/SelectProductService'
+import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
+import CustomDialog from '@/components/shared/CustomDialog'
+import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
+import Input from '@/components/shared/Input'
+import Loader from '@/components/shared/Loader'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { apiClient } from '@/lib/api/ucode/base'
+import { queryClient } from '@/lib/queryClient'
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { authStore } from '@/store/auth.store'
+import { formatNumber, formatPhoneNumber, getPeriodLength } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { Edit2, Loader2, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -6,21 +21,6 @@ import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import { apiClient } from '../../../lib/api/ucode/base'
-import { queryClient } from '../../../lib/queryClient'
-import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
-import { authStore } from '../../../store/auth.store'
-import { formatNumber, formatPhoneNumber, getPeriodLength } from '../../../utils/helpers'
-import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
-import SelectProductService from '../../ReadyComponents/SelectProductService'
-import SingleCounterParty from '../../ReadyComponents/SingleCounterParty'
-import SinglSelectStatiya from '../../ReadyComponents/SingleSelectStatiya'
-import CustomDialog from '../../shared/CustomDialog'
-import FormDatepicker from '../../shared/DatePicker/form-datepicker'
-import Input from '../../shared/Input'
-import Loader from '../../shared/Loader'
-import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const academicYears = Array.from({ length: 20 }, (_, i) => {
   const start = 2020 + i
@@ -106,7 +106,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         classes_id: initialData?.classes_id || null,
         language_classes_id: initialData?.language_classes_id || null,
         legal_entity_id: initialData?.legal_entity_id || null,
-        monthlyPayment: initialData?.product_and_service_id_data?.summa
+        monthlyPayment: initialData?.product_and_service_id_data?.summa 
       }
     }
     return {
@@ -152,8 +152,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     reset,
     formState: { errors, isSubmitting }
   } = useForm({
-    mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    mode: 'onChange',
+    // reValidateMode: 'onSubmit',
     defaultValues: defaultValues,
     values: defaultValues
   })
@@ -329,6 +329,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   }
 
   const getContractHtml = () => {
+    // if (initialData && !canUpdateForms) return initialData?.contract_file
     // if (initialData && !canUpdateForms) return initialData?.contract_file
     if (!contractTemplate) return '<p style="padding:20px;font-family:sans-serif">Загрузка шаблона договора...</p>'
     const data = getContractDataForType()
@@ -798,7 +799,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         <Controller
                           name="guardianType"
                           control={control}
-                          rules={{ required: !isEditing ? t('guardianTypeRequired') : false }}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SingleSelect
                               placeholder={t('guardianTypePlaceholder')}
@@ -813,7 +814,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                                   <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteGuardianModal(item)} />
                                 </div>
                               )}
-
+                              hasError={errors.guardianType}
                               data={guardianTypeList}
                               className='bg-white'
                               isClearable={false}
@@ -836,6 +837,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               onChange={field.onChange}
                               data={academicYears}
                               className='bg-white'
+                              hasError={errors.academicYear}
                               isClearable={false}
                               disabled={isEditing}
                             />
@@ -852,13 +854,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                           rules={{ required: !isEditing ? t('phone1Required') : false }}
                           render={({ field }) => (
                             <div className="flex">
-                              <input
+                              <Input
                                 type="text"
                                 placeholder={t('phone1Placeholder')}
                                 value={field.value}
                                 disabled={isEditing}
+                                hasError={errors.phone1}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                                className={`w-full h-[36px] px-3 border rounded-md outline-none text-sm focus:border-cyan-500 font-sans ${errors.phone1 ? 'border-red-500 border-2' : 'border-gray-200'}`}
                               />
                             </div>
                           )}
@@ -871,7 +873,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         <Controller
                           name="counterparties_id"
                           control={control}
-                          rules={{ required: !isEditing ? t('studentNameRequired') : false }}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SingleCounterParty
                               placeholder={t('studentNamePlaceholder')}
@@ -881,6 +883,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               onChange={field.onChange}
                               className={'bg-white'}
                               isClearable={false}
+                              hasError={errors.counterparties_id}
                               disabled={isEditing}
                             />
                           )}
@@ -895,13 +898,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                           control={control}
                           render={({ field }) => (
                             <div className="flex">
-                              <input
+                              <Input
                                 type="text"
                                 placeholder={t('phone2Placeholder')}
                                 value={field.value}
                                 disabled={isEditing}
                                 onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                                className="w-full h-[36px] px-3 border border-gray-200 rounded-md outline-none text-sm focus:border-cyan-500 font-sans"
                               />
                             </div>
                           )}
@@ -947,18 +949,21 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                       </div>
 
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-medium text-gray-700">{t('tariffName')}</label>
+                        <label className="text-xs font-medium text-gray-700">{t('tariffName')}*</label>
                         <Controller
                           name="product_and_service_id"
                           control={control}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SelectProductService
                               value={field.value}
                               onChange={field.onChange}
                               name='tsena_za_ed'
+
                               returnFieldValue={(value) => {
                                 setValue('monthlyPayment', value)
                               }}
+                              hasError={!!errors.product_and_service_id}
                               placeholder={t('tariffPlaceholder')}
                               className={'w-full! bg-white'}
                               disabled={isEditing}
@@ -1018,7 +1023,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         <Controller
                           name="gender"
                           control={control}
-                          rules={{ required: !isEditing ? t('genderRequired') : false }}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SingleSelect
                               placeholder={t('gender')}
@@ -1027,6 +1032,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               data={[{ value: 'male', label: t('genderMale') }, { value: 'female', label: t('genderFemale') }]}
                               className='bg-white'
                               isClearable={false}
+                              hasError={errors.gender}
                               disabled={isEditing}
                             />
                           )}
@@ -1062,7 +1068,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         <Controller
                           name="classes_id"
                           control={control}
-                          rules={{ required: !isEditing ? t('classRequired') : false }}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SingleSelect
                               placeholder={t('classPlaceholder')}
@@ -1081,6 +1087,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                                   <Trash2 size={18} className='text-red-500 cursor-pointer hover:text-red-700' onClick={() => openDeleteModal(item)} />
                                 </div>
                               )}
+                              hasError={errors.classes_id}
                               data={classeList}
                               isClearable={false}
                               className='bg-white'
@@ -1174,7 +1181,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                         <Controller
                           name="language_classes_id"
                           control={control}
-                          rules={{ required: !isEditing ? t('languageRequired') : false }}
+                          rules={{ required: !isEditing ? true : false }}
                           render={({ field }) => (
                             <SingleSelect
                               placeholder={t('languagePlaceholder')}
@@ -1186,6 +1193,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               }}
                               data={languageClassList}
                               className='bg-white'
+                              hasError={errors.language_classes_id}
                               isClearable={false}
                               disabled={isEditing}
                             />
@@ -1225,6 +1233,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                               placeholder={t('legalEntityPlaceholder')}
                               className=' bg-white'
                               isClearable={false}
+                              hasError={errors.legal_entity_id}
                               disabled={isEditing}
                             />
                           )}
@@ -1263,7 +1272,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="flex-1 overflow-hidden">
                     <iframe
-                        srcDoc={html}
+                        srcDoc={html} 
                       className="w-full h-full border-0 px-2"
                         title={t('showContractPreview')}
                     />

@@ -97,10 +97,10 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing }) {
 
       // Navigate to the Deal detail page
       if (response?.data?.data?.guid) {
-        router.push(`/pages/deals/${response.data.data.guid}`);
+        router.push(`/deals/${response.data.data.guid}`);
       } else if (isEditing && initialData?.guid) {
         // Fallback for edit if response lacks guid
-        router.push(`/pages/deals/${initialData.guid}`);
+        router.push(`/deals/${initialData.guid}`);
       }
     } catch (error) {
       console.error('Error creating/updating deal:', error);
