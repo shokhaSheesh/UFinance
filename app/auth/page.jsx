@@ -8,7 +8,6 @@ import { useLogin, useRegister } from '@/hooks/useAuth'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { showSuccessNotification } from '@/lib/utils/notifications'
-import { authStore } from '@/store/auth.store'
 import { formatPhoneNumber, getCleanPhoneNumber } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
@@ -129,10 +128,6 @@ export default function LoginPage() {
       required: t('errors.emailRequired'),
       pattern: { value: /\S+@\S+\.\S+/, message: t('errors.emailInvalid') }
     }
-  }
-
-  if (authStore.authToken) {
-    return router.back()
   }
 
   return (
