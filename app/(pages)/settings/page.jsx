@@ -1,19 +1,16 @@
 'use client'
 
-import Input from '@/components/shared/Input'
-import { apiClient } from '@/lib/api/ucode/base'
-import { useMutation } from '@tanstack/react-query'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { queryClient } from '@/lib/queryClient'
+import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { appStore } from '@/store/app.store'
+import { authStore } from '@/store/auth.store'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
-import OperationCheckbox from '../../../components/shared/Checkbox/operationCheckbox'
-import SingleSelect from '../../../components/shared/Selects/SingleSelect'
-import { useUcodeRequestMutation } from '../../../hooks/useDashboard'
-import { queryClient } from '../../../lib/queryClient'
-import { showErrorNotification, showSuccessNotification } from '../../../lib/utils/notifications'
-import { appStore } from '../../../store/app.store'
-import { authStore } from '../../../store/auth.store'
 
 const CURRENCY_DEPENDENT_QUERY_KEYS = [
   'get_general_settings',
@@ -34,18 +31,18 @@ const SettingsPage = observer(() => {
   const tg = useTranslations('Settings.general')
   const tc = useTranslations('Settings.common')
   const { mutateAsync: updateSettings, isPending: isSaving } = useUcodeRequestMutation()
-  const { mutateAsync: createWlcmToken, isPending: isSavingToken } = useMutation({
-    mutationKey: ['set_wlcm_token'],
-    mutationFn: (data) => apiClient.invokeFunction({ ...data, type: 'role' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
-    }
-  })
+  // const { mutateAsync: createWlcmToken, isPending: isSavingToken } = useMutation({
+  //   mutationKey: ['set_wlcm_token'],
+  //   mutationFn: (data) => apiClient.invokeFunction({ ...data, type: 'role' }),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
+  //   }
+  // })
 
   const [isPayment, setIsPayment] = useState(appStore.isPayment)
   const [isAccrualDate, setIsAccrualDate] = useState(appStore.isAccrualDate)
   const [currencyId, setCurrencyId] = useState(appStore?.currency?.guid)
-  const [wlcmHashcode, setWlcmHashcode] = useState('')
+  // const [wlcmHashcode, setWlcmHashcode] = useState('')
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
@@ -55,7 +52,7 @@ const SettingsPage = observer(() => {
   const isPaymentChanged = isPayment !== appStore.isPayment
   const isAccrualDateChanged = isAccrualDate !== appStore.isAccrualDate
   const isCurrencyChanged = currencyId !== appStore?.currency?.guid
-  const hasChanges = isPaymentChanged || isAccrualDateChanged || isCurrencyChanged || wlcmHashcode
+  const hasChanges = isPaymentChanged || isAccrualDateChanged || isCurrencyChanged
 
 
   const handleSaveSettings = async () => {
@@ -63,20 +60,20 @@ const SettingsPage = observer(() => {
 
     if (isPaymentChanged) data.is_payment = isPayment
     if (isAccrualDateChanged) data.is_accural_date = isAccrualDate
-    if (wlcmHashcode) {
-      try {
-        await createWlcmToken({
-          method: "wlcm_onboarding_payment_create",
-          data: {
-            token: wlcmHashcode
-          }
-        })
-        queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
-      } catch (error) {
-        console.log('Error', error?.message)
-      }
-      return
-    }
+    // if (wlcmHashcode) {
+    //   try {
+    //     await createWlcmToken({
+    //       method: "wlcm_onboarding_payment_create",
+    //       data: {
+    //         token: wlcmHashcode
+    //       }
+    //     })
+    //     queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
+    //   } catch (error) {
+    //     console.log('Error', error?.message)
+    //   }
+    //   return
+    // }
     if (isCurrencyChanged) {
       const selected = appStore.currencies.find(c => c.guid === currencyId)
       data.default_currency_id = currencyId
@@ -119,7 +116,7 @@ const SettingsPage = observer(() => {
 
 
 
-  const isSavingData = isSaving || isSavingToken
+  const isSavingData = isSaving
 
   return (
     <div className=" bg-white w-full">
@@ -161,7 +158,7 @@ const SettingsPage = observer(() => {
           />
         </section>
       </section>
-      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+      {/* <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
         <section className="flex flex-col gap-1.5 items-start">
           <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
             {tg('accounting.wlcm_title')}
@@ -172,7 +169,7 @@ const SettingsPage = observer(() => {
             placeholder={tg('accounting.wlcm')}
           />
         </section>
-      </section>
+      </section> */}
 
       <div className="sticky bottom-0 bg-white  p-3 flex justify-start">
         <button
