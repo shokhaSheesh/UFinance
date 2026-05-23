@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
-import { AccountTableRow } from '../AccountTableRow/AccountTableRow'
-import { GroupTableRow } from '../GroupTableRow/GroupTableRow'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
-import { ACCOUNT_TABLE_HEADERS, ACCOUNT_FIELDS } from '../../utils/accountsFieldFormatter'
+import { useMemo } from 'react'
+import { ACCOUNT_FIELDS, ACCOUNT_TABLE_HEADERS } from '../../utils/accountsFieldFormatter'
+import { AccountTableRow } from '../AccountTableRow/AccountTableRow'
+import { GroupTableRow } from '../GroupTableRow/GroupTableRow'
 import styles from './accounts-table.module.scss'
 
 export function AccountsTable({
@@ -98,14 +98,14 @@ export function AccountsTable({
           </th>
           <th className='p-2 text-start font-medium'>
             <div className="flex items-center gap-2">
-              {selectedGrouping !== 'none' && (
+              {/* {selectedGrouping !== 'none' && (
                 <button
                   onClick={onExpandAll}
                   className="p-1 hover:bg-neutral-200 rounded cursor-pointer transition-colors"
                 >
                   {isAllExpanded ? <ExpendClose /> : <ExpendOpen />}
                 </button>
-              )}
+              )} */}
               <span>{t('tableHeaders.name')}</span>
             </div>
           </th>

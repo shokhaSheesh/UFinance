@@ -118,7 +118,7 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
   useEffect(() => {
     setStartDate(value?.start || null)
     setEndDate(value?.end || null)
-    setActivePreset(value?.start ? null : 'year')
+    setActivePreset(value?.start ? 'year' : null)
   }, [value?.start, value?.end])
 
   const handlePreset = (key) => {

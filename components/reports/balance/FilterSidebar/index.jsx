@@ -17,10 +17,26 @@ const BalanceFilterSidebar = observer(({ isOpen, onClose }) => {
     queryClient.invalidateQueries({ queryKey: ['balance_report'] })
   }
 
+  const datesEqual = (a, b) =>
+    a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
+
+  const clearCount =
+    (!datesEqual(dateRange.start, defaultDate.start) ||
+      !datesEqual(dateRange.end, defaultDate.end) ? 1 : 0) +
+    selectedAccount.length +
+    selectedCounterparties.length
+
+  const handleClear = () => {
+    balanceStore.resetFilters()
+    queryClient.invalidateQueries({ queryKey: ['balance_report'] })
+  }
+
   return (
     <FilterSidebar
       isOpen={isOpen}
       onClose={onClose}
+      clearCount={clearCount}
+      onClear={handleClear}
     >
       <div className="flex flex-col gap-4 pt-4">
         {/* Date */}

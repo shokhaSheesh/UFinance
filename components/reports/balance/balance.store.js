@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx'
-import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { makePersistable } from 'mobx-persist-store'
+import { GlobalCurrency } from '../../../constants/globalCurrency'
 
 const currentYear = new Date().getFullYear()
 const defaultDateRange = () => {
@@ -60,6 +60,14 @@ class BalanceStore {
 
 	setSelectedAccount(account) {
 		this.selectedAccount = account
+	}
+
+	resetFilters() {
+		this.dateRange = defaultDateRange()
+		this.selectedEntity = []
+		this.selectedCurrency = GlobalCurrency.code || 'UZS'
+		this.selectedCounterparties = []
+		this.selectedAccount = []
 	}
 }
 

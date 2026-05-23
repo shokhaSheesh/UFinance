@@ -42,6 +42,9 @@ export function useLogin() {
 
       showSuccessNotification(t('notifications.loginSuccess'))
 
+
+
+
       const branchesResponse = await getMyBranches({
         method: 'get_my_branches',
         data: { page: 1, limit: 200 },
@@ -50,13 +53,14 @@ export function useLogin() {
 
       const branches = branchesResponse?.data?.data || []
       const branch = branches?.find(item => item?.is_employee == true)
-
       if (branches.length > 0) {
         const id = (branch?.guid || branches[0]?.guid)
         authStore.setBranches(branches)
         authStore.setBranchId(id)
         appStore.setBranchIsAccrualDate(id)
+        authStore.selectBranch = branches[0]
       }
+
 
       if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
         permissions = await getMyPermissions({
@@ -81,8 +85,10 @@ export function useLogin() {
         appStore.setEmployerPermission()
       }
 
-      authStore.selectBranch = branches[0]
-      router.push('/operations') // 7445
+      if (branches.length > 0) {
+        router.push('/operations') // 7445
+      }
+
     },
     onError: () => {
       const errorMessage = t('notifications.loginError')
@@ -91,11 +97,6 @@ export function useLogin() {
   })
 }
 
-/**
- * Register mutation hook
- * Handles user registration - direct call to new u-code auth API
- * After successful registration, automatically logs in the user
- */
 export function useRegister() {
   const t = useTranslations('Auth')
   const router = useRouter()
@@ -129,21 +130,25 @@ export function useRegister() {
 
       const branches = branchesResponse?.data?.data || []
       const branch = branches?.find(item => item?.is_employee == true)
-
       if (branches.length > 0) {
         const id = (branch?.guid || branches[0]?.guid)
         authStore.setBranches(branches)
         authStore.setBranchId(id)
         appStore.setBranchIsAccrualDate(id)
+        authStore.selectBranch = branches[0]
       }
+
 
       if (responseData?.role === "plan_fakt_admins") {
         appStore.setEmployerPermission()
       }
 
-      authStore.selectBranch = branches[0]
-      showSuccessNotification(t('notifications.registerSuccess'))
-      router.push('/operations')
+      if (branches.length > 0) {
+
+        showSuccessNotification(t('notifications.registerSuccess'))
+        router.push('/operations')
+      }
+
     },
     onError: (error) => {
       console.log('Register error:', error)

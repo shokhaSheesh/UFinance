@@ -5,7 +5,7 @@ import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
-import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -17,7 +17,7 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
+const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
   const t = useTranslations('Directories.details.incomeOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -28,6 +28,9 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [operationToDelete, setOperationToDelete] = useState(null)
   const deleteOperationMutation = useDeleteOperation()
+  const getOperationMutation = useMutation({
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_operation', data })
+  })
   const queryClient = useQueryClient()
   const scrollContainerRef = useRef(null)
   const LIMIT = 10
@@ -97,12 +100,21 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
         title={t('emptyTitle')}
         subtitle={t('emptySubtitle')}
         onAdd={onAdd}
+        canAdd={canAdd}
       />
     )
   }
 
-  const handleEditOperation = (operation) => {
-    setSelectedOperation(operation)
+  const handleEditOperation = async (operation) => {
+    try {
+      const response = await getOperationMutation.mutateAsync({ guid: operation.guid })
+      const rawData = response?.data?.data || response?.data
+      const dtoData = rawData ? operationsDto([rawData])?.[0] : null
+      setSelectedOperation(dtoData || operation)
+    } catch (error) {
+      console.error('Error fetching operation:', error)
+      setSelectedOperation(operation)
+    }
     setModalType('income')
     setShowModal(true)
     setIsModalClosing(false)
@@ -202,8 +214,16 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd }) => {
                           {'+'}{formatAmount(item.summa)} {item.currency}
                         </p>
                         <div className=' items-center  hidden group-hover:flex '>
-                          <button onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                            <MdOutlineModeEdit size={16} className='text-gray-400' />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
+                            disabled={getOperationMutation.isPending}
+                            className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900 disabled:opacity-50'
+                          >
+                            {getOperationMutation.isPending ? (
+                              <Loader2 size={14} className='animate-spin text-gray-400' />
+                            ) : (
+                              <MdOutlineModeEdit size={16} className='text-gray-400' />
+                            )}
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                             <IoCopyOutline size={16} className='text-gray-400' />

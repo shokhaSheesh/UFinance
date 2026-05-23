@@ -450,7 +450,7 @@ const ProfitAndLossPage = observer(() => {
             </div>
           ) : (
               <div className='flex flex-1 overflow-hidden'>
-                <div div className='overflow-x-auto' >
+                <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
                   <thead className={"bg-neutral-100 sticky top-0 z-50 "}>
                     <tr>

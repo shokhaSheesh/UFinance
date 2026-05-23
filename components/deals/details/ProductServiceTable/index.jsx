@@ -15,7 +15,7 @@ import Loader from '../../../shared/Loader'
 
 import EmptyState from '../EmptyState'
 
-const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
+const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => {
   const t = useTranslations('Directories.details.productServiceTable')
 
   const [selectedItems, setSelectedItems] = useState(new Set())
@@ -131,6 +131,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd }) => {
         title={t('emptyTitle')}
         subtitle={t('emptySubtitle')}
         onAdd={onAdd}
+        canAdd={canAdd}
       />
     )
   }

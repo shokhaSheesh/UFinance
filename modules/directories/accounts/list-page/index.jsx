@@ -169,12 +169,26 @@ export default observer(function AccountsPageList() {
     setIsMenuOpen(false)
   }
 
+  const clearCount =
+    (!accountsStore.isCash || !accountsStore.isNonCash || !accountsStore.isCard || !accountsStore.isElectronic ? 1 : 0) +
+    selectedEntity.length +
+    selectedAccounts.length
+
+  const handleClearFilters = () => {
+    accountsStore.resetFilters()
+  }
+
   // Prevent hydration mismatch
   if (!mounted) return null
 
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
-      <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)}>
+      <FilterSidebar
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(!isFilterOpen)}
+        clearCount={clearCount}
+        onClear={handleClearFilters}
+      >
         <FilterSection title={t('types.type')}>
           <div className="space-y-2.5 flex flex-col items-start">
             <OperationCheckbox

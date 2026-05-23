@@ -32,7 +32,7 @@ const Students = observer(() => {
   const mounted = useMounted()
   const scrollContainerRef = useRef(null)
 
-  const { accounting, rangeMonth, setState } = student
+  const { accounting, rangeMonth, setState, status } = student
 
   const filterData = {
     accounting_method: accounting,
@@ -42,7 +42,8 @@ const Students = observer(() => {
     counterparties_ids: student.selectedCounterParties,
     from_date: rangeMonth?.start,
     to_date: rangeMonth?.end,
-    counterparties_group_id: student.selectedCounterPartiesGroups
+    counterparties_group_id: student.selectedCounterPartiesGroups,
+    contract_status: status === 'active' ? true : status === 'passive' ? false : null
   }
 
   const {
@@ -205,6 +206,17 @@ const Students = observer(() => {
             multi={true}
             value={student.selectedCounterPartiesGroups}
             onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
+          />
+        </FilterSection>
+        <FilterSection title={t('students.statusTile')}>
+          <SingleSelect
+            data={[{
+              value: 'active', label: t('students.status.active'),
+            }, {
+              value: 'passive', label: t('students.status.passive')
+            }]}
+            value={student.status}
+            onChange={(value) => student.setState('status', value)}
           />
         </FilterSection>
       </FilterSidebar>

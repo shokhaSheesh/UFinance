@@ -58,6 +58,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 	const activeFilterCount = useMemo(() => {
 		let count = 0
 		if (selectedCounterparties?.length > 0) count++
+		if (status?.length > 0) count++
 		if (dateRange?.end || dateRange?.start) count++
 		if (amountFrom || amountTo) count++
 		if (profitFrom || profitTo) count++
@@ -69,14 +70,8 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 		amountTo,
 		profitFrom,
 		profitTo,
+		status
 	])
-
-	// const debounceSetParams = useMemo(
-	// 	() => debounce((field, value) => {
-	// 		setState(field, value)
-	// 	}, 300),
-	// 	[setState]
-	// )
 
 	const handlePriceDebouce = (field, value) => {
 		setState(field, value)
