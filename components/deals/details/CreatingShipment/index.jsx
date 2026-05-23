@@ -26,7 +26,7 @@ import styles from './style.module.scss'
 
 const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragentId, initialData = null, isEditing = false, isCopying = false, onSuccess }) => {
   const t = useTranslations('Deals.createShipment')
-  const today = useMemo(() => new Date(), [])
+  const today = useMemo(() => new Date(), []) 
 
   const [shipmentDate, setShipmentDate] = useState(today.toISOString().split('T')[0])
   const isFutureDate = new Date(shipmentDate).setHours(0, 0, 0, 0) > today.setHours(0, 0, 0, 0)
@@ -53,7 +53,6 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
     },
     querySetting: {
       select: response => response?.data,
-
       placeholder: keepPreviousData
     },
     skip: !initialData?.guid

@@ -1,30 +1,30 @@
 "use client"
+import CreateGroup from '@/components/directories/ProductServices/CreateGroup'
+import CreateSingle from '@/components/directories/ProductServices/CreateSingle'
+import Input from '@/components/shared/Input'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, ChevronUp, MoreVertical, Pencil, Search, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import CreateGroup from '../../../../components/directories/ProductServices/CreateGroup'
-import CreateSingle from '../../../../components/directories/ProductServices/CreateSingle'
-import Input from '../../../../components/shared/Input'
-import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../../hooks/useDashboard'
 
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import CustomModal from '@/components/shared/CustomModal'
+import Loader from '@/components/shared/Loader'
+import ScreenLoader from '@/components/shared/ScreenLoader'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { IoCopyOutline } from "react-icons/io5"
-import OperationCheckbox from '../../../../components/shared/Checkbox/operationCheckbox'
-import CustomModal from '../../../../components/shared/CustomModal'
-import Loader from '../../../../components/shared/Loader'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
-import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
-import { appStore } from '../../../../store/app.store'
 
 
 export default observer(function LegalEntitiesPage() {
@@ -36,7 +36,7 @@ export default observer(function LegalEntitiesPage() {
   const [isCreateSingleOpen, setIsCreateSingleOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [filters, setFilters] = useState({
-    type: 'Все',
+    type: 'all',
     group: 'none',
   })
 
@@ -131,7 +131,7 @@ export default observer(function LegalEntitiesPage() {
   });
 
   const productServicesList = useMemo(() => {
-    const rawList = productServices?.data?.filter(item => filters?.type === 'Все' ? true : item?.Status?.includes(filters?.type)).map(item => {
+    const rawList = productServices?.data?.filter(item => filters?.type === 'all' ? true : item?.Status?.includes(filters?.type)).map(item => {
       const price = Number(item?.TSena_za_ed) || 0;
       const vatStr = item?.NDS || '';
       const vatNum = parseFloat(vatStr) || 0;
@@ -394,9 +394,9 @@ export default observer(function LegalEntitiesPage() {
             <div className="w-32 h-10">
               <SingleSelect
                 data={[
-                  { value: 'Все', label: t('types.all') },
-                  { value: 'Товары', label: t('types.products') },
-                  { value: 'Услуги', label: t('types.services') }
+                  { value: 'all', label: t('types.all') },
+                  { value: 'product', label: t('types.products') },
+                  { value: 'service', label: t('types.services') }
                 ]}
                 value={filters.type}
                 withSearch={false}
@@ -698,7 +698,7 @@ export default observer(function LegalEntitiesPage() {
       </div>
       <div className="fixed bottom-0 left-[80px] py-4 px-3 right-0 bg-white border-t border-gray-200">
         <span className={' lowercase'}>
-          {t('footer.total', { count: 3 })} 
+          {t('footer.total', { count: 3 })}
         </span>
       </div>
 

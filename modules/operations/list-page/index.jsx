@@ -147,6 +147,12 @@ const OperationsListPage = observer(() => {
   })
 
 
+  const { mutateAsync: getShipment, isPending: isPendingGetShipment } = useMutation({
+    mutationKey: ['get_shipment_transaction'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_shipment_transaction', data })
+  })
+
+
   // ── Safe pagination ────────────────────────────────────────────────────────
   const pageCount = infiniteData?.pages?.length || 0
 
@@ -303,6 +309,8 @@ const OperationsListPage = observer(() => {
       setOperationToDelete(null)
       setIsShipmentDeleting(false)
       invalidateAfterDelete()
+      queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     } catch (err) {
       console.error('Error deleting operation:', err)
     }
@@ -475,6 +483,7 @@ const OperationsListPage = observer(() => {
             open={showShipmentModal}
             onClose={closeShipmentModal}
             initialData={selectedShipment}
+            isEditing={!!selectedShipment}
             shipmentId={selectedShipment?.guid}
             onSuccess={() => {
               closeShipmentModal()

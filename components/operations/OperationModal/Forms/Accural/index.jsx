@@ -174,9 +174,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
       }
-      if (isNew) {
-        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
-      }
+      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
 
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })

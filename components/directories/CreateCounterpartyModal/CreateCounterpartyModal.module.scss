@@ -75,6 +75,7 @@
 .content {
   padding: 1rem 1.5rem;
   overflow-y: auto;
+  max-height: 600px;
   flex: 1;
 }
 
@@ -129,11 +130,11 @@
 .formRow {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1rem; 
 }
 
 .label {
-  width: 160px; 
+  width: 180px; 
   font-size: 14px;
   color: #0f172a;
   font-weight: 400;

@@ -171,10 +171,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 				updateOperationsCache(res.data.data)
 			}
 
-			if (isNew) {
-				queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
-			}
-
+			queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
 			queryClient.invalidateQueries({ queryKey: ['dashboard'] })
 			queryClient.invalidateQueries({ queryKey: ['operationsList'] })
 			queryClient.invalidateQueries({ queryKey: ['operations'] })
