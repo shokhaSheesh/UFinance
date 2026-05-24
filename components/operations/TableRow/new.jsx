@@ -1,13 +1,13 @@
 import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
 import { cn } from '@/lib/utils'
+import { appStore } from '@/store/app.store'
+import { operationFilterStore } from '@/store/operationFilter.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { memo, useMemo, useState } from 'react'
-import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '../../../constants/icons'
-import { appStore } from '../../../store/app.store'
-import { operationFilterStore } from '../../../store/operationFilter.store'
 import styles from './style.module.scss'
 
 const TableRow = observer(({
@@ -30,6 +30,9 @@ const TableRow = observer(({
   const isZachisleniya = !operationFilterStore?.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore?.selectedFilters?.includes('Дебет')
   const isCredit = !operationFilterStore?.selectedFilters?.includes('Кредит')
+
+  const operationPermissions = appStore.permission.operations
+  const canEdit = operationPermissions.income.edit && op.operationType === 'income' || operationPermissions.payout.edit && op.operationType === 'payment' || operationPermissions.transfer.edit && op.operationType === 'transfer' || operationPermissions.accrual.edit && op.operationType === 'accrual' || operationPermissions.shipment.edit && op.operationType === 'shipment'
 
   op.operationParts?.forEach(part => {
     children.add(part?.counterparties_id)
@@ -77,7 +80,7 @@ const TableRow = observer(({
         children: []
       }
     }
-  }, [op.deal, op.tip, op.sales_transaction_name, op.sales_transaction_name_2, t])
+  }, [op.tip, op.sales_transaction_name, op.sales_transaction_name_2, t])
 
   const isDifferentDate = op?.accrualDate !== op?.operationDate
 
@@ -99,7 +102,7 @@ const TableRow = observer(({
       default:
         return ''
     }
-  }, [op]) 
+  }, [op])
 
   return (
     <>
@@ -110,8 +113,10 @@ const TableRow = observer(({
           selectedOperations.includes(op.id) && styles.selected
         )}
         onClick={e => {
-          if (!e.target.closest('input') && !e.target.closest('button')) {
-            handleEditOperation(op)
+          if (canEdit) {
+            if (!e.target.closest('input') && !e.target.closest('button')) {
+              handleEditOperation(op)
+            }
           }
         }}
       >
