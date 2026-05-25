@@ -5,7 +5,7 @@ import { toJS } from 'mobx'
 import { useEffect, useMemo, useState } from 'react'
 import { safeFormatDate } from '../utils/operationsUtils'
 
-const LIMIT = 30
+const LIMIT = 50
 
 /**
  * Builds and double-debounces operation request filters.

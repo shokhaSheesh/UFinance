@@ -20,7 +20,6 @@ const SingleZdelka = ({
   const [search, setSearch] = useState('')
   const [autoSearchSinglbyID, setAutoSearchSinglbyID] = useState(value)
 
-  console.log('defaultDealGuid', defaultDealGuid)
 
   const filterData = {
     page: 1,

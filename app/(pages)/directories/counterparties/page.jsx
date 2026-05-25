@@ -17,6 +17,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups, useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { showSuccessNotification } from '@/lib/utils/notifications'
@@ -45,6 +46,8 @@ const CounterpartiesPage = observer(() => {
   const tc = useTranslations('Common')
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
+
   const [isFilterOpen, setIsFilterOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
@@ -81,7 +84,7 @@ const CounterpartiesPage = observer(() => {
   // Build filters object immediately (for debouncing)
   const immediateFilterData = useMemo(() => {
     return {
-      limit: viewMode === 'list' ? 30 : 1000,
+      limit: viewMode === 'list' ? 50 : 1000,
       debitPaymentTypes: filters.debitPaymentTypes,
       creditPaymentTypes: filters.creditPaymentTypes,
       operationDateStart: filters.operationDateStart,
@@ -114,6 +117,7 @@ const CounterpartiesPage = observer(() => {
     hasNextPage,
     isFetchingNextPage,
     isFetching,
+    isPending, 
     isLoading: isLoadingCounterparties
   } = useUcodeRequestInfinite({
     method: 'get_counterparties',
@@ -394,7 +398,7 @@ const CounterpartiesPage = observer(() => {
       </FilterSidebar>
 
 
-      <div id="scrollableDiv" className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
+      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex items-center gap-4 '>
             <h1 className="text-xl font-semibold">{t('list.title')}</h1>
@@ -488,6 +492,7 @@ const CounterpartiesPage = observer(() => {
           dataLength={allCounterparties.length}
           next={fetchNextPage}
           hasMore={hasNextPage}
+          scrollThreshold={0.5}
           scrollableTarget="scrollableDiv"
         >
           <div className="flex flex-col">
@@ -743,8 +748,8 @@ const CounterpartiesPage = observer(() => {
         </div>
       </div>
 
-      {isLoadingCounterparties && allCounterparties.length === 0 && <ScreenLoader className={'left-[250px]'} />}
-      {(isFetchingNextPage || isFetching) && <ScreenLoader className={'left-[250px]'} />}
+      {isLoadingCounterparties && allCounterparties.length === 0 && <ScreenLoader className='left-0!' />}
+      {isFetching && !isScrolling && <ScreenLoader className='left-0!' />}
 
       {/* Unified Create/Edit Modal */}
       <CreateCounterpartyModal

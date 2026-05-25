@@ -1,5 +1,6 @@
 'use client'
 
+import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
 import { observer } from 'mobx-react-lite'
@@ -16,6 +17,7 @@ import { sealDeal } from '@/store/saleDeal.store'
 import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
 
 
+import ScreenLoader from '@/components/shared/ScreenLoader'
 import { toJS } from 'mobx'
 import moment from 'moment'
 import DealsFooter from '../components/DealsFooter'
@@ -74,6 +76,8 @@ export default observer(function DealsPage() {
   const [dealToCopy, setDealToCopy] = useState(null)
   const [canUpdateForms, setCanUpdateForms] = useState(false)
 
+  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
+
   const dealPermission = appStore.permission.deals
 
   // ── Store state ────────────────────────────────────────────────────────────
@@ -96,7 +100,7 @@ export default observer(function DealsPage() {
   const dateRanges = toJS(dateRange)
   // ── Filters ────────────────────────────────────────────────────────────────
   const dealsFilters = useMemo(() => ({
-    limit: 30,
+    limit: 50,
     search,
     from_date: dateRanges?.start ? moment(dateRanges?.start).format('YYYY-MM-DD') : null,
     to_date: dateRanges?.end ? moment(dateRanges?.end).format('YYYY-MM-DD') : null,
@@ -227,7 +231,7 @@ export default observer(function DealsPage() {
       </Suspense>
 
       {/* ── Main content ── */}
-      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
+      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
 
         <DealsHeader
           t={t}
@@ -267,6 +271,9 @@ export default observer(function DealsPage() {
           onCopyClick={handleCopyClick}
           onUpdate={handleUpdate}
         />
+        {/* Loaders */}
+        {isLoading && formattedDeals.length === 0 && <ScreenLoader className="left-0!" />}
+        {(isFetchingNextPage || isFetching) && !isScrolling && <ScreenLoader className="left-0!" />}
       </main>
 
       <DealsFooter
