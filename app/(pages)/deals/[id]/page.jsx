@@ -17,6 +17,7 @@ import {
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
 import { useUcodeRequestQuery } from '@/hooks/useDashboard';
 import useMounted from '@/hooks/useMounted';
+import { appStore } from '@/store/app.store';
 import { formatAmount } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
@@ -49,6 +50,8 @@ export default observer(function DealDetailPage() {
   const t = useTranslations('Deals.detail');
   const tc = useTranslations('Common');
   const dealId = params.id;
+
+  const { operations } = appStore.permission
 
   const { data: dealData, isLoading } = useUcodeRequestQuery({
     method: "get_sales_transaction_by_guid",
@@ -136,6 +139,12 @@ export default observer(function DealDetailPage() {
   const [itemToEdit, setItemToEdit] = useState(null)
   const [isCopying, setIsCopying] = useState(false)
 
+  const incomePermission = operations.income.add
+  const paymentPermission = operations.payout.add
+  const shipmentPermission = operations.shipment.add
+  const productsPermission = appStore.permission.directories.productsServices.add
+
+
 
 
 
@@ -195,7 +204,7 @@ export default observer(function DealDetailPage() {
           <h1 className={styles.title}>{deal?.name || t('noName')}</h1>
         </div>
         <div className='flex items-center gap-2'>
-          <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>
+          {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>}
           <Popover>
             <PopoverTrigger asChild>
               <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
@@ -264,7 +273,7 @@ export default observer(function DealDetailPage() {
                 className="text-xs xl:text-sm font-medium text-neutral-800 border-b border-dotted border-gray-400 pb-0.5 cursor-pointer hover:text-primary transition-colors flex items-center gap-1 group truncate w-full"
                 onClick={() => { setDealToEdit(deal); setIsCreateModalOpen(true); }}
               >
-                <div className="truncate">{summeryCards?.counterparties_name || 'test'}</div>
+                <div className="truncate">{summeryCards?.counterparties_name || ''}</div>
                 <Pencil size={12} className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0" />
               </span>
             </div>
@@ -456,30 +465,35 @@ export default observer(function DealDetailPage() {
                     placeholder={t('searchPlaceholder')}
                     className={` w-[240px] xl:w-[200px] text-xs xl:text-sm`}
                   />
-                  <button
-                    className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
-                    onClick={() => {
-                      if (activeTab === 'shipments') {
-                        setShowShipmentModal(true);
-                      } else if (activeTab === 'receipts' || activeTab === 'expenses') {
-                        handleCreateOperation()
-                      } else if (activeTab === 'products') {
-                        setShowProductModal(true)
-                      }
-                    }}
-                  >
-                    {t('addButton')}
-                  </button>
+                  {(activeTab === 'products' && productsPermission) ||
+                    (activeTab === 'receipts' && incomePermission) ||
+                    (activeTab === 'expenses' && paymentPermission) ||
+                    (activeTab === 'shipments' && shipmentPermission) ? (
+                      <button
+                        className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
+                        onClick={() => {
+                          if (activeTab === 'shipments') {
+                            setShowShipmentModal(true);
+                          } else if (activeTab === 'receipts' || activeTab === 'expenses') {
+                            handleCreateOperation()
+                          } else if (activeTab === 'products') {
+                            setShowProductModal(true)
+                          }
+                        }}
+                      >
+                        {t('addButton')}
+                      </button>
+                  ) : null}
                 </div>
               </div>
               <div className="overflow-hidden">
-                {activeTab === 'products' && <ProductServiceTable handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} />}
+                {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} />}
 
-                {activeTab === 'receipts' && <IncomeOperationsTable type='Поступление' sellingDealId={dealId} onAdd={handleCreateOperation} />}
+                {activeTab === 'receipts' && <IncomeOperationsTable canAdd={incomePermission} type='Поступление' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
-                {activeTab === 'expenses' && <ExpenseOperationsTable type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
+                {activeTab === 'expenses' && <ExpenseOperationsTable canAdd={paymentPermission} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
-                {activeTab === 'shipments' && <ShipmenTable dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} />}
+                {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} />}
               </div>
             </div>
           </div>

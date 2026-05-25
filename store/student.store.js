@@ -16,6 +16,7 @@ class Student {
   selectedCounterParties = []
   selectedCounterPartiesGroups = []
   rangeMonth = defaultRangeMonth
+  status = null
 
   constructor() {
     makeAutoObservable(this)

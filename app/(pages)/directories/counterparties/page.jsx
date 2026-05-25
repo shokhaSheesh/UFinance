@@ -17,6 +17,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups, useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { showSuccessNotification } from '@/lib/utils/notifications'
@@ -24,7 +25,7 @@ import { appStore } from '@/store/app.store'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
 import { formatNumber, handleDownload } from '@/utils/helpers'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -45,6 +46,8 @@ const CounterpartiesPage = observer(() => {
   const tc = useTranslations('Common')
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
+
   const [isFilterOpen, setIsFilterOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
@@ -81,7 +84,7 @@ const CounterpartiesPage = observer(() => {
   // Build filters object immediately (for debouncing)
   const immediateFilterData = useMemo(() => {
     return {
-      limit: 35,
+      limit: viewMode === 'list' ? 50 : 1000,
       debitPaymentTypes: filters.debitPaymentTypes,
       creditPaymentTypes: filters.creditPaymentTypes,
       operationDateStart: filters.operationDateStart,
@@ -114,6 +117,7 @@ const CounterpartiesPage = observer(() => {
     hasNextPage,
     isFetchingNextPage,
     isFetching,
+    isPending, 
     isLoading: isLoadingCounterparties
   } = useUcodeRequestInfinite({
     method: 'get_counterparties',
@@ -124,6 +128,25 @@ const CounterpartiesPage = observer(() => {
       cacheTime: 0,
     },
   })
+
+  const { data } = useQuery({
+    queryKey: ['get_counterpaties_total'],
+    queryFn: () => apiClient.invokeFunction({ method: 'get_counterparties_summary', data: requestFilterData }),
+    placeholderData: keepPreviousData,
+    select: data => data?.data?.data
+  })
+
+  const couterpartiesSummary = useMemo(() => {
+    return {
+      count: data?.counterparties_count || 0,
+      income: data?.income || 0,
+      debitorka: data?.debitorka,
+      expense: data?.expense,
+      kreditorka: data?.kreditorka,
+      profit: data?.profit,
+      difference: data?.difference
+    }
+  }, [data])
 
   const { mutate: exportCounterparties, isPending: isCounterpartiesExportLoading } = useMutation({
     mutationKey: ['export_counterparties'],
@@ -142,19 +165,6 @@ const CounterpartiesPage = observer(() => {
     return infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
   }, [infiniteData])
 
-  const totalCountData = useMemo(() => {
-    return infiniteData?.pages?.[0]?.data?.pagination?.total || allCounterparties.length
-  }, [infiniteData, allCounterparties])
-
-
-
-  const SummaryTotal = useMemo(() => {
-    return infiniteData?.pages?.[0]?.data?.summary || {}
-  }, [infiniteData])
-
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
-  }, [queryClient])
 
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
@@ -173,17 +183,6 @@ const CounterpartiesPage = observer(() => {
     return selectedRows?.includes(id)
   }
 
-  const allSelected = () => {
-    return flatCounterparties.length > 0 && selectedRows.length === flatCounterparties.length
-  }
-
-  const toggleSelectAll = () => {
-    if (allSelected()) {
-      setSelectedRows([])
-    } else {
-      setSelectedRows(flatCounterparties.map(item => item.id))
-    }
-  }
 
   // Convert counterparties API data to component format with grouping
   const { groupedCounterparties, flatCounterparties } = useMemo(() => {
@@ -205,13 +204,14 @@ const CounterpartiesPage = observer(() => {
       debitorka: item.debitorka || 0,
       chart_of_accounts_id: item.chart_of_accounts_id || null,
       chart_of_accounts_id_2: item.chart_of_accounts_id_2 || null,
-      primenyatь_statьi_po_umolchaniyu: item.primenyatь_statьi_po_umolchaniyu || false,
+      primenyatь_statьi_po_umolchaniyu: item.primenyatь_statьi_po_umolchaniyu,
       difference: item?.difference,
       kreditorka: item.kreditorka || 0,
       profit: item.profit || 0,
       income: item?.income,
       expenses: item?.expense,
-      rawData: item
+      rawData: item,
+      operationCount: item?.operations_count
     }))
 
     const groupsMap = {}
@@ -246,6 +246,7 @@ const CounterpartiesPage = observer(() => {
       groupsMap[groupId].income += (item.income || 0)
       groupsMap[groupId].expenses += (item.expenses || 0)
       groupsMap[groupId].difference += (item.difference || 0)
+      groupsMap[groupId].operationsCount += (item.operationCount || 0)
     })
 
     const groupedData = Object.values(groupsMap).map(group => ({
@@ -258,6 +259,19 @@ const CounterpartiesPage = observer(() => {
       flatCounterparties: items
     }
   }, [allCounterparties])
+
+  const allSelected = () => {
+    return flatCounterparties.length > 0 && selectedRows.length === flatCounterparties.length
+  }
+
+  const toggleSelectAll = () => {
+    if (allSelected()) {
+      setSelectedRows([])
+    } else {
+      setSelectedRows(flatCounterparties.map(item => item.id))
+    }
+  }
+
 
   // Create array of only groups for 'groups' view mode
   const counterpartiesGroups = useMemo(() => {
@@ -384,7 +398,7 @@ const CounterpartiesPage = observer(() => {
       </FilterSidebar>
 
 
-      <div id="scrollableDiv" className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
+      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex items-center gap-4 '>
             <h1 className="text-xl font-semibold">{t('list.title')}</h1>
@@ -478,6 +492,7 @@ const CounterpartiesPage = observer(() => {
           dataLength={allCounterparties.length}
           next={fetchNextPage}
           hasMore={hasNextPage}
+          scrollThreshold={0.5}
           scrollableTarget="scrollableDiv"
         >
           <div className="flex flex-col">
@@ -509,7 +524,7 @@ const CounterpartiesPage = observer(() => {
                         <div className="w-32 flex px-2 items-center text-neutral-500">–</div>
                       )}
                       <div className="w-24 flex px-2 items-center justify-center text-neutral-900 font-medium">
-                        {item.operationsCount > 0 ? item.operationsCount.toLocaleString('ru-RU') : '0'}
+                        {item?.operationCount ?? 0}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
                         {item.debitorka > 0 ? item.debitorka.toLocaleString('ru-RU') : '0'}
@@ -574,7 +589,7 @@ const CounterpartiesPage = observer(() => {
                           {filters.calculationMethod !== 'Cashflow' && (
                             <div className="w-32 flex px-2 items-center text-neutral-500 truncate">{counterparty.inn || '–'}</div>
                           )}
-                          <div className="w-24 flex px-2 items-center justify-center text-neutral-500">0</div>
+                          <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{counterparty?.operationCount ?? 0}</div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
                             {counterparty.debitorka > 0 ? counterparty.debitorka.toLocaleString('ru-RU') : '0'}
                           </div>
@@ -630,7 +645,7 @@ const CounterpartiesPage = observer(() => {
                     {filters.calculationMethod !== 'Cashflow' && (
                       <div className="w-32 flex px-2 items-center text-neutral-500 truncate">{item.inn || '–'}</div>
                     )}
-                    <div className="w-24 flex px-2 items-center justify-center text-neutral-500">0</div>
+                    <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{item?.operationCount ?? 0}</div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
                       {item.debitorka > 0 ? item.debitorka.toLocaleString('ru-RU') : '0'}
                     </div>
@@ -669,7 +684,7 @@ const CounterpartiesPage = observer(() => {
         )}>
           <div className="text-sm text-slate-900">
             <span className="font-semibold text-slate-900 whitespace-nowrap">
-              {totalCountData === 1 ? t('list.counterpartyCount', { count: totalCountData }) : totalCountData < 5 ? t('list.counterpartyCountPlural', { count: totalCountData }) : t('list.counterpartyCountPluralMany', { count: totalCountData })}
+              {couterpartiesSummary?.count === 1 ? t('list.counterpartyCount', { count: couterpartiesSummary?.count }) : couterpartiesSummary?.count < 5 ? t('list.counterpartyCountPlural', { count: couterpartiesSummary?.count }) : t('list.counterpartyCountPluralMany', { count: couterpartiesSummary?.count })}
             </span>
           </div>
 
@@ -678,7 +693,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.receivables')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.receivables)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.debitorka)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -688,7 +703,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.payables')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.payables)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.kreditorka)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -698,7 +713,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.receipts')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.income)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.income)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -708,7 +723,7 @@ const CounterpartiesPage = observer(() => {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-gray-500 font-medium">{t('list.summary.payments')}</span>
             <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(SummaryTotal?.expense)}</span>
+              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.expense)}</span>
               <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
             </div>
           </div>
@@ -720,21 +735,21 @@ const CounterpartiesPage = observer(() => {
             <div className="flex items-center gap-0.5">
               <span className={cn(
                 'text-xs font-semibold',
-                SummaryTotal?.difference > 0 ? 'text-emerald-500' : SummaryTotal?.difference < 0 ? 'text-red-500' : 'text-slate-900'
+                couterpartiesSummary?.difference > 0 ? 'text-emerald-500' : couterpartiesSummary?.difference < 0 ? 'text-red-500' : 'text-slate-900'
               )}>
-                {SummaryTotal?.difference === 0 ? '0' : `${SummaryTotal?.difference > 0 ? '+' : ''}${formatNumber(SummaryTotal?.difference)}`}
+                {couterpartiesSummary?.difference === 0 ? '0' : `${couterpartiesSummary?.difference > 0 ? '+' : ''}${formatNumber(couterpartiesSummary?.difference)}`}
               </span>
               <span className={cn(
                 'text-xs',
-                SummaryTotal?.difference > 0 ? 'text-emerald-500' : SummaryTotal?.difference < 0 ? 'text-red-500' : 'text-gray-400'
+                couterpartiesSummary?.difference > 0 ? 'text-emerald-500' : couterpartiesSummary?.difference < 0 ? 'text-red-500' : 'text-gray-400'
               )}>{GlobalCurrency.name}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {isLoadingCounterparties && allCounterparties.length === 0 && <ScreenLoader className={'left-[250px]'} />}
-      {(isFetchingNextPage || isFetching) && <ScreenLoader className={'left-[250px]'} />}
+      {isLoadingCounterparties && allCounterparties.length === 0 && <ScreenLoader className='left-0!' />}
+      {isFetching && !isScrolling && <ScreenLoader className='left-0!' />}
 
       {/* Unified Create/Edit Modal */}
       <CreateCounterpartyModal
@@ -745,6 +760,7 @@ const CounterpartiesPage = observer(() => {
           setPreselectedGroupId(null)
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
+          queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })
         }}
         preselectedGroupId={preselectedGroupId}
         counterpartyData={editingCounterparty}

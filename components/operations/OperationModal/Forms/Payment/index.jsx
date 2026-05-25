@@ -292,7 +292,7 @@ const PaymentForm = observer(({
         counterparty: raw.counterparties_id || preselectedCounterparty || null,
         chartOfAccount: raw.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
         paymentType: appStore.isPayment ? 'cash' : null,
-        salesDeal: raw.sales_transactions_id_2 || defaultDealGuid || null,
+        salesDeal: raw.sales_transactions_id || defaultDealGuid || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || 'RUB',
       }
@@ -321,7 +321,7 @@ const PaymentForm = observer(({
   const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 
 
-
+  console.log('defaultValues', defaultValues)
   // Amount Splitting State
   const [rows, dispatch] = useReducer(rowsReducer, [emptyRow(preselectedCounterparty), emptyRow()])
   const [selectedSplits, setSelectedSplits] = useState([])
@@ -427,9 +427,8 @@ const PaymentForm = observer(({
         updateOperationsCache(res.data.data)
       }
 
-      if (isNew) {
-        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
-      }
+
+      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
 
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })

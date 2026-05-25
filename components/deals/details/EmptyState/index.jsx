@@ -1,7 +1,7 @@
 import { Package } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-export default function EmptyState({ title, subtitle, onAdd, buttonLabel }) {
+export default function EmptyState({ title, subtitle, onAdd, buttonLabel, canAdd = true }) {
   const t = useTranslations('Deals.detail')
 
   return (
@@ -18,7 +18,7 @@ export default function EmptyState({ title, subtitle, onAdd, buttonLabel }) {
       <p className="text-xs text-gray-400 max-w-sm mb-6 leading-relaxed">{subtitle}</p>
 
       {/* Action Button */}
-      {onAdd && (
+      {onAdd && canAdd && (
         <button
           onClick={onAdd}
           className="primary-btn"

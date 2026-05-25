@@ -15,7 +15,7 @@ import {
   useUpdateCounterparty,
 } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
-import { includeNumber, returnNumber } from '@/utils/helpers'
+import { includeNumber } from '@/utils/helpers'
 import { useQueryClient } from '@tanstack/react-query'
 import { PlusCircle, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -175,7 +175,7 @@ export default function CreateCounterpartyModal({
 
   const invalidateCounterpartyQueries = () => {
     queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
-    queryClient.invalidateQueries({ queryKey: ['counterpartiesGroupsV2'] })
+    queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })
     queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
     queryClient.invalidateQueries({ queryKey: ['counterpartiesGroupsPlanFact'] })
   }
@@ -188,7 +188,7 @@ export default function CreateCounterpartyModal({
         ...(isEdit && { guid }),
         nazvanie: data.nazvanie.trim(),
         polnoe_imya: data.polnoe_imya || null,
-        inn: returnNumber(data.inn) || null,
+        inn: (data.inn) || null,
         kpp: processFieldArray(data.kpp),
         account_number: processFieldArray(data.account_number),
         counterparties_group_id: data.counterparties_group_id,
@@ -200,9 +200,11 @@ export default function CreateCounterpartyModal({
         attributes: {},
       }
 
-      isEdit
-        ? await updateMutation.mutateAsync(payload)
-        : await createMutation.mutateAsync(payload)
+      if (isEdit) {
+        await updateMutation.mutateAsync(payload)
+      } else {
+        await createMutation.mutateAsync(payload)
+      }
 
       invalidateCounterpartyQueries()
       onSuccess?.()
@@ -439,7 +441,7 @@ export default function CreateCounterpartyModal({
                     placeholder: 'fields.articleIn'
                   }, {
                     name: 'chart_of_accounts_id_2',
-                    label: 'fields.articleIn',
+                    label: 'fields.articleOut',
                     placeholder: 'fields.articleIn'
 
                     }]).map((fieldName, i) => (

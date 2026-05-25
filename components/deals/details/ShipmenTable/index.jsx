@@ -147,6 +147,7 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
         title={t('emptyTitle')}
         subtitle={t('emptySubtitle')}
         onAdd={onAdd}
+        canAdd={canAdd}
       />
     )
   }

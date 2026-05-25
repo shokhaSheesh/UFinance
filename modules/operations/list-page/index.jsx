@@ -1,10 +1,11 @@
 'use client'
 
+import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { Suspense, lazy, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import {
@@ -44,21 +45,12 @@ const OperationsFooter = lazy(() => import('@/components/operations/OperationsFo
 
 const MAX_PAGES = 500
 
+
 // ── Main page ────────────────────────────────────────────────────────────────
 const OperationsListPage = observer(() => {
   const t = useTranslations('Operations')
   const isMounted = useMounted()
   const queryClient = useQueryClient()
-
-  // ── Body scroll lock never delete this section ───────────────────────────────────────────────────────
-  // useEffect(() => {
-  //   document.body.style.overflow = 'hidden'
-  //   document.body.style.height = '100vh'
-  //   return () => {
-  //     document.body.style.overflow = ''
-  //     document.body.style.height = ''
-  //   }
-  // }, [])
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [isFilterOpen, setIsFilterOpen] = useState(true)
@@ -110,7 +102,11 @@ const OperationsListPage = observer(() => {
   } = useUcodeRequestInfinite({
     method: 'list_operations_by_query',
     data: requestOperationFilters,
-    querySetting: { staleTime: 1000 * 60, gcTime: 1000 * 60 },
+    querySetting: {
+      staleTime: 1000 * 60,
+      gcTime: 1000 * 60,
+      placeholderData: keepPreviousData,
+    },
   })
 
 
@@ -144,6 +140,12 @@ const OperationsListPage = observer(() => {
   const { mutateAsync: getOperation, isPending: isPendingGetOperation } = useMutation({
     mutationKey: ['get_operation'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'get_operation', data })
+  })
+
+
+  const { mutateAsync: getShipment, isPending: isPendingGetShipment } = useMutation({
+    mutationKey: ['get_shipment_transaction'],
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_shipment_transaction', data })
   })
 
 
@@ -303,6 +305,8 @@ const OperationsListPage = observer(() => {
       setOperationToDelete(null)
       setIsShipmentDeleting(false)
       invalidateAfterDelete()
+      queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
     } catch (err) {
       console.error('Error deleting operation:', err)
     }
@@ -326,7 +330,7 @@ const OperationsListPage = observer(() => {
     [operationsList, t]
   )
 
-  const scrollRef = useRef(null)
+  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
   const rowVirtualizer = useVirtualizer({
     count: flatItems.length,
@@ -337,6 +341,8 @@ const OperationsListPage = observer(() => {
 
   const virtualItems = rowVirtualizer.getVirtualItems()
   const totalSize = rowVirtualizer.getTotalSize()
+
+
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -370,6 +376,7 @@ const OperationsListPage = observer(() => {
         <div
           id="scrollableDiv"
           ref={scrollRef}
+          onScroll={handleScroll}
           className="overflow-auto h-full w-full px-2 bg-white pb-10"
         >
           <OperationsTableHeader
@@ -390,6 +397,7 @@ const OperationsListPage = observer(() => {
             dataLength={allOperations.length}
             hasMore={effectiveHasNextPage}
             next={safeFetchNextPage}
+            scrollThreshold={0.5}
             scrollableTarget="scrollableDiv"
           >
             <div style={{ height: totalSize, position: 'relative', paddingBottom: 10 }}>
@@ -441,7 +449,7 @@ const OperationsListPage = observer(() => {
 
       {/* Loaders */}
       {isLoadingOperations && allOperations.length === 0 && <ScreenLoader className="left-0!" />}
-      {(isFetchingNextPage || isFetchingOperations) && <ScreenLoader className="left-0!" />}
+      {(isFetchingNextPage || isFetchingOperations) && !isScrolling && <ScreenLoader className="left-0!" />}
 
       {/* Operation modal */}
       {openModal && (
@@ -475,6 +483,7 @@ const OperationsListPage = observer(() => {
             open={showShipmentModal}
             onClose={closeShipmentModal}
             initialData={selectedShipment}
+            isEditing={!!selectedShipment}
             shipmentId={selectedShipment?.guid}
             onSuccess={() => {
               closeShipmentModal()

@@ -1,0 +1,39 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #d1d5db;
+    
+    th {
+      padding: 0.5rem;
+      text-align: start;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+  }
+  
+  tbody {
+    background-color: white;
+    
+    tr {
+      border-bottom: 1px solid #f3f4f6;
+      transition: background-color 0.15s ease;
+      
+      &:hover {
+        background-color: #fafafa;
+      }
+    }
+    
+    td {
+      padding: 0.5rem;
+      text-align: start;
+      vertical-align: middle;
+    }
+  }
+}

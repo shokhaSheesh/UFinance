@@ -281,7 +281,6 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      console.log('raw', raw)
       const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
       const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDate(raw.data_nachisleniya) : paymentDate
 
@@ -317,6 +316,7 @@ const IncomeForm = observer(({
       currency: null,
     }
   }, [initialData, isNew, chart_of_accounts_id, preselectedCounterparty, defaultDealGuid])
+
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     defaultValues
@@ -436,12 +436,10 @@ const IncomeForm = observer(({
       // Update cache with new operation data for immediate UI update
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
-      }
-      if (isNew) {
-        queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
-      }
-
+      } 
+      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
+      queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
       queryClient.invalidateQueries({ queryKey: ['balance_report'] })

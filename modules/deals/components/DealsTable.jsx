@@ -55,6 +55,7 @@ export default function DealsTable({
         dataLength={formattedDeals?.length || 0}
         hasMore={hasNextPage}
         next={fetchNextPage}
+        scrollThreshold={0.5}
         scrollableTarget="scrollableDiv"
       >
         <div className="flex flex-col pb-15">
@@ -78,7 +79,7 @@ export default function DealsTable({
       </InfiniteScroll>
 
       {isLoading && formattedDeals.length === 0 && <ScreenLoader className="left-0!" />}
-      {(isFetchingNextPage || isFetching) && <ScreenLoader className="left-0!" />}
+      {/* {(isFetchingNextPage || isFetching) && <ScreenLoader className="left-0!" />} */}
     </>
   )
 }

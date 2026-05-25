@@ -18,10 +18,26 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
     cashFlowStore.setPeriodDateRange(range)
   }
 
+  const datesEqual = (a, b) =>
+    a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
+
+  const clearCount =
+    (!datesEqual(periodStartDate, defaultDate.start) ||
+      !datesEqual(periodEndDate, defaultDate.end) ? 1 : 0) +
+    accountId.length +
+    contrAgentId.length +
+    sellingDealId.length
+
+  const handleClear = () => {
+    cashFlowStore.resetFilters()
+  }
+
   return (
     <FilterSidebar
       isOpen={isOpen}
       onClose={onClose}
+      clearCount={clearCount}
+      onClear={handleClear}
     >
 
       {/* Date range */}

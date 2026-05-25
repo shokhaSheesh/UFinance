@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { observer } from "mobx-react-lite"
 import { useTranslations } from "next-intl"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
 import SelectCounterParties from "../../../../components/ReadyComponents/SelectCounterParties"
 import SelectCounterPartyGroup from "../../../../components/ReadyComponents/SelectCounterPartyGroup"
@@ -11,10 +11,11 @@ import CustomRangeMonthPicker from "../../../../components/shared/CustomRangeMon
 import ScreenLoader from "../../../../components/shared/ScreenLoader"
 import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
 import useMounted from "../../../../hooks/useMounted"
+import { useScrollDetector } from "../../../../hooks/useScrollDetector"
 import { apiClient } from "../../../../lib/api/ucode/base"
 import { showSuccessNotification } from "../../../../lib/utils/notifications"
 import { authStore } from "../../../../store/auth.store"
-import { student } from "../../../../store/student.store"
+import { defaultRangeMonth, student } from "../../../../store/student.store"
 import { formatStudentTableDate } from "../../../../utils/formatDate"
 import { formatNumber, handleDownload } from "../../../../utils/helpers"
 
@@ -30,9 +31,24 @@ const Students = observer(() => {
 
   const [open, setOpen] = useState(true)
   const mounted = useMounted()
-  const scrollContainerRef = useRef(null)
+  const { isScrolling, handleScroll: onScrollActivity, scrollRef } = useScrollDetector(2000)
 
-  const { accounting, rangeMonth, setState } = student
+  const { accounting, rangeMonth, setState, status } = student
+
+  const clearCount = (() => {
+    let count = 0
+    if (student.selectedCounterParties?.length > 0) count++
+    if (student.selectedCounterPartiesGroups?.length > 0) count++
+    if (status !== null) count++
+    const isDefaultMonth =
+      rangeMonth?.start && rangeMonth?.end &&
+      new Date(rangeMonth.start).toDateString() === new Date(defaultRangeMonth.start).toDateString() &&
+      new Date(rangeMonth.end).toDateString() === new Date(defaultRangeMonth.end).toDateString()
+    if (!isDefaultMonth) count++
+    return count
+  })()
+
+
 
   const filterData = {
     accounting_method: accounting,
@@ -42,7 +58,8 @@ const Students = observer(() => {
     counterparties_ids: student.selectedCounterParties,
     from_date: rangeMonth?.start,
     to_date: rangeMonth?.end,
-    counterparties_group_id: student.selectedCounterPartiesGroups
+    counterparties_group_id: student.selectedCounterPartiesGroups,
+    contract_status: status === 'active' ? true : status === 'passive' ? false : null
   }
 
   const {
@@ -71,6 +88,12 @@ const Students = observer(() => {
     cacheTime: 0
   })
 
+  const handleClearFilters = useCallback(() => {
+    student.resetFilters()
+    student.setState('status', null)
+    refetch()
+  }, [refetch])
+
 
   const { mutate: exportStudents, isPending: isStudentsExportLoading } = useMutation({
     mutationKey: ['export_students'],
@@ -85,21 +108,17 @@ const Students = observer(() => {
     }
   })
 
-  // Infinite scroll detection on main container
-  useEffect(() => {
-    const container = scrollContainerRef.current
+  const handleContainerScroll = useCallback(() => {
+    onScrollActivity()
+
+    const container = scrollRef.current
     if (!container || !hasNextPage || isFetchingNextPage) return
 
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container
-      if (scrollHeight - scrollTop - clientHeight < 100) {
-        fetchNextPage()
-      }
+    const { scrollTop, scrollHeight, clientHeight } = container
+    if (scrollHeight - scrollTop - clientHeight < 100) {
+      fetchNextPage()
     }
-
-    container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+  }, [onScrollActivity, scrollRef, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const studentList = useMemo(() => {
     return infiniteData?.pages?.flatMap(page => page?.data?.data?.counterparties?.items || []) || []
@@ -167,21 +186,14 @@ const Students = observer(() => {
     return cols
   }, [monthsData, t])
 
-  const handleScroll = () => {
-    const container = scrollContainerRef.current
-    if (!container || !hasNextPage || isFetchingNextPage) return
-
-    const { scrollTop, scrollHeight, clientHeight } = container
-    if (scrollHeight - scrollTop - clientHeight < 100) {
-      fetchNextPage()
-    }
-  }
-
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
-      {(isLoadingStudents || isFetchingNextPage || isFetchingStudents || isPending) && <ScreenLoader />}
+      {(isLoadingStudents || isFetchingStudents || isPending) && !isScrolling && <ScreenLoader />}
+      {isFetchingNextPage && !isScrolling && <ScreenLoader />}
       <FilterSidebar
         isOpen={open}
+        clearCount={clearCount}
+        onClear={handleClearFilters}
         onClose={() => setOpen(prev => !prev)}
       >
         <FilterSection title={t('common.date')}>
@@ -205,6 +217,17 @@ const Students = observer(() => {
             multi={true}
             value={student.selectedCounterPartiesGroups}
             onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
+          />
+        </FilterSection>
+        <FilterSection title={t('students.statusTile')}>
+          <SingleSelect
+            data={[{
+              value: 'active', label: t('students.status.active'),
+            }, {
+              value: 'passive', label: t('students.status.passive')
+            }]}
+            value={student.status}
+            onChange={(value) => student.setState('status', value)}
           />
         </FilterSection>
       </FilterSidebar>
@@ -234,7 +257,7 @@ const Students = observer(() => {
         </div>
 
         {/* Table Container - Div based layout */}
-        <div ref={scrollContainerRef} onScroll={handleScroll} id="scrollableDiv" className="overflow-auto mb-5 relative ">
+        <div ref={scrollRef} onScroll={handleContainerScroll} id="scrollableDiv" className="overflow-auto mb-5 relative ">
           <div className="bg-white min-w-max">
             <div className="sticky top-0 z-20 flex ">
               {columns.map((col) => {

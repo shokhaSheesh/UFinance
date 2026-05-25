@@ -99,6 +99,22 @@ class PnLStore {
 	setDeals(value) {
 		this.deals = value
 	}
+
+	resetFilters() {
+		this.dateRange = getDefaultDateRange()
+		this.selectedPeriod = 'all'
+		this.selectedGrouping = 'monthly'
+		this.isCalculation = 'cash'
+		this.operational = false
+		this.ebitda = false
+		this.ebit = false
+		this.ebt = false
+		this.deals = []
+		this.selectedAccounts = []
+		this.selectedLegalEntities = []
+		this.selectedCounterparties = []
+		this.selectedCurrency = GlobalCurrency.code || 'UZS'
+	}
 }
 
 export const pnlStore = new PnLStore()
