@@ -204,7 +204,7 @@ export default observer(function DealDetailPage() {
           <h1 className={styles.title}>{deal?.name || t('noName')}</h1>
         </div>
         <div className='flex items-center gap-2'>
-          {/* <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button> */}
+          {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>}
           <Popover>
             <PopoverTrigger asChild>
               <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">

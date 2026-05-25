@@ -11,6 +11,7 @@ class AppStore {
 		guid: '',
 		code: '',
 	}
+	isWLCMPayment = false
 	currencies = []
 	myCurrencies = []
 	companyCurrencies = []
@@ -77,6 +78,10 @@ class AppStore {
 			}
 		}
 		return result
+	}
+
+	setWLCMPayment(value) {
+		this.isWLCMPayment = value
 	}
 
 	setisDonoschool(value) {

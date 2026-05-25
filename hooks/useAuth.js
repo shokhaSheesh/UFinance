@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api/ucode/base'
+import { queryClient } from '@/lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
@@ -85,6 +86,8 @@ export function useLogin() {
         appStore.setEmployerPermission()
       }
 
+      queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
+
       if (branches.length > 0) {
         router.push('/operations') // 7445
       }
@@ -142,6 +145,8 @@ export function useRegister() {
       if (responseData?.role === "plan_fakt_admins") {
         appStore.setEmployerPermission()
       }
+
+      queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
 
       if (branches.length > 0) {
 
