@@ -135,7 +135,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment(data?.accuralDate).format('YYYY-MM-DD'),
+        data_operatsii: moment.utc(data?.accuralDate).format('YYYY-MM-DD'),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,

@@ -281,8 +281,8 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDate(raw.data_nachisleniya) : paymentDate
+      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
 
 
       return {
@@ -436,7 +436,7 @@ const IncomeForm = observer(({
       // Update cache with new operation data for immediate UI update
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
-      } 
+      }
       queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })

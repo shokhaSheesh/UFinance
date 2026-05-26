@@ -376,8 +376,8 @@ const PaymentForm = observer(({
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: moment(data?.paymentDate).format('YYYY-MM-DD'),
-      data_nachisleniya: moment(data?.accrualDate).format('YYYY-MM-DD'),
+      data_operatsii: moment.utc(data?.paymentDate).format('YYYY-MM-DD'),
+      data_nachisleniya: moment.utc(data?.accrualDate).format('YYYY-MM-DD'),
       payment_confirmed: data?.confirmPayment,
       payment_accrual: data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
