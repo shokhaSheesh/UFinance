@@ -3,11 +3,6 @@ export const formatDate = (date) => {
   // Handle null/undefined
   if (!date) return ''
 
-  // If it's a plain YYYY-MM-DD string, return it directly to avoid timezone shifts
-  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return date
-  }
-
   // Convert to Date object if it's a string
   const dateObj = date instanceof Date ? date : new Date(date)
 
@@ -47,13 +42,6 @@ export const formatedToday = () => {
 
 export const formatDateFormat = (dateString) => {
   if (!dateString) return '';
-
-  // If it's a plain YYYY-MM-DD string, parse directly to avoid timezone shifts
-  if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    const [year, month, day] = dateString.split('-');
-    const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-    return `${parseInt(day, 10)} ${months[parseInt(month, 10) - 1]} ${year}`;
-  }
 
   const date = new Date(dateString);
 

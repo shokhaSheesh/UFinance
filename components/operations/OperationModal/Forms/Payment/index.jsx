@@ -279,8 +279,8 @@ const PaymentForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-      const accrualDate = raw.data_nachisleniya ? formatDate(raw.data_nachisleniya) : paymentDate
+      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment.utc().format('YYYY-MM-DD')
+      const accrualDate = raw.data_nachisleniya ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
 
       return {
         paymentDate,
@@ -299,11 +299,11 @@ const PaymentForm = observer(({
     }
 
     return {
-      paymentDate: formatDate(new Date()),
+      paymentDate: moment.utc().format('YYYY-MM-DD'),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: formatDate(new Date()),
+      accrualDate: moment.utc().format('YYYY-MM-DD'),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
