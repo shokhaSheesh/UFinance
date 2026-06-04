@@ -55,9 +55,7 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
     }
   }
 
-  if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">{t('loading')}</div>
-  }
+  const actualPlaceholder = isLoading ? t('loading') : (placeholder || t('placeholders.selectAccount'));
 
   const Component = multi ? MultiSelect : SingleSelect;
 
@@ -66,7 +64,7 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
       data={mappedData}
       value={value}
       onChange={handleSelect}
-      placeholder={placeholder || t('placeholders.selectAccount')}
+      placeholder={actualPlaceholder}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

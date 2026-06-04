@@ -36,7 +36,7 @@ const OperationCashFlowModal = observer(({
     hasNextPage,
     fetchNextPage,
   } = useUcodeRequestInfinite({
-    method: 'find_operations',
+    method: 'list_operations_by_query',
     data: filterData,
     querySetting: {
       enabled: isOpen,

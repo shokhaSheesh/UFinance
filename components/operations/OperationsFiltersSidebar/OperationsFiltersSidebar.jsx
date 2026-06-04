@@ -248,6 +248,7 @@ export const OperationsFiltersSidebar = observer(({
               onChange={(val) => operationFilterStore.setSelectedLegalEntities(val)}
               placeholder={t('filters.legalEntitiesPlaceholder')}
               className={'bg-gray-ucode-25'}
+              multi={true}
             />
 
             {/* Контрагенты */}
