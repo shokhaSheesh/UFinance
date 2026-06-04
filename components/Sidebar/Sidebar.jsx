@@ -1,7 +1,8 @@
 "use client"
 
-import { DealIcon, UsersIcon } from '@/constants/icons'
+import { AppLogo, DealIcon, UsersIcon } from '@/constants/icons'
 import { cn } from '@/lib/utils'
+import { appStore } from '@/store/app.store'
 import { CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -10,8 +11,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { IoSettingsOutline } from 'react-icons/io5'
-import { AppLogo } from '../../constants/icons'
-import { appStore } from '../../store/app.store'
 
 
 
@@ -72,7 +71,7 @@ export const Sidebar = observer(() => {
             label: t('nav.plans'),
             href: '',
             hasPage: true,
-            canShow: false,
+            canShow: true,
             submenu: [
                 {
                     label: t('plans.payment_calendar'),

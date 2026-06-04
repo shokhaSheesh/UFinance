@@ -2,23 +2,32 @@
 
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal';
 import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealModal';
+import CommentChat from '@/components/deals/details/CommentChat';
 import CreateProductService from '@/components/deals/details/CreateProductService';
 import CreateShipment from '@/components/deals/details/CreatingShipment';
+import ExpenseOperationsTable from '@/components/deals/details/ExpenseOperationTable';
+import IncomeOperationsTable from '@/components/deals/details/IncomeOperationsTable';
+import ProductServiceTable from '@/components/deals/details/ProductServiceTable';
+import ShipmenTable from '@/components/deals/details/ShipmenTable';
 import DealStatus from '@/components/deals/details/Status';
 import PaymentModal from '@/components/deals/PaymentModal';
 import OperationModal from '@/components/operations/OperationModal/OperationModal';
 import Input from '@/components/shared/Input';
+import CustomProgress from '@/components/shared/Progress';
+import CustomRadio from '@/components/shared/Radio';
 import ScreenLoader from '@/components/shared/ScreenLoader';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { GlobalCurrency } from '@/constants/globalCurrency';
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
-import { useUcodeRequestQuery } from '@/hooks/useDashboard';
+import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard';
 import useMounted from '@/hooks/useMounted';
 import { appStore } from '@/store/app.store';
-import { formatAmount } from '@/utils/helpers';
+import { sealDeal } from '@/store/saleDeal.store';
+import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -28,17 +37,6 @@ import { useMemo, useState } from 'react';
 import { HiOutlineDatabase } from "react-icons/hi";
 import { HiOutlineCreditCard } from "react-icons/hi2";
 import { PiDatabaseFill } from "react-icons/pi";
-import CommentChat from '../../../../components/deals/details/CommentChat';
-import ExpenseOperationsTable from '../../../../components/deals/details/ExpenseOperationTable';
-import IncomeOperationsTable from '../../../../components/deals/details/IncomeOperationsTable';
-import ProductServiceTable from '../../../../components/deals/details/ProductServiceTable';
-import ShipmenTable from '../../../../components/deals/details/ShipmenTable';
-import CustomProgress from '../../../../components/shared/Progress';
-import CustomRadio from '../../../../components/shared/Radio';
-import { GlobalCurrency } from '../../../../constants/globalCurrency';
-import { useUcodeRequestMutation } from '../../../../hooks/useDashboard';
-import { sealDeal } from '../../../../store/saleDeal.store';
-import { calculatePercent, formatDateRu, formatNumber, formatTotalSumma } from '../../../../utils/helpers';
 import styles from './deal-detail.module.scss';
 
 
@@ -143,8 +141,6 @@ export default observer(function DealDetailPage() {
   const paymentPermission = operations.payout.add
   const shipmentPermission = operations.shipment.add
   const productsPermission = appStore.permission.directories.productsServices.add
-
-
 
 
 

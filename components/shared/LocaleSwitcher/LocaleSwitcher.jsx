@@ -8,7 +8,7 @@ export default function LocaleSwitcher({ className = '' }) {
   const { locale, open, isLoading, changeLocale, locales, containerRef, current, toggleOpen } = useLocaleSwitcher()
 
 
-  return null
+  // return null
 
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
