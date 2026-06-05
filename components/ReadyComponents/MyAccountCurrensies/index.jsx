@@ -6,7 +6,7 @@ import { useEffect, useMemo } from 'react'
 import { appStore } from '../../../store/app.store'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder, wrapperClassName, isClearable = true }) => {
+const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = false, className, dropDownClassName, placeholder, wrapperClassName, isClearable = true, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
 
   const { data: bankAccountsData } = useUcodeRequestQuery({
@@ -61,10 +61,10 @@ const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = fals
       onChange={onChange}
       isClearable={isClearable}
       className={className}
-
       dropDownClassName={dropDownClassName}
       placeholder={placeholder || t('placeholders.selectCurrency')}
       wrapperClassName={wrapperClassName}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 })

@@ -6,7 +6,7 @@ import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 
-const SalesTransactions = ({ value = [], onChange, placeholder = "Выберите сделки", dropdownClassName, hasError }) => {
+const SalesTransactions = ({ value = [], onChange, placeholder = "Выберите сделки", dropdownClassName, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -50,6 +50,7 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

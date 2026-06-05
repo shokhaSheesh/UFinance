@@ -1,11 +1,10 @@
 'use client'
 
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { initAnalytics } from "@/lib/firebase"
 import { useEffect } from "react"
 import { useUcodeRequestQuery } from "../hooks/useDashboard"
 import { appStore } from "../store/app.store"
-
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { initAnalytics } from "@/lib/firebase"
 import { authStore } from "../store/auth.store"
 
 const AppProvider = ({ children }) => {

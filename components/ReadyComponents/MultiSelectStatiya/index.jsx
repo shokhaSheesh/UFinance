@@ -42,7 +42,7 @@ const mapTree = (data, type) => {
     .filter(Boolean)
 }
 
-const MultiSelectStatiya = ({ value = [], onChange, placeholder, className, type = "", dropdownClassName, hasError }) => {
+const MultiSelectStatiya = ({ value = [], onChange, placeholder, className, type = "", dropdownClassName, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -84,6 +84,7 @@ const MultiSelectStatiya = ({ value = [], onChange, placeholder, className, type
       hasError={hasError}
       onSearch={handleSearch}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

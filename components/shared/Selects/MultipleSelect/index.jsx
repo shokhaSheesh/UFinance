@@ -15,7 +15,8 @@ const CustomMultipleSelect = ({
     className,
     dropdownClassName,
     hasError,
-    disabled = false
+    disabled = false,
+    dropdownHeaderItem
 }) => {
     const t = useTranslations('Common.selects')
     const placeholderText = placeholder ?? t('placeholder')
@@ -186,6 +187,12 @@ const CustomMultipleSelect = ({
                                 />
                             </div>
                         )}
+
+                        {dropdownHeaderItem && <>
+                            <div onClick={() => setOpen(false)}>
+                                {dropdownHeaderItem}
+                            </div>
+                        </>}
 
                         <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
                             {filteredData.length === 0 ? (

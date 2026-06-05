@@ -14,7 +14,8 @@ const GroupSelect = ({
   dropdownClassName,
   className,
   hasError,
-  disabled = false
+  disabled = false,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common.selects')
   const placeholderText = placeholder ?? t('placeholder')
@@ -206,6 +207,12 @@ const GroupSelect = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+
+            {dropdownHeaderItem && (
+              <div onClick={() => setOpen(false)}>
+                {dropdownHeaderItem}
+              </div>
+            )}
 
             {/* List Items */}
             <div className='overflow-y-auto flex-1 py-1'>

@@ -17,7 +17,7 @@ import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
-const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
+const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
   const t = useTranslations('Directories.details.shipmentTable')
 
   const [showModal, setShowModal] = useState(false)

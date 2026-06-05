@@ -1,14 +1,34 @@
 "use client"
 
-import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
+import * as React from "react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { XIcon } from "lucide-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+// Global counter — each dialog that opens gets a unique layer number
+let globalDialogLayer = 0
+const DialogLayerContext = React.createContext(0)
+
+function Dialog({ open, ...rest }: DialogPrimitive.Root.Props) {
+  const [layer, setLayer] = React.useState(0)
+
+  React.useEffect(() => {
+    if (open) {
+      globalDialogLayer++
+      setLayer(globalDialogLayer)
+      return () => {
+        globalDialogLayer = Math.max(0, globalDialogLayer - 1)
+      }
+    }
+  }, [open])
+
+  return (
+    <DialogLayerContext.Provider value={layer}>
+      <DialogPrimitive.Root data-slot="dialog" open={open} {...rest} />
+    </DialogLayerContext.Provider>
+  )
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
@@ -25,15 +45,18 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
 
 function DialogOverlay({
   className,
+  style,
   ...props
 }: DialogPrimitive.Backdrop.Props) {
+  const layer = React.useContext(DialogLayerContext)
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
+      style={{ zIndex: 10 + Math.max(0, layer - 1) * 10, ...style }}
       {...props}
     />
   )
@@ -43,19 +66,24 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  overlayClassName,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
+    overlayClassName?: string
 }) {
+  const layer = React.useContext(DialogLayerContext)
   return (
-    <DialogPortal>
-      <DialogOverlay />
+    <DialogPortal className={overlayClassName}>
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          className
+          "fixed top-1/2 left-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          className,
+
         )}
+        style={{ zIndex: 50 + Math.max(0, layer - 1) * 10 + 1 }}
         {...props}
       >
         {children}
@@ -156,5 +184,6 @@ export {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 }
+

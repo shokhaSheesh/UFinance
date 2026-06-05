@@ -14,7 +14,8 @@ const SingleZdelka = ({
   dropdownClassName,
   hasError,
   withSearch = true,
-  defaultDealGuid
+  defaultDealGuid,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
   const [search, setSearch] = useState('')
@@ -71,6 +72,7 @@ const SingleZdelka = ({
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

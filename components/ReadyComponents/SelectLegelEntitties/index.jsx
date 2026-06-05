@@ -1,14 +1,17 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import CreateLegalEntityModal from '../../directories/CreateLegalEntityModal/CreateLegalEntityModal'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false }) => {
+const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSearch = useMemo(() =>
     debounce((val) => setDebouncedSearch(val), 500),
@@ -44,20 +47,44 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
 
   const Component = multi ? MultiSelect : SingleSelect;
 
+  const createLegalEntityHeader = (
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
+    >
+      <Plus size={16} />
+      {t('createLegalEntity')}
+    </button>
+  )
+
+  const combinedHeaderItem = (
+    <>
+      {dropdownHeaderItem || createLegalEntityHeader}
+    </>
+  )
+
   return (
-    <Component
-      data={mappedData}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder || t('placeholders.selectLegalEntity')}
-      className={className}
-      dropdownClassName={dropdownClassName}
-      hasError={hasError}
-      isClearable={isClearable}
-      disabled={disabled}
-      onSearch={handleSearch}
-      isSearching={isFetching}
-    />
+    <>
+      <Component
+        data={mappedData}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder || t('placeholders.selectLegalEntity')}
+        className={className}
+        dropdownClassName={dropdownClassName}
+        hasError={hasError}
+        isClearable={isClearable}
+        disabled={disabled}
+        onSearch={handleSearch}
+        isSearching={isFetching}
+        dropdownHeaderItem={combinedHeaderItem}
+      />
+      <CreateLegalEntityModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   )
 }
 

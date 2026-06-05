@@ -17,7 +17,8 @@ const MultiSelect = ({
     hasError,
     onSearch = () => { },
     disabled = false,
-    isSearching = false
+    isSearching = false,
+    dropdownHeaderItem
 }) => {
     const t = useTranslations('Common.selects')
     const placeholderText = placeholder ?? t('placeholder')
@@ -184,6 +185,12 @@ const MultiSelect = ({
                                 {isSearching && (
                                     <Loader2 size={16} className='absolute right-4 text-primary animate-spin' />
                                 )}
+                            </div>
+                        )}
+
+                        {dropdownHeaderItem && (
+                            <div onClick={() => setOpen(false)}>
+                                {dropdownHeaderItem}
                             </div>
                         )}
 

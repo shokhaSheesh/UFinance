@@ -6,7 +6,7 @@ import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 
-const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdownClassName, multi = false, hasError }) => {
+const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdownClassName, multi = false, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -56,6 +56,7 @@ const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdown
       hasError={hasError}
       onSearch={handleSearch}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

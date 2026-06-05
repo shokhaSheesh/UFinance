@@ -52,7 +52,9 @@
 			"search": "Qidirish...",
 			"notFound": "Topilmadi",
 			"selectedPrefix": "Tanlandi"
-		}
+		},
+		"createAccount": "Hisob yaratish",
+		"createLegalEntity": "Yuridik shaxs yaratish"
 	},
 	"Auth": {
 		"title": {

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useCounterpartiesGroupsPlanFact } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
-const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, placeholder, className, dropdownClassName, hasError }) => {
+const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, placeholder, className, dropdownClassName, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -65,6 +65,7 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
     hasError={hasError}
     onSearch={handleSearch}
     isSearching={isFetching}
+    dropdownHeaderItem={dropdownHeaderItem}
   />
 }
 

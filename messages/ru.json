@@ -54,7 +54,9 @@
 			"search": "Поиск...",
 			"notFound": "Не найдено",
 			"selectedPrefix": "Выбрано"
-		}
+		},
+		"createAccount": "Создать счет",
+		"createLegalEntity": "Создать юрлицо"
 	},
 	"Auth": {
 		"title": {
@@ -136,6 +138,7 @@
 		},
 		"transactionCategories": {
 			"pageTitle": "Учетные статьи",
+
 			"create": "Создать",
 			"searchPlaceholder": "Поиск по названию",
 			"loading": "Загрузка",

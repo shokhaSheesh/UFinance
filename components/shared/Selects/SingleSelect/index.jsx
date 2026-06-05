@@ -21,7 +21,8 @@ const SingleSelect = ({
   customButton,
   customRenderItem,
   elementAfter,
-  isSearching = false
+  isSearching = false,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common.selects')
   const placeholderText = placeholder ?? t('placeholder')
@@ -185,6 +186,12 @@ const SingleSelect = ({
             {customButton && (
               <div onClick={() => setOpen(false)} className='border-b border-gray-100'>
                 {customButton}
+              </div>
+            )}
+
+            {dropdownHeaderItem && (
+              <div onClick={() => setOpen(false)}>
+                {dropdownHeaderItem}
               </div>
             )}
 

@@ -20,7 +20,7 @@ const mapTree = (data) => {
     .filter(Boolean)
 }
 
-const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, shownParent, hasError }) => {
+const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, shownParent, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
 
   const { data: chartOfAccountsData } = useUcodeRequestQuery({
@@ -61,6 +61,7 @@ const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className
     onChange={handleSelect}
     hasError={hasError}
     className={className}
+    dropdownHeaderItem={dropdownHeaderItem}
   />
 }
 

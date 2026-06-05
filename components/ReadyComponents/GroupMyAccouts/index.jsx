@@ -12,7 +12,8 @@ const GroupMyAccounts = ({
   dropdownClassName,
   multi = true,
   disabled = false,
-  hasError
+  hasError,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
 
@@ -68,6 +69,7 @@ const GroupMyAccounts = ({
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 
-const SelectCounterParties = ({ value = [], onChange, placeholder, dropdownClassName, className, hasError }) => {
+const SelectCounterParties = ({ value = [], onChange, placeholder, dropdownClassName, className, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -47,6 +47,7 @@ const SelectCounterParties = ({ value = [], onChange, placeholder, dropdownClass
       dropdownClassName={dropdownClassName}
       hasError={hasError}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

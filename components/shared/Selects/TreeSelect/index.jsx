@@ -54,7 +54,8 @@ const TreeSelect = ({
   className, dropdownClassName,
   hasError,
   disabled = false,
-  isSearching = false
+  isSearching = false,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common.selects')
   const [open, setOpen] = useState(false)
@@ -287,6 +288,8 @@ const TreeSelect = ({
                 <Loader2 size={16} className='absolute right-4 text-primary animate-spin' />
               )}
             </div>
+
+            {dropdownHeaderItem}
 
             {/* Tree List */}
             <div className='overflow-y-auto flex-1 py-1 flex flex-col'>

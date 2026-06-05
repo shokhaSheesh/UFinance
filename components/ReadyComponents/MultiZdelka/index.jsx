@@ -12,7 +12,8 @@ const MultiSelectZdelka = ({
   placeholder,
   className,
   dropdownClassName,
-  hasError
+  hasError,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
@@ -59,6 +60,7 @@ const MultiSelectZdelka = ({
       hasError={hasError}
       onSearch={handleSearch}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

@@ -15,7 +15,8 @@ const SingleCounterParty = ({
   name = '',
   returnChartOfAccount,
   isClearable = true,
-  hasError
+  hasError,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -120,6 +121,7 @@ const SingleCounterParty = ({
       hasError={hasError}
       disabled={disabled}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

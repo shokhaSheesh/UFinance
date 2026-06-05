@@ -20,7 +20,8 @@ const SelectProductService = ({
   isClearable = false,
   name = '',
   returnFieldValue,
-  disabled = false
+  disabled = false,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
@@ -110,6 +111,7 @@ const SelectProductService = ({
       hasError={hasError}
       isClearable={isClearable}
       disabled={disabled}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
-const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasError, isClearable = true, multi = false }) => {
+const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasError, isClearable = true, multi = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -41,6 +41,7 @@ const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasE
       isClearable={isClearable}
       onSearch={handleSearch}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }

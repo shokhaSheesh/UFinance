@@ -13,7 +13,8 @@ const SelectMyAccoutGroup = ({
   dropdownClassName,
   hasError,
   returnParentId = false,
-  onReturnParentId
+  onReturnParentId,
+  dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
   const tr = useTranslations('Reports.common')
@@ -113,6 +114,7 @@ const SelectMyAccoutGroup = ({
       hasError={hasError}
       onSearch={handleSearch}
       isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
     />
   )
 }
