@@ -3,21 +3,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { apiClient } from '@/lib/api/ucode/base'
+import { shipmentsDto } from '@/lib/dtos/shipmentsDto'
+import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
-import { useUcodeRequestMutation } from '../../../../hooks/useDashboard'
-import { apiClient } from '../../../../lib/api/ucode/base'
-import { shipmentsDto } from '../../../../lib/dtos/shipmentsDto'
-import { formatAmount } from '../../../../utils/helpers'
 import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
-const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd }) => {
+const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
   const t = useTranslations('Directories.details.shipmentTable')
 
   const [showModal, setShowModal] = useState(false)
