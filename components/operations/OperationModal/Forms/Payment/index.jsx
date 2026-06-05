@@ -8,7 +8,7 @@ import { appStore } from '../../../../../store/app.store'
 import { } from '@/hooks/useDashboard'
 
 // Helpers
-import { formatDate, isFuture } from '@/utils/formatDate'
+import { isFuture } from '@/utils/formatDate'
 
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
@@ -279,8 +279,8 @@ const PaymentForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment.utc().format('YYYY-MM-DD')
-      const accrualDate = raw.data_nachisleniya ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
+      const paymentDate = raw.data_operatsii ? moment.parseZone(raw.data_operatsii).format('YYYY-MM-DD') : moment.parseZone().format('YYYY-MM-DD')
+      const accrualDate = raw.data_nachisleniya ? moment.parseZone(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
 
       return {
         paymentDate,
@@ -299,11 +299,11 @@ const PaymentForm = observer(({
     }
 
     return {
-      paymentDate: moment.utc().format('YYYY-MM-DD'),
+      paymentDate: moment(new Date()).format('YYYY-MM-DD'),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: moment.utc().format('YYYY-MM-DD'),
+      accrualDate: moment(new Date()).format('YYYY-MM-DD'),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
@@ -341,7 +341,7 @@ const PaymentForm = observer(({
 
       const mappedRows = parts.map(p => ({
         guid: p.guid,
-        calculationDate: p.data_nachisleniya ? formatDate(p.data_nachisleniya) : today,
+        calculationDate: p.data_nachisleniya ? moment.parseZone(p.data_nachisleniya).format('YYYY-MM-DD') : today,
         isCalculationCommitted: p.payment_accrual ?? true,
         contrAgentId: p.counterparties_id || '',
         operationCategoryId: p.chart_of_accounts_id || '',
@@ -373,11 +373,12 @@ const PaymentForm = observer(({
   const isCredit = (!showDate && !watchConfirmPayment && watchConfirmAccrual)
 
   const onSubmit = async (data) => {
+    console.log('data', data)
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: moment.utc(data?.paymentDate).format('YYYY-MM-DD'),
-      data_nachisleniya: moment.utc(data?.accrualDate).format('YYYY-MM-DD'),
+      data_operatsii: moment.parseZone(data?.paymentDate).format('YYYY-MM-DD'),
+      data_nachisleniya: moment.parseZone(data?.accrualDate).format('YYYY-MM-DD'),
       payment_confirmed: data?.confirmPayment,
       payment_accrual: data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
@@ -407,6 +408,8 @@ const PaymentForm = observer(({
       payload.guid = initialData.guid
       payload.is_group = divivedAmounts.length > 0 ? true : false
     }
+
+    console.log('payload', payload)
 
     try {
 

@@ -5,24 +5,23 @@ import TextArea from '@/components/shared/TextArea'
 import { memo, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
+import MyAccountCurrensies from '@/components/ReadyComponents/MyAccountCurrensies'
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
+import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '@/components/ReadyComponents/SingleZdelka'
+import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
+import { WarnIcon } from '@/constants/icons'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
-import { formatDate } from '@/utils/formatDate'
+import { appStore } from '@/store/app.store'
+import { isFuture, isPastDate } from '@/utils/formatDate'
+import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { WarnIcon } from '../../../../../constants/icons'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { queryClient } from '../../../../../lib/queryClient'
-import { appStore } from '../../../../../store/app.store'
-import { isFuture, isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
-import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
-import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
-import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -63,7 +62,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
       return {
-        accuralDate: raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date()),
+        accuralDate: raw.data_operatsii ? moment.parseZone(raw.data_operatsii).format('YYYY-MM-DD') : moment.parseZone(new Date()).format('YYYY-MM-DD'),
         confirmAccrual: raw.payment_accrual,
         legalEntity: raw.legal_entity_id || '',
         chartOfAccountWriteOff: raw.chart_of_accounts_id || null,
@@ -83,7 +82,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     }
 
     return {
-      accuralDate: formatDate(new Date()),
+      accuralDate: moment(new Date()).format('YYYY-MM-DD'),
       confirmAccrual: true,
       legalEntity: '',
       chartOfAccountWriteOff: null,
@@ -135,7 +134,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment.utc(data?.accuralDate).format('YYYY-MM-DD'),
+        data_operatsii: moment.parseZone(data?.accuralDate).format('YYYY-MM-DD'),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,

@@ -281,8 +281,8 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
-      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
+      const paymentDate = raw.data_operatsii ? moment.parseZone(raw.data_operatsii).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? moment.parseZone(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
 
 
       return {
@@ -302,11 +302,11 @@ const IncomeForm = observer(({
     }
 
     return {
-      paymentDate: formatDate(new Date()),
+      paymentDate: moment(new Date()).format('YYYY-MM-DD'),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: formatDate(new Date()),
+      accrualDate: moment(new Date()).format('YYYY-MM-DD'),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
@@ -378,8 +378,8 @@ const IncomeForm = observer(({
 
   const onSubmit = async (data) => {
 
-    const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
-    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.accrualDate).format('YYYY-MM-DD')
+    const dataOplata = moment.parseZone(data?.paymentDate).format('YYYY-MM-DD')
+    const dataNachisleniya = watchSalesDeal ? dataOplata : moment.parseZone(data?.accrualDate).format('YYYY-MM-DD')
 
     const payload = {
       tip: ['Поступление'],

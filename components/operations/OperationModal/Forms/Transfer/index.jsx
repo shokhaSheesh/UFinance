@@ -4,30 +4,30 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 // Hooks
-import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { useBankAccountsPlanFact, useUcodeRequestMutation } from '@/hooks/useDashboard'
 
 // Helpers
-import { formatDate, isFuture } from '@/utils/formatDate'
+import { isFuture } from '@/utils/formatDate'
 import { StringtoNumber } from '@/utils/helpers'
 
 // Components
-import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
-import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import Input from '../../../../shared/Input'
-import TextArea from '../../../../shared/TextArea'
+import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import Input from '@/components/shared/Input'
+import TextArea from '@/components/shared/TextArea'
 
+import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
+import { WarnIcon } from '@/constants/icons'
+import { queryClient } from '@/lib/queryClient'
+import { appStore } from '@/store/app.store'
+import { authStore } from '@/store/auth.store'
+import { isPastDate } from '@/utils/formatDate'
+import { formatDecimal, formatNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { WarnIcon } from '../../../../../constants/icons'
-import { queryClient } from '../../../../../lib/queryClient'
-import { appStore } from '../../../../../store/app.store'
-import { authStore } from '../../../../../store/auth.store'
-import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
-import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -68,8 +68,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const defaultValues = useMemo(() => {
 		if (initialData && (!isNew || initialData.isCopy)) {
 			const raw = initialData
-			const fromDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-			const toDate = raw.data_nachisleniya ? formatDate(raw.data_nachisleniya) : fromDate
+			const fromDate = raw.data_operatsii ? moment.parseZone(raw.data_operatsii) : moment.parseZone(new Date())
+			const toDate = raw.data_nachisleniya ? moment.parseZone(raw.data_nachisleniya) : fromDate
 
 			return {
 				fromDate,
@@ -87,11 +87,11 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		}
 
 		return {
-			fromDate: formatDate(new Date()),
+			fromDate: moment(new Date()).format('YYYY-MM-DD'),
 			confirmPayment: true,
 			fromAccount: null,
 			fromAmount: '',
-			toDate: formatDate(new Date()),
+			toDate: moment(new Date()).format('YYYY-MM-DD'),
 			toAccount: null,
 			toAmount: '',
 			purpose: '',
@@ -127,8 +127,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: moment.utc(data?.fromDate).format('YYYY-MM-DD'),
-			data_nachisleniya: moment.utc(data?.toDate).format('YYYY-MM-DD'),
+			data_operatsii: moment.parseZone(data?.fromDate).format('YYYY-MM-DD'),
+			data_nachisleniya: moment.parseZone(data?.toDate).format('YYYY-MM-DD'),
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,
@@ -162,6 +162,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					onClose()
 				}
 			})
+
 			const operationId = isNew
 				? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
 				: initialData.guid
