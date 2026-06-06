@@ -1,4 +1,5 @@
 'use client'
+import FixedContent from "@/layouts/FixedContent"
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { observer } from "mobx-react-lite"
@@ -187,7 +188,7 @@ const Students = observer(() => {
   }, [monthsData, t])
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
+    <FixedContent>
       {(isLoadingStudents || isFetchingStudents || isPending) && !isScrolling && <ScreenLoader />}
       {isFetchingNextPage && !isScrolling && <ScreenLoader />}
       <FilterSidebar
@@ -313,7 +314,7 @@ const Students = observer(() => {
           </div>
         </div>
       </div>
-    </div>
+    </FixedContent>
   )
 })
 

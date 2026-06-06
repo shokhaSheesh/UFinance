@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 const includedPaths = ['auth', 'payment']
 
-export function middleware(request) {
+export function proxy(request) {
   const { pathname } = request.nextUrl
   const authRoutes = ['/auth']
   const isAuthRoute = authRoutes.includes(pathname)

@@ -2,6 +2,7 @@
 
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import FixedContent from '@/layouts/FixedContent'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -135,7 +136,7 @@ export default observer(function BalancePage() {
   }
 
   return (
-    <div className="fixed left-[80px] w-[calc(100%-80px)] flex top-[60px] h-[calc(100%-60px)]">
+    <FixedContent>
       {/* Balance-specific Filter Sidebar */}
       <BalanceFilterSidebar
         isOpen={isFilterOpen}
@@ -198,6 +199,6 @@ export default observer(function BalancePage() {
           )}
         </div>
       </div>
-    </div>
+    </FixedContent>
   )
 })

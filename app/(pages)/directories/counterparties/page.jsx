@@ -18,6 +18,7 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups, useUcodeRequestInfinite } from '@/hooks/useDashboard'
 import { useScrollDetector } from '@/hooks/useScrollDetector'
+import FixedContent from '@/layouts/FixedContent'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { showSuccessNotification } from '@/lib/utils/notifications'
@@ -117,7 +118,7 @@ const CounterpartiesPage = observer(() => {
     hasNextPage,
     isFetchingNextPage,
     isFetching,
-    isPending, 
+    isPending,
     isLoading: isLoadingCounterparties
   } = useUcodeRequestInfinite({
     method: 'get_counterparties',
@@ -302,7 +303,7 @@ const CounterpartiesPage = observer(() => {
 
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)]  fixed left-[80px] top-[60px]">
+    <FixedContent>
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(prev => !prev)}
@@ -809,7 +810,7 @@ const CounterpartiesPage = observer(() => {
         onCancel={() => setDeletingCounterparty(null)}
         isDeleting={deleteMutation.isPending}
       />
-    </div>
+    </FixedContent>
   )
 })
 

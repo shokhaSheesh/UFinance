@@ -3,6 +3,7 @@
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import FixedContent from '@/layouts/FixedContent'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -386,7 +387,7 @@ const ProfitAndLossPage = observer(() => {
 
 
   return (
-    <div className="fixed left-[80px] w-[calc(100%-80px)] flex top-[60px] h-[calc(100%-60px)]">
+    <FixedContent>
       {/* P&L-specific Filter Sidebar */}
       <PnLFilterSidebar
         isOpen={isFilterOpen}
@@ -487,7 +488,7 @@ const ProfitAndLossPage = observer(() => {
         summaryData={modalConfig.summaryData}
         title={modalConfig.title}
       />
-    </div>
+    </FixedContent>
   )
 })
 

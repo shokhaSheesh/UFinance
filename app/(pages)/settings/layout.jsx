@@ -1,5 +1,6 @@
 'use client'
 
+import FixedContent from '@/layouts/FixedContent'
 import { appStore } from '@/store/app.store'
 import { Banknote, GitBranch, Settings as SettingsIcon, Shield, User } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -24,7 +25,7 @@ export default observer(function SettingLayouts({ children }) {
     { id: 'contract', label: t('nav.contract'), icon: TbContract, href: '/settings/contract', show: appStore.isDonoSchool },
   ]
   return (
-    <div className="fixed top-[60px] flex left-[80px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+    <FixedContent>
       {/* Sidebar */}
       <aside className="w-56 bg-white p-3 shadow-2xl shadow-gray-200 border-r border-gray-200">
         <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">{t('pageTitle')}</h2>
@@ -55,6 +56,6 @@ export default observer(function SettingLayouts({ children }) {
       <div className="flex flex-1 overflow-auto">
         {children}
       </div>
-    </div>
+    </FixedContent>
   )
 })

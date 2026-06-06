@@ -9,7 +9,7 @@ export function Header() {
 
     return (
         <>
-            <header className="flex items-center h-[60px] left-20! pr-20! fixed w-full  top-0 justify-end bg-blue-950">
+            <header className="flex items-center h-[60px] left-20! pr-20! z-10! fixed w-full  top-0 justify-end bg-blue-950">
                 <div className="flex items-center gap-3">
                     <TotalPrice />
                     <Profile />

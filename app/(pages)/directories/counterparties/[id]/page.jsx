@@ -24,6 +24,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
+import FixedContent from '@/layouts/FixedContent'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { appStore } from '@/store/app.store'
 import { formatDate } from '@/utils/formatDate'
@@ -140,7 +141,7 @@ const KontragentDetailPage = observer(() => {
   // Unified operations data from find_operations
   const operations = useMemo(() => {
     return operationsDto(counterpartyOperations || [], 'all')
-  }, [counterpartyOperations]) 
+  }, [counterpartyOperations])
 
   const operationsList = useMemo(() => {
     return {
@@ -407,7 +408,7 @@ const KontragentDetailPage = observer(() => {
   const hasInfo = counterpartyInfo?.inn === null && counterpartyInfo?.kpp?.length === 0 && counterpartyInfo?.accountNumber?.length === 0 && counterpartyInfo?.receiptArticle === null && counterpartyInfo?.paymentArticle === null && counterpartyInfo?.comment === null
 
   return (
-    <div className="fixed h-[calc(100vh-60px)]  top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto">
+    <FixedContent className="right-0 bottom-0 overflow-y-auto">
 
       {isLoadingCounterparty && <ScreenLoader />}
       {!counterparty && <div className="fixed h-[calc(100vh-60px)] top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto">
@@ -938,7 +939,7 @@ const KontragentDetailPage = observer(() => {
         }}
         counterpartyData={counterparty}
       />
-    </div>
+    </FixedContent>
   )
 })
 

@@ -4,6 +4,7 @@ import { CategoryMenu } from '@/components/directories/CategoryMenu/CategoryMenu
 import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { DeleteCategoryConfirmModal } from '@/components/directories/DeleteCategoryConfirmModal/DeleteCategoryConfirmModal'
 import { PageSearchBar } from '@/components/PageSearchbar'
+import FixedContent from '@/layouts/FixedContent'
 import { apiClient } from '@/lib/api/ucode/base'
 import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
@@ -336,7 +337,7 @@ export default observer(function TransactionCategoriesPage() {
 	}
 
 	return (
-		<div className="flex overflow-y-auto flex-col bg-slate-50  fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+		<FixedContent className="flex overflow-y-auto flex-col bg-slate-50">
 
 			{/* Header */}
 			<div className="bg-white h-[120px] border-b sticky top-0 z-50 border-gray-200 p-4 px-6 shrink-0">
@@ -707,6 +708,6 @@ export default observer(function TransactionCategoriesPage() {
 				}}
 				isDeleting={deleteMutation.isPending}
 			/>
-		</div>
+		</FixedContent>
 	)
 })

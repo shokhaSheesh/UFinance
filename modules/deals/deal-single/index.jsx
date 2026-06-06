@@ -36,6 +36,7 @@ import { appStore } from '@/store/app.store'
 import { sealDeal } from '@/store/saleDeal.store'
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers'
 
+import FixedContent from '@/layouts/FixedContent'
 import styles from './deal-single.module.scss'
 
 export default observer(function DealSinglePage() {
@@ -158,7 +159,7 @@ export default observer(function DealSinglePage() {
   if (!mounted) return null
 
   return (
-    <div className="flex overflow-hidden overflow-y-auto flex-col space-y-4 fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+    <FixedContent className="flex overflow-hidden overflow-y-auto flex-col space-y-4">
       {isLoading && <ScreenLoader />}
 
       {/* Breadcrumbs */}
@@ -583,6 +584,6 @@ export default observer(function DealSinglePage() {
           amount: formatAmount(summeryCards?.total_products_summa),
         } : null}
       />
-    </div>
+    </FixedContent>
   )
 })

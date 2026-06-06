@@ -22,6 +22,7 @@ import Loader from '@/components/shared/Loader'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import FixedContent from '@/layouts/FixedContent'
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { IoCopyOutline } from "react-icons/io5"
@@ -358,7 +359,7 @@ export default observer(function LegalEntitiesPage() {
 
   return (
     <>
-      <div className="flex fixed bg-white overflow-y-auto pb-20  left-[80px] top-[60px] flex-col flex-1 w-[calc(100%-80px)] h-[calc(100%-60px)]  gap-4">
+      <FixedContent className="flex bg-white overflow-y-auto pb-20 flex-col flex-1 gap-4">
         {isLoading && <ScreenLoader />}
         <div className="flex items-center sticky top-0 bg-white z-10 p-3 justify-between">
           <div className="flex items-center gap-3">
@@ -695,7 +696,7 @@ export default observer(function LegalEntitiesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </FixedContent>
       <div className="fixed bottom-0 left-[80px] py-4 px-3 right-0 bg-white border-t border-gray-200">
         <span className={' lowercase'}>
           {t('footer.total', { count: 3 })}

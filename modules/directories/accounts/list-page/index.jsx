@@ -15,6 +15,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
+import FixedContent from '@/layouts/FixedContent'
 import { cn } from '@/lib/utils'
 import { accountsStore } from '@/store/accounts.store'
 import { appStore } from '@/store/app.store'
@@ -182,7 +183,7 @@ export default observer(function AccountsPageList() {
   if (!mounted) return null
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
+    <FixedContent>
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(!isFilterOpen)}
@@ -399,6 +400,6 @@ export default observer(function AccountsPageList() {
           legalEntityId={modals.editingLegalEntity.legal_entity_id}
         />
       )}
-    </div>
+    </FixedContent>
   )
 })

@@ -10,7 +10,6 @@ import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { appStore } from '../../../store/app.store'
 import { authStore } from '../../../store/auth.store'
-import ScreenLoader from '../../shared/ScreenLoader'
 
 const Branches = observer(() => {
   const t = useTranslations('Header.branches')
@@ -97,8 +96,8 @@ const Branches = observer(() => {
   if (!branchesList) return null
 
   return (
-    <div className="relative" ref={containerRef}>
-      {reloading && <ScreenLoader />}
+    <div className="relative z-20!" ref={containerRef}>
+      {/* {reloading && <ScreenLoader />} */}
 
       <button
         type="button"
@@ -118,7 +117,7 @@ const Branches = observer(() => {
       </button>
 
       {open && branchesList && (
-        <div className="absolute right-0 top-[110%] mt-1 z-9999 w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 overflow-hidden">
+        <div className="absolute right-0 top-[110%] z-50! mt-1  w-52 bg-white rounded-lg shadow-lg border border-gray-100 py-1 overflow-hidden">
           {branchesList.map(branch => (
             <button
               key={branch?.guid}

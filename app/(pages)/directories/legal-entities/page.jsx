@@ -4,6 +4,7 @@ import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityMo
 import DeleteLegalEntityConfirmModal from '@/components/directories/DeleteLegalEntityConfirmModal/DeleteLegalEntityConfirmModal'
 import LegalEntityMenu from '@/components/directories/LegalEntityMenu/LegalEntityMenu'
 import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
+import FixedContent from '@/layouts/FixedContent'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
@@ -46,7 +47,7 @@ export default observer(function LegalEntitiesPage() {
 
   // Extract legal entities from response - correct path is data.data.data
   const legalEntitiesItems = useMemo(() => {
-    const items = legalEntitiesData?.data?.data || [] 
+    const items = legalEntitiesData?.data?.data || []
     return Array.isArray(items) ? items : []
   }, [legalEntitiesData])
 
@@ -99,7 +100,7 @@ export default observer(function LegalEntitiesPage() {
   }, [])
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)]  overflow-auto fixed left-[80px] top-[60px]">
+    <FixedContent className="overflow-auto">
       <div className="w-full h-full">
         {/* Header */}
         <div className="px-5 h-16 flex items-center bg-neutral-50 sticky top-0 z-10">
@@ -236,6 +237,6 @@ export default observer(function LegalEntitiesPage() {
           isDeleting={deleteMutation.isPending}
         />
       )}
-    </div>
+    </FixedContent>
   )
 })

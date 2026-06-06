@@ -18,6 +18,7 @@ import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
 
 
 import ScreenLoader from '@/components/shared/ScreenLoader'
+import FixedContent from '@/layouts/FixedContent'
 import { toJS } from 'mobx'
 import moment from 'moment'
 import DealsFooter from '../components/DealsFooter'
@@ -224,7 +225,7 @@ export default observer(function DealsPage() {
   ]
 
   return (
-    <div className="flex fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+    <FixedContent>
       {/* ── Filter Sidebar (lazy) ── */}
       <Suspense fallback={<div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />}>
         <FilterSidebar onOpenChange={setIsFilterOpen} />
@@ -315,6 +316,6 @@ export default observer(function DealsPage() {
           } : null}
         />
       </Suspense>
-    </div>
+    </FixedContent>
   )
 })

@@ -25,6 +25,7 @@ import { handleDownload } from '@/utils/helpers'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 
 // Sub-components (split out for clarity)
+import FixedContent from '@/layouts/FixedContent'
 import operationDto from '@/lib/dtos/operationDto'
 import ImportErrorModal from '../components/ImportErrorModal'
 import OperationsHeader from '../components/OperationsHeader'
@@ -346,8 +347,7 @@ const OperationsListPage = observer(() => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="fixed left-[80px] top-[60px] w-[calc(100%-80px)] flex h-[calc(100%-60px)]">
-
+    <FixedContent>
       {isPendingGetOperation && <ScreenLoader />}
       {/* Sidebar */}
       <Suspense fallback={<div className="w-80 bg-white border-r border-neutral-200" />}>
@@ -503,7 +503,7 @@ const OperationsListPage = observer(() => {
           CustomDialog={CustomDialog}
         />
       </Suspense>
-    </div>
+    </FixedContent>
   )
 })
 

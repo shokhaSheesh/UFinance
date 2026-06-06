@@ -25,6 +25,7 @@ import { GlobalCurrency } from '@/constants/globalCurrency';
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard';
 import useMounted from '@/hooks/useMounted';
+import FixedContent from '@/layouts/FixedContent';
 import { appStore } from '@/store/app.store';
 import { sealDeal } from '@/store/saleDeal.store';
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
@@ -183,7 +184,7 @@ export default observer(function DealDetailPage() {
   if (!mounted) return null
 
   return (
-    <div className="flex overflow-hidden overflow-y-auto  flex-col space-y-4 fixed left-[80px] top-[60px] w-[calc(100%-80px)] h-[calc(100%-60px)]">
+    <FixedContent className="flex overflow-hidden overflow-y-auto  flex-col space-y-4">
       {isLoading && <ScreenLoader />}
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
@@ -593,6 +594,6 @@ export default observer(function DealDetailPage() {
           </button>
         </div>
       </CustomModal> */}
-    </div>
+    </FixedContent>
   );
 })

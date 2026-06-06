@@ -2,6 +2,7 @@
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import FixedContent from '@/layouts/FixedContent'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -398,7 +399,7 @@ export default observer(function CashFlowReportPage() {
   }
 
   return (
-    <div className="fixed left-[80px] w-[calc(100%-80px)]  flex top-[60px] h-[calc(100%-60px)]">
+    <FixedContent>
       <CashFlowFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)} />
 
       {(isLoadingCashFlow || isFetchingCashFlow) && <ScreenLoader />}
@@ -488,6 +489,6 @@ export default observer(function CashFlowReportPage() {
         title={modalConfig.title}
         isTransfer={modalConfig.isTransfer}
       />
-    </div>
+    </FixedContent>
   )
 })

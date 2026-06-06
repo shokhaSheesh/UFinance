@@ -1,3 +1,4 @@
+import FixedContent from '@/layouts/FixedContent'
 import AccountBalance from '../../../components/Indicators/AccountBalance'
 import CashFlow from '../../../components/Indicators/CashFlow'
 import IndicatorsNavbar from '../../../components/Indicators/Header'
@@ -7,7 +8,7 @@ import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 const IndicatorsPage = () => {
   return (
-    <div className='fixed left-[80px] bg-white w-[calc(100%-80px)] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible'>
+    <FixedContent className='bg-white overflow-y-auto flex-col overflow-x-visible'>
       <div className='w-full sticky top-0 z-1000'>
         <IndicatorsNavbar />
       </div>
@@ -18,7 +19,7 @@ const IndicatorsPage = () => {
         <PaymentStructure />
         <ProfitableClients />
       </div>
-    </div>
+    </FixedContent>
   )
 }
 
