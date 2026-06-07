@@ -18,7 +18,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
     pnlStore.setDateRange(range)
   }
 
-  const { dateRange, selectedAccounts, selectedCounterparties, deals, selectedLegalEntities, operational, ebitda, ebit, ebt, defaultDate } = pnlStore
+  const { dateRange, selectedAccounts, selectedCounterparties, deals, selectedLegalEntities, operational, ebitda, ebit, ebt, defaultDate, dateRangeType } = pnlStore
 
   const datesEqual = (a, b) =>
     a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
@@ -50,6 +50,9 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             value={pnlStore.dateRange}
             onChange={handleDateRangeChange}
             clearable={false}
+            present={dateRangeType}
+            onSetPresent={(present) => pnlStore.setDateRangeType(present)}
+            onClear={() => pnlStore.setDateRangeType('')}
             defaultValue={pnlStore.defaultDate}
           />
         </FilterSection>

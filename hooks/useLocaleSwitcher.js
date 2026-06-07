@@ -1,6 +1,6 @@
 "use client"
 
-import { RusFlag, UzbFlag } from '@/constants/icons'
+import { EngFlag, RusFlag, UzbFlag } from '@/constants/icons'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
@@ -12,6 +12,7 @@ const ONE_YEAR = 60 * 60 * 24 * 365
 const LOCALES = [
   { code: 'ru', label: 'РУ', image: RusFlag, name: 'Русский' },
   { code: 'uz', label: "UZ", image: UzbFlag, name: "Uzbek" },
+  { code: 'en', label: "EN", image: EngFlag, name: "English" },
 ]
 
 

@@ -1,6 +1,5 @@
 'use client'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
-import CustomModal from '@/components/shared/CustomModal'
 import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import operationsDto from '@/lib/dtos/operationsDto'
@@ -12,13 +11,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 
+import CustomDialog from '@/components/shared/CustomDialog'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
 const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
-  const t = useTranslations('Directories.details.expenseOperationsTable') 
+  const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
   const [selectedOperation, setSelectedOperation] = useState(null)
@@ -158,7 +158,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
       setIsDeleteModalOpen(false)
       setOperationToDelete(null)
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+      queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
@@ -268,37 +268,35 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
         />
       )}
 
-      {isDeleteModalOpen && (
-        <CustomModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-          <div className='p-6 flex flex-col'>
-            <div className='flex justify-between items-center border-b border-gray-100 pb-4'>
-              <h2 className='text-xl font-bold text-neutral-800'>{t('deleteOperationTitle')}</h2>
-            </div>
 
-            <div className='py-6 text-base text-neutral-700'
-              dangerouslySetInnerHTML={{
-                __html: t('deleteOperationConfirm', { amount: formatAmount(operationToDelete?.summa) + ' UZS' })
-              }}
-            />
-
-            <div className='flex justify-end gap-4'>
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className='px-4 py-2 text-sm text-primary hover:bg-gray-50 rounded-md font-semibold'
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                disabled={deleteOperationMutation.isPending}
-                className='px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-md flex items-center justify-center min-w-[100px]'
-              >
-                {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : t('delete')}
-              </button>
-            </div>
+      <CustomDialog open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+        <div className='p-6 flex flex-col'>
+          <div className='flex justify-between items-center border-b border-gray-100 pb-4'>
+            <h2 className='text-xl font-bold text-neutral-800'>{t('deleteOperationTitle')}</h2>
           </div>
-        </CustomModal>
-      )}
+
+          <div className='py-6 text-base text-neutral-700'>
+            {t('deleteOperationConfirm')}
+          </div>
+
+          <div className='flex justify-end gap-4'>
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className='px-4 py-2 text-sm text-primary hover:bg-gray-50 rounded-md font-semibold'
+            >
+              {t('cancel')}
+            </button>
+            <button
+              onClick={handleDeleteConfirm}
+              disabled={deleteOperationMutation.isPending}
+              className='px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-md flex items-center justify-center min-w-[100px]'
+            >
+              {deleteOperationMutation.isPending ? <Loader2 className='animate-spin h-4 w-4' /> : t('delete')}
+            </button>
+          </div>
+        </div>
+      </CustomDialog>
+
     </>
   )
 }

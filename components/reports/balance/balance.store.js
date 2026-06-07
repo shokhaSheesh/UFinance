@@ -18,6 +18,7 @@ class BalanceStore {
 	selectedCounterparties = []
 	selectedAccount = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
+	dateRangeType = 'year'
 
 	constructor() {
 		makeAutoObservable(this)
@@ -30,6 +31,7 @@ class BalanceStore {
 					'selectedCurrency',
 					'selectedCounterparties',
 					'selectedAccount',
+					'dateRangeType'
 				],
 				storage: window.localStorage,
 				debugMode: true,
@@ -44,6 +46,9 @@ class BalanceStore {
 		} else {
 			this.dateRange = range
 		}
+	}
+	setDateRangeType(type) {
+		this.dateRangeType = type
 	}
 
 	setSelectedEntity(entity) {
@@ -68,6 +73,7 @@ class BalanceStore {
 		this.selectedCurrency = GlobalCurrency.code || 'UZS'
 		this.selectedCounterparties = []
 		this.selectedAccount = []
+		this.dateRangeType = 'year'
 	}
 }
 

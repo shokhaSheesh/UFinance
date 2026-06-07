@@ -202,7 +202,7 @@ export default observer(function DealDetailPage() {
         </div>
         <div className='flex items-center gap-2'>
           {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>}
-          <Popover>
+          {(operations?.shipment?.edit || operations?.shipment?.delete) && <Popover>
             <PopoverTrigger asChild>
               <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
                 <Ellipsis size={18} className='text-neutral-800' />
@@ -210,7 +210,7 @@ export default observer(function DealDetailPage() {
             </PopoverTrigger>
             <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
               <div className="flex flex-col">
-                <button
+                {operations?.shipment?.edit && <button
                   className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
                   onClick={() => {
                     setDealToEdit(deal);
@@ -219,17 +219,17 @@ export default observer(function DealDetailPage() {
                 >
                   <Pencil size={16} className="text-neutral-600" />
                   <span>{t('actions.edit')}</span>
-                </button>
-                <button
+                </button>}
+                {operations?.shipment?.delete && <button
                   className="flex items-center gap-2 p-2.5 text-sm text-red-500 hover:bg-red-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
                   onClick={() => setDealToDelete(dealData)}
                 >
                   <Trash size={16} className="text-red-500" />
                   <span>{t('actions.delete')}</span>
-                </button>
+                </button>}
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover>}
         </div>
       </div>
 
@@ -292,9 +292,9 @@ export default observer(function DealDetailPage() {
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.receipts')}</span>
-            <button onClick={() => { handleCreateOperation(); setActiveTab('receipts'); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
+            {incomePermission && <button onClick={() => { handleCreateOperation(); setActiveTab('receipts'); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <CirclePlus size={20} strokeWidth={1.5} className='text-neutral-300 w-4 h-4 xl:w-5 xl:h-5' />
-            </button>
+            </button>}
           </div>
 
           <div className="flex items-center xl:items-start gap-2 xl:gap-3 mb-3 xl:mb-5">
@@ -326,9 +326,9 @@ export default observer(function DealDetailPage() {
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.shipments')}</span>
-            <button onClick={() => setShowShipmentModal(true)} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
+            {paymentPermission && <button onClick={() => setShowShipmentModal(true)} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <div className="scale-75 xl:scale-100 origin-right transition-transform"><ShipmentPlusIcon /></div>
-            </button>
+            </button>}
           </div>
 
           <div className="flex items-center xl:items-start text-lg gap-2 xl:gap-3 mb-3 xl:mb-5">

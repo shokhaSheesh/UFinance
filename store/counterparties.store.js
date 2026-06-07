@@ -14,9 +14,10 @@ class CounterpartiesStore {
     deals: [],
     selectedLegalEntities: []
   }
+  dateRangType = ''
+  singePageDateRangeType = ''
 
 
-  
   operationFilters = {
     page: 1,
     limit: 50,
@@ -31,7 +32,7 @@ class CounterpartiesStore {
     if (typeof window !== 'undefined') {
       makePersistable(this, {
         name: "counterparties",
-        properties: ["filters"],
+        properties: ["filters", "dateRangType", 'singePageDateRangeType'],
         storage: window.localStorage,
         debugMode: true,
       })
@@ -49,6 +50,10 @@ class CounterpartiesStore {
     this.operationFilters = { ...this.operationFilters, ...newFilters }
   }
 
+  setState(state, value) {
+    this[state] = value
+  }
+
 
   resetFilters = () => {
     this.filters = {
@@ -64,6 +69,8 @@ class CounterpartiesStore {
       deals: [],
       selectedLegalEntities: []
     }
+    this.singePageDateRangeType = ''
+    this.dateRangType = ''
   }
 
   get activeFilterCount() {

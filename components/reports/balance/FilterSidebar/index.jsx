@@ -10,7 +10,7 @@ import { queryClient } from '../../../../lib/queryClient'
 import { balanceStore } from '../balance.store'
 
 const BalanceFilterSidebar = observer(({ isOpen, onClose }) => {
-  const { dateRange, selectedCounterparties, selectedAccount, defaultDate } = balanceStore
+  const { dateRange, selectedCounterparties, selectedAccount, defaultDate, dateRangeType } = balanceStore
 
   const handleDateRangeChange = (range) => {
     balanceStore.setDateRange(range)
@@ -46,6 +46,9 @@ const BalanceFilterSidebar = observer(({ isOpen, onClose }) => {
             onChange={handleDateRangeChange}
             singleDate={false}
             clearable={false}
+            present={dateRangeType}
+            onSetPresent={(present) => balanceStore.setDateRangeType(present)}
+            onClear={() => balanceStore.setDateRangeType('')}
             defaultValue={defaultDate}
           />
         </div>

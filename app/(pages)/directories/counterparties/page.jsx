@@ -350,6 +350,9 @@ const CounterpartiesPage = observer(() => {
                 operationDateEnd: endDate,
               }))
             }}
+            onClear={() => counterpartiesStore.setState('dateRangType', '')}
+            present={counterpartiesStore.dateRangType}
+            onSetPresent={(present) => counterpartiesStore.setState('dateRangType', present)}
           />
         </FilterSection>
 

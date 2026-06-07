@@ -12,7 +12,7 @@ import { cashFlowStore } from '../cashflow.store'
 
 const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')
-  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, defaultDate } = cashFlowStore
+  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, defaultDate, dateRangeType } = cashFlowStore
 
   const handleDateRangeChange = (range) => {
     cashFlowStore.setPeriodDateRange(range)
@@ -49,6 +49,9 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
           }}
           onChange={handleDateRangeChange}
           clearable={false}
+          present={dateRangeType}
+          onSetPresent={(present) => cashFlowStore.setDateRangeType(present)}
+          onClear={() => cashFlowStore.setDateRangeType('')}
           defaultValue={defaultDate}
 
         />

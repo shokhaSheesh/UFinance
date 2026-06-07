@@ -30,6 +30,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 		profitTo,
 		status,
 		setState,
+		dateRangeType
 	} = sealDeal
 
 	// Fetch statuses
@@ -78,7 +79,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 	}
 
 
-	const handleFilterChange = (field, value) => { 
+	const handleFilterChange = (field, value) => {
 		setState(field, value)
 	}
 
@@ -116,7 +117,9 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						onChange={range =>
 							handleFilterChange('dateRange', { start: range.start, end: range.end })
 						}
-
+						present={dateRangeType}
+						onSetPresent={(present) => setState('dateRangeType', present)}
+						onClear={() => setState('dateRangeType', '')}
 					/>
 				</div>
 

@@ -27,6 +27,7 @@ import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import FixedContent from '@/layouts/FixedContent'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { appStore } from '@/store/app.store'
+import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
 import { formatAmount, formatNumber, formatTotalSumma } from '@/utils/helpers'
 
@@ -131,7 +132,6 @@ const KontragentDetailPage = observer(() => {
     }
   })
 
-  // Response structure: { data: { data: { data: { counterparty: {...}, operations: [...] } } } }
   const responseData = counterpartyData?.data?.data
   const counterparty = responseData?.counterparty || null
   const summary = responseData?.summary || null
@@ -177,7 +177,7 @@ const KontragentDetailPage = observer(() => {
       payables: counterparty.payables || counterparty.kreditorka || 0,
       operationsCount: counterparty.operations_count || 0
     }
-  }, [counterparty])
+  }, [counterparty, tc])
 
   // Calculate stats from operations
   const stats = useMemo(() => {
@@ -438,7 +438,7 @@ const KontragentDetailPage = observer(() => {
         </div>
 
         {/* Header with kontragent info */}
-        <div className="bg-slate-50 px-6 py-5 flex-shrink-0">
+        <div className="bg-slate-50 px-6 py-5 shrink-0">
           <div className="flex items-center gap-6 mb-5">
             <h1 className="text-2xl font-bold text-slate-900">{counterpartyInfo?.name || 'Контрагент'}</h1>
             <div className="flex items-center gap-3 flex-1">
@@ -455,6 +455,11 @@ const KontragentDetailPage = observer(() => {
                       dateRange: range,
                     }))
                   }}
+                  present={counterpartiesStore.singePageDateRangeType}
+                  onSetPresent={present => counterpartiesStore.setState('singePageDateRangeType', present)}
+                  onClear={() => counterpartiesStore.setState('singePageDateRangeType',
+                    ''
+                  )}
                 />
               </div >
               <div style={{ width: '250px' }}>
@@ -582,27 +587,27 @@ const KontragentDetailPage = observer(() => {
                 <>
                   <div className="grid grid-cols-2 gap-y-3 gap-x-6">
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.inn')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.inn')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.inn || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.receiptArticle')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.receiptArticle')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.receiptArticle || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.kpp')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.kpp')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.kpp, 'kpp')}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.paymentArticle')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.paymentArticle')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.paymentArticle || '–'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.accountNumber')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.accountNumber')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{renderMultiValue(counterpartyInfo?.accountNumber, 'accountNumber')}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-xs text-slate-500 font-normal flex-shrink-0">{t('info.comment')}</span>
+                        <span className="text-xs text-slate-500 font-normal shrink-0">{t('info.comment')}</span>
                       <span className="text-sm text-slate-900 font-normal flex items-center">{counterpartyInfo?.comment || '–'}</span>
                     </div>
                   </div>

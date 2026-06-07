@@ -1,14 +1,13 @@
-import { AlertDialog, AlertDialogContent, AlertDialogOverlay } from "@/components/ui/alert-dialog"
-// import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 const CustomDialog = ({ open, onClose, children, contentClass }) => {
   return (
-    <AlertDialog open={open} onOpenChange={onClose}>
-      <AlertDialogOverlay className={'bg-slate-950/40'} />
-      <AlertDialogContent className={`min-w-fit ${contentClass}`}>
+    <Dialog open={open} onOpenChange={onClose}>
+      {/* <DialogOverlay className={'bg-slate-950/40'} /> */}
+      <DialogContent className={`min-w-fit ${contentClass}`} overlayClassName={'bg-slate-950/40'}>
         {children}
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   )
 }
 

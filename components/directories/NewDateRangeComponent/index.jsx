@@ -104,11 +104,11 @@ const PRESET_GROUPS = {
   ],
 }
 
-export default observer(function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null } }) {
+export default observer(function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null }, onSetPresent, present = '', onClear }) {
   const t = useTranslations('NewDateRangeComponent')
   const [startDate, setStartDate] = useState(value?.start)
   const [endDate, setEndDate] = useState(value?.end)
-  const [activePreset, setActivePreset] = useState(value?.start ? null : 'year')
+  const [activePreset, setActivePreset] = useState(present)
   const [dateType, setDateType] = useState()
 
   const wrapperRef = useRef(null)
@@ -118,8 +118,8 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
   useEffect(() => {
     setStartDate(value?.start || null)
     setEndDate(value?.end || null)
-    setActivePreset(value?.start ? 'year' : null)
-  }, [value?.start, value?.end])
+    setActivePreset(present)
+  }, [value?.start, value?.end, present])
 
   const handlePreset = (key) => {
     const [s, e] = getPresetRange(key)
@@ -135,13 +135,16 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
     setActivePreset(null)
     onChange?.({ start: defaultValue?.start, end: defaultValue?.end })
     setOpen(false)
+    onClear?.()
   }
 
   const handleApply = () => {
     if (singleDateMode) {
       onChange?.({ start: startDate, end: startDate })
+      onSetPresent?.(activePreset)
     } else {
       onChange?.({ start: startDate, end: endDate })
+      onSetPresent?.(activePreset)
     }
     setOpen(false)
   }

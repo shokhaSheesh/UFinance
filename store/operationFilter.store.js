@@ -38,6 +38,9 @@ class OperationFilterStore {
 	accrualDateEnd = ''
 	deals = []
 
+	dateRangeTypeOplata = ''
+	dateRangeTypeNachisleniya = ''
+
 	constructor() {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
@@ -64,6 +67,8 @@ class OperationFilterStore {
 					'accrualDateStart',
 					'accrualDateEnd',
 					'deals',
+					'dateRangeTypeOplata',
+					'dateRangeTypeNachisleniya'
 				],
 				storage: window.localStorage,
 				debugMode: true,
@@ -89,7 +94,6 @@ class OperationFilterStore {
 	}
 
 	setState(state, value) {
-		console.log(state, value)
 		this[state] = value
 	}
 
@@ -240,6 +244,8 @@ class OperationFilterStore {
 		this.accrualConfirm = true
 		this.accrualNotConfirm = true
 		this.deals = []
+		this.dateRangeTypeNachisleniya = ''
+		this.dateRangeTypeOplata = ''
 	}
 }
 

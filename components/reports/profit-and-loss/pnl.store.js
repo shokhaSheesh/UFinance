@@ -31,6 +31,7 @@ class PnLStore {
 	selectedCounterparties = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
 	selectedCurrency = GlobalCurrency.code || 'UZS'
+	dateRangeType = 'year'
 
 	constructor() {
 		makeAutoObservable(this)
@@ -48,6 +49,7 @@ class PnLStore {
 					'deals',
 					'isCalculation',
 					'dateRange',
+					'dateRangeType'
 				],
 				storage: window.localStorage,
 				debugMode: true,
@@ -62,6 +64,9 @@ class PnLStore {
 		} else {
 			this.dateRange = { start: val?.start, end: val?.end }
 		}
+	}
+	setDateRangeType(type) {
+		this.dateRangeType = type
 	}
 	setSelectedPeriod(val) {
 		this.selectedPeriod = val
@@ -114,6 +119,7 @@ class PnLStore {
 		this.selectedLegalEntities = []
 		this.selectedCounterparties = []
 		this.selectedCurrency = GlobalCurrency.code || 'UZS'
+		this.dateRangeType = 'year'
 	}
 }
 

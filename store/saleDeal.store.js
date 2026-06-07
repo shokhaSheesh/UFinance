@@ -18,6 +18,8 @@ class SealDeal {
   status = []
   isCalculation = false
 
+  dateRangeType = ''
+
   constructor() {
     makeAutoObservable(this)
 
@@ -38,6 +40,7 @@ class SealDeal {
           "profitTo",
           "status",
           "isCalculation",
+          'dateRangeType'
         ],
         storage: window.localStorage,
         debugMode: true,
@@ -63,6 +66,7 @@ class SealDeal {
     this.profitTo = ''
     this.status = []
     this.isCalculation = false
+    this.dateRangeType = ''
 
   }
 }

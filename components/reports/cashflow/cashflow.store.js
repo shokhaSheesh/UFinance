@@ -23,6 +23,7 @@ class CashFlowStore {
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
 	accountId = []
 	dealId = [] // these are same values
+	dateRangeType = 'year'
 
 	constructor() {
 		makeAutoObservable(this)
@@ -38,6 +39,7 @@ class CashFlowStore {
 					'contrAgentId',
 					'accountId',
 					'dealId',
+					'dateRangeType'
 				],
 				storage: window.localStorage,
 				debugMode: true,
@@ -54,6 +56,9 @@ class CashFlowStore {
 			this.periodStartDate = range.start
 			this.periodEndDate = range.end
 		}
+	}
+	setDateRangeType(type) {
+		this.dateRangeType = type
 	}
 
 	setPeriodType(value) {
@@ -85,6 +90,7 @@ class CashFlowStore {
 		this.contrAgentId = []
 		this.accountId = []
 		this.dealId = []
+		this.dateRangeType = 'year'
 	}
 }
 

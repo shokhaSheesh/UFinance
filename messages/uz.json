@@ -1719,7 +1719,7 @@
 				"amount": "Summa",
 				"total": "Jami:",
 				"deleteOperationTitle": "Operatsiyani o'chirish",
-				"deleteOperationConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+				"deleteOperationConfirm": "Siz haqiqatan ham summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
 				"cancel": "Bekor qilish",
 				"delete": "O'chirish",
 				"emptyTitle": "Bitim bo'yicha kirimlarni qo'shing",

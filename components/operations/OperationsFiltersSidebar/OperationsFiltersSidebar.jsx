@@ -200,7 +200,7 @@ export const OperationsFiltersSidebar = observer(({
 
         {/* Дата оплаты - упрощенная версия, полная версия будет в отдельном компоненте */}
         <FilterSection title={t('filters.paymentDate')} className="mb-5">
-          <div className="space-y-3">
+          <div className="space-y-3 flex items-start flex-col">
             <OperationCheckbox
               checked={paymentConfirm}
               onChange={(event) => operationFilterStore.setState('paymentConfirm', event.target?.checked)}
@@ -216,11 +216,14 @@ export const OperationsFiltersSidebar = observer(({
           <NewDateRangeComponent
             value={selectedDatePaymentRange}
             onChange={(val) => operationFilterStore.setSelectedDatePaymentRange(val)}
+            present={operationFilterStore.dateRangeTypeOplata}
+            onSetPresent={(present) => operationFilterStore.setState('dateRangeTypeOplata', present)}
+            onClear={() => operationFilterStore.setState('dateRangeTypeOplata', '')}
           />
         </FilterSection>
 
         <FilterSection title={t('filters.accrualDate')} className="mb-5">
-          <div className="space-y-3">
+          <div className="space-y-3 flex items-start flex-col">
             <OperationCheckbox
               checked={accrualConfirm}
               onChange={(event) => operationFilterStore.setState('accrualConfirm', event.target?.checked)}
@@ -236,6 +239,11 @@ export const OperationsFiltersSidebar = observer(({
           <NewDateRangeComponent
             value={selectedDateStartRange}
             onChange={(val) => operationFilterStore.setSelectedDateStartRange(val)}
+            present={operationFilterStore.dateRangeTypeNachisleniya}
+            onSetPresent={(present) => {
+              operationFilterStore.setState('dateRangeTypeNachisleniya', present)
+            }}
+            onClear={() => operationFilterStore.setState('dateRangeTypeNachisleniya', '')}
           />
         </FilterSection>
 

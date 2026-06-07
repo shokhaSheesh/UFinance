@@ -1,0 +1,2090 @@
+{
+	"filter": "Filters",
+	"search": "Search...",
+	"Common": {
+		"loading": "Loading...",
+		"pay": "Payment",
+		"noName": "Untitled",
+		"search": "Search...",
+		"parameters": "Parameters",
+		"searching": "Searching...",
+		"empty": "No results found",
+		"noGroup": "No group",
+		"selectAll": "Select all",
+		"selected": "Selected: {{count}}",
+		"create": "Create",
+		"save": "Save",
+		"cancel": "Cancel",
+		"creating": "Creating...",
+		"saving": "Saving...",
+		"delete": "Delete",
+		"edit": "Edit",
+		"copy": "Copy",
+		"close": "Close",
+		"rootElement": "Root element",
+		"createAsRoot": "Create as root element",
+		"placeholders": {
+			"select": "Select...",
+			"selectAccount": "Select account",
+			"selectAccounts": "Select accounts",
+			"selectCounterparty": "Select counterparty",
+			"selectCounterparties": "Select counterparties",
+			"selectStatiya": "Select category",
+			"selectStatii": "Select categories",
+			"selectLegalEntity": "Select legal entity",
+			"selectDeal": "Select deal",
+			"selectDeals": "Select deals",
+			"selectProduct": "Select product or service",
+			"selectCurrency": "Select currency",
+			"selectGroup": "Select group",
+			"selectCounterpartyGroup": "Select counterparty group"
+		},
+		"deleteConfirmTitle": "Confirm deletion",
+		"tooltips": {
+			"editGroup": "Edit group",
+			"deleteGroup": "Delete group",
+			"edit": "Edit",
+			"delete": "Delete",
+			"createChild": "Create subcategory",
+			"createCounterparty": "Create counterparty"
+		},
+		"selects": {
+			"placeholder": "Select",
+			"searchInList": "Search in list",
+			"search": "Search...",
+			"notFound": "Not found",
+			"selectedPrefix": "Selected"
+		},
+		"createAccount": "Create account",
+		"createLegalEntity": "Create legal entity"
+	},
+	"Auth": {
+		"title": {
+			"login": "Sign in",
+			"register": "Sign up",
+			"forgot": "Password recovery"
+		},
+		"fields": {
+			"branchName": "Organization name",
+			"name": "Full name",
+			"email": "Email",
+			"phone": "+998 XX XXX XX XX",
+			"password": "Password",
+			"passwordCreate": "Create password"
+		},
+		"errors": {
+			"branchNameRequired": "Enter organization name",
+			"nameRequired": "Enter full name",
+			"emailRequired": "Enter email",
+			"emailInvalid": "Invalid email format",
+			"phoneIncomplete": "Enter complete phone number",
+			"termsRequired": "You must agree to the terms",
+			"passwordRequired": "Enter password"
+		},
+		"forgotPasswordLink": "Forgot password?",
+		"termsCheckboxPrefix": "I ",
+		"termsCheckboxAccent": "agree",
+		"termsCheckboxSuffix": " to receive informational and reference materials",
+		"actions": {
+			"backToLoginPrefix": "Back to ",
+			"backToLoginLink": "sign in",
+			"noAccount": "Don't have an account? ",
+			"hasAccount": "Already have an account? ",
+			"toRegister": "Sign up",
+			"toLogin": "Sign in"
+		},
+		"submit": {
+			"login": "Sign in",
+			"register": "Sign up",
+			"forgot": "Submit"
+		},
+		"termsNoticePrefix": "By clicking \"",
+		"termsNoticeSuffix": "\", you confirm ",
+		"termsNoticeLink": "Privacy Policy",
+		"notifications": {
+			"loginSuccess": "Successfully signed in!",
+			"loginError": "Email or password is incorrect, please try again.",
+			"registerSuccess": "Successfully registered!",
+			"registerError": "Error: token or user data not received",
+			"registerGenericError": "Registration error",
+			"registerExistEmailError": "This email already exists.",
+			"forgotSuccess": "Password recovery instructions have been sent to your email",
+			"forgotError": "Error sending request"
+		}
+	},
+	"Sidebar": {
+		"nav": {
+			"indicators": "Dashboard",
+			"operations": "Transactions",
+			"counterparties": "Counterparties",
+			"deals": "Deals",
+			"reports": "Reports",
+			"directories": "Directories",
+			"settings": "Settings",
+			"plans": "Budgets"
+		},
+		"reports": {
+			"cashflow": "Cash Flow Statement",
+			"pnl": "Profit & Loss (P&L)",
+			"balance": "Balance Sheet",
+			"students": "Students"
+		},
+		"directories": {
+			"counterparties": "Counterparties",
+			"transactionCategories": "Chart of Accounts",
+			"accounts": "My Accounts",
+			"legalEntities": "My Legal Entities",
+			"productsServices": "Products & Services"
+		},
+		"transactionCategories": {
+			"pageTitle": "Chart of Accounts",
+			"create": "Create",
+			"searchPlaceholder": "Search by name",
+			"loading": "Loading",
+			"error": "Error",
+			"errorLoading": "Failed to load data",
+			"noResults": "No results found",
+			"noData": "No data to display",
+			"deleteError": "Failed to delete account category",
+			"tabs": {
+				"income": "Revenue",
+				"expense": "Expenses",
+				"assets": "Assets",
+				"liabilities": "Liabilities",
+				"capital": "Equity"
+			},
+			"categories": {
+				"income": "Revenue",
+				"expense": "Expenses",
+				"assets": "Assets",
+				"liabilities": "Liabilities",
+				"capital": "Equity"
+			},
+			"info": {
+				"title": "This chart shows how account categories contribute to the Balance Sheet report"
+			},
+			"reports": {
+				"cashFlow": {
+					"title": "Cash Flow",
+					"operational": "Operating cash flow",
+					"investment": "Investing cash flow",
+					"financial": "Financing cash flow",
+					"receipts": "Receipts",
+					"payments": "Payments",
+					"total": "TOTAL CASH FLOW"
+				},
+				"pAndL": {
+					"title": "Profit & Loss",
+					"income": "Revenue",
+					"incomeItems": {
+						"goodsSales": "Goods sales",
+						"services": "Services rendered",
+						"other": "Other income"
+					},
+					"expenses": "Expenses",
+					"minus": "minus",
+					"expenseItems": {
+						"productionStaff": "Production staff",
+						"goodsPurchase": "Cost of goods",
+						"adminStaff": "Administrative staff",
+						"rent": "Rent",
+						"other": "Other expenses",
+						"bankServices": "Bank charges",
+						"soon": "coming soon",
+						"exchangeDiff": "Foreign exchange loss",
+						"depreciation": "Depreciation",
+						"interest": "Interest",
+						"incomeTax": "Income tax"
+					},
+					"undistributedProfit": "RETAINED EARNINGS"
+				},
+				"balance": {
+					"title": "Balance Sheet",
+					"currentAssets": {
+						"title": "Current assets",
+						"receivables": "Accounts receivable",
+						"cash": "Cash & cash equivalents",
+						"inventory": "Inventory",
+						"other": "Other current assets",
+						"advancePayments": "Prepaid expenses",
+						"loansShort": "Short-term loans issued (< 1 year)"
+					},
+					"nonCurrentAssets": {
+						"title": "Non-current assets",
+						"and": "And",
+						"fixedAssets": "Fixed assets",
+						"equipment": "Equipment",
+						"transport": "Vehicles",
+						"other": "Other non-current assets",
+						"loansLong": "Long-term loans issued (> 1 year)",
+						"financialInvestments": "Financial investments",
+						"intangible": "Intangible assets"
+					},
+					"totalAssets": "TOTAL ASSETS",
+					"currentLiabilities": {
+						"title": "Current liabilities",
+						"payables": "Accounts payable",
+						"other": "Other current liabilities",
+						"thirdParty": "Third-party payments",
+						"loansShort": "Short-term borrowings (< 1 year)"
+					},
+					"longTermLiabilities": {
+						"title": "Long-term liabilities",
+						"fin": "F",
+						"credits": "Loans",
+						"other": "Other long-term liabilities",
+						"loansLong": "Long-term borrowings (> 1 year)"
+					},
+					"totalLiabilities": "TOTAL LIABILITIES",
+					"capital": {
+						"title": "Equity",
+						"fin": "F",
+						"founderInvestments": "Owner's equity",
+						"plus": "plus",
+						"undistributedProfit": "Retained earnings"
+					},
+					"totalCapital": "TOTAL EQUITY",
+					"balanceEquation": "ASSETS = LIABILITIES + EQUITY"
+				}
+			}
+		},
+		"plans": {
+			"cash_flow_budget": "Cash Flow Budget",
+			"income_expense_budget": "Income & Expense Budget",
+			"payment_calendar": "Payment Calendar"
+		},
+		"apiModal": {
+			"title": "Local API Configuration",
+			"label": "Local API URL",
+			"placeholder": "https://your-local-api-url.com",
+			"savedNotice": "URL is already saved and cannot be changed",
+			"cancel": "Cancel",
+			"clear": "Clear",
+			"save": "Save"
+		}
+	},
+	"Header": {
+		"branches": {
+			"selectPlaceholder": "Select branch"
+		},
+		"profile": {
+			"fallbackName": "User",
+			"logout": "Sign out"
+		},
+		"balance": {
+			"label": "Account balances",
+			"viewCompact": "Compact",
+			"viewFull": "Full",
+			"collapse": "Collapse",
+			"expand": "Expand",
+			"emptyGroup": "Move accounts to this group"
+		}
+	},
+	"Operations": {
+		"page": {
+			"title": "Transactions",
+			"create": "Create",
+			"import": "Import",
+			"export": "Export to Excel",
+			"searchPlaceholder": "By account, counterparty, or category",
+			"delete": "Delete",
+			"noData": "No data",
+			"sectionToday": "Today",
+			"sectionBefore": "Yesterday and earlier",
+			"fileDownloaded": "File downloaded successfully.",
+			"importedSuccess": "Transactions imported successfully.",
+			"importErrorPrefix": "Import completed with errors:",
+			"importFailed": "Failed to import transactions.",
+			"importErrorTitle": "Import issues",
+			"importErrorDescription": "Errors were found in your xlsx file. Please download the error file to see details.",
+			"downloadErrorFile": "Download error file",
+			"cancel": "Cancel"
+		},
+		"columns": {
+			"date": "Date",
+			"account": "Account",
+			"paymentType": "Payment type",
+			"type": "Type",
+			"counterparty": "Counterparty",
+			"statya": "Category",
+			"deal": "Deal",
+			"amount": "Amount"
+		},
+		"filters": {
+			"operationType": "Transaction type",
+			"paymentDate": "Payment date",
+			"accrualDate": "Accrual date",
+			"parameters": "Parameters",
+			"confirmed": "Confirmed",
+			"notConfirmed": "Unconfirmed",
+			"income": "Receipt",
+			"payout": "Payment",
+			"transfer": "Transfer",
+			"writeOff": "Write-off",
+			"enrollment": "Deposit",
+			"accrual": "Accrual",
+			"debit": "Debit",
+			"credit": "Credit",
+			"shipment": "Shipment",
+			"legalEntitiesPlaceholder": "Legal entities & accounts",
+			"counterpartiesPlaceholder": "Counterparties",
+			"chartOfAccountsPlaceholder": "Account categories",
+			"dealsPlaceholder": "Deals",
+			"paymentTypePlaceholder": "Payment type",
+			"amountFrom": "Amount from",
+			"amountTo": "to"
+		},
+		"paymentTypes": {
+			"cash": "Cash",
+			"card": "Card",
+			"transfer": "Bank transfer"
+		},
+		"footer": {
+			"operations": "transactions",
+			"receipts": "receipts:",
+			"payments": "payments:",
+			"transfers": "transfers:",
+			"total": "Total:"
+		},
+		"deleteModal": {
+			"title": "Confirm deletion",
+			"confirmation": "Are you sure you want to delete this transaction?",
+			"description": "Description:",
+			"amount": "Amount:",
+			"date": "Date:",
+			"cancel": "Cancel",
+			"delete": "Delete"
+		},
+		"menu": {
+			"edit": "Edit",
+			"copy": "Copy",
+			"delete": "Delete",
+			"createdLabel": "Created",
+			"updatedLabel": "Modified"
+		},
+		"modal": {
+			"createTitle": "Create transaction",
+			"editTitle": "Edit transaction",
+			"createdAt": "Created {date}",
+			"tabIncome": "Receipt",
+			"tabPayment": "Payment",
+			"tabTransfer": "Transfer",
+			"tabAccrual": "Accrual",
+			"cancel": "Cancel",
+			"create": "Create",
+			"save": "Save"
+		},
+		"forms": {
+			"paymentDate": "Payment date",
+			"confirmPayment": "Confirm payment",
+			"accountAndLegalEntity": "Account and legal entity",
+			"selectAccountError": "Select an account and legal entity",
+			"legalEntityPlaceholder": "Legal entities & accounts",
+			"amount": "Amount",
+			"amountPlaceholder": "Amount",
+			"amountZero": "0",
+			"accrualDate": "Accrual date",
+			"confirmAccrual": "Confirm accrual",
+			"counterparty": "Counterparty",
+			"counterpartyPlaceholder": "Not selected.",
+			"statya": "Category",
+			"statyaIncomePlaceholder": "Unallocated revenue",
+			"statyaPaymentPlaceholder": "Unallocated expense",
+			"paymentType": "Payment type",
+			"paymentTypePlaceholder": "Select payment type...",
+			"salesDeal": "Sales deal",
+			"salesDealPlaceholder": "Select deal...",
+			"purpose": "Payment purpose",
+			"purposePlaceholder": "Payment purpose",
+			"purposeRequired": "Enter payment purpose",
+			"selectDate": "Select date",
+			"debit": "Debit",
+			"credit": "Credit",
+			"debitArticle": "Debit category",
+			"debitArticleRequired": "Select debit category",
+			"debitArticlePlaceholder": "Select debit category...",
+			"creditArticle": "Credit category",
+			"creditArticleRequired": "Select credit category",
+			"creditArticlePlaceholder": "Select credit category...",
+			"legalEntity": "Legal entity",
+			"legalEntityRequired": "Select legal entity",
+			"legalEntityPlaceholderEntity": "Select legal entity...",
+			"selectCurrencyRequired": "Select currency",
+			"sellingDealPlaceholder": "Select sales deal...",
+			"fromAccountRequired": "Select source account",
+			"toAccountRequired": "Select destination account",
+			"purposeShort": "Purpose",
+			"purposeShortRequired": "Enter purpose",
+			"fromSection": "FROM",
+			"toSection": "TO",
+			"transferDate": "Date",
+			"writeOffAmount": "Write-off amount",
+			"enrollAmount": "Deposit amount",
+			"enrollAmountRequired": "Enter deposit amount",
+			"canAllowOpiu": "Include in P&L using cash method",
+			"create": "Create",
+			"save": "Save",
+			"cancel": "Cancel"
+		},
+		"splitAmount": {
+			"cancelSplit": "Cancel split",
+			"splitAmount": "Split amount",
+			"accrualDate": "Accrual date",
+			"confirm": "Confirm",
+			"counterparty": "Counterparty",
+			"counterpartyPlaceholder": "Not selected",
+			"statya": "Category",
+			"statyaPlaceholder": "Select category...",
+			"amount": "Amount",
+			"share": "Share",
+			"addRow": "Add row",
+			"removeRow": "Remove row",
+			"decreaseBy": "Decrease by",
+			"total": "Total:",
+			"cancelDialogText": "Please confirm that you want to cancel the amount split. This will delete the previously entered data.",
+			"back": "Back",
+			"confirmAction": "Confirm",
+			"splitAccrual": "Accrual",
+			"splitCounterparty": "Counterparty",
+			"splitStatya": "Category"
+		},
+		"comments": {
+			"plugTitle": "Attach files to transactions, such as invoices or bills, and add comments",
+			"plugMaxFiles": "Up to 10 files per transaction",
+			"plugMaxSize": "Maximum file size — 5 MB",
+			"plugFormatsLabel": "Supported formats:",
+			"plugFormats": "pdf, doc, docx, xls, xlsx, jpeg, png, zip, rar, txt, csv, xml",
+			"placeholder": "Write a comment",
+			"attachFile": "Attach file",
+			"send": "Send",
+			"edit": "Edit",
+			"delete": "Delete",
+			"cancel": "Cancel",
+			"save": "Save",
+			"download": "Download",
+			"removeFile": "Remove file",
+			"deleteCommentTitle": "Delete comment",
+			"deleteCommentTextStart": "Are you sure you want to delete this comment? It will be ",
+			"deleteCommentTextEnd": ".",
+			"deleteCommentImpossible": "irreversible",
+			"deleteCancel": "Cancel",
+			"deleteConfirm": "Delete"
+		},
+		"row": {
+			"accrualPlaceholder": "[Accrual]",
+			"counterpartiesCount": "{count} [counterparties]",
+			"statyaCount": "{count} [categories]",
+			"dealsCount": "2 [deals]",
+			"transferWriteOff": "[Transfer write-off]",
+			"transferEnrollment": "[Transfer deposit]",
+			"byDebit": "[by debit]",
+			"byCredit": "[by credit]"
+		}
+	},
+	"Reports": {
+		"common": {
+			"downloadExcel": "Export to Excel",
+			"buildingMethod": "Report method",
+			"total": "Total",
+			"period": "Period",
+			"allDeals": "All deals",
+			"allCounterparties": "All counterparties",
+			"legalEntitiesAndAccounts": "Legal entities & accounts",
+			"fileDownloaded": "File downloaded successfully.",
+			"accountingMethod": "Accounting method",
+			"date": "Date",
+			"counterparty": "Counterparty",
+			"counterpartyGroup": "Counterparty group",
+			"deals": "Deals"
+		},
+		"cashflow": {
+			"title": "Cash Flow Statement",
+			"articleHeader": "By account categories",
+			"grouping": {
+				"daily": "Daily",
+				"monthly": "Monthly",
+				"quarterly": "Quarterly",
+				"yearly": "Yearly"
+			}
+		},
+		"paymentCalendar": {
+			"title": "Payment Calendar"
+		},
+		"pnl": {
+			"title": "Profit & Loss Statement (P&L)",
+			"grouping": {
+				"daily": "Daily",
+				"weekly": "Weekly",
+				"monthly": "Monthly"
+			},
+			"accounting": {
+				"accrual": "Accrual method",
+				"cash": "Cash method"
+			},
+			"article": "Category",
+			"emptyPeriod": "Select a period to display the report",
+			"emptyHint": "Use the filters on the left to configure report parameters",
+			"profitTypes": "Profit types",
+			"operational": "Operating"
+		},
+		"balance": {
+			"title": "Balance Sheet",
+			"formula": "Assets = Liabilities + Equity",
+			"accountHeader": "ACCOUNT",
+			"errorLoading": "Error loading data:",
+			"retry": "Retry"
+		},
+		"students": {
+			"title": "Monthly Student Report",
+			"accounting": {
+				"accrual": "Accrual method",
+				"cash": "Cash method"
+			},
+			"statusTile": "Status",
+			"columns": {
+				"fio": "Full name",
+				"group": "Group",
+				"status": "Status",
+				"plan": "Plan",
+				"fact": "Actual",
+				"difference": "Variance",
+				"totalPlan": "Total plan",
+				"totalFact": "Total actual",
+				"totalDifference": "Total variance"
+			},
+			"status": {
+				"active": "Active",
+				"passive": "Inactive"
+			}
+		}
+	},
+	"NewDateRangeComponent": {
+		"selectDate": "Select date",
+		"selectPeriod": "Select period",
+		"specifyPrefix": "Specify ",
+		"periodWord": "period",
+		"start": "Start",
+		"end": "End",
+		"reset": "Reset",
+		"apply": "Apply",
+		"presets": {
+			"yesterday": "Yesterday",
+			"today": "Today",
+			"prevWeek": "Last week",
+			"week": "This week",
+			"prevMonth": "Last month",
+			"month": "This month",
+			"prevQuarter": "Last quarter",
+			"quarter": "This quarter",
+			"prevYear": "Last year",
+			"year": "This year"
+		}
+	},
+	"OperationCashFlowModal": {
+		"title": "Transactions",
+		"reportPeriod": "Report period",
+		"operationsSum": "Transaction total",
+		"date": "Date ▾",
+		"type": "Type",
+		"from": "From",
+		"counterparty": "Counterparty",
+		"to": "To",
+		"article": "Category",
+		"amount": "Amount",
+		"noData": "No data",
+		"after": "Upcoming",
+		"today": "Today",
+		"before": "Past",
+		"openInOperations": "Open in Transactions",
+		"close": "Close"
+	},
+	"Deals": {
+		"pageTitle": "Sales Deals",
+		"createDeal": "Create",
+		"createStudent": "Create student",
+		"searchPlaceholder": "Search by name",
+		"downloadExcel": "Export to Excel",
+		"fileDownloaded": "File downloaded successfully.",
+		"methods": {
+			"accrual": "Accrual method",
+			"cash": "Cash method"
+		},
+		"table": {
+			"date": "Date",
+			"name": "Name",
+			"client": "Client",
+			"status": "Status",
+			"dealAmount": "Deal amount",
+			"received": "Received",
+			"shipped": "Shipped",
+			"profit": "Profit"
+		},
+		"empty": "No data",
+		"statusNew": "New",
+		"tooltips": {
+			"editContract": "Edit contract",
+			"downloadContract": "Download contract",
+			"edit": "Edit",
+			"copy": "Copy",
+			"delete": "Delete"
+		},
+		"footer": {
+			"dealsCount": "{count} deals totaling:",
+			"totalProfit": "Total profit:"
+		},
+		"detail": {
+			"backToList": "Sales Deals",
+			"noName": "Untitled",
+			"actions": {
+				"edit": "Edit",
+				"delete": "Delete"
+			},
+			"cards": {
+				"type": "Type",
+				"client": "Client",
+				"created": "Created",
+				"sale": "Sale",
+				"receipts": "Receipts",
+				"shipments": "Shipments to client",
+				"profit": "Deal profit",
+				"accounting": "Accounting",
+				"from": "of",
+				"received": "Received",
+				"clientDebt": "Client owes:",
+				"shipped": "Shipped",
+				"weOwe": "We owe:",
+				"profitability": "Profitability",
+				"income": "Revenue",
+				"expenses": "Expenses"
+			},
+			"accountingMethods": {
+				"accrual": "Accrual method",
+				"cash": "Cash method"
+			},
+			"tabs": {
+				"products": "Products & Services",
+				"receipts": "Receipts",
+				"expenses": "Expenses",
+				"shipments": "Shipments"
+			},
+			"tabDescriptions": {
+				"products": "Select products or services for sale",
+				"receipts": "Client payments for goods sold or services rendered",
+				"expenses": "Costs incurred for this deal",
+				"shipments": "Goods and services shipped to the client"
+			},
+			"searchPlaceholder": "Search",
+			"addButton": "Add",
+			"payment": {
+				"createPayment": "Create payment",
+				"paymentAmount": "Payment amount",
+				"enterAmount": "Enter amount",
+				"paymentLink": "Payment link",
+				"copy": "Copy",
+				"copied": "Copied",
+				"cancel": "Cancel",
+				"createLink": "Create link",
+				"creating": "Creating...",
+				"change_price": "Change price",
+				"send": "Send",
+				"sending": "Sending...",
+				"enterEmail": "Enter your email address.",
+				"emailSentSuccess": "Message sent successfully.",
+				"sendToEmail": "Send QR code to email",
+				"payment_rule": "If you don't specify a fixed amount, the payer can pay any amount."
+			}
+		},
+		"filters": {
+			"dealStatus": "Deal status",
+			"selectCounterparties": "Select counterparties",
+			"dealAmount": "Deal amount",
+			"dealProfit": "Deal profit",
+			"from": "From",
+			"to": "To"
+		},
+		"createDealModal": {
+			"titleNew": "New sale",
+			"titleEdit": "Edit sale",
+			"dealName": "Deal name",
+			"dealNamePlaceholder": "e.g., Website development",
+			"dealNameRequired": "Deal name is required",
+			"dealDate": "Deal date",
+			"dealDatePlaceholder": "Select date",
+			"client": "Client",
+			"clientPlaceholder": "Specify who will receive the goods or service",
+			"vat": "VAT",
+			"vatWith": "VAT inclusive",
+			"vatWithout": "VAT exclusive",
+			"vatPlaceholder": "Select option",
+			"comment": "Comment",
+			"cancel": "Cancel",
+			"create": "Create",
+			"save": "Save"
+		},
+		"createStudentModal": {
+			"titleNew": "New sale",
+			"titleEdit": "Edit sale",
+			"titlePreview": "Contract preview",
+			"titleEditSale": "Edit sale",
+			"titleNewSale": "New sale",
+			"contractNumber": "Contract number",
+			"contractNumberPlaceholder": "Enter contract number",
+			"contractNumberRequired": "Enter contract number",
+			"contractDate": "Contract date",
+			"contractDatePlaceholder": "Select date",
+			"contractDateRequired": "Select contract date",
+			"guardianName": "Guardian full name",
+			"guardianNamePlaceholder": "Enter guardian full name",
+			"guardianNameRequired": "Enter guardian full name",
+			"branchName": "Branch name",
+			"guardianType": "Select guardian type",
+			"guardianTypePlaceholder": "Select guardian type",
+			"guardianTypeRequired": "Select guardian type",
+			"addGuardianType": "Add guardian type",
+			"academicYear": "Select academic year",
+			"academicYearPlaceholder": "Select academic year",
+			"academicYearRequired": "Select academic year",
+			"phone1": "Phone 1",
+			"phone1Placeholder": "XX XXX XX XX",
+			"phone1Required": "Enter phone number",
+			"phone2": "Phone 2",
+			"phone2Placeholder": "XX XXX XX XX",
+			"studentName": "Student full name",
+			"studentNamePlaceholder": "Enter student full name",
+			"studentNameRequired": "Select student",
+			"passport": "Passport series and number",
+			"passportPlaceholder": "Enter passport series and number",
+			"passportRequired": "Enter passport series and number",
+			"pinfl": "Guardian PINFL",
+			"pinflPlaceholder": "Enter guardian PINFL",
+			"pinflRequired": "Enter guardian PINFL",
+			"pinflInvalid": "PINFL must contain 14 digits",
+			"issuedBy": "Issued by",
+			"issuedByPlaceholder": "Enter issuing authority",
+			"issuedByRequired": "Enter issuing authority",
+			"tariffName": "Tariff name",
+			"tariffPlaceholder": "Select tariff",
+			"birthDate": "Student date of birth",
+			"birthDateRequired": "Select date of birth",
+			"datePlaceholder": "Select date",
+			"validFrom": "Contract valid from",
+			"validFromRequired": "Select start date",
+			"gender": "Select gender",
+			"genderRequired": "Select gender",
+			"genderMale": "Male",
+			"genderFemale": "Female",
+			"validTo": "Contract valid to",
+			"validToRequired": "Select end date",
+			"class": "Class",
+			"classPlaceholder": "Enter class",
+			"classRequired": "Select class",
+			"addClass": "Add class",
+			"clientType": "Client type",
+			"clientTypePlaceholder": "Client type",
+			"passiveDate": "Inactive date",
+			"passiveDateRequired": "Select inactive date",
+			"status": "Status",
+			"statusPlaceholder": "Status",
+			"address": "Address",
+			"addressPlaceholder": "Address",
+			"addressRequired": "Enter address",
+			"language": "Select language",
+			"languageRequired": "Select language",
+			"languagePlaceholder": "Select language",
+			"chartOfAccounts": "Category",
+			"undistributedIncome": "Unallocated revenue",
+			"dealDatePlaceholder": "Select date",
+			"legalEntity": "Legal entities",
+			"legalEntityRequired": "Select legal entity",
+			"legalEntityPlaceholder": "Select legal entity",
+			"createClass": "Create class",
+			"editClass": "Edit class",
+			"classNamePlaceholder": "Enter class name",
+			"classCreated": "Class created successfully",
+			"classUpdated": "Class updated successfully",
+			"classDeleted": "Class deleted successfully",
+			"classCreateError": "Error creating class",
+			"guardianTypeCreated": "Guardian type created successfully",
+			"guardianTypeUpdated": "Guardian type updated successfully",
+			"guardianTypeDeleted": "Guardian type deleted successfully",
+			"guardianTypeCreateError": "Error creating guardian type",
+			"guardianTypeUpdateError": "Error updating guardian type",
+			"guardianTypeDeleteError": "Error deleting guardian type",
+			"contractTemplateLoading": "Loading contract template...",
+			"studentCreated": "Student created successfully",
+			"studentCreateError": "Error creating student",
+			"contractUpdated": "Contract updated successfully",
+			"contractUpdateError": "Error updating contract",
+			"cancel": "Cancel",
+			"save": "Save",
+			"statusActive": "Active",
+			"statusPassive": "Inactive",
+			"create": "Create",
+			"new": "New",
+			"old": "Old",
+			"showContractPreview": "Contract preview",
+			"preview": "Preview",
+			"edit": "Edit",
+			"delete": "Delete",
+			"saving": "Saving...",
+			"update": "Update",
+			"add": "Add",
+			"back": "Back",
+			"print": "Print",
+			"deleteConfirmation": "Confirm deletion",
+			"deleteClassConfirm": "Are you sure you want to delete class \"{name}\"?",
+			"deleteGuardianConfirm": "Are you sure you want to delete guardian type \"{name}\"?",
+			"className": "Class name",
+			"createGuardianType": "Create guardian type",
+			"editGuardianType": "Edit guardian type",
+			"guardianTypeName": "Guardian type name",
+			"guardianTypeNamePlaceholder": "Enter guardian type name"
+		},
+		"deleteDealModal": {
+			"title": "Confirm deletion",
+			"confirmation": "Are you sure you want to delete this deal?",
+			"nameLabel": "Name:",
+			"clientLabel": "Client:",
+			"amountLabel": "Amount:",
+			"noData": "—",
+			"cancel": "Cancel",
+			"delete": "Delete"
+		},
+		"commentChat": {
+			"title": "FILES & COMMENTS",
+			"emptyState": "Attach files and leave comments for yourself and your colleagues",
+			"edit": "Edit",
+			"save": "Save",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"writeComment": "Write a comment"
+		},
+		"createProductService": {
+			"titleNew": "Add product/service",
+			"titleEdit": "Edit product/service",
+			"product": "Item",
+			"productPlaceholder": "Select product or service",
+			"productRequired": "Select an item",
+			"quantity": "Quantity",
+			"quantityRequired": "Enter quantity",
+			"price": "Price",
+			"priceRequired": "Enter price",
+			"discount": "Discount (%)",
+			"nds": "VAT (%)",
+			"total": "Total",
+			"cancel": "Cancel",
+			"add": "Add",
+			"save": "Save",
+			"unit": "Unit",
+			"pricePerUnit": "Unit price"
+		},
+		"createShipment": {
+			"titleNew": "New shipment",
+			"titleEdit": "Edit shipment",
+			"shipmentDate": "Shipment date",
+			"shipmentDateRequired": "Select date",
+			"dealDatePlaceholder": "Select date",
+			"legalEntity": "Legal entity",
+			"legalEntityRequired": "Select legal entity",
+			"client": "Client",
+			"clientRequired": "Select client",
+			"products": "Products & Services",
+			"productsRequired": "Add at least one item",
+			"plannedShipment": "Planned shipment",
+			"productName": "Item",
+			"quantity": "Qty",
+			"price": "Price",
+			"discount": "Discount",
+			"nds": "VAT",
+			"sum": "Amount",
+			"addRow": "Add row",
+			"removeFromShipment": "Remove from shipment",
+			"selectPosition": "Select item",
+			"shipmentSum": "Shipment total",
+			"incomeArticle": "Revenue category",
+			"undistributedIncome": "Unallocated revenue",
+			"requiredFields": "Required fields",
+			"cancel": "Cancel",
+			"create": "Create",
+			"save": "Save"
+		}
+	},
+	"Settings": {
+		"pageTitle": "Settings",
+		"nav": {
+			"general": "General Settings",
+			"profile": "My Profile",
+			"branches": "Branches",
+			"currencies": "Currencies",
+			"roles": "Roles",
+			"contract": "Contracts"
+		},
+		"general": {
+			"pageTitle": "General Settings",
+			"account": {
+				"title": "Account settings",
+				"currency": "Base currency",
+				"placeholder": "Select currency"
+			},
+			"accounting": {
+				"title": "Accounting settings",
+				"operations": "Creating and editing transactions",
+				"paymentType": "Payment type",
+				"wlcm_title": "Create a personal account on WLCM.",
+				"wlcm": "Enter your WLCM.uz token",
+				"accrualDate": "Enable << Accrual date >> field when selecting a Deal"
+			},
+			"save": "Save",
+			"saving": "Saving...",
+			"success": "Settings saved successfully.",
+			"error": "Failed to save settings."
+		},
+		"profile": {
+			"pageTitle": "My Profile",
+			"fullName": "Full name",
+			"fullNamePlaceholder": "Enter full name",
+			"phone": "Phone",
+			"phonePlaceholder": "+998 XX XXX XX XX",
+			"save": "Save",
+			"saving": "Saving...",
+			"success": "Profile updated successfully",
+			"error": "Error updating profile",
+			"errors": {
+				"nameRequired": "Enter full name",
+				"phoneRequired": "Enter complete phone number"
+			},
+			"password": {
+				"title": "Change password",
+				"current": "Current password",
+				"currentPlaceholder": "Enter current password",
+				"new": "New password",
+				"newPlaceholder": "Enter new password",
+				"confirm": "Confirm password",
+				"confirmPlaceholder": "Repeat new password",
+				"change": "Change password",
+				"success": "Password changed successfully",
+				"error": "Error changing password",
+				"errors": {
+					"currentRequired": "Enter current password",
+					"newRequired": "Enter new password",
+					"minLength": "Password must be at least 6 characters",
+					"uppercase": "Password must contain an uppercase letter",
+					"lowercase": "Password must contain a lowercase letter",
+					"number": "Password must contain a number",
+					"confirmRequired": "Confirm new password",
+					"match": "Passwords do not match"
+				}
+			}
+		},
+		"branches": {
+			"pageTitle": "Branches",
+			"add": "Add",
+			"create": "Create branch",
+			"edit": "Edit branch",
+			"name": "Branch name",
+			"namePlaceholder": "Branch name",
+			"email": "Email",
+			"emailPlaceholder": "example@mail.com",
+			"username": "Username",
+			"usernamePlaceholder": "Username",
+			"phone": "Phone",
+			"phonePlaceholder": "+998 XX XXX XX XX",
+			"errors": {
+				"nameRequired": "Enter branch name",
+				"emailRequired": "Enter email",
+				"emailInvalid": "Invalid email format",
+				"usernameRequired": "Enter username",
+				"phoneInvalid": "Enter complete phone number (+998 XX XXX XX XX)",
+				"roleRequired": "Select a role"
+			},
+			"delete": {
+				"title": "Confirm deletion",
+				"confirm": "Are you sure you want to delete this branch?",
+				"name": "Name:",
+				"email": "Email:",
+				"user": "User:",
+				"cancel": "Cancel",
+				"delete": "Delete"
+			},
+			"warning": {
+				"title": "Warning",
+				"message": "You already have transactions, please delete them first.",
+				"understood": "Understood"
+			},
+			"empty": {
+				"title": "Create a branch",
+				"description": "Branches help compare profit and profitability across different parts of the business — such as orders, departments, or sales channels.",
+				"help": "For convenience, branches can be organized into groups.",
+				"video": "watch video",
+				"article": "read article"
+			},
+			"table": {
+				"name": "Branch name"
+			},
+			"admin": "Administrator",
+			"branchStaff": "Branch staff",
+			"staff": {
+				"name": "Name",
+				"email": "Email",
+				"phone": "Phone",
+				"role": "Role",
+				"actions": "Actions"
+			},
+			"addStaff": "Add employee",
+			"editStaff": "Edit employee",
+			"deleteStaffTitle": "Confirm deletion",
+			"deleteStaffConfirm": "Are you sure you want to delete this employee",
+			"noStaff": "No employees",
+			"userAdded": "User added successfully",
+			"userUpdated": "User updated successfully",
+			"userDeleted": "User deleted successfully"
+		},
+		"currencies": {
+			"pageTitle": "Central Bank Exchange Rates",
+			"updated": "updated",
+			"name": "Currency name",
+			"code": "Code",
+			"symbol": "Symbol",
+			"rate": "Rate"
+		},
+		"roles": {
+			"pageTitle": "Roles",
+			"add": "Add role",
+			"edit": "Edit role",
+			"name": "Role name",
+			"namePlaceholder": "Enter role name",
+			"description": "Description",
+			"noData": "No data",
+			"descriptionPlaceholder": "Enter role description",
+			"errors": {
+				"nameRequired": "Enter role name"
+			},
+			"permissions": {
+				"title": "Permissions",
+				"menu": "Menu",
+				"submenu": "Submenu",
+				"read": "View",
+				"add": "Create",
+				"edit": "Edit",
+				"delete": "Delete",
+				"sections": {
+					"indicators": "Dashboard",
+					"operations": "Transactions",
+					"income": "Receipt",
+					"expense": "Payment",
+					"transfer": "Transfer",
+					"accrual": "Accrual",
+					"shipment": "Shipment",
+					"deals": "Deals",
+					"reports": "Reports",
+					"cash_flow": "Cash Flow Statement",
+					"p_and_l": "Profit & Loss (P&L)",
+					"balance": "Balance Sheet",
+					"students_report": "Students",
+					"directories": "Directories",
+					"counterparties": "Counterparties",
+					"accounting_items": "Chart of Accounts",
+					"my_accounts": "My Accounts",
+					"my_entities": "My Legal Entities",
+					"products_and_services": "Products & Services",
+					"settings": "Settings",
+					"general_settings": "General Settings",
+					"my_profile": "My Profile",
+					"branches": "Branches",
+					"exchange_rates": "Exchange Rates",
+					"users": "Roles"
+				}
+			},
+			"delete": {
+				"confirm": "Are you sure you want to delete this role?"
+			}
+		},
+		"contract": {
+			"pageTitle": "Contracts",
+			"subtitle": "Contract list by branch",
+			"branch": "Branch",
+			"name": "Name",
+			"file": "File",
+			"actions": "Actions",
+			"edit": "Edit",
+			"empty": "No contracts found",
+			"editDialog": {
+				"title": "Edit contract",
+				"cancel": "Cancel",
+				"save": "Save",
+				"loading": "Loading contract...",
+				"saveError": "Failed to save contract",
+				"uploadError": "Failed to upload contract file"
+			}
+		},
+		"common": {
+			"save": "Save",
+			"saving": "Saving...",
+			"create": "Create",
+			"creating": "Creating...",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"edit": "Edit",
+			"add": "Add",
+			"noData": "No data",
+			"createdAt": "Date created",
+			"loading": "Loading...",
+			"role_error": "Cannot delete a role that is assigned to users"
+		},
+		"details": {
+			"emptyState": {
+				"addButton": "Add"
+			},
+			"status": {
+				"defaultStatus": "New",
+				"statusNamePlaceholder": "Status name",
+				"addStatus": "Add status",
+				"edit": "Edit",
+				"delete": "Delete",
+				"cancel": "Cancel",
+				"save": "Save"
+			},
+			"productServiceTable": {
+				"title": "Item",
+				"quantity": "Qty",
+				"unit": "Unit",
+				"pricePerUnit": "Unit price",
+				"discount": "Discount",
+				"vat": "VAT",
+				"sum": "Amount",
+				"selected": "selected",
+				"delete": "Delete",
+				"deletePositionsTitle": "Delete items from deal",
+				"deletePositionsConfirm": "Are you sure you want to delete {count} {count, plural, one {item} other {items}} from the deal?",
+				"cancel": "Cancel",
+				"emptyTitle": "Add products or services to the deal",
+				"emptySubtitle": "Add the goods or services you are buying or selling to your clients"
+			},
+			"incomeOperationsTable": {
+				"date": "Date",
+				"account": "Account",
+				"counterparty": "Counterparty",
+				"article": "Category",
+				"amount": "Amount",
+				"total": "Total:",
+				"deleteOperationTitle": "Delete transaction",
+				"deleteOperationConfirm": "Are you sure you want to delete the transaction for <strong>{amount}</strong>? <br />This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add receipts for this deal",
+				"emptySubtitle": "Track client payments to monitor deal fulfillment"
+			},
+			"expenseOperationsTable": {
+				"date": "Date",
+				"account": "Account",
+				"counterparty": "Counterparty",
+				"article": "Category",
+				"amount": "Amount",
+				"total": "Total:",
+				"accrual": "[Accrual]",
+				"deleteOperationTitle": "Delete transaction",
+				"deleteOperationConfirm": "Are you sure you want to delete the transaction for <strong>{amount}</strong>? <br />This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add expenses for this deal",
+				"emptySubtitle": "Track deal expenses to monitor the financial result"
+			},
+			"shipmentTable": {
+				"date": "Date",
+				"legalEntity": "Legal entity",
+				"counterparty": "Counterparty",
+				"composition": "Contents",
+				"article": "Category",
+				"amount": "Amount",
+				"position": "{count, plural, one {item} other {items}}",
+				"noName": "Untitled",
+				"goodsServices": "Goods/Services",
+				"unallocatedIncome": "Unallocated revenue",
+				"deleteShipmentTitle": "Delete shipment",
+				"deleteShipmentConfirm": "Are you sure you want to delete the shipment for <strong>{amount}</strong>? <br />This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add shipments to the deal",
+				"emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment"
+			}
+		},
+		"editDealModal": {
+			"title": "Edit sale",
+			"dealName": "Deal name",
+			"dealNamePlaceholder": "e.g., Website development",
+			"dealDate": "Deal date",
+			"dealDatePlaceholder": "MM/DD/YYYY",
+			"client": "Client",
+			"clientPlaceholder": "Specify who will receive the goods or service",
+			"vat": "VAT",
+			"vatWith": "VAT inclusive",
+			"comment": "Comment",
+			"commentPlaceholder": "Your comment or note about this deal",
+			"cancel": "Cancel",
+			"save": "Save"
+		}
+	},
+	"Directories": {
+		"counterparty": {
+			"createTitle": "Create counterparty",
+			"editTitle": "Edit counterparty",
+			"createGroupTitle": "Create group",
+			"tabCounterparty": "Create counterparty",
+			"tabGroup": "Create group",
+			"fields": {
+				"name": "Name",
+				"fullName": "Full name",
+				"group": "Counterparty group",
+				"inn": "Tax ID",
+				"kpp": "Tax registration code",
+				"accountNumber": "Account number",
+				"defaultArticles": "Apply default categories",
+				"articleIn": "Receipt category",
+				"articleOut": "Payment category",
+				"comment": "Comment",
+				"groupName": "Name",
+				"groupComment": "Comment"
+			},
+			"placeholders": {
+				"name": "e.g., Acme Corp",
+				"fullName": "e.g., Acme Corporation Ltd.",
+				"selectGroup": "Select counterparty group",
+				"inn": "Enter Tax ID",
+				"kpp": "Enter Tax registration code",
+				"account": "Enter account number",
+				"comment": "Note about counterparty",
+				"groupComment": "Note about counterparty group",
+				"groupName": "e.g., My suppliers"
+			},
+			"errors": {
+				"nameRequired": "Enter a name",
+				"groupNameRequired": "Enter a group name",
+				"createFailed": "Failed to create counterparty",
+				"createGroupFailed": "Failed to create counterparty group"
+			},
+			"save": "Save",
+			"saving": "Saving...",
+			"creating": "Creating...",
+			"cancel": "Cancel",
+			"create": "Create",
+			"requisites": "Details",
+			"groupNameLabel": "Group name:",
+			"groupDescriptionLabel": "Description:",
+			"deleteConfirmTitle": "Confirm deletion",
+			"deleteConfirmMessage": "Are you sure you want to delete this counterparty group?",
+			"pageTitle": "Counterparties",
+			"list": {
+				"title": "Counterparties",
+				"createButton": "Create",
+				"downloadExcel": "Export to Excel",
+				"searchPlaceholder": "Search...",
+				"viewModes": {
+					"list": "List",
+					"nested": "Nested view"
+				},
+				"tableHeaders": {
+					"counterparty": "Counterparty",
+					"group": "Group",
+					"inn": "Tax ID",
+					"operations": "Transactions",
+					"receivables": "Receivables",
+					"payables": "Payables",
+					"income": "Revenue",
+					"expense": "Expenses",
+					"profit": "Profit",
+					"receipts": "Receipts",
+					"payments": "Payments",
+					"difference": "Difference"
+				},
+				"filters": {
+					"parameters": "Parameters",
+					"period": "Analytics period",
+					"receivables": "Receivables",
+					"payables": "Payables",
+					"cash": "Cash-based",
+					"nonCash": "Non-cash",
+					"without": "No outstanding",
+					"selectChartOfAccounts": "Select account categories",
+					"selectDeals": "Select deals",
+					"selectLegalEntities": "Select legal entity"
+				},
+				"calculationOptions": {
+					"cashflow": "Cash flow accounting",
+					"cash": "Cash method accounting",
+					"calculation": "Accrual method accounting"
+				},
+				"empty": "No data",
+				"noCounterpartiesInGroup": "No counterparties",
+				"noName": "Untitled",
+				"noGroup": "No group",
+				"counterpartyCount": "{count} counterparty",
+				"counterpartyCountPlural": "{count} counterparties",
+				"counterpartyCountPluralMany": "{count} counterparties",
+				"summary": {
+					"receivables": "Receivables",
+					"payables": "Payables",
+					"receipts": "Receipts",
+					"payments": "Payments",
+					"difference": "Difference"
+				}
+			},
+			"detail": {
+				"backToList": "Counterparty list",
+				"notFound": "Counterparty not found",
+				"calculationOptions": {
+					"cashflow": "Cash flow accounting",
+					"cash": "Cash method accounting",
+					"calculation": "Accrual method accounting"
+				},
+				"operationsTitle": "Counterparty transactions",
+				"createOperation": "Create",
+				"filters": "Filters",
+				"stats": {
+					"receipts": "Receipts",
+					"payments": "Payments",
+					"difference": "Difference",
+					"receivables": "Receivables",
+					"payables": "Payables",
+					"noDebt": "No outstanding balance",
+					"income": "Revenue",
+					"expenses": "Expenses",
+					"profit": "Profit"
+				},
+				"info": {
+					"title": "Details",
+					"inn": "Tax ID",
+					"kpp": "Tax registration code",
+					"accountNumber": "Account no.",
+					"receiptArticle": "Receipt category",
+					"paymentArticle": "Payment category",
+					"comment": "Comment",
+					"noRequisites": "No counterparty details available",
+					"addRequisites": "Add",
+					"additionalKpp": "Additional tax codes",
+					"additionalAccounts": "Additional account numbers"
+				},
+				"table": {
+					"date": "Date",
+					"account": "Account",
+					"type": "Type",
+					"counterparty": "Counterparty",
+					"article": "Category",
+					"deal": "Deal",
+					"amount": "Amount"
+				},
+				"sections": {
+					"future": "Upcoming",
+					"today": "Today",
+					"before": "Yesterday and earlier"
+				},
+				"empty": {
+					"title": "Create transactions with this counterparty",
+					"description": "Add payments and track prepayments or deferred payments."
+				},
+				"footer": {
+					"operations": "transaction",
+					"operationsPlural": "transactions",
+					"operationsPluralMany": "transactions",
+					"receipts": "receipt",
+					"receiptsPlural": "receipts",
+					"receiptsPluralMany": "receipts",
+					"payments": "payment",
+					"paymentsPlural": "payments",
+					"paymentsPluralMany": "payments",
+					"total": "Total"
+				},
+				"actions": {
+					"edit": "Edit",
+					"delete": "Delete",
+					"deleting": "Deleting..."
+				}
+			}
+		},
+		"legalEntity": {
+			"createTitle": "Create legal entity",
+			"editTitle": "Edit legal entity",
+			"fields": {
+				"name": "Name",
+				"fullName": "Full name",
+				"innKpp": "Tax ID / Registration code",
+				"comment": "Comment"
+			},
+			"placeholders": {
+				"name": "e.g., Acme Corp",
+				"fullName": "e.g., Acme Corporation Ltd.",
+				"comment": "Add a brief note about this legal entity if needed"
+			},
+			"errors": {
+				"nameRequired": "Enter a name",
+				"createFailed": "Failed to create legal entity",
+				"updateFailed": "Failed to update legal entity"
+			},
+			"pageTitle": "My Legal Entities",
+			"searchPlaceholder": "Search by name",
+			"tableHeaders": {
+				"index": "#",
+				"shortName": "Short name",
+				"fullName": "Full name",
+				"inn": "Tax ID",
+				"kpp": "Tax code"
+			},
+			"loading": "Loading...",
+			"noResults": "No results found",
+			"noData": "No data",
+			"entityCount": "{count} {count, plural, one {legal entity} other {legal entities}}",
+			"deleteConfirmTitle": "Delete legal entity",
+			"deleteConfirmMessage": "Are you sure you want to delete legal entity \"{name}\"?",
+			"deleteWarning": "This action cannot be undone.",
+			"deleting": "Deleting..."
+		},
+		"accountGroup": {
+			"createTitle": "Create group",
+			"editTitle": "Edit group",
+			"fields": {
+				"name": "Group name",
+				"comment": "Comment"
+			},
+			"placeholders": {
+				"name": "Enter group name",
+				"comment": "Enter group description"
+			},
+			"errors": {
+				"nameRequired": "Group name is required",
+				"createFailed": "Error creating group"
+			}
+		},
+		"chartOfAccounts": {
+			"createTitle": "Create account category",
+			"deleteConfirmMessage": "Are you sure you want to delete category \"{name}\"?",
+			"editTitle": "Edit account category",
+			"tabs": {
+				"income": "Revenue",
+				"expense": "Expenses",
+				"assets": "Assets",
+				"liabilities": "Liabilities",
+				"capital": "Equity"
+			},
+			"fields": {
+				"name": "Name",
+				"parent": "Parent category",
+				"comment": "Comment"
+			},
+			"placeholders": {
+				"name": "Enter category name",
+				"selectParent": "Select parent category",
+				"comment": "Note about category"
+			},
+			"errors": {
+				"nameRequired": "Enter category name"
+			}
+		},
+		"account": {
+			"createTitle": "Create account",
+			"editTitle": "Edit account",
+			"fields": {
+				"name": "Name",
+				"group": "Group",
+				"legalEntity": "Legal entity",
+				"type": "Select account type",
+				"bik": "Routing number",
+				"bank": "Bank",
+				"accountNumber": "Account no.",
+				"corrAccount": "Correspondent account no.",
+				"number": "Number",
+				"initialBalance": "Opening balance",
+				"currency": "Select account currency",
+				"comment": "Comment"
+			},
+			"placeholders": {
+				"name": "e.g., Chase Business",
+				"selectLegalEntity": "Select legal entity or create new",
+				"selectType": "Select type",
+				"selectDate": "Select date",
+				"comment": "Your comment or note about this account"
+			},
+			"types": {
+				"type": "Type",
+				"cash": "Cash",
+				"nonCash": "Bank account",
+				"card": "Personal card",
+				"electronic": "E-wallet"
+			},
+			"requisites": {
+				"show": "Bank details",
+				"hide": "Hide bank details"
+			},
+			"errors": {
+				"nameRequired": "Enter a name",
+				"legalEntityRequired": "Select a legal entity"
+			},
+			"deleteConfirmMessage": "Are you sure you want to delete account \"{name}\"?",
+			"pageTitle": "My Accounts",
+			"createGroup": "Create group",
+			"selectAccounts": "Select accounts",
+			"selectLegalEntity": "Select legal entity",
+			"currentBalance": "Current balance",
+			"grouping": {
+				"none": "No grouping",
+				"groups": "By groups",
+				"legalEntities": "By legal entities"
+			},
+			"searchPlaceholder": "Search by name or number",
+			"tableHeaders": {
+				"name": "Name",
+				"accountNumber": "Account number",
+				"balance": "Current balance",
+				"initialBalance": "Opening balance",
+				"currency": "Currency",
+				"type": "Type",
+				"created": "Date created",
+				"legalEntity": "Legal entity",
+				"requisites": "Bank details"
+			},
+			"loading": "Loading...",
+			"noResults": "No results found",
+			"noData": "No data",
+			"accountCount": "{count} {count, plural, one {account} other {accounts}}"
+		},
+		"product": {
+			"createProductTitle": "Create product",
+			"editProductTitle": "Edit product",
+			"createServiceTitle": "Create service",
+			"editServiceTitle": "Edit service",
+			"createGroupTitle": "Create group",
+			"editGroupTitle": "Edit group",
+			"createAnother": "Create another product",
+			"fields": {
+				"type": "Type",
+				"name": "Product name",
+				"groupName": "Group name",
+				"groupComment": "Comment",
+				"article": "SKU",
+				"unit": "Unit of measure",
+				"group": "Product group",
+				"price": "Selling price",
+				"vat": "VAT",
+				"comment": "Comment"
+			},
+			"placeholders": {
+				"name": "e.g., Ceramic tiles",
+				"groupName": "e.g., Ceramic tiles",
+				"groupComment": "Add a comment to this group",
+				"article": "Enter SKU",
+				"selectUnit": "Select unit of measure",
+				"selectGroup": "Select group",
+				"price": "0.00",
+				"vat": "0%",
+				"comment": "Add a comment to this product"
+			},
+			"types": {
+				"products": "Products",
+				"services": "Services",
+				"all": "All"
+			},
+			"errors": {
+				"nameRequired": "Enter a name"
+			},
+			"pageTitle": "Products & Services",
+			"searchPlaceholder": "Search by name or SKU",
+			"noGroup": "No group",
+			"noName": "Untitled",
+			"loading": "Loading...",
+			"noResults": "No results found",
+			"noData": "No data",
+			"tableHeaders": {
+				"name": "Name",
+				"article": "SKU",
+				"group": "Group",
+				"price": "Price",
+				"unit": "Unit",
+				"vat": "VAT",
+				"priceWithVat": "Price incl. VAT",
+				"type": "Type",
+				"comment": "Comment"
+			},
+			"footer": {
+				"total": "{count} products & services"
+			},
+			"bulkDeleteTitle": "Delete selected items",
+			"bulkDeleteMessage": "Are you sure you want to delete {count} {count, plural, one {item} other {items}}?",
+			"deleteError": "Error deleting",
+			"grouping": {
+				"none": "No grouping",
+				"group": "By groups"
+			},
+			"selected": "Selected",
+			"successDeleted": "Successfully deleted",
+			"bulkSuccessDeleted": "Selected items deleted successfully",
+			"bulkDeleteError": "Error during bulk deletion"
+		},
+		"details": {
+			"status": {
+				"defaultStatus": "New",
+				"statusNamePlaceholder": "Status name",
+				"addStatus": "Add status",
+				"edit": "Edit",
+				"delete": "Delete",
+				"cancel": "Cancel",
+				"save": "Save"
+			},
+			"productServiceTable": {
+				"title": "Item",
+				"quantity": "Qty",
+				"unit": "Unit",
+				"pricePerUnit": "Unit price",
+				"discount": "Discount",
+				"vat": "VAT",
+				"sum": "Amount",
+				"selected": "selected",
+				"delete": "Delete",
+				"deletePositionsTitle": "Delete items from deal",
+				"deletePositionsConfirm": "Are you sure you want to delete {count} {count, plural, one {item} other {items}} from the deal?",
+				"cancel": "Cancel",
+				"emptyTitle": "Add products or services to the deal",
+				"emptySubtitle": "Add the goods or services you are buying or selling to your clients"
+			},
+			"incomeOperationsTable": {
+				"date": "Date",
+				"account": "Account",
+				"counterparty": "Counterparty",
+				"article": "Category",
+				"amount": "Amount",
+				"total": "Total:",
+				"deleteOperationTitle": "Delete transaction",
+				"deleteOperationConfirm": "Are you sure you want to delete this transaction? This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add receipts for this deal",
+				"emptySubtitle": "Track client payments to monitor deal fulfillment"
+			},
+			"expenseOperationsTable": {
+				"date": "Date",
+				"account": "Account",
+				"counterparty": "Counterparty",
+				"article": "Category",
+				"amount": "Amount",
+				"total": "Total:",
+				"accrual": "[Accrual]",
+				"deleteOperationTitle": "Delete transaction",
+				"deleteOperationConfirm": "Are you sure you want to delete this transaction? This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add expenses for this deal",
+				"emptySubtitle": "Track deal expenses to monitor the financial result"
+			},
+			"shipmentTable": {
+				"date": "Date",
+				"legalEntity": "Legal entity",
+				"counterparty": "Counterparty",
+				"composition": "Contents",
+				"article": "Category",
+				"amount": "Amount",
+				"position": "{count, plural, one {item} other {items}}",
+				"noName": "Untitled",
+				"goodsServices": "Goods/Services",
+				"unallocatedIncome": "Unallocated revenue",
+				"deleteShipmentTitle": "Delete shipment",
+				"deleteShipmentConfirm": "Are you sure you want to delete this shipment? This action cannot be undone.",
+				"cancel": "Cancel",
+				"delete": "Delete",
+				"emptyTitle": "Add shipments to the deal",
+				"emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment"
+			}
+		}
+	},
+	"TransactionCategories": {
+		"pageTitle": "Chart of Accounts",
+		"create": "Create",
+		"searchPlaceholder": "Search by name",
+		"loading": "Loading",
+		"error": "Error",
+		"errorLoading": "Failed to load data",
+		"noResults": "No results found",
+		"noData": "No data to display",
+		"deleteError": "Failed to delete account category",
+		"tabs": {
+			"income": "Revenue",
+			"expense": "Expenses",
+			"assets": "Assets",
+			"liabilities": "Liabilities",
+			"capital": "Equity"
+		},
+		"info": {
+			"title": "This chart shows how account categories contribute to the Balance Sheet report"
+		},
+		"reports": {
+			"cashFlow": {
+				"title": "Cash Flow",
+				"operational": "Operating cash flow",
+				"investment": "Investing cash flow",
+				"financial": "Financing cash flow",
+				"receipts": "Receipts",
+				"payments": "Payments",
+				"total": "TOTAL CASH FLOW"
+			},
+			"pAndL": {
+				"title": "Profit & Loss",
+				"income": "Revenue",
+				"incomeItems": {
+					"goodsSales": "Goods sales",
+					"services": "Services rendered",
+					"other": "Other income"
+				},
+				"expenses": "Expenses",
+				"minus": "minus",
+				"expenseItems": {
+					"productionStaff": "Production staff",
+					"goodsPurchase": "Cost of goods",
+					"adminStaff": "Administrative staff",
+					"rent": "Rent",
+					"other": "Other expenses",
+					"bankServices": "Bank charges",
+					"soon": "coming soon",
+					"exchangeDiff": "Foreign exchange loss",
+					"depreciation": "Depreciation",
+					"interest": "Interest",
+					"incomeTax": "Income tax"
+				},
+				"undistributedProfit": "RETAINED EARNINGS"
+			},
+			"balance": {
+				"title": "Balance Sheet",
+				"currentAssets": {
+					"title": "Current assets",
+					"receivables": "Accounts receivable",
+					"cash": "Cash & cash equivalents",
+					"inventory": "Inventory",
+					"other": "Other current assets",
+					"advancePayments": "Prepaid expenses",
+					"loansShort": "Short-term loans issued (< 1 year)"
+				},
+				"nonCurrentAssets": {
+					"title": "Non-current assets",
+					"and": "And",
+					"fixedAssets": "Fixed assets",
+					"equipment": "Equipment",
+					"transport": "Vehicles",
+					"other": "Other non-current assets",
+					"loansLong": "Long-term loans issued (> 1 year)",
+					"financialInvestments": "Financial investments",
+					"intangible": "Intangible assets"
+				},
+				"totalAssets": "TOTAL ASSETS",
+				"currentLiabilities": {
+					"title": "Current liabilities",
+					"payables": "Accounts payable",
+					"other": "Other current liabilities",
+					"thirdParty": "Third-party payments",
+					"loansShort": "Short-term borrowings (< 1 year)"
+				},
+				"longTermLiabilities": {
+					"title": "Long-term liabilities",
+					"fin": "F",
+					"credits": "Loans",
+					"other": "Other long-term liabilities",
+					"loansLong": "Long-term borrowings (> 1 year)"
+				},
+				"totalLiabilities": "TOTAL LIABILITIES",
+				"capital": {
+					"title": "Equity",
+					"fin": "F",
+					"founderInvestments": "Owner's equity",
+					"plus": "plus",
+					"undistributedProfit": "Retained earnings"
+				},
+				"totalCapital": "TOTAL EQUITY",
+				"balanceEquation": "ASSETS = LIABILITIES + EQUITY"
+			}
+		}
+	},
+	"Plans": {
+		"cashFlowBudget": {
+			"title": "Cash Flow Budget",
+			"searchPlaceholder": "Search by name",
+			"columns": {
+				"name": "Name",
+				"currency": "Currency",
+				"legalEntity": "Legal entity",
+				"project": "Project",
+				"period": "Period",
+				"modifiedDate": "Modified",
+				"modifiedBy": "Modified by"
+			},
+			"noData": "No data to display",
+			"footer": {
+				"total": "{count, plural, one {# budget} other {# budgets}}",
+				"lastUpdated": "Updated: today"
+			}
+		},
+		"incomeExpenseBudget": {
+			"title": "Income & Expense Budget",
+			"searchPlaceholder": "Search by name",
+			"columns": {
+				"name": "Name",
+				"currency": "Currency",
+				"legalEntity": "Legal entity",
+				"project": "Project",
+				"period": "Period",
+				"modifiedDate": "Modified",
+				"modifiedBy": "Modified by"
+			},
+			"noData": "No data to display",
+			"footer": {
+				"total": "{count, plural, one {# budget} other {# budgets}}",
+				"lastUpdated": "Updated: today"
+			}
+		},
+		"CashFlowBudgetSingle": {
+			"breadcrumb": {
+				"list": "Budget list"
+			},
+			"title": "General 2025",
+			"type": "CFB",
+			"period": "Nov '25 — Sep '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "Monthly",
+				"quarters": "Quarterly",
+				"years": "Yearly"
+			},
+			"columns": {
+				"article": "Overall budget",
+				"plan": "Plan",
+				"fact": "Actual",
+				"planExec": "Plan exec., %",
+				"deviation": "Variance",
+				"deviationPct": "Variance, %"
+			},
+			"periodTotal": "Total",
+			"months": {
+				"1": "Jan",
+				"2": "Feb",
+				"3": "Mar",
+				"4": "Apr",
+				"5": "May",
+				"6": "Jun",
+				"7": "Jul",
+				"8": "Aug",
+				"9": "Sep",
+				"10": "Oct",
+				"11": "Nov",
+				"12": "Dec"
+			},
+			"rows": {
+				"balanceStart": "Opening cash balance",
+				"operating": "Operating cash flow",
+				"income": "Receipts",
+				"revenue": "Revenue",
+				"currentAssets": "Current assets",
+				"shortLiabilities": "Current liabilities",
+				"expense": "Payments",
+				"expenses": "Expenses",
+				"investing": "Investing cash flow",
+				"investingOut": "Investment payments",
+				"financing": "Financing cash flow",
+				"financingOps": "Financing transactions",
+				"totalFlow": "Total cash flow",
+				"closingBalance": "Closing cash balance"
+			},
+			"na": "N/A",
+			"actions": {
+				"expand": "Expand",
+				"collapse": "Collapse"
+			}
+		},
+		"IncomeExpenseBudgetSingle": {
+			"breadcrumb": { "list": "Budget list" },
+			"title": "Kuibysheva, 45",
+			"type": "I&E Budget",
+			"period": "Nov '25 — Sep '26",
+			"currency": "RUB",
+			"downloadXls": ".xls",
+			"grouping": {
+				"months": "Monthly",
+				"quarters": "Quarterly",
+				"years": "Yearly"
+			},
+			"method": {
+				"cash": "Cash method",
+				"accrual": "Accrual method"
+			},
+			"indicators": {
+				"profit": "Profit indicators",
+				"revenue": "Revenue indicators"
+			},
+			"columns": {
+				"article": "All legal entities",
+				"plan": "Plan",
+				"fact": "Actual",
+				"planExec": "Plan exec., %",
+				"deviation": "Variance",
+				"deviationPct": "Variance, %"
+			},
+			"periodTotal": "Total",
+			"months": {
+				"1": "Jan",
+				"2": "Feb",
+				"3": "Mar",
+				"4": "Apr",
+				"5": "May",
+				"6": "Jun",
+				"7": "Jul",
+				"8": "Aug",
+				"9": "Sep",
+				"10": "Oct",
+				"11": "Nov",
+				"12": "Dec"
+			},
+			"entityHeader": "Kuibysheva, 45",
+			"rows": {
+				"income": "Revenue",
+				"undistributedIncome": "Unallocated revenue",
+				"otherIncome": "Other income",
+				"repairServices": "Repair services",
+				"clientIncome": "Client receipts",
+				"expense": "Expenses",
+				"staffCosts": "Staff costs",
+				"rentCosts": "Rent & utilities",
+				"otherCosts": "Other expenses",
+				"netProfit": "Net profit / loss",
+				"profitability": "Profitability, %"
+			},
+			"na": "N/A",
+			"actions": { "expand": "Expand", "collapse": "Collapse" }
+		}
+	},
+	"Indicators": {
+		"common": {
+			"loading": "Loading...",
+			"billion": "B",
+			"million": "M",
+			"thousand": "K",
+			"monthNamesShort": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec",
+			"monthNamesFull": "January,February,March,April,May,June,July,August,September,October,November,December",
+			"weekdayNames": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday"
+		},
+		"header": {
+			"title": "My Company",
+			"reset": "Reset",
+			"displayOptions": {
+				"weekly": "Weekly",
+				"monthly": "Monthly",
+				"quarterly": "Quarterly",
+				"yearly": "Yearly"
+			},
+			"placeholders": {
+				"display": "Display",
+				"account": "Account",
+				"deal": "Deal"
+			}
+		},
+		"accountBalance": {
+			"title": "Account Balances",
+			"totalBalance": "Total balance",
+			"today": "Today",
+			"monthNames": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
+		},
+		"cashFlow": {
+			"title": "Cash Flow",
+			"tabs": {
+				"total": "Total",
+				"operational": "Operating",
+				"investment": "Investing",
+				"financial": "Financing"
+			},
+			"series": {
+				"receipts": "Receipts",
+				"payments": "Payments",
+				"difference": "Difference"
+			}
+		},
+		"income": {
+			"labelIncome": "Revenue",
+			"labelReceipts": "Receipts"
+		},
+		"expenses": {
+			"title": "Expenses",
+			"labelExpenses": "Expenses",
+			"labelPayments": "Payments"
+		},
+		"paymentStructure": {
+			"title": "Payment Structure",
+			"incomeExpenses": "Revenue & Expenses",
+			"receiptsPayments": "Receipts & Payments"
+		},
+		"profit": {
+			"title": "Profit",
+			"accrualMethod": "Accrual method",
+			"cashMethod": "Cash method",
+			"series": {
+				"income": "Revenue",
+				"expenses": "Expenses",
+				"netProfit": "Net profit",
+				"dividends": "Dividends"
+			},
+			"stats": {
+				"income": "Revenue",
+				"expenses": "Expenses",
+				"netProfit": "Net profit",
+				"profitability": "Profitability, %",
+				"dividends": "Dividends"
+			}
+		},
+		"profitableClients": {
+			"title": "Most Profitable Clients",
+			"accrualMethod": "Accrual method",
+			"cashMethod": "Cash method",
+			"notSelected": "Not selected",
+			"legend": {
+				"clients80": "Clients generating over 80% of revenue",
+				"incomeShare": "Cumulative revenue share, %",
+				"clients20": "Clients generating under 20% of revenue"
+			}
+		}
+	},
+	"Payment": {
+		"header": {
+			"to": "to",
+			"uFinance": "UFinance"
+		},
+		"paymentAmount": {
+			"label": "PAYMENT AMOUNT",
+			"currency": "UZS"
+		},
+		"byCard": {
+			"title": "By card",
+			"commission": "COMMISSION 0%",
+			"cardNumber": "Card number",
+			"cardPlaceholder": "0000 0000 0000 0000",
+			"expiry": "Expiry",
+			"expiryPlaceholder": "MM/YY"
+		},
+		"onlinePayment": {
+			"title": "Online payment"
+		},
+		"paymentMethods": {
+			"click": "Click",
+			"clickCommission": "1.5%",
+			"uzum": "Uzum",
+			"uzumCommission": "1%",
+			"payme": "Payme",
+			"paymeCommission": "1%"
+		},
+		"terms": {
+			"text": "By clicking \"Pay\", you agree to the terms of the Offer"
+		},
+		"payButton": {
+			"text": "Pay {amount}",
+			"processing": "Processing payment"
+		},
+		"success": "Payment completed successfully.",
+		"error_card": "Card information not found.",
+		"otp": {
+			"title": "Payment confirmation",
+			"description": "Enter the 6-digit code sent to your phone number",
+			"confirm": "Confirm",
+			"cancel": "Cancel"
+		}
+	}
+}
