@@ -81,8 +81,7 @@ class OperationFilterStore {
 		this.limit = num
 	}
 
-	setAutoFilter(filterdata) {
-		console.log('filterdata', filterdata.accrualNotConfirm)
+	setAutoFilter(filterdata) { 
 		this.accrualConfirm = filterdata.accrualConfirm ?? this.accrualConfirm
 		this.accrualNotConfirm = filterdata.accrualNotConfirm ?? this.accrualNotConfirm
 		this.paymentConfirm = filterdata.paymentConfirm ?? this.paymentConfirm

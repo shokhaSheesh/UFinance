@@ -12,6 +12,7 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useState } from 'react'
+import useMounted from '@/hooks/useMounted'
 import { pnlStore } from '../../../../components/reports/profit-and-loss/pnl.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import { ExpendClose, ExpendOpen } from '../../../../constants/icons'
@@ -31,6 +32,7 @@ const formatDateLocal = (date) => {
 
 const ProfitAndLossPage = observer(() => {
   const t = useTranslations('Reports')
+  const mounted = useMounted()
   const accountingMethodOptions = useMemo(() => [
     { value: 'accrual', label: t('pnl.accounting.accrual') },
     { value: 'cash', label: t('pnl.accounting.cash') }
@@ -62,6 +64,14 @@ const ProfitAndLossPage = observer(() => {
     selectedLegalEntities,
     ebt, isCalculation }
     = pnlStore
+
+  // Hydration-safe values: use store defaults until client is mounted
+  // to prevent mismatch between server (no localStorage) and client (localStorage persisted)
+  const safeIsCalculation = mounted ? isCalculation : 'cash'
+  const safeSelectedGrouping = mounted ? selectedGrouping : 'monthly'
+  // Currency data (appStore.myCurrencies) is only populated after an API call on the client.
+  // On the server, the data array is empty so no value will match → pass null to show placeholder on both sides.
+  const safeSelectedCurrency = mounted ? selectedCurrency : null
 
 
   const filterData = {
@@ -142,10 +152,10 @@ const ProfitAndLossPage = observer(() => {
         tips.push("Отгрузка")
       }
       if (expenses) {
-        tips = ["Выплата", "Кредит", "Начисление"]
+        tips = ["Выплата", "Кредит", "Дебет", "Начисление"]
       }
       if (income) {
-        tips = [...tips, "Поступление", "Кредит", "Начисление"]
+        tips = [...tips, "Поступление", "Кредит", "Дебет", "Начисление"]
       }
       if (!income && !expenses) {
         tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
@@ -354,8 +364,8 @@ const ProfitAndLossPage = observer(() => {
     if (isCalculation === 'cash') {
       filterData.paymentConfirm = true
       filterData.paymentNotConfirm = false
-      filterData.accuralConfirm = true
-      filterData.accuralNotConfirm = true
+      filterData.accrualConfirm = true
+      filterData.accrualNotConfirm = true
       filterData.paymentDateStart = dateRange.start
       filterData.paymentDateEnd = dateRange.end
 
@@ -364,8 +374,8 @@ const ProfitAndLossPage = observer(() => {
     if (isCalculation === 'accrual') {
       filterData.paymentConfirm = true
       filterData.paymentNotConfirm = true
-      filterData.accuralConfirm = true
-      filterData.accuralNotConfirm = false
+      filterData.accrualConfirm = true
+      filterData.accrualNotConfirm = false
       filterData.accrualDateStart = dateRange.start
       filterData.accrualDateEnd = dateRange.end
     }
@@ -404,7 +414,7 @@ const ProfitAndLossPage = observer(() => {
               <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
               <SingleSelect
                 data={appStore.myCurrencies}
-                value={pnlStore.selectedCurrency}
+                value={safeSelectedCurrency}
                 onChange={(value) => pnlStore.setSelectedCurrency(value)}
                 isClearable={false}
                 withSearch={false}
@@ -415,7 +425,7 @@ const ProfitAndLossPage = observer(() => {
             <div className="flex items-center gap-3">
               <SingleSelect
                 data={groupingOptions}
-                value={pnlStore.selectedGrouping}
+                value={safeSelectedGrouping}
                 onChange={(value) => {
                   pnlStore.setSelectedGrouping(value)
                 }}
@@ -426,7 +436,7 @@ const ProfitAndLossPage = observer(() => {
               />
               <SingleSelect
                 data={accountingMethodOptions}
-                value={pnlStore.isCalculation}
+                value={safeIsCalculation}
                 onChange={(value) => {
                   pnlStore.setIsCalculation(value)
                 }}

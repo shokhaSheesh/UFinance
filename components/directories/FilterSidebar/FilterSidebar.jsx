@@ -1,5 +1,6 @@
 "use client"
 
+import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { ChevronsLeft, ChevronsRightIcon, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -7,6 +8,9 @@ import styles from './FilterSidebar.module.scss'
 
 export function FilterSidebar({ isOpen, onClose, children, clearCount, onClear }) {
   const t = useTranslations()
+  const mounted = useMounted()
+
+  if (!mounted) return null
 
   return (
     <div className={cn("flex flex-col bg-neutral-100 border-r transition-all duration-300 overflow-hidden relative h-full shrink-0")} style={{ width: isOpen ? '240px' : "30px", padding: isOpen ? "" : "3px 0px" }}>

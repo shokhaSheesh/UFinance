@@ -1,21 +1,21 @@
 'use client'
 
+import { balanceStore } from '@/components/reports/balance/balance.store'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
+import ScreenLoader from '@/components/shared/ScreenLoader'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import FixedContent from '@/layouts/FixedContent'
+import { apiClient } from '@/lib/api/ucode/base'
+import { showSuccessNotification } from '@/lib/utils/notifications'
+import { appStore } from '@/store/app.store'
+import { formatNumber, formatTotalSumma, handleDownload } from '@/utils/helpers'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useState } from 'react'
-import { balanceStore } from '../../../../components/reports/balance/balance.store'
-import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
-import { apiClient } from '../../../../lib/api/ucode/base'
-import { showSuccessNotification } from '../../../../lib/utils/notifications'
-import { appStore } from '../../../../store/app.store'
-import { formatNumber, formatTotalSumma, handleDownload } from '../../../../utils/helpers'
 
 export default observer(function BalancePage() {
   const t = useTranslations('Reports')
@@ -191,9 +191,7 @@ export default observer(function BalancePage() {
                 </tr>
               </thead>
                 <tbody className="bg-white">
-                  {data?.data?.map(row => renderRow(row))}
-                  {/* {data?.liabilities?.map(row => renderRow(row))}
-                  {data?.equity?.map(row => renderRow(row))} */}
+                  {data?.data?.map(row => renderRow(row))} 
               </tbody>
             </table>
           )}

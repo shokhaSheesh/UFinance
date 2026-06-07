@@ -44,8 +44,6 @@ const OperationTableRow = lazy(() => import('@/components/operations/TableRow/ne
 const CustomDialog = lazy(() => import('@/components/shared/CustomDialog').then(m => ({ default: m.default || m.CustomDialog || m })))
 const OperationsFooter = lazy(() => import('@/components/operations/OperationsFooter/OperationsFooter').then(m => ({ default: m.default || m.OperationsFooter || m })))
 
-const MAX_PAGES = 500
-
 
 // ── Main page ────────────────────────────────────────────────────────────────
 const OperationsListPage = observer(() => {
@@ -144,21 +142,13 @@ const OperationsListPage = observer(() => {
   })
 
 
-  const { mutateAsync: getShipment, isPending: isPendingGetShipment } = useMutation({
-    mutationKey: ['get_shipment_transaction'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'get_shipment_transaction', data })
-  })
+  // const { mutateAsync: getShipment, isPending: isPendingGetShipment } = useMutation({
+  //   mutationKey: ['get_shipment_transaction'],
+  //   mutationFn: (data) => apiClient.invokeFunction({ method: 'get_shipment_transaction', data })
+  // })
 
 
-  // ── Safe pagination ────────────────────────────────────────────────────────
-  const pageCount = infiniteData?.pages?.length || 0
-
-  const safeFetchNextPage = useMemo(() => {
-    if (pageCount >= MAX_PAGES) return () => Promise.resolve()
-    return fetchNextPage
-  }, [pageCount, fetchNextPage])
-
-  const effectiveHasNextPage = hasNextPage && pageCount < MAX_PAGES
+  // ── Safe pagination ──────────────────────────────────────────────────────── 
 
   // ── Export ─────────────────────────────────────────────────────────────────
   const { mutate: exportOperations, isPending: isExporting } = useMutation({
@@ -395,8 +385,8 @@ const OperationsListPage = observer(() => {
           {/* Infinite + Virtual scroll */}
           <InfiniteScroll
             dataLength={allOperations.length}
-            hasMore={effectiveHasNextPage}
-            next={safeFetchNextPage}
+            hasMore={hasNextPage}
+            next={fetchNextPage}
             scrollThreshold={0.5}
             scrollableTarget="scrollableDiv"
           >

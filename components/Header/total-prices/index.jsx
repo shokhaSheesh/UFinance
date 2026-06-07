@@ -45,7 +45,7 @@ const TotalPrice = observer(() => {
     })
 
 
-    useMemo(() => {
+    useEffect(() => {
         const result = new Map()
         myaccounts?.data?.map(item => item?.children).flat()?.forEach(item => {
             result.set(item?.currenies_id, item?.currenies_kod)
@@ -61,8 +61,11 @@ const TotalPrice = observer(() => {
 
 
     const Summary = myaccounts?.summary
-    const Compactlist = useMemo(() => {
+    useEffect(() => {
         appStore.setisDonoschool((authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool) ? true : false)
+    }, [])
+
+    const Compactlist = useMemo(() => {
         return myaccounts?.data?.map((item) => {
             return [...item.children]?.map((child) => ({
                 name: child?.nazvanie,
