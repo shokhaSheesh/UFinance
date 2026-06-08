@@ -26,7 +26,7 @@ import styles from './style.module.scss'
 
 const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragentId, initialData = null, isEditing = false, isCopying = false, onSuccess }) => {
   const t = useTranslations('Deals.createShipment')
-  const today = useMemo(() => new Date(), []) 
+  const today = useMemo(() => new Date(), [])
 
   const [shipmentDate, setShipmentDate] = useState(today.toISOString().split('T')[0])
   const isFutureDate = new Date(shipmentDate).setHours(0, 0, 0, 0) > today.setHours(0, 0, 0, 0)
@@ -61,7 +61,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
 
   useEffect(() => {
     if (open && SingleShipment) {
-      setShipmentDate(SingleShipment.data_nachislenie?.split('T')[0] || today.toISOString().split('T')[0])
+      setShipmentDate(moment.parseZone(SingleShipment.data_nachislenie).format('YYYY-MM-DD'))
       setIsPlanned(SingleShipment.planned_shipment || false)
       setLegalEntity(SingleShipment.legal_entity_id || '')
       setClient(SingleShipment.partners_id || kontragentId || '')
@@ -107,18 +107,6 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
   const productServicesList = useMemo(() => {
     return productServiceDto(productServices)
   }, [productServices])
-
-
-
-  // Block body scroll when modal is open
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.body.style.overflow = ''
-      }
-    }
-  }, [open])
 
 
   const addRow = () => {
@@ -199,8 +187,8 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
         status_nachislenie: ["confirmed"],
         type: ["Отгрузка"],
         summa: totalSum,
-        data_nachislenie: moment(shipmentDate).format('YYYY-MM-DD'),
-        data_oplaty: moment(shipmentDate).format('YYYY-MM-DD'),
+        data_nachislenie: moment.parseZone(shipmentDate).format('YYYY-MM-DD'),
+        data_oplaty: moment.parseZone(shipmentDate).format('YYYY-MM-DD'),
         currencies_id: productCurrency,
         description: "Shipment",
         chart_of_accounts_id: chartOfAccounts,

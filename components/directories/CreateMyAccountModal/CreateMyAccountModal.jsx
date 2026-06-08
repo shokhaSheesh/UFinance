@@ -35,9 +35,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
         nazvanie: account.nazvanie || '',
         tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
         nachalьnyy_ostatok: account?.nachalьnyy_ostatok_val || '',
-        data_sozdaniya: account.data_nachalьnogo_ostatka || account.data_sozdaniya
-          ? new Date(account.data_nachalьnogo_ostatka || account.data_sozdaniya).toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0],
+        data_sozdaniya: moment.parseZone(account?.data_sozdaniya || Date.now()).format('YYYY-MM-DD'),
         currenies_id: account.currenies_id || '',
         komentariy: account.komentariy || '',
         legal_entity_id: account.legal_entity_id || '',
@@ -53,7 +51,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
       nazvanie: '',
       tip: ['Наличный'],
       nachalьnyy_ostatok: '',
-      data_sozdaniya: new Date().toISOString().split('T')[0],
+      data_sozdaniya: moment.parseZone(Date.now()).format('YYYY-MM-DD'),
       currenies_id: appStore?.currency?.guid || '',
       komentariy: '',
       legal_entity_id: '',
@@ -354,7 +352,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   />
                 </div>
               </div>
-            )} 
+            )}
             {/* Начальный остаток */}
             <div className="flex flex-row gap-2">
               <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.initialBalance')}</label>
@@ -380,7 +378,7 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                 render={({ field }) => (
                   <FormDatepicker
                     value={field.value}
-                    onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
+                    onChange={(value) => field.onChange(moment.parseZone(value).format('YYYY-MM-DD'))}
                     placeholder={t('placeholders.selectDate')}
                     format='YYYY-MM-DD'
                     inputClass={'bg-white'}

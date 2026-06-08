@@ -78,7 +78,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     if (initialData && dealGuid) {
       return {
         contractNumber: initialData?.number_contract || '',
-        contractDate: moment(initialData?.date_contract || today).format('YYYY-MM-DD'),
+        contractDate: moment.parseZone(initialData?.date_contract || today).format('YYYY-MM-DD'),
         guardianName: initialData?.full_name_guardian || '',
         branchName: branch?.name || '',
         guardianType: initialData?.type_guardian?.[0] || null,
@@ -90,23 +90,23 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         pinf: initialData?.jshshr_guardian || null,
         issuedBy: initialData?.place_of_issue || '',
         tariffName: initialData?.product_and_service_id?.name || '',
-        birthDate: initialData?.birthday_pupil ? new Date(initialData.birthday_pupil) : today,
-        validFrom: initialData?.the_contract_period_is_from ? new Date(initialData.the_contract_period_is_from) : today,
+        birthDate: moment.parseZone(initialData?.birthday_pupil || today).format('YYYY-MM-DD'),
+        validFrom: moment.parseZone(initialData?.the_contract_period_is_from || today).format('YYYY-MM-DD'),
         gender: initialData?.select_gender?.[0] || '',
-        validTo: initialData?.the_contract_period_is_to ? new Date(initialData.the_contract_period_is_to) : today,
+        validTo: moment.parseZone(initialData?.the_contract_period_is_to || today).format('YYYY-MM-DD'),
         className: initialData?.classes_id_data?.name || '',
         clientType: initialData?.pupil_type?.[0] || '',
         language: initialData?.language_classes_id_data?.name || '',
         status: 'passive',
         address: initialData?.address || '',
-        passiveDate: initialData?.passive_date ? new Date(initialData.passive_date) : today,
+        passiveDate: moment.parseZone(initialData?.passive_date || today).format('YYYY-MM-DD'),
         counterparties_id: initialData?.counterparties_id || null,
         product_and_service_id: initialData?.product_and_service_id || null,
         chart_of_accounts_id: initialData?.chart_of_accounts_id || null,
         classes_id: initialData?.classes_id || null,
         language_classes_id: initialData?.language_classes_id || null,
         legal_entity_id: initialData?.legal_entity_id || null,
-        monthlyPayment: initialData?.product_and_service_id_data?.summa 
+        monthlyPayment: initialData?.product_and_service_id_data?.summa
       }
     }
     return {
@@ -293,8 +293,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   const getContractDataForType = () => {
     const values = getValues()
     // Get years and months difference
-    const from = moment(values.validFrom).format('YYYY-MM-DD')
-    const to = moment(values.validTo).format('YYYY-MM-DD')
+    const from = moment.parseZone(values.validFrom).format('YYYY-MM-DD')
+    const to = moment.parseZone(values.validTo).format('YYYY-MM-DD')
     const totalMonths = getPeriodLength(from, to)
 
     const monthlyAmount = formatNumber(values.monthlyPayment)
@@ -304,8 +304,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
     const baseData = {
       contractNumber: values.contractNumber || '___',
-      contractDate: moment(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
-      contractEndDate: values.validTo ? moment(values.validTo).format('DD.MM.YYYY') : '____-__-__',
+      contractDate: moment.parseZone(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
+      contractEndDate: values.validTo ? moment.parseZone(values.validTo).format('DD.MM.YYYY') : '____-__-__',
       guardianPassport: values.passport || '________________________',
       guardianPassportIssuedBy: values.issuedBy || '________________________',
       guardianPhone1: values.phone1 || '________________________',
@@ -320,9 +320,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       academicYear: values.academicYear || '2025-2026',
       className: values.className || '___',
       language: values.language || "O'zbek tili",
-      studentBirthday: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
-      validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
-      validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
+      studentBirthday: values.birthDate ? moment.parseZone(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
+      validFrom: values.validFrom ? moment.parseZone(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
+      validTo: values.validTo ? moment.parseZone(values.validTo).format('MMM, DD YYYY') : '____-__-__',
     }
 
     return baseData
@@ -416,10 +416,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         name: data.contractNumber || '',
         number_contract: data.contractNumber || '',
         school_year: data.academicYear,
-        date_contract: moment(data.contractDate).format('YYYY-MM-DD'),
-        deal_date: moment(data.contractDate).format('YYYY-MM-DD'),
-        the_contract_period_is_from: moment(data.validFrom).format('YYYY-MM-DD'),
-        the_contract_period_is_to: moment(data.validTo).format('YYYY-MM-DD'),
+        date_contract: moment.parseZone(data.contractDate).format('YYYY-MM-DD'),
+        deal_date: moment.parseZone(data.contractDate).format('YYYY-MM-DD'),
+        the_contract_period_is_from: moment.parseZone(data.validFrom).format('YYYY-MM-DD'),
+        the_contract_period_is_to: moment.parseZone(data.validTo).format('YYYY-MM-DD'),
         counterparties_id: data.counterparties_id || '',
         product_and_service_id: data.product_and_service_id, // TODO: get from tariff lookup
         chart_of_accounts_id: data.chart_of_accounts_id, // TODO: get from settings
@@ -1272,7 +1272,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="flex-1 overflow-hidden">
                     <iframe
-                        srcDoc={html} 
+                        srcDoc={html}
                       className="w-full h-full border-0 px-2"
                         title={t('showContractPreview')}
                     />
