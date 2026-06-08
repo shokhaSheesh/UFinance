@@ -21,6 +21,7 @@
 		"edit": "Редактировать",
 		"copy": "Копировать",
 		"close": "Закрыть",
+		"forToday": "На сегодня",
 		"rootElement": "Корневой элемент",
 		"createAsRoot": "Создать как корневой элемент",
 		"placeholders": {
@@ -56,7 +57,12 @@
 			"selectedPrefix": "Выбрано"
 		},
 		"createAccount": "Создать счет",
-		"createLegalEntity": "Создать юрлицо"
+		"createAccountGroup": "Создать группу",
+		"createLegalEntity": "Создать юрлицо",
+		"createCounterparty": "Создать контрагента",
+		"createCounterparties": "Создать контрагентов",
+		"createDeal": "Создать сделку",
+		"createDeals": "Создать сделки"
 	},
 	"Auth": {
 		"title": {

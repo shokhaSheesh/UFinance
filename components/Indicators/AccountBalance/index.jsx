@@ -26,6 +26,7 @@ const AccountBalance = () => {
 
     const billion = t('common.billion')
     const million = t('common.million')
+    const thousand = t('common.thousand')
     const MONTH_NAMES = t('accountBalance.monthNames').split(',')
     const totalBalanceLabel = t('accountBalance.totalBalance')
     const todayLabel = t('accountBalance.today')
@@ -140,7 +141,7 @@ const AccountBalance = () => {
                 icon: 'roundRect',
                 itemWidth: 14,
                 itemHeight: 14,
-                textStyle: { color: '#6b7280', fontSize: 14, marginTop: 10 },
+                textStyle: { color: '#0457FE', fontSize: 14, marginTop: 10 },
                 itemStyle: { marginTop: '20px' },
                 data: legendData,
                 selected: legendData.slice(1).reduce((acc, name) => ({ ...acc, [name]: false }), {}),
@@ -153,7 +154,7 @@ const AccountBalance = () => {
 
                 axisTick: { show: false },
                 axisLabel: {
-                    color: '#0F0F0F', fontSize: 12,
+                    color: '#0F0E0E', fontSize: 12,
                     interval: inteval, 
                     rotate: 10,
                 },
@@ -163,7 +164,7 @@ const AccountBalance = () => {
                 axisLine: { show: false },
                 axisTick: { show: false },
                 splitLine: { lineStyle: { color: '#f3f4f6' } },
-                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValueLength(v) },
+                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValueLength(v, billion, million, thousand) },
             },
             series: [
                 {
@@ -209,7 +210,7 @@ const AccountBalance = () => {
                 ...accountSeries,
             ],
         }
-    }, [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel, billion, million])
+    }, [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel, billion, million, thousand])
 
     // if (!mounted) return null
 

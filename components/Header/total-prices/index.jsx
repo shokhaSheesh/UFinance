@@ -1,23 +1,54 @@
 "use client"
 
+import { currencyInfo, donoSchool, GlobalCurrency, testDonoSchool } from '@/constants/globalCurrency'
+import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
+import { appStore } from '@/store/app.store'
+import { authStore } from '@/store/auth.store'
+import { formatDateTime } from '@/utils/formatDate'
+import { formatAmount, formatNumber, formatTotalSumma } from '@/utils/helpers'
 import { keepPreviousData } from '@tanstack/react-query'
 import { ChevronDown, Maximize2, MoreVertical } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { currencyInfo, donoSchool, GlobalCurrency, testDonoSchool } from '../../../constants/globalCurrency'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import { appStore } from '../../../store/app.store'
-import { authStore } from '../../../store/auth.store'
-import { formatDateTime } from '../../../utils/formatDate'
-import { formatAmount, formatNumber, formatTotalSumma } from '../../../utils/helpers'
-import styles from '../Header.module.scss'
+
+// ── Shared sub-components ──────────────────────────────────────────────────────
+
+const AccountDot = ({ color }) => (
+    <div className={cn(
+        'w-2 h-2 rounded-full shrink-0 mt-1.5',
+        color === 'red' && 'bg-red-500',
+        color === 'green' && 'bg-green-500',
+        color === 'blue' && 'bg-blue-500',
+    )} />
+)
+
+const AccountRow = ({ acc }) => (
+    <div className="flex items-start justify-between px-2.5 py-[5px] hover:bg-gray-50">
+        <div className="flex items-start gap-2.5">
+            <AccountDot color={acc?.color} />
+            <div className="flex flex-col">
+                <span className="text-[13px] font-normal leading-[17px] text-slate-700">{acc?.name}</span>
+                {acc?.status && (
+                    <span className="text-[10px] text-red-500 font-bold leading-[1.25] mt-0.5">{acc?.status}</span>
+                )}
+            </div>
+        </div>
+        {acc?.balance && (
+            <span className="text-[13px] font-semibold text-slate-800 whitespace-nowrap ml-4">
+                {formatAmount(acc?.balance)}{' '}
+                <span className="text-gray-400 font-normal">{acc?.currency?.toLocaleString('ru-RU')}</span>
+            </span>
+        )}
+    </div>
+)
+
+// ── Main component ─────────────────────────────────────────────────────────────
 
 const TotalPrice = observer(() => {
     const t = useTranslations('Header.balance')
     const [isBalanceOpen, setIsBalanceOpen] = useState(false)
-
     const [expandedGroups, setExpandedGroups] = useState(['unallocated'])
     const [activeGroupMenu, setActiveGroupMenu] = useState(null)
     const [modalMode, setModalMode] = useState('compact')
@@ -44,7 +75,6 @@ const TotalPrice = observer(() => {
         }
     })
 
-
     useEffect(() => {
         const result = new Map()
         myaccounts?.data?.map(item => item?.children).flat()?.forEach(item => {
@@ -58,27 +88,27 @@ const TotalPrice = observer(() => {
         }))
     }, [myaccounts])
 
-
-
     const Summary = myaccounts?.summary
+
     useEffect(() => {
-        appStore.setisDonoschool((authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool) ? true : false)
+        appStore.setisDonoschool(
+            (authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool)
+                ? true
+                : false
+        )
     }, [])
 
     const Compactlist = useMemo(() => {
-        return myaccounts?.data?.map((item) => {
-            return [...item.children]?.map((child) => ({
+        return myaccounts?.data?.map((item) =>
+            [...item.children]?.map((child) => ({
                 name: child?.nazvanie,
                 balance: child?.balans_val,
                 currency: child?.currenies_kod,
                 color: child?.balans_val > 0 ? 'green' : 'red'
             }))
-        }).flat()
+        ).flat()
     }, [myaccounts])
 
-
-
-    // Set date only on client side to avoid hydration mismatch
     useEffect(() => {
         setToday(formatDateTime(new Date()))
         setMounted(true)
@@ -99,45 +129,34 @@ const TotalPrice = observer(() => {
     }, [])
 
     useEffect(() => {
-        if (isBalanceOpen) {
-            document.body.style.overflow = 'hidden'
-        } else {
-            document.body.style.overflow = 'auto'
-        }
-        // Cleanup on unmount too
+        document.body.style.overflow = isBalanceOpen ? 'hidden' : 'auto'
         return () => { document.body.style.overflow = 'auto' }
     }, [isBalanceOpen])
 
     const legalEntitiesData = useMemo(() => {
-        return myaccounts?.data?.map((item) => {
-            return {
-                id: item?.legal_entity_id,
-                name: item?.legal_entity_name,
-                balance: item?.current_balance,
-                total_items: item?.items_count,
-                accounts: (item?.children || [])?.map((child) => {
-                    return {
-                        id: child?.guid,
-                        name: child?.nazvanie,
-                        balance: child?.balans_val,
-                        currency: child?.currenies_kod,
-                        color: child?.balans_val > 0 ? 'green' : 'red'
-                    }
-                })
-            }
-        })
+        return myaccounts?.data?.map((item) => ({
+            id: item?.legal_entity_id,
+            name: item?.legal_entity_name,
+            balance: item?.current_balance,
+            total_items: item?.items_count,
+            accounts: (item?.children || [])?.map((child) => ({
+                id: child?.guid,
+                name: child?.nazvanie,
+                balance: child?.balans_val,
+                currency: child?.currenies_kod,
+                color: child?.balans_val > 0 ? 'green' : 'red'
+            }))
+        }))
     }, [myaccounts])
 
-
     const totalBalance = useMemo(() => {
-        return legalEntitiesData?.reduce((sum, item) => sum + (item.balance || 0), 0) || 0;
-    }, [legalEntitiesData]);
+        return legalEntitiesData?.reduce((sum, item) => sum + (item.balance || 0), 0) || 0
+    }, [legalEntitiesData])
 
     const viewOptions = [
         { value: 'compact', label: t('viewCompact') },
         { value: 'full', label: t('viewFull') }
-    ];
-
+    ]
 
     const toggleExpandGroup = (id) => {
         setExpandedGroups(prev =>
@@ -146,195 +165,164 @@ const TotalPrice = observer(() => {
         setActiveGroupMenu(null)
     }
 
-    return (
-        <div ref={balanceRef} style={{ position: 'relative', zIndex: 10000 }}>
-            <div className={styles.balanceSection}>
-                <div
-                    onClick={() => {
-                        setIsBalanceOpen(!isBalanceOpen)
-                    }}
-                    className={""}
+    // ── View toggle (shared by both modals) ─────────────────────────────────
+    const ViewToggle = () => (
+        <div className="flex bg-transparent rounded overflow-hidden border border-slate-200 min-w-[150px]">
+            {viewOptions.map((opt, i) => (
+                <button
+                    key={opt.value}
+                    onClick={() => setModalMode(opt.value)}
+                    className={cn(
+                        'py-[0.325rem] px-2 text-sm font-medium transition-all duration-200 cursor-pointer bg-white',
+                        i < viewOptions.length - 1 && 'border-r border-slate-200',
+                        modalMode === opt.value
+                            ? 'text-sky-500 relative z-[1]'
+                            : 'text-slate-600 hover:bg-slate-50'
+                    )}
                 >
-                    <div>
-                        <div className='text-sm font-medium font-roboto cursor-pointer flex items-center gap-2'>
-                            <div className="" />
-                            <div className="flex items-center gap-2">
-                                <p className="text-white">
-                                    {t('label')} {mounted ? `${formatNumber(Summary?.current_balance)} ${GlobalCurrency?.name}` : '0'}
-                                </p>
+                    {opt.label}
+                </button>
+            ))}
+        </div>
+    )
+
+    // ── Modal header (shared) ────────────────────────────────────────────────
+    const ModalHeader = ({ title }) => (
+        <div className="flex items-start justify-between p-4 relative border-b border-gray-200">
+            <div className="flex flex-col items-start">
+                <div className="flex items-start gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full mt-1.5 bg-amber-400 shrink-0" />
+                    <div className="flex flex-col justify-start">
+                        {title}
+                        <p className="text-xs text-gray-400 mt-1 font-normal w-full">{today}</p>
+                    </div>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <ViewToggle />
+            </div>
+        </div>
+    )
+
+    // ── Shared modal wrapper classes ─────────────────────────────────────────
+    const modalBase = "fixed top-[60px] left-1/2 -translate-x-1/2 bg-white rounded-xl border border-gray-200 z-[1000] text-slate-800 overflow-visible max-h-[calc(100vh-100px)] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2),0_0_0_1px_rgba(0,0,0,0.05)] animate-[modalAppear_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]"
+
+    return (
+        <div ref={balanceRef} className="relative ">
+
+            {/* ── Trigger ─────────────────────────────────────────────────── */}
+            <div
+                className="flex flex-col items-center justify-center my-auto relative py-4 px-5 rounded-lg backdrop-blur-sm max-w-full min-w-0 overflow-visible transition-all duration-250 ease-in-out cursor-pointer  hover:bg-slate-900/50  active:translate-y-0"
+                onClick={() => setIsBalanceOpen(!isBalanceOpen)}
+            >
+                <div className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <p className="text-white">
+                            {t('label')}{' '}
+                            {mounted ? `${formatNumber(Summary?.current_balance)} ${GlobalCurrency?.name}` : '0'}
+                        </p>
+                    </div>
+                    <ChevronDown
+                        size={14}
+                        className={cn('text-white/70 transition-all duration-200', isBalanceOpen && 'rotate-180')}
+                    />
+                </div> 
+            </div>
+
+            {/* ── Compact modal ────────────────────────────────────────────── */}
+            {isBalanceOpen && modalMode === 'compact' && (
+                <div className={cn(modalBase, 'w-[400px] right-[200px] p-0')}>
+                    <div className="flex flex-col relative w-full max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <ModalHeader
+                            title={
+                                <h2 className="text-black text-xl font-semibold">
+                                    {mounted ? formatNumber(formatTotalSumma(Summary?.current_balance)) : '0'}{' '}
+                                    {mounted ? GlobalCurrency?.name : ''}
+                                </h2>
+                            }
+                        />
+                        {/* Account list */}
+                        <div className="flex flex-col gap-4 min-h-[100px] max-h-[400px] p-4 overflow-y-auto">
+                            <div className="flex flex-col">
+                                {Compactlist?.map((acc, idx) => (
+                                    <AccountRow key={idx} acc={acc} />
+                                ))}
                             </div>
-                            <ChevronDown size={14} className={cn(styles.balanceChevron, isBalanceOpen && styles.open)} />
-                        </div>
-                        <div className={styles.balanceSubtext} style={{ marginLeft: '17px', color: '#fbbf24' }}>
-                            {today}
                         </div>
                     </div>
                 </div>
+            )}
 
-                {/* Balance Modal */}
-                {isBalanceOpen && modalMode === 'compact' && (
-                    <div className={cn(styles.balanceModal, styles.compact)}>
-                        <div className={styles.balanceModalFull}>
-                            {/* Modal Header */}
-                            <div className={styles.balanceModalFullHeader}>
-                                <div className={styles.balanceModalFullTitleContainer}>
-                                    <div className={styles.balanceModalFullTitle}>
-                                        <div className={styles.balanceModalFullTitleDot} />
-                                        <div className={styles.balanceModalFullTitleContent}>
-                                            <h2 className="text-black text-xl font-semibold">{mounted ? formatNumber(formatTotalSumma(Summary?.current_balance)) : '0'} {mounted ? GlobalCurrency?.name : ''}</h2>
-                                            <p className={styles.balanceModalFullTitleDate}>{today}</p>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div className={styles.balanceModalFullControls}>
-                                    <div style={{ minWidth: '150px' }}>
-                                        <div className={styles.balanceViewToggle}>
-                                            {viewOptions.map(opt => {
-                                                return (
-                                                    <button
-                                                        key={opt.value}
-                                                        onClick={() => setModalMode(opt.value)}
-                                                        className={cn(
-                                                            styles.balanceViewButton,
-                                                            modalMode === opt.value ? styles.active : styles.inactive
-                                                        )}
-                                                    >
-                                                        {opt.label}
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className={styles.balanceModalContent}>
-                                <div className={styles.balanceGroupContent}>
-                                    {Compactlist?.map((acc, idx) => (
-                                        <div key={idx} className={styles.balanceAccount}>
-                                            <div className={styles.balanceAccountLeft}>
-                                                <div className={cn(styles.balanceAccountDot, acc?.color === 'red' && styles.red, acc?.color === 'green' && styles.green, acc?.color === 'blue' && styles.blue)} style={{ marginTop: '6px' }}></div>
-                                                <div className={styles.balanceAccountInfo} style={{ display: 'flex', flexDirection: 'column' }}>
-                                                    <span className={styles.balanceAccountName} style={{ fontSize: '14px', color: '#334155' }}>{acc?.name}</span>
-                                                    {acc?.status && (
-                                                        <span className={styles.balanceAccountStatus} style={{ fontSize: '12px', color: '#ef4444', marginTop: '2px' }}>{acc?.status}</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            {acc?.balance && (
-                                                <span className={styles.balanceAccountValue} style={{ fontSize: '14px', color: '#334155' }}>
-                                                    {formatAmount(acc?.balance)} <span className={styles.balanceAccountCurrency} style={{ color: '#94a3b8' }}>{acc?.currency?.toLocaleString('ru-RU')}</span>
-                                                </span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
+            {/* ── Full modal ───────────────────────────────────────────────── */}
             {isBalanceOpen && modalMode === 'full' && (
-                <div className={cn(styles.balanceModal, styles.full)}>
-                    <div className={styles.balanceModalFull}>
-                        {/* Modal Header */}
-                        <div className={styles.balanceModalFullHeader}>
-                            <div className={styles.balanceModalFullTitleContainer}>
-                                <div className={styles.balanceModalFullTitle}>
-                                    <div className={styles.balanceModalFullTitleDot} />
-                                    <div className={styles.balanceModalFullTitleContent}>
-                                        <h2 className={styles.balanceModalFullTitleValue}>{totalBalance.toLocaleString('ru-RU')} {GlobalCurrency?.name}</h2>
-                                        <p className={styles.balanceModalFullTitleDate}>{today}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className={styles.balanceModalFullControls}>
-                                <div style={{ minWidth: '150px' }}>
-                                    <div className={styles.balanceViewToggle}>
-                                        {viewOptions.map(opt => {
-                                            return (
-                                                <button
-                                                    key={opt.value}
-                                                    onClick={() => setModalMode(opt.value)}
-                                                    className={cn(
-                                                        styles.balanceViewButton,
-                                                        modalMode === opt.value ? styles.active : styles.inactive
-                                                    )}
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className={styles.balanceModalContent}>
-                            <div className={styles.balanceGrid}>
+                <div className={cn(modalBase, 'w-[950px]')}>
+                    <div className="flex flex-col relative w-full max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <ModalHeader
+                            title={
+                                <h2 className="text-[22px] font-bold text-slate-800 leading-none">
+                                    {totalBalance.toLocaleString('ru-RU')} {GlobalCurrency?.name}
+                                </h2>
+                            }
+                        />
+                        {/* Legal entity grid */}
+                        <div className="flex flex-col gap-4 min-h-[100px] max-h-[400px] p-4 overflow-y-auto">
+                            <div className="grid grid-cols-3 gap-5 overflow-visible">
                                 {legalEntitiesData?.map((group) => (
-                                    <div key={group.id} className={styles.balanceGroup}>
-                                        <div className={styles.balanceGroupHeader}>
-                                            <div className={styles.balanceGroupHeaderInner}>
-                                                <span className={styles.balanceGroupName}>{group?.name} ({group?.total_items})</span>
-                                                <div className={styles.balanceGroupValue}>
-                                                    <span className={styles.balanceGroupValueText}>{formatAmount(group?.balance)} <span className={styles.balanceGroupValueCurrency}>{GlobalCurrency?.name}</span></span>
+                                    <div key={group.id} className="flex flex-col gap-2 overflow-visible relative">
+
+                                        {/* Group header row */}
+                                        <div className="relative overflow-visible">
+                                            <div className="flex items-center justify-between bg-[#f4f6f8] px-4 py-2.5 rounded">
+                                                <span className="text-[13px] font-semibold text-slate-700">
+                                                    {group?.name} ({group?.total_items})
+                                                </span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-[13px] font-bold">
+                                                        {formatAmount(group?.balance)}{' '}
+                                                        <span className="text-gray-400 font-normal">{GlobalCurrency?.name}</span>
+                                                    </span>
                                                     <button
                                                         onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setActiveGroupMenu(activeGroupMenu === group.id ? null : group.id);
+                                                            e.stopPropagation()
+                                                            setActiveGroupMenu(activeGroupMenu === group.id ? null : group.id)
                                                         }}
-                                                        className={styles.balanceGroupMenuButton}
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}
+                                                        className="transition-colors duration-200 hover:text-slate-600 bg-transparent border-0 cursor-pointer text-[#94a3b8] flex items-center"
                                                     >
                                                         <MoreVertical size={16} />
                                                     </button>
                                                 </div>
                                             </div>
 
-                                            {/* Group Actions Dropdown */}
+                                            {/* Group actions dropdown */}
                                             {activeGroupMenu === group.id && (
-                                                <div ref={groupMenuRef} className={styles.balanceGroupMenu}>
+                                                <div
+                                                    ref={groupMenuRef}
+                                                    className="absolute right-10 top-[5px] w-40 bg-white rounded shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] border border-gray-100 z-[1100] overflow-visible animate-[fadeInZoomIn_0.15s_ease-out]"
+                                                >
                                                     <button
                                                         onClick={() => toggleExpandGroup(group.id)}
-                                                        className={styles.balanceGroupMenuItem}
+                                                        className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-slate-700 transition-colors duration-200 hover:bg-gray-50 w-full"
                                                     >
-                                                        <Maximize2 size={16} className={styles.balanceGroupMenuIcon} />
+                                                        <Maximize2 size={16} className="w-4 h-4 text-gray-400 transition-colors duration-200" />
                                                         <span>{expandedGroups.includes(group.id) ? t('collapse') : t('expand')}</span>
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Expanded Content or Placeholder */}
+                                        {/* Expanded accounts */}
                                         {expandedGroups?.includes(group.id) && group?.accounts?.length > 0 && (
-                                            <div className={styles.balanceGroupContent}>
+                                            <div className="flex flex-col">
                                                 {group?.accounts?.map((acc, idx) => (
-                                                    <div key={idx} className={styles.balanceAccount}>
-                                                        <div className={styles.balanceAccountLeft} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                                                            <div className={cn(styles.balanceAccountDot, acc?.color === 'red' && styles.red, acc?.color === 'green' && styles.green, acc?.color === 'blue' && styles.blue)} style={{ marginTop: '6px' }}></div>
-                                                            <div className={styles.balanceAccountInfo} style={{ display: 'flex', flexDirection: 'column' }}>
-                                                                <span className={styles.balanceAccountName} style={{ fontSize: '14px', color: '#334155' }}>{acc?.name}</span>
-                                                                {acc?.status && (
-                                                                    <span className={styles.balanceAccountStatus} style={{ fontSize: '12px', color: '#ef4444', marginTop: '2px' }}>{acc?.status}</span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        {acc?.balance && (
-                                                            <span className={styles.balanceAccountValue} style={{ fontSize: '14px', color: '#334155' }}>
-                                                                {formatAmount(acc?.balance)} <span className={styles.balanceAccountCurrency} style={{ color: '#94a3b8' }}>{acc?.currency?.toLocaleString('ru-RU')}</span>
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    <AccountRow key={idx} acc={acc} />
                                                 ))}
                                             </div>
                                         )}
+
+                                        {/* Empty state */}
                                         {group?.total_items === 0 && (
-                                            <div className={styles.balanceGroupEmpty} style={{ padding: '24px', textAlign: 'center' }}>
-                                                <span className={styles.balanceGroupEmptyText} style={{ color: '#94a3b8', fontSize: '14px' }}>{t('emptyGroup')}</span>
+                                            <div className="flex justify-center mt-4 p-6 text-center">
+                                                <span className="text-xs text-gray-400">{t('emptyGroup')}</span>
                                             </div>
                                         )}
                                     </div>

@@ -78,6 +78,7 @@ export default function CreateCounterpartyModal({
   preselectedGroupId = null,
   counterpartyData = null,
   onSuccess = null,
+  activetab = 'counterparty'
 }) {
   const t = useTranslations('Directories.counterparty')
   const queryClient = useQueryClient()
@@ -87,7 +88,7 @@ export default function CreateCounterpartyModal({
   const createGroupMutation = useCreateCounterpartiesGroup()
   const deleteGroupMutation = useDeleteCounterpartiesGroups()
 
-  const [activeTab, setActiveTab] = useState('counterparty')
+  const [activeTab, setActiveTab] = useState(activetab)
   const [details, setDetails] = useState(false)
   const [editingGroup, setEditingGroup] = useState(null)
   const [deletingGroup, setDeletingGroup] = useState(null)
@@ -177,6 +178,7 @@ export default function CreateCounterpartyModal({
     queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
     queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })
     queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+    queryClient.invalidateQueries({ queryKey: ['get_counterparties_group'] })
     queryClient.invalidateQueries({ queryKey: ['counterpartiesGroupsPlanFact'] })
   }
 

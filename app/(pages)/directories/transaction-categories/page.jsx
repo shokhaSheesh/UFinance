@@ -211,6 +211,7 @@ function CategoryTreeItem({
 
 export default observer(function TransactionCategoriesPage() {
 	const t = useTranslations('TransactionCategories')
+	const tc = useTranslations('Common')
 	const [activeTab, setActiveTab] = useState('income')
 	const [expandedCategories, setExpandedCategories] = useState([])
 	const [closingCategories, setClosingCategories] = useState([])
@@ -348,17 +349,10 @@ export default observer(function TransactionCategoriesPage() {
 							{t('create')}
 						</button>}
 					</div>
-					<div className="relative">
-						{/* <Input
-							leftIcon={<Search size={16} />}
-							value={searchQuery}
-							className='bg-white w-64'
-							placeholder={t('searchPlaceholder')}
-							onChange={(e) => setSearchQuery(e.target.value)}
-						/> */}
+					<div className="relative"> 
 						<PageSearchBar
 							contentRef={contentRef}
-							placeholder="Прочие"
+							placeholder={tc('search')}
 						/>
 					</div>
 				</div>

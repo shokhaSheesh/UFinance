@@ -18,6 +18,7 @@
 		"edit": "Tahrirlash",
 		"copy": "Nusxa olish",
 		"close": "Yopish",
+		"forToday": "Bugun uchun",
 		"parameters": "Parametrlar",
 		"rootElement": "Asosiy element",
 		"createAsRoot": "Asosiy element sifatida yaratish",
@@ -36,7 +37,7 @@
 			"selectProduct": "Tovar yoki xizmatni tanlang",
 			"selectCurrency": "Valyutani tanlang",
 			"selectGroup": "Guruhni tanlang",
-			"selectCounterpartyGroup": "Tomonlar guruhini tanlang"
+			"selectCounterpartyGroup": "Hamkorlar guruhini tanlang"
 		},
 		"tooltips": {
 			"editGroup": "Guruhni tahrirlash",
@@ -54,7 +55,12 @@
 			"selectedPrefix": "Tanlandi"
 		},
 		"createAccount": "Hisob yaratish",
-		"createLegalEntity": "Yuridik shaxs yaratish"
+		"createAccountGroup": "Hisob guruh yaratish",
+		"createLegalEntity": "Yuridik shaxs yaratish",
+		"createCounterparty": "Kontragent yaratish",
+		"createCounterparties": "Kontragentlar yaratish",
+		"createDeal": "Bitim yaratish",
+		"createDeals": "Bitimlar yaratish"
 	},
 	"Auth": {
 		"title": {
@@ -114,7 +120,7 @@
 		"nav": {
 			"indicators": "Ko'rsatkichlar",
 			"operations": "Operatsiyalar",
-			"counterparties": "Tomonlar",
+			"counterparties": "Hamkorlar",
 			"deals": "Bitimlar",
 			"reports": "Hisobotlar",
 			"directories": "Ma'lumotlar",
@@ -133,7 +139,7 @@
 			"students": "Talabalar"
 		},
 		"directories": {
-			"counterparties": "Tomonlar",
+			"counterparties": "Hamkorlar",
 			"transactionCategories": "Hisob moddalari",
 			"accounts": "Mening hisoblarim",
 			"legalEntities": "Mening yuridik shaxslarim",
@@ -326,7 +332,7 @@
 			"credit": "Kredit",
 			"shipment": "Jo'natma",
 			"legalEntitiesPlaceholder": "Yuridik shaxs va hisoblar",
-			"counterpartiesPlaceholder": "Tomonlar",
+			"counterpartiesPlaceholder": "Hamkorlar",
 			"chartOfAccountsPlaceholder": "Hisob moddalari",
 			"dealsPlaceholder": "Bitimlar",
 			"paymentTypePlaceholder": "To'lov turi",
@@ -492,8 +498,8 @@
 			"fileDownloaded": "Fayl muvaffaqiyatli yuklandi.",
 			"accountingMethod": "Hisob usuli",
 			"date": "Sana",
-			"counterparty": "Tomon",
-			"counterpartyGroup": "Tomonlar guruhi",
+			"counterparty": "Hamkor",
+			"counterpartyGroup": "Hamkorlar guruhi",
 			"deals": "Bitimlar"
 		},
 		"cashflow": {
@@ -1081,7 +1087,7 @@
 					"balance": "Balans",
 					"students_report": "Talabalar",
 					"directories": "Ma'lumotlar",
-					"counterparties": "Tomonlar",
+					"counterparties": "Hamkorlar",
 					"accounting_items": "Hisob moddalari",
 					"my_accounts": "Mening hisoblarim",
 					"my_entities": "Mening yuridik shaxslarim",
@@ -1141,7 +1147,7 @@
 				"balance": "Balans",
 				"students_report": "Talabalar",
 				"directories": "Ma'lumotlar",
-				"counterparties": "Tomonlar",
+				"counterparties": "Hamkorlar",
 				"accounting_items": "Hisob moddalari",
 				"my_accounts": "Mening hisoblarim",
 				"my_entities": "Mening yuridik shaxslarim",
@@ -1270,7 +1276,7 @@
 			"fields": {
 				"name": "Nomi",
 				"fullName": "To'liq nomi",
-				"group": "Tomonlar guruhi",
+				"group": "Hamkorlar guruhi",
 				"inn": "INN",
 				"kpp": "KPP",
 				"accountNumber": "Hisob raqami",
@@ -1284,19 +1290,19 @@
 			"placeholders": {
 				"name": "Masalan, Vasiliev",
 				"fullName": "Masalan, Vasiliev va hamkorlari MChJ",
-				"selectGroup": "Tomonlar guruhini tanlang",
+				"selectGroup": "Hamkorlar guruhini tanlang",
 				"inn": "INN kiriting",
 				"kpp": "KPP kiriting",
 				"account": "Hisob raqamini kiriting",
 				"comment": "Tomonga izoh",
-				"groupComment": "Tomonlar guruhiga izoh",
+				"groupComment": "Hamkorlar guruhiga izoh",
 				"groupName": "Masalan, yetkazib beruvchilarim"
 			},
 			"errors": {
 				"nameRequired": "Nomini kiriting",
 				"groupNameRequired": "Guruh nomini kiriting",
 				"createFailed": "Tomon yaratib bo'lmadi",
-				"createGroupFailed": "Tomonlar guruhini yaratib bo'lmadi"
+				"createGroupFailed": "Hamkorlar guruhini yaratib bo'lmadi"
 			},
 			"saving": "Saqlanmoqda...",
 			"save": "Saqlash",
@@ -1308,9 +1314,9 @@
 			"groupDescriptionLabel": "Tavsif:",
 			"deleteConfirmTitle": "O'chirishni tasdiqlash",
 			"deleteConfirmMessage": "Siz tomonlar guruhini o'chirishga ishonchingiz komilmi?",
-			"pageTitle": "Tomonlar",
+			"pageTitle": "Hamkorlar",
 			"list": {
-				"title": "Tomonlar",
+				"title": "Hamkorlar",
 				"createButton": "Yaratish",
 				"downloadExcel": "Excel ga yuklash",
 				"searchPlaceholder": "Qidirish...",
@@ -1350,7 +1356,7 @@
 					"calculation": "Uchdan hisob usuli"
 				},
 				"empty": "Ma'lumot yo'q",
-				"noCounterpartiesInGroup": "Tomonlar yo'q",
+				"noCounterpartiesInGroup": "Hamkorlar yo'q",
 				"noName": "Nomsiz",
 				"noGroup": "Guruhsiz",
 				"counterpartyCount": "{count} tomon",
@@ -1365,7 +1371,7 @@
 				}
 			},
 			"detail": {
-				"backToList": "Tomonlar ro'yxati",
+				"backToList": "Hamkorlar ro'yxati",
 				"notFound": "Tomon topilmadi",
 				"calculationOptions": {
 					"cashflow": "Pul oqimi bo'yicha hisob",

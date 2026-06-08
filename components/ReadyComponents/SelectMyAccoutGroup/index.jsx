@@ -1,5 +1,7 @@
+import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -19,6 +21,8 @@ const SelectMyAccoutGroup = ({
   const t = useTranslations('Common')
   const tr = useTranslations('Reports.common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSearch = useMemo(() =>
     debounce((val) => setDebouncedSearch(val), 500),
@@ -103,19 +107,44 @@ const SelectMyAccoutGroup = ({
     return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">{t('loading')}</div>
   }
 
+
+  const createAccountHeader = (
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
+    >
+      <Plus size={16} />
+      {t('createAccount')}
+    </button>
+  )
+
+  const combinedHeaderItem = (
+    <>
+      {createAccountHeader}
+      {dropdownHeaderItem}
+    </>
+  )
+
   return (
-    <GroupSelect
-      data={mappedData}
-      value={value || []}
-      onChange={handleOnChange}
-      placeholder={placeholder || tr('legalEntitiesAndAccounts')}
-      className={className}
-      dropdownClassName={dropdownClassName}
-      hasError={hasError}
-      onSearch={handleSearch}
-      isSearching={isFetching}
-      dropdownHeaderItem={dropdownHeaderItem}
-    />
+    <>
+      <GroupSelect
+        data={mappedData}
+        value={value || []}
+        onChange={handleOnChange}
+        placeholder={placeholder || tr('legalEntitiesAndAccounts')}
+        className={className}
+        dropdownClassName={dropdownClassName}
+        hasError={hasError}
+        onSearch={handleSearch}
+        isSearching={isFetching}
+        dropdownHeaderItem={combinedHeaderItem}
+      />
+      <CreateMyAccountModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   )
 }
 

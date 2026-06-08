@@ -27,6 +27,7 @@ const formatDateLocal = (date) => {
 
 const PaymentCalendar = observer(() => {
   const t = useTranslations('Reports')
+  const tc = useTranslations('Common')
 
   const accountingMethodOptions = useMemo(() => [
     { value: 'accrual', label: t('pnl.accounting.accrual') },
@@ -131,10 +132,10 @@ const PaymentCalendar = observer(() => {
         tips.push('Отгрузка')
       }
       if (expenses) {
-        tips = ['Выплата', 'Кредит', 'Начисление']
+        tips = ['Выплата', 'Кредит', 'Дебет', 'Начисление']
       }
       if (income) {
-        tips = [...tips, 'Поступление', 'Кредит', 'Начисление']
+        tips = [...tips, 'Поступление', 'Кредит', 'Дебет', 'Начисление']
       }
       if (!income && !expenses) {
         tips = [...tips, 'Выплата', 'Поступление', 'Дебет', 'Кредит', 'Начисление']
@@ -397,7 +398,7 @@ const PaymentCalendar = observer(() => {
                 onClick={() => paymentCalendarStore.resetToToday()}
                 className="px-3 py-1.5 rounded-md border border-neutral-200 text-sm hover:bg-neutral-50 transition-colors"
               >
-                На сегодня
+                {tc('forToday')}
               </button>
             </div>
             <div className="flex items-center gap-3">

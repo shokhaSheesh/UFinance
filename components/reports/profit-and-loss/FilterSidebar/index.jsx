@@ -62,7 +62,6 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectMyAccoutGroup
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
-            placeholder="Счета"
             returnParentId={true}
             onReturnParentId={(parentIds) => pnlStore.setSelectedLegalEntities(parentIds)}
           />
@@ -73,7 +72,6 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectCounterParties
             value={pnlStore.selectedCounterparties}
             onChange={(val) => pnlStore.setSelectedCounterparties(val)}
-            placeholder="Все контрагенты"
           />
         </div>
         {/* deals */}

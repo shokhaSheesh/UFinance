@@ -6,10 +6,11 @@ import { useEffect, useRef } from 'react';
 
 export function PageSearchBar({
   contentRef,
-  placeholder = 'Qidirish...',
+  placeholder,
   className = '',
   enableHotkey = true,
 }) {
+
   const inputRef = useRef(null);
   const { query, setQuery, total, current, next, prev, clear } =
     usePageSearch(contentRef);

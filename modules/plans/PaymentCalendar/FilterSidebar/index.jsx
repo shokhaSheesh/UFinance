@@ -32,7 +32,6 @@ const PaymentCalendarFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectMyAccoutGroup
             value={paymentCalendarStore.selectedAccounts}
             onChange={(val) => paymentCalendarStore.setSelectedAccounts(val)}
-            placeholder="Счета"
             returnParentId={true}
             onReturnParentId={(parentIds) => paymentCalendarStore.setSelectedLegalEntities(parentIds)}
           />
@@ -42,7 +41,6 @@ const PaymentCalendarFilterSidebar = observer(({ isOpen, onClose }) => {
           <SelectCounterParties
             value={paymentCalendarStore.selectedCounterparties}
             onChange={(val) => paymentCalendarStore.setSelectedCounterparties(val)}
-            placeholder="Все контрагенты"
           />
         </div>
 

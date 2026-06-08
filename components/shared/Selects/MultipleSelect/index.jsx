@@ -196,7 +196,7 @@ const CustomMultipleSelect = ({
 
                         <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
                             {filteredData.length === 0 ? (
-                                <div className='p-3 text-sm text-neutral-400 text-center'>Ничего не найдено</div>
+                                <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
                             ) : (
                                     filteredData.map(item => {
                                         const isSelected = value.some(v => (v?.value || v) === item.value)

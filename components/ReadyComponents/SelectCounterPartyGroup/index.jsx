@@ -1,6 +1,8 @@
+import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { useCounterpartiesGroupsPlanFact } from '@/hooks/useDashboard'
 import { debounce } from 'lodash'
+import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'
@@ -8,6 +10,7 @@ import MultiSelect from '../../shared/Selects/MultiSelect'
 const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasError, isClearable = true, multi = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSearch = useMemo(() =>
     debounce((val) => setDebouncedSearch(val), 500),
@@ -30,19 +33,44 @@ const SelectCounterPartyGroup = ({ value, onChange, placeholder, className, hasE
 
   const actualPlaceholder = isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterpartyGroup'))
   const Component = multi ? MultiSelect : SingleSelect;
+
+  const createCounterpartyGroupHeader = (
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
+    >
+      <Plus size={16} />
+      {t('createCounterparties')}
+    </button>
+  )
+
+  const combinedHeaderItem = (
+    <>
+      {createCounterpartyGroupHeader}
+      {dropdownHeaderItem}
+    </>
+  )
   return (
-    <Component
-      data={counterpartiesGroupsOptions}
-      value={value}
-      onChange={onChange}
-      placeholder={actualPlaceholder}
-      className={className}
-      hasError={hasError}
-      isClearable={isClearable}
-      onSearch={handleSearch}
-      isSearching={isFetching}
-      dropdownHeaderItem={dropdownHeaderItem}
-    />
+    <>
+      <Component
+        data={counterpartiesGroupsOptions}
+        value={value}
+        onChange={onChange}
+        placeholder={actualPlaceholder}
+        className={className}
+        hasError={hasError}
+        isClearable={isClearable}
+        onSearch={handleSearch}
+        isSearching={isFetching}
+        dropdownHeaderItem={combinedHeaderItem}
+      />
+      <CreateCounterpartyModal
+        isOpen={isModalOpen}
+        activetab='group'
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   )
 }
 

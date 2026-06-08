@@ -289,7 +289,11 @@ const TreeSelect = ({
               )}
             </div>
 
-            {dropdownHeaderItem}
+            {dropdownHeaderItem && (
+              <div onClick={() => setOpen(false)}>
+                {dropdownHeaderItem}
+              </div>
+            )}
 
             {/* Tree List */}
             <div className='overflow-y-auto flex-1 py-1 flex flex-col'>
@@ -298,7 +302,7 @@ const TreeSelect = ({
                   <Loader2 size={20} className='text-primary animate-spin' />
                 </div>
               ) : filteredData.length === 0 ? (
-                <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
+                  <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
               ) : (
                 filteredData.map(node => (
                   <TreeNode

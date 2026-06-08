@@ -1,5 +1,7 @@
 'use client'
+import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import { debounce } from 'lodash'
+import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -20,10 +22,11 @@ const SingleCounterParty = ({
 }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSearch = useMemo(() =>
     debounce((val) => setDebouncedSearch(val), 500),
-  [])
+    [])
 
   useEffect(() => {
     return () => handleSearch.cancel()
@@ -87,7 +90,7 @@ const SingleCounterParty = ({
     const node = findItem(result)
     if (node && node.rawData) {
       // Return the chart_of_accounts_id (or id_2) based on the 'name' prop
-      const accountId = node.rawData[name] 
+      const accountId = node.rawData[name]
       returnChartOfAccount?.(accountId || null)
     }
   }
@@ -107,22 +110,46 @@ const SingleCounterParty = ({
     }
   }
 
+  const createCounterpartyHeader = (
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
+    >
+      <Plus size={16} />
+      {t('createCounterparties')}
+    </button>
+  )
+
+  const combinedHeaderItem = (
+    <>
+      {createCounterpartyHeader}
+      {dropdownHeaderItem}
+    </>
+  )
+
   return (
-    <TreeSelect
-      data={result}
-      multi={false}
-      placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterparty'))}
-      value={value}
-      onChange={handleSelect}
-      onSearch={handleSearch}
-      isClearable={isClearable}
-      className={className}
-      dropdownClassName={dropdownClassName}
-      hasError={hasError}
-      disabled={disabled}
-      isSearching={isFetching}
-      dropdownHeaderItem={dropdownHeaderItem}
-    />
+    <>
+      <TreeSelect
+        data={result}
+        multi={false}
+        placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterparty'))}
+        value={value}
+        onChange={handleSelect}
+        onSearch={handleSearch}
+        isClearable={isClearable}
+        className={className}
+        dropdownClassName={dropdownClassName}
+        hasError={hasError}
+        disabled={disabled}
+        isSearching={isFetching}
+        dropdownHeaderItem={combinedHeaderItem}
+      />
+      <CreateCounterpartyModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   )
 }
 

@@ -96,13 +96,13 @@ const Branches = observer(() => {
   if (!branchesList) return null
 
   return (
-    <div className="relative z-20!" ref={containerRef}>
+    <div className="relative " ref={containerRef}>
       {/* {reloading && <ScreenLoader />} */}
 
       <button
         type="button"
         onClick={() => branchesList && setOpen(prev => !prev)}
-        className="flex flex-col px-4 py-1 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
+        className="flex flex-col px-4 py-4 rounded-md hover:bg-slate-900/50 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
       >
         <span className="flex items-center gap-1 text-start line-clamp-1 w-full font-medium">
           {selectedBranch?.name || t('selectPlaceholder')}
@@ -112,8 +112,7 @@ const Branches = observer(() => {
               className={`transition-transform shrink-0 ${open ? 'rotate-180' : ''}`}
             />
           )}
-        </span>
-        <span className="text-start line-clamp-1 w-full text-white/60 text-xs">&nbsp;</span>
+        </span> 
       </button>
 
       {open && branchesList && (

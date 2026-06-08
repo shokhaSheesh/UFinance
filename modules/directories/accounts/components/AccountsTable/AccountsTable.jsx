@@ -1,7 +1,7 @@
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useMemo } from 'react'
-import { ACCOUNT_FIELDS, ACCOUNT_TABLE_HEADERS } from '../../utils/accountsFieldFormatter'
+import { ACCOUNT_TABLE_HEADERS } from '../../utils/accountsFieldFormatter'
 import { AccountTableRow } from '../AccountTableRow/AccountTableRow'
 import { GroupTableRow } from '../GroupTableRow/GroupTableRow'
 import styles from './accounts-table.module.scss'
@@ -78,8 +78,8 @@ export function AccountsTable({
         </thead>
         <tbody>
           <tr>
-            <td colSpan={ACCOUNT_FIELDS.length + 2} className="p-8 text-center text-neutral-400">
-              {t('noData')}
+            <td colSpan={9} className="p-8  text-neutral-400">
+              <span className='text-center'> {t('noData')}</span>
             </td>
           </tr>
         </tbody>

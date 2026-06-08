@@ -21,6 +21,7 @@
 		"edit": "Edit",
 		"copy": "Copy",
 		"close": "Close",
+		"forToday": "For today",
 		"rootElement": "Root element",
 		"createAsRoot": "Create as root element",
 		"placeholders": {
@@ -56,7 +57,12 @@
 			"selectedPrefix": "Selected"
 		},
 		"createAccount": "Create account",
-		"createLegalEntity": "Create legal entity"
+		"createLegalEntity": "Create legal entity",
+		"createAccountGroup": "Create group for account",
+		"createCounterparty": "Create counterparty",
+		"createCounterparties": "Create counterparties",
+		"createDeal": "Create Deal",
+		"createDeals": "Create Deals"
 	},
 	"Auth": {
 		"title": {

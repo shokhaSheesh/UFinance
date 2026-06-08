@@ -217,7 +217,7 @@ const GroupSelect = ({
             {/* List Items */}
             <div className='overflow-y-auto flex-1 py-1'>
               {Object.keys(groupedData).length === 0 ? (
-                <div className='p-3 text-sm text-neutral-400 text-center'>Не найдено</div>
+                <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
               ) : (
                 Object.entries(groupedData).map(([groupName, items]) => {
                   const isGroupFullySelected = isGroupSelected(items);

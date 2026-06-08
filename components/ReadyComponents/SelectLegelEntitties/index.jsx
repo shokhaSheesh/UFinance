@@ -1,5 +1,6 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
+import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
@@ -46,22 +47,22 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
 
   const Component = multi ? MultiSelect : SingleSelect;
 
-  // const createLegalEntityHeader = (
-  //   <button
-  //     type="button"
-  //     onClick={() => setIsModalOpen(true)}
-  //     className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
-  //   >
-  //     <Plus size={16} />
-  //     {t('createLegalEntity')}
-  //   </button>
-  // )
+  const createLegalEntityHeader = (
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
+    >
+      <Plus size={16} />
+      {t('createLegalEntity')}
+    </button>
+  )
 
-  // const combinedHeaderItem = (
-  //   <>
-  //     {dropdownHeaderItem || createLegalEntityHeader}
-  //   </>
-  // )
+  const combinedHeaderItem = (
+    <>
+      {dropdownHeaderItem || createLegalEntityHeader}
+    </>
+  )
 
   return (
     <>
@@ -77,7 +78,7 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
         disabled={disabled}
         onSearch={handleSearch}
         isSearching={isFetching}
-        // dropdownHeaderItem={combinedHeaderItem}
+        dropdownHeaderItem={combinedHeaderItem}
       />
       <CreateLegalEntityModal
         isOpen={isModalOpen}
