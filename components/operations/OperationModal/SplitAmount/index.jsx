@@ -1,10 +1,10 @@
 import CustomDialog from '@/components/shared/CustomDialog'
+import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '@/constants/icons'
+import { appStore } from '@/store/app.store'
+import { isFuture } from '@/utils/formatDate'
+import { formatAmount, formatDateRu, formatNumber } from '@/utils/helpers'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
-import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '../../../../constants/icons'
-import { appStore } from '../../../../store/app.store'
-import { isFuture } from '../../../../utils/formatDate'
-import { formatAmount, formatDateRu, formatNumber } from '../../../../utils/helpers'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
@@ -82,10 +82,51 @@ const SplitAmount = ({ amount, onChange, rows,
   const isExceeded = difference > 0
   const differencePercent = Number((totalPercent - 100).toFixed(2))
 
+  // Track the last amount that was applied to the rows and whether the
+  // panel was open on the previous run, so we can tell an actual amount
+  // edit apart from simply opening the panel (which must not wipe data).
+  const prevAmountRef = useRef(amount)
+  const wasOpenRef = useRef(open)
+  const rowsRef = useRef(rows)
+
+  // Keep the latest rows in a ref (synced after commit) so the amount/open
+  // effect can read them for the "has existing distribution" check without
+  // re-running whenever a single row is edited.
   useEffect(() => {
-    if (open && amount) {
-      dispatch({ type: 'RECALCULATE_VALUES', amount })
+    rowsRef.current = rows
+  }, [rows])
+
+  useEffect(() => {
+    if (!open) {
+      // Keep prevAmountRef untouched so a change made while closed is still
+      // detected as a change when the panel is reopened.
+      wasOpenRef.current = false
+      return
     }
+
+    const justOpened = !wasOpenRef.current
+    const amountChanged = amount !== prevAmountRef.current
+    wasOpenRef.current = true
+
+    if (!amount) {
+      prevAmountRef.current = amount
+      return
+    }
+
+    if (amountChanged) {
+      // User edited the total amount → split everything equally.
+      dispatch({ type: 'DIVIDE_EQUAL', amount })
+    } else if (justOpened) {
+      // Opening the panel: keep an existing distribution (e.g. when editing
+      // an operation), otherwise start from an equal split.
+      const num = (v) => parseFloat(String(v ?? '').replace(/\s/g, '')) || 0
+      const hasDistribution = rowsRef.current.some(
+        (r) => num(r.percent) > 0 || num(r.value) > 0
+      )
+      dispatch({ type: hasDistribution ? 'RECALCULATE_VALUES' : 'DIVIDE_EQUAL', amount })
+    }
+
+    prevAmountRef.current = amount
   }, [amount, open, dispatch])
 
   useEffect(() => {
@@ -114,9 +155,6 @@ const SplitAmount = ({ amount, onChange, rows,
     if ((isFutureDate && !appStore.isDonoSchool)) {
       return
     }
-    console.log('isFutureDate', isFutureDate)
-    console.log('index', index)
-    console.log('check', check)
     dispatch({ type: 'UPDATE', index, field: 'isCalculationCommitted', value: check })
   }
 

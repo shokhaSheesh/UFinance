@@ -73,66 +73,82 @@ const emptyRow = (preselectedCounterparty = '') => ({
   percent: '',
 })
 
+// Parse a possibly space-separated/formatted numeric string into a number.
+// formatNumber() inserts thousand separators (e.g. "1 000"), and Number("1 000")
+// is NaN — so every numeric read must strip whitespace first.
+const parseNum = (v) => {
+  const n = Number(String(v ?? '').replace(/\s/g, ''))
+  return Number.isFinite(n) ? n : 0
+}
+
+// Format a number to a clean string: 2 decimals max, trailing ".00" removed.
+const fmt2 = (n) => {
+  if (!Number.isFinite(n)) return ''
+  return String(Number(n).toFixed(2)).replace(/\.00$/, '')
+}
+
+// Split rows into equal shares: integer percents (the last row absorbs the
+// remainder) with each value derived from its percent, so the amount and
+// share columns always agree and add up exactly to the total amount.
+const equalSplit = (rows, totalAmount) => {
+  const count = rows.length
+  if (count === 0) return rows
+  const equalPercent = Math.floor(100 / count)
+  const lastPercent = 100 - equalPercent * (count - 1)
+  const equalValue = (equalPercent / 100) * totalAmount
+  const lastValue = totalAmount - equalValue * (count - 1)
+  return rows.map((row, i) => {
+    const isLast = i === count - 1
+    return {
+      ...row,
+      percent: String(isLast ? lastPercent : equalPercent),
+      value: totalAmount > 0 ? fmt2(isLast ? lastValue : equalValue) : '',
+    }
+  })
+}
+
 function rowsReducer(state, action) {
   switch (action.type) {
     case 'ADD': {
-      const newState = [...state, emptyRow()]
-      const count = newState.length
-      const totalAmount = parseFloat(action.amount) || 0
-      const equalValue = Math.floor((totalAmount / count) * 100) / 100
-      const equalPercent = Math.floor((100 / count) * 100) / 100
-      const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
-      const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
-
-      return newState.map((row, i) => ({
-        ...row,
-        value: i === count - 1 ? String(lastValue) : String(equalValue),
-        percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
-      }))
+      return equalSplit([...state, emptyRow()], parseNum(action.amount))
     }
     case 'REMOVE': {
       const newState = state.filter((_, i) => i !== action.index)
       const count = newState.length
       if (count === 0) return newState
-      const totalAmount = parseFloat(action.amount) || 0
-      const remainingPercentSum = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
+      const totalAmount = parseNum(action.amount)
+      const remainingPercentSum = newState.reduce((s, r) => s + parseNum(r.percent), 0)
 
-      if (remainingPercentSum > 0) {
-        let remainingValueForFinal = totalAmount
-        let remainingPercentForFinal = 100
-        return newState.map((row, i) => {
-          if (i === count - 1) {
-            return {
-              ...row,
-              value: String(remainingValueForFinal.toFixed(2)).replace('.00', ''),
-              percent: String(remainingPercentForFinal.toFixed(2)).replace('.00', '')
-            }
-          }
-          const rowPercent = parseFloat(row.percent) || 0
-          const scaledPercent = (rowPercent / remainingPercentSum) * 100
-          const rowValue = Math.floor(totalAmount * (scaledPercent / 100) * 100) / 100
-          const calculatedPercent = Math.floor(scaledPercent * 100) / 100
+      // No existing shares → fall back to an equal split.
+      if (remainingPercentSum <= 0) {
+        return equalSplit(newState, totalAmount)
+      }
 
-          remainingValueForFinal -= rowValue
-          remainingPercentForFinal -= calculatedPercent
-
+      // Existing shares → keep proportions, rescaling them back up to 100%.
+      let remainingValueForFinal = totalAmount
+      let remainingPercentForFinal = 100
+      return newState.map((row, i) => {
+        if (i === count - 1) {
           return {
             ...row,
-            value: String(rowValue.toFixed(2)).replace('.00', ''),
-            percent: String(calculatedPercent.toFixed(2)).replace('.00', '')
+            value: totalAmount > 0 ? fmt2(remainingValueForFinal) : '',
+            percent: fmt2(remainingPercentForFinal)
           }
-        })
-      } else {
-        const equalValue = Math.floor((totalAmount / count) * 100) / 100
-        const equalPercent = Math.floor((100 / count) * 100) / 100
-        const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
-        const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
-        return newState.map((row, i) => ({
+        }
+        const rowPercent = parseNum(row.percent)
+        const scaledPercent = (rowPercent / remainingPercentSum) * 100
+        const rowValue = Math.floor(totalAmount * (scaledPercent / 100) * 100) / 100
+        const calculatedPercent = Math.floor(scaledPercent * 100) / 100
+
+        remainingValueForFinal -= rowValue
+        remainingPercentForFinal -= calculatedPercent
+
+        return {
           ...row,
-          value: i === count - 1 ? String(lastValue) : String(equalValue),
-          percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
-        }))
-      }
+          value: totalAmount > 0 ? fmt2(rowValue) : '',
+          percent: fmt2(calculatedPercent)
+        }
+      })
     }
     case 'UPDATE': {
       if (action.field === 'calculationDate') {
@@ -142,57 +158,64 @@ function rowsReducer(state, action) {
           i === action.index ? { ...row, [action.field]: action.value, isCalculationCommitted: !isFutureDate } : row
         )
       }
+      // Manual value edit → recompute that row's percent from the main amount.
       if (action.field === 'value' && action.amount) {
-        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
+        const numAmount = parseNum(action.amount)
+        const isEmpty = String(action.value ?? '').replace(/\s/g, '') === ''
+        const numValue = parseNum(action.value)
+        const cleanValue = isEmpty ? '' : String(numValue)
+
         let percent = ''
-        if (numAmount > 0 && action.value !== '') {
-          percent = String(Number((Number(action.value) / numAmount) * 100).toFixed(2))
-          if (percent.endsWith('.00')) percent = parseInt(percent).toString()
+        if (numAmount > 0 && !isEmpty) {
+          percent = fmt2((numValue / numAmount) * 100)
         }
+
         let newState = state.map((row, i) =>
-          i === action.index ? { ...row, value: action.value, percent } : row
+          i === action.index ? { ...row, value: cleanValue, percent } : row
         )
 
+        // When the row values now add up to the amount, absorb rounding drift
+        // into the edited row's percent so the shares total exactly 100%.
         if (numAmount > 0) {
-          const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
+          const totalValues = newState.reduce((s, r) => s + parseNum(r.value), 0)
           if (Math.abs(totalValues - numAmount) < 0.01) {
-            const totalPercent = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
+            const totalPercent = newState.reduce((s, r) => s + parseNum(r.percent), 0)
             if (Math.abs(totalPercent - 100) > 0.001) {
-              const residual = 100 - (totalPercent - (parseFloat(percent) || 0));
+              const residual = 100 - (totalPercent - parseNum(percent))
               newState = newState.map((row, i) =>
-                i === action.index ? {
-                  ...row,
-                  percent: String(Number(residual).toFixed(2)).replace('.00', '')
-                } : row
+                i === action.index ? { ...row, percent: fmt2(residual) } : row
               )
             }
           }
         }
         return newState
       }
+      // Manual percent edit → recompute that row's value from the main amount.
       if (action.field === 'percent' && action.amount) {
-        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
-        let value = ''
-        let calculatedValueStr = ''
-        if (numAmount > 0 && action.value !== '') {
-          value = String(((Number(action.value) / 100) * numAmount).toFixed(2))
-          calculatedValueStr = value.endsWith('.00') ? parseInt(value).toString() : value
+        const numAmount = parseNum(action.amount)
+        const rawPercent = String(action.value ?? '')
+        const isEmpty = rawPercent.trim() === ''
+        const numPercent = parseNum(rawPercent)
+
+        let valueStr = ''
+        if (numAmount > 0 && !isEmpty) {
+          valueStr = fmt2((numPercent / 100) * numAmount)
         }
+
         let newState = state.map((row, i) =>
-          i === action.index ? { ...row, percent: action.value, value: calculatedValueStr } : row
+          i === action.index ? { ...row, percent: rawPercent, value: valueStr } : row
         )
 
+        // When the shares now total 100%, absorb rounding drift into the edited
+        // row's value so the amounts add up exactly to the main amount.
         if (numAmount > 0) {
-          const totalPercents = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
+          const totalPercents = newState.reduce((s, r) => s + parseNum(r.percent), 0)
           if (Math.abs(totalPercents - 100) < 0.01) {
-            const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
+            const totalValues = newState.reduce((s, r) => s + parseNum(r.value), 0)
             if (Math.abs(totalValues - numAmount) > 0.001) {
-              const residualValue = numAmount - (totalValues - (Number(calculatedValueStr) || 0));
+              const residualValue = numAmount - (totalValues - parseNum(valueStr))
               newState = newState.map((row, i) =>
-                i === action.index ? {
-                  ...row,
-                  value: String(Number(residualValue).toFixed(2)).replace('.00', '')
-                } : row
+                i === action.index ? { ...row, value: fmt2(residualValue) } : row
               )
             }
           }
@@ -238,18 +261,7 @@ function rowsReducer(state, action) {
       })
     }
     case 'DIVIDE_EQUAL': {
-      const count = state.length
-      if (count === 0) return state
-      const totalAmount = parseFloat(String(action?.amount)?.replace(/\s/g, '')) || 0
-      const equalValue = parseFloat((totalAmount / count).toFixed(2))
-      const equalPercent = Math.floor(100 / count)
-      const lastValue = parseFloat((totalAmount - equalValue * (count - 1)).toFixed(2))
-      const lastPercent = 100 - equalPercent * (count - 1)
-      return state.map((row, i) => ({
-        ...row,
-        value: i === count - 1 ? String(lastValue).replace('.00', '') : String(equalValue).replace('.00', ''),
-        percent: i === count - 1 ? String(lastPercent) : String(equalPercent),
-      }))
+      return equalSplit(state, parseNum(action.amount))
     }
     case 'RESET':
       return [emptyRow()]
