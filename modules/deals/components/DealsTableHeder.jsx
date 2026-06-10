@@ -26,13 +26,13 @@ export default function DealsTableHeader({ t, tc, isAllSelected, selectedCount, 
           <div className="w-28 flex px-2 items-center justify-center">{t('table.status')}</div>
           <div className="w-36 flex px-2 items-center justify-end gap-1">
             <span>{t('table.dealAmount')}</span>
-            <span>{GlobalCurrency.name}</span>
+              <span>{GlobalCurrency?.name}</span>
           </div>
           <div className="w-24 flex px-2 items-center justify-end">{t('table.received')}</div>
           <div className="w-24 flex px-2 items-center justify-end">{t('table.shipped')}</div>
           <div className="w-44 flex px-2 items-center justify-end gap-1">
             <span>{t('table.profit')}</span>
-            <span>{GlobalCurrency.name}</span>
+              <span>{GlobalCurrency?.name}</span>
           </div>
         </>
       )}

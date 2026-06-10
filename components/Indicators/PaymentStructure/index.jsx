@@ -18,7 +18,7 @@ const PaymentStructure = observer(() => {
     periodStartDate: moment(indicators.rangeMonth.start).format('YYYY-MM-DD'),
     periodEndDate: moment(indicators.rangeMonth.end).format('YYYY-MM-DD'),
     periodType: indicators.periodType,
-    userCurrencyCode: GlobalCurrency.code,
+    userCurrencyCode: GlobalCurrency?.code,
     accounting_method: indicators.accounting,
     currencyCode: indicators?.currencyCode,
     sellingDealId: indicators?.deals,
@@ -48,7 +48,7 @@ const PaymentStructure = observer(() => {
     periodStartDate: moment(indicators.rangeMonth.start).format('YYYY-MM-DD'),
     periodEndDate: moment(indicators.rangeMonth.end).format('YYYY-MM-DD'),
     periodType: indicators.periodType,
-    currencyCode: GlobalCurrency.code,
+    currencyCode: GlobalCurrency?.code,
     sellingDealId: indicators.deals,
     accountId: indicators.accounts,
   }

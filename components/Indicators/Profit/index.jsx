@@ -42,7 +42,7 @@ const Profit = () => {
     periodStartDate: moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD'),
     periodEndDate: moment(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD'),
     periodType: indicatorsStore.periodType,
-    userCurrencyCode: GlobalCurrency.code,
+    userCurrencyCode: GlobalCurrency?.code,
     accounting_method: indicatorsStore.profitableclientsMethod,
     currencyCode: indicators?.currencyCode,
     accountId: indicatorsStore.accounts,
@@ -245,11 +245,11 @@ const Profit = () => {
     const margin = incomeTotal ? (netProfitTotal / incomeTotal) * 100 : 0
 
     return [
-      { label: t('profit.stats.income'), value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
-      { label: t('profit.stats.expenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
-      { label: t('profit.stats.netProfit'), value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.income'), value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
+      { label: t('profit.stats.expenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
+      { label: t('profit.stats.netProfit'), value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
       { label: t('profit.stats.profitability'), value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress, t,])
   const inteval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0

@@ -128,7 +128,7 @@ const OperationCashFlowModal = observer(({
             <span className=" font-medium">{t('operationsSum')}</span>
             {operationsSummary && <div className="flex items-center gap-1">
               <span>{(title === 'Списания' || title === '') ? "-" : ""}{operationsSummary?.net_cash_flow !== undefined ? formatNumber(formatTotalSumma(operationsSummary?.net_cash_flow)) : ''}</span>
-              <span>{operationsSummary?.display_currency_code || GlobalCurrency.code}</span>
+              <span>{operationsSummary?.display_currency_code || GlobalCurrency?.code}</span>
             </div>}
           </div>
         </div>

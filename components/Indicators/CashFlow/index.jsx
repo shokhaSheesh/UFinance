@@ -61,7 +61,7 @@ const CashFlow = () => {
     periodStartDate: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
     periodEndDate: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
     periodType: periodType,
-    currencyCode: GlobalCurrency.code,
+    currencyCode: GlobalCurrency?.code,
     sellingDealId: deals,
     accountId: accounts,
   }

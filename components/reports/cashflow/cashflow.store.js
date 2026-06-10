@@ -17,7 +17,7 @@ class CashFlowStore {
 	periodStartDate = getDefaultStartDate()
 	periodEndDate = getDefaultEndDate()
 	periodType = 'monthly'
-	currencyCode = GlobalCurrency.code || 'UZS' // Defaulting to RUB as seen in page
+	currencyCode = GlobalCurrency?.code || 'UZS' // Defaulting to RUB as seen in page
 	sellingDealId = [] // these are same values
 	contrAgentId = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
@@ -85,7 +85,7 @@ class CashFlowStore {
 		this.periodStartDate = new Date(currentYear, 0, 1)
 		this.periodEndDate = new Date()
 		this.periodType = 'monthly'
-		this.currencyCode = GlobalCurrency.code
+		this.currencyCode = GlobalCurrency?.code
 		this.sellingDealId = []
 		this.contrAgentId = []
 		this.accountId = []

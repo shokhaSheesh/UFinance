@@ -303,8 +303,8 @@ export default observer(function DealDetailPage() {
             </div>
 
             <div className="flex flex-col gap-0 min-w-0">
-              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(received)} {GlobalCurrency.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
+              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(received)} {GlobalCurrency?.name}</div>
+              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency?.name}</div>
             </div>
           </div>
 
@@ -317,7 +317,7 @@ export default observer(function DealDetailPage() {
             <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.clientDebt')}</span>
             <p className="truncate">
               <span className="font-medium text-[#344054]">{formatAmount(clientDebt)} </span>
-              <span>{GlobalCurrency.name}</span>
+              <span>{GlobalCurrency?.name}</span>
             </p>
           </div>
         </div>
@@ -337,8 +337,8 @@ export default observer(function DealDetailPage() {
             </div>
 
             <div className="flex flex-col gap-0 min-w-0">
-              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(shipped)} {GlobalCurrency.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency.name}</div>
+              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(shipped)} {GlobalCurrency?.name}</div>
+              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.from')} {formatAmount(dealAmount)} {GlobalCurrency?.name}</div>
             </div>
           </div>
 
@@ -349,7 +349,7 @@ export default observer(function DealDetailPage() {
 
           <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
             <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
-            <span className="font-medium text-[#344054] truncate">{formatAmount(remainingShipment)} {GlobalCurrency.name}</span>
+            <span className="font-medium text-[#344054] truncate">{formatAmount(remainingShipment)} {GlobalCurrency?.name}</span>
           </div>
         </div>
 
@@ -385,7 +385,7 @@ export default observer(function DealDetailPage() {
             </div>
 
             <div className="flex flex-col gap-0 min-w-0">
-              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(profit)} {GlobalCurrency.name}</div>
+              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(profit)} {GlobalCurrency?.name}</div>
               <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.profitability')} {profitPercent}%</div>
             </div>
           </div>
@@ -403,12 +403,12 @@ export default observer(function DealDetailPage() {
             <div className="flex flex-col flex-1 min-w-0">
               <div className={styles.profitBarDot} style={{ backgroundColor: '#12B76A', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
               <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.income')}</span>
-              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">+{formatAmount(income)} {GlobalCurrency.name}</span>
+              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">+{formatAmount(income)} {GlobalCurrency?.name}</span>
             </div>
             <div className="flex flex-col flex-1 min-w-0">
               <div className={styles.profitBarDot} style={{ backgroundColor: '#FFC609', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
               <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.expenses')}</span>
-              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">-{formatAmount(expenses)} {GlobalCurrency.name}</span>
+              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">-{formatAmount(expenses)} {GlobalCurrency?.name}</span>
             </div>
           </div>
         </div>

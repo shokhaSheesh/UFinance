@@ -22,7 +22,7 @@ export default function DealsFooter({ t, summary, totalProfit, isFilterOpen }) {
         <span className="text-xs font-semibold text-slate-900">
           {formatAmount(summary?.total_deals_sum || 0)}
         </span>
-        <span className="text-xs font-semibold text-slate-900">{GlobalCurrency.name}</span>
+        <span className="text-xs font-semibold text-slate-900">{GlobalCurrency?.name}</span>
       </span>
 
       <div className="w-px h-5 bg-gray-200 shrink-0" />
@@ -41,7 +41,7 @@ export default function DealsFooter({ t, summary, totalProfit, isFilterOpen }) {
         >
           {formatAmount(totalProfit)}
         </span>
-        <span className="text-xs font-semibold text-slate-900">{GlobalCurrency.name}</span>
+        <span className="text-xs font-semibold text-slate-900">{GlobalCurrency?.name}</span>
       </span>
     </footer>
   )

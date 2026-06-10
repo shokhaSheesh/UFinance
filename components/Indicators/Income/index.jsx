@@ -286,7 +286,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
   return (
     <div className="w-full p-6 rounded-lg mt-6 relative">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-[14px] font-medium text-[#111827]">{stats.income.label}, {mounted ? GlobalCurrency.name : ''}</h2>
+        <h2 className="text-[14px] font-medium text-[#111827]">{stats.income.label}, {mounted ? GlobalCurrency?.name : ''}</h2>
         <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
           <HelpCircle className="size-2.5 text-neutral-400" />
         </div>

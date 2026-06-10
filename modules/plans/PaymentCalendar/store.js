@@ -21,7 +21,7 @@ class PaymentCalendarStore {
   selectedLegalEntities = []
   selectedCounterparties = []
   defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
-  selectedCurrency = GlobalCurrency.code || 'UZS'
+  selectedCurrency = GlobalCurrency?.code || 'UZS'
 
   constructor() {
     makeAutoObservable(this)

@@ -14,7 +14,7 @@ class Indicators {
   deals = []
   accounts = []
   rangeMonth = defaultDateRange
-  currencyCode = GlobalCurrency.code
+  currencyCode = GlobalCurrency?.code
 
   // Profit filters
   method = 'cash' // 'accrual'

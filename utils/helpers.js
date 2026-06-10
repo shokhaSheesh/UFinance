@@ -124,18 +124,31 @@ export const formatTotalSumma = (summa, fixed = 2) => {
 //  format number with thousand separators
 
 export function formatNumber(value) {
-  // strip everything except digits and dot
-  const clean = String(value).replace(/[^\d.-]/g, '')
+  let s = String(value).trim();
 
-  // keep only the first dot
-  const parts = clean.split('.')
-  const intPart = parts[0] || ''
-  const decPart = parts.length > 1 ? '.' + parts[1] : ''
+  // remember the sign, then keep only digits, comma, dot
+  const negative = s.startsWith('-');
+  s = s.replace(/[^\d.,]/g, '');
 
-  // add thousand separators to the integer part only
-  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  // the LAST comma or dot is the decimal separator; everything else is grouping
+  const lastSep = Math.max(s.lastIndexOf(','), s.lastIndexOf('.'));
 
-  return formatted + decPart.slice(0, 3)
+  let intPart, decPart;
+  if (lastSep === -1) {
+    intPart = s;
+    decPart = '';
+  } else {
+    intPart = s.slice(0, lastSep).replace(/[.,]/g, ''); // drop grouping separators
+    decPart = s.slice(lastSep + 1).replace(/\D/g, '');  // digits only
+  }
+
+  // group the integer part with spaces
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  // keep your 2-decimal limit
+  const dec = decPart ? '.' + decPart.slice(0, 2) : '';
+
+  return (negative ? '-' : '') + (grouped || '') + dec;
 }
 
 export function includeNumber(value) {

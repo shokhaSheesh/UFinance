@@ -30,7 +30,7 @@ class PnLStore {
 	selectedLegalEntities = []
 	selectedCounterparties = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
-	selectedCurrency = GlobalCurrency.code || 'UZS'
+	selectedCurrency = GlobalCurrency?.code || 'UZS'
 	dateRangeType = 'year'
 
 	constructor() {
@@ -118,7 +118,7 @@ class PnLStore {
 		this.selectedAccounts = []
 		this.selectedLegalEntities = []
 		this.selectedCounterparties = []
-		this.selectedCurrency = GlobalCurrency.code || 'UZS'
+		this.selectedCurrency = GlobalCurrency?.code || 'UZS'
 		this.dateRangeType = 'year'
 	}
 }

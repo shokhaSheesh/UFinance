@@ -334,7 +334,7 @@ export default observer(function AccountsPageList() {
                 <span className={styles.footerTextBold}>
                   {summary?.current_balance_val.toLocaleString('ru-RU')}
                 </span>
-                <span>{GlobalCurrency.name}</span>
+                  <span>{GlobalCurrency?.name}</span>
               </div>
             )}
           </div>

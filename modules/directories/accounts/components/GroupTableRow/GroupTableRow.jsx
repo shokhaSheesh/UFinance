@@ -1,9 +1,9 @@
-import React from 'react'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { AccountMenu } from '@/components/directories/AccountMenu/AccountMenu'
-import { ExpendClose, ExpendOpen } from '@/constants/icons'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { GlobalCurrency } from '@/constants/globalCurrency'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { formatAmount } from '@/utils/helpers'
+import React from 'react'
 import { AccountTableRow } from '../AccountTableRow/AccountTableRow'
 
 export function GroupTableRow({ 
@@ -43,10 +43,10 @@ export function GroupTableRow({
           </div>
         </td>
         <td className="p-2 text-nowrap">
-          {group.nachalьnyy_ostatok_val !== undefined ? `${formatAmount(group.nachalьnyy_ostatok_val)} ${GlobalCurrency.name}` : ''}
+          {group.nachalьnyy_ostatok_val !== undefined ? `${formatAmount(group.nachalьnyy_ostatok_val)} ${GlobalCurrency?.name}` : ''}
         </td>
         <td className="p-2 text-nowrap">
-          {group.current_balance_val !== undefined ? `${formatAmount(group.current_balance_val)} ${GlobalCurrency.name}` : ''}
+          {group.current_balance_val !== undefined ? `${formatAmount(group.current_balance_val)} ${GlobalCurrency?.name}` : ''}
         </td>
         <td className="p-2"></td>
         <td className="p-2"></td>

@@ -14,7 +14,7 @@ class BalanceStore {
 	// ── Filter state ────────────────────────────────────────────────────────────
 	dateRange = defaultDateRange()
 	selectedEntity = []
-	selectedCurrency = GlobalCurrency.code || 'UZS'
+	selectedCurrency = GlobalCurrency?.code || 'UZS'
 	selectedCounterparties = []
 	selectedAccount = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
@@ -70,7 +70,7 @@ class BalanceStore {
 	resetFilters() {
 		this.dateRange = defaultDateRange()
 		this.selectedEntity = []
-		this.selectedCurrency = GlobalCurrency.code || 'UZS'
+		this.selectedCurrency = GlobalCurrency?.code || 'UZS'
 		this.selectedCounterparties = []
 		this.selectedAccount = []
 		this.dateRangeType = 'year'
