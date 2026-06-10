@@ -499,8 +499,8 @@ const CounterpartiesPage = observer(() => {
             {(viewMode === 'groups' ? counterpartiesGroups : viewMode === 'nested' ? groupedCounterparties : flatCounterparties).map((item) => {
               if (item.isGroup) {
                 const isExpanded = expandedGroups.has(item.guid)
-                const styleDifference = item.difference > 0 ? 'text-emerald-500 font-medium' : item.difference < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
-                const styleProfit = item.profit > 0 ? 'text-emerald-500 font-medium' : item.profit < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
+                const styleDifference = item?.difference > 0 ? 'text-emerald-500 font-medium' : item?.difference < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
+                const styleProfit = item?.profit > 0 ? 'text-emerald-500 font-medium' : item?.profit < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
 
                 return (
                   <React.Fragment key={item.id}>
@@ -518,7 +518,7 @@ const CounterpartiesPage = observer(() => {
                         >
                           {isExpanded ? <ExpendClose /> : <ExpendOpen />}
                         </button>
-                        <span className="text-slate-900 truncate">{item.nazvanie} ({item.items?.length || 0})</span>
+                        <span className="text-slate-900 truncate">{item?.nazvanie} ({item.items?.length || 0})</span>
                       </div>
                       {filters.calculationMethod !== 'Cashflow' && (
                         <div className="w-32 flex px-2 items-center text-neutral-500">–</div>
@@ -527,25 +527,25 @@ const CounterpartiesPage = observer(() => {
                         {item?.operationCount ?? 0}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.debitorka > 0 ? item.debitorka.toLocaleString('ru-RU') : '0'}
+                        {item.debitorka > 0 ? item?.debitorka?.toLocaleString('ru-RU') : '0'}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.kreditorka > 0 ? item.kreditorka.toLocaleString('ru-RU') : '0'}
+                        {item.kreditorka > 0 ? item?.kreditorka?.toLocaleString('ru-RU') : '0'}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
                         {filters.calculationMethod === 'Cashflow'
-                          ? (item?.income > 0 ? item?.income.toLocaleString('ru-RU') : '0')
+                          ? (item?.income > 0 ? item?.income?.toLocaleString('ru-RU') : '0')
                           : (item?.income?.toLocaleString('ru-RU') || '0')}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
                         {filters.calculationMethod === 'Cashflow'
-                          ? (item.expenses > 0 ? item.expenses.toLocaleString('ru-RU') : '0')
+                          ? (item?.expenses > 0 ? item?.expenses?.toLocaleString('ru-RU') : '0')
                           : (item?.expenses?.toLocaleString('ru-RU') || '0')}
                       </div>
                       <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                         {filters.calculationMethod === 'Cashflow'
-                          ? (item.difference === 0 ? '0' : item.difference.toLocaleString('ru-RU'))
-                          : (item.profit === 0 ? '0' : item.profit.toLocaleString('ru-RU'))}
+                          ? (item?.difference === 0 ? '0' : item.difference?.toLocaleString('ru-RU'))
+                          : (item?.profit === 0 ? '0' : item.profit?.toLocaleString('ru-RU'))}
                       </div>
                       <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                         <GroupMenu
@@ -567,45 +567,45 @@ const CounterpartiesPage = observer(() => {
                     )}
 
                     {isExpanded && item.items?.map((counterparty) => {
-                      const styleDifference = counterparty.difference > 0 ? 'text-emerald-500' : counterparty.difference < 0 ? 'text-red-500' : 'text-neutral-500'
-                      const styleProfit = counterparty.profit > 0 ? 'text-emerald-500' : counterparty.profit < 0 ? 'text-red-500' : 'text-neutral-500'
+                      const styleDifference = counterparty?.difference > 0 ? 'text-emerald-500' : counterparty?.difference < 0 ? 'text-red-500' : 'text-neutral-500'
+                      const styleProfit = counterparty?.profit > 0 ? 'text-emerald-500' : counterparty?.profit < 0 ? 'text-red-500' : 'text-neutral-500'
 
                       return (
                         <div
                           key={counterparty.id}
                           className={cn(
                             "flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm",
-                            isRowSelected(counterparty.id) && "bg-blue-50/50"
+                            isRowSelected(counterparty?.id) && "bg-blue-50/50"
                           )}
-                          onClick={() => router.push(`/directories/counterparties/${counterparty.guid}`)}
+                          onClick={() => router.push(`/directories/counterparties/${counterparty?.guid}`)}
                         >
                           <div className="w-10 flex items-center justify-center pl-4" onClick={(e) => e.stopPropagation()}>
-                            <OperationCheckbox checked={isRowSelected(counterparty.id)} onChange={() => toggleRowSelection(counterparty.id)} />
+                            <OperationCheckbox checked={isRowSelected(counterparty.id)} onChange={() => toggleRowSelection(counterparty?.id)} />
                           </div>
                           <div className="flex-1 min-w-[200px] flex flex-col px-3 pl-8 justify-center">
-                            <span className="text-slate-900 font-medium truncate">{counterparty.nazvanie}</span>
-                            {counterparty.komentariy && <span className="text-neutral-400 text-mini truncate">{counterparty.komentariy}</span>}
+                            <span className="text-slate-900 font-medium truncate">{counterparty?.nazvanie}</span>
+                            {counterparty?.komentariy && <span className="text-neutral-400 text-mini truncate">{counterparty?.komentariy}</span>}
                           </div>
                           {filters.calculationMethod !== 'Cashflow' && (
                             <div className="w-32 flex px-2 items-center text-neutral-500 truncate">{counterparty.inn || '–'}</div>
                           )}
                           <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{counterparty?.operationCount ?? 0}</div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty.debitorka > 0 ? counterparty.debitorka.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.debitorka > 0 ? counterparty?.debitorka?.toLocaleString('ru-RU') : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty.kreditorka > 0 ? counterparty.kreditorka.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.kreditorka > 0 ? counterparty?.kreditorka?.toLocaleString('ru-RU') : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty.income > 0 ? counterparty.income.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.income > 0 ? counterparty?.income?.toLocaleString('ru-RU') : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty.expenses > 0 ? counterparty.expenses.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.expenses > 0 ? counterparty?.expenses?.toLocaleString('ru-RU') : '0'}
                           </div>
                           <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                             {filters.calculationMethod === 'Cashflow'
-                              ? (counterparty.difference === 0 ? '0' : counterparty.difference.toLocaleString('ru-RU'))
-                              : (counterparty.profit === 0 ? '0' : counterparty.profit.toLocaleString('ru-RU'))}
+                              ? (counterparty?.difference === 0 ? '0' : counterparty?.difference?.toLocaleString('ru-RU'))
+                              : (counterparty?.profit === 0 ? '0' : counterparty?.profit?.toLocaleString('ru-RU'))}
                           </div>
                           <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                             <CounterpartyMenu
@@ -620,15 +620,15 @@ const CounterpartiesPage = observer(() => {
                   </React.Fragment>
                 )
               } else {
-                const styleDifference = item.difference > 0 ? 'text-emerald-500' : item.difference < 0 ? 'text-red-500' : 'text-neutral-500'
-                const styleProfit = item.profit > 0 ? 'text-emerald-500' : item.profit < 0 ? 'text-red-500' : 'text-neutral-500'
+                const styleDifference = item?.difference > 0 ? 'text-emerald-500' : item?.difference < 0 ? 'text-red-500' : 'text-neutral-500'
+                const styleProfit = item?.profit > 0 ? 'text-emerald-500' : item?.profit < 0 ? 'text-red-500' : 'text-neutral-500'
 
                 return (
                   <div
-                    key={item.id}
+                    key={item?.id}
                     className={cn(
                       "flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm",
-                      isRowSelected(item.id) && "bg-blue-50/50"
+                      isRowSelected(item?.id) && "bg-blue-50/50"
                     )}
                     onClick={() => router.push(`/directories/counterparties/${item.guid}`)}
                   >
@@ -647,21 +647,21 @@ const CounterpartiesPage = observer(() => {
                     )}
                     <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{item?.operationCount ?? 0}</div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.debitorka > 0 ? item.debitorka.toLocaleString('ru-RU') : '0'}
+                      {item.debitorka > 0 ? item?.debitorka?.toLocaleString('ru-RU') : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.kreditorka > 0 ? item.kreditorka.toLocaleString('ru-RU') : '0'}
+                      {item.kreditorka > 0 ? item?.kreditorka?.toLocaleString('ru-RU') : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.income > 0 ? item.income.toLocaleString('ru-RU') : '0'}
+                      {item.income > 0 ? item?.income?.toLocaleString('ru-RU') : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.expenses > 0 ? item.expenses.toLocaleString('ru-RU') : '0'}
+                      {item.expenses > 0 ? item?.expenses?.toLocaleString('ru-RU') : '0'}
                     </div>
                     <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                       {filters.calculationMethod === 'Cashflow'
-                        ? (item.difference === 0 ? '0' : item.difference.toLocaleString('ru-RU'))
-                        : (item.profit === 0 ? '0' : item.profit.toLocaleString('ru-RU'))}
+                        ? (item?.difference === 0 ? '0' : item?.difference?.toLocaleString('ru-RU'))
+                        : (item?.profit === 0 ? '0' : item?.profit?.toLocaleString('ru-RU'))}
                     </div>
                     <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                       <CounterpartyMenu
