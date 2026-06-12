@@ -204,12 +204,15 @@ const TotalPrice = observer(() => {
         </div>
     )
 
-    // ── Shared modal wrapper classes ─────────────────────────────────────────
-    const modalBase = "fixed top-[60px] left-1/2 -translate-x-1/2 bg-white rounded-xl border border-gray-200 z-[1000] text-slate-800 overflow-visible max-h-[calc(100vh-100px)] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2),0_0_0_1px_rgba(0,0,0,0.05)] animate-[modalAppear_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]"
+    // ── Modal wrapper classes ────────────────────────────────────────────────
+    // Compact: dropdown under the trigger (absolute, anchored to wrapper).
+    // Full: centered modal overlay (fixed, screen-centered).
+    const modalShared = "bg-white rounded-xl border border-gray-200 text-slate-800 overflow-visible flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2),0_0_0_1px_rgba(0,0,0,0.05)] animate-[modalAppear_0.3s_cubic-bezier(0.34,1.56,0.64,1)_forwards]"
+    const compactModalClass = cn(modalShared, "absolute top-full right-0 mt-2 z-[1000] max-h-[calc(100vh-100px)]")
+    const fullModalClass = cn(modalShared, "fixed top-[60px] left-1/2 -translate-x-1/2  z-[1001] max-h-[85vh]")
 
     return (
         <div ref={balanceRef} className="relative ">
-
             {/* ── Trigger ─────────────────────────────────────────────────── */}
             <div
                 className="flex flex-col items-center justify-center my-auto relative py-4 px-5 rounded-lg backdrop-blur-sm max-w-full min-w-0 overflow-visible transition-all duration-250 ease-in-out cursor-pointer  hover:bg-slate-900/50  active:translate-y-0"
@@ -229,9 +232,9 @@ const TotalPrice = observer(() => {
                 </div> 
             </div>
 
-            {/* ── Compact modal ────────────────────────────────────────────── */}
+            {/* ── Compact modal — dropdown under the trigger ──────────────── */}
             {isBalanceOpen && modalMode === 'compact' && (
-                <div className={cn(modalBase, 'w-[400px] right-[200px] p-0')}>
+                <div className={cn(compactModalClass, 'w-[400px] p-0')}>
                     <div className="flex flex-col relative w-full max-h-[calc(100vh-200px)] overflow-y-auto">
                         <ModalHeader
                             title={
@@ -253,9 +256,10 @@ const TotalPrice = observer(() => {
                 </div>
             )}
 
-            {/* ── Full modal ───────────────────────────────────────────────── */}
+            {/* ── Full modal — centered with backdrop ─────────────────────── */}
             {isBalanceOpen && modalMode === 'full' && (
-                <div className={cn(modalBase, 'w-[950px]')}>
+                <>
+                    <div className={cn(fullModalClass, 'w-[950px]')}>
                     <div className="flex flex-col relative w-full max-h-[calc(100vh-200px)] overflow-y-auto">
                         <ModalHeader
                             title={
@@ -331,6 +335,7 @@ const TotalPrice = observer(() => {
                         </div>
                     </div>
                 </div>
+                </>
             )}
         </div>
     )
