@@ -12,7 +12,8 @@ const MyAccountCurrensies = observer(({ value, onChange, guid, withSearch = fals
   const { data: bankAccountsData } = useUcodeRequestQuery({
     method: "get_my_accounts",
     data: {
-      group: 'legal_entities'
+      group: 'legal_entities',
+      limit: 200
     },
     querySetting: {
       select: (response) => response?.data?.data,

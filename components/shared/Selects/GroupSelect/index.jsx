@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
-import { Check, ChevronUp, Search, X } from 'lucide-react'
+import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -15,6 +15,8 @@ const GroupSelect = ({
   className,
   hasError,
   disabled = false,
+  onSearch = () => { },
+  isSearching = false,
   dropdownHeaderItem
 }) => {
   const t = useTranslations('Common.selects')
@@ -201,11 +203,17 @@ const GroupSelect = ({
               <input
                 ref={inputRef}
                 type='text'
-                className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-2 py-1.5 text-sm outline-none placeholder:text-neutral-400'
+                className='w-full h-9 border border-primary/40 rounded-md pl-8 pr-8 py-1.5 text-sm outline-none placeholder:text-neutral-400'
                 placeholder={t('searchInList')}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  onSearch(e.target.value)
+                }}
               />
+              {isSearching && (
+                <Loader2 size={16} className='absolute right-4 top-1/2 -translate-y-1/2 text-primary animate-spin' />
+              )}
             </div>
 
             {dropdownHeaderItem && (
@@ -216,7 +224,11 @@ const GroupSelect = ({
 
             {/* List Items */}
             <div className='overflow-y-auto flex-1 py-1'>
-              {Object.keys(groupedData).length === 0 ? (
+              {isSearching ? (
+                <div className='p-4 flex items-center justify-center'>
+                  <Loader2 size={20} className='text-primary animate-spin' />
+                </div>
+              ) : Object.keys(groupedData).length === 0 ? (
                 <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
               ) : (
                 Object.entries(groupedData).map(([groupName, items]) => {

@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
@@ -22,17 +23,27 @@ const mapTree = (data) => {
 
 const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, shownParent, hasError, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: chartOfAccountsData } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: chartOfAccountsData, isFetching } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
     data: {
       page: 1,
       limit: 100,
+      search: debouncedSearch
     },
     querySetting: {
       select: (res) => res?.data?.data,
-      staleTime: 1000 * 60 * 60, // 1 hour
-      placeholder: keepPreviousData
+      staleTime: 1000 * 60 * 30,
+      placeholderData: keepPreviousData
     }
   })
 
@@ -56,11 +67,13 @@ const SelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className
   return <TreeSelect
     data={result}
     multi={false}
-    placeholder={placeholder || t('placeholders.selectStatiya')}
+    placeholder={isFetching ? t('loading') : placeholder || t('placeholders.selectStatiya')}
     value={selectedValue}
     onChange={handleSelect}
     hasError={hasError}
     className={className}
+    onSearch={handleSearch}
+    isSearching={isFetching}
     dropdownHeaderItem={dropdownHeaderItem}
   />
 }

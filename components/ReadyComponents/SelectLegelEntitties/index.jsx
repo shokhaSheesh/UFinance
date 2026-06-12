@@ -41,9 +41,6 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
   }, [legalEntitiesData, t])
 
 
-  if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">{t('loading')}</div>
-  }
 
   const Component = multi ? MultiSelect : SingleSelect;
 
@@ -70,7 +67,7 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
         data={mappedData}
         value={value}
         onChange={onChange}
-        placeholder={placeholder || t('placeholders.selectLegalEntity')}
+        placeholder={isLoading ? t('loading') : placeholder || t('placeholders.selectLegalEntity')}
         className={className}
         dropdownClassName={dropdownClassName}
         hasError={hasError}

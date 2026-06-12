@@ -103,10 +103,6 @@ const SelectMyAccoutGroup = ({
     }
   }, [groupedByParent, isGroupFullySelected, returnParentId, onChange, onReturnParentId])
 
-  if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">{t('loading')}</div>
-  }
-
 
   const createAccountHeader = (
     <button
@@ -132,7 +128,7 @@ const SelectMyAccoutGroup = ({
         data={mappedData}
         value={value || []}
         onChange={handleOnChange}
-        placeholder={placeholder || tr('legalEntitiesAndAccounts')}
+        placeholder={isLoading ? t('loading') : placeholder || tr('legalEntitiesAndAccounts')}
         className={className}
         dropdownClassName={dropdownClassName}
         hasError={hasError}

@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import GroupSelect from '../../shared/Selects/GroupSelect'
 
@@ -16,13 +17,22 @@ const GroupMyAccounts = ({
   dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: accountsData, isLoading } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: accountsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_my_accounts",
     data: {
       page: 1,
       limit: 100,
-      search: "",
+      search: debouncedSearch,
       groupBy: "legal_entities",
       nalichnye: true,
       beznalichnye: true,
@@ -31,8 +41,8 @@ const GroupMyAccounts = ({
     },
     querySetting: {
       select: (response) => response?.data?.data || [],
-      staleTime: 1000 * 60 * 30, // 30 minutes
-      placeholder: keepPreviousData
+      staleTime: 1000 * 60 * 30,
+      placeholderData: keepPreviousData
     }
   })
 
@@ -69,6 +79,8 @@ const GroupMyAccounts = ({
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}
+      onSearch={handleSearch}
+      isSearching={isFetching}
       dropdownHeaderItem={dropdownHeaderItem}
     />
   )

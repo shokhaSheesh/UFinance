@@ -34,7 +34,7 @@ const SelectProductService = ({
     []
   )
 
-  const { data: productsData, isLoading } = useUcodeRequestQuery({
+  const { data: productsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "list_products_and_services",
     data: {
       sales_transaction_id: sellingDealId,
@@ -93,9 +93,6 @@ const SelectProductService = ({
     debouncedSetSearch(value)
   }
 
-  if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50">{t('loading')}</div>
-  }
 
   const Component = multi ? MultiSelect : SingleSelect;
 
@@ -105,7 +102,8 @@ const SelectProductService = ({
       value={value}
       onChange={handleChange}
       onSearch={handleSearch}
-      placeholder={placeholder || t('placeholders.selectProduct')}
+      isSearching={isFetching}
+      placeholder={isFetching || isLoading ? t('loading') : placeholder || t('placeholders.selectProduct')}
       className={className}
       dropdownClassName={dropdownClassName}
       hasError={hasError}

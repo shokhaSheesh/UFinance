@@ -57,7 +57,7 @@ const SingleSelectTreeCounterparties = ({ selectedValue, setSelectedValue, place
   return <TreeSelect
     data={result}
     multi={false}
-    placeholder={placeholder || t('placeholders.selectCounterparty')}
+    placeholder={isFetching ? t('loading') : placeholder || t('placeholders.selectCounterparty')}
     value={selectedValue}
     onChange={setSelectedValue}
     className={className}

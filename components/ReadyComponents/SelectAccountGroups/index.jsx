@@ -42,9 +42,7 @@ const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdown
     }))
   }, [groupsData, t])
 
-  if (isLoading) {
-    return <div className="text-xs text-neutral-400 flex items-center h-10 px-3 border border-neutral-200 rounded-md bg-neutral-50 animate-pulse">{t('loading')}</div>
-  }
+
 
   const Component = multi ? MultiSelect : SingleSelect;
 
@@ -72,7 +70,7 @@ const SelectAccountGroups = ({ value, onChange, placeholder, className, dropdown
         data={mappedData}
         value={value}
         onChange={onChange}
-        placeholder={placeholder || t('placeholders.selectGroup')}
+        placeholder={isLoading ? t('loading') : placeholder || t('placeholders.selectGroup')}
         className={className}
         dropdownClassName={dropdownClassName}
         hasError={hasError}

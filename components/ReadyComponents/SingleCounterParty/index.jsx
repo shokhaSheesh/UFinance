@@ -95,13 +95,6 @@ const SingleCounterParty = ({
     }
   }
 
-
-  // useEffect(() => {
-  //   if (name) {
-  //     autoSelectChartOfAccount(name, value)
-  //   }
-  // }, [name])
-
   const handleSelect = (val) => {
     onChange(val)
     if (name && val) {

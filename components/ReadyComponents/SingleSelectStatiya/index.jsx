@@ -1,6 +1,7 @@
 import { keepPreviousData } from '@tanstack/react-query'
+import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import TreeSelect from '../../shared/Selects/TreeSelect'
 
@@ -53,17 +54,27 @@ const mapTree = (data, type, hiddenValue) => {
 
 const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { data: chartOfAccountsData } = useUcodeRequestQuery({
+  const handleSearch = useMemo(() =>
+    debounce((val) => setDebouncedSearch(val), 500),
+    [])
+
+  useEffect(() => {
+    return () => handleSearch.cancel()
+  }, [handleSearch])
+
+  const { data: chartOfAccountsData, isFetching } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
     data: {
       page: 1,
       limit: 100,
+      search: debouncedSearch
     },
     querySetting: {
       select: (res) => res?.data?.data,
-      staleTime: 1000 * 60 * 60, // 1 hour
-      placeholder: keepPreviousData
+      staleTime: 1000 * 60 * 30,
+      placeholderData: keepPreviousData
     }
   })
 
@@ -163,6 +174,8 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, clas
     dropdownClassName={dropdownClassName}
     hasError={hasError}
     disabled={disabled}
+    onSearch={handleSearch}
+    isSearching={isFetching}
     dropdownHeaderItem={dropdownHeaderItem}
   />
 }
