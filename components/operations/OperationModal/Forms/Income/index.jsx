@@ -32,7 +32,7 @@ import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import { formatDateParseZone, formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
@@ -281,8 +281,8 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
-      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
+      const paymentDate = raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : formatDateParseZone(formatDateParseZone(new Date()))
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDateParseZone(raw.data_nachisleniya) : paymentDate
 
 
       return {
@@ -302,11 +302,11 @@ const IncomeForm = observer(({
     }
 
     return {
-      paymentDate: formatDate(new Date()),
+      paymentDate: formatDateParseZone(new Date()),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: formatDate(new Date()),
+      accrualDate: formatDateParseZone(new Date()),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,

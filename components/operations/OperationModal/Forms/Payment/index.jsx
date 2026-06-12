@@ -32,7 +32,7 @@ import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import { formatDateParseZone, formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
@@ -279,8 +279,8 @@ const PaymentForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? moment.utc(raw.data_operatsii).format('YYYY-MM-DD') : moment.utc().format('YYYY-MM-DD')
-      const accrualDate = raw.data_nachisleniya ? moment.utc(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
+      const paymentDate = raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : formatDateParseZone(new Date())
+      const accrualDate = raw.data_nachisleniya ? formatDateParseZone(raw.data_nachisleniya) : paymentDate
 
       return {
         paymentDate,
@@ -299,11 +299,11 @@ const PaymentForm = observer(({
     }
 
     return {
-      paymentDate: moment.utc().format('YYYY-MM-DD'),
+      paymentDate: formatDateParseZone(new Date()),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: moment.utc().format('YYYY-MM-DD'),
+      accrualDate: formatDateParseZone(new Date()),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,

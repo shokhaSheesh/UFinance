@@ -7,8 +7,8 @@ import { Controller, useForm } from 'react-hook-form'
 import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 
 // Helpers
-import { formatDate, isFuture } from '@/utils/formatDate'
-import { StringtoNumber } from '@/utils/helpers'
+import { isFuture } from '@/utils/formatDate'
+import { formatDateParseZone, StringtoNumber } from '@/utils/helpers'
 
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
@@ -68,8 +68,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const defaultValues = useMemo(() => {
 		if (initialData && (!isNew || initialData.isCopy)) {
 			const raw = initialData
-			const fromDate = raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date())
-			const toDate = raw.data_nachisleniya ? formatDate(raw.data_nachisleniya) : fromDate
+			const fromDate = raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : moment(new Date()).format('YYYY-MM-DD')
+			const toDate = raw.data_nachisleniya ? formatDateParseZone(raw.data_nachisleniya) : fromDate
 
 			return {
 				fromDate,
@@ -87,11 +87,11 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		}
 
 		return {
-			fromDate: formatDate(new Date()),
+			fromDate: moment(new Date()).format('YYYY-MM-DD'),
 			confirmPayment: true,
 			fromAccount: null,
 			fromAmount: '',
-			toDate: formatDate(new Date()),
+			toDate: moment(new Date()).format('YYYY-MM-DD'),
 			toAccount: null,
 			toAmount: '',
 			purpose: '',
@@ -127,8 +127,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: moment.utc(data?.fromDate).format('YYYY-MM-DD'),
-			data_nachisleniya: moment.utc(data?.toDate).format('YYYY-MM-DD'),
+			data_operatsii: formatDateParseZone(data?.fromDate),
+			data_nachisleniya: formatDateParseZone(data?.toDate),
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,

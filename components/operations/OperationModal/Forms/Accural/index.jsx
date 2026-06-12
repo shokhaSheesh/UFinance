@@ -5,19 +5,17 @@ import TextArea from '@/components/shared/TextArea'
 import { memo, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
+import { WarnIcon } from '@/constants/icons'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
-import { formatDate } from '@/utils/formatDate'
+import { appStore } from '@/store/app.store'
+import { isFuture, isPastDate } from '@/utils/formatDate'
+import { formatDateParseZone, formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { WarnIcon } from '../../../../../constants/icons'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { queryClient } from '../../../../../lib/queryClient'
-import { appStore } from '../../../../../store/app.store'
-import { isFuture, isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '../../../../../utils/helpers'
 import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
@@ -63,7 +61,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
       return {
-        accuralDate: raw.data_operatsii ? formatDate(raw.data_operatsii) : formatDate(new Date()),
+        accuralDate: raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : formatDateParseZone(new Date()),
         confirmAccrual: raw.payment_accrual,
         legalEntity: raw.legal_entity_id || '',
         chartOfAccountWriteOff: raw.chart_of_accounts_id || null,
@@ -83,7 +81,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     }
 
     return {
-      accuralDate: formatDate(new Date()),
+      accuralDate: formatDateParseZone(new Date()),
       confirmAccrual: true,
       legalEntity: '',
       chartOfAccountWriteOff: null,
@@ -135,7 +133,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment.utc(data?.accuralDate).format('YYYY-MM-DD'),
+        data_operatsii: formatDateParseZone(data?.accuralDate),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
