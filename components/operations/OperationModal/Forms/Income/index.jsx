@@ -1,8 +1,8 @@
 'use client'
 import { cn } from '@/lib/utils'
+import { appStore } from '@/store/app.store'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { appStore } from '../../../../../store/app.store'
 
 // Hooks
 import { } from '@/hooks/useDashboard'
@@ -11,29 +11,29 @@ import { } from '@/hooks/useDashboard'
 import { formatDate, isFuture } from '@/utils/formatDate'
 
 // Components
-import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
-import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
-import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
-import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
-import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
-import Input from '../../../../shared/Input'
-import SingleSelect from '../../../../shared/Selects/SingleSelect'
-import TextArea from '../../../../shared/TextArea'
+import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
+import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '@/components/ReadyComponents/SingleZdelka'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+import Input from '@/components/shared/Input'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import TextArea from '@/components/shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
+import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
+import { CreditIcon, DebitIcon, WarnIcon } from '@/constants/icons'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
+import { authStore } from '@/store/auth.store'
+import { isPastDate } from '@/utils/formatDate'
+import { calculatePercent, formatDecimal, formatNumber, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
-import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
-import { authStore } from '../../../../../store/auth.store'
-import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
-import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -361,9 +361,10 @@ const IncomeForm = observer(({
         contrAgentId: p.counterparties_id || '',
         operationCategoryId: p.chart_of_accounts_id || '',
         value: String(Math.abs(p.summa || 0)),
-        percent: String(p.percent || '')
+        percent: calculatePercent(initialData.summa, p.summa, false)
       }))
       dispatch({ type: 'SET_ROWS', payload: mappedRows })
+      console.log('mappedRows', mappedRows)
     }
   }, [initialData, isNew])
 

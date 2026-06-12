@@ -27,7 +27,7 @@ export default observer(function SettingLayouts({ children }) {
   return (
     <FixedContent>
       {/* Sidebar */}
-      <aside className="w-56 bg-white p-3 shadow-2xl shadow-gray-200 border-r border-gray-200">
+      <aside className="w-56 bg-white p-3  border-r border-gray-200">
         <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">{t('pageTitle')}</h2>
         <nav className="flex flex-col gap-0.5 pr-2">
           {sidebarItems.filter(item => item.show).map(item => {

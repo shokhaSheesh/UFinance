@@ -14,7 +14,6 @@ const TableRow = observer(({
   op,
   selectedOperations,
   toggleOperation,
-  openOperationModal,
   handleEditOperation,
   handleDeleteOperation,
   handleCopyOperation,
@@ -23,9 +22,9 @@ const TableRow = observer(({
 }) => {
   const t = useTranslations('Operations')
   const [open, setOpen] = useState(false)
-  const children = new Set()
-  const chartofaccounts = new Set()
-  const deals = new Set()
+  const children = useMemo(() => new Set(), [])
+  const chartofaccounts = useMemo(() => new Set(), [])
+  // const deals = useMemo(() => new Set(), [])
   const isSpinasiya = !operationFilterStore?.selectedFilters?.includes('Списание')
   const isZachisleniya = !operationFilterStore?.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore?.selectedFilters?.includes('Дебет')
@@ -38,6 +37,8 @@ const TableRow = observer(({
     children.add(part?.counterparties_id)
     chartofaccounts.add(part?.chart_of_accounts_id)
   })
+
+  console.log('oop', op)
 
   const titleContragent = useMemo(() => {
     if (op.tip == "Начисление") return op.counterparty || t('row.accrualPlaceholder')

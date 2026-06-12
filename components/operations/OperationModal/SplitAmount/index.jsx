@@ -1,30 +1,27 @@
+import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
+import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import CustomDialog from '@/components/shared/CustomDialog'
+import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
+import CustomMultipleSelect from '@/components/shared/Selects/MultipleSelect'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '@/constants/icons'
 import { appStore } from '@/store/app.store'
 import { isFuture } from '@/utils/formatDate'
 import { formatAmount, formatDateRu, formatNumber } from '@/utils/helpers'
+import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import SingleCounterParty from '../../../ReadyComponents/SingleCounterParty'
-import SinglSelectStatiya from '../../../ReadyComponents/SingleSelectStatiya'
-import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
-import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
-import CustomMultipleSelect from '../../../shared/Selects/MultipleSelect'
 import './style.scss'
 
-
-const today = new Date().getDate()
 
 const DateCell = ({ row, i, dispatch, disabled }) => {
   return (
     <FormDatepicker
       value={row.calculationDate ? new Date(row.calculationDate) : null}
       onChange={(value) => {
-        const date = value instanceof Date ? value : value ? new Date(value) : null
-        const formatted = date
-          ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-          : ''
-        dispatch({ type: 'UPDATE', index: i, field: 'calculationDate', value: formatted })
+        const date = moment.parseZone(value).format('YYYY-MM-DD')
+        dispatch({ type: 'UPDATE', index: i, field: 'calculationDate', value: date })
+        dispatch({ type: 'UPDATE', index: i, field: 'isCalculationCommitted', value: !isFuture(date) })
       }}
       format="YYYY-MM-DD"
       disabled={disabled}
@@ -152,9 +149,7 @@ const SplitAmount = ({ amount, onChange, rows,
 
 
   const handleCheckRow = (isFutureDate, index, check) => {
-    if ((isFutureDate && !appStore.isDonoSchool)) {
-      return
-    }
+    if ((isFutureDate)) return
     dispatch({ type: 'UPDATE', index, field: 'isCalculationCommitted', value: check })
   }
 
@@ -245,7 +240,7 @@ const SplitAmount = ({ amount, onChange, rows,
                             {/* Confirm checkbox */}
                             <td className={`split-td col-confirm ${salesDeal ? ' cursor-not-allowed opacity-30' : ''}`}>
                               <OperationCheckbox
-                                checked={(isFutureDate && !appStore.isDonoSchool) || salesDeal ? false : row.isCalculationCommitted}
+                                checked={salesDeal && !appStore.isAccrualDate ? false : row.isCalculationCommitted}
                                 onChange={e => handleCheckRow(isFutureDate, i, e.target.checked)}
                                 disabled={salesDeal}
                               />
@@ -312,7 +307,7 @@ const SplitAmount = ({ amount, onChange, rows,
                               className="percent-input"
                               placeholder="0"
                               maxLength={5}
-                              value={String(Math.floor(Number(row.percent) || 0))}
+                              value={String(row.percent)}
                               onChange={e => {
                                 const perc = (e.target.value)
                                 dispatch({ type: 'UPDATE', index: i, field: 'percent', value: perc, amount });
@@ -371,23 +366,25 @@ const SplitAmount = ({ amount, onChange, rows,
         </div>
       )}
 
-      <CustomDialog open={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} >
-        <div className='flex items-center justify-between px-4 py-5'>
-          <h3 className='text-base font-medium text-gray-900 '>{t('cancelDialogText')}</h3>
-        </div>
-        <div className='flex items-center justify-end gap-4'>
-          <button
-            className={'secondary-btn'}
-            onClick={() => setIsCancelModalOpen(false)}
-          >
-            {t('back')}
-          </button>
-          <button
-            className={'primary-btn'}
-            onClick={handleConfirmCancel}
-          >
-            {t('confirmAction')}
-          </button>
+      <CustomDialog open={isCancelModalOpen} contentClass={'w-[200px]!'} onClose={() => setIsCancelModalOpen(false)} >
+        <div className="p-2">
+          <div className='flex items-center justify-between px-4 py-5'>
+            <h3 className='text-base font-medium text-gray-900 '>{t('cancelDialogText')}</h3>
+          </div>
+          <div className='flex items-center justify-end gap-4'>
+            <button
+              className={'secondary-btn'}
+              onClick={() => setIsCancelModalOpen(false)}
+            >
+              {t('back')}
+            </button>
+            <button
+              className={'primary-btn'}
+              onClick={handleConfirmCancel}
+            >
+              {t('confirmAction')}
+            </button>
+          </div>
         </div>
       </CustomDialog>
     </div>

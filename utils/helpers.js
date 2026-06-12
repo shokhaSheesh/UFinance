@@ -79,13 +79,13 @@ export const formatAmountWithPercent = (v) => {
   return n.toLocaleString('ru-RU')
 }
 
-export const calculatePercent = (totalAmount, minAmount) => {
+export const calculatePercent = (totalAmount, minAmount, withPersent = true) => {
   const total = parseFloat(Number(totalAmount) || 0)
   const received = parseFloat(Number(minAmount) || 0)
 
   if (total === 0) return '0%'
   const percent = (received / total) * 100
-  return Math.round(percent) + '%'
+  return Math.round(percent) + (withPersent ? '%' : '')
 }
 
 
