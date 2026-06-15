@@ -108,10 +108,10 @@ const TableRow = observer(({
   return (
     <>
       <div
-        key={op.id}
+        key={op.guid}
         className={cn(
           'flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11',
-          selectedOperations.includes(op.id) && styles.selected
+          selectedOperations.includes(op.guid) && styles.selected
         )}
         onClick={e => {
           if (canEdit) {
@@ -129,8 +129,8 @@ const TableRow = observer(({
           >
             {toggleOperation ? (
               <OperationCheckbox
-                checked={selectedOperations.includes(op.id)}
-                onChange={() => toggleOperation(op.id)}
+                checked={selectedOperations.includes(op.guid)}
+                onChange={() => toggleOperation(op.guid)}
               />
             ) : (
               <span className="text-xs text-gray-500">{showIndex}</span>

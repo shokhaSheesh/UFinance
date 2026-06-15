@@ -175,7 +175,7 @@ const OperationsListPage = observer(() => {
   const toggleSelectAll = () =>
     isAllSelected
       ? setSelectedOperations([])
-      : setSelectedOperations(allOperations.map(op => op.id))
+      : setSelectedOperations(allOperations.map(op => op.guid))
 
   const toggleOperation = (id) =>
     setSelectedOperations(prev =>
