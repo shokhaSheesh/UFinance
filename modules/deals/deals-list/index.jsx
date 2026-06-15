@@ -89,12 +89,11 @@ export default observer(function DealsPage() {
   } = sealDeal
 
   // ── Debounced search ───────────────────────────────────────────────────────
-  const [search, setSearch] = useState('')
+  // const [search, setSearch] = useState('')
 
-  const debouncedSetSearch = useMemo(() => debounce((v) => setSearch(v || null), 400), [])
+  const debouncedSetSearch = useMemo(() => debounce((v) => setState('search', v || null), 400), [setState])
 
   const handleSearch = (value) => {
-    setState('search', value)
     debouncedSetSearch(value)
   }
 
@@ -102,7 +101,7 @@ export default observer(function DealsPage() {
   // ── Filters ────────────────────────────────────────────────────────────────
   const dealsFilters = useMemo(() => ({
     limit: 50,
-    search,
+    search: searchValue,
     from_date: dateRanges?.start ? moment(dateRanges?.start).format('YYYY-MM-DD') : null,
     to_date: dateRanges?.end ? moment(dateRanges?.end).format('YYYY-MM-DD') : null,
     amount_from: StringtoNumber(amountFrom) || null,
@@ -114,7 +113,7 @@ export default observer(function DealsPage() {
     accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }), [
-    search, dateRanges, amountFrom, amountTo,
+    searchValue, dateRanges, amountFrom, amountTo,
     profitFrom, profitTo, selectedCounterparties,
     status, dealsMethod, t
   ])
