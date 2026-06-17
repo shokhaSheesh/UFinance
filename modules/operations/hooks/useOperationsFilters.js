@@ -63,7 +63,7 @@ export function useOperationsFilters() {
     paymentNotConfirm,
     accrualConfirm,
     accrualNotConfirm,
-    sellingDealId:        deals,
+    selling_deal_ids: deals,
   }), [
     debouncedSearchQuery, paymentStartDate, paymentEndDate,
     accrualStartDate, accrualEndDate, selectedCounterAgents,

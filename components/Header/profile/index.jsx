@@ -37,7 +37,7 @@ export const Profile = observer(() => {
     <div className="relative flex items-center" ref={menuRef}>
       <button
         className={cn(
-          'flex items-center gap-2 px-2.5 py-4 border border-transparent rounded-lg cursor-pointer text-white transition-all duration-200 text-left hover:bg-slate-900/50',
+          'flex items-center gap-2 px-2.5 py-5 border border-transparent  cursor-pointer text-white transition-all duration-200 text-left hover:bg-slate-900/50',
           (isOpen) && 'bg-black/30'
         )}
         onClick={() => setIsOpen(!isOpen)}

@@ -4,7 +4,7 @@ import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
-import { keepPreviousData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -66,15 +66,35 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
     placeholderData: keepPreviousData
   })
 
+  const { data: operationsTotal } = useQuery({
+    queryKey: ['get_operations_total_income'],
+    queryFn: () => apiClient.invokeFunction({
+      method: "summary_operations", data: {
+        selling_deal_ids: [sellingDealId],
+        tip: ['Поступление'],
+        accrualConfirmed: true,
+        accrualNotConfirmed: true,
+        paymentConfirmed: true,
+        paymentNotConfirmed: true
+      },
+    }),
+    // staleTime: 1000 * 60,
+    // gcTime: 1000 * 60,
+    // placeholderData: keepPreviousData,
+    select: (response) => response?.data?.data
+  })
+
+  const totalSummary = useMemo(
+    () => operationsTotal?.by_type?.receipt,
+    [operationsTotal]
+  )
+
+
   const dealOperations = useMemo(() => {
     const allData = infiniteData?.pages?.flatMap(page => page?.data?.data || []) || []
     return operationsDto(allData)
   }, [infiniteData])
 
-  const summury = useMemo(() => {
-    const lastPage = infiniteData?.pages?.[infiniteData.pages.length - 1]
-    return lastPage?.data?.totalSummary?.by_type?.receipt
-  }, [infiniteData])
 
   // Infinite scroll detection
   useEffect(() => {
@@ -247,7 +267,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
         </div>
         <div className='flex justify-end'>
           <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
-          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(summury?.total_summa)} {GlobalCurrency?.name}</div>
+          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(totalSummary?.total_summa)} {GlobalCurrency?.name}</div>
         </div>
       </>}
 

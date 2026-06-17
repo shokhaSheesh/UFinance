@@ -215,7 +215,7 @@ const TotalPrice = observer(() => {
         <div ref={balanceRef} className="relative ">
             {/* ── Trigger ─────────────────────────────────────────────────── */}
             <div
-                className="flex flex-col items-center justify-center my-auto relative py-4 px-5 rounded-lg backdrop-blur-sm max-w-full min-w-0 overflow-visible transition-all duration-250 ease-in-out cursor-pointer  hover:bg-slate-900/50  active:translate-y-0"
+                className="flex flex-col items-center justify-center my-auto relative py-4 px-5 rounded-lg  max-w-full min-w-0 overflow-visible transition-all duration-250 ease-in-out cursor-pointer  hover:bg-slate-900/50  active:translate-y-0"
                 onClick={() => setIsBalanceOpen(!isBalanceOpen)}
             >
                 <div className="text-sm font-medium cursor-pointer flex items-center gap-2">

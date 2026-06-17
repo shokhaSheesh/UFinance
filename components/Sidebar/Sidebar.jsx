@@ -199,7 +199,7 @@ export const Sidebar = observer(() => {
 
                         const LinkContent = (
                             <div className={cn(
-                                "flex flex-col h-[65px] items-center justify-center w-full rounded-md transition-all cursor-pointer text-white/60 hover:text-white ",
+                                "flex flex-col h-[65px] items-center justify-center w-full transition-all cursor-pointer hover:bg-slate-900/50 text-white/60 hover:text-white ",
                                 (isActive || isSubmenuActive) && " text-white"
                             )}>
                                 <div className="mb-1">
