@@ -46,7 +46,7 @@ const SettingsPage = observer(() => {
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
-    label: `${c.kod} (${c.nazvanie})`,
+    label: `${c?.kod} (${c.nazvanie})`,
   }))
 
   const isPaymentChanged = isPayment !== appStore.isPayment

@@ -262,7 +262,7 @@ export default observer(function AccountsPage() {
         return '–'
       case 'currenies_id':
         return item.currenies_id_data
-          ? `${item.currenies_id_data.kod || ''} (${item.currenies_id_data.nazvanie || ''})`.trim()
+          ? `${item.currenies_id_data?.kod || ''} (${item.currenies_id_data.nazvanie || ''})`.trim()
           : value
       case 'legal_entity_id':
         return item.legal_entity_id

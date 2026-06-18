@@ -115,9 +115,9 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     setValue('legalEntity', value, { shouldValidate: true })
     const selected = getCurrencyIcon(currency)
     if (selected) {
-      setTitle(`${selected.kod} ${selected.nazvanie}`)
-    } else {
-      setTitle(`${defaultCurrency.kod} ${defaultCurrency.nazvanie}`)
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    } else if (defaultCurrency) {
+      setTitle(`${defaultCurrency?.kod} ${defaultCurrency.nazvanie}`)
     }
   }
 
@@ -192,9 +192,9 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     setValue('currency', value)
     const selected = getCurrencyIcon(value)
     if (selected) {
-      setTitle(`${selected.kod} ${selected.nazvanie}`)
-    } else {
-      setTitle(`${defaultCurrency.kod} ${defaultCurrency.nazvanie}`)
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    } else if (defaultCurrency) {
+      setTitle(`${defaultCurrency?.kod} ${defaultCurrency.nazvanie}`)
     }
   }
 

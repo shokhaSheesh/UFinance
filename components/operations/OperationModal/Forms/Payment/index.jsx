@@ -447,8 +447,10 @@ const PaymentForm = observer(({
 
   const handleSelectMyAccount = (value) => {
     setValue('currency', value)
-    const selected = toJS(appStore.currencies).find(c => c.guid === value)
-    setTitle(`${selected.kod} ${selected.nazvanie}`)
+    const selected = toJS(appStore.currencies)?.find(c => c.guid === value)
+    if (selected) {
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    }
   }
 
   const totalSplitValue = divivedAmounts.reduce((acc, curr) => acc + Number(String(curr.value).replace(/\s/g, '') || 0), 0)

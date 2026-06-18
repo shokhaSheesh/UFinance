@@ -190,11 +190,13 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 	const handleSelectMyAccount = (type, value) => {
 		setValue(type, value)
-		const selected = toJS(appStore.currencies).find(c => c.guid === value)
-		setTitle(prev => ({
-			...prev,
-			[type]: `${selected.kod} ${selected.nazvanie}`,
-		}))
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === value)
+		if (selected) {
+			setTitle(prev => ({
+				...prev,
+				[type]: `${selected?.kod} ${selected.nazvanie}`,
+			}))
+		}
 	}
 
 	return (
