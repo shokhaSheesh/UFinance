@@ -199,10 +199,10 @@ const ProfitableClients = observer(() => {
         },
       ],
     }
-  }, [chartData, clients80Label, incomeShareLabel, clients20Label])
+  }, [chartData, clients80Label, incomeShareLabel, clients20Label, inteval])
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className=" flex flex-col relative">
       {/* Header with method toggle */}
       <div className="flex items-center gap-10 mb-4 border-b py-5">
         <h3 className="text-sm font-medium text-slate-700">

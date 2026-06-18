@@ -2,7 +2,6 @@
 
 import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import debounce from 'lodash/debounce'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -91,10 +90,8 @@ export default observer(function DealsPage() {
   // ── Debounced search ───────────────────────────────────────────────────────
   // const [search, setSearch] = useState('')
 
-  const debouncedSetSearch = useMemo(() => debounce((v) => setState('search', v || null), 400), [setState])
-
   const handleSearch = (value) => {
-    debouncedSetSearch(value)
+    setState('search', value || null)
   }
 
   const dateRanges = toJS(dateRange)
