@@ -2,6 +2,7 @@
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
+import operationDto from '@/lib/dtos/operationDto'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -13,6 +14,7 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 
 
 import CustomDialog from '@/components/shared/CustomDialog'
+import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import EmptyState from '../EmptyState'
 
@@ -28,7 +30,8 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [operationToDelete, setOperationToDelete] = useState(null)
   const deleteOperationMutation = useDeleteOperation()
-  const getOperationMutation = useMutation({
+  const { mutateAsync: getOperation, isPending: isPendingGetOperation } = useMutation({
+    mutationKey: ['get_operation'],
     mutationFn: (data) => apiClient.invokeFunction({ method: 'get_operation', data })
   })
   const queryClient = useQueryClient()
@@ -126,15 +129,9 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
   }
 
   const handleEditOperation = async (operation) => {
-    try {
-      const response = await getOperationMutation.mutateAsync({ guid: operation.guid })
-      const rawData = response?.data?.data || response?.data
-      const dtoData = rawData ? operationsDto([rawData])?.[0] : null
-      setSelectedOperation(dtoData || operation)
-    } catch (error) {
-      console.error('Error fetching operation:', error)
-      setSelectedOperation(operation)
-    }
+    const fullOperationData = await getOperation({ guid: operation?.guid })
+    const operationFullData = operationDto(fullOperationData?.data?.data)
+    setSelectedOperation(operationFullData || operation)
     setModalType('income')
     setShowModal(true)
     setIsModalClosing(false)
@@ -142,21 +139,12 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
     setTimeout(() => setIsModalOpening(false), 50)
   }
 
-  const handleCopyOperation = (operation) => {
-    const copiedOperation = { ...operation }
-    delete copiedOperation.guid
-    delete copiedOperation.id
-    if (copiedOperation.rawData) {
-      copiedOperation.rawData = { ...copiedOperation.rawData }
-      delete copiedOperation.rawData.guid
-    }
+  const handleCopyOperation = async (operation) => {
+    const fullOperationData = await getOperation({ guid: operation?.guid })
+    const operationFullData = operationDto(fullOperationData?.data?.data)
+    const copy = { ...operationFullData }
 
-    setSelectedOperation({
-      ...copiedOperation,
-      id: 'new',
-      isNew: true,
-      isCopy: true
-    })
+    setSelectedOperation({ ...copy, id: 'new', isNew: true, isCopy: true })
     setModalType('income')
     setShowModal(true)
     setIsModalClosing(false)
@@ -195,7 +183,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
 
   return (
     <>
-      {/* emptyState div is moved to top EmptyState component */}
+      {isPendingGetOperation && <ScreenLoader />}
       {dealOperations?.length > 0 && <>
         <div ref={scrollContainerRef} className="max-h-[500px] overflow-y-auto">
           <table className="w-full">
@@ -236,14 +224,9 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
                         <div className=' items-center  hidden group-hover:flex '>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
-                            disabled={getOperationMutation.isPending}
-                            className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900 disabled:opacity-50'
+                            className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
                           >
-                            {getOperationMutation.isPending ? (
-                              <Loader2 size={14} className='animate-spin text-gray-400' />
-                            ) : (
-                              <MdOutlineModeEdit size={16} className='text-gray-400' />
-                            )}
+                            <MdOutlineModeEdit size={16} className='text-gray-400' />
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                             <IoCopyOutline size={16} className='text-gray-400' />
