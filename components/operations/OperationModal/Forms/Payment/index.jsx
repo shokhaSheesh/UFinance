@@ -321,7 +321,6 @@ const PaymentForm = observer(({
   const { mutateAsync: createOperation, isPending } = useUcodeRequestMutation()
 
 
-  console.log('defaultValues', defaultValues)
   // Amount Splitting State
   const [rows, dispatch] = useReducer(rowsReducer, [emptyRow(preselectedCounterparty), emptyRow()])
   const [selectedSplits, setSelectedSplits] = useState([])
@@ -376,8 +375,8 @@ const PaymentForm = observer(({
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: moment.utc(data?.paymentDate).format('YYYY-MM-DD'),
-      data_nachisleniya: moment.utc(data?.accrualDate).format('YYYY-MM-DD'),
+      data_operatsii: formatDateParseZone(data?.paymentDate),
+      data_nachisleniya: formatDateParseZone(data?.accrualDate),
       payment_confirmed: data?.confirmPayment,
       payment_accrual: data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
