@@ -78,6 +78,10 @@ export function useStudentsData(t) {
     return infiniteData?.pages?.flatMap(page => page?.data?.data?.total_by_months || []) || []
   }, [infiniteData])
 
+  const fullTotalMonths = useMemo(() => {
+    return infiniteData?.pages?.flatMap(page => page?.data?.data?.total || [])?.[0] || []
+  }, [infiniteData])
+
   const monthsData = useMemo(() => {
     if (studentList.length === 0) return []
     const firstStudent = studentList[0]
@@ -116,12 +120,12 @@ export function useStudentsData(t) {
       })
     })
     cols.push(
-      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44' },
-      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44' },
-      { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44' }
+      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_fact },
+      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan },
+      { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan_fact }
     )
     return cols
-  }, [monthsData, t])
+  }, [monthsData, t, fullTotalMonths])
 
   const clearCount = useMemo(() => {
     let count = 0
@@ -134,7 +138,7 @@ export function useStudentsData(t) {
       new Date(rangeMonth.end).toDateString() === new Date(defaultRangeMonth.end).toDateString()
     if (!isDefaultMonth) count++
     return count
-  }, [student.selectedCounterParties, student.selectedCounterPartiesGroups, status, rangeMonth])
+  }, [status, rangeMonth])
 
   const handleClearFilters = useCallback(() => {
     student.resetFilters()

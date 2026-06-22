@@ -1,10 +1,11 @@
+import AccountBalance from '@/components/Indicators/AccountBalance'
+import CashFlow from '@/components/Indicators/CashFlow'
+import IndicatorsNavbar from '@/components/Indicators/Header'
+import PaymentStructure from '@/components/Indicators/PaymentStructure'
+import Profit from '@/components/Indicators/Profit'
+import ProfitableClients from '@/components/Indicators/ProfitableClients'
+import Students from '@/components/Indicators/Students'
 import FixedContent from '@/layouts/FixedContent'
-import AccountBalance from '../../../components/Indicators/AccountBalance'
-import CashFlow from '../../../components/Indicators/CashFlow'
-import IndicatorsNavbar from '../../../components/Indicators/Header'
-import PaymentStructure from '../../../components/Indicators/PaymentStructure'
-import Profit from '../../../components/Indicators/Profit'
-import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 const IndicatorsPage = () => {
   return (
@@ -13,6 +14,7 @@ const IndicatorsPage = () => {
         <IndicatorsNavbar />
       </div>
       <div className="  p-4 space-y-6">
+        <Students />
         <Profit />
         <CashFlow />
         <AccountBalance />

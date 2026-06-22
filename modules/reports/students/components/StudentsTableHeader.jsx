@@ -1,6 +1,7 @@
 import { formatNumber } from '@/utils/helpers'
 
 const StudentsTableHeader = ({ columns }) => (
+
   <div className="sticky top-0 z-20 flex">
     {columns.map((col) => {
       if (col?.type === 'sticky') {
@@ -37,8 +38,11 @@ const StudentsTableHeader = ({ columns }) => (
         )
       }
       return (
-        <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : col.key === 'totalFact' ? 'border-r' : ''} ${col.width} bg-neutral-100 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 flex items-center justify-center whitespace-nowrap text-sm`}>
-          {col.label}
+        <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : col.key === 'totalFact' ? 'border-r' : ''} ${col.width} bg-neutral-100 flex flex-col border-gray-200  font-medium text-gray-700  whitespace-nowrap text-sm`}>
+          <div className='border-b px-4 flex-1 py-3 flex text-center items-center justify-center'>
+            {col?.label}
+          </div>
+          <div className=' p-2  flex text-center items-center justify-center'>{formatNumber(col?.total)}</div>
         </div>
       )
     })}

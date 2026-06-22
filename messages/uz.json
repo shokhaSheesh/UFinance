@@ -2025,6 +2025,23 @@
 				"incomeShare": "Jamg'arma daromad ulushi, %",
 				"clients20": "Daromadlarning 20% dan kamini keltiradigan mijozlar"
 			}
+		},
+		"students": {
+			"title": "Talabalar",
+			"accrualMethod": "Hisoblash usuli",
+			"cashMethod": "Kassa usuli",
+			"series": {
+				"plan": "Reja",
+				"fact": "Fakt",
+				"difference": "Farq (reja − fakt)"
+			},
+			"stats": {
+				"totalPlan": "Umumiy reja",
+				"totalFact": "Umumiy fakt",
+				"difference": "Farq",
+				"activeStudents": "Faol talabalar",
+				"passiveStudents": "Faol bo'lmagan talabalar"
+			}
 		}
 	},
 	"Payment": {

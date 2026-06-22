@@ -2050,6 +2050,23 @@
 				"incomeShare": "Доля доходов с накопительным итогом, %",
 				"clients20": "Клиенты, приносящие менее 20% доходов"
 			}
+		},
+		"students": {
+			"title": "Студенты",
+			"accrualMethod": "Метод начисления",
+			"cashMethod": "Кассовый метод",
+			"series": {
+				"plan": "План",
+				"fact": "Факт",
+				"difference": "Разница (план − факт)"
+			},
+			"stats": {
+				"totalPlan": "Общий план",
+				"totalFact": "Общий факт",
+				"difference": "Разница",
+				"activeStudents": "Активные студенты",
+				"passiveStudents": "Пассивные студенты"
+			}
 		}
 	},
 	"Payment": {
