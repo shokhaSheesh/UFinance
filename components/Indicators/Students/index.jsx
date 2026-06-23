@@ -24,7 +24,7 @@ const Students = () => {
   const mounted = useMounted()
   const [zoomRange, setZoomRange] = useState([0, 100])
   const indicatorsStore = indicators
-  
+
 
   const billion = t('common.billion')
   const million = t('common.million')
@@ -38,10 +38,10 @@ const Students = () => {
     currency_code: GlobalCurrency?.code || 'UZS',
     company_id: authStore.userData?.company_id,
     from_date: indicatorsStore.rangeMonth?.start
-      ? moment(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD')
+      ? moment.parseZone(indicatorsStore.rangeMonth.start).format('YYYY-MM-DD')
       : null,
     to_date: indicatorsStore.rangeMonth?.end
-      ? moment(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD')
+      ? moment.parseZone(indicatorsStore.rangeMonth.end).format('YYYY-MM-DD')
       : null,
     limit: 5000,
     page: 1,
