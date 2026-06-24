@@ -120,8 +120,8 @@ export function useStudentsData(t) {
       })
     })
     cols.push(
-      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_fact },
-      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan },
+      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan },
+      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_fact },
       { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan_fact }
     )
     return cols

@@ -64,7 +64,6 @@ const Students = () => {
   const studentList = useMemo(() => apiData?.counterparties?.items || [], [apiData])
   const totalMonths = useMemo(() => apiData?.total_by_months || [], [apiData])
   const fullTotal = useMemo(() => apiData?.total || {}, [apiData])
-  const studentsCount = useMemo(() => apiData?.counterparties?.pagination?.total ?? studentList.length, [apiData, studentList])
 
   const { months, planData, factData, diffData } = useMemo(() => ({
     months: totalMonths.map(m => formatStudentTableDate(m?.month)),
