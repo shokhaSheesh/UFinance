@@ -129,11 +129,10 @@ const Students = observer(() => {
     return infiniteData?.pages?.flatMap(page => page?.data?.data?.total_by_months || []) || []
   }, [infiniteData])
 
-  const totals = useMemo(() => {
-    return infiniteData?.pages?.flatMap(page => page?.data?.data?.total || []) || []
+  const fullTotalMonths = useMemo(() => {
+    return infiniteData?.pages?.flatMap(page => page?.data?.data?.total || [])?.[0] || []
   }, [infiniteData])
 
-  console.log()
 
 
   // Extract unique months from student data (use first student as reference)
@@ -184,13 +183,13 @@ const Students = observer(() => {
     })
 
     cols.push(
-      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44' },
-      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44' },
-      { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44' }
+      { key: 'totalPlan', type: 'total', label: t('students.columns.totalPlan'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan },
+      { key: 'totalFact', type: 'total', label: t('students.columns.totalFact'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_fact },
+      { key: 'totalPlanFact', type: 'total', label: t('students.columns.totalDifference'), width: 'min-w-44 max-w-44', total: fullTotalMonths?.total_plan_fact }
     )
 
     return cols
-  }, [monthsData, t])
+  }, [monthsData, t, fullTotalMonths])
 
   return (
     <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
@@ -305,8 +304,11 @@ const Students = observer(() => {
 
 
                 return (
-                  <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : col.key === 'totalFact' ? 'border-r' : ''} ${col.width} bg-neutral-100 border-gray-200 px-4 py-3 text-center font-medium text-gray-700 flex items-center justify-center whitespace-nowrap text-sm`}>
-                    {col.label}
+                  <div key={col.key} className={`border-b ${col.key === 'totalPlan' ? 'border-r' : col.key === 'totalFact' ? 'border-r' : ''} ${col.width} bg-neutral-100 flex flex-col border-gray-200  font-medium text-gray-700  whitespace-nowrap text-sm`}>
+                    <div className='border-b px-4 flex-1 py-3 flex text-center items-center justify-center'>
+                      {col?.label}
+                    </div>
+                    <div className=' p-2  flex text-center items-center justify-center'>{formatNumber(col?.total)}</div>
                   </div>
                 )
               })}
