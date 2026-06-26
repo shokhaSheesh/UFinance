@@ -1,23 +1,23 @@
 'use client'
+import { FilterSection, FilterSidebar } from "@/components/directories/FilterSidebar/FilterSidebar"
+import SelectCounterParties from "@/components/ReadyComponents/SelectCounterParties"
+import SelectCounterPartyGroup from "@/components/ReadyComponents/SelectCounterPartyGroup"
+import CustomRangeMonthPicker from "@/components/shared/CustomRangeMonthPicker"
+import ScreenLoader from "@/components/shared/ScreenLoader"
+import SingleSelect from "@/components/shared/Selects/SingleSelect"
+import useMounted from "@/hooks/useMounted"
+import { useScrollDetector } from "@/hooks/useScrollDetector"
+import { apiClient } from "@/lib/api/ucode/base"
+import { showSuccessNotification } from "@/lib/utils/notifications"
+import { authStore } from "@/store/auth.store"
+import { defaultRangeMonth, student } from "@/store/student.store"
+import { formatStudentTableDate } from "@/utils/formatDate"
+import { formatNumber, handleDownload } from "@/utils/helpers"
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 import { observer } from "mobx-react-lite"
 import { useTranslations } from "next-intl"
 import { useCallback, useMemo, useState } from "react"
-import { FilterSection, FilterSidebar } from "../../../../components/directories/FilterSidebar/FilterSidebar"
-import SelectCounterParties from "../../../../components/ReadyComponents/SelectCounterParties"
-import SelectCounterPartyGroup from "../../../../components/ReadyComponents/SelectCounterPartyGroup"
-import CustomRangeMonthPicker from "../../../../components/shared/CustomRangeMonthPicker"
-import ScreenLoader from "../../../../components/shared/ScreenLoader"
-import SingleSelect from "../../../../components/shared/Selects/SingleSelect"
-import useMounted from "../../../../hooks/useMounted"
-import { useScrollDetector } from "../../../../hooks/useScrollDetector"
-import { apiClient } from "../../../../lib/api/ucode/base"
-import { showSuccessNotification } from "../../../../lib/utils/notifications"
-import { authStore } from "../../../../store/auth.store"
-import { defaultRangeMonth, student } from "../../../../store/student.store"
-import { formatStudentTableDate } from "../../../../utils/formatDate"
-import { formatNumber, handleDownload } from "../../../../utils/helpers"
 
 
 const LIMIT = 50
@@ -128,6 +128,12 @@ const Students = observer(() => {
   const totalMonths = useMemo(() => {
     return infiniteData?.pages?.flatMap(page => page?.data?.data?.total_by_months || []) || []
   }, [infiniteData])
+
+  const totals = useMemo(() => {
+    return infiniteData?.pages?.flatMap(page => page?.data?.data?.total || []) || []
+  }, [infiniteData])
+
+  console.log()
 
 
   // Extract unique months from student data (use first student as reference)

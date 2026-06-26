@@ -1,3 +1,4 @@
+import Students from '@/components/Indicators/Students'
 import AccountBalance from '../../../components/Indicators/AccountBalance'
 import CashFlow from '../../../components/Indicators/CashFlow'
 import IndicatorsNavbar from '../../../components/Indicators/Header'
@@ -12,6 +13,7 @@ const IndicatorsPage = () => {
         <IndicatorsNavbar />
       </div>
       <div className="  p-4 space-y-6">
+        <Students />
         <Profit />
         <CashFlow />
         <AccountBalance />
