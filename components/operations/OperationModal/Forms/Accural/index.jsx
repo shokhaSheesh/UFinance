@@ -2,7 +2,7 @@
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
-import { memo, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
 import { WarnIcon } from '@/constants/icons'
@@ -121,13 +121,30 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     }
   }
 
+  useEffect(() => {
+    if (initialData && (!isNew || initialData.isCopy)) {
+      const currencyGuid = initialData.currenies_id || initialData.currencyId
+      if (currencyGuid) {
+        const selected = getCurrencyIcon(currencyGuid)
+        if (selected) {
+          setTitle(`${selected?.kod} ${selected.nazvanie}`)
+        }
+      }
+    }
+  }, [initialData, isNew, appStore.currencies])
+
 
 
   const legalEntityGuid = watch('legalEntity')
   const watchAccuralDate = watch('accuralDate')
   const watchConfirmAccrual = watch('confirmAccrual')
   const currency = watch('currency')
-  const currencyTitle = legalEntityGuid ? title : ``
+  const currencyTitle = useMemo(() => {
+    const guid = currency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+    if (!guid) return ''
+    const selected = getCurrencyIcon(guid)
+    return selected ? `${selected?.kod} ${selected.nazvanie}` : (legalEntityGuid ? title : '')
+  }, [currency, initialData, isNew, legalEntityGuid, title])
 
   const onSubmit = async (data) => {
     try {

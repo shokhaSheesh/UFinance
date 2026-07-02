@@ -26,7 +26,13 @@ import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
 import { formatNumber, handleDownload } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Loader2 } from 'lucide-react'
+import { ChevronDown, Download, EllipsisVertical, Loader2 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -117,7 +123,7 @@ const CounterpartiesPage = observer(() => {
     hasNextPage,
     isFetchingNextPage,
     isFetching,
-    isPending, 
+    isPending,
     isLoading: isLoadingCounterparties
   } = useUcodeRequestInfinite({
     method: 'get_counterparties',
@@ -441,7 +447,27 @@ const CounterpartiesPage = observer(() => {
               </button>
             </div>
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <button onClick={exportCounterparties} type='button' className="primary-btn">{t('list.downloadExcel')} {isCounterpartiesExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="primary-btn" disabled={isCounterpartiesExportLoading}>
+                  {isCounterpartiesExportLoading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <EllipsisVertical size={18} />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-44 p-2" align="end">
+                <DropdownMenuItem
+                  onClick={exportCounterparties}
+                  disabled={isCounterpartiesExportLoading}
+                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+                >
+                  <Download size={16} />
+                  <span>{t('list.downloadExcel')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

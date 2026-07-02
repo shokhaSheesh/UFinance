@@ -5,7 +5,13 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -433,7 +439,27 @@ export default observer(function CashFlowReportPage() {
                 className="bg-white w-44"
                 dropdownClassName="bg-white"
               />
-              <button onClick={handleExportCashFlow} type='button' className="primary-btn">{t('common.downloadExcel')} {isCashFlowLoading && <Loader2 size={16} className="animate-spin" />}</button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className="primary-btn" disabled={isCashFlowLoading}>
+                    {isCashFlowLoading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <EllipsisVertical size={18} />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-44 p-2" align="end">
+                  <DropdownMenuItem
+                    onClick={handleExportCashFlow}
+                    disabled={isCashFlowLoading}
+                    className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+                  >
+                    <Download size={16} />
+                    <span>{t('common.downloadExcel')}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 

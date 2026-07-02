@@ -294,7 +294,7 @@ const PaymentForm = observer(({
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.sales_transactions_id || defaultDealGuid || null,
         purpose: raw.opisanie || '',
-        currency: raw.currenies_id || 'RUB',
+        currency: raw.currenies_id || raw.currencyId || 'RUB',
       }
     }
 
@@ -360,12 +360,20 @@ const PaymentForm = observer(({
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
   const watchAmount = watch('amount')
+  const watchCurrency = watch('currency')
   const watchSalesDeal = watch('salesDeal')
   const watchPaymentDate = watch('paymentDate')
 
   const watchAccrualDate = watch('accrualDate')
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
+
+  const currencyTitle = useMemo(() => {
+    const guid = watchCurrency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+    if (!guid) return ''
+    const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+    return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+  }, [watchCurrency, initialData, isNew, appStore.currencies])
 
   // Derived flags
   const isDebit = (!showDate && watchConfirmPayment && !watchConfirmAccrual)
@@ -452,6 +460,19 @@ const PaymentForm = observer(({
       setTitle(`${selected?.kod} ${selected.nazvanie}`)
     }
   }
+
+  useEffect(() => {
+    if (initialData && (!isNew || initialData.isCopy)) {
+      const currencyGuid = initialData.currenies_id || initialData.currencyId
+      const currencies = toJS(appStore.currencies)
+      if (currencyGuid && currencies?.length) {
+        const selected = currencies.find(c => c.guid === currencyGuid)
+        if (selected) {
+          setTitle(`${selected?.kod} ${selected.nazvanie}`)
+        }
+      }
+    }
+  }, [initialData, isNew, appStore.currencies])
 
   const totalSplitValue = divivedAmounts.reduce((acc, curr) => acc + Number(String(curr.value).replace(/\s/g, '') || 0), 0)
   const amountToNumber = Number(StringtoNumber(watchAmount))
@@ -558,7 +579,7 @@ const PaymentForm = observer(({
                         </div>
                       )}
                     />
-                    <p className='text-xss text-black font-medium text-end w-full line-clamp-1'>{title}</p>
+                    <p className='text-xss text-black font-medium text-end w-full line-clamp-1'>{currencyTitle || title}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <SplitAmount

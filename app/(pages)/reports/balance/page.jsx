@@ -3,7 +3,13 @@
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -162,7 +168,27 @@ export default observer(function BalancePage() {
             />
           </div>
           <div>
-            <button onClick={exportBalanceReport} type='button' className="primary-btn">{t('common.downloadExcel')} {isExportBalanceReportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="primary-btn" disabled={isExportBalanceReportLoading}>
+                  {isExportBalanceReportLoading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <EllipsisVertical size={18} />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-44 p-2" align="end">
+                <DropdownMenuItem
+                  onClick={exportBalanceReport}
+                  disabled={isExportBalanceReportLoading}
+                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+                >
+                  <Download size={16} />
+                  <span>{t('common.downloadExcel')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -182,16 +208,16 @@ export default observer(function BalancePage() {
               </button>
             </div>
           ) : (
-              <table className="w-full">
-                <thead className=" bg-neutral-100 sticky top-16 z-10">
-                  <tr>
+            <table className="w-full">
+              <thead className=" bg-neutral-100 sticky top-16 z-10">
+                <tr>
                   <th className="text-left px-4 py-2 text-xs font-medium">{t('balance.accountHeader')}</th>
                   <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
                 </tr>
               </thead>
-                <tbody className="bg-white">
-                  {data?.data?.map(row => renderRow(row))}
-                  {/* {data?.liabilities?.map(row => renderRow(row))}
+              <tbody className="bg-white">
+                {data?.data?.map(row => renderRow(row))}
+                {/* {data?.liabilities?.map(row => renderRow(row))}
                   {data?.equity?.map(row => renderRow(row))} */}
               </tbody>
             </table>

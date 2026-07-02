@@ -64,12 +64,14 @@ export function useOperationsFilters() {
     accrualConfirm,
     accrualNotConfirm,
     sellingDealId:        deals,
+    currency_guid:        appStore.currency?.guid,
   }), [
     debouncedSearchQuery, paymentStartDate, paymentEndDate,
     accrualStartDate, accrualEndDate, selectedCounterAgents,
     selectedLegalEntities, selectedFilters, amountRange,
     selectedChartOfAccounts, paymentType,
     paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm, deals,
+    appStore.currency?.guid,
   ])
 
   // Outer debounce: delays actual request (1 second)

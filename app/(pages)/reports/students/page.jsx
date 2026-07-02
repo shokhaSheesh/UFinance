@@ -14,7 +14,13 @@ import { defaultRangeMonth, student } from "@/store/student.store"
 import { formatStudentTableDate } from "@/utils/formatDate"
 import { formatNumber, handleDownload } from "@/utils/helpers"
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Download, EllipsisVertical, Loader2 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { observer } from "mobx-react-lite"
 import { useTranslations } from "next-intl"
 import { useCallback, useMemo, useState } from "react"
@@ -257,7 +263,27 @@ const Students = observer(() => {
                 className="bg-white w-44"
               />
             )}
-            <button onClick={exportStudents} type='button' className="primary-btn">{t('common.downloadExcel')} {isStudentsExportLoading && <Loader2 size={16} className="animate-spin" />}</button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="primary-btn" disabled={isStudentsExportLoading}>
+                  {isStudentsExportLoading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <EllipsisVertical size={18} />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-44 p-2" align="end">
+                <DropdownMenuItem
+                  onClick={exportStudents}
+                  disabled={isStudentsExportLoading}
+                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+                >
+                  <Download size={16} />
+                  <span>{t('common.downloadExcel')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

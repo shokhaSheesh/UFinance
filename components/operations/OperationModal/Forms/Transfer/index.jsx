@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 // Hooks
@@ -81,7 +81,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 				toAccount: raw.my_accounts_id_2 || raw.bank_accounts_id_2 || null,
 				toAmount: raw.to_amount || (raw.summa ? Math.abs(raw.summa) : 0),
 				purpose: raw.opisanie || raw.comment || '',
-				currency_1: raw.currenies_id || null,
+				currency_1: raw.currenies_id || raw.currencyId || null,
 				currency_2: raw.to_currenies_id || null,
 			}
 		}
@@ -118,6 +118,21 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const watchFromDate = watch('fromDate')
 	const watchCurrency1 = watch('currency_1')
 	const watchCurrency2 = watch('currency_2')
+
+	const currencyTitle1 = useMemo(() => {
+		const guid = watchCurrency1 || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+		if (!guid) return ''
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+		return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+	}, [watchCurrency1, initialData, isNew, appStore.currencies])
+
+	const currencyTitle2 = useMemo(() => {
+		const guid = watchCurrency2 || (initialData && (!isNew || initialData.isCopy) ? initialData.to_currenies_id : null)
+		if (!guid) return ''
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+		return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+	}, [watchCurrency2, initialData, isNew, appStore.currencies])
+
 	const isSameCurrency = useMemo(() => {
 		if (!watchFromAccount || !watchToAccount) return false
 		return watchCurrency1 && watchCurrency2 && watchCurrency1 === watchCurrency2
@@ -198,6 +213,22 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 			}))
 		}
 	}
+
+	useEffect(() => {
+		if (initialData && (!isNew || initialData.isCopy)) {
+			const currencies = toJS(appStore.currencies)
+			if (!currencies?.length) return
+			const c1 = initialData.currenies_id || initialData.currencyId
+			const c2 = initialData.to_currenies_id
+			const cur1 = currencies.find(c => c.guid === c1)
+			const cur2 = currencies.find(c => c.guid === c2)
+			setTitle(prev => ({
+				...prev,
+				currency_1: cur1 ? `${cur1?.kod} ${cur1.nazvanie}` : prev.currency_1,
+				currency_2: cur2 ? `${cur2?.kod} ${cur2.nazvanie}` : prev.currency_2,
+			}))
+		}
+	}, [initialData, isNew, appStore.currencies])
 
 	return (
 		<form
@@ -302,9 +333,9 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										/>
 									)}
 								/>
-								{title.currency_1 && (
+								{(currencyTitle1 || title.currency_1) && (
 									<span className='text-sm font-medium whitespace-nowrap flex-1 text-gray-800 line-clamp-1'>
-										{title.currency_1}
+										{currencyTitle1 || title.currency_1}
 									</span>
 								)}
 							</div>
@@ -396,7 +427,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										)}
 									/>
 									<span className='text-sm font-medium whitespace-nowrap flex-1 text-gray-800 line-clamp-1'>
-										{title.currency_2}
+										{currencyTitle2 || title.currency_2}
 									</span>
 								</div>
 								{errors.toAmount && (

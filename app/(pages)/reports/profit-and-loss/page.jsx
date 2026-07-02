@@ -6,7 +6,13 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -435,7 +441,27 @@ const ProfitAndLossPage = observer(() => {
                 className="bg-white w-44"
                 autoHeight={true}
               />
-              <button onClick={exportProfitAndLoss} type='button' className="primary-btn">{t('common.downloadExcel')} {isProfitAndLossLoading && <Loader2 size={16} className="animate-spin" />}</button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className="primary-btn" disabled={isProfitAndLossLoading}>
+                    {isProfitAndLossLoading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <EllipsisVertical size={18} />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-44 p-2" align="end">
+                  <DropdownMenuItem
+                    onClick={exportProfitAndLoss}
+                    disabled={isProfitAndLossLoading}
+                    className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+                  >
+                    <Download size={16} />
+                    <span>{t('common.downloadExcel')}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -449,8 +475,8 @@ const ProfitAndLossPage = observer(() => {
               <p style={{ fontSize: '14px', color: '#98A2B3' }}>Используйте фильтры слева для настройки параметров отчета</p>
             </div>
           ) : (
-              <div className='flex flex-1 overflow-hidden'>
-                <div className='overflow-x-auto' >
+            <div className='flex flex-1 overflow-hidden'>
+              <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
                   <thead className={"bg-neutral-100 sticky top-0 z-50 "}>
                     <tr>
@@ -473,9 +499,9 @@ const ProfitAndLossPage = observer(() => {
                   <tbody>
                     {rows?.map(row => renderRow(row))}
                   </tbody>
-                  </table>
-                </div>
+                </table>
               </div>
+            </div>
           )}
         </div>
       </div>
