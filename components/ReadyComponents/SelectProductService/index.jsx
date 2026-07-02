@@ -81,8 +81,8 @@ const SelectProductService = ({
       const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
       const rawItem = rawDataMap.get(lookupValue)
       if (rawItem) {
-        const fieldValue = rawItem[name]
-        returnFieldValue(fieldValue ?? null)
+        const fieldValue = rawItem[name] ?? rawItem.summa ?? null
+        returnFieldValue(fieldValue)
       }
     }
   }

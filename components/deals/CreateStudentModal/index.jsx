@@ -106,7 +106,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         classes_id: initialData?.classes_id || null,
         language_classes_id: initialData?.language_classes_id || null,
         legal_entity_id: initialData?.legal_entity_id || null,
-        monthlyPayment: initialData?.product_and_service_id_data?.summa 
+        monthlyPayment: initialData?.product_and_service_id_data?.summa
       }
     }
     return {
@@ -241,7 +241,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   })
 
   const guardianTypeList = useMemo(() => {
-    return guardianTypes?.map((item) => ({
+    const seen = new Set()
+    return guardianTypes?.filter((item) => {
+      if (seen.has(item.name)) return false
+      seen.add(item.name)
+      return true
+    }).map((item) => ({
       value: item.name,
       label: item.name,
       guid: item.guid
@@ -340,7 +345,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   }
 
 
-  console.log('getContractHtml', getContractHtml())
 
 
   const handleClose = () => {
@@ -1272,49 +1276,49 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="flex-1 overflow-hidden">
                     <iframe
-                        srcDoc={html} 
+                      srcDoc={html}
                       className="w-full h-full border-0 px-2"
-                        title={t('showContractPreview')}
+                      title={t('showContractPreview')}
                     />
                   </div>
                 </div>
 
                 {/* Preview Footer */}
-                  <div className="flex items-center justify-between gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                <div className="flex items-center justify-between gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                  <button
+                    type="button"
+                    onClick={handleFormUpdateSubmit}
+                    className="px-5 py-2 hover:border hover:border-gray-400 cursor-pointer rounded-md text-sm font-medium text-gray-700  hover:bg-gray-50 transition-colors"
+                  >
+                    &nbsp; {updateingStudent && <Loader2 className="animate-spin" />}
+                  </button>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={handleFormUpdateSubmit}
-                      className="px-5 py-2 hover:border hover:border-gray-400 cursor-pointer rounded-md text-sm font-medium text-gray-700  hover:bg-gray-50 transition-colors"
+                      onClick={handleBackToForm}
+                      className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                     >
-                      &nbsp; {updateingStudent && <Loader2 className="animate-spin" />}
+                      {t('back')}
                     </button>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleBackToForm}
-                        className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        {t('back')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
-                          if (iframe) iframe.contentWindow.print()
-                        }}
-                        className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-                      >
-                        {t('print')}
-                      </button>
-                      <button
-                        type="submit"
-                        form="student-form"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
+                        if (iframe) iframe.contentWindow.print()
+                      }}
+                      className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                    >
+                      {t('print')}
+                    </button>
+                    <button
+                      type="submit"
+                      form="student-form"
                       disabled={isSubmitting}
-                        className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
-                      </button>
-                    </div>
+                      className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
