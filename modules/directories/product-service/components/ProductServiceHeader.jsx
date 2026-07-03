@@ -1,7 +1,7 @@
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const ProductServiceHeader = ({
   t, tc, canAdd,
@@ -11,12 +11,17 @@ const ProductServiceHeader = ({
   searchQuery, setSearchQuery
 }) => {
   const menuRef = useRef(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   return (
     <div className="flex items-center sticky top-0 bg-white z-10 p-3 justify-between">
       <div className="flex items-center gap-3">
         <h1 className="h1 text-xl text-neutral-700 font-semibold">{t('pageTitle')}</h1>
-        {canAdd && (
+        {isMounted && canAdd && (
           <div ref={menuRef} className="flex items-center z-20 gap-2 relative">
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="primary-btn flex items-center gap-2">
               {tc('create')}
