@@ -2,7 +2,13 @@
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { appStore } from '@/store/app.store'
-import { Loader2, Search } from 'lucide-react'
+import { Download, EllipsisVertical, Loader2, Search } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import styles from '../deals-list/deals.module.scss'
 
 /**
@@ -70,10 +76,27 @@ export default function DealsHeader({
           />
         </div>
 
-        <button onClick={onExport} type="button" className="primary-btn">
-          {t('downloadExcel')}
-          {isDealsExportLoading && <Loader2 size={16} className="animate-spin ml-1" />}
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className="primary-btn" disabled={isDealsExportLoading}>
+              {isDealsExportLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <EllipsisVertical size={18} />
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-44 p-2" align="end">
+            <DropdownMenuItem
+              onClick={onExport}
+              disabled={isDealsExportLoading}
+              className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+            >
+              <Download size={16} />
+              <span>{t('downloadExcel')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

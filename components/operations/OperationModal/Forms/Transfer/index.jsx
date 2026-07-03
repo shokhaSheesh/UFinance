@@ -1,33 +1,33 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 // Hooks
-import { useBankAccountsPlanFact, useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 
 // Helpers
 import { isFuture } from '@/utils/formatDate'
-import { StringtoNumber } from '@/utils/helpers'
+import { formatDateParseZone, StringtoNumber } from '@/utils/helpers'
 
 // Components
-import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import Input from '@/components/shared/Input'
-import TextArea from '@/components/shared/TextArea'
+import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
+import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
+import Input from '../../../../shared/Input'
+import TextArea from '../../../../shared/TextArea'
 
-import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
-import { WarnIcon } from '@/constants/icons'
-import { queryClient } from '@/lib/queryClient'
-import { appStore } from '@/store/app.store'
-import { authStore } from '@/store/auth.store'
-import { isPastDate } from '@/utils/formatDate'
-import { formatDecimal, formatNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
+import { WarnIcon } from '../../../../../constants/icons'
+import { queryClient } from '../../../../../lib/queryClient'
+import { appStore } from '../../../../../store/app.store'
+import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
+import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -68,8 +68,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const defaultValues = useMemo(() => {
 		if (initialData && (!isNew || initialData.isCopy)) {
 			const raw = initialData
-			const fromDate = raw.data_operatsii ? moment.parseZone(raw.data_operatsii) : moment.parseZone(new Date())
-			const toDate = raw.data_nachisleniya ? moment.parseZone(raw.data_nachisleniya) : fromDate
+			const fromDate = raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : moment(new Date()).format('YYYY-MM-DD')
+			const toDate = raw.data_nachisleniya ? formatDateParseZone(raw.data_nachisleniya) : fromDate
 
 			return {
 				fromDate,
@@ -81,7 +81,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 				toAccount: raw.my_accounts_id_2 || raw.bank_accounts_id_2 || null,
 				toAmount: raw.to_amount || (raw.summa ? Math.abs(raw.summa) : 0),
 				purpose: raw.opisanie || raw.comment || '',
-				currency_1: raw.currenies_id || null,
+				currency_1: raw.currenies_id || raw.currencyId || null,
 				currency_2: raw.to_currenies_id || null,
 			}
 		}
@@ -118,6 +118,21 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 	const watchFromDate = watch('fromDate')
 	const watchCurrency1 = watch('currency_1')
 	const watchCurrency2 = watch('currency_2')
+
+	const currencyTitle1 = useMemo(() => {
+		const guid = watchCurrency1 || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+		if (!guid) return ''
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+		return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+	}, [watchCurrency1, initialData, isNew, appStore.currencies])
+
+	const currencyTitle2 = useMemo(() => {
+		const guid = watchCurrency2 || (initialData && (!isNew || initialData.isCopy) ? initialData.to_currenies_id : null)
+		if (!guid) return ''
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+		return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+	}, [watchCurrency2, initialData, isNew, appStore.currencies])
+
 	const isSameCurrency = useMemo(() => {
 		if (!watchFromAccount || !watchToAccount) return false
 		return watchCurrency1 && watchCurrency2 && watchCurrency1 === watchCurrency2
@@ -127,8 +142,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: moment.parseZone(data?.fromDate).format('YYYY-MM-DD'),
-			data_nachisleniya: moment.parseZone(data?.toDate).format('YYYY-MM-DD'),
+			data_operatsii: formatDateParseZone(data?.fromDate),
+			data_nachisleniya: formatDateParseZone(data?.toDate),
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,
@@ -162,7 +177,6 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 					onClose()
 				}
 			})
-
 			const operationId = isNew
 				? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
 				: initialData.guid
@@ -191,12 +205,30 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 	const handleSelectMyAccount = (type, value) => {
 		setValue(type, value)
-		const selected = toJS(appStore.currencies).find(c => c.guid === value)
-		setTitle(prev => ({
-			...prev,
-			[type]: `${selected.kod} ${selected.nazvanie}`,
-		}))
+		const selected = toJS(appStore.currencies)?.find(c => c.guid === value)
+		if (selected) {
+			setTitle(prev => ({
+				...prev,
+				[type]: `${selected?.kod} ${selected.nazvanie}`,
+			}))
+		}
 	}
+
+	useEffect(() => {
+		if (initialData && (!isNew || initialData.isCopy)) {
+			const currencies = toJS(appStore.currencies)
+			if (!currencies?.length) return
+			const c1 = initialData.currenies_id || initialData.currencyId
+			const c2 = initialData.to_currenies_id
+			const cur1 = currencies.find(c => c.guid === c1)
+			const cur2 = currencies.find(c => c.guid === c2)
+			setTitle(prev => ({
+				...prev,
+				currency_1: cur1 ? `${cur1?.kod} ${cur1.nazvanie}` : prev.currency_1,
+				currency_2: cur2 ? `${cur2?.kod} ${cur2.nazvanie}` : prev.currency_2,
+			}))
+		}
+	}, [initialData, isNew, appStore.currencies])
 
 	return (
 		<form
@@ -301,9 +333,9 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										/>
 									)}
 								/>
-								{title.currency_1 && (
+								{(currencyTitle1 || title.currency_1) && (
 									<span className='text-sm font-medium whitespace-nowrap flex-1 text-gray-800 line-clamp-1'>
-										{title.currency_1}
+										{currencyTitle1 || title.currency_1}
 									</span>
 								)}
 							</div>
@@ -395,7 +427,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										)}
 									/>
 									<span className='text-sm font-medium whitespace-nowrap flex-1 text-gray-800 line-clamp-1'>
-										{title.currency_2}
+										{currencyTitle2 || title.currency_2}
 									</span>
 								</div>
 								{errors.toAmount && (

@@ -2,26 +2,25 @@
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
-import { memo, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
-import MyAccountCurrensies from '@/components/ReadyComponents/MyAccountCurrensies'
-import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
-import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
-import SingleZdelka from '@/components/ReadyComponents/SingleZdelka'
-import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
 import { WarnIcon } from '@/constants/icons'
 import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { isFuture, isPastDate } from '@/utils/formatDate'
-import { formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
+import { formatDateParseZone, formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import moment from 'moment'
 import { useTranslations } from 'next-intl'
+import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
+import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -62,7 +61,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
       return {
-        accuralDate: raw.data_operatsii ? moment.parseZone(raw.data_operatsii).format('YYYY-MM-DD') : moment.parseZone(new Date()).format('YYYY-MM-DD'),
+        accuralDate: raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : formatDateParseZone(new Date()),
         confirmAccrual: raw.payment_accrual,
         legalEntity: raw.legal_entity_id || '',
         chartOfAccountWriteOff: raw.chart_of_accounts_id || null,
@@ -82,7 +81,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     }
 
     return {
-      accuralDate: moment(new Date()).format('YYYY-MM-DD'),
+      accuralDate: formatDateParseZone(new Date()),
       confirmAccrual: true,
       legalEntity: '',
       chartOfAccountWriteOff: null,
@@ -116,11 +115,23 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     setValue('legalEntity', value, { shouldValidate: true })
     const selected = getCurrencyIcon(currency)
     if (selected) {
-      setTitle(`${selected.kod} ${selected.nazvanie}`)
-    } else {
-      setTitle(`${defaultCurrency.kod} ${defaultCurrency.nazvanie}`)
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    } else if (defaultCurrency) {
+      setTitle(`${defaultCurrency?.kod} ${defaultCurrency.nazvanie}`)
     }
   }
+
+  useEffect(() => {
+    if (initialData && (!isNew || initialData.isCopy)) {
+      const currencyGuid = initialData.currenies_id || initialData.currencyId
+      if (currencyGuid) {
+        const selected = getCurrencyIcon(currencyGuid)
+        if (selected) {
+          setTitle(`${selected?.kod} ${selected.nazvanie}`)
+        }
+      }
+    }
+  }, [initialData, isNew, appStore.currencies])
 
 
 
@@ -128,13 +139,18 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
   const watchAccuralDate = watch('accuralDate')
   const watchConfirmAccrual = watch('confirmAccrual')
   const currency = watch('currency')
-  const currencyTitle = legalEntityGuid ? title : ``
+  const currencyTitle = useMemo(() => {
+    const guid = currency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+    if (!guid) return ''
+    const selected = getCurrencyIcon(guid)
+    return selected ? `${selected?.kod} ${selected.nazvanie}` : (legalEntityGuid ? title : '')
+  }, [currency, initialData, isNew, legalEntityGuid, title])
 
   const onSubmit = async (data) => {
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: moment.parseZone(data?.accuralDate).format('YYYY-MM-DD'),
+        data_operatsii: formatDateParseZone(data?.accuralDate),
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
@@ -193,9 +209,9 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     setValue('currency', value)
     const selected = getCurrencyIcon(value)
     if (selected) {
-      setTitle(`${selected.kod} ${selected.nazvanie}`)
-    } else {
-      setTitle(`${defaultCurrency.kod} ${defaultCurrency.nazvanie}`)
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    } else if (defaultCurrency) {
+      setTitle(`${defaultCurrency?.kod} ${defaultCurrency.nazvanie}`)
     }
   }
 

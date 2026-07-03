@@ -1,15 +1,14 @@
-import AccountBalance from '@/components/Indicators/AccountBalance'
-import CashFlow from '@/components/Indicators/CashFlow'
-import IndicatorsNavbar from '@/components/Indicators/Header'
-import PaymentStructure from '@/components/Indicators/PaymentStructure'
-import Profit from '@/components/Indicators/Profit'
-import ProfitableClients from '@/components/Indicators/ProfitableClients'
 import Students from '@/components/Indicators/Students'
-import FixedContent from '@/layouts/FixedContent'
+import AccountBalance from '../../../components/Indicators/AccountBalance'
+import CashFlow from '../../../components/Indicators/CashFlow'
+import IndicatorsNavbar from '../../../components/Indicators/Header'
+import PaymentStructure from '../../../components/Indicators/PaymentStructure'
+import Profit from '../../../components/Indicators/Profit'
+import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 const IndicatorsPage = () => {
   return (
-    <FixedContent className='bg-white overflow-y-auto flex-col overflow-x-visible'>
+    <div className='fixed left-[80px] bg-white w-[calc(100%-80px)] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible'>
       <div className='w-full sticky top-0 z-1000'>
         <IndicatorsNavbar />
       </div>
@@ -21,7 +20,7 @@ const IndicatorsPage = () => {
         <PaymentStructure />
         <ProfitableClients />
       </div>
-    </FixedContent>
+    </div>
   )
 }
 

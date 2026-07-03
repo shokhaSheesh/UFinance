@@ -31,12 +31,12 @@ const AppProvider = ({ children }) => {
   useEffect(() => {
     if (currencies) {
       appStore.setCurrencies(currencies)
-      const currency = currencies.find(c => data?.default_currency_id ? c.guid === data?.default_currency_id : c.kod === 'UZS')
+      const currency = currencies.find(c => data?.default_currency_id ? c.guid === data?.default_currency_id : c?.kod === 'UZS')
       appStore.setIsAccrualDate(data?.is_accural_date)
       appStore.setIsPayment(data?.is_payment)
       appStore.setWLCMPayment(data?.wlcm_active)
       if (currency) {
-        appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency.kod })
+        appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency?.kod })
       }
     }
   }, [currencies, data])

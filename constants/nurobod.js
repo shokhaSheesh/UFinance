@@ -122,7 +122,7 @@ export const getDonoAvlodContractHtml = (data = {}) => {
 <p class="article">2.1.6. Tarbiyalanuvchini oila muhitida tarbiyalash bo'yicha tegishli takliflar berish;</p>
 <p class="article">2.1.7. Muassasada zarur moddiy-texnik baza hamda malakali pedagog xodimlar mavjud bo'lgan taqdirda, asosiy ta'lim-tarbiya jarayoniga xalaqit bermagan holda qo'shimcha ta'lim turlarini amalga oshirish;</p>
 
-<p class="article bold">2.2.Muassasaning majburiyatlari:</p>
+<p class="article bold">2.2. Muassasaning majburiyatlari:</p>
 
 <p class="article">2.2.1. Bolaning muassasada bo'lgan davrida tarbiyalanuvchining hayotini muhofaza qilish, jismoniy hamda psixik sog'lig'ini ta'minlash, rivojlanishidagi nuqson (oddiy) va kamchiliklarni bartaraf etish va qiziqishlarini rivojlantirish, rivojlanish hususiyatlarini inobatga olgan holda, uning shaxsiga alohida yondashishni ta'minlash, O'zbekiston Respublikasi "Bola huquqlarining kafolatlari to'g'risidagi qonun va boshqa hujjatlariga rioya qilish;</p>
 <p class="article">2.2.2. Pedagog kadrlar tomonidan odob-axloq qoidalariga qat'iy rioya qilishni ta'minlash, tarbiyalanuvchi va Qonuniy vakil (ota-ona)ning qadr-qimmatini hurmat qilish, ularga ko'maklashish, tarbiyalanuvchini turli tazyiqlardan himoya qilish;</p>
@@ -130,7 +130,7 @@ export const getDonoAvlodContractHtml = (data = {}) => {
 <p class="article">2.2.4. Ilg'or xorijiy tajribani hisobga olgan holda bolalarni har tomonlama intellektual, axloqiy, estetik va jismoniy rivojlantirish bo'yicha zarur bo'lgan shart-sharoitlar yaratish;</p>
 <p class="article">2.2.5. Tarbiyalanuvchida o'qishga intilish hissini uyg'otish, ularni xalqning boy madaniy-tarixiy merosi va umumbashariy qadriyatlari asosida ma'naviy-axloqiy jihatdan tarbiyalash;</p>
 <p class="article">2.2.6. Belgilangan sanitariya qoidalari, normalari va gigiena normativlari asosida sifatli oziq-ovqat mahsulotlari bilan ta'minlash;</p>
-<p class="article">2.2.7.Tarbiyalanuvchiga tegishli bo'lgan narsa va buyumlarni to'laligicha saqlash;</p>
+<p class="article">2.2.7. Tarbiyalanuvchiga tegishli bo'lgan narsa va buyumlarni to'laligicha saqlash;</p>
 <p class="article">2.2.8. Qonuniy vakil (ota-ona)lar yoki ularning o'rnini bosuvchilardan tarbiyalanuvchini qabul qilib olish va ularga topshirish;</p>
 <p class="article">2.2.9. Qonuniy vakil (ota-ona)larni muassasani kun tartibi, ta'lim-tarbiya dasturlari ilova qilinadi, muassasasining manzili va telefoni hamda ta'limni boshqaruv idorasi bilan tanishtirish;</p>
 <p class="article">2.2.10.Muassasaning barcha hodimlari tomonidan qo'pol muomalada bo'lmaslik hamda bolaning ruhiyatiga salbiy ta'sir ko'rsatadigan munosabatda bo'lmaslik;</p>

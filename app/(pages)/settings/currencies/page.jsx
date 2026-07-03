@@ -37,7 +37,7 @@ const CurrenciesPage = observer(() => {
                 {currency.nazvanie}
               </div>
               <div className="px-6 py-4 w-36 ">
-                {currency.kod}
+                {currency?.kod}
               </div>
               <div className="px-6 py-4 w-36  ">
                 {currency.icon}

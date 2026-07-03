@@ -1,8 +1,8 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { appStore } from '@/store/app.store'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { appStore } from '../../../../../store/app.store'
 
 // Hooks
 import { } from '@/hooks/useDashboard'
@@ -11,29 +11,29 @@ import { } from '@/hooks/useDashboard'
 import { formatDate, isFuture } from '@/utils/formatDate'
 
 // Components
-import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
-import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
-import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
-import SingleZdelka from '@/components/ReadyComponents/SingleZdelka'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import Input from '@/components/shared/Input'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import TextArea from '@/components/shared/TextArea'
+import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
+import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
+import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
+import Input from '../../../../shared/Input'
+import SingleSelect from '../../../../shared/Selects/SingleSelect'
+import TextArea from '../../../../shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
-import FormDatepicker from '@/components/shared/DatePicker/form-datepicker'
-import { CreditIcon, DebitIcon, WarnIcon } from '@/constants/icons'
-import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
-import { authStore } from '@/store/auth.store'
-import { isPastDate } from '@/utils/formatDate'
-import { calculatePercent, formatDecimal, formatNumber, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
+import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
+import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { authStore } from '../../../../../store/auth.store'
+import { isPastDate } from '../../../../../utils/formatDate'
+import { formatDateParseZone, formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -73,82 +73,66 @@ const emptyRow = (preselectedCounterparty = '') => ({
   percent: '',
 })
 
-// Parse a possibly space-separated/formatted numeric string into a number.
-// formatNumber() inserts thousand separators (e.g. "1 000"), and Number("1 000")
-// is NaN — so every numeric read must strip whitespace first.
-const parseNum = (v) => {
-  const n = Number(String(v ?? '').replace(/\s/g, ''))
-  return Number.isFinite(n) ? n : 0
-}
-
-// Format a number to a clean string: 2 decimals max, trailing ".00" removed.
-const fmt2 = (n) => {
-  if (!Number.isFinite(n)) return ''
-  return String(Number(n).toFixed(2)).replace(/\.00$/, '')
-}
-
-// Split rows into equal shares: integer percents (the last row absorbs the
-// remainder) with each value derived from its percent, so the amount and
-// share columns always agree and add up exactly to the total amount.
-const equalSplit = (rows, totalAmount) => {
-  const count = rows.length
-  if (count === 0) return rows
-  const equalPercent = Math.floor(100 / count)
-  const lastPercent = 100 - equalPercent * (count - 1)
-  const equalValue = (equalPercent / 100) * totalAmount
-  const lastValue = totalAmount - equalValue * (count - 1)
-  return rows.map((row, i) => {
-    const isLast = i === count - 1
-    return {
-      ...row,
-      percent: String(isLast ? lastPercent : equalPercent),
-      value: totalAmount > 0 ? fmt2(isLast ? lastValue : equalValue) : '',
-    }
-  })
-}
-
 function rowsReducer(state, action) {
   switch (action.type) {
     case 'ADD': {
-      return equalSplit([...state, emptyRow()], parseNum(action.amount))
+      const newState = [...state, emptyRow()]
+      const count = newState.length
+      const totalAmount = parseFloat(action.amount) || 0
+      const equalValue = Math.floor((totalAmount / count) * 100) / 100
+      const equalPercent = Math.floor((100 / count) * 100) / 100
+      const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
+      const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
+
+      return newState.map((row, i) => ({
+        ...row,
+        value: i === count - 1 ? String(lastValue) : String(equalValue),
+        percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
+      }))
     }
     case 'REMOVE': {
       const newState = state.filter((_, i) => i !== action.index)
       const count = newState.length
       if (count === 0) return newState
-      const totalAmount = parseNum(action.amount)
-      const remainingPercentSum = newState.reduce((s, r) => s + parseNum(r.percent), 0)
+      const totalAmount = parseFloat(action.amount) || 0
+      const remainingPercentSum = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
 
-      // No existing shares → fall back to an equal split.
-      if (remainingPercentSum <= 0) {
-        return equalSplit(newState, totalAmount)
-      }
+      if (remainingPercentSum > 0) {
+        let remainingValueForFinal = totalAmount
+        let remainingPercentForFinal = 100
+        return newState.map((row, i) => {
+          if (i === count - 1) {
+            return {
+              ...row,
+              value: String(remainingValueForFinal.toFixed(2)).replace('.00', ''),
+              percent: String(remainingPercentForFinal.toFixed(2)).replace('.00', '')
+            }
+          }
+          const rowPercent = parseFloat(row.percent) || 0
+          const scaledPercent = (rowPercent / remainingPercentSum) * 100
+          const rowValue = Math.floor(totalAmount * (scaledPercent / 100) * 100) / 100
+          const calculatedPercent = Math.floor(scaledPercent * 100) / 100
 
-      // Existing shares → keep proportions, rescaling them back up to 100%.
-      let remainingValueForFinal = totalAmount
-      let remainingPercentForFinal = 100
-      return newState.map((row, i) => {
-        if (i === count - 1) {
+          remainingValueForFinal -= rowValue
+          remainingPercentForFinal -= calculatedPercent
+
           return {
             ...row,
-            value: totalAmount > 0 ? fmt2(remainingValueForFinal) : '',
-            percent: fmt2(remainingPercentForFinal)
+            value: String(rowValue.toFixed(2)).replace('.00', ''),
+            percent: String(calculatedPercent.toFixed(2)).replace('.00', '')
           }
-        }
-        const rowPercent = parseNum(row.percent)
-        const scaledPercent = (rowPercent / remainingPercentSum) * 100
-        const rowValue = Math.floor(totalAmount * (scaledPercent / 100) * 100) / 100
-        const calculatedPercent = Math.floor(scaledPercent * 100) / 100
-
-        remainingValueForFinal -= rowValue
-        remainingPercentForFinal -= calculatedPercent
-
-        return {
+        })
+      } else {
+        const equalValue = Math.floor((totalAmount / count) * 100) / 100
+        const equalPercent = Math.floor((100 / count) * 100) / 100
+        const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
+        const lastPercent = +(100 - equalPercent * (count - 1)).toFixed(2)
+        return newState.map((row, i) => ({
           ...row,
-          value: totalAmount > 0 ? fmt2(rowValue) : '',
-          percent: fmt2(calculatedPercent)
-        }
-      })
+          value: i === count - 1 ? String(lastValue) : String(equalValue),
+          percent: i === count - 1 ? String(Number(lastPercent).toFixed(2)).replace('.00', '') : String(Number(equalPercent).toFixed(2)).replace('.00', ''),
+        }))
+      }
     }
     case 'UPDATE': {
       if (action.field === 'calculationDate') {
@@ -158,64 +142,57 @@ function rowsReducer(state, action) {
           i === action.index ? { ...row, [action.field]: action.value, isCalculationCommitted: !isFutureDate } : row
         )
       }
-      // Manual value edit → recompute that row's percent from the main amount.
       if (action.field === 'value' && action.amount) {
-        const numAmount = parseNum(action.amount)
-        const isEmpty = String(action.value ?? '').replace(/\s/g, '') === ''
-        const numValue = parseNum(action.value)
-        const cleanValue = isEmpty ? '' : String(numValue)
-
+        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
         let percent = ''
-        if (numAmount > 0 && !isEmpty) {
-          percent = fmt2((numValue / numAmount) * 100)
+        if (numAmount > 0 && action.value !== '') {
+          percent = String(Number((Number(action.value) / numAmount) * 100).toFixed(2))
+          if (percent.endsWith('.00')) percent = parseInt(percent).toString()
         }
-
         let newState = state.map((row, i) =>
-          i === action.index ? { ...row, value: cleanValue, percent } : row
+          i === action.index ? { ...row, value: action.value, percent } : row
         )
 
-        // When the row values now add up to the amount, absorb rounding drift
-        // into the edited row's percent so the shares total exactly 100%.
         if (numAmount > 0) {
-          const totalValues = newState.reduce((s, r) => s + parseNum(r.value), 0)
+          const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
           if (Math.abs(totalValues - numAmount) < 0.01) {
-            const totalPercent = newState.reduce((s, r) => s + parseNum(r.percent), 0)
+            const totalPercent = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
             if (Math.abs(totalPercent - 100) > 0.001) {
-              const residual = 100 - (totalPercent - parseNum(percent))
+              const residual = 100 - (totalPercent - (parseFloat(percent) || 0));
               newState = newState.map((row, i) =>
-                i === action.index ? { ...row, percent: fmt2(residual) } : row
+                i === action.index ? {
+                  ...row,
+                  percent: String(Number(residual).toFixed(2)).replace('.00', '')
+                } : row
               )
             }
           }
         }
         return newState
       }
-      // Manual percent edit → recompute that row's value from the main amount.
       if (action.field === 'percent' && action.amount) {
-        const numAmount = parseNum(action.amount)
-        const rawPercent = String(action.value ?? '')
-        const isEmpty = rawPercent.trim() === ''
-        const numPercent = parseNum(rawPercent)
-
-        let valueStr = ''
-        if (numAmount > 0 && !isEmpty) {
-          valueStr = fmt2((numPercent / 100) * numAmount)
+        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
+        let value = ''
+        let calculatedValueStr = ''
+        if (numAmount > 0 && action.value !== '') {
+          value = String(((Number(action.value) / 100) * numAmount).toFixed(2))
+          calculatedValueStr = value.endsWith('.00') ? parseInt(value).toString() : value
         }
-
         let newState = state.map((row, i) =>
-          i === action.index ? { ...row, percent: rawPercent, value: valueStr } : row
+          i === action.index ? { ...row, percent: action.value, value: calculatedValueStr } : row
         )
 
-        // When the shares now total 100%, absorb rounding drift into the edited
-        // row's value so the amounts add up exactly to the main amount.
         if (numAmount > 0) {
-          const totalPercents = newState.reduce((s, r) => s + parseNum(r.percent), 0)
+          const totalPercents = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
           if (Math.abs(totalPercents - 100) < 0.01) {
-            const totalValues = newState.reduce((s, r) => s + parseNum(r.value), 0)
+            const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
             if (Math.abs(totalValues - numAmount) > 0.001) {
-              const residualValue = numAmount - (totalValues - parseNum(valueStr))
+              const residualValue = numAmount - (totalValues - (Number(calculatedValueStr) || 0));
               newState = newState.map((row, i) =>
-                i === action.index ? { ...row, value: fmt2(residualValue) } : row
+                i === action.index ? {
+                  ...row,
+                  value: String(Number(residualValue).toFixed(2)).replace('.00', '')
+                } : row
               )
             }
           }
@@ -261,7 +238,18 @@ function rowsReducer(state, action) {
       })
     }
     case 'DIVIDE_EQUAL': {
-      return equalSplit(state, parseNum(action.amount))
+      const count = state.length
+      if (count === 0) return state
+      const totalAmount = parseFloat(String(action?.amount)?.replace(/\s/g, '')) || 0
+      const equalValue = parseFloat((totalAmount / count).toFixed(2))
+      const equalPercent = Math.floor(100 / count)
+      const lastValue = parseFloat((totalAmount - equalValue * (count - 1)).toFixed(2))
+      const lastPercent = 100 - equalPercent * (count - 1)
+      return state.map((row, i) => ({
+        ...row,
+        value: i === count - 1 ? String(lastValue).replace('.00', '') : String(equalValue).replace('.00', ''),
+        percent: i === count - 1 ? String(lastPercent) : String(equalPercent),
+      }))
     }
     case 'RESET':
       return [emptyRow()]
@@ -293,8 +281,8 @@ const IncomeForm = observer(({
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
-      const paymentDate = raw.data_operatsii ? moment.parseZone(raw.data_operatsii).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
-      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? moment.parseZone(raw.data_nachisleniya).format('YYYY-MM-DD') : paymentDate
+      const paymentDate = raw.data_operatsii ? formatDateParseZone(raw.data_operatsii) : formatDateParseZone(formatDateParseZone(new Date()))
+      const accrualDate = raw?.sales_transactions_id && appStore.isAccrualDate ? formatDateParseZone(raw.data_nachisleniya) : paymentDate
 
 
       return {
@@ -309,16 +297,16 @@ const IncomeForm = observer(({
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw?.sales_transactions_id || defaultDealGuid || null,
         purpose: raw?.opisanie || '',
-        currency: raw?.currenies_id || null,
+        currency: raw?.currenies_id || raw?.currencyId || null,
       }
     }
 
     return {
-      paymentDate: moment(new Date()).format('YYYY-MM-DD'),
+      paymentDate: formatDateParseZone(new Date()),
       confirmPayment: true,
       accountAndLegalEntity: null,
       amount: '',
-      accrualDate: moment(new Date()).format('YYYY-MM-DD'),
+      accrualDate: formatDateParseZone(new Date()),
       confirmAccrual: true,
       counterparty: preselectedCounterparty || null,
       chartOfAccount: chart_of_accounts_id || null,
@@ -361,10 +349,9 @@ const IncomeForm = observer(({
         contrAgentId: p.counterparties_id || '',
         operationCategoryId: p.chart_of_accounts_id || '',
         value: String(Math.abs(p.summa || 0)),
-        percent: calculatePercent(initialData.summa, p.summa, false)
+        percent: String(p.percent || '')
       }))
       dispatch({ type: 'SET_ROWS', payload: mappedRows })
-      console.log('mappedRows', mappedRows)
     }
   }, [initialData, isNew])
 
@@ -377,12 +364,20 @@ const IncomeForm = observer(({
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
   const watchAmount = watch('amount')
+  const watchCurrency = watch('currency')
   const watchSalesDeal = !appStore.isAccrualDate && !appStore.isDonoSchool ? watch('salesDeal') : '' // never delete that is importatn variable
   const watchPaymentDate = watch('paymentDate')
   const watchAccrualDate = watch('accrualDate')
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
   const saleDeal = watch('salesDeal')
+
+  const currencyTitle = useMemo(() => {
+    const guid = watchCurrency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
+    if (!guid) return ''
+    const selected = toJS(appStore.currencies)?.find(c => c.guid === guid)
+    return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
+  }, [watchCurrency, initialData, isNew, appStore.currencies])
 
 
   // Derived flags
@@ -391,8 +386,8 @@ const IncomeForm = observer(({
 
   const onSubmit = async (data) => {
 
-    const dataOplata = moment.parseZone(data?.paymentDate).format('YYYY-MM-DD')
-    const dataNachisleniya = watchSalesDeal ? dataOplata : moment.parseZone(data?.accrualDate).format('YYYY-MM-DD')
+    const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
+    const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.accrualDate).format('YYYY-MM-DD')
 
     const payload = {
       tip: ['Поступление'],
@@ -465,9 +460,25 @@ const IncomeForm = observer(({
 
   const handleSelectMyAccount = (value) => {
     setValue('currency', value)
-    const selected = toJS(appStore.currencies).find(c => c.guid === value)
-    setTitle(`${selected.kod} ${selected.nazvanie}`)
+    const selected = toJS(appStore.currencies)?.find(c => c.guid === value)
+    if (selected) {
+      setTitle(`${selected?.kod} ${selected.nazvanie}`)
+    }
   }
+
+  useEffect(() => {
+    if (initialData && (!isNew || initialData.isCopy)) {
+      const currencyGuid = initialData.currenies_id || initialData.currencyId
+      const currencies = toJS(appStore.currencies)
+      if (currencyGuid && currencies?.length) {
+        const selected = currencies.find(c => c.guid === currencyGuid)
+        if (selected) {
+          setTitle(`${selected?.kod} ${selected.nazvanie}`)
+        }
+      }
+    }
+  }, [initialData, isNew, appStore.currencies])
+
   const totalSplitValue = divivedAmounts.reduce((acc, curr) => acc + Number(String(curr.value).replace(/\s/g, '') || 0), 0)
   const amountToNumber = Number(StringtoNumber(watchAmount))
   const isSplitExceeded = divivedAmounts.length > 0 && amountToNumber > 0 && totalSplitValue > amountToNumber
@@ -573,7 +584,7 @@ const IncomeForm = observer(({
                         </div>
                       )}
                     />
-                    <p className='text-xss text-black font-medium text-end w-full line-clamp-1'>{title}</p>
+                    <p className='text-xss text-black font-medium text-end w-full line-clamp-1'>{currencyTitle || title}</p>
 
                   </div>
                   <div className="flex items-center gap-4">

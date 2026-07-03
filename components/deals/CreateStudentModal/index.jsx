@@ -78,7 +78,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     if (initialData && dealGuid) {
       return {
         contractNumber: initialData?.number_contract || '',
-        contractDate: moment.parseZone(initialData?.date_contract || today).format('YYYY-MM-DD'),
+        contractDate: moment(initialData?.date_contract || today).format('YYYY-MM-DD'),
         guardianName: initialData?.full_name_guardian || '',
         branchName: branch?.name || '',
         guardianType: initialData?.type_guardian?.[0] || null,
@@ -90,16 +90,16 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         pinf: initialData?.jshshr_guardian || null,
         issuedBy: initialData?.place_of_issue || '',
         tariffName: initialData?.product_and_service_id?.name || '',
-        birthDate: moment.parseZone(initialData?.birthday_pupil || today).format('YYYY-MM-DD'),
-        validFrom: moment.parseZone(initialData?.the_contract_period_is_from || today).format('YYYY-MM-DD'),
+        birthDate: initialData?.birthday_pupil ? new Date(initialData.birthday_pupil) : today,
+        validFrom: initialData?.the_contract_period_is_from ? new Date(initialData.the_contract_period_is_from) : today,
         gender: initialData?.select_gender?.[0] || '',
-        validTo: moment.parseZone(initialData?.the_contract_period_is_to || today).format('YYYY-MM-DD'),
+        validTo: initialData?.the_contract_period_is_to ? new Date(initialData.the_contract_period_is_to) : today,
         className: initialData?.classes_id_data?.name || '',
         clientType: initialData?.pupil_type?.[0] || '',
         language: initialData?.language_classes_id_data?.name || '',
         status: 'passive',
         address: initialData?.address || '',
-        passiveDate: moment.parseZone(initialData?.passive_date || today).format('YYYY-MM-DD'),
+        passiveDate: initialData?.passive_date ? new Date(initialData.passive_date) : today,
         counterparties_id: initialData?.counterparties_id || null,
         product_and_service_id: initialData?.product_and_service_id || null,
         chart_of_accounts_id: initialData?.chart_of_accounts_id || null,
@@ -241,7 +241,12 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   })
 
   const guardianTypeList = useMemo(() => {
-    return guardianTypes?.map((item) => ({
+    const seen = new Set()
+    return guardianTypes?.filter((item) => {
+      if (seen.has(item.name)) return false
+      seen.add(item.name)
+      return true
+    }).map((item) => ({
       value: item.name,
       label: item.name,
       guid: item.guid
@@ -293,8 +298,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   const getContractDataForType = () => {
     const values = getValues()
     // Get years and months difference
-    const from = moment.parseZone(values.validFrom).format('YYYY-MM-DD')
-    const to = moment.parseZone(values.validTo).format('YYYY-MM-DD')
+    const from = moment(values.validFrom).format('YYYY-MM-DD')
+    const to = moment(values.validTo).format('YYYY-MM-DD')
     const totalMonths = getPeriodLength(from, to)
 
     const monthlyAmount = formatNumber(values.monthlyPayment)
@@ -304,8 +309,8 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
 
     const baseData = {
       contractNumber: values.contractNumber || '___',
-      contractDate: moment.parseZone(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
-      contractEndDate: values.validTo ? moment.parseZone(values.validTo).format('DD.MM.YYYY') : '____-__-__',
+      contractDate: moment(values.contractDate).format('DD.MM.YYYY') || '____-__-__',
+      contractEndDate: values.validTo ? moment(values.validTo).format('DD.MM.YYYY') : '____-__-__',
       guardianPassport: values.passport || '________________________',
       guardianPassportIssuedBy: values.issuedBy || '________________________',
       guardianPhone1: values.phone1 || '________________________',
@@ -320,9 +325,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
       academicYear: values.academicYear || '2025-2026',
       className: values.className || '___',
       language: values.language || "O'zbek tili",
-      studentBirthday: values.birthDate ? moment.parseZone(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
-      validFrom: values.validFrom ? moment.parseZone(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
-      validTo: values.validTo ? moment.parseZone(values.validTo).format('MMM, DD YYYY') : '____-__-__',
+      studentBirthday: values.birthDate ? moment(values.birthDate).format('DD.MM.YYYY') : '____-__-__',
+      validFrom: values.validFrom ? moment(values.validFrom).format('MMM, DD YYYY') : '____-__-__',
+      validTo: values.validTo ? moment(values.validTo).format('MMM, DD YYYY') : '____-__-__',
     }
 
     return baseData
@@ -340,7 +345,6 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
   }
 
 
-  console.log('getContractHtml', getContractHtml())
 
 
   const handleClose = () => {
@@ -416,10 +420,10 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         name: data.contractNumber || '',
         number_contract: data.contractNumber || '',
         school_year: data.academicYear,
-        date_contract: moment.parseZone(data.contractDate).format('YYYY-MM-DD'),
-        deal_date: moment.parseZone(data.contractDate).format('YYYY-MM-DD'),
-        the_contract_period_is_from: moment.parseZone(data.validFrom).format('YYYY-MM-DD'),
-        the_contract_period_is_to: moment.parseZone(data.validTo).format('YYYY-MM-DD'),
+        date_contract: moment(data.contractDate).format('YYYY-MM-DD'),
+        deal_date: moment(data.contractDate).format('YYYY-MM-DD'),
+        the_contract_period_is_from: moment(data.validFrom).format('YYYY-MM-DD'),
+        the_contract_period_is_to: moment(data.validTo).format('YYYY-MM-DD'),
         counterparties_id: data.counterparties_id || '',
         product_and_service_id: data.product_and_service_id, // TODO: get from tariff lookup
         chart_of_accounts_id: data.chart_of_accounts_id, // TODO: get from settings
@@ -1272,49 +1276,49 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="flex-1 overflow-hidden">
                     <iframe
-                        srcDoc={html}
+                      srcDoc={html}
                       className="w-full h-full border-0 px-2"
-                        title={t('showContractPreview')}
+                      title={t('showContractPreview')}
                     />
                   </div>
                 </div>
 
                 {/* Preview Footer */}
-                  <div className="flex items-center justify-between gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                <div className="flex items-center justify-between gap-3 p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                  <button
+                    type="button"
+                    onClick={handleFormUpdateSubmit}
+                    className="px-5 py-2 hover:border hover:border-gray-400 cursor-pointer rounded-md text-sm font-medium text-gray-700  hover:bg-gray-50 transition-colors"
+                  >
+                    &nbsp; {updateingStudent && <Loader2 className="animate-spin" />}
+                  </button>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={handleFormUpdateSubmit}
-                      className="px-5 py-2 hover:border hover:border-gray-400 cursor-pointer rounded-md text-sm font-medium text-gray-700  hover:bg-gray-50 transition-colors"
+                      onClick={handleBackToForm}
+                      className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                     >
-                      &nbsp; {updateingStudent && <Loader2 className="animate-spin" />}
+                      {t('back')}
                     </button>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleBackToForm}
-                        className="px-5 py-2 border border-gray-200 cursor-pointer rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        {t('back')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
-                          if (iframe) iframe.contentWindow.print()
-                        }}
-                        className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-                      >
-                        {t('print')}
-                      </button>
-                      <button
-                        type="submit"
-                        form="student-form"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iframe = document.querySelector('iframe[title="Предпросмотр договора"]')
+                        if (iframe) iframe.contentWindow.print()
+                      }}
+                      className="px-5 py-2 bg-emerald-600 cursor-pointer hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                    >
+                      {t('print')}
+                    </button>
+                    <button
+                      type="submit"
+                      form="student-form"
                       disabled={isSubmitting}
-                        className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
-                      </button>
-                    </div>
+                      className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting || isPending ? t('saving') : isEditing ? t('update') : t('add')}
+                    </button>
+                  </div>
                 </div>
               </>
             )}

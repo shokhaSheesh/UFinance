@@ -1,5 +1,6 @@
 
 import { toJS } from "mobx"
+import moment from "moment"
 import { appStore } from "../store/app.store"
 
 // ── Format helpers ──────────────────────────────────────────
@@ -303,4 +304,9 @@ export const formatValueLength = (val, billion, million, thousand) => {
   if (abs >= 1_000_000) return `${(val / 1_000_000).toFixed(1)} ${million}`
   if (abs >= 1_000) return `${(val / 1_000).toFixed(0)} ${thousand}`
   return formatNumber(val)
+}
+
+
+export const formatDateParseZone = (date) => {
+  return moment.parseZone(date).format('YYYY-MM-DD')
 }

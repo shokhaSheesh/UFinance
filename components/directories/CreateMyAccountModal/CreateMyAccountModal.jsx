@@ -77,8 +77,8 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   const currencies = useMemo(() => {
     return appStore.currencies.map(item => ({
       value: item.guid,
-      label: `${item.kod || ''} (${item.nazvanie || ''})`.trim(),
-      kod: item.kod || '',
+      label: `${item?.kod || ''} (${item.nazvanie || ''})`.trim(),
+      kod: item?.kod || '',
       nazvanie: item.nazvanie || ''
     }))
   }, [])
