@@ -78,7 +78,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
     if (initialData && dealGuid) {
       return {
         contractNumber: initialData?.number_contract || '',
-        contractDate: moment(initialData?.date_contract || today).format('YYYY-MM-DD'),
+        contractDate: initialData?.date_contract ? moment(initialData.date_contract).format('YYYY-MM-DD') : today,
         guardianName: initialData?.full_name_guardian || '',
         branchName: branch?.name || '',
         guardianType: initialData?.type_guardian?.[0] || null,
@@ -90,16 +90,16 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         pinf: initialData?.jshshr_guardian || null,
         issuedBy: initialData?.place_of_issue || '',
         tariffName: initialData?.product_and_service_id?.name || '',
-        birthDate: initialData?.birthday_pupil ? new Date(initialData.birthday_pupil) : today,
-        validFrom: initialData?.the_contract_period_is_from ? new Date(initialData.the_contract_period_is_from) : today,
+        birthDate: initialData?.birthday_pupil ? moment(initialData.birthday_pupil).format('YYYY-MM-DD') : today,
+        validFrom: initialData?.the_contract_period_is_from ? moment(initialData.the_contract_period_is_from).format('YYYY-MM-DD') : today,
         gender: initialData?.select_gender?.[0] || '',
-        validTo: initialData?.the_contract_period_is_to ? new Date(initialData.the_contract_period_is_to) : today,
+        validTo: initialData?.the_contract_period_is_to ? moment(initialData.the_contract_period_is_to).format('YYYY-MM-DD') : today,
         className: initialData?.classes_id_data?.name || '',
         clientType: initialData?.pupil_type?.[0] || '',
         language: initialData?.language_classes_id_data?.name || '',
         status: 'passive',
         address: initialData?.address || '',
-        passiveDate: initialData?.passive_date ? new Date(initialData.passive_date) : today,
+        passiveDate: initialData?.passive_date ? moment(initialData.passive_date).format('YYYY-MM-DD') : today,
         counterparties_id: initialData?.counterparties_id || null,
         product_and_service_id: initialData?.product_and_service_id || null,
         chart_of_accounts_id: initialData?.chart_of_accounts_id || null,
@@ -438,13 +438,13 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
         place_of_issue: data.issuedBy || '',
         html: htmlContent,
         contract_file: contractFileLink,
-        birthday_pupil: (data.birthDate),
+        birthday_pupil: data.birthDate ? moment(data.birthDate).format('YYYY-MM-DD') : null,
         select_gender: toArray(data.gender),
         classes_id: data.classes_id, // TODO: get from class lookup
         pupil_type: toArray(data.clientType),
         language_classes_id: data.language_classes_id, // TODO: get from language lookup
         status: toArray(data.status),
-        passive_date: (data.passiveDate)
+        passive_date: data.passiveDate ? moment(data.passiveDate).format('YYYY-MM-DD') : null
       }
     } else {
       requestData = {
@@ -760,7 +760,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                           render={({ field }) => {
                             return <FormDatepicker
                               value={field.value}
-                              onChange={field.onChange}
+                              onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
                               format='YYYY-MM-DD'
                               placeholder="Выберите дату"
                               className={'w-full!'}
@@ -986,7 +986,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
-                              onChange={field.onChange}
+                              onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
                               placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
                               className={'w-full!'}
@@ -1008,8 +1008,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                             <FormDatepicker
                               value={field.value}
                               onChange={(value) => {
-                                field.onChange(value)
-                                setValue('the_contract_period_is_from', value)
+                                const dateString = moment(value).format('YYYY-MM-DD')
+                                field.onChange(dateString)
+                                setValue('the_contract_period_is_from', dateString)
                               }}
                               placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
@@ -1054,8 +1055,9 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                             <FormDatepicker
                               value={field.value}
                               onChange={(value) => {
-                                field.onChange(value)
-                                setValue('the_contract_period_is_to', value)
+                                const dateString = moment(value).format('YYYY-MM-DD')
+                                field.onChange(dateString)
+                                setValue('the_contract_period_is_to', dateString)
                               }}
                               placeholder={t('datePlaceholder')}
                               format='YYYY-MM-DD'
@@ -1133,7 +1135,7 @@ const CreateStudentModal = observer(({ isOpen, onClose, onSubmit, dealGuid, canU
                           render={({ field }) => (
                             <FormDatepicker
                               value={field.value}
-                              onChange={field.onChange}
+                              onChange={(value) => field.onChange(moment(value).format('YYYY-MM-DD'))}
                               minDate={new Date(defaultValues.validFrom)}
                               maxDate={new Date(defaultValues.validTo)}
                               placeholder={t('datePlaceholder')}
