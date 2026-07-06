@@ -19,7 +19,7 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
+const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
   const t = useTranslations('Directories.details.incomeOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -222,18 +222,24 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd }) => {
                           {'+'}{formatAmount(item.summa)} {item.currency}
                         </p>
                         <div className=' items-center  hidden group-hover:flex '>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
-                            className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
-                          >
-                            <MdOutlineModeEdit size={16} className='text-gray-400' />
-                          </button>
-                          <button onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                            <IoCopyOutline size={16} className='text-gray-400' />
-                          </button>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                            <IoCloseOutline size={16} className='text-gray-400' />
-                          </button>
+                          {canEdit && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
+                              className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
+                            >
+                              <MdOutlineModeEdit size={16} className='text-gray-400' />
+                            </button>
+                          )}
+                          {canEdit && (
+                            <button onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
+                              <IoCopyOutline size={16} className='text-gray-400' />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
+                              <IoCloseOutline size={16} className='text-gray-400' />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>

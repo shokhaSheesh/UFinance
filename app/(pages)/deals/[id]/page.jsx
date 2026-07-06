@@ -139,7 +139,11 @@ export default observer(function DealDetailPage() {
   const [isCopying, setIsCopying] = useState(false)
 
   const incomePermission = operations.income.add
+  const incomeCanEdit = operations.income.edit
+  const incomeCanDelete = operations.income.delete
   const paymentPermission = operations.payout.add
+  const paymentCanEdit = operations.payout.edit
+  const paymentCanDelete = operations.payout.delete
   const shipmentPermission = operations.shipment.add
   const productsPermission = appStore.permission.directories.productsServices.add
 
@@ -466,29 +470,29 @@ export default observer(function DealDetailPage() {
                     (activeTab === 'receipts' && incomePermission) ||
                     (activeTab === 'expenses' && paymentPermission) ||
                     (activeTab === 'shipments' && shipmentPermission) ? (
-                      <button
-                        className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
-                        onClick={() => {
-                          if (activeTab === 'shipments') {
-                            setShowShipmentModal(true);
-                          } else if (activeTab === 'receipts' || activeTab === 'expenses') {
-                            handleCreateOperation()
-                          } else if (activeTab === 'products') {
-                            setShowProductModal(true)
-                          }
-                        }}
-                      >
-                        {t('addButton')}
-                      </button>
+                    <button
+                      className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
+                      onClick={() => {
+                        if (activeTab === 'shipments') {
+                          setShowShipmentModal(true);
+                        } else if (activeTab === 'receipts' || activeTab === 'expenses') {
+                          handleCreateOperation()
+                        } else if (activeTab === 'products') {
+                          setShowProductModal(true)
+                        }
+                      }}
+                    >
+                      {t('addButton')}
+                    </button>
                   ) : null}
                 </div>
               </div>
               <div className="overflow-hidden">
                 {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} />}
 
-                {activeTab === 'receipts' && <IncomeOperationsTable canAdd={incomePermission} type='Поступление' sellingDealId={dealId} onAdd={handleCreateOperation} />}
+                {activeTab === 'receipts' && <IncomeOperationsTable canAdd={incomePermission} canEdit={incomeCanEdit} canDelete={incomeCanDelete} type='Поступление' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
-                {activeTab === 'expenses' && <ExpenseOperationsTable canAdd={paymentPermission} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
+                {activeTab === 'expenses' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
                 {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} />}
               </div>
