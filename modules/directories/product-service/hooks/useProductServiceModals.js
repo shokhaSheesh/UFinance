@@ -1,11 +1,13 @@
-import { useUcodeDefaultApiMutation } from '@/hooks/useDashboard'
+import { useUcodeDefaultApiMutation, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { authStore } from '@/store/auth.store'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
 export function useProductServiceModals(t) {
   const queryClient = useQueryClient()
   const { mutateAsync: deleteProductService } = useUcodeDefaultApiMutation({ mutationKey: 'DELETE_PRODUCT_SERVICE' })
+  const { mutateAsync: deleteProductServiceFn } = useUcodeRequestMutation()
 
   const [isCreateSingleOpen, setIsCreateSingleOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
@@ -46,12 +48,12 @@ export function useProductServiceModals(t) {
     setIsDeletingItem(true)
     try {
       const isGroup = itemToDelete.isGroup
-      await deleteProductService({
-        urlMethod: 'DELETE',
-        urlParams: isGroup
-          ? `/items/group_product_and_service/${itemToDelete.guid}?from-ofs=true`
-          : `/items/product_and_service/${itemToDelete.guid}?from-ofs=true`,
-        data: { guid: itemToDelete.guid }
+      await deleteProductServiceFn({
+        method: 'delete_product_and_service',
+        data: {
+          guid: itemToDelete.guid,
+          branch_id: authStore.branch_id,
+        }
       })
       invalidateQueries()
       if (isGroup) queryClient.invalidateQueries({ queryKey: ['product-services-grouped'] })
@@ -69,10 +71,12 @@ export function useProductServiceModals(t) {
     setIsBulkDeleting(true)
     try {
       const guids = Array.from(selectedItems)
-      await deleteProductService({
-        urlMethod: 'DELETE',
-        urlParams: `/object/operations`,
-        data: { ids: guids }
+      await deleteProductServiceFn({
+        method: 'delete_product_and_service',
+        data: {
+          ids: guids,
+          branch_id: authStore.branch_id,
+        }
       })
       invalidateQueries()
       setSelectedItems(new Set())
