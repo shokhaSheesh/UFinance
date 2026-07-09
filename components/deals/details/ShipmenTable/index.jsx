@@ -17,7 +17,17 @@ import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
-const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
+const ShipmenTable = ({
+  dealName = '', dealGuid = '', onAdd, canAdd,
+  listMethod = 'list_sales_operations',
+  dealIdField = 'sales_transaction_id',
+  deleteMethod = 'delete_shipment_transaction',
+  createMethod = 'create_shipment_transaction',
+  updateMethod = 'update_shipment_transaction',
+  getMethod = 'get_shipment_transaction',
+  operationType = ['Отгрузка'],
+  invalidateKeys = ['list_sales_operations', 'get_sales_transaction', 'get_sales_transaction_by_guid', 'get_counterparty_by_id'],
+}) => {
   const t = useTranslations('Directories.details.shipmentTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -40,12 +50,12 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
     isFetchingNextPage,
     isLoading
   } = useInfiniteQuery({
-    queryKey: ['list_sales_operations', dealGuid, 'shipment'],
+    queryKey: [listMethod, dealGuid, 'shipment'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
-      method: "list_sales_operations",
+      method: listMethod,
       data: {
         object_data: {
-          sales_transaction_id: dealGuid,
+          [dealIdField]: dealGuid,
           tab: 'shipment',
           search: "",
           page: pageParam,
@@ -119,15 +129,18 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
     if (!shipmentToDelete) return;
     try {
       await deleteShipment({
-        "method": "delete_shipment_transaction",
+        "method": deleteMethod,
         "data": {
           "guid": shipmentToDelete.guid
         }
       })
-      queryClient.invalidateQueries({ queryKey: ["list_sales_operations"] })
-      queryClient.invalidateQueries({ queryKey: ["get_sales_transaction"] })
-      queryClient.invalidateQueries({ queryKey: ["get_sales_transaction_by_guid"] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      invalidateKeys.forEach(key => {
+        if (key === 'get_sales_transaction_by_guid' || key === 'get_purchase_transaction_by_guid') {
+          queryClient.invalidateQueries({ queryKey: [key, { guid: dealGuid }] })
+        } else {
+          queryClient.invalidateQueries({ queryKey: [key] })
+        }
+      })
       setShowDeleteModal(false)
       setShipmentToDelete(null)
     } catch (error) {
@@ -197,7 +210,7 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
                         </PopoverContent>
                       </Popover>
                     ) : (
-                        <span className="text-neutral-400">{t('goodsServices')}</span>
+                      <span className="text-neutral-400">{t('goodsServices')}</span>
                     )}
                   </td>
                   {/* Нераспределенный доход */}
@@ -247,6 +260,12 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
           dealName={dealName}
           dealGuid={dealGuid}
           kontragentId={selectedShipment?.counterparties_id}
+          createMethod={createMethod}
+          updateMethod={updateMethod}
+          getMethod={getMethod}
+          dealIdField={dealIdField}
+          operationType={operationType}
+          invalidateKeys={invalidateKeys}
         />
       )}
 

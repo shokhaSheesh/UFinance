@@ -124,6 +124,7 @@
 			"operations": "Transactions",
 			"counterparties": "Counterparties",
 			"deals": "Deals",
+			"purchases": "Purchases",
 			"reports": "Reports",
 			"directories": "Directories",
 			"settings": "Settings",
@@ -603,6 +604,9 @@
 		"before": "Past",
 		"openInOperations": "Open in Transactions",
 		"close": "Close"
+	},
+	"Purchases": {
+		"pageTitle": "Purchase Deals"
 	},
 	"Deals": {
 		"pageTitle": "Sales Deals",

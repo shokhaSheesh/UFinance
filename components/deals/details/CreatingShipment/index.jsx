@@ -24,7 +24,16 @@ import FormDatepicker from '../../../shared/DatePicker/form-datepicker'
 import Loader from '../../../shared/Loader'
 import styles from './style.module.scss'
 
-const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragentId, initialData = null, isEditing = false, isCopying = false, onSuccess }) => {
+const CreateShipment = observer(({
+  open, onClose, dealName, dealGuid, kontragentId,
+  initialData = null, isEditing = false, isCopying = false, onSuccess,
+  createMethod = 'create_shipment_transaction',
+  updateMethod = 'update_shipment_transaction',
+  getMethod = 'get_shipment_transaction',
+  dealIdField = 'sales_id',
+  operationType = ['Отгрузка'],
+  invalidateKeys = ['get_sales_transaction_by_guid', 'list_sales_operations', 'find_operations'],
+}) => {
   const t = useTranslations('Deals.createShipment')
   const today = useMemo(() => new Date(), [])
 
@@ -47,7 +56,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
     operationId: isEditing ? initialData?.guid : undefined,
   })
   const { data: SingleShipment, isPending: isGettingSingleShipment } = useUcodeRequestQuery({
-    method: "get_shipment_transaction",
+    method: getMethod,
     data: {
       guid: initialData?.guid
     },
@@ -181,11 +190,11 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
     try {
       const payload = {
         legal_entity_id: legalEntity,
-        sales_id: dealGuid,
+        [dealIdField]: dealGuid,
         partners_id: client,
         planned_shipment: isFutureDate ? true : isPlanned,
         status_nachislenie: ["confirmed"],
-        type: ["Отгрузка"],
+        type: operationType,
         summa: totalSum,
         data_nachislenie: moment.parseZone(shipmentDate).format('YYYY-MM-DD'),
         data_oplaty: moment.parseZone(shipmentDate).format('YYYY-MM-DD'),
@@ -217,7 +226,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       }
 
       const res = await createShipment({
-        method: isEditing ? "update_shipment_transaction" : "create_shipment_transaction",
+        method: isEditing ? updateMethod : createMethod,
         data: payload
       })
 
@@ -238,9 +247,13 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
       setSelectedProducts(new Set())
       setErrors({})
 
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid', { guid: dealGuid }] })
-      queryClient.invalidateQueries({ queryKey: ['list_sales_operations'] })
-      queryClient.invalidateQueries({ queryKey: ['find_operations'] })
+      invalidateKeys.forEach(key => {
+        if (key === 'get_sales_transaction_by_guid' || key === 'get_purchase_transaction_by_guid') {
+          queryClient.invalidateQueries({ queryKey: [key, { guid: dealGuid }] })
+        } else {
+          queryClient.invalidateQueries({ queryKey: [key] })
+        }
+      })
       onClose()
     } catch (error) {
       console.error(error)
@@ -318,7 +331,7 @@ const CreateShipment = observer(({ open, onClose, dealName, dealGuid, kontragent
 
 
         {/* Panel */}
-        <div className="h-full bg-white flex flex-col">
+        <div className={cn(styles.panel, "h-full bg-white flex flex-col")}>
           {/* Header */}
           <div className="p-4 border-b relative">
             <div>

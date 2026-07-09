@@ -75,7 +75,7 @@ class CounterpartiesStore {
 
   get activeFilterCount() {
     let count = 0
-    if (this.filters.deals.length > 0) count++
+    if (this.filters.deals && this.filters.deals.length > 0) count++
     if (this.filters.debitPaymentTypes && this.filters.debitPaymentTypes.length > 0) count++
     if (this.filters.creditPaymentTypes && this.filters.creditPaymentTypes.length > 0) count++
     if (this.filters.selectedGroups && this.filters.selectedGroups.length > 0) count++

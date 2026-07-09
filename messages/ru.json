@@ -124,6 +124,7 @@
 			"operations": "Операции",
 			"counterparties": "Контрагенты",
 			"deals": "Сделки",
+			"purchases": "Закупки",
 			"reports": "Отчёты",
 			"directories": "Справочники",
 			"settings": "Настройки",
@@ -604,6 +605,9 @@
 		"before": "До",
 		"openInOperations": "Открыть в разделе Операции",
 		"close": "Закрыть"
+	},
+	"Purchases": {
+		"pageTitle": "Сделки по закупкам"
 	},
 	"Deals": {
 		"pageTitle": "Сделки по продажам",

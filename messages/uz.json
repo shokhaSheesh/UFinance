@@ -122,6 +122,7 @@
 			"operations": "Operatsiyalar",
 			"counterparties": "Hamkorlar",
 			"deals": "Bitimlar",
+			"purchases": "Xaridlar",
 			"reports": "Hisobotlar",
 			"directories": "Ma'lumotlar",
 			"settings": "Sozlamalar",
@@ -601,6 +602,9 @@
 		"before": "Oldin",
 		"openInOperations": "Operatsiyalar bo'limida ochish",
 		"close": "Yopish"
+	},
+	"Purchases": {
+		"pageTitle": "Xarid bo'yicha bitimlar"
 	},
 	"Deals": {
 		"pageTitle": "Sotish bo'yicha bitimlar",
