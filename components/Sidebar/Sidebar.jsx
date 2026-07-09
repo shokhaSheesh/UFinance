@@ -27,7 +27,6 @@ export const Sidebar = observer(() => {
     const lastToggleRef = useRef(0)
 
     const toggleSubmenu = (e, submenuKey, isSubmenuOpen) => {
-        // Guard against double-firing (pointerup + click on the same tap)
         const now = Date.now()
         if (now - lastToggleRef.current < 500) return
         lastToggleRef.current = now
@@ -51,8 +50,8 @@ export const Sidebar = observer(() => {
                 setOpenSubmenu(null)
             }
         }
-        document.addEventListener('pointerdown', handleClickOutside)
-        return () => document.removeEventListener('pointerdown', handleClickOutside)
+        document.addEventListener('click', handleClickOutside)
+        return () => document.removeEventListener('click', handleClickOutside)
     }, [openSubmenu])
 
     // Close submenu on route change
@@ -264,18 +263,24 @@ export const Sidebar = observer(() => {
                             const isSubmenuOpen = openSubmenu === submenuKey
                             return (
                                 <div key={index} className='relative'>
-                                    <button
-                                        type="button"
-                                        className='relative cursor-pointer w-full bg-transparent border-0 p-0 text-inherit'
-                                        onPointerUp={(e) => toggleSubmenu(e, submenuKey, isSubmenuOpen)}
-                                        onClick={(e) => toggleSubmenu(e, submenuKey, isSubmenuOpen)}
+                                    <a
+                                        href='#'
+                                        className='relative cursor-pointer w-full'
+                                        style={{ touchAction: 'manipulation' }}
+                                        onTouchEnd={(e) => {
+                                            toggleSubmenu(e, submenuKey, isSubmenuOpen)
+                                        }}
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            toggleSubmenu(e, submenuKey, isSubmenuOpen)
+                                        }}
                                     >
                                         {LinkContent}
-                                    </button>
+                                    </a>
                                     {isSubmenuOpen && (
                                         <div
-                                            className="bg-blue-950 fixed left-[80px] z-[200] block rounded-none text-white min-w-[180px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
-                                            style={{ top: submenuPosition.top }}
+                                            className="fixed left-[80px] z-[9999] block min-w-[180px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
+                                            style={{ top: submenuPosition.top, backgroundColor: '#162456', color: 'white' }}
                                         >
                                             <div className="flex flex-col gap-1">
                                                 {(item.submenu || [])
