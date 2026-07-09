@@ -21,11 +21,42 @@ export const Sidebar = observer(() => {
     const [modalOpen, setModalOpen] = useState(false)
     const [apiUrl, setApiUrl] = useState(appStore.localApiUrl || '')
     const [mounted, setMounted] = useState(false)
+    const [openSubmenu, setOpenSubmenu] = useState(null)
+    const [submenuPosition, setSubmenuPosition] = useState({ top: 0 })
+    const lastToggleRef = useRef(0)
 
     useEffect(() => {
         setMounted(true)
     }, [])
 
+    // Close submenu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (openSubmenu && sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+                setOpenSubmenu(null)
+            }
+        }
+        document.addEventListener('click', handleClickOutside)
+        return () => document.removeEventListener('click', handleClickOutside)
+    }, [openSubmenu])
+
+    // Close submenu on route change
+    useEffect(() => {
+        setOpenSubmenu(null)
+    }, [pathname])
+
+    const toggleSubmenu = (e, submenuKey, isSubmenuOpen) => {
+        const now = Date.now()
+        if (now - lastToggleRef.current < 500) return
+        lastToggleRef.current = now
+        if (isSubmenuOpen) {
+            setOpenSubmenu(null)
+        } else {
+            const rect = e.currentTarget.getBoundingClientRect()
+            setSubmenuPosition({ top: rect.top })
+            setOpenSubmenu(submenuKey)
+        }
+    }
 
     const handleSaveApiUrl = () => {
         if (apiUrl.trim()) {
@@ -193,7 +224,7 @@ export const Sidebar = observer(() => {
                 <AppLogo size={44} strokeWidth={1.5} className='mt-2 mx-auto ml-5 mb-4' />
                 {navItems.filter(item => item.hasPage && item.canShow)
                     .map((item, index) => {
-                        const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+                        const isActive = pathname === item.href || (item.href && item.href !== '/' && pathname.startsWith(item.href))
                         const hasSubmenu = item.submenu && item.submenu.length > 0
                         const isSubmenuActive = hasSubmenu && item.submenu.some(sub => pathname === sub.href)
 
@@ -212,32 +243,50 @@ export const Sidebar = observer(() => {
                         )
 
                         if (hasSubmenu) {
+                            const submenuKey = `submenu-${index}`
+                            const isSubmenuOpen = openSubmenu === submenuKey
                             return (
-                                <div key={index} className='relative  group'>
-                                    <div className='relative'>
+                                <div key={index} className='relative'>
+                                    <a
+                                        href='#'
+                                        className='relative cursor-pointer w-full'
+                                        style={{ touchAction: 'manipulation' }}
+                                        onTouchEnd={(e) => {
+                                            toggleSubmenu(e, submenuKey, isSubmenuOpen)
+                                        }}
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            toggleSubmenu(e, submenuKey, isSubmenuOpen)
+                                        }}
+                                    >
                                         {LinkContent}
-                                    </div>
-                                    <div className="bg-blue-950 -top-1/2 left-[80px] z-30! absolute hidden group-hover:block rounded-none text-white min-w-[180px] shadow-none rounded-tr-lg rounded-br-lg p-2">
-                                        <div className="flex flex-col gap-1">
-                                            {(item.submenu || [])
-                                                .filter(sub => sub.hasPage && sub.canShow !== false)
-                                                .map((sub, subIndex) => {
-                                                    const isSubActive = pathname === sub.href
-                                                    return (
-                                                        <Link
-                                                            key={subIndex}
-                                                            href={sub.href}
-                                                            className={cn(
-                                                                "block p-2 text-xs text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors",
-                                                                isSubActive && "bg-white/20 text-white"
-                                                            )}
-                                                        >
-                                                            {sub.label}
-                                                        </Link>
-                                                    )
-                                                })}
+                                    </a>
+                                    {isSubmenuOpen && (
+                                        <div
+                                            className="fixed left-[80px] z-[9999] block min-w-[180px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
+                                            style={{ top: submenuPosition.top, backgroundColor: '#162456', color: 'white' }}
+                                        >
+                                            <div className="flex flex-col gap-1">
+                                                {(item.submenu || [])
+                                                    .filter(sub => sub.hasPage && sub.canShow !== false)
+                                                    .map((sub, subIndex) => {
+                                                        const isSubActive = pathname === sub.href
+                                                        return (
+                                                            <Link
+                                                                key={subIndex}
+                                                                href={sub.href}
+                                                                className={cn(
+                                                                    "block p-2 text-xs text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors",
+                                                                    isSubActive && "bg-white/20 text-white"
+                                                                )}
+                                                            >
+                                                                {sub.label}
+                                                            </Link>
+                                                        )
+                                                    })}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             )
                         }
