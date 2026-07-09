@@ -65,9 +65,12 @@ const CounterpartiesPage = observer(() => {
   const [editingGroup, setEditingGroup] = useState(null)
   const [deletingGroup, setDeletingGroup] = useState(null)
   const [preselectedGroupId, setPreselectedGroupId] = useState(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => setIsMounted(true), [])
 
   const directoryPermissions = appStore.permission.directories
-  const canAdd = directoryPermissions.counterparties.add
+  const canAdd = isMounted && directoryPermissions?.counterparties?.add
 
   const filters = counterpartiesStore.filters
   const setFilters = (updater) => {
@@ -408,7 +411,7 @@ const CounterpartiesPage = observer(() => {
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex items-center gap-4 '>
             <h1 className="text-xl font-semibold">{t('list.title')}</h1>
-            {canAdd && <button
+            {isMounted && canAdd && <button
               onClick={() => setIsCreateModalOpen(true)}
               className="primary-btn"
             >

@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar/Sidebar"
 
 const PagesLayout = ({ children }) => {
   return (
-    <div className="flex h-screen overflow-hidden max-w-full">
+    <div className="flex h-screen max-w-full">
       <Sidebar />
       <div className="flex flex-col flex-1 max-h-screen overflow-hidden">
         <Header />
