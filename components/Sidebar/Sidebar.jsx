@@ -11,7 +11,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { IoSettingsOutline } from 'react-icons/io5'
-import { ShoppingCart } from 'lucide-react'
 
 
 
@@ -25,19 +24,6 @@ export const Sidebar = observer(() => {
     const [openSubmenu, setOpenSubmenu] = useState(null)
     const [submenuPosition, setSubmenuPosition] = useState({ top: 0 })
     const lastToggleRef = useRef(0)
-
-    const toggleSubmenu = (e, submenuKey, isSubmenuOpen) => {
-        const now = Date.now()
-        if (now - lastToggleRef.current < 500) return
-        lastToggleRef.current = now
-        if (isSubmenuOpen) {
-            setOpenSubmenu(null)
-        } else {
-            const rect = e.currentTarget.getBoundingClientRect()
-            setSubmenuPosition({ top: rect.top })
-            setOpenSubmenu(submenuKey)
-        }
-    }
 
     useEffect(() => {
         setMounted(true)
@@ -59,6 +45,18 @@ export const Sidebar = observer(() => {
         setOpenSubmenu(null)
     }, [pathname])
 
+    const toggleSubmenu = (e, submenuKey, isSubmenuOpen) => {
+        const now = Date.now()
+        if (now - lastToggleRef.current < 500) return
+        lastToggleRef.current = now
+        if (isSubmenuOpen) {
+            setOpenSubmenu(null)
+        } else {
+            const rect = e.currentTarget.getBoundingClientRect()
+            setSubmenuPosition({ top: rect.top })
+            setOpenSubmenu(submenuKey)
+        }
+    }
 
     const handleSaveApiUrl = () => {
         if (apiUrl.trim()) {
@@ -97,21 +95,7 @@ export const Sidebar = observer(() => {
             label: t('nav.deals'),
             href: '/deals',
             hasPage: true,
-            canShow: permissions?.deals?.read,
-            submenu: [
-                {
-                    label: t('nav.deals'),
-                    href: '/deals',
-                    hasPage: true,
-                    canShow: permissions?.deals?.read
-                },
-                {
-                    label: t('nav.purchases'),
-                    href: '/purchases',
-                    hasPage: true,
-                    canShow: permissions?.deals?.read
-                }
-            ]
+            canShow: permissions?.deals?.read
         },
         {
             icon: CalendarCheck,
