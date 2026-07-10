@@ -214,10 +214,11 @@ const OperationsListPage = observer(() => {
       (operationPermissions.payout.edit && tip === 'Выплата') ||
       (operationPermissions.transfer.edit && tip === 'Перемещение') ||
       (operationPermissions.accrual.edit && tip === 'Начисление') ||
-      (operationPermissions.shipment.edit && tip === 'Отгрузка')
+      (operationPermissions.shipment.edit && tip === 'Отгрузка') ||
+      (operationPermissions.shipment.edit && tip === 'Поставка')
 
     if (!canEdit) return
-    if (tip === 'Отгрузка') { handleEditShipment(operation); return }
+    if (tip === 'Отгрузка' || tip === 'Поставка') { handleEditShipment(operation); return }
 
     openWithAnimation(() => {
       setModalType(resolveModalType(operationType))
@@ -230,7 +231,7 @@ const OperationsListPage = observer(() => {
     const operatoinFullData = operationDto(fullOpertionData?.data?.data)
 
 
-    if (operatoinFullData.tip === 'Отгрузка') { handleEditShipment(operatoinFullData); return }
+    if (operatoinFullData.tip === 'Отгрузка' || operatoinFullData.tip === 'Поставка') { handleEditShipment(operatoinFullData); return }
     const typeMap = { transfer: 'transfer', pyment: 'payment', income: 'income', accrual: 'accrual' }
     setModalType(typeMap[operatoinFullData.operationType] || 'income')
     openOperationModal(operatoinFullData)
@@ -238,13 +239,13 @@ const OperationsListPage = observer(() => {
   }
 
   const handleDeleteOperation = (operation) => {
-    if (operation.tip === 'Отгрузка') { _handleDeleteShipment(operation); return }
+    if (operation.tip === 'Отгрузка' || operation.tip === 'Поставка') { _handleDeleteShipment(operation); return }
     setOperationToDelete(operation)
     setIsDeleteModalOpen(true)
   }
 
   const handleCopyOperation = async (operation) => {
-    if (operation.tip === 'Отгрузка') { handleCopyShipment(operation); return }
+    if (operation.tip === 'Отгрузка' || operation.tip === 'Поставка') { handleCopyShipment(operation); return }
 
     const fullOpertionData = await getOperation({ guid: operation?.guid })
     const operatoinFullData = operationDto(fullOpertionData?.data?.data)

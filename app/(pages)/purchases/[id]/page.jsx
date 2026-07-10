@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { GlobalCurrency } from '@/constants/globalCurrency';
-import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
+import { BoxIcon, ShipmentPlusIcon, SupplyTruckIcon } from '@/constants/icons';
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard';
 import useMounted from '@/hooks/useMounted';
 import FixedContent from '@/layouts/FixedContent';
@@ -231,7 +231,7 @@ export default observer(function PurchaseDetailPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="min-w-[920px] max-w-[1920px] gap-2 xl:gap-4 px-3 grid grid-cols-4">
+      <div className="min-w-[920px] max-w-[1920px] gap-2 xl:gap-4 px-3 grid grid-cols-3">
         {/* Card 1: Deal Amount */}
         <div className={'bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)]'}>
           <div className="flex items-center justify-between">
@@ -287,7 +287,7 @@ export default observer(function PurchaseDetailPage() {
         {/* Card 2: Receipts */}
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.receipts')}</span>
+            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">Выплаты поставщику</span>
             {incomePermission && <button onClick={() => { handleCreateOperation(); setActiveTab('receipts'); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <CirclePlus size={20} strokeWidth={1.5} className='text-neutral-300 w-4 h-4 xl:w-5 xl:h-5' />
             </button>}
@@ -321,7 +321,7 @@ export default observer(function PurchaseDetailPage() {
         {/* Card 3: Shipments */}
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.shipments')}</span>
+            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">Поставки</span>
             {paymentPermission && <button onClick={() => setShowShipmentModal(true)} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <div className="scale-75 xl:scale-100 origin-right transition-transform"><ShipmentPlusIcon /></div>
             </button>}
@@ -329,7 +329,7 @@ export default observer(function PurchaseDetailPage() {
 
           <div className="flex items-center xl:items-start text-lg gap-2 xl:gap-3 mb-3 xl:mb-5">
             <div className="w-10 h-10 xl:w-[52px] xl:h-[52px] rounded-lg xl:rounded-[10px] bg-[#F2F4F7] flex items-center justify-center shrink-0">
-              <div className="scale-75 xl:scale-100"><BoxIcon /></div>
+              <div className="scale-75 xl:scale-100"><SupplyTruckIcon /></div>
             </div>
 
             <div className="flex flex-col gap-0 min-w-0">
@@ -349,68 +349,8 @@ export default observer(function PurchaseDetailPage() {
           </div>
         </div>
 
-        {/* Card 4: Profit */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
-          <div className="flex items-center justify-between mb-2 xl:mb-4">
-            <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-1">{t('cards.profit')}</span>
-            <Popover open={showAccounting} onOpenChange={setShowAccounting}>
-              <PopoverTrigger className="relative bg-primary/10 cursor-pointer text-primary px-1.5 xl:px-2 py-0.5 xl:py-1 rounded-full text-mini xl:text-xs border-none outline-none shrink-0">
-                <div className="flex items-center gap-1 xl:gap-2">
-                  <p className="text-mini xl:text-xs">{t('cards.accounting')}</p>
-                  <ChevronUp size={12} className={`transition-all duration-300 ${showAccounting ? 'rotate-180' : ''}`} />
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto rounded-md overflow-hidden p-0 border-none" align="end">
-                <div className="flex flex-col bg-white">
-                  <label htmlFor="accrual" className="flex p-3 items-center gap-2 cursor-pointer hover:bg-neutral-50">
-                    <CustomRadio name="accounting" id="accrual" value="accrual" checked={accounting === 'accrual'} onChange={(e) => { sealDeal.setState('accounting', e.target.value); setShowAccounting(false); }} />
-                    <span className="whitespace-nowrap text-xs text-neutral-800">{t('accountingMethods.accrual')}</span>
-                  </label>
-                  <label htmlFor="cash" className="flex p-3 items-center gap-2 cursor-pointer hover:bg-neutral-50">
-                    <CustomRadio name="accounting" id="cash" value="cash" checked={accounting === 'cash'} onChange={(e) => { sealDeal.setState('accounting', e.target.value); setShowAccounting(false); }} />
-                    <span className="whitespace-nowrap text-xs text-neutral-800">{t('accountingMethods.cash')}</span>
-                  </label>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="flex items-center xl:items-start gap-2 xl:gap-3 mb-2 xl:mb-3 mt-auto">
-            <div className="w-10 h-10 xl:w-[52px] xl:h-[52px] rounded-lg xl:rounded-[10px] bg-[#F2F4F7] flex items-center justify-center shrink-0">
-              <HiOutlineCreditCard size={20} className='text-neutral-400 w-4 h-4 xl:w-5 xl:h-5' />
-            </div>
-
-            <div className="flex flex-col gap-0 min-w-0">
-              <div className="font-semibold text-sm xl:text-lg text-gray-ucode-800 truncate">{formatAmount(profit)} {GlobalCurrency?.name}</div>
-              <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.profitability')} {profitPercent}%</div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5 xl:gap-2 my-1 xl:my-2">
-            <div className="w-full xl:h-2 h-1.5 bg-[#F2F4F7] rounded-md overflow-hidden">
-              <CustomProgress value={received} fillColor="#12B76A" min={0} max={received} />
-            </div>
-            <div className="w-full xl:h-2 h-1.5 bg-[#F2F4F7] rounded-md overflow-hidden">
-              <CustomProgress value={expenses} fillColor="#FFC609" min={0} max={income} />
-            </div>
-          </div>
-
-          <div className="flex flex-1 items-end gap-1.5 xl:gap-2">
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className={styles.profitBarDot} style={{ backgroundColor: '#12B76A', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
-              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.income')}</span>
-              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">+{formatAmount(income)} {GlobalCurrency?.name}</span>
-            </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className={styles.profitBarDot} style={{ backgroundColor: '#FFC609', flexShrink: 0, width: '4px', height: '4px', borderRadius: '50%', marginBottom: '2px' }}></div>
-              <span className="font-normal text-mini xl:text-xs text-gray-ucode-500 truncate">{t('cards.expenses')}</span>
-              <span className="font-medium text-[11px] xl:text-sm text-gray-ucode-800 truncate">-{formatAmount(expenses)} {GlobalCurrency?.name}</span>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content Layout */}
-        <div className="col-span-3 bg-white rounded-xl shadow-[0_10px_10px_rgba(118,164,172,0.1)]">
+        <div className="col-span-2 bg-white rounded-xl shadow-[0_10px_10px_rgba(118,164,172,0.1)]">
           <div className='flex flex-col sticky top-16 z-10  '>
             <div className="flex  border-b h-16 border-neutral-100 rounded-t-xl  mb-0">
               <button
@@ -418,21 +358,21 @@ export default observer(function PurchaseDetailPage() {
                   }`}
                 onClick={() => setActiveTab('products')}
               >
-                {t('tabs.products')} ({summeryCards?.products_count ?? 0})
+                {t('tabs.products')}
               </button>
               <button
                 className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'payments' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('payments')}
               >
-                Выплаты ({summeryCards?.payments_count ?? summeryCards?.expenses_count ?? 0})
+                Выплаты
               </button>
               <button
                 className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'supplies' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('supplies')}
               >
-                Поставки ({summeryCards?.supplies_count ?? summeryCards?.shipments_count ?? 0})
+                Поставки
               </button>
             </div>
             {/* Tab Content */}
@@ -471,23 +411,24 @@ export default observer(function PurchaseDetailPage() {
                 </div>
               </div>
               <div className="overflow-hidden">
-                {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} />}
+                {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} />}
 
-                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
+                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} />}
 
                 {activeTab === 'supplies' && <ShipmenTable
                   canAdd={shipmentPermission}
                   dealGuid={dealId}
                   dealName={summeryCards?.Nazvanie}
                   onAdd={() => setShowShipmentModal(true)}
-                  listMethod="list_sales_operations"
+                  listMethod="list_purchase_operations"
                   dealIdField="purchase_transactions_id"
                   deleteMethod="delete_supply_transaction"
                   createMethod="create_supply_transaction"
                   updateMethod="update_supply_transaction"
                   getMethod="get_supply_transaction"
                   operationType={['Поставка']}
-                  invalidateKeys={['list_sales_operations', 'get_purchase_transaction_by_guid']}
+                  invalidateKeys={['list_purchase_operations', 'get_purchase_transaction_by_guid']}
+                  listTab={null}
                 />}
               </div>
             </div>

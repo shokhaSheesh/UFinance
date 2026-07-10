@@ -19,7 +19,7 @@ import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
+const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -49,7 +49,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_operations_by_query",
       data: {
-        sellingDealId: [sellingDealId],
+        [dealIdField]: [sellingDealId],
         tip: ["Выплата", "Начисление"],
         accrualConfirmed: true,
         accrualNotConfirmed: true,
@@ -75,7 +75,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     queryFn: () => apiClient.invokeFunction({
       method: "summary_operations",
       data: {
-        sellingDealId: [sellingDealId],
+        [dealIdField]: [sellingDealId],
         tip: ["Выплата", "Начисление"],
         accrualConfirmed: true,
         accrualNotConfirmed: true,
@@ -166,7 +166,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       await deleteOperationMutation.mutateAsync([guid])
       setIsDeleteModalOpen(false)
       setOperationToDelete(null)
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
     } catch (error) {
@@ -271,7 +271,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
             }, 300)
           }}
           onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+            invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
             setShowModal(false)
           }}
           initialTab={modalType}

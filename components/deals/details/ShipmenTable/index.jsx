@@ -27,6 +27,7 @@ const ShipmenTable = ({
   getMethod = 'get_shipment_transaction',
   operationType = ['Отгрузка'],
   invalidateKeys = ['list_sales_operations', 'get_sales_transaction', 'get_sales_transaction_by_guid', 'get_counterparty_by_id'],
+  listTab = 'shipment',
 }) => {
   const t = useTranslations('Directories.details.shipmentTable')
 
@@ -56,7 +57,7 @@ const ShipmenTable = ({
       data: {
         object_data: {
           [dealIdField]: dealGuid,
-          tab: 'shipment',
+          ...(listTab ? { tab: listTab } : {}),
           search: "",
           page: pageParam,
           limit: LIMIT
@@ -64,7 +65,7 @@ const ShipmenTable = ({
       }
     }),
     getNextPageParam: (lastPage) => {
-      const pagination = lastPage?.data?.data?.pagination
+      const pagination = lastPage?.data?.data?.pagination || lastPage?.data?.pagination
       if (!pagination) return undefined
       const { page, totalPages } = pagination
       return page < totalPages ? page + 1 : undefined
@@ -77,13 +78,17 @@ const ShipmenTable = ({
   const { mutateAsync: deleteShipment, isPending: isDeleting } = useUcodeRequestMutation()
 
   const shipmentsList = useMemo(() => {
-    const allItems = infiniteData?.pages?.flatMap(page => page?.data?.data?.items || []) || []
+    const allItems = infiniteData?.pages?.flatMap(page => {
+      const dd = page?.data?.data
+      if (Array.isArray(dd)) return dd
+      return dd?.items || []
+    }) || []
     return shipmentsDto(allItems)
   }, [infiniteData])
 
   const summury = useMemo(() => {
     const lastPage = infiniteData?.pages?.[infiniteData.pages.length - 1]
-    return lastPage?.data?.data?.summary
+    return lastPage?.data?.data?.summary || lastPage?.data?.summary
   }, [infiniteData])
 
   // Keep latest fetch state in a ref so the observer never goes stale

@@ -43,7 +43,7 @@ const RenderMultiValue = ({ values, type, t }) => {
 }
 
 const DetailStatsGrid = ({ t, tc, counterpartyInfo, stats, filters, onEdit }) => {
-  const hasInfo = counterpartyInfo?.inn === null && counterpartyInfo?.kpp?.length === 0 && counterpartyInfo?.accountNumber?.length === 0 && counterpartyInfo?.receiptArticle === null && counterpartyInfo?.paymentArticle === null && counterpartyInfo?.comment === null
+  const hasInfo = counterpartyInfo?.inn === null && counterpartyInfo?.kpp?.length === 0 && counterpartyInfo?.accountNumber?.length === 0 && counterpartyInfo?.bank === null && counterpartyInfo?.mfo === null && counterpartyInfo?.address === null && counterpartyInfo?.receiptArticle === null && counterpartyInfo?.paymentArticle === null && counterpartyInfo?.comment === null
 
   return (
     <div className="flex gap-4 px-6 pb-5">
@@ -121,10 +121,13 @@ const DetailStatsGrid = ({ t, tc, counterpartyInfo, stats, filters, onEdit }) =>
           <div className="grid grid-cols-2 gap-y-3 gap-x-6">
             {[
               { label: t('info.inn'), value: counterpartyInfo?.inn || '–' },
-              { label: t('info.receiptArticle'), value: counterpartyInfo?.receiptArticle || '–' },
+              { label: t('info.address'), value: counterpartyInfo?.address || '–' },
               { label: t('info.kpp'), value: <RenderMultiValue values={counterpartyInfo?.kpp} type="kpp" t={t} /> },
-              { label: t('info.paymentArticle'), value: counterpartyInfo?.paymentArticle || '–' },
               { label: t('info.accountNumber'), value: <RenderMultiValue values={counterpartyInfo?.accountNumber} type="accountNumber" t={t} /> },
+              { label: t('info.bank'), value: counterpartyInfo?.bank || '–' },
+              { label: t('info.mfo'), value: counterpartyInfo?.mfo || '–' },
+              { label: t('info.receiptArticle'), value: counterpartyInfo?.receiptArticle || '–' },
+              { label: t('info.paymentArticle'), value: counterpartyInfo?.paymentArticle || '–' },
               { label: t('info.comment'), value: counterpartyInfo?.comment || '–' },
             ].map(({ label, value }, i) => (
               <div key={i} className="flex items-center gap-4">

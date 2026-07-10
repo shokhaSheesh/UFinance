@@ -195,6 +195,12 @@ export const OperationsFiltersSidebar = observer(({
               onChange={() => operationFilterStore.toggleFilter('Отгрузка')}
               label={t('filters.shipment')}
             />}
+            {/* Поставка */}
+            {allowedTip.allowShipment && <OperationCheckbox
+              checked={safeSelectedFilters.includes('Поставка')}
+              onChange={() => operationFilterStore.toggleFilter('Поставка')}
+              label={t('filters.supply')}
+            />}
           </div>
         </FilterSection>
 

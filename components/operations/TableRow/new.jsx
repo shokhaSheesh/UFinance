@@ -1,7 +1,7 @@
 import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
 import PriceStatus from '@/components/operations/PriceStatus'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
+import { ExpendClose, ExpendOpen, ShipmentIcon, SupplyIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { operationFilterStore } from '@/store/operationFilter.store'
@@ -31,7 +31,7 @@ const TableRow = observer(({
   const isCredit = !operationFilterStore?.selectedFilters?.includes('Кредит')
 
   const operationPermissions = appStore.permission.operations
-  const canEdit = operationPermissions.income.edit && op.operationType === 'income' || operationPermissions.payout.edit && op.operationType === 'payment' || operationPermissions.transfer.edit && op.operationType === 'transfer' || operationPermissions.accrual.edit && op.operationType === 'accrual' || operationPermissions.shipment.edit && op.operationType === 'shipment'
+  const canEdit = operationPermissions.income.edit && op.operationType === 'income' || operationPermissions.payout.edit && op.operationType === 'payment' || operationPermissions.transfer.edit && op.operationType === 'transfer' || operationPermissions.accrual.edit && op.operationType === 'accrual' || operationPermissions.shipment.edit && (op.operationType === 'shipment' || op.operationType === 'supply')
 
   op.operationParts?.forEach(part => {
     children.add(part?.counterparties_id)
@@ -98,6 +98,8 @@ const TableRow = observer(({
         return !op.payment_accrual && 'text-primary'
       case 'Отгрузка':
         return op.payment_shipment && 'text-primary'
+      case 'Поставка':
+        return op.payment_shipment && 'text-primary'
       case 'Перемещение':
         return !op.payment_confirmed && 'text-primary'
       default:
@@ -147,7 +149,7 @@ const TableRow = observer(({
                 <span className="text-sm flex-1">{op?.operationDate}</span>
               </div>
             ) : (
-                <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
+              <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
                 <span className='text-sm'>{op?.operationDate}</span>
                 {isDifferentDate && <span className="text-sm text-neutral-400">{op?.accrualDate}</span>}
               </div>
@@ -165,8 +167,8 @@ const TableRow = observer(({
               </>
             ) : (op.tip === "Поступление" || op.tip === "Выплата") ? (
               <span className="truncate w-full text-sm">{op.my_account_name}</span>
-            ) : (op?.tip === "Начисление" || op?.tip === "Отгрузка") ? (
-                  <span className={cn("truncate w-full text-sm text-neutral-500 font-normal", textPrimary)}>[{op.legal_entity_name}]</span>
+            ) : (op?.tip === "Начисление" || op?.tip === "Отгрузка" || op?.tip === "Поставка") ? (
+              <span className={cn("truncate w-full text-sm text-neutral-500 font-normal", textPrimary)}>[{op.legal_entity_name}]</span>
             ) : null}
           </div>
         </div>
@@ -187,7 +189,9 @@ const TableRow = observer(({
                 <TypeExpenseIcon />
               ) : (op.tip === 'Перемещение' || op.tip === 'Начисление') ? (
                 <TypeTransferIcon />
-              ) : op.tip === 'Отгрузка' && <ShipmentIcon />}
+              ) : op.tip === 'Отгрузка' ? (
+                <ShipmentIcon />
+              ) : op.tip === 'Поставка' && <SupplyIcon />}
             </div>
           ) : null}
         </div>
@@ -212,10 +216,10 @@ const TableRow = observer(({
               </>
             ) : op?.tip === "Начисление" ? (
               <>
-                    <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
-                    <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
+                <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
               </>
-            ) : (op?.tip === "Отгрузка") && (
+            ) : (op?.tip === "Отгрузка" || op?.tip === "Поставка") && (
               <span className="text-sm line-clamp-1  w-full">{op.chartOfAccounts}</span>
             )}
           </div>
@@ -223,7 +227,7 @@ const TableRow = observer(({
 
         {/* Project/Deal */}
         <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
-          {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка") && (
+          {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка" || op.tip === "Поставка") && (
             <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op?.sales_transaction_name || '-'}</p>
           )}
           {op.tip === "Начисление" && (

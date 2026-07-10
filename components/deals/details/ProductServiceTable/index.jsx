@@ -15,7 +15,7 @@ import Loader from '../../../shared/Loader'
 
 import EmptyState from '../EmptyState'
 
-const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => {
+const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealIdField = 'sales_transactions_id', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
   const t = useTranslations('Directories.details.productServiceTable')
 
   const [selectedItems, setSelectedItems] = useState(new Set())
@@ -38,7 +38,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_products_and_services",
       data: {
-        sales_transactions_id: sellingDealId,
+        [dealIdField]: sellingDealId,
         page: pageParam,
         limit: LIMIT
       }
@@ -50,7 +50,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
       return page < totalPages ? page + 1 : undefined
     },
     initialPageParam: 1
-  }) 
+  })
 
 
   const productServicesList = useMemo(() => {
@@ -112,10 +112,9 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
         }
       })
 
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['list_sales_operations'] })
-      queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       setOpen(false)
       setSelectedItems(new Set())

@@ -11,7 +11,7 @@ export const allowedTip = {
 	allowShipment: appStore.permission.operations.shipment.read,
 }
 
-export const tips = [(allowedTip.allowAccrual ? 'Начисление' : ''), (allowedTip.allowAccrual ? 'Дебет' : ''), (allowedTip.allowAccrual ? 'Кредит' : ''), (allowedTip.allowShipment ? 'Отгрузка' : ''), (allowedTip.allowIncome ? 'Поступление' : ''), (allowedTip.allowPayout ? 'Выплата' : ''), (allowedTip.allowTransfer ? 'Списание' : ''), (allowedTip.allowTransfer ? 'Зачисление' : ''), (allowedTip.allowTransfer ? 'Перемещение' : '')].filter(Boolean)
+export const tips = [(allowedTip.allowAccrual ? 'Начисление' : ''), (allowedTip.allowAccrual ? 'Дебет' : ''), (allowedTip.allowAccrual ? 'Кредит' : ''), (allowedTip.allowShipment ? 'Отгрузка' : ''), (allowedTip.allowShipment ? 'Поставка' : ''), (allowedTip.allowIncome ? 'Поступление' : ''), (allowedTip.allowPayout ? 'Выплата' : ''), (allowedTip.allowTransfer ? 'Списание' : ''), (allowedTip.allowTransfer ? 'Зачисление' : ''), (allowedTip.allowTransfer ? 'Перемещение' : '')].filter(Boolean)
 
 
 class OperationFilterStore {
@@ -132,6 +132,7 @@ class OperationFilterStore {
 			'Дебет': 'allowAccrual',
 			'Кредит': 'allowAccrual',
 			'Отгрузка': 'allowShipment',
+			'Поставка': 'allowShipment',
 			'Выплата': 'allowPayout',
 			'Списание': 'allowTransfer',
 			'Зачисление': 'allowTransfer',
