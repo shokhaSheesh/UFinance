@@ -407,6 +407,8 @@
 			"paymentTypePlaceholder": "Выберите тип платежа...",
 			"salesDeal": "Сделка продажи",
 			"salesDealPlaceholder": "Выберите сделку...",
+			"purchaseDeal": "Сделка закупки",
+			"purchaseDealPlaceholder": "Выберите сделку закупки...",
 			"purpose": "Назначение платежа",
 			"purposePlaceholder": "Назначение платежа",
 			"purposeRequired": "Введите назначение платежа",
@@ -612,7 +614,8 @@
 		"close": "Закрыть"
 	},
 	"Purchases": {
-		"pageTitle": "Сделки по закупкам"
+		"pageTitle": "Сделки по закупкам",
+		"backToList": "Сделки по закупкам"
 	},
 	"Deals": {
 		"pageTitle": "Сделки по продажам",

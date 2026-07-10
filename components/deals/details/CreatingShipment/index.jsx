@@ -95,8 +95,19 @@ const CreateShipment = observer(({
           sum: row.Summa ?? 0
         })))
       }
+    } else if (open && !initialData?.guid) {
+      setShipmentDate(today.toISOString().split('T')[0])
+      setIsPlanned(true)
+      setLegalEntity('')
+      setClient(kontragentId || '')
+      setChartOfAccounts([])
+      setCurrency('')
+      setCode('')
+      setRows([{ id: 1, name: '', quantity: '', price: '', discount: '', nds: '', sum: '' }])
+      setSelectedProducts(new Set())
+      setErrors({})
     }
-  }, [open, SingleShipment, kontragentId, today])
+  }, [open, SingleShipment, kontragentId, today, initialData?.guid || null])
 
   const [selectedProducts, setSelectedProducts] = useState(new Set())
 
@@ -254,10 +265,10 @@ const CreateShipment = observer(({
           queryClient.invalidateQueries({ queryKey: [key] })
         }
       })
+      await onSuccess?.()
       onClose()
     } catch (error) {
       console.error(error)
-    } finally {
       onClose()
     }
   }

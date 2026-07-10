@@ -48,6 +48,7 @@ export default observer(function PurchaseDetailPage() {
   const router = useRouter();
   const mounted = useMounted()
   const t = useTranslations('Deals.detail');
+  const tp = useTranslations('Purchases');
   const tc = useTranslations('Common');
   const dealId = params.id;
 
@@ -183,7 +184,7 @@ export default observer(function PurchaseDetailPage() {
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
         <button onClick={() => router.push('/deals/purchase')} className={styles.breadcrumbLink}>
-          {t('backToList')}
+          {tp('backToList')}
         </button>
         <span className={styles.breadcrumbSeparator}>/</span>
         <span className={styles.breadcrumbCurrent}>{deal?.name || t('noName')}</span>
@@ -446,7 +447,7 @@ export default observer(function PurchaseDetailPage() {
         getMethod="get_supply_transaction"
         dealIdField="purchase_transactions_id"
         operationType={['Поставка']}
-        invalidateKeys={['list_sales_operations', 'get_purchase_transaction_by_guid']}
+        invalidateKeys={['list_purchase_operations', 'get_purchase_transaction_by_guid']}
       />
 
       <PaymentModal
@@ -461,6 +462,7 @@ export default observer(function PurchaseDetailPage() {
           isClosing={isModalClosing}
           isOpening={isModalOpening}
           defaultDealGuid={dealId}
+          defaultPurchaseDealGuid={dealId}
           onClose={() => {
             setIsModalClosing(true)
             setTimeout(() => {

@@ -49,7 +49,8 @@ const ShipmenTable = ({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading
+    isLoading,
+    refetch
   } = useInfiniteQuery({
     queryKey: [listMethod, dealGuid, 'shipment'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
@@ -146,6 +147,7 @@ const ShipmenTable = ({
           queryClient.invalidateQueries({ queryKey: [key] })
         }
       })
+      queryClient.refetchQueries({ queryKey: [listMethod, dealGuid, 'shipment'] })
       setShowDeleteModal(false)
       setShipmentToDelete(null)
     } catch (error) {
@@ -258,7 +260,13 @@ const ShipmenTable = ({
       {showModal && (
         <CreateShipment
           open={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false)
+            setSelectedShipment(null)
+            setIsEditing(false)
+            setIsCopying(false)
+            queryClient.refetchQueries({ queryKey: [listMethod, dealGuid, 'shipment'] })
+          }}
           initialData={selectedShipment}
           isEditing={isEditing}
           isCopying={isCopying}

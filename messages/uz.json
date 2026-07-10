@@ -405,6 +405,8 @@
 			"paymentTypePlaceholder": "To'lov turini tanlang...",
 			"salesDeal": "Sotuv bitimi",
 			"salesDealPlaceholder": "Bitimni tanlang...",
+			"purchaseDeal": "Xarid bitimi",
+			"purchaseDealPlaceholder": "Xarid bitimini tanlang...",
 			"purpose": "To'lov maqsadi",
 			"purposePlaceholder": "To'lov maqsadi",
 			"purposeRequired": "To'lov maqsadini kiriting",
@@ -609,7 +611,8 @@
 		"close": "Yopish"
 	},
 	"Purchases": {
-		"pageTitle": "Xarid bo'yicha bitimlar"
+		"pageTitle": "Xarid bo'yicha bitimlar",
+		"backToList": "Xarid bo'yicha bitimlar"
 	},
 	"Deals": {
 		"pageTitle": "Sotish bo'yicha bitimlar",

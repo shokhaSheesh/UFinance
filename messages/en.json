@@ -406,6 +406,8 @@
 			"paymentTypePlaceholder": "Select payment type...",
 			"salesDeal": "Sales deal",
 			"salesDealPlaceholder": "Select deal...",
+			"purchaseDeal": "Purchase deal",
+			"purchaseDealPlaceholder": "Select purchase deal...",
 			"purpose": "Payment purpose",
 			"purposePlaceholder": "Payment purpose",
 			"purposeRequired": "Enter payment purpose",
@@ -611,7 +613,8 @@
 		"close": "Close"
 	},
 	"Purchases": {
-		"pageTitle": "Purchase Deals"
+		"pageTitle": "Purchase Deals",
+		"backToList": "Purchase Deals"
 	},
 	"Deals": {
 		"pageTitle": "Sales Deals",
