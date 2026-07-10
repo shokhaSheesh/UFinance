@@ -95,7 +95,21 @@ export const Sidebar = observer(() => {
             label: t('nav.deals'),
             href: '/deals',
             hasPage: true,
-            canShow: permissions?.deals?.read
+            canShow: permissions?.deals?.read,
+            submenu: [
+                {
+                    label: t('nav.deals'),
+                    href: '/deals',
+                    hasPage: true,
+                    canShow: permissions?.deals?.read
+                },
+                {
+                    label: t('nav.purchases'),
+                    href: '/purchases',
+                    hasPage: true,
+                    canShow: permissions?.deals?.read
+                }
+            ]
         },
         {
             icon: CalendarCheck,
