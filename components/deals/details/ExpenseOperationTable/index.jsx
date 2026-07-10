@@ -19,7 +19,7 @@ import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
+const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Выплата", "Начисление"] }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -50,7 +50,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       method: "list_operations_by_query",
       data: {
         [dealIdField]: [sellingDealId],
-        tip: ["Выплата", "Начисление"],
+        tip: tipTypes,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,
@@ -76,7 +76,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       method: "summary_operations",
       data: {
         [dealIdField]: [sellingDealId],
-        tip: ["Выплата", "Начисление"],
+        tip: tipTypes,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,

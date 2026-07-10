@@ -410,7 +410,7 @@ export default observer(function PurchaseDetailPage() {
               <div className="overflow-hidden">
                 {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} />}
 
-                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} />}
+                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} tipTypes={["Выплата"]} />}
 
                 {activeTab === 'supplies' && <ShipmenTable
                   canAdd={shipmentPermission}
