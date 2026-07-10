@@ -121,7 +121,7 @@ export default observer(function PurchaseDetailPage() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['get_purchase_list'] });
-          router.push('/purchases');
+          router.push('/deals/purchase');
         }
       }
     );
@@ -182,7 +182,7 @@ export default observer(function PurchaseDetailPage() {
       {isLoading && <ScreenLoader />}
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
-        <button onClick={() => router.push('/purchases')} className={styles.breadcrumbLink}>
+        <button onClick={() => router.push('/deals/purchase')} className={styles.breadcrumbLink}>
           {t('backToList')}
         </button>
         <span className={styles.breadcrumbSeparator}>/</span>
@@ -496,7 +496,7 @@ export default observer(function PurchaseDetailPage() {
         createMethod="create_purchase_transaction"
         updateMethod="update_purchase_transaction"
         invalidateKeys={['get_purchase_list', 'get_purchase_transaction_by_guid']}
-        redirectBase="/purchases"
+        redirectBase="/deals/purchase"
       />
 
       <DeleteDealModal

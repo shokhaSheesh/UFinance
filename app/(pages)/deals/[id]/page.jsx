@@ -122,7 +122,7 @@ export default observer(function DealDetailPage() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['deals'] });
-          router.push('/deals');
+          router.push('/deals/selling');
         }
       }
     );
@@ -192,7 +192,7 @@ export default observer(function DealDetailPage() {
       {isLoading && <ScreenLoader />}
       {/* Breadcrumbs */}
       <div className="px-3 py-2 bg-white sticky top-0 z-10">
-        <button onClick={() => router.push('/deals')} className={styles.breadcrumbLink}>
+        <button onClick={() => router.push('/deals/selling')} className={styles.breadcrumbLink}>
           {t('backToList')}
         </button>
         <span className={styles.breadcrumbSeparator}>/</span>
@@ -521,24 +521,26 @@ export default observer(function DealDetailPage() {
 
 
       {/* Operation Modal */}
-      {showOperationModal && (
-        <OperationModal
-          operation={operation}
-          isClosing={isModalClosing}
-          isOpening={isModalOpening}
-          defaultDealGuid={dealId}
-          onClose={() => {
-            setIsModalClosing(true)
-            setTimeout(() => {
-              setShowOperationModal(false)
-              setIsModalClosing(false)
-            }, 300)
-          }}
-          preselectedCounterparty={summeryCards?.counterparties_id}
-          onSuccess={() => setShowOperationModal(false)}
-          initialTab={activeTab === 'expenses' ? 'payment' : 'income'}
-        />
-      )}
+      {
+        showOperationModal && (
+          <OperationModal
+            operation={operation}
+            isClosing={isModalClosing}
+            isOpening={isModalOpening}
+            defaultDealGuid={dealId}
+            onClose={() => {
+              setIsModalClosing(true)
+              setTimeout(() => {
+                setShowOperationModal(false)
+                setIsModalClosing(false)
+              }, 300)
+            }}
+            preselectedCounterparty={summeryCards?.counterparties_id}
+            onSuccess={() => setShowOperationModal(false)}
+            initialTab={activeTab === 'expenses' ? 'payment' : 'income'}
+          />
+        )
+      }
 
       {/* Create Product/Service Modal */}
       <CreateProductService
@@ -598,6 +600,6 @@ export default observer(function DealDetailPage() {
           </button>
         </div>
       </CustomModal> */}
-    </FixedContent>
+    </FixedContent >
   );
 })

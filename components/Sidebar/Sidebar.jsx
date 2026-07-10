@@ -98,14 +98,16 @@ export const Sidebar = observer(() => {
             canShow: permissions?.deals?.read,
             submenu: [
                 {
-                    label: t('nav.deals'),
-                    href: '/deals',
+                    label: t('nav.dealsSelling'),
+                    description: t('nav.dealsSellingDesc'),
+                    href: '/deals/selling',
                     hasPage: true,
                     canShow: permissions?.deals?.read
                 },
                 {
-                    label: t('nav.purchases'),
-                    href: '/purchases',
+                    label: t('nav.dealsPurchase'),
+                    description: t('nav.dealsPurchaseDesc'),
+                    href: '/deals/purchase',
                     hasPage: true,
                     canShow: permissions?.deals?.read
                 }
@@ -277,7 +279,7 @@ export const Sidebar = observer(() => {
                                     </a>
                                     {isSubmenuOpen && (
                                         <div
-                                            className="fixed left-[80px] z-[9999] block min-w-[180px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
+                                            className="fixed left-[80px] z-[9999] block w-[200px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
                                             style={{ top: submenuPosition.top, backgroundColor: '#162456', color: 'white' }}
                                         >
                                             <div className="flex flex-col gap-1">
@@ -294,7 +296,10 @@ export const Sidebar = observer(() => {
                                                                     isSubActive && "bg-white/20 text-white"
                                                                 )}
                                                             >
-                                                                {sub.label}
+                                                                <span className="font-medium">{sub.label}</span>
+                                                                {sub.description && (
+                                                                    <span className="block text-[10px] text-white/40 mt-0.5 leading-tight">{sub.description}</span>
+                                                                )}
                                                             </Link>
                                                         )
                                                     })}
