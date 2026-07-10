@@ -124,6 +124,12 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
   }
 
 
+  if (isLoading) {
+    return <div className='flex items-center justify-center flex-1'>
+      <Loader2 className='animate-spin text-primary' size={24} />
+    </div>
+  }
+
   if (productServicesList.length === 0) {
     return (
       <EmptyState
@@ -133,14 +139,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
         canAdd={canAdd}
       />
     )
-  }
-
-
-
-  if (isLoading) {
-    return <div className='flex items-center justify-center flex-1'>
-      <Loader2 className='animate-spin text-primary' size={24} />
-    </div>
   }
 
   return (

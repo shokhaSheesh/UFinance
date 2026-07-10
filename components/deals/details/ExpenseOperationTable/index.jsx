@@ -117,6 +117,12 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
 
+  if (isLoading) {
+    return <div className='flex items-center justify-center flex-1'>
+      <Loader2 className='animate-spin text-primary' size={24} />
+    </div>
+  }
+
   if (dealOperations?.length === 0) {
     return (
       <EmptyState
@@ -173,14 +179,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       console.error('Error deleting operation:', error)
     }
   }
-
-  if (isLoading) {
-    return <div className='flex items-center justify-center flex-1'>
-      <Loader2 className='animate-spin text-primary' size={24} />
-    </div>
-  }
-
-
 
   return (
     <>

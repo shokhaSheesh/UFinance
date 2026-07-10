@@ -73,7 +73,7 @@ export default observer(function PurchaseDetailPage() {
   const deal = {
     guid: dealId,
     name: summeryCards?.name,
-    sale_date: summeryCards?.sale_date,
+    sale_date: summeryCards?.deal_date,
     counterparties_id: summeryCards?.counterparties_id,
     nds: summeryCards?.nds,
     commentary: summeryCards?.commentary
@@ -144,18 +144,15 @@ export default observer(function PurchaseDetailPage() {
   const shipmentPermission = operations.shipment.add
   const productsPermission = appStore.permission.directories.productsServices.add
 
-  const dealAmount = Number(summeryCards?.total_products_summa) || 0;
-  const received = Number(summeryCards?.total_receipts_summa) || 0;
-  const shipped = Number(summeryCards?.total_shipment_summa) || 0;
+  const dealAmount = Number(summeryCards?.summa) || 0;
+  const received = Number(summeryCards?.paid_amount) || 0;
+  const shipped = Number(summeryCards?.delivered_amount) || 0;
 
-  const profit = (accounting === 'accrual' ? summeryCards?.accrual_method?.profit : summeryCards?.cash_method?.profit) || 0;
-  const expenses = (accounting === 'accrual' ? summeryCards?.accrual_method?.expenses : summeryCards?.cash_method?.expenses) || 0;
-  const income = (accounting === 'accrual' ? summeryCards?.accrual_method?.income : summeryCards?.cash_method?.income) || 0;
+  const receivedPercent = summeryCards?.paid_percent != null ? Math.round(summeryCards.paid_percent) : 0;
+  const shippedPercent = summeryCards?.delivered_percent != null ? Math.round(summeryCards.delivered_percent) : 0;
 
-  const profitPercent = Math.round(Number(accounting === 'accrual' ? summeryCards?.accrual_method?.profitability : summeryCards?.cash_method?.profitability)) || 0;
-
-  const clientDebt = Number(summeryCards?.client_debt) || 0;
-  const remainingShipment = Number(summeryCards?.remaining_shipment) || 0;
+  const clientDebt = dealAmount - received;
+  const remainingShipment = dealAmount - shipped;
 
   const handleCreateOperation = () => {
     setOperation({ isNew: true })
@@ -236,7 +233,7 @@ export default observer(function PurchaseDetailPage() {
         <div className={'bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)]'}>
           <div className="flex items-center justify-between">
             <p className='text-base xl:text-xl flex gap-1 font-semibold text-neutral-800 mt-2 truncate'>
-              <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.total_products_summa))}</span>
+              <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.summa))}</span>
               <span>{GlobalCurrency && GlobalCurrency?.name}</span>
             </p>
             <div className="shrink-0 ml-1">
@@ -307,7 +304,7 @@ export default observer(function PurchaseDetailPage() {
           <div className="w-full h-1.5 xl:h-2 bg-[#F2F4F7] rounded-md overflow-hidden mb-1 xl:mb-2 mt-auto">
             <CustomProgress min={0} value={received} max={dealAmount} fillColor="#12B76A" />
           </div>
-          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.received')}: {calculatePercent(dealAmount, received)}</div>
+          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.received')}: {receivedPercent}%</div>
 
           <div className="flex text-mini xl:text-xs flex-wrap items-end gap-1 xl:gap-2">
             <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.clientDebt')}</span>
@@ -341,7 +338,7 @@ export default observer(function PurchaseDetailPage() {
           <div className="w-full h-1.5 xl:h-2 bg-[#F2F4F7] rounded-md overflow-hidden mb-1 xl:mb-2 mt-auto">
             <CustomProgress min={0} value={shipped} max={dealAmount} fillColor="#12B76A" />
           </div>
-          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.shipped')}: {calculatePercent(dealAmount, shipped)}</div>
+          <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.shipped')}: {shippedPercent}%</div>
 
           <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
             <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
@@ -487,6 +484,8 @@ export default observer(function PurchaseDetailPage() {
         dealGuid={dealId}
         initialData={itemToEdit}
         isEditing={!!itemToEdit && !isCopying}
+        dealIdField="purchase_transactions_id"
+        invalidateKeys={['get_purchase_transaction_by_guid']}
       />
 
       <CreateDealModal
