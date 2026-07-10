@@ -259,11 +259,7 @@ const CreateShipment = observer(({
       setErrors({})
 
       invalidateKeys.forEach(key => {
-        if (key === 'get_sales_transaction_by_guid' || key === 'get_purchase_transaction_by_guid') {
-          queryClient.invalidateQueries({ queryKey: [key, { guid: dealGuid }] })
-        } else {
-          queryClient.invalidateQueries({ queryKey: [key] })
-        }
+        queryClient.invalidateQueries({ queryKey: [key] })
       })
       await onSuccess?.()
       onClose()

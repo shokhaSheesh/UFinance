@@ -87,7 +87,7 @@ export default observer(function PurchaseDetailPage() {
         data: {
           guid: dealId,
           name: deal?.name,
-          sales_status_id: status?.guid,
+          purchase_status_id: status?.guid,
           branch_id: authStore.branch_id,
         }
       })
@@ -145,12 +145,12 @@ export default observer(function PurchaseDetailPage() {
   const shipmentPermission = operations.shipment.add
   const productsPermission = appStore.permission.directories.productsServices.add
 
-  const dealAmount = Number(summeryCards?.summa) || 0;
+  const dealAmount = Number(summeryCards?.deal_sum) || 0;
   const received = Number(summeryCards?.paid_amount) || 0;
-  const shipped = Number(summeryCards?.delivered_amount) || 0;
+  const shipped = Number(summeryCards?.supply_amount) || 0;
 
   const receivedPercent = summeryCards?.paid_percent != null ? Math.round(summeryCards.paid_percent) : 0;
-  const shippedPercent = summeryCards?.delivered_percent != null ? Math.round(summeryCards.delivered_percent) : 0;
+  const shippedPercent = summeryCards?.supply_percent != null ? Math.round(summeryCards.supply_percent) : 0;
 
   const clientDebt = dealAmount - received;
   const remainingShipment = dealAmount - shipped;
@@ -234,12 +234,12 @@ export default observer(function PurchaseDetailPage() {
         <div className={'bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)]'}>
           <div className="flex items-center justify-between">
             <p className='text-base xl:text-xl flex gap-1 font-semibold text-neutral-800 mt-2 truncate'>
-              <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.summa))}</span>
+              <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.deal_sum))}</span>
               <span>{GlobalCurrency && GlobalCurrency?.name}</span>
             </p>
             <div className="shrink-0 ml-1">
               <DealStatus
-                currentStatus={summeryCards?.status}
+                currentStatus={summeryCards?.purchase_status}
                 onStatusChange={(status) => {
                   handleUpdateStatus(status);
                 }}
@@ -343,7 +343,7 @@ export default observer(function PurchaseDetailPage() {
 
           <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
             <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
-            <span className="font-medium text-[#344054] truncate">{formatAmount(remainingShipment)} {GlobalCurrency?.name}</span>
+            <span className="font-medium text-[#344054] truncate">{formatAmount(dealAmount)} {GlobalCurrency?.name}</span>
           </div>
         </div>
 
@@ -416,7 +416,7 @@ export default observer(function PurchaseDetailPage() {
                 {activeTab === 'supplies' && <ShipmenTable
                   canAdd={shipmentPermission}
                   dealGuid={dealId}
-                  dealName={summeryCards?.Nazvanie}
+                  dealName={summeryCards?.name}
                   onAdd={() => setShowShipmentModal(true)}
                   listMethod="list_purchase_operations"
                   dealIdField="purchase_transactions_id"
@@ -439,7 +439,7 @@ export default observer(function PurchaseDetailPage() {
       <CreateShipment
         open={showShipmentModal}
         onClose={() => setShowShipmentModal(false)}
-        dealName={summeryCards?.Nazvanie}
+        dealName={summeryCards?.name}
         dealGuid={dealId}
         kontragentId={summeryCards?.counterparties_id}
         createMethod="create_supply_transaction"
@@ -507,9 +507,9 @@ export default observer(function PurchaseDetailPage() {
         onConfirm={confirmDelete}
         isDeleting={isDeletingDeal}
         deal={dealToDelete ? {
-          name: summeryCards?.Nazvanie,
+          name: summeryCards?.name,
           client: summeryCards?.counterparty_name,
-          amount: formatAmount(summeryCards?.total_products_summa)
+          amount: formatAmount(summeryCards?.products_amount)
         } : null}
       />
     </FixedContent>

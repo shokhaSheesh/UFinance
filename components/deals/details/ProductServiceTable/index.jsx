@@ -172,7 +172,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('unit')}</th>
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('pricePerUnit')}</th>
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('discount')}</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('vat')}</th>
                 <th className='px-4 py-1 font-medium text-right'>{t('sum')}</th>
               </>}
             </tr>
@@ -191,7 +190,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.unit_name}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.tsena_za_ed}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.discount}%</td>
-                  <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.nds}%</td>
                   <td className={`px-4 py-3  w-72 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">
                       <p className={`text-sm text-neutral-600`}>
