@@ -342,6 +342,7 @@
 			"counterpartiesPlaceholder": "Counterparties",
 			"chartOfAccountsPlaceholder": "Account categories",
 			"dealsPlaceholder": "Deals",
+			"purchaseDealsPlaceholder": "Purchase deals",
 			"paymentTypePlaceholder": "Payment type",
 			"amountFrom": "Amount from",
 			"amountTo": "to"

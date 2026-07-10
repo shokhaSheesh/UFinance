@@ -27,6 +27,7 @@ export function useOperationsFilters() {
     selectedChartOfAccounts,
     paymentType,
     deals,
+    purchaseDeals,
     paymentConfirm,
     paymentNotConfirm,
     accrualConfirm,
@@ -64,13 +65,14 @@ export function useOperationsFilters() {
     accrualConfirm,
     accrualNotConfirm,
     sellingDealId:        deals,
+    purchaseDealId:       purchaseDeals,
     currency_guid:        appStore.currency?.guid,
   }), [
     debouncedSearchQuery, paymentStartDate, paymentEndDate,
     accrualStartDate, accrualEndDate, selectedCounterAgents,
     selectedLegalEntities, selectedFilters, amountRange,
     selectedChartOfAccounts, paymentType,
-    paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm, deals,
+    paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm, deals, purchaseDeals,
     appStore.currency?.guid,
   ])
 

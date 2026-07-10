@@ -389,9 +389,9 @@ const PaymentForm = observer(({
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
       data_operatsii: formatDateParseZone(data?.paymentDate),
-      data_nachisleniya: formatDateParseZone(data?.accrualDate),
+      data_nachisleniya: watchPurchaseDeal ? formatDateParseZone(data?.paymentDate) : formatDateParseZone(data?.accrualDate),
       payment_confirmed: data?.confirmPayment,
-      payment_accrual: data?.confirmAccrual,
+      payment_accrual: watchPurchaseDeal ? false : data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
       my_accounts_id: watchAccount,
       legal_entity_id: authStore?.userData?.legal_entity_id,
@@ -409,8 +409,8 @@ const PaymentForm = observer(({
         ...(item?.guid ? { guid: item?.guid } : null),
         summa: formatDecimal(StringtoNumber(item?.value)),
         percent: Number(item?.percent),
-        data_nachisleniya: moment(showDate && !watchSalesDeal ? (item?.calculationDate) : data?.accrualDate).format('YYYY-MM-DD'),
-        payment_accrual: showDate && !watchSalesDeal ? item?.isCalculationCommitted : data?.confirmAccrual,
+        data_nachisleniya: watchPurchaseDeal ? moment(data?.paymentDate).format('YYYY-MM-DD') : moment(showDate && !watchSalesDeal ? (item?.calculationDate) : data?.accrualDate).format('YYYY-MM-DD'),
+        payment_accrual: watchPurchaseDeal ? false : (showDate && !watchSalesDeal ? item?.isCalculationCommitted : data?.confirmAccrual),
         counterparties_id: showAgent ? (item?.contrAgentId || null) : null,
         chart_of_accounts_id: showStatya ? (item?.operationCategoryId || null) : null,
       }))
@@ -615,7 +615,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4 ")}>
+              <div className={cn("flex items-center gap-4", watchPurchaseDeal && "opacity-50")}>
                 <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
@@ -623,8 +623,10 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <FormDatepicker
-                        value={field.value}
+                        value={watchPurchaseDeal ? watchPaymentDate : field.value}
+                        disabled={!!watchPurchaseDeal}
                         onChange={(val) => {
+                          if (watchPurchaseDeal) return
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
@@ -634,16 +636,17 @@ const PaymentForm = observer(({
                       />
                     )}
                   />
-                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && <WarnIcon />}</span>
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && !watchPurchaseDeal && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={field.value}
+                        checked={watchPurchaseDeal ? false : field.value}
+                        disabled={!!watchPurchaseDeal}
                         label={t('confirmAccrual')}
                         onChange={(e) => {
-                          if ((isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
+                          if (watchPurchaseDeal || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />

@@ -33,6 +33,7 @@ const CreateShipment = observer(({
   dealIdField = 'sales_id',
   operationType = ['Отгрузка'],
   invalidateKeys = ['get_sales_transaction_by_guid', 'list_sales_operations', 'find_operations'],
+  allowedTypes,
 }) => {
   const t = useTranslations('Deals.createShipment')
   const today = useMemo(() => new Date(), [])
@@ -447,6 +448,7 @@ const CreateShipment = observer(({
                     setSelectedValue={value => setChartOfAccounts(value)}
                     placeholder={t('undistributedIncome')}
                     className='w-80! bg-white'
+                    allowedTypes={allowedTypes}
                   />
                 </div>
               </div>

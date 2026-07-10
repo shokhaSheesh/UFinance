@@ -343,6 +343,7 @@
 			"counterpartiesPlaceholder": "Контрагенты",
 			"chartOfAccountsPlaceholder": "Статьи учета",
 			"dealsPlaceholder": "Сделки",
+			"purchaseDealsPlaceholder": "Сделки закупок",
 			"paymentTypePlaceholder": "Тип платежа",
 			"amountFrom": "Сумма от",
 			"amountTo": "до"

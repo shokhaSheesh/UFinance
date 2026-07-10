@@ -19,7 +19,7 @@ import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Выплата", "Начисление"] }) => {
+const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Выплата", "Начисление"], isPurchase = false }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -260,7 +260,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
           operation={selectedOperation}
           isClosing={isModalClosing}
           isOpening={isModalOpening}
-          defaultDealGuid={sellingDealId}
+          defaultDealGuid={isPurchase ? undefined : sellingDealId}
+          defaultPurchaseDealGuid={isPurchase ? sellingDealId : undefined}
           onClose={() => {
             setIsModalClosing(true)
             setTimeout(() => {

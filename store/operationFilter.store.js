@@ -37,6 +37,7 @@ class OperationFilterStore {
 	accrualDateStart = ''
 	accrualDateEnd = ''
 	deals = []
+	purchaseDeals = []
 
 	dateRangeTypeOplata = ''
 	dateRangeTypeNachisleniya = ''
@@ -67,6 +68,7 @@ class OperationFilterStore {
 					'accrualDateStart',
 					'accrualDateEnd',
 					'deals',
+					'purchaseDeals',
 					'dateRangeTypeOplata',
 					'dateRangeTypeNachisleniya'
 				],
@@ -228,6 +230,10 @@ class OperationFilterStore {
 		this.deals = deals
 	}
 
+	setSelectedPurchaseDeals(deals) {
+		this.purchaseDeals = deals
+	}
+
 	resetFilters() {
 		this.searchQuery = ''
 		this.debouncedSearchQuery = ''
@@ -244,6 +250,7 @@ class OperationFilterStore {
 		this.accrualConfirm = true
 		this.accrualNotConfirm = true
 		this.deals = []
+		this.purchaseDeals = []
 		this.dateRangeTypeNachisleniya = ''
 		this.dateRangeTypeOplata = ''
 	}

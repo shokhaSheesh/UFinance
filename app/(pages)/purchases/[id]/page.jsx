@@ -341,10 +341,12 @@ export default observer(function PurchaseDetailPage() {
           </div>
           <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.shipped')}: {shippedPercent}%</div>
 
-          <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
-            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
-            <span className="font-medium text-[#344054] truncate">{formatAmount(dealAmount)} {GlobalCurrency?.name}</span>
-          </div>
+          {shippedPercent < 100 && (
+            <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
+              <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
+              <span className="font-medium text-[#344054] truncate">{formatAmount(dealAmount)} {GlobalCurrency?.name}</span>
+            </div>
+          )}
         </div>
 
         {/* Main Content Layout */}
@@ -411,7 +413,7 @@ export default observer(function PurchaseDetailPage() {
               <div className="overflow-hidden">
                 {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} />}
 
-                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} tipTypes={["Выплата"]} />}
+                {activeTab === 'payments' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} dealIdField="purchase_transactions_id" invalidateKeys={['get_purchase_transaction_by_guid']} tipTypes={["Выплата"]} isPurchase />}
 
                 {activeTab === 'supplies' && <ShipmenTable
                   canAdd={shipmentPermission}
@@ -448,6 +450,7 @@ export default observer(function PurchaseDetailPage() {
         dealIdField="purchase_transactions_id"
         operationType={['Поставка']}
         invalidateKeys={['list_purchase_operations', 'get_purchase_transaction_by_guid']}
+        allowedTypes={['Расходы', 'Актив', 'Обязательства']}
       />
 
       <PaymentModal
@@ -461,7 +464,6 @@ export default observer(function PurchaseDetailPage() {
           operation={operation}
           isClosing={isModalClosing}
           isOpening={isModalOpening}
-          defaultDealGuid={dealId}
           defaultPurchaseDealGuid={dealId}
           onClose={() => {
             setIsModalClosing(true)

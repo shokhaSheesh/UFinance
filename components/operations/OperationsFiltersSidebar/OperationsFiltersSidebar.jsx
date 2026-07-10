@@ -9,6 +9,7 @@ import { appStore } from '../../../store/app.store'
 import { allowedTip, operationFilterStore, tips } from '../../../store/operationFilter.store'
 import MultiSelectStatiya from '../../ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
+import MultiSelectPurchaseZdelka from '../../ReadyComponents/MultiPurchaseZdelka'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
 import { FilterSection, FilterSidebar } from '../../directories/FilterSidebar/FilterSidebar'
@@ -31,6 +32,7 @@ export const OperationsFiltersSidebar = observer(({
     selectedChartOfAccounts,
     paymentType,
     deals,
+    purchaseDeals,
     paymentConfirm,
     paymentNotConfirm,
     accrualConfirm,
@@ -65,6 +67,7 @@ export const OperationsFiltersSidebar = observer(({
     if (selectedLegalEntities?.length) count++
     if (selectedChartOfAccounts?.length) count++
     if (deals?.length) count++
+    if (purchaseDeals?.length) count++
 
     // Payment type
     if (paymentType) count++
@@ -76,7 +79,7 @@ export const OperationsFiltersSidebar = observer(({
     if (!paymentConfirm || !paymentNotConfirm || !accrualConfirm || !accrualNotConfirm) count++
 
     return count
-  }, [safeSelectedFilters, selectedDatePaymentRange, selectedDateStartRange, selectedCounterAgents, selectedLegalEntities, selectedChartOfAccounts, deals, paymentType, amountRange, paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm])
+  }, [safeSelectedFilters, selectedDatePaymentRange, selectedDateStartRange, selectedCounterAgents, selectedLegalEntities, selectedChartOfAccounts, deals, purchaseDeals, paymentType, amountRange, paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm])
 
   // Clear all filters
   const onClear = useCallback(() => {
@@ -294,12 +297,20 @@ export const OperationsFiltersSidebar = observer(({
               className={'bg-gray-ucode-25'}
             />
 
-            <MultiSelectZdelka
-              value={deals}
-              onChange={(val) => operationFilterStore.setSelectedDeals(val)}
-              placeholder={t('filters.dealsPlaceholder')}
-              className={'bg-gray-ucode-25'}
-            />
+            <div className="flex flex-col gap-2">
+              <MultiSelectZdelka
+                value={deals}
+                onChange={(val) => operationFilterStore.setSelectedDeals(val)}
+                placeholder={t('filters.dealsPlaceholder')}
+                className={'bg-gray-ucode-25 w-full'}
+              />
+              <MultiSelectPurchaseZdelka
+                value={purchaseDeals}
+                onChange={(val) => operationFilterStore.setSelectedPurchaseDeals(val)}
+                placeholder={t('filters.purchaseDealsPlaceholder')}
+                className={'bg-gray-ucode-25 w-full'}
+              />
+            </div>
 
             {/* Price */}
             <div className="flex items-center gap-2">
