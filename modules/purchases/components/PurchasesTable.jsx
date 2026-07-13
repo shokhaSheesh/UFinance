@@ -3,7 +3,6 @@ import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { formatDateFormat } from '@/utils/formatDate'
 import { formatAmount, handleDownload } from '@/utils/helpers'
@@ -12,10 +11,8 @@ import PurchasesTableHeader from '../components/PurchasesTableHeder'
 import styles from '../purchases-list/purchases.module.scss'
 
 export default function PurchasesTable({
-  t, tc,
+  t,
   formattedDeals,
-  selectedDeals,
-  isAllSelected,
   dealPermission,
   isLoading,
   hasNextPage,
@@ -23,8 +20,6 @@ export default function PurchasesTable({
   isFetching,
   fetchNextPage,
   onRowClick,
-  onSelectAll,
-  onSelectOne,
   onDeleteClick,
   onEditClick,
   onCopyClick,
@@ -32,13 +27,7 @@ export default function PurchasesTable({
 }) {
   return (
     <>
-      <PurchasesTableHeader
-        t={t}
-        tc={tc}
-        isAllSelected={isAllSelected}
-        selectedCount={selectedDeals.size}
-        onSelectAll={onSelectAll}
-      />
+      <PurchasesTableHeader t={t} />
 
       {formattedDeals?.length === 0 && !isLoading && (
         <div className="py-20 text-center text-neutral-500 text-sm">
@@ -59,10 +48,8 @@ export default function PurchasesTable({
               key={deal.guid}
               deal={deal}
               dealPermission={dealPermission}
-              isSelected={selectedDeals.has(deal.guid)}
               t={t}
               onRowClick={onRowClick}
-              onSelectOne={onSelectOne}
               onDeleteClick={onDeleteClick}
               onEditClick={onEditClick}
               onCopyClick={onCopyClick}
@@ -80,10 +67,8 @@ export default function PurchasesTable({
 function PurchaseRow({
   deal,
   dealPermission,
-  isSelected,
   t,
   onRowClick,
-  onSelectOne,
   onDeleteClick,
   onEditClick,
   onCopyClick,
@@ -94,16 +79,6 @@ function PurchaseRow({
       onClick={(e) => onRowClick(deal, e)}
       className="flex items-center h-12 border-b border-neutral-100 hover:bg-neutral-50 group cursor-pointer text-xs"
     >
-      <div
-        className="w-10 flex items-center justify-center shrink-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <OperationCheckbox
-          checked={isSelected}
-          onChange={(e) => onSelectOne(deal.guid, e)}
-        />
-      </div>
-
       <div className="w-32 shrink-0 px-2">{formatDateFormat(deal.Data_sdelki)}</div>
 
       <div className="flex-1 min-w-24 line-clamp-1 flex flex-col px-2">

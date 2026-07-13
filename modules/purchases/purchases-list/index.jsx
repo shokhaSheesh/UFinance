@@ -92,7 +92,6 @@ const ModalFallback = () => (
 export default observer(function PurchasesPage() {
   const router = useRouter();
   const t = useTranslations("Deals");
-  const tc = useTranslations("Common");
   const mounted = useMounted();
   const queryClient = useQueryClient();
 
@@ -251,13 +250,7 @@ export default observer(function PurchasesPage() {
   };
 
   // ── Selection ──────────────────────────────────────────────────────────────
-  const {
-    selectedDeals,
-    isAllSelected,
-    handleSelectAll,
-    handleSelectOne,
-    removeSelected,
-  } = usePurchasesSelection(formattedDeals);
+  const { removeSelected } = usePurchasesSelection(formattedDeals);
 
   // ── Row actions ────────────────────────────────────────────────────────────
   const {
@@ -333,10 +326,7 @@ export default observer(function PurchasesPage() {
 
         <PurchasesTable
           t={t}
-          tc={tc}
           formattedDeals={formattedDeals}
-          selectedDeals={selectedDeals}
-          isAllSelected={isAllSelected}
           dealPermission={dealPermission}
           isLoading={isLoading}
           hasNextPage={hasNextPage}
@@ -344,8 +334,6 @@ export default observer(function PurchasesPage() {
           isFetching={isFetching}
           fetchNextPage={fetchNextPage}
           onRowClick={handleRowClick}
-          onSelectAll={handleSelectAll}
-          onSelectOne={handleSelectOne}
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
           onCopyClick={handleCopyClick}

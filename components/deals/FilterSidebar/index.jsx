@@ -116,7 +116,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 					/>
 				</div>
 
-				{/* Date Selector: single date for purchases, range for sales */}
+				{/* Date Range Selector */}
 				<div className='flex flex-col gap-1.5'>
 					<NewDateRangeComponent
 						value={dateRange}
@@ -126,8 +126,6 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 						present={dateRangeType}
 						onSetPresent={(present) => setState('dateRangeType', present)}
 						onClear={() => setState('dateRangeType', '')}
-						singleDateMode={isPurchase}
-						placeholder={isPurchase ? tp('createdDate') : undefined}
 					/>
 				</div>
 
