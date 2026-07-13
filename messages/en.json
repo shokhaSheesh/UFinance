@@ -1,4 +1,31 @@
 {
+	"Warehouse": {
+		"pageTitle": "My warehouse",
+		"searchPlaceholder": "Search by name",
+		"empty": "Warehouse is empty",
+		"columns": {
+			"name": "Name",
+			"artikul": "SKU",
+			"balance": "Balance",
+			"waiting": "Expected",
+			"available": "Available",
+			"unit": "Unit",
+			"daysInStock": "Days in stock",
+			"cost": "Cost",
+			"totalCost": "Total cost",
+			"salePrice": "Sale price",
+			"saleTotal": "Sale total"
+		},
+		"footer": {
+			"positions": "Positions",
+			"totalBalance": "Total balance",
+			"waitingBalance": "Expected balance",
+			"availableBalance": "Available balance",
+			"totalCost": "Total cost",
+			"totalSale": "Total sale",
+			"pageInfo": "{from}-{to} of {total}"
+		}
+	},
 	"filter": "Filters",
 	"search": "Search...",
 	"Common": {
@@ -132,7 +159,8 @@
 			"reports": "Reports",
 			"directories": "Directories",
 			"settings": "Settings",
-			"plans": "Budgets"
+			"plans": "Budgets",
+			"warehouse": "My warehouse"
 		},
 		"reports": {
 			"cashflow": "Cash Flow Statement",
@@ -615,7 +643,37 @@
 	},
 	"Purchases": {
 		"pageTitle": "Purchase Deals",
-		"backToList": "Purchase Deals"
+		"backToList": "Purchase Deals",
+		"table": {
+			"client": "Supplier",
+			"received": "Paid",
+			"shipped": "Supplied"
+		},
+		"filters": {
+			"sectionTitle": "Deal parameters",
+			"selectSuppliers": "Suppliers",
+			"createdDate": "Creation date"
+		},
+		"createSupply": {
+			"titleNew": "New supply",
+			"titleEdit": "Edit supply",
+			"supplyDate": "Supply date",
+			"plannedSupply": "Planned supply",
+			"supplier": "Supplier",
+			"supplierRequired": "Select supplier",
+			"expenseArticle": "Purchase expense category",
+			"undistributedExpense": "Unallocated expense",
+			"removeFromSupply": "Remove from supply",
+			"supplySum": "Supply total",
+			"products": "Products & services for supply"
+		},
+		"supplyTable": {
+			"emptyTitle": "Add supplies to the deal",
+			"emptySubtitle": "Track goods/service supplies to monitor fulfillment of obligations under the deal",
+			"deleteSupplyTitle": "Delete supply",
+			"deleteSupplyConfirm": "Are you sure you want to delete the supply for <strong>{amount}</strong>? <br />This cannot be undone.",
+			"unallocatedExpense": "Unallocated expense"
+		}
 	},
 	"Deals": {
 		"pageTitle": "Sales Deals",
@@ -661,8 +719,10 @@
 			"cards": {
 				"type": "Type",
 				"client": "Client",
+				"supplier": "Supplier",
 				"created": "Created",
 				"sale": "Sale",
+				"purchase": "Purchase",
 				"receipts": "Receipts",
 				"shipments": "Shipments to client",
 				"profit": "Deal profit",
@@ -690,7 +750,8 @@
 				"products": "Select products or services for sale",
 				"receipts": "Client payments for goods sold or services rendered",
 				"expenses": "Costs incurred for this deal",
-				"shipments": "Goods and services shipped to the client"
+				"shipments": "Goods and services shipped to the client",
+				"supplies": "Goods and services received from the supplier"
 			},
 			"searchPlaceholder": "Search",
 			"addButton": "Add",

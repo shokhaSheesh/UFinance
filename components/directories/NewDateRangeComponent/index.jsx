@@ -104,7 +104,7 @@ const PRESET_GROUPS = {
   ],
 }
 
-export default observer(function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null }, onSetPresent, present = '', onClear }) {
+export default observer(function NewDateRangeComponent({ value, onChange, singleDateMode = false, clearable = true, defaultValue = { start: null, end: null }, onSetPresent, present = '', onClear, placeholder }) {
   const t = useTranslations('NewDateRangeComponent')
   const [startDate, setStartDate] = useState(value?.start)
   const [endDate, setEndDate] = useState(value?.end)
@@ -163,11 +163,11 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
             <input
               type="text"
               value={singleDateMode
-                ? (startDate ? moment(startDate).format('DD.MM.YYYY') : t('selectDate'))
+                ? (startDate ? moment(startDate).format('DD.MM.YYYY') : (placeholder ?? t('selectDate')))
                 : `${startDate ? moment(startDate).format('DD.MM.YYYY') + ' ~' : t('specifyPrefix')} ${endDate ? moment(endDate).format('DD.MM.YYYY') : t('periodWord')}`
               }
               className="border-none outline-none bg-transparent text-gray-ucode-400 text-xs font-normal w-full"
-              placeholder={singleDateMode ? t('selectDate') : t('selectPeriod')}
+              placeholder={placeholder ?? (singleDateMode ? t('selectDate') : t('selectPeriod'))}
               readOnly
             />
             {(startDate || endDate) && clearable && <CgClose onClick={(e) => { e.stopPropagation(); handleReset(); }} className="cursor-pointer absolute right-3 text-gray-400 hover:text-gray-600" />}

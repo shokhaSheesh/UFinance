@@ -9,6 +9,26 @@ const CDN_BASE = 'https://cdn.u-code.io'
 const MAX_FILES = 10
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+// Files & comments live behind the same file-upload flow for both sale and
+// purchase deals — only the invoke_function method names and the id field differ.
+// Configs are module-level constants so their reference stays stable across renders.
+const VARIANT_CONFIGS = {
+  sale: {
+    idField: 'sales_id',
+    listMethod: 'list_sale_files_and_comments',
+    addMethod: 'add_sale_files_and_comments',
+    updateMethod: 'update_sale_files_and_comments',
+    deleteMethod: 'delete_sale_files_and_comments',
+  },
+  purchase: {
+    idField: 'purchase_transactions_id',
+    listMethod: 'list_purchase_files_and_comments',
+    addMethod: 'add_purchase_files_and_comments',
+    updateMethod: 'update_purchase_files_and_comments',
+    deleteMethod: 'delete_purchase_files_and_comments',
+  },
+}
+
 async function uploadFile(file) {
   const formData = new FormData()
   formData.append('file', file, file.name)
@@ -22,33 +42,33 @@ async function uploadFile(file) {
   return `${CDN_BASE}/${json.data.link}`
 }
 
-async function apiListComments(salesId) {
+async function apiListComments(config, entityId) {
   const res = await apiClient.invokeFunction({
-    method: 'list_sale_files_and_comments',
-    data: { sales_id: salesId },
+    method: config.listMethod,
+    data: { [config.idField]: entityId },
   })
   return res?.data?.data || []
 }
 
-async function apiAddComment(salesId, comment, fileUrls) {
+async function apiAddComment(config, entityId, comment, fileUrls) {
   const file = Array.isArray(fileUrls) ? fileUrls.filter(Boolean) : (fileUrls ? [fileUrls] : [])
   return apiClient.invokeFunction({
-    method: 'add_sale_files_and_comments',
-    data: { sales_id: salesId, comment, file: file.length ? file : '' },
+    method: config.addMethod,
+    data: { [config.idField]: entityId, comment, file: file.length ? file : '' },
   })
 }
 
-async function apiUpdateComment(guid, comment, fileUrls) {
+async function apiUpdateComment(config, guid, comment, fileUrls) {
   const file = Array.isArray(fileUrls) ? fileUrls.filter(Boolean) : (fileUrls ? [fileUrls] : [])
   return apiClient.invokeFunction({
-    method: 'update_sale_files_and_comments',
+    method: config.updateMethod,
     data: { guid, comment, file: file.length ? file : '' },
   })
 }
 
-async function apiDeleteComment(guid) {
+async function apiDeleteComment(config, guid) {
   return apiClient.invokeFunction({
-    method: 'delete_sale_files_and_comments',
+    method: config.deleteMethod,
     data: { guid },
   })
 }
@@ -79,7 +99,8 @@ function normalizeMessage(item) {
   }
 }
 
-export function useSaleComments({ salesId }) {
+export function useSaleComments({ salesId, variant = 'sale' }) {
+  const config = VARIANT_CONFIGS[variant] || VARIANT_CONFIGS.sale
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [attachedFiles, setAttachedFiles] = useState([])
@@ -94,14 +115,14 @@ export function useSaleComments({ salesId }) {
     if (!id) return
     setIsLoadingMessages(true)
     try {
-      const data = await apiListComments(id)
+      const data = await apiListComments(config, id)
       setMessages(Array.isArray(data) ? data.map(normalizeMessage) : [])
     } catch (e) {
       console.error('useSaleComments loadMessages error', e)
     } finally {
       setIsLoadingMessages(false)
     }
-  }, [])
+  }, [config])
 
   useEffect(() => {
     if (salesId) loadMessages(salesId)
@@ -143,7 +164,7 @@ export function useSaleComments({ salesId }) {
       for (const file of currentFiles) {
         fileUrls.push(await uploadFile(file))
       }
-      await apiAddComment(salesId, currentText, fileUrls)
+      await apiAddComment(config, salesId, currentText, fileUrls)
       await loadMessages(salesId)
     } catch (e) {
       console.error('useSaleComments handleSend error', e)
@@ -181,7 +202,7 @@ export function useSaleComments({ salesId }) {
       for (const file of currentEditFiles) {
         newUrls.push(await uploadFile(file))
       }
-      await apiUpdateComment(msg.guid, currentEditText, [...existingUrls, ...newUrls])
+      await apiUpdateComment(config, msg.guid, currentEditText, [...existingUrls, ...newUrls])
       await loadMessages(salesId)
     } catch (e) {
       console.error('useSaleComments handleEditConfirm error', e)
@@ -222,7 +243,7 @@ export function useSaleComments({ salesId }) {
       setEditFiles([])
     }
     try {
-      await apiDeleteComment(targetId)
+      await apiDeleteComment(config, targetId)
       await loadMessages(salesId)
     } catch (e) {
       console.error('useSaleComments handleDeleteConfirm error', e)

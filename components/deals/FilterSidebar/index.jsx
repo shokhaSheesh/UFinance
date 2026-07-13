@@ -11,9 +11,10 @@ import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
 import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 
-const FilterSidebar = observer(({ onOpenChange }) => {
+const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 	const t = useTranslations('Deals.filters')
 	const tc = useTranslations('Common')
+	const tp = useTranslations('Purchases.filters')
 	const [isOpen, setIsOpen] = useState(true)
 
 	const toggleOpen = val => {
@@ -62,7 +63,7 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 		if (status?.length > 0) count++
 		if (dateRange?.end || dateRange?.start) count++
 		if (amountFrom || amountTo) count++
-		if (profitFrom || profitTo) count++
+		if (!isPurchase && (profitFrom || profitTo)) count++
 		return count
 	}, [
 		selectedCounterparties,
@@ -71,7 +72,8 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 		amountTo,
 		profitFrom,
 		profitTo,
-		status
+		status,
+		isPurchase
 	])
 
 	const handlePriceDebouce = (field, value) => {
@@ -91,6 +93,10 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 			onClear={() => sealDeal.resetFilters()}
 		>
 			<div className='flex flex-col gap-4'>
+				{isPurchase && (
+					<p className='text-neutral-500 text-xs font-medium'>{tp('sectionTitle')}</p>
+				)}
+
 				{/* status filter with singleSelect component */}
 				<div className='flex flex-col gap-1.5 mt-2'>
 					<MultiSelect
@@ -105,12 +111,12 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 				<div className='flex flex-col gap-1.5'>
 					<SelectCounterParties
 						onChange={values => handleFilterChange('selectedCounterparties', values)}
-						placeholder={t('selectCounterparties')}
+						placeholder={isPurchase ? tp('selectSuppliers') : t('selectCounterparties')}
 						value={selectedCounterparties}
 					/>
 				</div>
 
-				{/* Date Range Selector */}
+				{/* Date Selector: single date for purchases, range for sales */}
 				<div className='flex flex-col gap-1.5'>
 					<NewDateRangeComponent
 						value={dateRange}
@@ -120,6 +126,8 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 						present={dateRangeType}
 						onSetPresent={(present) => setState('dateRangeType', present)}
 						onClear={() => setState('dateRangeType', '')}
+						singleDateMode={isPurchase}
+						placeholder={isPurchase ? tp('createdDate') : undefined}
 					/>
 				</div>
 
@@ -145,27 +153,29 @@ const FilterSidebar = observer(({ onOpenChange }) => {
 					</div>
 				</div>
 
-				{/* Profit Borders Selectors */}
-				<div className='flex flex-col gap-1.5'>
-					<p className='text-neutral-600 text-xs font-medium'>{t('dealProfit')}</p>
-					<div className='flex items-center gap-1.5'>
-						<Input
-							type='text'
-							placeholder={t('from')}
-							value={formatNumber(profitFrom)}
-							onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
-							className='h-8!'
-						/>
-						<span className='text-neutral-400 font-light'>-</span>
-						<Input
-							type='text'
-							placeholder={t('to')}
-							value={formatNumber(profitTo)}
-							onChange={e => handlePriceDebouce('profitTo', e.target.value)}
-							className='h-8!'
-						/>
+				{/* Profit Borders Selectors — not shown for purchases */}
+				{!isPurchase && (
+					<div className='flex flex-col gap-1.5'>
+						<p className='text-neutral-600 text-xs font-medium'>{t('dealProfit')}</p>
+						<div className='flex items-center gap-1.5'>
+							<Input
+								type='text'
+								placeholder={t('from')}
+								value={formatNumber(profitFrom)}
+								onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
+								className='h-8!'
+							/>
+							<span className='text-neutral-400 font-light'>-</span>
+							<Input
+								type='text'
+								placeholder={t('to')}
+								value={formatNumber(profitTo)}
+								onChange={e => handlePriceDebouce('profitTo', e.target.value)}
+								className='h-8!'
+							/>
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</FilterSidebarComponent>
 	)

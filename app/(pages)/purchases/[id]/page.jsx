@@ -254,11 +254,11 @@ export default observer(function PurchaseDetailPage() {
             <div className="flex items-center">
               <span className="flex items-center gap-1 md:gap-1.5 bg-[#F2F4F7] rounded-lg xl:rounded-[10px] px-2 xl:px-3 py-0.5 xl:py-1 text-xs xl:text-sm font-semibold text-neutral-800">
                 <PiDatabaseFill size={14} className='text-[#9aa4b3] xl:w-4 xl:h-4 w-3.5 h-3.5' />
-                {t('cards.sale')}
+                {t('cards.purchase')}
               </span>
             </div>
 
-            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">{t('cards.client')}</span>
+            <span className="text-xs xl:text-sm font-normal text-[#8892A3]">{t('cards.supplier')}</span>
             <div className="flex items-center w-full min-w-0 overflow-hidden">
               <span
                 className="text-xs xl:text-sm font-medium text-neutral-800 border-b border-dotted border-gray-400 pb-0.5 cursor-pointer hover:text-primary transition-colors flex items-center gap-1 group truncate w-full"
@@ -308,7 +308,7 @@ export default observer(function PurchaseDetailPage() {
           <div className="font-normal text-mini xl:text-xs text-gray-ucode-500 mt-1 xl:mt-2 mb-3 xl:mb-5 truncate">{t('cards.received')}: {receivedPercent}%</div>
 
           <div className="flex text-mini xl:text-xs flex-wrap items-end gap-1 xl:gap-2">
-            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.clientDebt')}</span>
+            <span className="font-normal text-gray-ucode-500 whitespace-nowrap">{t('cards.weOwe')}</span>
             <p className="truncate">
               <span className="font-medium text-[#344054]">{formatAmount(clientDebt)} </span>
               <span>{GlobalCurrency?.name}</span>
@@ -381,7 +381,7 @@ export default observer(function PurchaseDetailPage() {
                 <div className={`${styles.sectionTitle} text-xs xl:text-sm pr-2 truncate`}>
                   {activeTab === 'products' && t('tabDescriptions.products')}
                   {activeTab === 'payments' && t('tabDescriptions.expenses')}
-                  {activeTab === 'supplies' && t('tabDescriptions.shipments')}
+                  {activeTab === 'supplies' && t('tabDescriptions.supplies')}
                 </div>
                 <div className={styles.searchContainer}>
                   <Input
@@ -429,13 +429,14 @@ export default observer(function PurchaseDetailPage() {
                   operationType={['Поставка']}
                   invalidateKeys={['list_purchase_operations', 'get_purchase_transaction_by_guid']}
                   listTab={null}
+                  isPurchase
                 />}
               </div>
             </div>
           </div>
         </div>
         <div className='flex-1 h-full max-h-[600px]'>
-          <CommentChat dealGuid={dealId} />
+          <CommentChat dealGuid={dealId} variant="purchase" />
         </div>
       </div>
       <CreateShipment
@@ -451,6 +452,7 @@ export default observer(function PurchaseDetailPage() {
         operationType={['Поставка']}
         invalidateKeys={['list_purchase_operations', 'get_purchase_transaction_by_guid']}
         allowedTypes={['Расходы', 'Актив', 'Обязательства']}
+        isPurchase
       />
 
       <PaymentModal

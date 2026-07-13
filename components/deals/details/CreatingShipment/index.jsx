@@ -34,8 +34,37 @@ const CreateShipment = observer(({
   operationType = ['Отгрузка'],
   invalidateKeys = ['get_sales_transaction_by_guid', 'list_sales_operations', 'find_operations'],
   allowedTypes,
+  isPurchase = false,
 }) => {
   const t = useTranslations('Deals.createShipment')
+  const tp = useTranslations('Purchases.createSupply')
+  // Same modal is reused for a sale's "Отгрузка" and a purchase's "Поставка" —
+  // only these labels diverge between the two contexts.
+  const L = isPurchase ? {
+    titleNew: tp('titleNew'),
+    titleEdit: tp('titleEdit'),
+    shipmentDate: tp('supplyDate'),
+    plannedShipment: tp('plannedSupply'),
+    client: tp('supplier'),
+    clientRequired: tp('supplierRequired'),
+    incomeArticle: tp('expenseArticle'),
+    undistributedIncome: tp('undistributedExpense'),
+    removeFromShipment: tp('removeFromSupply'),
+    shipmentSum: tp('supplySum'),
+    products: tp('products'),
+  } : {
+    titleNew: t('titleNew'),
+    titleEdit: t('titleEdit'),
+    shipmentDate: t('shipmentDate'),
+    plannedShipment: t('plannedShipment'),
+    client: t('client'),
+    clientRequired: t('clientRequired'),
+    incomeArticle: t('incomeArticle'),
+    undistributedIncome: t('undistributedIncome'),
+    removeFromShipment: t('removeFromShipment'),
+    shipmentSum: t('shipmentSum'),
+    products: t('products'),
+  }
   const today = useMemo(() => new Date(), [])
 
   const [shipmentDate, setShipmentDate] = useState(today.toISOString().split('T')[0])
@@ -187,7 +216,7 @@ const CreateShipment = observer(({
     const newErrors = {}
     if (!shipmentDate) newErrors.shipmentDate = t('shipmentDateRequired')
     if (!legalEntity) newErrors.legalEntity = t('legalEntityRequired')
-    if (!client) newErrors.client = t('clientRequired')
+    if (!client) newErrors.client = L.clientRequired
 
     const productData = rows.filter(row => row.name)
     if (productData.length === 0) newErrors.products = t('productsRequired')
@@ -344,7 +373,7 @@ const CreateShipment = observer(({
           <div className="p-4 border-b relative">
             <div>
               <h2 className="text-lg font-semibold">
-                {isEditing ? t('titleEdit') : t('titleNew')}
+                {isEditing ? L.titleEdit : L.titleNew}
               </h2>
             </div>
             <button className="p-2 absolute right-4 top-2 hover:bg-gray-100 rounded-full" onClick={onClose}>
@@ -357,7 +386,7 @@ const CreateShipment = observer(({
             {/* Date + Planned */}
             <div className="flex gap-2 mb-4">
               <label className=" w-40 text-sm font-medium text-gray-700">
-                {t('shipmentDate')} <span className="text-red-500">*</span>
+                {L.shipmentDate} <span className="text-red-500">*</span>
               </label>
               <div className={styles.fieldGroup} style={{ flex: 1, maxWidth: '600px' }}>
                 <div className="flex w-full items-center gap-4">
@@ -383,7 +412,7 @@ const CreateShipment = observer(({
                           }
                         }}
                         className={'w-44'}
-                        label={t('plannedShipment')}
+                        label={L.plannedShipment}
                       />
                     </div>
                   </div>
@@ -419,13 +448,13 @@ const CreateShipment = observer(({
             {/* Client */}
             <div className="w-full flex items-center gap-2 pb-2">
               <label className="w-40! text-xss!">
-                {t('client')} <span className="text-red-500">*</span>
+                {L.client} <span className="text-red-500">*</span>
               </label>
               <div className="flex-1">
                 <SingleCounterParty
                   value={client}
                   onChange={value => setClient(value)}
-                  placeholder={t('clientRequired')}
+                  placeholder={L.clientRequired}
                   name='chart_of_accounts_id'
                   returnChartOfAccount={value => setChartOfAccounts(value)}
                   className="w-80! bg-white"
@@ -440,13 +469,13 @@ const CreateShipment = observer(({
             {showChartOfAccounts && (
               <div className="w-full flex items-center gap-2 pb-2">
                 <label className="w-40! text-xss!">
-                  {t('incomeArticle')}
+                  {L.incomeArticle}
                 </label>
                 <div className="flex-1">
                   <SinglSelectStatiya
                     selectedValue={chartOfAccounts}
                     setSelectedValue={value => setChartOfAccounts(value)}
-                    placeholder={t('undistributedIncome')}
+                    placeholder={L.undistributedIncome}
                     className='w-80! bg-white'
                     allowedTypes={allowedTypes}
                   />
@@ -458,7 +487,7 @@ const CreateShipment = observer(({
             <div className={styles.productsSection}>
               <div className={styles.productsSectionHeader}>
                 <div className='flex flex-col gap-1'>
-                  <span className={styles.productsTitle}>{t('products')}</span>
+                  <span className={styles.productsTitle}>{L.products}</span>
                   {errors.products && <span className='text-[10px] text-red-500 font-medium'>{errors.products}</span>}
                 </div>
                 {/* <button
@@ -494,7 +523,7 @@ const CreateShipment = observer(({
                               onClick={handleRemoveRow}
                             >
                               <TrashIcon size={16} className='text-red-500' />
-                              {t('removeFromShipment')}
+                              {L.removeFromShipment}
                             </button>
                           </div>
                           <button
@@ -602,7 +631,7 @@ const CreateShipment = observer(({
 
               <div className={styles.tableFooter}>
                 <button className={styles.addRowBtn} onClick={addRow}>{t('addRow')}</button>
-                <p className={styles.totalSum}>{t('shipmentSum')}: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
+                <p className={styles.totalSum}>{L.shipmentSum}: <strong>{totalSum.toLocaleString('ru-RU')}</strong>
                   <span className='text-neutral-600 ml-1'>{code}</span>
                 </p>
               </div>

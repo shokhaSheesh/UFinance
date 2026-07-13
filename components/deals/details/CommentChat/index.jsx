@@ -45,7 +45,7 @@ async function downloadFile(file) {
   }
 }
 
-const CommentChat = ({ dealGuid }) => {
+const CommentChat = ({ dealGuid, variant = 'sale' }) => {
   const t = useTranslations('Deals.commentChat');
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
@@ -72,7 +72,7 @@ const CommentChat = ({ dealGuid }) => {
     handleDeleteRequest,
     handleDeleteConfirm,
     handleDeleteCancel,
-  } = useSaleComments({ salesId: dealGuid });
+  } = useSaleComments({ salesId: dealGuid, variant });
 
   const hasContent = messages.length > 0 || attachedFiles.length > 0;
 

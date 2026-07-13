@@ -1,4 +1,31 @@
 {
+	"Warehouse": {
+		"pageTitle": "Mening omborim",
+		"searchPlaceholder": "Nom bo'yicha qidirish",
+		"empty": "Ombor bo'sh",
+		"columns": {
+			"name": "Nomi",
+			"artikul": "Artikul",
+			"balance": "Qoldiq",
+			"waiting": "Kutilmoqda",
+			"available": "Mavjud",
+			"unit": "O'lchov birligi",
+			"daysInStock": "Omborda kun",
+			"cost": "Tannarx",
+			"totalCost": "Tannarx summasi",
+			"salePrice": "Sotuv narxi",
+			"saleTotal": "Sotuv summasi"
+		},
+		"footer": {
+			"positions": "Pozitsiyalar",
+			"totalBalance": "Umumiy qoldiq",
+			"waitingBalance": "Kutilayotgan qoldiq",
+			"availableBalance": "Mavjud qoldiq",
+			"totalCost": "Tannarx summasi",
+			"totalSale": "Sotuv summasi",
+			"pageInfo": "{total} tadan {from}-{to}"
+		}
+	},
 	"filter": "Filtrlar",
 	"search": "Qidirish...",
 	"Common": {
@@ -130,7 +157,8 @@
 			"reports": "Hisobotlar",
 			"directories": "Ma'lumotlar",
 			"settings": "Sozlamalar",
-			"plans": "Rejalar"
+			"plans": "Rejalar",
+			"warehouse": "Mening omborim"
 		},
 		"plans": {
 			"cash_flow_budget": "Pul oqimi byudjeti",
@@ -613,7 +641,37 @@
 	},
 	"Purchases": {
 		"pageTitle": "Xarid bo'yicha bitimlar",
-		"backToList": "Xarid bo'yicha bitimlar"
+		"backToList": "Xarid bo'yicha bitimlar",
+		"table": {
+			"client": "Yetkazib beruvchi",
+			"received": "To'langan",
+			"shipped": "Yetkazilgan"
+		},
+		"filters": {
+			"sectionTitle": "Bitim parametrlari",
+			"selectSuppliers": "Yetkazib beruvchilar",
+			"createdDate": "Yaratilgan sana"
+		},
+		"createSupply": {
+			"titleNew": "Yangi yetkazma",
+			"titleEdit": "Yetkazmani tahrirlash",
+			"supplyDate": "Yetkazma sanasi",
+			"plannedSupply": "Rejalashtirilgan yetkazma",
+			"supplier": "Yetkazib beruvchi",
+			"supplierRequired": "Yetkazib beruvchini tanlang",
+			"expenseArticle": "Xarid xarajat moddasi",
+			"undistributedExpense": "Taqsimlanmagan xarajat",
+			"removeFromSupply": "Yetkazmadan olib tashlash",
+			"supplySum": "Yetkazma summasi",
+			"products": "Yetkazma uchun tovar/xizmatlar"
+		},
+		"supplyTable": {
+			"emptyTitle": "Bitimga yetkazmalar qo'shing",
+			"emptySubtitle": "Majburiyatlar bajarilishini nazorat qilish uchun tovar/xizmat yetkazmalarini hisobga oling",
+			"deleteSupplyTitle": "Yetkazmani o'chirish",
+			"deleteSupplyConfirm": "Haqiqatan ham <strong>{amount}</strong> summadagi yetkazmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+			"unallocatedExpense": "Taqsimlanmagan xarajat"
+		}
 	},
 	"Deals": {
 		"pageTitle": "Sotish bo'yicha bitimlar",
@@ -659,8 +717,10 @@
 			"cards": {
 				"type": "Turi",
 				"client": "Mijoz",
+				"supplier": "Yetkazib beruvchi",
 				"created": "Yaratilgan",
 				"sale": "Sotish",
+				"purchase": "Xarid",
 				"receipts": "Tushumlar",
 				"shipments": "Mijozga yuklash",
 				"profit": "Bitim foydasi",
@@ -688,7 +748,8 @@
 				"products": "Sotish uchun tovarlar yoki xizmatlarni tanlang",
 				"receipts": "Sotilgan tovarlar yoki ko'rsatilgan xizmatlar uchun mijoz to'lovlari",
 				"expenses": "Bitim bo'yicha xarajatlar",
-				"shipments": "Mijozga yuklagan tovarlar va xizmatlar"
+				"shipments": "Mijozga yuklagan tovarlar va xizmatlar",
+				"supplies": "Yetkazib beruvchidan olingan tovar va xizmatlar"
 			},
 			"searchPlaceholder": "Qidirish",
 			"addButton": "Qo'shish",

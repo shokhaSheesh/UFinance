@@ -28,8 +28,10 @@ const ShipmenTable = ({
   operationType = ['Отгрузка'],
   invalidateKeys = ['list_sales_operations', 'get_sales_transaction', 'get_sales_transaction_by_guid', 'get_counterparty_by_id'],
   listTab = 'shipment',
+  isPurchase = false,
 }) => {
   const t = useTranslations('Directories.details.shipmentTable')
+  const tp = useTranslations('Purchases.supplyTable')
 
   const [showModal, setShowModal] = useState(false)
   const [selectedShipment, setSelectedShipment] = useState(null)
@@ -164,8 +166,8 @@ const ShipmenTable = ({
   if (shipmentsList?.length === 0) {
     return (
       <EmptyState
-        title={t('emptyTitle')}
-        subtitle={t('emptySubtitle')}
+        title={isPurchase ? tp('emptyTitle') : t('emptyTitle')}
+        subtitle={isPurchase ? tp('emptySubtitle') : t('emptySubtitle')}
         onAdd={onAdd}
         canAdd={canAdd}
       />
@@ -220,8 +222,8 @@ const ShipmenTable = ({
                       <span className="text-neutral-400">{t('goodsServices')}</span>
                     )}
                   </td>
-                  {/* Нераспределенный доход */}
-                  <td className="px-4 py-3 text-left w-[200px]">{item?.chartOfAccounts || t('unallocatedIncome')}</td>
+                  {/* Нераспределенный доход / расход */}
+                  <td className="px-4 py-3 text-left w-[200px]">{item?.chartOfAccounts || (isPurchase ? tp('unallocatedExpense') : t('unallocatedIncome'))}</td>
                   <td className={`px-4 py-3  w-52 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">
                       <p className={`font-base text-neutral-600`}>
@@ -279,6 +281,7 @@ const ShipmenTable = ({
           dealIdField={dealIdField}
           operationType={operationType}
           invalidateKeys={invalidateKeys}
+          isPurchase={isPurchase}
         />
       )}
 
@@ -286,12 +289,14 @@ const ShipmenTable = ({
         <CustomModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
           <div className='p-2 flex flex-col'>
             <div className='flex justify-between items-center border-b border-gray-100 pb-2'>
-              <h2 className='text-xl font-bold text-neutral-800'>{t('deleteShipmentTitle')}</h2>
+              <h2 className='text-xl font-bold text-neutral-800'>{isPurchase ? tp('deleteSupplyTitle') : t('deleteShipmentTitle')}</h2>
             </div>
 
             <div className='py-6 text-base text-neutral-700'
               dangerouslySetInnerHTML={{
-                __html: t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+                __html: isPurchase
+                  ? tp('deleteSupplyConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+                  : t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
               }}
             />
 

@@ -227,7 +227,7 @@ export default observer(function PurchasesPage() {
     <FixedContent>
       {/* ── Filter Sidebar (lazy) ── */}
       <Suspense fallback={<div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />}>
-        <FilterSidebar onOpenChange={setIsFilterOpen} />
+        <FilterSidebar onOpenChange={setIsFilterOpen} isPurchase />
       </Suspense>
 
       {/* ── Main content ── */}

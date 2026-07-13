@@ -1,4 +1,31 @@
 {
+	"Warehouse": {
+		"pageTitle": "Мой склад",
+		"searchPlaceholder": "Поиск по названию",
+		"empty": "Склад пуст",
+		"columns": {
+			"name": "Наименование",
+			"artikul": "Артикул",
+			"balance": "Остаток",
+			"waiting": "Ожидание",
+			"available": "Доступно",
+			"unit": "Ед. изм.",
+			"daysInStock": "Дней на складе",
+			"cost": "Себестоимость",
+			"totalCost": "Сумма себестоимости",
+			"salePrice": "Цена продажи",
+			"saleTotal": "Сумма продажи"
+		},
+		"footer": {
+			"positions": "Позиций",
+			"totalBalance": "Общий остаток",
+			"waitingBalance": "Остаток ожидание",
+			"availableBalance": "Остаток доступно",
+			"totalCost": "Сумма себестоимости",
+			"totalSale": "Сумма продажи",
+			"pageInfo": "{from}-{to} из {total}"
+		}
+	},
 	"filter": "Фильтры",
 	"search": "Поиск...",
 	"Common": {
@@ -132,7 +159,8 @@
 			"reports": "Отчёты",
 			"directories": "Справочники",
 			"settings": "Настройки",
-			"plans": "Планы"
+			"plans": "Планы",
+			"warehouse": "Мой склад"
 		},
 		"reports": {
 			"cashflow": "Движение денег (ДДС)",
@@ -616,7 +644,37 @@
 	},
 	"Purchases": {
 		"pageTitle": "Сделки по закупкам",
-		"backToList": "Сделки по закупкам"
+		"backToList": "Сделки по закупкам",
+		"table": {
+			"client": "Поставщик",
+			"received": "Выплачено",
+			"shipped": "Поставлено"
+		},
+		"filters": {
+			"sectionTitle": "Параметры сделки",
+			"selectSuppliers": "Поставщики",
+			"createdDate": "Дата создания"
+		},
+		"createSupply": {
+			"titleNew": "Новая поставка",
+			"titleEdit": "Редактирование поставки",
+			"supplyDate": "Дата поставки",
+			"plannedSupply": "Плановая поставка",
+			"supplier": "Поставщик",
+			"supplierRequired": "Выберите поставщика",
+			"expenseArticle": "Статья закупки товаров",
+			"undistributedExpense": "Нераспределенный расход",
+			"removeFromSupply": "Убрать из поставки",
+			"supplySum": "Сумма поставки",
+			"products": "Товары/услуги для поставки"
+		},
+		"supplyTable": {
+			"emptyTitle": "Добавьте поставки в сделку",
+			"emptySubtitle": "Учитывайте поставки товара/услуг, чтобы контролировать выполнение обязательств по сделке",
+			"deleteSupplyTitle": "Удалить поставку",
+			"deleteSupplyConfirm": "Вы действительно хотите удалить поставку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
+			"unallocatedExpense": "Нераспределенный расход"
+		}
 	},
 	"Deals": {
 		"pageTitle": "Сделки по продажам",
@@ -662,8 +720,10 @@
 			"cards": {
 				"type": "Тип",
 				"client": "Клиент",
+				"supplier": "Поставщик",
 				"created": "Создана",
 				"sale": "Продажа",
+				"purchase": "Закупка",
 				"receipts": "Поступления",
 				"shipments": "Отгрузки клиенту",
 				"profit": "Прибыль сделки",
@@ -691,7 +751,8 @@
 				"products": "Выберите товары или услуги для продажи",
 				"receipts": "Платежи от клиентов за проданные товары или оказанные услуги",
 				"expenses": "Понесенные затраты по сделке",
-				"shipments": "Товары и услуги, которые вы отгрузили клиенту"
+				"shipments": "Товары и услуги, которые вы отгрузили клиенту",
+				"supplies": "Товары и услуги, которые вы получили от поставщика"
 			},
 			"searchPlaceholder": "Поиск",
 			"addButton": "Добавить",
