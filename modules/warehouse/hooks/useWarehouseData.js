@@ -55,7 +55,6 @@ export function useWarehouseData() {
         totalCost: Number(it?.total_cost) || 0,
         salePrice: Number(it?.sale_price) || 0,
         saleTotal: Number(it?.total_sale_price) || 0,
-        raw: it,
       };
     });
   }, [data]);
