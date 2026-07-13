@@ -1,58 +1,83 @@
-'use client'
+"use client";
 
-import { useScrollDetector } from '@/hooks/useScrollDetector'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { observer } from 'mobx-react-lite'
-import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { useScrollDetector } from "@/hooks/useScrollDetector";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 
-import { useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
-import useMounted from '@/hooks/useMounted'
-import { apiClient } from '@/lib/api/ucode/base'
-import { showSuccessNotification } from '@/lib/utils/notifications'
-import { appStore } from '@/store/app.store'
-import { authStore } from '@/store/auth.store'
-import { sealDeal } from '@/store/saleDeal.store'
-import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
+import {
+  useUcodeRequestInfinite,
+  useUcodeRequestMutation,
+} from "@/hooks/useDashboard";
+import useMounted from "@/hooks/useMounted";
+import { apiClient } from "@/lib/api/ucode/base";
+import { showSuccessNotification } from "@/lib/utils/notifications";
+import { appStore } from "@/store/app.store";
+import { authStore } from "@/store/auth.store";
+import { sealDeal } from "@/store/saleDeal.store";
+import { formatAmount, handleDownload, StringtoNumber } from "@/utils/helpers";
 
-
-import ScreenLoader from '@/components/shared/ScreenLoader'
-import FixedContent from '@/layouts/FixedContent'
-import { toJS } from 'mobx'
-import moment from 'moment'
-import PurchasesFooter from '../components/PurchasesFooter'
-import PurchasesHeader from '../components/PurchasesHeader'
-import PurchasesTable from '../components/PurchasesTable'
-import { usePurchasesActions } from '../hooks/usePurchasesActions'
-import { usePurchasesSelection } from '../hooks/usePurchasesSelection'
+import ScreenLoader from "@/components/shared/ScreenLoader";
+import FixedContent from "@/layouts/FixedContent";
+import { toJS } from "mobx";
+import moment from "moment";
+import PurchasesFooter from "../components/PurchasesFooter";
+import PurchasesHeader from "../components/PurchasesHeader";
+import PurchasesTable from "../components/PurchasesTable";
+import { usePurchasesActions } from "../hooks/usePurchasesActions";
+import { usePurchasesSelection } from "../hooks/usePurchasesSelection";
 
 export function formatPurchases(rawDeals = [], t) {
-  return rawDeals.map(deal => ({
+  return rawDeals.map((deal) => ({
     ...deal,
     guid: deal.guid,
     data_nachala: deal.purchase_date || deal.deal_date,
     nazvanie: deal.name,
     Data_sdelki: deal.purchase_date || deal.deal_date,
     Nazvanie: deal.name,
-    partner_name: deal.counterparty_name || '-',
-    kontragent: { nazvanie: deal.counterparty_name || '-' },
-    status: deal.sales_status_name || deal.purchase_status?.[0] || deal.Status?.[0] || t('statusNew'),
+    partner_name: deal.counterparty_name || "-",
+    kontragent: { nazvanie: deal.counterparty_name || "-" },
+    status:
+      deal.sales_status_name ||
+      deal.sales_status_id?.[0] ||
+      deal.Status?.[0] ||
+      t("statusNew"),
     color: deal.sales_status_color || null,
     summa_sdelki: deal?.deal_amount || deal?.total_products_summa || 0,
-    postupilo: deal?.paid_percent != null ? `${Math.round(deal.paid_percent)}%` : (deal?.receipts_percentage ? `${Math.round(deal.receipts_percentage)}%` : '0%'),
-    otgruzheno: deal?.supply_percent != null ? `${Math.round(deal.supply_percent)}%` : (deal?.shipments_percentage ? `${Math.round(deal.shipments_percentage)}%` : '0%'),
+    postupilo:
+      deal?.paid_percent != null
+        ? `${Math.round(deal.paid_percent)}%`
+        : deal?.receipts_percentage
+        ? `${Math.round(deal.receipts_percentage)}%`
+        : "0%",
+    otgruzheno:
+      deal?.supply_percent != null
+        ? `${Math.round(deal.supply_percent)}%`
+        : deal?.shipments_percentage
+        ? `${Math.round(deal.shipments_percentage)}%`
+        : "0%",
     pribyl: deal?.profit,
     comment: deal?.commentary || deal?.Kommentariy,
-  }))
+  }));
 }
 
-
 // ─── Lazy-loaded heavy modals ────────────────────────────────────────────────
-const FilterSidebar = lazy(() => import('@/components/deals/FilterSidebar'))
-const CreateDealModal = lazy(() => import('@/components/deals/CreateDealModal/CreateDealModal').then(m => ({ default: m.CreateDealModal })))
-const CreateStudentModal = lazy(() => import('@/components/deals/CreateStudentModal'))
-const DeleteDealModal = lazy(() => import('@/components/deals/DeleteDealModal/DeleteDealModal').then(m => ({ default: m.DeleteDealModal })))
+const FilterSidebar = lazy(() => import("@/components/deals/FilterSidebar"));
+const CreateDealModal = lazy(() =>
+  import("@/components/deals/CreateDealModal/CreateDealModal").then((m) => ({
+    default: m.CreateDealModal,
+  }))
+);
+const CreateStudentModal = lazy(() =>
+  import("@/components/deals/CreateStudentModal")
+);
+const DeleteDealModal = lazy(() =>
+  import("@/components/deals/DeleteDealModal/DeleteDealModal").then((m) => ({
+    default: m.DeleteDealModal,
+  }))
+);
 
 // ─── Modal Fallback ──────────────────────────────────────────────────────────
 const ModalFallback = () => (
@@ -61,71 +86,101 @@ const ModalFallback = () => (
       <div className="w-8 h-8 border-2 border-neutral-300 border-t-blue-500 rounded-full animate-spin mx-auto" />
     </div>
   </div>
-)
+);
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default observer(function PurchasesPage() {
-  const router = useRouter()
-  const t = useTranslations('Deals')
-  const tc = useTranslations('Common')
-  const mounted = useMounted()
-  const queryClient = useQueryClient()
+  const router = useRouter();
+  const t = useTranslations("Deals");
+  const tc = useTranslations("Common");
+  const mounted = useMounted();
+  const queryClient = useQueryClient();
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   // ── Modal state ────────────────────────────────────────────────────────────
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [showCreateStudentModal, setShowCreateStudentModal] = useState(false)
-  const [dealToDelete, setDealToDelete] = useState(null)
-  const [dealToEdit, setDealToEdit] = useState(null)
-  const [dealToCopy, setDealToCopy] = useState(null)
-  const [canUpdateForms, setCanUpdateForms] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
+  const [dealToDelete, setDealToDelete] = useState(null);
+  const [dealToEdit, setDealToEdit] = useState(null);
+  const [dealToCopy, setDealToCopy] = useState(null);
+  const [canUpdateForms, setCanUpdateForms] = useState(false);
 
-  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
+  const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000);
 
-  const dealPermission = appStore.permission.deals
+  const dealPermission = appStore.permission.deals;
 
   // ── Store state ────────────────────────────────────────────────────────────
   const {
-    selectedCounterparties, dealsMethod, dateRange,
-    amountFrom, amountTo, profitFrom, profitTo,
-    status, search: searchValue, setState,
-  } = sealDeal
+    selectedCounterparties,
+    dealsMethod,
+    dateRange,
+    amountFrom,
+    amountTo,
+    profitFrom,
+    profitTo,
+    status,
+    search: searchValue,
+    setState,
+  } = sealDeal;
 
   // ── Debounced search ───────────────────────────────────────────────────────
   const handleSearch = (value) => {
-    setState('search', value || null)
-  }
+    setState("search", value || null);
+  };
 
-  const dateRanges = toJS(dateRange)
+  const dateRanges = toJS(dateRange);
   // ── Filters ────────────────────────────────────────────────────────────────
-  const dealsFilters = useMemo(() => ({
-    limit: 50,
-    search: searchValue,
-    from_date: dateRanges?.start ? moment(dateRanges?.start).format('YYYY-MM-DD') : null,
-    to_date: dateRanges?.end ? moment(dateRanges?.end).format('YYYY-MM-DD') : null,
-    amount_from: StringtoNumber(amountFrom) || null,
-    amount_to: StringtoNumber(amountTo) || null,
-    profit_from: StringtoNumber(profitFrom) || null,
-    profit_to: StringtoNumber(profitTo) || null,
-    counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
-    status: status?.length > 0 ? status : null,
-    accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
-    isCalculation: false,
-    branch_id: authStore.branch_id,
-  }), [
-    searchValue, dateRanges, amountFrom, amountTo,
-    profitFrom, profitTo, selectedCounterparties,
-    status, dealsMethod, t, authStore.branch_id
-  ])
+  const dealsFilters = useMemo(
+    () => ({
+      limit: 50,
+      search: searchValue,
+      from_date: dateRanges?.start
+        ? moment(dateRanges?.start).format("YYYY-MM-DD")
+        : null,
+      to_date: dateRanges?.end
+        ? moment(dateRanges?.end).format("YYYY-MM-DD")
+        : null,
+      amount_from: StringtoNumber(amountFrom) || null,
+      amount_to: StringtoNumber(amountTo) || null,
+      profit_from: StringtoNumber(profitFrom) || null,
+      profit_to: StringtoNumber(profitTo) || null,
+      counterparty_ids:
+        selectedCounterparties?.length > 0 ? selectedCounterparties : null,
+      status: status?.length > 0 ? status : null,
+      accounting_method:
+        dealsMethod === "accrual_method"
+          ? t("methods.accrual")
+          : t("methods.cash"),
+      isCalculation: false,
+      branch_id: authStore.branch_id,
+    }),
+    [
+      searchValue,
+      dateRanges,
+      amountFrom,
+      amountTo,
+      profitFrom,
+      profitTo,
+      selectedCounterparties,
+      status,
+      dealsMethod,
+      t,
+      authStore.branch_id,
+    ]
+  );
 
   // Outer debounce: delays actual request (1 second)
-  const [requestOperationFilters, setRequestOperationFilters] = useState(dealsFilters)
+  const [requestOperationFilters, setRequestOperationFilters] =
+    useState(dealsFilters);
 
   useEffect(() => {
-    const timer = setTimeout(() => setRequestOperationFilters(dealsFilters), 1000)
-    return () => clearTimeout(timer)
-  }, [dealsFilters])
+    const timer = setTimeout(
+      () => setRequestOperationFilters(dealsFilters),
+      1000
+    );
+    return () => clearTimeout(timer);
+  }, [dealsFilters]);
 
   // ── Data fetching ──────────────────────────────────────────────────────────
   const {
@@ -136,104 +191,129 @@ export default observer(function PurchasesPage() {
     isFetching,
     isLoading,
   } = useUcodeRequestInfinite({
-    method: 'get_purchase_list',
+    method: "get_purchase_list",
     data: requestOperationFilters,
     querySetting: { staleTime: 0, cacheTime: 0 },
-  })
+  });
 
   const allDeals = useMemo(
-    () => infiniteData?.pages?.flatMap(p => p?.data?.data || []) || [],
+    () => infiniteData?.pages?.flatMap((p) => p?.data?.data || []) || [],
     [infiniteData]
-  )
+  );
 
   const summary = useMemo(
     () => infiniteData?.pages?.[0]?.data?.summary,
     [infiniteData]
-  )
+  );
 
   const formattedDeals = useMemo(
     () => formatPurchases(allDeals, t),
     [allDeals, t]
-  )
+  );
 
-  const totalProfit = dealsMethod === 'accrual_method'
-    ? summary?.accrual_profit
-    : summary?.cash_profit
+  const totalProfit =
+    dealsMethod === "accrual_method"
+      ? summary?.accrual_profit
+      : summary?.cash_profit;
 
   // ── Export ─────────────────────────────────────────────────────────────────
   const { mutate: exportDeals, isPending: isDealsExportLoading } = useMutation({
-    mutationKey: ['export_purchases'],
-    mutationFn: () => apiClient.invokeFunction({ method: 'export_deals', data: dealsFilters }),
+    mutationKey: ["export_purchases"],
+    mutationFn: () =>
+      apiClient.invokeFunction({ method: "export_deals", data: dealsFilters }),
     onSuccess: (uploadData) => {
-      showSuccessNotification(t('fileDownloaded'))
-      const link = uploadData?.data?.link
-      if (link) handleDownload(`https://cdn.u-code.io/${link}`, 'balance_report.xlsx')
+      showSuccessNotification(t("fileDownloaded"));
+      const link = uploadData?.data?.link;
+      if (link)
+        handleDownload(`https://cdn.u-code.io/${link}`, "balance_report.xlsx");
     },
-  })
+  });
 
   // ── Delete ─────────────────────────────────────────────────────────────────
-  const { mutate: deleteDeal, isPending: isDeletingDeal } = useUcodeRequestMutation()
+  const { mutate: deleteDeal, isPending: isDeletingDeal } =
+    useUcodeRequestMutation();
 
   const confirmDelete = () => {
-    if (!dealToDelete) return
+    if (!dealToDelete) return;
     deleteDeal(
-      { method: 'delete_purchase_transaction', data: { guid: dealToDelete.guid, branch_id: authStore.branch_id } },
+      {
+        method: "delete_purchase_transaction",
+        data: { guid: dealToDelete.guid, branch_id: authStore.branch_id },
+      },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['get_purchase_list'] })
-          removeSelected(dealToDelete.guid)
-          setDealToDelete(null)
+          queryClient.invalidateQueries({ queryKey: ["get_purchase_list"] });
+          removeSelected(dealToDelete.guid);
+          setDealToDelete(null);
         },
       }
-    )
-  }
+    );
+  };
 
   // ── Selection ──────────────────────────────────────────────────────────────
-  const { selectedDeals, isAllSelected, handleSelectAll, handleSelectOne, removeSelected } =
-    usePurchasesSelection(formattedDeals)
+  const {
+    selectedDeals,
+    isAllSelected,
+    handleSelectAll,
+    handleSelectOne,
+    removeSelected,
+  } = usePurchasesSelection(formattedDeals);
 
   // ── Row actions ────────────────────────────────────────────────────────────
-  const { handleRowClick, handleDeleteClick, handleEditClick, handleCopyClick, handleUpdate } =
-    usePurchasesActions({
-      router,
-      dealPermission,
-      setDealToDelete,
-      setDealToEdit,
-      setDealToCopy,
-      setIsCreateModalOpen,
-      setShowCreateStudentModal,
-      setCanUpdateForms,
-    })
+  const {
+    handleRowClick,
+    handleDeleteClick,
+    handleEditClick,
+    handleCopyClick,
+    handleUpdate,
+  } = usePurchasesActions({
+    router,
+    dealPermission,
+    setDealToDelete,
+    setDealToEdit,
+    setDealToCopy,
+    setIsCreateModalOpen,
+    setShowCreateStudentModal,
+    setCanUpdateForms,
+  });
 
   // ── Modal closers ──────────────────────────────────────────────────────────
   const closeCreateModal = () => {
-    setIsCreateModalOpen(false)
-    setDealToEdit(null)
-    setDealToCopy(null)
-  }
+    setIsCreateModalOpen(false);
+    setDealToEdit(null);
+    setDealToCopy(null);
+  };
 
   const closeStudentModal = () => {
-    setShowCreateStudentModal(false)
-  }
+    setShowCreateStudentModal(false);
+  };
 
   // ── Guard ──────────────────────────────────────────────────────────────────
-  if (!mounted) return null
+  if (!mounted) return null;
 
   const methodOptions = [
-    { value: 'accrual_method', label: t('methods.accrual') },
-    { value: 'cash_method', label: t('methods.cash') },
-  ]
+    { value: "accrual_method", label: t("methods.accrual") },
+    { value: "cash_method", label: t("methods.cash") },
+  ];
 
   return (
     <FixedContent>
       {/* ── Filter Sidebar (lazy) ── */}
-      <Suspense fallback={<div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />}>
+      <Suspense
+        fallback={
+          <div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />
+        }
+      >
         <FilterSidebar onOpenChange={setIsFilterOpen} isPurchase />
       </Suspense>
 
       {/* ── Main content ── */}
-      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
-
+      <main
+        id="scrollableDiv"
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="w-full relative overflow-y-auto scroll-smooth bg-white px-2"
+      >
         <PurchasesHeader
           t={t}
           dealPermission={dealPermission}
@@ -245,10 +325,10 @@ export default observer(function PurchasesPage() {
           onExport={exportDeals}
           onCreateDeal={() => setIsCreateModalOpen(true)}
           onCreateStudent={() => {
-            setShowCreateStudentModal(true)
-            setDealToEdit(null)
+            setShowCreateStudentModal(true);
+            setDealToEdit(null);
           }}
-          onMethodChange={(v) => setState('dealsMethod', v)}
+          onMethodChange={(v) => setState("dealsMethod", v)}
         />
 
         <PurchasesTable
@@ -272,8 +352,12 @@ export default observer(function PurchasesPage() {
           onUpdate={handleUpdate}
         />
         {/* Loaders */}
-        {isLoading && formattedDeals.length === 0 && <ScreenLoader className="left-0!" />}
-        {(isFetchingNextPage || isFetching) && !isScrolling && <ScreenLoader className="left-0!" />}
+        {isLoading && formattedDeals.length === 0 && (
+          <ScreenLoader className="left-0!" />
+        )}
+        {(isFetchingNextPage || isFetching) && !isScrolling && (
+          <ScreenLoader className="left-0!" />
+        )}
       </main>
 
       <PurchasesFooter
@@ -301,7 +385,10 @@ export default observer(function PurchasesPage() {
           isEditing={!!dealToEdit}
           createMethod="create_purchase_transaction"
           updateMethod="update_purchase_transaction"
-          invalidateKeys={['get_purchase_list', 'get_purchase_transaction_by_guid']}
+          invalidateKeys={[
+            "get_purchase_list",
+            "get_purchase_transaction_by_guid",
+          ]}
           redirectBase="/purchases"
           isPurchase
         />
@@ -313,13 +400,18 @@ export default observer(function PurchasesPage() {
           onClose={() => setDealToDelete(null)}
           onConfirm={confirmDelete}
           isDeleting={isDeletingDeal}
-          deal={dealToDelete ? {
-            name: dealToDelete.nazvanie || dealToDelete.guid?.substring(0, 8),
-            client: dealToDelete.kontragent?.nazvanie,
-            amount: formatAmount(dealToDelete.summa_sdelki),
-          } : null}
+          deal={
+            dealToDelete
+              ? {
+                  name:
+                    dealToDelete.nazvanie || dealToDelete.guid?.substring(0, 8),
+                  client: dealToDelete.kontragent?.nazvanie,
+                  amount: formatAmount(dealToDelete.summa_sdelki),
+                }
+              : null
+          }
         />
       </Suspense>
     </FixedContent>
-  )
-})
+  );
+});
