@@ -27,10 +27,7 @@ export default function PurchasesTableHeader({ t, tc, isAllSelected, selectedCou
           </div>
           <div className="w-24 flex px-2 items-center justify-end">{tp('table.received')}</div>
           <div className="w-24 flex px-2 items-center justify-end">{tp('table.shipped')}</div>
-          <div className="w-44 flex px-2 items-center justify-end gap-1">
-            <span>{t('table.profit')}</span>
-              <span>{GlobalCurrency?.name}</span>
-          </div>
+          <div className="w-20 shrink-0" aria-hidden="true"></div>
         </>
       )}
     </div>

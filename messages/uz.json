@@ -671,6 +671,12 @@
 			"deleteSupplyTitle": "Yetkazmani o'chirish",
 			"deleteSupplyConfirm": "Haqiqatan ham <strong>{amount}</strong> summadagi yetkazmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
 			"unallocatedExpense": "Taqsimlanmagan xarajat"
+		},
+		"createDealModal": {
+			"titleNew": "Yangi xarid",
+			"titleEdit": "Xaridni tahrirlash",
+			"supplier": "Yetkazib beruvchi",
+			"supplierPlaceholder": "Tovar yoki xizmatni kimdan xarid qilayotganingizni ko'rsating"
 		}
 	},
 	"Deals": {

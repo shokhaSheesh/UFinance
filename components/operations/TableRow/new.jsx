@@ -228,7 +228,18 @@ const TableRow = observer(({
         {/* Project/Deal */}
         <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
           {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка" || op.tip === "Поставка") && (
-            <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op?.sales_transaction_name || '-'}</p>
+            op?.sales_transaction_name || op?.purchase_transaction_name ? (
+              <div className='flex flex-col items-center justify-center w-full'>
+                {op?.sales_transaction_name && (
+                  <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op.sales_transaction_name}</p>
+                )}
+                {op?.purchase_transaction_name && (
+                  <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op.purchase_transaction_name}</p>
+                )}
+              </div>
+            ) : (
+              <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>-</p>
+            )
           )}
           {op.tip === "Начисление" && (
             <div className='flex flex-col items-center justify-center relative group w-full'>
@@ -262,7 +273,7 @@ const TableRow = observer(({
             confirmed={op.payment_confirmed}
             accrual={op.payment_accrual}
             currency={op.currency}
-            dealId={op?.sales_transactions_id}
+            dealId={op?.sales_transactions_id || op?.purchase_transactions_id}
             toCurrency={op?.to_currenies_kod}
           />
         </div>
@@ -336,7 +347,7 @@ const TableRow = observer(({
               confirmed={part.payment_confirmed}
               accrual={part.payment_accrual}
               currency={part.currency}
-              dealId={op?.sales_transactions_id}
+              dealId={op?.sales_transactions_id || op?.purchase_transactions_id}
             />
           </div>
 

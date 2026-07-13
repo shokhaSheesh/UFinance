@@ -15,7 +15,6 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
@@ -197,9 +196,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
             </thead>
             <tbody className='w-full'>
               {dealOperations?.map((item) => {
-                const isDebit = item.tip === 'Выплата' && item.payment_confirmed && !item.payment_accrual;
-
-                const isCredit = item.tip === 'Выплата' && !item.payment_confirmed && item.payment_accrual;
                 const isActive = !item?.payment_confirmed && !item?.payment_accrual
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
@@ -210,8 +206,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
                     <td className={`p-3 text-right w-40`}>
                       <div className="flex items-center justify-end gap-2 h-6">
                         <div className="flex items-center gap-1">
-                          <span className='flex items-center gap-1'>{isDebit && <DebitIcon />}
-                            {isCredit && <CreditIcon />}</span>
                           <p className={`font-base text-red-600`}>
                             {'-'}{formatAmount(item.summa)} {item.currency}
                           </p>

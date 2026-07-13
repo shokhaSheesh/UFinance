@@ -3,6 +3,7 @@
 import CustomDatePicker from '@/components/shared/DatePicker';
 import Input from '@/components/shared/Input';
 import { useQueryClient } from '@tanstack/react-query';
+import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,8 +17,9 @@ import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
 import TextArea from '../../shared/TextArea';
 
-export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals' }) {
+export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals', isPurchase = false }) {
   const t = useTranslations('Deals.createDealModal');
+  const tp = useTranslations('Purchases.createDealModal');
 
   const ndsOptions = [
     { value: 'true', label: t('vatWith') },
@@ -77,12 +79,15 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       deal_date: formattedDate,
       name: dealName,
       counterparties_id: client || null,
-      nds: nds === 'true',
       commentary: comment,
       currenies_id: appStore?.currency?.guid,
       status: ["Новая"],
       branch_id: authStore.branch_id,
     };
+
+    if (!isPurchase) {
+      payload.nds = nds === 'true';
+    }
 
     if (isEditing && initialData?.guid) {
       payload.guid = initialData.guid;
@@ -112,8 +117,17 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
         <h2 className="font-sans font-semibold text-lg leading-7 text-gray-900 m-0">
-          {isEditing ? t('titleEdit') : t('titleNew')}
+          {isPurchase
+            ? (isEditing ? tp('titleEdit') : tp('titleNew'))
+            : (isEditing ? t('titleEdit') : t('titleNew'))}
         </h2>
+        <button
+          type="button"
+          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+          onClick={onClose}
+        >
+          <X size={20} />
+        </button>
       </div>
 
       {/* Form */}
@@ -151,31 +165,33 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
         </div>
 
         <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{t('client')}</label>
+          <label className=" col-span-2 flex items-center">{isPurchase ? tp('supplier') : t('client')}</label>
           <div className=" col-span-5">
             <SingleCounterParty
               value={client}
               onChange={value => setClient(value)}
-              placeholder={t('clientPlaceholder')}
+              placeholder={isPurchase ? tp('supplierPlaceholder') : t('clientPlaceholder')}
               className={'bg-white'}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{t('vat')}</label>
-          <div className=" col-span-5">
-            <SingleSelect
-              data={ndsOptions}
-              value={nds}
-              onChange={(val) => setNds(val || '')}
-              withSearch={false}
-              placeholder={t('vatPlaceholder')}
-              className={'bg-white'}
-              isClearable={false}
-            />
+        {!isPurchase && (
+          <div className="grid grid-cols-7">
+            <label className=" col-span-2 flex items-center">{t('vat')}</label>
+            <div className=" col-span-5">
+              <SingleSelect
+                data={ndsOptions}
+                value={nds}
+                onChange={(val) => setNds(val || '')}
+                withSearch={false}
+                placeholder={t('vatPlaceholder')}
+                className={'bg-white'}
+                isClearable={false}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-7">
           <label className=" col-span-2 flex items-center">{t('comment')}</label>

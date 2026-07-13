@@ -264,7 +264,7 @@ export default observer(function PurchaseDetailPage() {
                 className="text-xs xl:text-sm font-medium text-neutral-800 border-b border-dotted border-gray-400 pb-0.5 cursor-pointer hover:text-primary transition-colors flex items-center gap-1 group truncate w-full"
                 onClick={() => { setDealToEdit(deal); setIsCreateModalOpen(true); }}
               >
-                <div className="truncate">{summeryCards?.counterparties_name || ''}</div>
+                <div className="truncate">{summeryCards?.counterparty_name || ''}</div>
                 <Pencil size={12} className="text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0" />
               </span>
             </div>
@@ -503,6 +503,7 @@ export default observer(function PurchaseDetailPage() {
         updateMethod="update_purchase_transaction"
         invalidateKeys={['get_purchase_list', 'get_purchase_transaction_by_guid']}
         redirectBase="/deals/purchase"
+        isPurchase
       />
 
       <DeleteDealModal

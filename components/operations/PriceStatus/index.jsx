@@ -27,14 +27,14 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
       {!confirmed && accrual && (tab === 'Поступление') && !dealId && (
         <DebitIcon />
       )}
-      {confirmed && !accrual && (tab === 'Выплата') && (
+      {confirmed && !accrual && (tab === 'Выплата') && !dealId && (
         <DebitIcon />
       )}
       {/* Credit icon (К) - показываем когда confirmed = true И НЕ accrual */}
       {confirmed && !accrual && (tab === 'Поступление') && !dealId && (
         <CreditIcon />
       )}
-      {!confirmed && accrual && (tab === 'Выплата') && (
+      {!confirmed && accrual && (tab === 'Выплата') && !dealId && (
         <CreditIcon />
       )}
 

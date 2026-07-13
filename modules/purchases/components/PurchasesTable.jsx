@@ -16,7 +16,6 @@ export default function PurchasesTable({
   formattedDeals,
   selectedDeals,
   isAllSelected,
-  dealsMethod,
   dealPermission,
   isLoading,
   hasNextPage,
@@ -59,7 +58,6 @@ export default function PurchasesTable({
             <PurchaseRow
               key={deal.guid}
               deal={deal}
-              dealsMethod={dealsMethod}
               dealPermission={dealPermission}
               isSelected={selectedDeals.has(deal.guid)}
               t={t}
@@ -81,7 +79,6 @@ export default function PurchasesTable({
 
 function PurchaseRow({
   deal,
-  dealsMethod,
   dealPermission,
   isSelected,
   t,
@@ -92,10 +89,6 @@ function PurchaseRow({
   onCopyClick,
   onUpdate,
 }) {
-  const price = dealsMethod === 'accrual_method'
-    ? deal?.accrual_method?.profit
-    : deal?.cash_method?.profit
-
   return (
     <div
       onClick={(e) => onRowClick(deal, e)}
@@ -135,13 +128,7 @@ function PurchaseRow({
 
       <div className="w-24 shrink-0 px-2 text-end">{deal.otgruzheno || '0%'}</div>
 
-      <div className="w-44 shrink-0 relative px-2 text-end">
-        <div className="group-hover:hidden">
-          <p className={price < 0 ? 'text-red-600' : 'text-green-600'}>
-            {formatAmount(price)}
-          </p>
-        </div>
-
+      <div className="w-20 shrink-0 relative px-2 text-end">
         <div className="hidden group-hover:flex justify-between">
           <button
             className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"

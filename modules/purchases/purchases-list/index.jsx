@@ -37,7 +37,8 @@ export function formatPurchases(rawDeals = [], t) {
     Nazvanie: deal.name,
     partner_name: deal.counterparty_name || '-',
     kontragent: { nazvanie: deal.counterparty_name || '-' },
-    status: deal.purchase_status?.[0] || deal.Status?.[0] || t('statusNew'),
+    status: deal.sales_status_name || deal.purchase_status?.[0] || deal.Status?.[0] || t('statusNew'),
+    color: deal.sales_status_color || null,
     summa_sdelki: deal?.deal_amount || deal?.total_products_summa || 0,
     postupilo: deal?.paid_percent != null ? `${Math.round(deal.paid_percent)}%` : (deal?.receipts_percentage ? `${Math.round(deal.receipts_percentage)}%` : '0%'),
     otgruzheno: deal?.supply_percent != null ? `${Math.round(deal.supply_percent)}%` : (deal?.shipments_percentage ? `${Math.round(deal.shipments_percentage)}%` : '0%'),
@@ -256,7 +257,6 @@ export default observer(function PurchasesPage() {
           formattedDeals={formattedDeals}
           selectedDeals={selectedDeals}
           isAllSelected={isAllSelected}
-          dealsMethod={dealsMethod}
           dealPermission={dealPermission}
           isLoading={isLoading}
           hasNextPage={hasNextPage}
@@ -303,6 +303,7 @@ export default observer(function PurchasesPage() {
           updateMethod="update_purchase_transaction"
           invalidateKeys={['get_purchase_list', 'get_purchase_transaction_by_guid']}
           redirectBase="/purchases"
+          isPurchase
         />
       </Suspense>
 

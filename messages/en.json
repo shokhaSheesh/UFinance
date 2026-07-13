@@ -673,6 +673,12 @@
 			"deleteSupplyTitle": "Delete supply",
 			"deleteSupplyConfirm": "Are you sure you want to delete the supply for <strong>{amount}</strong>? <br />This cannot be undone.",
 			"unallocatedExpense": "Unallocated expense"
+		},
+		"createDealModal": {
+			"titleNew": "New purchase",
+			"titleEdit": "Edit purchase",
+			"supplier": "Supplier",
+			"supplierPlaceholder": "Specify who you're purchasing goods or services from"
 		}
 	},
 	"Deals": {

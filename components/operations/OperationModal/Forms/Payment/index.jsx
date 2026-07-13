@@ -580,8 +580,8 @@ const PaymentForm = observer(({
                             className={cn("w-[230px]", errors.amount && "border-red-500")}
                           />
                           <span className="flex items-center gap-2">
-                            {isDebit && <DebitIcon />}
-                            {isCredit && <CreditIcon />}
+                            {!watchPurchaseDeal && isDebit && <DebitIcon />}
+                            {!watchPurchaseDeal && isCredit && <CreditIcon />}
                           </span>
                         </div>
                       )}

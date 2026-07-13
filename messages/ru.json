@@ -674,6 +674,12 @@
 			"deleteSupplyTitle": "Удалить поставку",
 			"deleteSupplyConfirm": "Вы действительно хотите удалить поставку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
 			"unallocatedExpense": "Нераспределенный расход"
+		},
+		"createDealModal": {
+			"titleNew": "Новая закупка",
+			"titleEdit": "Редактирование закупки",
+			"supplier": "Поставщик",
+			"supplierPlaceholder": "Укажите, у кого закупаете товар или услугу"
 		}
 	},
 	"Deals": {

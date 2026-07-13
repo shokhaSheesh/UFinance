@@ -1,5 +1,6 @@
 'use client'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { sealDeal } from '@/store/saleDeal.store'
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
@@ -16,6 +17,7 @@ const MultiSelectPurchaseZdelka = ({
   dropdownHeaderItem
 }) => {
   const t = useTranslations('Common')
+  const tDeals = useTranslations('Deals')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
   const handleSearch = useMemo(() =>
@@ -31,7 +33,10 @@ const MultiSelectPurchaseZdelka = ({
     data: {
       page: 1,
       limit: 100,
-      search: debouncedSearch
+      search: debouncedSearch,
+      // get_purchase_list requires these — the main purchases list always sends them too
+      accounting_method: sealDeal.dealsMethod === 'accrual_method' ? tDeals('methods.accrual') : tDeals('methods.cash'),
+      isCalculation: false,
     },
     querySetting: {
       select: (response) => response?.data?.data,
