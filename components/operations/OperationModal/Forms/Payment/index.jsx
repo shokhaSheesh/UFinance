@@ -15,6 +15,7 @@ import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
+import SinglePurchaseZdelka from '../../../../ReadyComponents/SinglePurchaseZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
 import Input from '../../../../shared/Input'
 import SingleSelect from '../../../../shared/Selects/SingleSelect'
@@ -268,6 +269,7 @@ const PaymentForm = observer(({
   onSuccess,
   preselectedCounterparty = null,
   defaultDealGuid = null,
+  defaultPurchaseDealGuid = null,
   chart_of_accounts_id = null
 }) => {
 
@@ -293,6 +295,7 @@ const PaymentForm = observer(({
         chartOfAccount: raw.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.sales_transactions_id || defaultDealGuid || null,
+        purchaseDeal: raw.purchase_transactions_id || defaultPurchaseDealGuid || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || raw.currencyId || 'RUB',
       }
@@ -309,10 +312,11 @@ const PaymentForm = observer(({
       chartOfAccount: chart_of_accounts_id || null,
       paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
+      purchaseDeal: defaultPurchaseDealGuid || null,
       purpose: '',
       currency: '',
     }
-  }, [initialData, isNew, chart_of_accounts_id, preselectedCounterparty, defaultDealGuid])
+  }, [initialData, isNew, chart_of_accounts_id, preselectedCounterparty, defaultDealGuid, defaultPurchaseDealGuid])
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     defaultValues
@@ -362,6 +366,7 @@ const PaymentForm = observer(({
   const watchAmount = watch('amount')
   const watchCurrency = watch('currency')
   const watchSalesDeal = watch('salesDeal')
+  const watchPurchaseDeal = watch('purchaseDeal')
   const watchPaymentDate = watch('paymentDate')
 
   const watchAccrualDate = watch('accrualDate')
@@ -384,14 +389,15 @@ const PaymentForm = observer(({
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
       data_operatsii: formatDateParseZone(data?.paymentDate),
-      data_nachisleniya: formatDateParseZone(data?.accrualDate),
+      data_nachisleniya: watchPurchaseDeal ? formatDateParseZone(data?.paymentDate) : formatDateParseZone(data?.accrualDate),
       payment_confirmed: data?.confirmPayment,
-      payment_accrual: data?.confirmAccrual,
+      payment_accrual: watchPurchaseDeal ? false : data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
       my_accounts_id: watchAccount,
       legal_entity_id: authStore?.userData?.legal_entity_id,
       chart_of_accounts_id: chart_of_accounts_id || data?.chartOfAccount,
       sales_transactions_id: watchSalesDeal,
+      purchase_transactions_id: watchPurchaseDeal || null,
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
@@ -403,8 +409,8 @@ const PaymentForm = observer(({
         ...(item?.guid ? { guid: item?.guid } : null),
         summa: formatDecimal(StringtoNumber(item?.value)),
         percent: Number(item?.percent),
-        data_nachisleniya: moment(showDate && !watchSalesDeal ? (item?.calculationDate) : data?.accrualDate).format('YYYY-MM-DD'),
-        payment_accrual: showDate && !watchSalesDeal ? item?.isCalculationCommitted : data?.confirmAccrual,
+        data_nachisleniya: watchPurchaseDeal ? moment(data?.paymentDate).format('YYYY-MM-DD') : moment(showDate && !watchSalesDeal ? (item?.calculationDate) : data?.accrualDate).format('YYYY-MM-DD'),
+        payment_accrual: watchPurchaseDeal ? false : (showDate && !watchSalesDeal ? item?.isCalculationCommitted : data?.confirmAccrual),
         counterparties_id: showAgent ? (item?.contrAgentId || null) : null,
         chart_of_accounts_id: showStatya ? (item?.operationCategoryId || null) : null,
       }))
@@ -442,6 +448,7 @@ const PaymentForm = observer(({
       queryClient.invalidateQueries({ queryKey: ['operations'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      queryClient.invalidateQueries({ queryKey: ['get_purchase_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
       queryClient.invalidateQueries({ queryKey: ['legalEntitiesPlanFact'] })
@@ -573,8 +580,8 @@ const PaymentForm = observer(({
                             className={cn("w-[230px]", errors.amount && "border-red-500")}
                           />
                           <span className="flex items-center gap-2">
-                            {isDebit && <DebitIcon />}
-                            {isCredit && <CreditIcon />}
+                            {!watchPurchaseDeal && isDebit && <DebitIcon />}
+                            {!watchPurchaseDeal && isCredit && <CreditIcon />}
                           </span>
                         </div>
                       )}
@@ -608,7 +615,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4 ")}>
+              <div className={cn("flex items-center gap-4", watchPurchaseDeal && "opacity-50")}>
                 <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
@@ -616,8 +623,10 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <FormDatepicker
-                        value={field.value}
+                        value={watchPurchaseDeal ? watchPaymentDate : field.value}
+                        disabled={!!watchPurchaseDeal}
                         onChange={(val) => {
+                          if (watchPurchaseDeal) return
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
@@ -627,16 +636,17 @@ const PaymentForm = observer(({
                       />
                     )}
                   />
-                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && <WarnIcon />}</span>
+                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && !watchPurchaseDeal && <WarnIcon />}</span>
                   <Controller
                     name="confirmAccrual"
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={field.value}
+                        checked={watchPurchaseDeal ? false : field.value}
+                        disabled={!!watchPurchaseDeal}
                         label={t('confirmAccrual')}
                         onChange={(e) => {
-                          if ((isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
+                          if (watchPurchaseDeal || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />
@@ -715,6 +725,26 @@ const PaymentForm = observer(({
                 </div>
               </div>
             )}
+
+            <div className="flex items-center gap-4">
+              <label className="w-[150px] text-xss">{t('purchaseDeal')}</label>
+              <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
+                <Controller
+                  name="purchaseDeal"
+                  control={control}
+                  render={({ field }) => (
+                    <SinglePurchaseZdelka
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={t('purchaseDealPlaceholder')}
+                      className='bg-white border rounded-md h-[36px]!'
+                      hasError={!!errors.purchaseDeal}
+                    />
+                  )}
+                />
+                {errors.purchaseDeal && <span className="text-xs text-red-500">{errors.purchaseDeal.message}</span>}
+              </div>
+            </div>
 
             <div className="flex items-center gap-4">
               <label className="w-[150px] text-xss">{t('salesDeal')}</label>

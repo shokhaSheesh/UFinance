@@ -1,4 +1,31 @@
 {
+	"Warehouse": {
+		"pageTitle": "Mening omborim",
+		"searchPlaceholder": "Nom bo'yicha qidirish",
+		"empty": "Ombor bo'sh",
+		"columns": {
+			"name": "Nomi",
+			"artikul": "Artikul",
+			"balance": "Qoldiq",
+			"waiting": "Kutilmoqda",
+			"available": "Mavjud",
+			"unit": "O'lchov birligi",
+			"daysInStock": "Omborda kun",
+			"cost": "Tannarx",
+			"totalCost": "Tannarx summasi",
+			"salePrice": "Sotuv narxi",
+			"saleTotal": "Sotuv summasi"
+		},
+		"footer": {
+			"positions": "Pozitsiyalar",
+			"totalBalance": "Umumiy qoldiq",
+			"waitingBalance": "Kutilayotgan qoldiq",
+			"availableBalance": "Mavjud qoldiq",
+			"totalCost": "Tannarx summasi",
+			"totalSale": "Sotuv summasi",
+			"pageInfo": "{total} tadan {from}-{to}"
+		}
+	},
 	"filter": "Filtrlar",
 	"search": "Qidirish...",
 	"Common": {
@@ -122,10 +149,16 @@
 			"operations": "Operatsiyalar",
 			"counterparties": "Hamkorlar",
 			"deals": "Bitimlar",
+			"purchases": "Xaridlar",
+			"dealsSelling": "Sotuvlar",
+			"dealsSellingDesc": "Tovar sotadigan yoki xizmat ko'rsatadigan bitimlar",
+			"dealsPurchase": "Xaridlar",
+			"dealsPurchaseDesc": "Tovar xarid qiladigan yoki xizmat oladigan bitimlar",
 			"reports": "Hisobotlar",
 			"directories": "Ma'lumotlar",
 			"settings": "Sozlamalar",
-			"plans": "Rejalar"
+			"plans": "Rejalar",
+			"warehouse": "Mening omborim"
 		},
 		"plans": {
 			"cash_flow_budget": "Pul oqimi byudjeti",
@@ -331,10 +364,12 @@
 			"debit": "Debet",
 			"credit": "Kredit",
 			"shipment": "Jo'natma",
+			"supply": "Yetkazib berish",
 			"legalEntitiesPlaceholder": "Yuridik shaxs va hisoblar",
 			"counterpartiesPlaceholder": "Hamkorlar",
 			"chartOfAccountsPlaceholder": "Hisob moddalari",
 			"dealsPlaceholder": "Bitimlar",
+			"purchaseDealsPlaceholder": "Xarid bitimlari",
 			"paymentTypePlaceholder": "To'lov turi",
 			"amountFrom": "Summa, dan",
 			"amountTo": "gacha"
@@ -399,6 +434,8 @@
 			"paymentTypePlaceholder": "To'lov turini tanlang...",
 			"salesDeal": "Sotuv bitimi",
 			"salesDealPlaceholder": "Bitimni tanlang...",
+			"purchaseDeal": "Xarid bitimi",
+			"purchaseDealPlaceholder": "Xarid bitimini tanlang...",
 			"purpose": "To'lov maqsadi",
 			"purposePlaceholder": "To'lov maqsadi",
 			"purposeRequired": "To'lov maqsadini kiriting",
@@ -602,6 +639,46 @@
 		"openInOperations": "Operatsiyalar bo'limida ochish",
 		"close": "Yopish"
 	},
+	"Purchases": {
+		"pageTitle": "Xarid bo'yicha bitimlar",
+		"backToList": "Xarid bo'yicha bitimlar",
+		"table": {
+			"client": "Yetkazib beruvchi",
+			"received": "To'langan",
+			"shipped": "Yetkazilgan"
+		},
+		"filters": {
+			"sectionTitle": "Bitim parametrlari",
+			"selectSuppliers": "Yetkazib beruvchilar",
+			"createdDate": "Yaratilgan sana"
+		},
+		"createSupply": {
+			"titleNew": "Yangi yetkazma",
+			"titleEdit": "Yetkazmani tahrirlash",
+			"supplyDate": "Yetkazma sanasi",
+			"plannedSupply": "Rejalashtirilgan yetkazma",
+			"supplier": "Yetkazib beruvchi",
+			"supplierRequired": "Yetkazib beruvchini tanlang",
+			"expenseArticle": "Xarid xarajat moddasi",
+			"undistributedExpense": "Taqsimlanmagan xarajat",
+			"removeFromSupply": "Yetkazmadan olib tashlash",
+			"supplySum": "Yetkazma summasi",
+			"products": "Yetkazma uchun tovar/xizmatlar"
+		},
+		"supplyTable": {
+			"emptyTitle": "Bitimga yetkazmalar qo'shing",
+			"emptySubtitle": "Majburiyatlar bajarilishini nazorat qilish uchun tovar/xizmat yetkazmalarini hisobga oling",
+			"deleteSupplyTitle": "Yetkazmani o'chirish",
+			"deleteSupplyConfirm": "Haqiqatan ham <strong>{amount}</strong> summadagi yetkazmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+			"unallocatedExpense": "Taqsimlanmagan xarajat"
+		},
+		"createDealModal": {
+			"titleNew": "Yangi xarid",
+			"titleEdit": "Xaridni tahrirlash",
+			"supplier": "Yetkazib beruvchi",
+			"supplierPlaceholder": "Tovar yoki xizmatni kimdan xarid qilayotganingizni ko'rsating"
+		}
+	},
 	"Deals": {
 		"pageTitle": "Sotish bo'yicha bitimlar",
 		"createDeal": "Yaratish",
@@ -646,8 +723,10 @@
 			"cards": {
 				"type": "Turi",
 				"client": "Mijoz",
+				"supplier": "Yetkazib beruvchi",
 				"created": "Yaratilgan",
 				"sale": "Sotish",
+				"purchase": "Xarid",
 				"receipts": "Tushumlar",
 				"shipments": "Mijozga yuklash",
 				"profit": "Bitim foydasi",
@@ -675,7 +754,8 @@
 				"products": "Sotish uchun tovarlar yoki xizmatlarni tanlang",
 				"receipts": "Sotilgan tovarlar yoki ko'rsatilgan xizmatlar uchun mijoz to'lovlari",
 				"expenses": "Bitim bo'yicha xarajatlar",
-				"shipments": "Mijozga yuklagan tovarlar va xizmatlar"
+				"shipments": "Mijozga yuklagan tovarlar va xizmatlar",
+				"supplies": "Yetkazib beruvchidan olingan tovar va xizmatlar"
 			},
 			"searchPlaceholder": "Qidirish",
 			"addButton": "Qo'shish",
@@ -1277,9 +1357,12 @@
 				"name": "Nomi",
 				"fullName": "To'liq nomi",
 				"group": "Hamkorlar guruhi",
+				"address": "Manzil",
 				"inn": "INN",
-				"kpp": "KPP",
+				"kpp": "OKED",
 				"accountNumber": "Hisob raqami",
+				"bank": "Bank",
+				"mfo": "MFO",
 				"defaultArticles": "Standart bo'yicha moddalar qo'llash",
 				"articleIn": "Kirimlar uchun modda",
 				"articleOut": "Chiqimlar uchun modda",
@@ -1292,8 +1375,11 @@
 				"fullName": "Masalan, Vasiliev va hamkorlari MChJ",
 				"selectGroup": "Hamkorlar guruhini tanlang",
 				"inn": "INN kiriting",
-				"kpp": "KPP kiriting",
+				"kpp": "OKED kiriting",
 				"account": "Hisob raqamini kiriting",
+				"address": "Manzilni kiriting",
+				"bank": "Bankni kiriting",
+				"mfo": "MFO ni kiriting",
 				"comment": "Tomonga izoh",
 				"groupComment": "Hamkorlar guruhiga izoh",
 				"groupName": "Masalan, yetkazib beruvchilarim"
@@ -1395,14 +1481,17 @@
 				"info": {
 					"title": "Rekvizitlar",
 					"inn": "INN",
-					"kpp": "KPP",
+					"kpp": "OKED",
 					"accountNumber": "Hisob raqami",
+					"bank": "Bank",
+					"mfo": "MFO",
+					"address": "Manzil",
 					"receiptArticle": "Kirimlar uchun modda",
 					"paymentArticle": "Chiqimlar uchun modda",
 					"comment": "Izoh",
 					"noRequisites": "Tomon rekvizitlari mavjud emas",
 					"addRequisites": "Qo'shish",
-					"additionalKpp": "Qo'shimcha KPP",
+					"additionalKpp": "Qo'shimcha OKED",
 					"additionalAccounts": "Qo'shimcha hisob raqamlari"
 				},
 				"table": {

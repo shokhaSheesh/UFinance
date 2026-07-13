@@ -102,9 +102,12 @@ export function buildCounterpartyInfo(counterparty, tc) {
   return {
     name: counterparty.nazvanie || tc('noName'),
     fullName: counterparty.polnoe_imya || '',
+    address: counterparty.address || null,
     inn: counterparty.inn && counterparty.inn !== 0 ? counterparty.inn : null,
     kpp: (Array.isArray(counterparty.kpp) ? counterparty.kpp.filter(v => v !== null && v !== '') : (counterparty.kpp && counterparty.kpp !== 0 ? [counterparty.kpp] : [])),
     accountNumber: (Array.isArray(counterparty.account_number) ? counterparty.account_number.filter(v => v !== null && v !== '') : (counterparty.account_number && counterparty.account_number !== 0 ? [counterparty.account_number] : [])),
+    bank: counterparty.bank || null,
+    mfo: counterparty.mfo && counterparty.mfo !== 0 ? counterparty.mfo : null,
     receiptArticle: counterparty.chart_of_accounts_name || (counterparty.chart_of_accounts_id ? '-' : null),
     paymentArticle: counterparty.chart_of_accounts_name_2 || (counterparty.chart_of_accounts_id_2 ? '-' : null),
     comment: counterparty.komentariy || null,

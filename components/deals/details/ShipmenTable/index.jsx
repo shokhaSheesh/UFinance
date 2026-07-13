@@ -17,8 +17,21 @@ import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
-const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
+const ShipmenTable = ({
+  dealName = '', dealGuid = '', onAdd, canAdd,
+  listMethod = 'list_sales_operations',
+  dealIdField = 'sales_transaction_id',
+  deleteMethod = 'delete_shipment_transaction',
+  createMethod = 'create_shipment_transaction',
+  updateMethod = 'update_shipment_transaction',
+  getMethod = 'get_shipment_transaction',
+  operationType = ['Отгрузка'],
+  invalidateKeys = ['list_sales_operations', 'get_sales_transaction', 'get_sales_transaction_by_guid', 'get_counterparty_by_id'],
+  listTab = 'shipment',
+  isPurchase = false,
+}) => {
   const t = useTranslations('Directories.details.shipmentTable')
+  const tp = useTranslations('Purchases.supplyTable')
 
   const [showModal, setShowModal] = useState(false)
   const [selectedShipment, setSelectedShipment] = useState(null)
@@ -38,15 +51,16 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading
+    isLoading,
+    refetch
   } = useInfiniteQuery({
-    queryKey: ['list_sales_operations', dealGuid, 'shipment'],
+    queryKey: [listMethod, dealGuid, 'shipment'],
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
-      method: "list_sales_operations",
+      method: listMethod,
       data: {
         object_data: {
-          sales_transaction_id: dealGuid,
-          tab: 'shipment',
+          [dealIdField]: dealGuid,
+          ...(listTab ? { tab: listTab } : {}),
           search: "",
           page: pageParam,
           limit: LIMIT
@@ -54,7 +68,7 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
       }
     }),
     getNextPageParam: (lastPage) => {
-      const pagination = lastPage?.data?.data?.pagination
+      const pagination = lastPage?.data?.data?.pagination || lastPage?.data?.pagination
       if (!pagination) return undefined
       const { page, totalPages } = pagination
       return page < totalPages ? page + 1 : undefined
@@ -67,13 +81,17 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
   const { mutateAsync: deleteShipment, isPending: isDeleting } = useUcodeRequestMutation()
 
   const shipmentsList = useMemo(() => {
-    const allItems = infiniteData?.pages?.flatMap(page => page?.data?.data?.items || []) || []
+    const allItems = infiniteData?.pages?.flatMap(page => {
+      const dd = page?.data?.data
+      if (Array.isArray(dd)) return dd
+      return dd?.items || []
+    }) || []
     return shipmentsDto(allItems)
   }, [infiniteData])
 
   const summury = useMemo(() => {
     const lastPage = infiniteData?.pages?.[infiniteData.pages.length - 1]
-    return lastPage?.data?.data?.summary
+    return lastPage?.data?.data?.summary || lastPage?.data?.summary
   }, [infiniteData])
 
   // Keep latest fetch state in a ref so the observer never goes stale
@@ -119,15 +137,19 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
     if (!shipmentToDelete) return;
     try {
       await deleteShipment({
-        "method": "delete_shipment_transaction",
+        "method": deleteMethod,
         "data": {
           "guid": shipmentToDelete.guid
         }
       })
-      queryClient.invalidateQueries({ queryKey: ["list_sales_operations"] })
-      queryClient.invalidateQueries({ queryKey: ["get_sales_transaction"] })
-      queryClient.invalidateQueries({ queryKey: ["get_sales_transaction_by_guid"] })
-      queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      invalidateKeys.forEach(key => {
+        if (key === 'get_sales_transaction_by_guid' || key === 'get_purchase_transaction_by_guid') {
+          queryClient.invalidateQueries({ queryKey: [key, { guid: dealGuid }] })
+        } else {
+          queryClient.invalidateQueries({ queryKey: [key] })
+        }
+      })
+      queryClient.refetchQueries({ queryKey: [listMethod, dealGuid, 'shipment'] })
       setShowDeleteModal(false)
       setShipmentToDelete(null)
     } catch (error) {
@@ -144,8 +166,8 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
   if (shipmentsList?.length === 0) {
     return (
       <EmptyState
-        title={t('emptyTitle')}
-        subtitle={t('emptySubtitle')}
+        title={isPurchase ? tp('emptyTitle') : t('emptyTitle')}
+        subtitle={isPurchase ? tp('emptySubtitle') : t('emptySubtitle')}
         onAdd={onAdd}
         canAdd={canAdd}
       />
@@ -197,11 +219,11 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
                         </PopoverContent>
                       </Popover>
                     ) : (
-                        <span className="text-neutral-400">{t('goodsServices')}</span>
+                      <span className="text-neutral-400">{t('goodsServices')}</span>
                     )}
                   </td>
-                  {/* Нераспределенный доход */}
-                  <td className="px-4 py-3 text-left w-[200px]">{item?.chartOfAccounts || t('unallocatedIncome')}</td>
+                  {/* Нераспределенный доход / расход */}
+                  <td className="px-4 py-3 text-left w-[200px]">{item?.chartOfAccounts || (isPurchase ? tp('unallocatedExpense') : t('unallocatedIncome'))}</td>
                   <td className={`px-4 py-3  w-52 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">
                       <p className={`font-base text-neutral-600`}>
@@ -240,13 +262,26 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
       {showModal && (
         <CreateShipment
           open={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false)
+            setSelectedShipment(null)
+            setIsEditing(false)
+            setIsCopying(false)
+            queryClient.refetchQueries({ queryKey: [listMethod, dealGuid, 'shipment'] })
+          }}
           initialData={selectedShipment}
           isEditing={isEditing}
           isCopying={isCopying}
           dealName={dealName}
           dealGuid={dealGuid}
           kontragentId={selectedShipment?.counterparties_id}
+          createMethod={createMethod}
+          updateMethod={updateMethod}
+          getMethod={getMethod}
+          dealIdField={dealIdField}
+          operationType={operationType}
+          invalidateKeys={invalidateKeys}
+          isPurchase={isPurchase}
         />
       )}
 
@@ -254,12 +289,14 @@ const ShipmenTable = ({ dealName = '', dealGuid = '', onAdd, canAdd }) => {
         <CustomModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
           <div className='p-2 flex flex-col'>
             <div className='flex justify-between items-center border-b border-gray-100 pb-2'>
-              <h2 className='text-xl font-bold text-neutral-800'>{t('deleteShipmentTitle')}</h2>
+              <h2 className='text-xl font-bold text-neutral-800'>{isPurchase ? tp('deleteSupplyTitle') : t('deleteShipmentTitle')}</h2>
             </div>
 
             <div className='py-6 text-base text-neutral-700'
               dangerouslySetInnerHTML={{
-                __html: t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+                __html: isPurchase
+                  ? tp('deleteSupplyConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+                  : t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
               }}
             />
 

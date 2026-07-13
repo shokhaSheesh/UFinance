@@ -15,11 +15,10 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { CreditIcon, DebitIcon } from '@/constants/icons'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
+const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Выплата", "Начисление"], isPurchase = false }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -49,8 +48,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_operations_by_query",
       data: {
-        sellingDealId: [sellingDealId],
-        tip: ["Выплата", "Начисление"],
+        [dealIdField]: [sellingDealId],
+        tip: tipTypes,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,
@@ -75,8 +74,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     queryFn: () => apiClient.invokeFunction({
       method: "summary_operations",
       data: {
-        sellingDealId: [sellingDealId],
-        tip: ["Выплата", "Начисление"],
+        [dealIdField]: [sellingDealId],
+        tip: tipTypes,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,
@@ -116,6 +115,12 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     return () => container.removeEventListener('scroll', handleScroll)
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
+
+  if (isLoading) {
+    return <div className='flex items-center justify-center flex-1'>
+      <Loader2 className='animate-spin text-primary' size={24} />
+    </div>
+  }
 
   if (dealOperations?.length === 0) {
     return (
@@ -166,21 +171,13 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       await deleteOperationMutation.mutateAsync([guid])
       setIsDeleteModalOpen(false)
       setOperationToDelete(null)
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
     }
   }
-
-  if (isLoading) {
-    return <div className='flex items-center justify-center flex-1'>
-      <Loader2 className='animate-spin text-primary' size={24} />
-    </div>
-  }
-
-
 
   return (
     <>
@@ -199,9 +196,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
             </thead>
             <tbody className='w-full'>
               {dealOperations?.map((item) => {
-                const isDebit = item.tip === 'Выплата' && item.payment_confirmed && !item.payment_accrual;
-
-                const isCredit = item.tip === 'Выплата' && !item.payment_confirmed && item.payment_accrual;
                 const isActive = !item?.payment_confirmed && !item?.payment_accrual
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
@@ -212,8 +206,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
                     <td className={`p-3 text-right w-40`}>
                       <div className="flex items-center justify-end gap-2 h-6">
                         <div className="flex items-center gap-1">
-                          <span className='flex items-center gap-1'>{isDebit && <DebitIcon />}
-                            {isCredit && <CreditIcon />}</span>
                           <p className={`font-base text-red-600`}>
                             {'-'}{formatAmount(item.summa)} {item.currency}
                           </p>
@@ -262,7 +254,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
           operation={selectedOperation}
           isClosing={isModalClosing}
           isOpening={isModalOpening}
-          defaultDealGuid={sellingDealId}
+          defaultDealGuid={isPurchase ? undefined : sellingDealId}
+          defaultPurchaseDealGuid={isPurchase ? sellingDealId : undefined}
           onClose={() => {
             setIsModalClosing(true)
             setTimeout(() => {
@@ -271,7 +264,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
             }, 300)
           }}
           onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+            invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
             setShowModal(false)
           }}
           initialTab={modalType}

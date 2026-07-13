@@ -103,9 +103,12 @@ export default function CreateCounterpartyModal({
         nazvanie: '',
         polnoe_imya: '',
         counterparties_group_id: preselectedGroupId || '',
+        address: '',
         inn: '',
         kpp: [{ value: '' }],
         account_number: [{ value: '' }],
+        bank: '',
+        mfo: '',
         primenyat_stat_i_po_umolchaniyu: false,
         chart_of_accounts_id: '',
         chart_of_accounts_id_2: '',
@@ -123,9 +126,12 @@ export default function CreateCounterpartyModal({
       nazvanie: raw.nazvanie || '',
       polnoe_imya: raw.polnoe_imya || '',
       counterparties_group_id: groupId,
+      address: raw.address || '',
       inn: raw.inn ? String(raw.inn) : '',
       kpp: toFields(raw.kpp),
       account_number: toFields(raw.account_number || raw.nomer_scheta),
+      bank: raw.bank || '',
+      mfo: raw.mfo ? String(raw.mfo) : '',
       primenyat_stat_i_po_umolchaniyu:
         raw.primenyatь_statьi_po_umolchaniyu ?? raw.primenyat_stat_i_po_umolchaniyu ?? false,
       chart_of_accounts_id: counterpartyData.chart_of_accounts_id || '',
@@ -190,9 +196,12 @@ export default function CreateCounterpartyModal({
         ...(isEdit && { guid }),
         nazvanie: data.nazvanie.trim(),
         polnoe_imya: data.polnoe_imya || null,
+        address: data.address || null,
         inn: (data.inn) || null,
         kpp: processFieldArray(data.kpp),
         account_number: processFieldArray(data.account_number),
+        bank: data.bank || null,
+        mfo: (data.mfo) || null,
         counterparties_group_id: data.counterparties_group_id,
         primenyat_stat_i_po_umolchaniyu: data.primenyat_stat_i_po_umolchaniyu,
         chart_of_accounts_id: data.chart_of_accounts_id || null,
@@ -308,6 +317,18 @@ export default function CreateCounterpartyModal({
                 </div>
               </div>
 
+              {/* Address */}
+              <div className={styles.formRow}>
+                <label className={styles.label}>{t('fields.address')}</label>
+                <div className={styles.inputContainer}>
+                  <Input
+                    placeholder={t('placeholders.address')}
+                    className={styles.input}
+                    {...register('address')}
+                  />
+                </div>
+              </div>
+
               {/* Group */}
               <div className={styles.formRow}>
                 <label className={styles.label}>{t('fields.group')}</label>
@@ -416,9 +437,33 @@ export default function CreateCounterpartyModal({
                     )}
                   />
                 </div>
-              </div>
 
-              {/* Default articles checkbox */}
+                {/* Bank */}
+                <div className={styles.formRow}>
+                  <label className={styles.label}>{t('fields.bank')}</label>
+                  <div className={styles.inputContainer}>
+                    <Input
+                      placeholder={t('placeholders.bank')}
+                      className={cn(styles.input, styles.requisitesInput)}
+                      {...register('bank')}
+                    />
+                  </div>
+                </div>
+
+                {/* MFO */}
+                <div className={styles.formRow}>
+                  <label className={styles.label}>{t('fields.mfo')}</label>
+                  <div className={styles.inputContainer}>
+                    <Input
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder={t('placeholders.mfo')}
+                      className={cn(styles.input, styles.requisitesInput)}
+                      {...register('mfo')}
+                    />
+                  </div>
+                </div>
+              </div>
               <div className={styles.formRow}>
                 <label className={styles.label} />
                 <Controller
@@ -446,11 +491,11 @@ export default function CreateCounterpartyModal({
                     label: 'fields.articleOut',
                     placeholder: 'fields.articleIn'
 
-                    }]).map((fieldName, i) => (
-                      <div key={fieldName.name} className={styles.formRow}>
-                        <label className={styles.label}>
-                          {t(fieldName.label)}
-                        </label>
+                  }]).map((fieldName, i) => (
+                    <div key={fieldName.name} className={styles.formRow}>
+                      <label className={styles.label}>
+                        {t(fieldName.label)}
+                      </label>
                       <div className={styles.inputContainer}>
                         <Controller
                           name={fieldName?.name}
@@ -487,36 +532,36 @@ export default function CreateCounterpartyModal({
             </form>
 
           ) : (
-              /* ── Group Form ── */
-              <form id="group-form" className={styles.form} onSubmit={handleSubmitGroup(onSubmitGroup)}>
-                <div className={styles.formRow}>
-                  <label className={styles.label}>
-                    {t('fields.groupName')} <span className={styles.required}>*</span>
-                  </label>
-                  <div className={styles.inputContainer}>
-                    <Input
-                      placeholder={t('placeholders.groupName')}
-                      className={cn(styles.input, groupErrors.nazvanie_gruppy && styles.inputError)}
-                      {...registerGroup('nazvanie_gruppy', { required: t('errors.groupNameRequired') })}
-                    />
-                    {groupErrors.nazvanie_gruppy && (
-                      <p className={styles.errorMessage}>{groupErrors.nazvanie_gruppy.message}</p>
-                    )}
-                  </div>
+            /* ── Group Form ── */
+            <form id="group-form" className={styles.form} onSubmit={handleSubmitGroup(onSubmitGroup)}>
+              <div className={styles.formRow}>
+                <label className={styles.label}>
+                  {t('fields.groupName')} <span className={styles.required}>*</span>
+                </label>
+                <div className={styles.inputContainer}>
+                  <Input
+                    placeholder={t('placeholders.groupName')}
+                    className={cn(styles.input, groupErrors.nazvanie_gruppy && styles.inputError)}
+                    {...registerGroup('nazvanie_gruppy', { required: t('errors.groupNameRequired') })}
+                  />
+                  {groupErrors.nazvanie_gruppy && (
+                    <p className={styles.errorMessage}>{groupErrors.nazvanie_gruppy.message}</p>
+                  )}
                 </div>
+              </div>
 
-                <div className={styles.formRow}>
-                  <label className={styles.label}>{t('fields.groupComment')}</label>
-                  <div className={styles.inputContainer}>
-                    <TextArea
-                      placeholder={t('placeholders.groupComment')}
-                      className={styles.textarea}
-                      rows={4}
-                      hasError={!!groupErrors.opisanie_gruppy}
-                      {...registerGroup('opisanie_gruppy')}
-                    />
-                  </div>
+              <div className={styles.formRow}>
+                <label className={styles.label}>{t('fields.groupComment')}</label>
+                <div className={styles.inputContainer}>
+                  <TextArea
+                    placeholder={t('placeholders.groupComment')}
+                    className={styles.textarea}
+                    rows={4}
+                    hasError={!!groupErrors.opisanie_gruppy}
+                    {...registerGroup('opisanie_gruppy')}
+                  />
                 </div>
+              </div>
             </form>
           )}
         </div>

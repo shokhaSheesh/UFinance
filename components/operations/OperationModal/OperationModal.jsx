@@ -24,6 +24,7 @@ const OperationModal = observer(({
 	onSuccess,
 	preselectedCounterparty = null,
 	defaultDealGuid = null,
+	defaultPurchaseDealGuid = null,
 	initialTab = 'income',
 	modalType = null,
 	chart_of_accounts_id = null,
@@ -144,6 +145,7 @@ const OperationModal = observer(({
 								currentPage={currentPage}
 								preselectedCounterparty={preselectedCounterparty}
 								defaultDealGuid={defaultDealGuid}
+								defaultPurchaseDealGuid={defaultPurchaseDealGuid}
 								chart_of_accounts_id={chart_of_accounts_id_2}
 								onSuccess={handleFormSuccess}
 							/>

@@ -16,7 +16,9 @@ const CreateProductService = ({
   onClose,
   initialData = null,
   isEditing = false,
-  dealGuid = null
+  dealGuid = null,
+  dealIdField = 'sales_transaction_id',
+  invalidateKeys = ['get_sales_transaction_by_guid']
 }) => {
   const t = useTranslations('Deals.createProductService');
 
@@ -187,13 +189,13 @@ const CreateProductService = ({
     };
 
     if (!isEditing && dealGuid) {
-      object_data.sales_transaction_id = dealGuid;
+      object_data[dealIdField] = dealGuid;
     }
 
     if (isEditing && initialData?.guid) {
       object_data.guid = initialData.guid;
       object_data.product_and_service_id = initialData.product_and_service_id;
-      object_data.sales_transactions_id = dealGuid;
+      object_data[dealIdField] = dealGuid;
     }
 
     if (formData?.product_and_service_id) {
@@ -230,7 +232,7 @@ const CreateProductService = ({
         data: object_data
       })
       resetForm()
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       onClose()
     } catch (error) {

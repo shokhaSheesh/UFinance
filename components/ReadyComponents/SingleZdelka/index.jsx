@@ -44,14 +44,34 @@ const SingleZdelka = ({
     }
   })
 
-  const options = useMemo(() => {
-    if (!deals || !Array.isArray(deals)) return []
+  // The currently selected deal may not be among the first 100 results (paging/search),
+  // so its label wouldn't resolve — fetch it directly by guid to guarantee it always shows.
+  const { data: selectedDeal } = useUcodeRequestQuery({
+    queryKey: 'get_sales_transaction_by_guid_for_select',
+    method: "get_sales_transaction_by_guid",
+    data: { guid: value },
+    skip: !value,
+    querySetting: {
+      select: (response) => response?.data?.data,
+      staleTime: 1000 * 60 * 30,
+    }
+  })
 
-    return deals.map(deal => ({
+  const options = useMemo(() => {
+    const base = (!deals || !Array.isArray(deals)) ? [] : deals.map(deal => ({
       value: deal.guid,
       label: deal?.Nazvanie || t('noName')
     }))
-  }, [deals, t])
+
+    if (value && !base.some(o => o.value === value) && selectedDeal) {
+      base.push({
+        value: selectedDeal.guid || value,
+        label: selectedDeal?.name || selectedDeal?.Nazvanie || t('noName')
+      })
+    }
+
+    return base
+  }, [deals, t, value, selectedDeal])
 
 
   const createDealHeader = (

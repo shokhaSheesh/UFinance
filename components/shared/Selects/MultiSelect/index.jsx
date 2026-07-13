@@ -139,7 +139,10 @@ const MultiSelect = ({
                             tabIndex={0}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                if (!disabled) onChange([]);
+                                if (!disabled) {
+                                    onChange([]);
+                                    setOpen(false)
+                                }
                             }}
                             className=" cursor-pointer"
                         >
@@ -198,8 +201,8 @@ const MultiSelect = ({
                             {filteredData.length === 0 ? (
                                 <div className='p-3 text-sm text-neutral-400 text-center'>{t('notFound')}</div>
                             ) : (
-                                    filteredData.map(node => {
-                                        const isSelected = value?.includes(node.value);
+                                filteredData.map(node => {
+                                    const isSelected = value?.includes(node.value);
 
                                     return (
                                         <div

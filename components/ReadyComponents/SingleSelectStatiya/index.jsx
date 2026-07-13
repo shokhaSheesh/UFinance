@@ -45,14 +45,20 @@ const mapNode = (item, type, hiddenValue) => {
   }
 }
 
-const mapTree = (data, type, hiddenValue) => {
-  return data
-    ?.filter(item => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie)) // 
-    .map(item => mapNode(item, type, hiddenValue))
-    .filter(Boolean)
+const mapTree = (data, type, hiddenValue, allowedTypes) => {
+  let filtered = data?.filter(item => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie))
+  if (allowedTypes && allowedTypes.length > 0) {
+    filtered = filtered?.filter(item => allowedTypes.includes(item.nazvanie))
+    filtered = filtered?.sort((a, b) => {
+      const ai = allowedTypes.indexOf(a.nazvanie)
+      const bi = allowedTypes.indexOf(b.nazvanie)
+      return ai - bi
+    })
+  }
+  return filtered?.map(item => mapNode(item, type, hiddenValue)).filter(Boolean)
 }
 
-const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, type = "Расходы", dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false, dropdownHeaderItem }) => {
+const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, type = "Расходы", allowedTypes, dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -79,8 +85,9 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, clas
   })
 
   const result = useMemo(() => {
-    return mapTree(chartOfAccountsData, type, hiddenValue)
-  }, [chartOfAccountsData, type, hiddenValue])
+    const effectiveType = (allowedTypes && allowedTypes.length > 0) ? null : type
+    return mapTree(chartOfAccountsData, effectiveType, hiddenValue, allowedTypes)
+  }, [chartOfAccountsData, type, hiddenValue, allowedTypes])
 
   // Flattened map to track ancestry by value
   const flattenedAncestry = useMemo(() => {

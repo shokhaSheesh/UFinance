@@ -11,7 +11,7 @@ export const allowedTip = {
 	allowShipment: appStore.permission.operations.shipment.read,
 }
 
-export const tips = [(allowedTip.allowAccrual ? 'Начисление' : ''), (allowedTip.allowAccrual ? 'Дебет' : ''), (allowedTip.allowAccrual ? 'Кредит' : ''), (allowedTip.allowShipment ? 'Отгрузка' : ''), (allowedTip.allowIncome ? 'Поступление' : ''), (allowedTip.allowPayout ? 'Выплата' : ''), (allowedTip.allowTransfer ? 'Списание' : ''), (allowedTip.allowTransfer ? 'Зачисление' : ''), (allowedTip.allowTransfer ? 'Перемещение' : '')].filter(Boolean)
+export const tips = [(allowedTip.allowAccrual ? 'Начисление' : ''), (allowedTip.allowAccrual ? 'Дебет' : ''), (allowedTip.allowAccrual ? 'Кредит' : ''), (allowedTip.allowShipment ? 'Отгрузка' : ''), (allowedTip.allowShipment ? 'Поставка' : ''), (allowedTip.allowIncome ? 'Поступление' : ''), (allowedTip.allowPayout ? 'Выплата' : ''), (allowedTip.allowTransfer ? 'Списание' : ''), (allowedTip.allowTransfer ? 'Зачисление' : ''), (allowedTip.allowTransfer ? 'Перемещение' : '')].filter(Boolean)
 
 
 class OperationFilterStore {
@@ -37,6 +37,7 @@ class OperationFilterStore {
 	accrualDateStart = ''
 	accrualDateEnd = ''
 	deals = []
+	purchaseDeals = []
 
 	dateRangeTypeOplata = ''
 	dateRangeTypeNachisleniya = ''
@@ -67,6 +68,7 @@ class OperationFilterStore {
 					'accrualDateStart',
 					'accrualDateEnd',
 					'deals',
+					'purchaseDeals',
 					'dateRangeTypeOplata',
 					'dateRangeTypeNachisleniya'
 				],
@@ -132,6 +134,7 @@ class OperationFilterStore {
 			'Дебет': 'allowAccrual',
 			'Кредит': 'allowAccrual',
 			'Отгрузка': 'allowShipment',
+			'Поставка': 'allowShipment',
 			'Выплата': 'allowPayout',
 			'Списание': 'allowTransfer',
 			'Зачисление': 'allowTransfer',
@@ -227,6 +230,10 @@ class OperationFilterStore {
 		this.deals = deals
 	}
 
+	setSelectedPurchaseDeals(deals) {
+		this.purchaseDeals = deals
+	}
+
 	resetFilters() {
 		this.searchQuery = ''
 		this.debouncedSearchQuery = ''
@@ -243,6 +250,7 @@ class OperationFilterStore {
 		this.accrualConfirm = true
 		this.accrualNotConfirm = true
 		this.deals = []
+		this.purchaseDeals = []
 		this.dateRangeTypeNachisleniya = ''
 		this.dateRangeTypeOplata = ''
 	}

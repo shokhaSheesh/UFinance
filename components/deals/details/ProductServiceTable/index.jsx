@@ -15,7 +15,7 @@ import Loader from '../../../shared/Loader'
 
 import EmptyState from '../EmptyState'
 
-const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => {
+const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealIdField = 'sales_transactions_id', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
   const t = useTranslations('Directories.details.productServiceTable')
 
   const [selectedItems, setSelectedItems] = useState(new Set())
@@ -38,7 +38,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_products_and_services",
       data: {
-        sales_transactions_id: sellingDealId,
+        [dealIdField]: sellingDealId,
         page: pageParam,
         limit: LIMIT
       }
@@ -50,7 +50,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
       return page < totalPages ? page + 1 : undefined
     },
     initialPageParam: 1
-  }) 
+  })
 
 
   const productServicesList = useMemo(() => {
@@ -112,10 +112,9 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
         }
       })
 
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['list_sales_operations'] })
-      queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       setOpen(false)
       setSelectedItems(new Set())
@@ -124,6 +123,12 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
     }
   }
 
+
+  if (isLoading) {
+    return <div className='flex items-center justify-center flex-1'>
+      <Loader2 className='animate-spin text-primary' size={24} />
+    </div>
+  }
 
   if (productServicesList.length === 0) {
     return (
@@ -134,14 +139,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
         canAdd={canAdd}
       />
     )
-  }
-
-
-
-  if (isLoading) {
-    return <div className='flex items-center justify-center flex-1'>
-      <Loader2 className='animate-spin text-primary' size={24} />
-    </div>
   }
 
   return (
@@ -175,7 +172,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('unit')}</th>
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('pricePerUnit')}</th>
                 <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('discount')}</th>
-                <th className='px-3 py-2 font-medium text-right border-r border-neutral-200'>{t('vat')}</th>
                 <th className='px-4 py-1 font-medium text-right'>{t('sum')}</th>
               </>}
             </tr>
@@ -194,7 +190,6 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd }) => 
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.unit_name}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.tsena_za_ed}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.discount}%</td>
-                  <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.nds}%</td>
                   <td className={`px-4 py-3  w-72 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">
                       <p className={`text-sm text-neutral-600`}>

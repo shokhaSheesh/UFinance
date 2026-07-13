@@ -1,4 +1,31 @@
 {
+	"Warehouse": {
+		"pageTitle": "My warehouse",
+		"searchPlaceholder": "Search by name",
+		"empty": "Warehouse is empty",
+		"columns": {
+			"name": "Name",
+			"artikul": "SKU",
+			"balance": "Balance",
+			"waiting": "Expected",
+			"available": "Available",
+			"unit": "Unit",
+			"daysInStock": "Days in stock",
+			"cost": "Cost",
+			"totalCost": "Total cost",
+			"salePrice": "Sale price",
+			"saleTotal": "Sale total"
+		},
+		"footer": {
+			"positions": "Positions",
+			"totalBalance": "Total balance",
+			"waitingBalance": "Expected balance",
+			"availableBalance": "Available balance",
+			"totalCost": "Total cost",
+			"totalSale": "Total sale",
+			"pageInfo": "{from}-{to} of {total}"
+		}
+	},
 	"filter": "Filters",
 	"search": "Search...",
 	"Common": {
@@ -124,10 +151,16 @@
 			"operations": "Transactions",
 			"counterparties": "Counterparties",
 			"deals": "Deals",
+			"purchases": "Purchases",
+			"dealsSelling": "Sales",
+			"dealsSellingDesc": "Deals where you sell goods or provide services",
+			"dealsPurchase": "Purchases",
+			"dealsPurchaseDesc": "Deals where you purchase goods or receive services",
 			"reports": "Reports",
 			"directories": "Directories",
 			"settings": "Settings",
-			"plans": "Budgets"
+			"plans": "Budgets",
+			"warehouse": "My warehouse"
 		},
 		"reports": {
 			"cashflow": "Cash Flow Statement",
@@ -332,10 +365,12 @@
 			"debit": "Debit",
 			"credit": "Credit",
 			"shipment": "Shipment",
+			"supply": "Supply",
 			"legalEntitiesPlaceholder": "Legal entities & accounts",
 			"counterpartiesPlaceholder": "Counterparties",
 			"chartOfAccountsPlaceholder": "Account categories",
 			"dealsPlaceholder": "Deals",
+			"purchaseDealsPlaceholder": "Purchase deals",
 			"paymentTypePlaceholder": "Payment type",
 			"amountFrom": "Amount from",
 			"amountTo": "to"
@@ -400,6 +435,8 @@
 			"paymentTypePlaceholder": "Select payment type...",
 			"salesDeal": "Sales deal",
 			"salesDealPlaceholder": "Select deal...",
+			"purchaseDeal": "Purchase deal",
+			"purchaseDealPlaceholder": "Select purchase deal...",
 			"purpose": "Payment purpose",
 			"purposePlaceholder": "Payment purpose",
 			"purposeRequired": "Enter payment purpose",
@@ -604,6 +641,46 @@
 		"openInOperations": "Open in Transactions",
 		"close": "Close"
 	},
+	"Purchases": {
+		"pageTitle": "Purchase Deals",
+		"backToList": "Purchase Deals",
+		"table": {
+			"client": "Supplier",
+			"received": "Paid",
+			"shipped": "Supplied"
+		},
+		"filters": {
+			"sectionTitle": "Deal parameters",
+			"selectSuppliers": "Suppliers",
+			"createdDate": "Creation date"
+		},
+		"createSupply": {
+			"titleNew": "New supply",
+			"titleEdit": "Edit supply",
+			"supplyDate": "Supply date",
+			"plannedSupply": "Planned supply",
+			"supplier": "Supplier",
+			"supplierRequired": "Select supplier",
+			"expenseArticle": "Purchase expense category",
+			"undistributedExpense": "Unallocated expense",
+			"removeFromSupply": "Remove from supply",
+			"supplySum": "Supply total",
+			"products": "Products & services for supply"
+		},
+		"supplyTable": {
+			"emptyTitle": "Add supplies to the deal",
+			"emptySubtitle": "Track goods/service supplies to monitor fulfillment of obligations under the deal",
+			"deleteSupplyTitle": "Delete supply",
+			"deleteSupplyConfirm": "Are you sure you want to delete the supply for <strong>{amount}</strong>? <br />This cannot be undone.",
+			"unallocatedExpense": "Unallocated expense"
+		},
+		"createDealModal": {
+			"titleNew": "New purchase",
+			"titleEdit": "Edit purchase",
+			"supplier": "Supplier",
+			"supplierPlaceholder": "Specify who you're purchasing goods or services from"
+		}
+	},
 	"Deals": {
 		"pageTitle": "Sales Deals",
 		"createDeal": "Create",
@@ -648,8 +725,10 @@
 			"cards": {
 				"type": "Type",
 				"client": "Client",
+				"supplier": "Supplier",
 				"created": "Created",
 				"sale": "Sale",
+				"purchase": "Purchase",
 				"receipts": "Receipts",
 				"shipments": "Shipments to client",
 				"profit": "Deal profit",
@@ -677,7 +756,8 @@
 				"products": "Select products or services for sale",
 				"receipts": "Client payments for goods sold or services rendered",
 				"expenses": "Costs incurred for this deal",
-				"shipments": "Goods and services shipped to the client"
+				"shipments": "Goods and services shipped to the client",
+				"supplies": "Goods and services received from the supplier"
 			},
 			"searchPlaceholder": "Search",
 			"addButton": "Add",
@@ -1241,9 +1321,12 @@
 				"name": "Name",
 				"fullName": "Full name",
 				"group": "Counterparty group",
+				"address": "Address",
 				"inn": "Tax ID",
-				"kpp": "Tax registration code",
+				"kpp": "OKED",
 				"accountNumber": "Account number",
+				"bank": "Bank",
+				"mfo": "MFO",
 				"defaultArticles": "Apply default categories",
 				"articleIn": "Receipt category",
 				"articleOut": "Payment category",
@@ -1256,8 +1339,11 @@
 				"fullName": "e.g., Acme Corporation Ltd.",
 				"selectGroup": "Select counterparty group",
 				"inn": "Enter Tax ID",
-				"kpp": "Enter Tax registration code",
+				"kpp": "Enter OKED",
 				"account": "Enter account number",
+				"address": "Enter address",
+				"bank": "Enter bank",
+				"mfo": "Enter MFO",
 				"comment": "Note about counterparty",
 				"groupComment": "Note about counterparty group",
 				"groupName": "e.g., My suppliers"
@@ -1359,14 +1445,17 @@
 				"info": {
 					"title": "Details",
 					"inn": "Tax ID",
-					"kpp": "Tax registration code",
+					"kpp": "OKED",
 					"accountNumber": "Account no.",
+					"bank": "Bank",
+					"mfo": "MFO",
+					"address": "Address",
 					"receiptArticle": "Receipt category",
 					"paymentArticle": "Payment category",
 					"comment": "Comment",
 					"noRequisites": "No counterparty details available",
 					"addRequisites": "Add",
-					"additionalKpp": "Additional tax codes",
+					"additionalKpp": "Additional OKED",
 					"additionalAccounts": "Additional account numbers"
 				},
 				"table": {
