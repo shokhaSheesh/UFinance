@@ -606,6 +606,7 @@ export default observer(function PurchaseDetailPage() {
                       "get_purchase_transaction_by_guid",
                     ]}
                     listTab={null}
+                    allowedTypes={["Расходы", "Актив", "Обязательства"]}
                     isPurchase
                   />
                 )}

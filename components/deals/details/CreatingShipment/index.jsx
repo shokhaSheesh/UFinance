@@ -101,7 +101,7 @@ const CreateShipment = observer(({
   useEffect(() => {
     if (open && SingleShipment) {
       setShipmentDate(moment.parseZone(SingleShipment.data_nachislenie).format('YYYY-MM-DD'))
-      setIsPlanned(SingleShipment.planned_shipment || false)
+      setIsPlanned((isPurchase ? SingleShipment.planned_supply : SingleShipment.planned_shipment) || false)
       setLegalEntity(SingleShipment.legal_entity_id || '')
       setClient(SingleShipment.partners_id || kontragentId || '')
       setChartOfAccounts(SingleShipment.chart_of_accounts_id || '')
@@ -233,7 +233,7 @@ const CreateShipment = observer(({
         legal_entity_id: legalEntity,
         [dealIdField]: dealGuid,
         partners_id: client,
-        planned_shipment: isFutureDate ? true : isPlanned,
+        [isPurchase ? 'planned_supply' : 'planned_shipment']: isFutureDate ? true : isPlanned,
         status_nachislenie: ["confirmed"],
         type: operationType,
         summa: totalSum,
