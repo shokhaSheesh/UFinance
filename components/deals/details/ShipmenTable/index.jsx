@@ -29,6 +29,7 @@ const ShipmenTable = ({
   invalidateKeys = ['list_sales_operations', 'get_sales_transaction', 'get_sales_transaction_by_guid', 'get_counterparty_by_id'],
   listTab = 'shipment',
   isPurchase = false,
+  allowedTypes,
 }) => {
   const t = useTranslations('Directories.details.shipmentTable')
   const tp = useTranslations('Purchases.supplyTable')
@@ -191,7 +192,7 @@ const ShipmenTable = ({
           <tbody className='w-full'>
             {shipmentsList?.map((item) => {
               return (
-                <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${item?.planned_shipment ? 'text-primary' : 'text-neutral-900'}`}>
+                <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${(isPurchase ? item?.planned_supply : item?.planned_shipment) ? 'text-primary' : 'text-neutral-900'}`}>
                   <td className="px-4 py-3 text-left">{item.operationDate}</td>
                   <td className="px-4 py-3 text-left w-[50px]">{item?.legal_entity_name || t('legalEntity')}</td>
                   <td className="px-4 py-3 text-left">{item.counterparty}</td>
@@ -282,6 +283,7 @@ const ShipmenTable = ({
           operationType={operationType}
           invalidateKeys={invalidateKeys}
           isPurchase={isPurchase}
+          allowedTypes={allowedTypes}
         />
       )}
 

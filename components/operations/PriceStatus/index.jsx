@@ -49,7 +49,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
             <span className={`flex items-center gap-0.5 text-sm text-neutral-500 ${isZachisleniya ? 'opacity-50' : ''}`}>+{formatAmount(toAmount)} <span className=" text-neutral-500">{toCurrency}</span></span>
           </div>
         </>}
-        {(tab === 'Поступление' || tab === 'Выплата' || tab === 'Отгрузка') && <>
+        {(tab === 'Поступление' || tab === 'Выплата' || tab === 'Отгрузка' || tab === 'Поставка') && <>
           <div>
             <span className='flex items-center text-sm justify-end gap-0.5'>{type == 'Поступление' ? '+' : type == 'Выплата' ? '-' : ''}{formatAmount(amount)} {currency} {percent ? `(${percent})` : ''}
             </span>
