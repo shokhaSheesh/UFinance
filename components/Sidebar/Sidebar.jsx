@@ -133,33 +133,33 @@ export const Sidebar = observer(() => {
         },
       ],
     },
-    // {
-    //   icon: CalendarCheck,
-    //   label: t("nav.plans"),
-    //   href: "",
-    //   hasPage: true,
-    //   canShow: true,
-    //   submenu: [
-    //     {
-    //       label: t("plans.payment_calendar"),
-    //       href: "/payment_calendar",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //     {
-    //       label: t("plans.income_expense_budget"),
-    //       href: "/income_expense_budget",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //     {
-    //       label: t("plans.cash_flow_budget"),
-    //       href: "/cash_flow_budget",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //   ],
-    // },
+    {
+      icon: CalendarCheck,
+      label: t("nav.plans"),
+      href: "",
+      hasPage: true,
+      canShow: true,
+      submenu: [
+        {
+          label: t("plans.payment_calendar"),
+          href: "/payment_calendar",
+          hasPage: true,
+          canShow: true,
+        },
+        {
+          label: t("plans.income_expense_budget"),
+          href: "/income_expense_budget",
+          hasPage: true,
+          canShow: true,
+        },
+        {
+          label: t("plans.cash_flow_budget"),
+          href: "/cash_flow_budget",
+          hasPage: true,
+          canShow: true,
+        },
+      ],
+    },
     {
       icon: ClipboardList,
       label: t("nav.reports"),
@@ -240,13 +240,13 @@ export const Sidebar = observer(() => {
         },
       ],
     },
-    // {
-    //   icon: Warehouse,
-    //   label: t("nav.warehouse"),
-    //   href: "/warehouse",
-    //   hasPage: true,
-    //   canShow: true,
-    // },
+    {
+      icon: Warehouse,
+      label: t("nav.warehouse"),
+      href: "/warehouse",
+      hasPage: true,
+      canShow: true,
+    },
     {
       icon: IoSettingsOutline,
       label: t("nav.settings"),

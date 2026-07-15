@@ -109,12 +109,14 @@ function DropdownMenuItem({
     className
   )
   if (asChild && React.isValidElement(children)) {
+    const isNativeButton = (children as React.ReactElement).type === "button"
     return (
       <MenuPrimitive.Item
         data-slot="dropdown-menu-item"
         data-inset={inset}
         data-variant={variant}
         className={itemClassName}
+        nativeButton={isNativeButton}
         render={children}
         {...props}
       />
