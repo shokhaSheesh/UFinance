@@ -45,8 +45,10 @@ import {
   CirclePlus,
   Ellipsis,
   Pencil,
+  Plus,
   Search,
   Trash,
+  Undo2,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -116,6 +118,7 @@ export default observer(function PurchaseDetailPage() {
 
   const [activeTab, setActiveTab] = useState("products");
   const [showShipmentModal, setShowShipmentModal] = useState(false);
+  const [isReturnMode, setIsReturnMode] = useState(false);
   const [showOperationModal, setShowOperationModal] = useState(false);
   const [operation, setOperation] = useState(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -435,7 +438,10 @@ export default observer(function PurchaseDetailPage() {
             </span>
             {paymentPermission && (
               <button
-                onClick={() => setShowShipmentModal(true)}
+                onClick={() => {
+                  setIsReturnMode(false);
+                  setShowShipmentModal(true);
+                }}
                 className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0"
               >
                 <div className="scale-75 xl:scale-100 origin-right transition-transform">
@@ -544,20 +550,61 @@ export default observer(function PurchaseDetailPage() {
                   {(activeTab === "products" && productsPermission) ||
                   (activeTab === "payments" && paymentPermission) ||
                   (activeTab === "supplies" && shipmentPermission) ? (
-                    <button
-                      className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
-                      onClick={() => {
-                        if (activeTab === "supplies") {
-                          setShowShipmentModal(true);
-                        } else if (activeTab === "payments") {
-                          handleCreateOperation();
-                        } else if (activeTab === "products") {
-                          setShowProductModal(true);
-                        }
-                      }}
-                    >
-                      {t("addButton")}
-                    </button>
+                    activeTab === "supplies" ? (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0">
+                            {t("addButton")}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-52 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1"
+                          align="end"
+                        >
+                          <div className="flex flex-col">
+                            <button
+                              className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                              onClick={() => {
+                                setIsReturnMode(false);
+                                setShowShipmentModal(true);
+                              }}
+                            >
+                              <Plus size={16} className="text-neutral-600" />
+                              <span>{tp("createSupply.titleNew")}</span>
+                            </button>
+                            {appStore.warehouseActive &&
+                              appStore.returnActive && (
+                                <button
+                                  className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                                  onClick={() => {
+                                    setIsReturnMode(true);
+                                    setShowShipmentModal(true);
+                                  }}
+                                >
+                                  <Undo2
+                                    size={16}
+                                    className="text-neutral-600"
+                                  />
+                                  <span>{t("newReturnButton")}</span>
+                                </button>
+                              )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <button
+                        className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
+                        onClick={() => {
+                          if (activeTab === "payments") {
+                            handleCreateOperation();
+                          } else if (activeTab === "products") {
+                            setShowProductModal(true);
+                          }
+                        }}
+                      >
+                        {t("addButton")}
+                      </button>
+                    )
                   ) : null}
                 </div>
               </div>
@@ -620,7 +667,10 @@ export default observer(function PurchaseDetailPage() {
       </div>
       <CreateShipment
         open={showShipmentModal}
-        onClose={() => setShowShipmentModal(false)}
+        onClose={() => {
+          setShowShipmentModal(false);
+          setIsReturnMode(false);
+        }}
         dealName={summeryCards?.name}
         dealGuid={dealId}
         kontragentId={summeryCards?.counterparties_id}
@@ -635,6 +685,7 @@ export default observer(function PurchaseDetailPage() {
         ]}
         allowedTypes={["Расходы", "Актив", "Обязательства"]}
         isPurchase
+        isReturn={isReturnMode}
       />
 
       <PaymentModal

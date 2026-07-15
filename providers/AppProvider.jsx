@@ -35,6 +35,8 @@ const AppProvider = ({ children }) => {
       appStore.setIsAccrualDate(data?.is_accural_date)
       appStore.setIsPayment(data?.is_payment)
       appStore.setWLCMPayment(data?.wlcm_active)
+      appStore.setWarehouseActive(data?.warehouse_active)
+      appStore.setReturnActive(data?.return_active)
       if (currency) {
         appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency?.kod })
       }

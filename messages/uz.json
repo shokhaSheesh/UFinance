@@ -786,6 +786,7 @@
 			},
 			"searchPlaceholder": "Qidirish",
 			"addButton": "Qo'shish",
+			"newReturnButton": "Yangi qaytarish",
 			"payment": {
 				"createPayment": "To'lov yaratish",
 				"paymentAmount": "To'lov summasi",
@@ -992,6 +993,8 @@
 		"createShipment": {
 			"titleNew": "Yangi jo'natma",
 			"titleEdit": "Jo'natmani tahrirlash",
+			"titleNewReturn": "Yangi qaytarish",
+			"titleEditReturn": "Qaytarishni tahrirlash",
 			"shipmentDate": "Jo'natma sanasi",
 			"shipmentDateRequired": "Sanani tanlang",
 			"dealDatePlaceholder": "Sanani tanlang",
@@ -1014,6 +1017,9 @@
 			"shipmentSum": "Jo'natma summasi",
 			"incomeArticle": "Daromad maqolasi",
 			"undistributedIncome": "Taqsimlanmagan daromad",
+			"warehouse": "Ombor",
+			"warehousePlaceholder": "Omborni tanlang",
+			"warehouseRequired": "Omborni tanlang",
 			"requiredFields": "Majburiy maydonlar",
 			"cancel": "Bekor qilish",
 			"create": "Yaratish",
@@ -1044,6 +1050,11 @@
 				"wlcm_title": "WLCM dagi shaxsiy kabinetingiz joylash",
 				"wlcm": "WLCM.uz tokeningizni joylang",
 				"accrualDate": "Sotuvni tanlashda << Hisoblanish sanasi >> maydonini yoqish"
+			},
+			"modules": {
+				"title": "Modullar",
+				"warehouse": "Mening omborim",
+				"returns": "Qaytarishlar"
 			},
 			"save": "Saqlash",
 			"saving": "Saqlanmoqda...",

@@ -10,7 +10,7 @@ import { authStore } from '@/store/auth.store'
 import { Loader2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const CURRENCY_DEPENDENT_QUERY_KEYS = [
   'get_general_settings',
@@ -41,8 +41,22 @@ const SettingsPage = observer(() => {
 
   const [isPayment, setIsPayment] = useState(appStore.isPayment)
   const [isAccrualDate, setIsAccrualDate] = useState(appStore.isAccrualDate)
+  const [warehouseActive, setWarehouseActive] = useState(appStore.warehouseActive)
+  const [returnActive, setReturnActive] = useState(appStore.returnActive)
   const [currencyId, setCurrencyId] = useState(appStore?.currency?.guid)
   // const [wlcmHashcode, setWlcmHashcode] = useState('')
+
+  // appStore is still hydrating from `get_general_settings` (via AppProvider)
+  // when this page first mounts, so the useState() initial values above can
+  // capture stale defaults. Re-sync local state once the real values land.
+  useEffect(() => {
+    setIsPayment(appStore.isPayment)
+    setIsAccrualDate(appStore.isAccrualDate)
+    setWarehouseActive(appStore.warehouseActive)
+    setReturnActive(appStore.returnActive)
+    setCurrencyId(appStore?.currency?.guid)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appStore.isPayment, appStore.isAccrualDate, appStore.warehouseActive, appStore.returnActive, appStore?.currency?.guid])
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
@@ -51,8 +65,10 @@ const SettingsPage = observer(() => {
 
   const isPaymentChanged = isPayment !== appStore.isPayment
   const isAccrualDateChanged = isAccrualDate !== appStore.isAccrualDate
+  const isWarehouseActiveChanged = warehouseActive !== appStore.warehouseActive
+  const isReturnActiveChanged = returnActive !== appStore.returnActive
   const isCurrencyChanged = currencyId !== appStore?.currency?.guid
-  const hasChanges = isPaymentChanged || isAccrualDateChanged || isCurrencyChanged
+  const hasChanges = isPaymentChanged || isAccrualDateChanged || isWarehouseActiveChanged || isReturnActiveChanged || isCurrencyChanged
 
 
   const handleSaveSettings = async () => {
@@ -60,6 +76,8 @@ const SettingsPage = observer(() => {
 
     if (isPaymentChanged) data.is_payment = isPayment
     if (isAccrualDateChanged) data.is_accural_date = isAccrualDate
+    if (isWarehouseActiveChanged) data.warehouse_active = warehouseActive
+    if (isReturnActiveChanged) data.return_active = returnActive
     // if (wlcmHashcode) {
     //   try {
     //     await createWlcmToken({
@@ -93,6 +111,8 @@ const SettingsPage = observer(() => {
           appStore.setAccuralDateBranch(authStore?.branch_id)
         }
       }
+      if (isWarehouseActiveChanged) appStore.setWarehouseActive(warehouseActive)
+      if (isReturnActiveChanged) appStore.setReturnActive(returnActive)
       if (isCurrencyChanged) {
         const selected = appStore.currencies.find(c => c.guid === currencyId)
         appStore.setCurrency({
@@ -155,6 +175,25 @@ const SettingsPage = observer(() => {
             checked={isAccrualDate}
             onChange={() => setIsAccrualDate(!isAccrualDate)}
             label={tg('accounting.accrualDate')}
+          />
+        </section>
+      </section>
+
+      {/* Modules */}
+      <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
+        <section className="flex flex-col gap-1.5 items-start">
+          <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
+            {tg('modules.title')}
+          </h2>
+          <OperationCheckbox
+            checked={warehouseActive}
+            onChange={() => setWarehouseActive(!warehouseActive)}
+            label={tg('modules.warehouse')}
+          />
+          <OperationCheckbox
+            checked={returnActive}
+            onChange={() => setReturnActive(!returnActive)}
+            label={tg('modules.returns')}
           />
         </section>
       </section>

@@ -284,6 +284,7 @@ const ShipmenTable = ({
           invalidateKeys={invalidateKeys}
           isPurchase={isPurchase}
           allowedTypes={allowedTypes}
+          isReturn={Number(selectedShipment?.summa) < 0}
         />
       )}
 

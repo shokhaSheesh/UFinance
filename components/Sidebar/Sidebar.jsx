@@ -245,7 +245,7 @@ export const Sidebar = observer(() => {
       label: t("nav.warehouse"),
       href: "/warehouse",
       hasPage: true,
-      canShow: true,
+      canShow: appStore.warehouseActive,
     },
     {
       icon: IoSettingsOutline,

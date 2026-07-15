@@ -788,6 +788,7 @@
 			},
 			"searchPlaceholder": "Search",
 			"addButton": "Add",
+			"newReturnButton": "New return",
 			"payment": {
 				"createPayment": "Create payment",
 				"paymentAmount": "Payment amount",
@@ -994,6 +995,8 @@
 		"createShipment": {
 			"titleNew": "New shipment",
 			"titleEdit": "Edit shipment",
+			"titleNewReturn": "New return",
+			"titleEditReturn": "Edit return",
 			"shipmentDate": "Shipment date",
 			"shipmentDateRequired": "Select date",
 			"dealDatePlaceholder": "Select date",
@@ -1016,6 +1019,9 @@
 			"shipmentSum": "Shipment total",
 			"incomeArticle": "Revenue category",
 			"undistributedIncome": "Unallocated revenue",
+			"warehouse": "Warehouse",
+			"warehousePlaceholder": "Select warehouse",
+			"warehouseRequired": "Select warehouse",
 			"requiredFields": "Required fields",
 			"cancel": "Cancel",
 			"create": "Create",
@@ -1046,6 +1052,11 @@
 				"wlcm_title": "Create a personal account on WLCM.",
 				"wlcm": "Enter your WLCM.uz token",
 				"accrualDate": "Enable << Accrual date >> field when selecting a Deal"
+			},
+			"modules": {
+				"title": "Modules",
+				"warehouse": "My warehouse",
+				"returns": "Returns"
 			},
 			"save": "Save",
 			"saving": "Saving...",

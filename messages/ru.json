@@ -789,6 +789,7 @@
 			},
 			"searchPlaceholder": "Поиск",
 			"addButton": "Добавить",
+			"newReturnButton": "Новый возврат",
 			"payment": {
 				"createPayment": "Создать платеж",
 				"paymentAmount": "Сумма платежа",
@@ -995,6 +996,8 @@
 		"createShipment": {
 			"titleNew": "Новая отгрузка",
 			"titleEdit": "Редактирование отгрузки",
+			"titleNewReturn": "Новый возврат",
+			"titleEditReturn": "Редактирование возврата",
 			"shipmentDate": "Дата отгрузки",
 			"shipmentDateRequired": "Выберите дату",
 			"dealDatePlaceholder": "Выберите дату",
@@ -1017,6 +1020,9 @@
 			"shipmentSum": "Сумма отгрузки",
 			"incomeArticle": "Статья доходов",
 			"undistributedIncome": "Нераспределенный доход",
+			"warehouse": "Склад",
+			"warehousePlaceholder": "Выберите склад",
+			"warehouseRequired": "Выберите склад",
 			"requiredFields": "Обязательные поля",
 			"cancel": "Отмена",
 			"create": "Создать",
@@ -1047,6 +1053,11 @@
 				"wlcm_title": "Создайте личный аккаунт на WLCM.",
 				"wlcm": "Внесите свой токен WLCM.uz",
 				"accrualDate": "Включить в работу поле << Дата начисления >> при выборе Сделка"
+			},
+			"modules": {
+				"title": "Модули",
+				"warehouse": "Мой склад",
+				"returns": "Возвраты"
 			},
 			"save": "Сохранить",
 			"saving": "Сохранение...",

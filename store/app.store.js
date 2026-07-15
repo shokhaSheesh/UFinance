@@ -11,6 +11,8 @@ class AppStore {
     code: "",
   };
   isWLCMPayment = false;
+  warehouseActive = false;
+  returnActive = false;
   currencies = [];
   myCurrencies = [];
   companyCurrencies = [];
@@ -62,6 +64,8 @@ class AppStore {
           "isPayment",
           "currency",
           "isAccrualDate",
+          "warehouseActive",
+          "returnActive",
           "currencies",
           "isDonoSchool",
           "myCurrencies",
@@ -101,6 +105,14 @@ class AppStore {
 
   setWLCMPayment(value) {
     this.isWLCMPayment = value;
+  }
+
+  setWarehouseActive(value) {
+    this.warehouseActive = value;
+  }
+
+  setReturnActive(value) {
+    this.returnActive = value;
   }
 
   setisDonoschool(value) {

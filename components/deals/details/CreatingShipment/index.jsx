@@ -10,6 +10,7 @@ import { GlobalCurrency } from "../../../../constants/globalCurrency";
 import {
   useUcodeRequestMutation,
   useUcodeRequestQuery,
+  useWarehousesList,
 } from "../../../../hooks/useDashboard";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
@@ -29,6 +30,7 @@ import SinglSelectStatiya from "../../../ReadyComponents/SingleSelectStatiya";
 import OperationCheckbox from "../../../shared/Checkbox/operationCheckbox";
 import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
 import Loader from "../../../shared/Loader";
+import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
 
 const CreateShipment = observer(
@@ -54,12 +56,13 @@ const CreateShipment = observer(
     ],
     allowedTypes,
     isPurchase = false,
+    isReturn = false,
   }) => {
     const t = useTranslations("Deals.createShipment");
     const tp = useTranslations("Purchases.createSupply");
     // Same modal is reused for a sale's "Отгрузка" and a purchase's "Поставка" —
     // only these labels diverge between the two contexts.
-    const L = isPurchase
+    const baseL = isPurchase
       ? {
           titleNew: tp("titleNew"),
           titleEdit: tp("titleEdit"),
@@ -86,6 +89,21 @@ const CreateShipment = observer(
           shipmentSum: t("shipmentSum"),
           products: t("products"),
         };
+    // A return reuses the same form/methods as a normal shipment or supply —
+    // only the header title changes to make the negative-amount mode obvious.
+    const L = isReturn
+      ? {
+          ...baseL,
+          titleNew: t("titleNewReturn"),
+          titleEdit: t("titleEditReturn"),
+        }
+      : baseL;
+    // Returns force every price/sum entry negative so the transaction reads
+    // as money/stock flowing back out; the user is never allowed to flip it positive.
+    const signPrice = (value) => {
+      const num = Number(value) || 0;
+      return isReturn ? -Math.abs(num) : num;
+    };
     const today = useMemo(() => new Date(), []);
 
     const [shipmentDate, setShipmentDate] = useState(
@@ -100,6 +118,17 @@ const CreateShipment = observer(
     const [chartOfAccounts, setChartOfAccounts] = useState([]);
     const [currency, setCurrency] = useState("");
     const [showChartOfAccounts, setShowChartOfAccounts] = useState(true);
+    const [warehouse, setWarehouse] = useState("");
+    // Warehouse tracking hides the expense article for a Поставка (the stock
+    // movement itself carries the accounting), but a Отгрузка still needs it.
+    const isWarehouseModuleOn = appStore.warehouseActive;
+    const hideArticleField = isWarehouseModuleOn && isPurchase;
+    const { data: warehousesData } = useWarehousesList();
+    const warehouseOptions = useMemo(
+      () =>
+        (warehousesData || []).map((w) => ({ value: w.guid, label: w.name })),
+      [warehousesData]
+    );
     const [rows, setRows] = useState([
       {
         id: 1,
@@ -143,6 +172,7 @@ const CreateShipment = observer(
         setLegalEntity(SingleShipment.legal_entity_id || "");
         setClient(SingleShipment.partners_id || kontragentId || "");
         setChartOfAccounts(SingleShipment.chart_of_accounts_id || "");
+        setWarehouse(SingleShipment.warehouse_id || "");
         setCurrency(
           SingleShipment.currencies_id ||
             SingleShipment.currencyId ||
@@ -177,6 +207,7 @@ const CreateShipment = observer(
         setLegalEntity("");
         setClient(kontragentId || "");
         setChartOfAccounts([]);
+        setWarehouse("");
         setCurrency("");
         setCode("");
         setRows([
@@ -240,18 +271,25 @@ const CreateShipment = observer(
             // sum = qty * price * (1 - discount/100) * (1 + nds/100)
             const q =
               Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
-            const p = Number(updated.price?.toString().replace(/\s/g, "")) || 0;
+            let p = Number(updated.price?.toString().replace(/\s/g, "")) || 0;
+            if (isReturn) {
+              p = signPrice(p);
+              updated.price = p;
+            }
             const d =
               Number(updated.discount?.toString().replace(/\s/g, "")) || 0;
             const n = Number(updated.nds?.toString().replace(/\s/g, "")) || 0;
             const subtotal = q * p;
             const afterDiscount = subtotal * (1 - d / 100);
-            updated.sum = afterDiscount * (1 + n / 100);
+            updated.sum = signPrice(afterDiscount * (1 + n / 100));
           }
 
           if (field === "sum") {
             // Back-calculate price from sum: price = sum / qty / (1 - d/100) / (1 + n/100)
-            const rawSum = Number(value?.toString().replace(/\s/g, "")) || 0;
+            const rawSum = signPrice(
+              Number(value?.toString().replace(/\s/g, "")) || 0
+            );
+            updated.sum = rawSum;
             const q =
               Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
             const d =
@@ -264,7 +302,7 @@ const CreateShipment = observer(
                 q *
                 (discountFactor > 0 ? discountFactor : 1) *
                 (ndsFactor || 1);
-              updated.price = divisor ? rawSum / divisor : 0;
+              updated.price = divisor ? signPrice(rawSum / divisor) : 0;
             }
           }
 
@@ -285,6 +323,8 @@ const CreateShipment = observer(
       if (!shipmentDate) newErrors.shipmentDate = t("shipmentDateRequired");
       if (!legalEntity) newErrors.legalEntity = t("legalEntityRequired");
       if (!client) newErrors.client = L.clientRequired;
+      if (isWarehouseModuleOn && !warehouse)
+        newErrors.warehouse = t("warehouseRequired");
 
       const productData = rows.filter((row) => row.name);
       if (productData.length === 0) newErrors.products = t("productsRequired");
@@ -308,12 +348,13 @@ const CreateShipment = observer(
             : isPlanned,
           status_nachislenie: ["confirmed"],
           type: operationType,
-          summa: totalSum,
+          summa: signPrice(totalSum),
           data_nachislenie: moment.parseZone(shipmentDate).format("YYYY-MM-DD"),
           data_oplaty: moment.parseZone(shipmentDate).format("YYYY-MM-DD"),
           currencies_id: productCurrency,
           description: isPurchase ? "Supply" : "Shipment",
           chart_of_accounts_id: chartOfAccounts,
+          warehouse_id: warehouse || null,
           product_and_service_data: productData.map((row) => {
             const product = productServicesList.find(
               (p) => p.guid === row.name
@@ -323,8 +364,10 @@ const CreateShipment = observer(
               Naimenovanie: product ? product.name : row.naimenovanie || "",
               Artikul: product?.article || row.artikul || "",
               Kol_vo: formatDecimal(StringtoNumber(row.quantity)) || 0,
-              TSena_za_ed: formatDecimal(StringtoNumber(row.price)) || 0,
-              Summa: formatDecimal(StringtoNumber(row.sum)) || 0,
+              TSena_za_ed: signPrice(
+                formatDecimal(StringtoNumber(row.price)) || 0
+              ),
+              Summa: signPrice(formatDecimal(StringtoNumber(row.sum)) || 0),
               Skidka: Number(row.discount?.toString().replace(/\s/g, "")) || 0,
               NDS: Number(row.nds?.toString().replace(/\s/g, "")) || 0,
               unit_of_measurement_id:
@@ -359,6 +402,7 @@ const CreateShipment = observer(
         setLegalEntity("");
         setClient(kontragentId || "");
         setChartOfAccounts([]);
+        setWarehouse("");
         setRows([
           {
             id: 1,
@@ -398,7 +442,7 @@ const CreateShipment = observer(
         prev.map((row) => {
           if (row.id !== rowId) return row;
           const q = Number(product.kolvo) || 0;
-          const p = Number(product.tsena_za_ed) || 0;
+          const p = signPrice(Number(product.tsena_za_ed) || 0);
           return {
             ...row,
             name: value,
@@ -406,7 +450,7 @@ const CreateShipment = observer(
             quantity: q,
             discount: String(product.discount || 0),
             nds: String(product.nds || 0),
-            sum: q * p,
+            sum: signPrice(q * p),
           };
         })
       );
@@ -579,8 +623,8 @@ const CreateShipment = observer(
                 )}
               </div>
 
-              {/* Chart of accounts */}
-              {showChartOfAccounts && (
+              {/* Chart of accounts — hidden for a Поставка once warehouse tracking is on */}
+              {showChartOfAccounts && !hideArticleField && (
                 <div className="w-full flex items-center gap-2 pb-2">
                   <label className="w-40! text-xss!">{L.incomeArticle}</label>
                   <div className="flex-1">
@@ -591,6 +635,35 @@ const CreateShipment = observer(
                       className="w-80! bg-white"
                       allowedTypes={allowedTypes}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* Warehouse — shown for both Отгрузка and Поставка once the module is on */}
+              {isWarehouseModuleOn && (
+                <div className="w-full flex items-center gap-2 pb-2">
+                  <label className="w-40! text-xss!">
+                    {t("warehouse")} <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex-1">
+                    <SingleSelect
+                      data={warehouseOptions}
+                      value={warehouse}
+                      onChange={(value) => {
+                        setWarehouse(value);
+                        if (errors.warehouse) {
+                          setErrors({ ...errors, warehouse: null });
+                        }
+                      }}
+                      placeholder={t("warehousePlaceholder")}
+                      className="w-80! bg-white"
+                      hasError={!!errors.warehouse}
+                    />
+                    {errors.warehouse && (
+                      <div className={styles.errorMessage}>
+                        {errors.warehouse}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
