@@ -12,7 +12,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
   const isCredit = !operationFilterStore.selectedFilters?.includes('Кредит')
 
-  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && ((op.tip === 'Поступление' && !dealId) || op.tip === 'Выплата')
+  const showWarning = (isPastDate(op?.data_operatsii) && ((confirmed && !accrual) || (!confirmed && accrual))) && !dealId && (op.tip === 'Поступление' || op.tip === 'Выплата')
 
   return (
     <div
