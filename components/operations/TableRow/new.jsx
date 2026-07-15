@@ -1,362 +1,546 @@
-import { OperationMenu } from '@/components/operations/OperationsTable/OperationMenu'
-import PriceStatus from '@/components/operations/PriceStatus'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { ExpendClose, ExpendOpen, ShipmentIcon, SupplyIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
-import { cn } from '@/lib/utils'
-import { appStore } from '@/store/app.store'
-import { operationFilterStore } from '@/store/operationFilter.store'
-import { observer } from 'mobx-react-lite'
-import { useTranslations } from 'next-intl'
-import { memo, useMemo, useState } from 'react'
-import styles from './style.module.scss'
+import { OperationMenu } from "@/components/operations/OperationsTable/OperationMenu";
+import PriceStatus from "@/components/operations/PriceStatus";
+import OperationCheckbox from "@/components/shared/Checkbox/operationCheckbox";
+import {
+  ExpendClose,
+  ExpendOpen,
+  ShipmentIcon,
+  SupplyIcon,
+  TypeExpenseIcon,
+  TypeIncomeIcon,
+  TypeTransferIcon,
+} from "@/constants/icons";
+import { cn } from "@/lib/utils";
+import { appStore } from "@/store/app.store";
+import { operationFilterStore } from "@/store/operationFilter.store";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { memo, useMemo, useState } from "react";
+import styles from "./style.module.scss";
 
-const TableRow = observer(({
-  op,
-  selectedOperations,
-  toggleOperation,
-  handleEditOperation,
-  handleDeleteOperation,
-  handleCopyOperation,
-  counterpartyGuid,
-  showIndex
-}) => {
-  const t = useTranslations('Operations')
-  const [open, setOpen] = useState(false)
-  const children = useMemo(() => new Set(), [])
-  const chartofaccounts = useMemo(() => new Set(), [])
-  // const deals = useMemo(() => new Set(), [])
-  const isSpinasiya = !operationFilterStore?.selectedFilters?.includes('Списание')
-  const isZachisleniya = !operationFilterStore?.selectedFilters?.includes('Зачисление')
-  const isDebit = !operationFilterStore?.selectedFilters?.includes('Дебет')
-  const isCredit = !operationFilterStore?.selectedFilters?.includes('Кредит')
+const TableRow = observer(
+  ({
+    op,
+    selectedOperations,
+    toggleOperation,
+    handleEditOperation,
+    handleDeleteOperation,
+    handleCopyOperation,
+    counterpartyGuid,
+    showIndex,
+  }) => {
+    const t = useTranslations("Operations");
+    const [open, setOpen] = useState(false);
+    const children = useMemo(() => new Set(), []);
+    const chartofaccounts = useMemo(() => new Set(), []);
+    // const deals = useMemo(() => new Set(), [])
+    const isSpinasiya =
+      !operationFilterStore?.selectedFilters?.includes("Списание");
+    const isZachisleniya =
+      !operationFilterStore?.selectedFilters?.includes("Зачисление");
+    const isDebit = !operationFilterStore?.selectedFilters?.includes("Дебет");
+    const isCredit = !operationFilterStore?.selectedFilters?.includes("Кредит");
 
-  const operationPermissions = appStore.permission.operations
-  const canEdit = operationPermissions.income.edit && op.operationType === 'income' || operationPermissions.payout.edit && op.operationType === 'payment' || operationPermissions.transfer.edit && op.operationType === 'transfer' || operationPermissions.accrual.edit && op.operationType === 'accrual' || operationPermissions.shipment.edit && (op.operationType === 'shipment' || op.operationType === 'supply')
+    const operationPermissions = appStore.permission.operations;
+    const canEdit =
+      (operationPermissions.income.edit && op.operationType === "income") ||
+      (operationPermissions.payout.edit && op.operationType === "payment") ||
+      (operationPermissions.transfer.edit && op.operationType === "transfer") ||
+      (operationPermissions.accrual.edit && op.operationType === "accrual") ||
+      (operationPermissions.shipment.edit &&
+        (op.operationType === "shipment" || op.operationType === "supply"));
 
-  op.operationParts?.forEach(part => {
-    children.add(part?.counterparties_id)
-    chartofaccounts.add(part?.chart_of_accounts_id)
-  })
+    op.operationParts?.forEach((part) => {
+      children.add(part?.counterparties_id);
+      chartofaccounts.add(part?.chart_of_accounts_id);
+    });
 
-  console.log('oop', op)
+    console.log("oop", op);
 
-  const titleContragent = useMemo(() => {
-    if (op.tip == "Начисление") return op.counterparty || t('row.accrualPlaceholder')
-    if (children.size === 1 && children.has(counterpartyGuid)) {
-      return op.counterparty || ''
-    } else if (children.size > 1) {
-      return t('row.counterpartiesCount', { count: children.size || 2 })
-    } else {
-      return op.counterparty || ''
-    }
-  }, [children, counterpartyGuid, op.counterparty, op.tip, t])
-
-  const titleChartOfAccounts = useMemo(() => {
-    if (chartofaccounts.size === 1) {
-      return op.chartOfAccounts || ''
-    } else if (chartofaccounts.size > 1) {
-      return t('row.statyaCount', { count: chartofaccounts.size || 2 })
-    } else {
-      return op.chartOfAccounts || ''
-    }
-  }, [chartofaccounts, op.chartOfAccounts, t])
-
-  const titleDeals = useMemo(() => {
-    if (op.tip == "Начисление" && op.sales_transaction_name && op.sales_transaction_name_2) {
-      return {
-        title: t('row.dealsCount'),
-        children: [
-          op.sales_transaction_name,
-          op.sales_transaction_name_2
-        ]
+    const titleContragent = useMemo(() => {
+      if (op.tip == "Начисление")
+        return op.counterparty || t("row.accrualPlaceholder");
+      if (children.size === 1 && children.has(counterpartyGuid)) {
+        return op.counterparty || "";
+      } else if (children.size > 1) {
+        return t("row.counterpartiesCount", { count: children.size || 2 });
+      } else {
+        return op.counterparty || "";
       }
-    } else if (op.sales_transaction_name || op.sales_transaction_name_2) {
-      return {
-        title: op.sales_transaction_name || op.sales_transaction_name_2 || '',
-        children: []
+    }, [children, counterpartyGuid, op.counterparty, op.tip, t]);
+
+    const titleChartOfAccounts = useMemo(() => {
+      if (chartofaccounts.size === 1) {
+        return op.chartOfAccounts || "";
+      } else if (chartofaccounts.size > 1) {
+        return t("row.statyaCount", { count: chartofaccounts.size || 2 });
+      } else {
+        return op.chartOfAccounts || "";
       }
-    } else {
-      return {
-        title: '',
-        children: []
+    }, [chartofaccounts, op.chartOfAccounts, t]);
+
+    const titleDeals = useMemo(() => {
+      if (
+        op.tip == "Начисление" &&
+        op.sales_transaction_name &&
+        op.sales_transaction_name_2
+      ) {
+        return {
+          title: t("row.dealsCount"),
+          children: [op.sales_transaction_name, op.sales_transaction_name_2],
+        };
+      } else if (op.sales_transaction_name || op.sales_transaction_name_2) {
+        return {
+          title: op.sales_transaction_name || op.sales_transaction_name_2 || "",
+          children: [],
+        };
+      } else {
+        return {
+          title: "",
+          children: [],
+        };
       }
-    }
-  }, [op.tip, op.sales_transaction_name, op.sales_transaction_name_2, t])
+    }, [op.tip, op.sales_transaction_name, op.sales_transaction_name_2, t]);
 
-  const isDifferentDate = op?.accrualDate !== op?.operationDate
+    const isDifferentDate = op?.accrualDate !== op?.operationDate;
 
-  const isActive = !op?.payment_confirmed && !op?.payment_accrual
+    const isActive = !op?.payment_confirmed && !op?.payment_accrual;
 
+    const textPrimary = useMemo(() => {
+      switch (op.tip) {
+        case "Поступление":
+          return !op.payment_confirmed && !op.payment_accrual && "text-primary";
+        case "Выплата":
+          return !op.payment_confirmed && !op.payment_accrual && "text-primary";
+        case "Начисление":
+          return !op.payment_accrual && "text-primary";
+        case "Отгрузка":
+          return op.payment_shipment && "text-primary";
+        case "Поставка":
+          return op.payment_shipment && "text-primary";
+        case "Перемещение":
+          return !op.payment_confirmed && "text-primary";
+        default:
+          return "";
+      }
+    }, [op]);
 
-  const textPrimary = useMemo(() => {
-    switch (op.tip) {
-      case 'Поступление':
-        return !op.payment_confirmed && !op.payment_accrual && 'text-primary'
-      case 'Выплата':
-        return !op.payment_confirmed && !op.payment_accrual && 'text-primary'
-      case 'Начисление':
-        return !op.payment_accrual && 'text-primary'
-      case 'Отгрузка':
-        return op.payment_shipment && 'text-primary'
-      case 'Поставка':
-        return op.payment_shipment && 'text-primary'
-      case 'Перемещение':
-        return !op.payment_confirmed && 'text-primary'
-      default:
-        return ''
-    }
-  }, [op])
-
-  return (
-    <>
-      <div
-        key={op.guid}
-        className={cn(
-          'flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11',
-          selectedOperations.includes(op.guid) && styles.selected
-        )}
-        onClick={e => {
-          if (canEdit) {
-            if (!e.target.closest('input') && !e.target.closest('button')) {
-              handleEditOperation(op)
-            }
-          }
-        }}
-      >
-        {/* Checkbox/Index */}
-        {(toggleOperation || showIndex) && (
-          <div
-            className="min-w-10 flex items-center justify-center px-1"
-            onClick={e => e.stopPropagation()}
-          >
-            {toggleOperation ? (
-              <OperationCheckbox
-                checked={selectedOperations.includes(op.guid)}
-                onChange={() => toggleOperation(op.guid)}
-              />
-            ) : (
-              <span className="text-xs text-gray-500">{showIndex}</span>
-            )}
-          </div>
-        )}
-
-        {/* Date */}
-        <div className={cn('min-w-36 flex py-1 items-center justify-start ', isActive && styles.activeRow)}>
-          <div className={cn(textPrimary, 'w-full')}>
-            {op.operationParts?.length > 0 ? (
-              <div className={"flex items-center gap-1 pl-5 px-3 relative"} onClick={(event) => { event.stopPropagation(); setOpen(!open) }}>
-                <span className="absolute left-0.5"> {open ? <ExpendClose /> : <ExpendOpen />}</span>
-                <span className="text-sm flex-1">{op?.operationDate}</span>
-              </div>
-            ) : (
-              <div className='flex flex-col pl-5 px-3 items-start leading-tight'>
-                <span className='text-sm'>{op?.operationDate}</span>
-                {isDifferentDate && <span className="text-sm text-neutral-400">{op?.accrualDate}</span>}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Account/Shot */}
-        <div className={cn('min-w-18 line-clamp-1 max-w-52 flex-1 flex px-2 py-1 items-center justify-start', isActive && styles.activeRow)}>
-          <div className={cn('flex flex-col items-start leading-tight truncate', textPrimary)}>
-            {op?.tip === "Перемещение" ? (
-              <>
-                <span className="truncate w-full text-sm">{op.my_account_name}</span>
-                <span className="truncate w-full text-sm">{op.my_account_name2}</span>
-              </>
-            ) : (op.tip === "Поступление" || op.tip === "Выплата") ? (
-              <span className="truncate w-full text-sm">{op.my_account_name}</span>
-            ) : (op?.tip === "Начисление" || op?.tip === "Отгрузка" || op?.tip === "Поставка") ? (
-              <span className={cn("truncate w-full text-sm text-neutral-500 font-normal", textPrimary)}>[{op.legal_entity_name}]</span>
-            ) : null}
-          </div>
-        </div>
-
-        {op?.paymentType && appStore.isPayment && <div className="min-w-14 flex px-1 items-center justify-center">
-          <div className={cn(styles.typeIcon, 'scale-75')}>
-            {op?.paymentType}
-          </div>
-        </div>}
-
-        {/* Type Icon */}
-        <div className="min-w-14 flex px-1 items-center justify-center">
-          {op.tip ? (
-            <div className={cn(styles.typeIcon, 'scale-75')}>
-              {op.tip === 'Поступление' ? (
-                <TypeIncomeIcon />
-              ) : op.tip === 'Выплата' ? (
-                <TypeExpenseIcon />
-              ) : (op.tip === 'Перемещение' || op.tip === 'Начисление') ? (
-                <TypeTransferIcon />
-              ) : op.tip === 'Отгрузка' ? (
-                <ShipmentIcon />
-              ) : op.tip === 'Поставка' && <SupplyIcon />}
-            </div>
-          ) : null}
-        </div>
-
-        {/* Counterparty */}
-        <div className={cn('min-w-20 flex  flex-1 px-2 py-1 items-center justify-start ', isActive && styles.activeRow)}>
-          <p className={cn('text-xs line-clamp-2', textPrimary)} title={titleContragent}>{titleContragent}</p>
-        </div>
-
-        {/* Statya (Statya - Chart of Accounts) */}
-        <div className={cn('flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20', isActive && styles.activeRow)}>
-          <div className={cn('flex flex-col items-start  w-full', textPrimary)}>
-            {op?.tip === "Перемещение" ? (
-              <>
-                <span className={cn('text-sm line-clamp-1 w-full', isSpinasiya && 'opacity-50')}>{t('row.transferWriteOff')}</span>
-                <span className={cn('text-sm line-clamp-1 w-full', isZachisleniya && 'opacity-50')}>{t('row.transferEnrollment')}</span>
-              </>
-            ) : (op.tip === "Поступление" || op.tip === "Выплата") ? (
-              <>
-                <span className="text-sm  truncate w-full">{titleChartOfAccounts}</span>
-                {op.opisanie && <span className='text-sm text-neutral-400 line-clamp-1 w-full'>{op.opisanie}</span>}
-              </>
-            ) : op?.tip === "Начисление" ? (
-              <>
-                <span className={cn('text-sm line-clamp-1 w-full', isDebit && 'opacity-50')}>{op.chartOfAccounts} {t('row.byDebit')}</span>
-                <span className={cn('text-sm line-clamp-1 w-full', isCredit && 'opacity-50')}>{op.chartOfAccounts2} {t('row.byCredit')}</span>
-              </>
-            ) : (op?.tip === "Отгрузка" || op?.tip === "Поставка") && (
-              <span className="text-sm line-clamp-1  w-full">{op.chartOfAccounts}</span>
-            )}
-          </div>
-        </div>
-
-        {/* Project/Deal */}
-        <div className={cn('flex-1 flex px-2 py-1 items-center justify-center  min-w-20', isActive && styles.activeRow)}>
-          {(op.tip === "Поступление" || op.tip === "Выплата" || op.tip === "Отгрузка" || op.tip === "Поставка") && (
-            op?.sales_transaction_name || op?.purchase_transaction_name ? (
-              <div className='flex flex-col items-center justify-center w-full'>
-                {op?.sales_transaction_name && (
-                  <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op.sales_transaction_name}</p>
-                )}
-                {op?.purchase_transaction_name && (
-                  <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>{op.purchase_transaction_name}</p>
-                )}
-              </div>
-            ) : (
-              <p className={cn('text-xs text-neutral-600 truncate w-full text-center', textPrimary)}>-</p>
-            )
+    return (
+      <>
+        <div
+          key={op.guid}
+          className={cn(
+            "flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11",
+            selectedOperations.includes(op.guid) && styles.selected
           )}
-          {op.tip === "Начисление" && (
-            <div className='flex flex-col items-center justify-center relative group w-full'>
-              {titleDeals?.children?.length === 0 ? (
-                <p className={cn('text-xs truncate w-full text-center', !op.payment_accrual && 'text-primary')}>{titleDeals?.title || '-'}</p>
+          onClick={(e) => {
+            if (canEdit) {
+              if (!e.target.closest("input") && !e.target.closest("button")) {
+                handleEditOperation(op);
+              }
+            }
+          }}
+        >
+          {/* Checkbox/Index */}
+          {(toggleOperation || showIndex) && (
+            <div
+              className="min-w-10 flex items-center justify-center px-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {toggleOperation ? (
+                <OperationCheckbox
+                  checked={selectedOperations.includes(op.guid)}
+                  onChange={() => toggleOperation(op.guid)}
+                />
               ) : (
-                <>
-                  <span className="text-xs text-center truncate w-full font-medium">{titleDeals?.title}</span>
-                  <div className='absolute hidden group-hover:block space-y-1 w-48 z-50 bg-white shadow-xl rounded-md p-2 top-full ring-1 ring-black/5'>
-                    {titleDeals?.children?.map((child, idx) => (
-                      <p key={idx} className='text-[11px] text-gray-600  pb-1 last:border-0'>{child}</p>
-                    ))}
-                  </div>
-                </>
+                <span className="text-xs text-gray-500">{showIndex}</span>
               )}
             </div>
           )}
-        </div>
 
-        {/* Price/Amount */}
-        <div className="min-w-36 flex px-2 py-1 items-center justify-end " onClick={e => e.stopPropagation()}>
-          <PriceStatus
-            amount={op.summa}
-            toAmount={op.to_amount}
-            tab={op.tip}
-            type={op?.tip}
-            op={op}
-            debit={op?.debit}
-            kredit={op?.kredit}
-            percent={op?.percent}
-            confirmed={op.payment_confirmed}
-            accrual={op.payment_accrual}
-            currency={op.currency}
-            dealId={op?.sales_transactions_id || op?.purchase_transactions_id}
-            toCurrency={op?.to_currenies_kod}
-          />
-        </div>
-
-        {/* Menu (Actions) */}
-        <div
-          className="w-5 flex items-center justify-center px-1"
-          onClick={e => e.stopPropagation()}
-        >
-          <OperationMenu
-            operation={op}
-            onEdit={handleEditOperation}
-            onDelete={handleDeleteOperation}
-            onCopy={handleCopyOperation}
-          />
-        </div>
-      </div>
-
-      {/* Child Rows (Operation Parts) */}
-      {open && op.operationParts?.map(part => {
-
-        return <div
-          key={part.id}
-          className={cn(
-            'flex text-mini gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50',
-            counterpartyGuid && counterpartyGuid !== part?.counterparties_id && 'opacity-40 grayscale-[0.5] pointer-events-none'
-          )}
-        >
-          {/* Empty Space for Checkbox + padding for index */}
-          <div className={!toggleOperation ? "w-32" : "w-40"} />
-
-          {/* Date Part */}
-          <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">
-            <span className="text-[11px] text-gray-500 font-medium">↳ {part?.accrualDate}</span>
+          {/* Date */}
+          <div
+            className={cn(
+              "min-w-36 flex py-1 items-center justify-start ",
+              isActive && styles.activeRow
+            )}
+          >
+            <div className={cn(textPrimary, "w-full")}>
+              {op.operationParts?.length > 0 ? (
+                <div
+                  className={"flex items-center gap-1 pl-5 px-3 relative"}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setOpen(!open);
+                  }}
+                >
+                  <span className="absolute left-0.5">
+                    {" "}
+                    {open ? <ExpendClose /> : <ExpendOpen />}
+                  </span>
+                  <span className="text-sm flex-1">{op?.operationDate}</span>
+                </div>
+              ) : (
+                <div className="flex flex-col pl-5 px-3 items-start leading-tight">
+                  <span className="text-sm">{op?.operationDate}</span>
+                  {isDifferentDate && (
+                    <span className="text-sm text-neutral-400">
+                      {op?.accrualDate}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Empty Account (Part inherits parent account) */}
-          <div className="w-15 " />
+          {/* Account/Shot */}
+          <div
+            className={cn(
+              "min-w-18 line-clamp-1 max-w-52 flex-1 flex px-2 py-1 items-center justify-start",
+              isActive && styles.activeRow
+            )}
+          >
+            <div
+              className={cn(
+                "flex flex-col items-start leading-tight truncate",
+                textPrimary
+              )}
+            >
+              {op?.tip === "Перемещение" ? (
+                <>
+                  <span className="truncate w-full text-sm">
+                    {op.my_account_name}
+                  </span>
+                  <span className="truncate w-full text-sm">
+                    {op.my_account_name2}
+                  </span>
+                </>
+              ) : op.tip === "Поступление" || op.tip === "Выплата" ? (
+                <span className="truncate w-full text-sm">
+                  {op.my_account_name}
+                </span>
+              ) : op?.tip === "Начисление" ||
+                op?.tip === "Отгрузка" ||
+                op?.tip === "Поставка" ? (
+                <span
+                  className={cn(
+                    "truncate w-full text-sm text-neutral-500 font-normal",
+                    textPrimary
+                  )}
+                >
+                  [{op.legal_entity_name}]
+                </span>
+              ) : null}
+            </div>
+          </div>
 
-          {/* Type Icon Part */}
-          <div className="w-14 flex px-1 items-center justify-center ">
-            {part.tip && (
-              <div className="scale-[0.7] opacity-60">
-                {part.tip === 'Поступление' ? <TypeIncomeIcon /> : <TypeExpenseIcon />}
+          {op?.paymentType && appStore.isPayment && (
+            <div className="min-w-14 flex px-1 items-center justify-center">
+              <div className={cn(styles.typeIcon, "scale-75")}>
+                {op?.paymentType}
+              </div>
+            </div>
+          )}
+
+          {/* Type Icon */}
+          <div className="min-w-14 flex px-1 items-center justify-center">
+            {op.tip ? (
+              <div className={cn(styles.typeIcon, "scale-75")}>
+                {op.tip === "Поступление" ? (
+                  <TypeIncomeIcon />
+                ) : op.tip === "Выплата" ? (
+                  <TypeExpenseIcon />
+                ) : op.tip === "Перемещение" || op.tip === "Начисление" ? (
+                  <TypeTransferIcon />
+                ) : op.tip === "Отгрузка" ? (
+                  <ShipmentIcon />
+                ) : (
+                  op.tip === "Поставка" && <SupplyIcon />
+                )}
+              </div>
+            ) : null}
+          </div>
+
+          {/* Counterparty */}
+          <div
+            className={cn(
+              "min-w-20 flex  flex-1 px-2 py-1 items-center justify-start ",
+              isActive && styles.activeRow
+            )}
+          >
+            <p
+              className={cn("text-xs line-clamp-2", textPrimary)}
+              title={titleContragent}
+            >
+              {titleContragent}
+            </p>
+          </div>
+
+          {/* Statya (Statya - Chart of Accounts) */}
+          <div
+            className={cn(
+              "flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20",
+              isActive && styles.activeRow
+            )}
+          >
+            <div
+              className={cn("flex flex-col items-start  w-full", textPrimary)}
+            >
+              {op?.tip === "Перемещение" ? (
+                <>
+                  <span
+                    className={cn(
+                      "text-sm line-clamp-1 w-full",
+                      isSpinasiya && "opacity-50"
+                    )}
+                  >
+                    {t("row.transferWriteOff")}
+                  </span>
+                  <span
+                    className={cn(
+                      "text-sm line-clamp-1 w-full",
+                      isZachisleniya && "opacity-50"
+                    )}
+                  >
+                    {t("row.transferEnrollment")}
+                  </span>
+                </>
+              ) : op.tip === "Поступление" || op.tip === "Выплата" ? (
+                <>
+                  <span className="text-sm  truncate w-full">
+                    {titleChartOfAccounts}
+                  </span>
+                  {op.opisanie && (
+                    <span className="text-sm text-neutral-400 line-clamp-1 w-full">
+                      {op.opisanie}
+                    </span>
+                  )}
+                </>
+              ) : op?.tip === "Начисление" ? (
+                <>
+                  <span
+                    className={cn(
+                      "text-sm line-clamp-1 w-full",
+                      isDebit && "opacity-50"
+                    )}
+                  >
+                    {op.chartOfAccounts} {t("row.byDebit")}
+                  </span>
+                  <span
+                    className={cn(
+                      "text-sm line-clamp-1 w-full",
+                      isCredit && "opacity-50"
+                    )}
+                  >
+                    {op.chartOfAccounts2} {t("row.byCredit")}
+                  </span>
+                </>
+              ) : (
+                (op?.tip === "Отгрузка" || op?.tip === "Поставка") && (
+                  <span className="text-sm line-clamp-1  w-full">
+                    {op.chartOfAccounts}
+                  </span>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* Project/Deal */}
+          <div
+            className={cn(
+              "flex-1 flex px-2 py-1 items-center justify-center  min-w-20",
+              isActive && styles.activeRow
+            )}
+          >
+            {(op.tip === "Поступление" ||
+              op.tip === "Выплата" ||
+              op.tip === "Отгрузка" ||
+              op.tip === "Поставка") &&
+              (op?.sales_transaction_name || op?.purchase_transaction_name ? (
+                <div className="flex flex-col items-center justify-center w-full">
+                  {op?.sales_transaction_name && (
+                    <p
+                      className={cn(
+                        "text-xs text-neutral-600 truncate w-full text-center",
+                        textPrimary
+                      )}
+                    >
+                      {op.sales_transaction_name}
+                    </p>
+                  )}
+                  {op?.purchase_transaction_name && (
+                    <p
+                      className={cn(
+                        "text-xs text-neutral-600 truncate w-full text-center",
+                        textPrimary
+                      )}
+                    >
+                      {op.purchase_transaction_name}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p
+                  className={cn(
+                    "text-xs text-neutral-600 truncate w-full text-center",
+                    textPrimary
+                  )}
+                >
+                  -
+                </p>
+              ))}
+            {op.tip === "Начисление" && (
+              <div className="flex flex-col items-center justify-center relative group w-full">
+                {titleDeals?.children?.length === 0 ? (
+                  <p
+                    className={cn(
+                      "text-xs truncate w-full text-center",
+                      !op.payment_accrual && "text-primary"
+                    )}
+                  >
+                    {titleDeals?.title || "-"}
+                  </p>
+                ) : (
+                  <>
+                    <span className="text-xs text-center truncate w-full font-medium">
+                      {titleDeals?.title}
+                    </span>
+                    <div className="absolute hidden group-hover:block space-y-1 w-48 z-50 bg-white shadow-xl rounded-md p-2 top-full ring-1 ring-black/5">
+                      {titleDeals?.children?.map((child, idx) => (
+                        <p
+                          key={idx}
+                          className="text-[11px] text-gray-600  pb-1 last:border-0"
+                        >
+                          {child}
+                        </p>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
 
-          {/* Counterparty Part */}
-          <div className="w-52 flex-1 flex px-2 py-1 items-center justify-start ">
-            <span className="text-xs text-gray-600  ">{part.counterparty || ''}</span>
-          </div>
-
-          {/* Statya Part */}
-          <div className="flex-1 flex px-2 py-1 items-center justify-start ">
-            <span className="text-xs text-gray-600 line-clamp-1">{part.chartOfAccounts}</span>
-          </div>
-
-          {/* Deal Part */}
-          <div className="flex-1 flex px-2 py-1 items-center justify-center ">
-            <span className="text-xs text-gray-500 ">{part?.selling_deal_name || '-'}</span>
-          </div>
-
-          {/* Price Part */}
-          <div className="w-40 flex px-2 py-1 items-center justify-end ">
+          {/* Price/Amount */}
+          <div
+            className="min-w-36 flex px-2 py-1 items-center justify-end "
+            onClick={(e) => e.stopPropagation()}
+          >
             <PriceStatus
-              amount={part.summa}
-              tab={part?.tip}
-              type={part?.tip}
-              percent={part?.percent}
-              confirmed={part.payment_confirmed}
-              accrual={part.payment_accrual}
-              currency={part.currency}
+              amount={op.summa}
+              toAmount={op.to_amount}
+              tab={op.tip}
+              type={op?.tip}
+              op={op}
+              debit={op?.debit}
+              kredit={op?.kredit}
+              percent={op?.percent}
+              confirmed={op.payment_confirmed}
+              accrual={op.payment_accrual}
+              currency={op.currency}
               dealId={op?.sales_transactions_id || op?.purchase_transactions_id}
+              toCurrency={op?.to_currenies_kod}
             />
           </div>
 
-          {/* Empty Menu Space for children */}
-          {/* <div className="w-8" /> */}
+          {/* Menu (Actions) */}
+          <div
+            className="w-5 flex items-center justify-center px-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <OperationMenu
+              operation={op}
+              onEdit={handleEditOperation}
+              onDelete={handleDeleteOperation}
+              onCopy={handleCopyOperation}
+            />
+          </div>
         </div>
-      })}
-    </>
-  )
-})
 
-export default memo(TableRow)
+        {/* Child Rows (Operation Parts) */}
+        {open &&
+          op.operationParts?.map((part) => {
+            return (
+              <div
+                key={part.id}
+                className={cn(
+                  "flex text-mini gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50",
+                  counterpartyGuid &&
+                    counterpartyGuid !== part?.counterparties_id &&
+                    "opacity-40 grayscale-[0.5] pointer-events-none"
+                )}
+              >
+                {/* Empty Space for Checkbox + padding for index */}
+                <div className={!toggleOperation ? "w-32" : "w-40"} />
+
+                {/* Date Part */}
+                <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">
+                  <span className="text-[11px] text-gray-500 font-medium">
+                    ↳ {part?.accrualDate}
+                  </span>
+                </div>
+
+                {/* Empty Account (Part inherits parent account) */}
+                <div className="w-15 " />
+
+                {/* Type Icon Part */}
+                <div className="w-14 flex px-1 items-center justify-center ">
+                  {part.tip && (
+                    <div className="scale-[0.7] opacity-60">
+                      {part.tip === "Поступление" ? (
+                        <TypeIncomeIcon />
+                      ) : (
+                        <TypeExpenseIcon />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Counterparty Part */}
+                <div className="w-52 flex-1 flex px-2 py-1 items-center justify-start ">
+                  <span className="text-xs text-gray-600  ">
+                    {part.counterparty || ""}
+                  </span>
+                </div>
+
+                {/* Statya Part */}
+                <div className="flex-1 flex px-2 py-1 items-center justify-start ">
+                  <span className="text-xs text-gray-600 line-clamp-1">
+                    {part.chartOfAccounts}
+                  </span>
+                </div>
+
+                {/* Deal Part */}
+                <div className="flex-1 flex px-2 py-1 items-center justify-center ">
+                  <span className="text-xs text-gray-500 ">
+                    {part?.selling_deal_name || "-"}
+                  </span>
+                </div>
+
+                {/* Price Part */}
+                <div className="w-40 flex px-2 py-1 items-center justify-end ">
+                  <PriceStatus
+                    amount={part.summa}
+                    tab={part?.tip}
+                    type={part?.tip}
+                    percent={part?.percent}
+                    confirmed={part.payment_confirmed}
+                    accrual={part.payment_accrual}
+                    currency={part.currency}
+                    dealId={
+                      op?.sales_transactions_id || op?.purchase_transactions_id
+                    }
+                  />
+                </div>
+
+                {/* Empty Menu Space for children */}
+                {/* <div className="w-8" /> */}
+              </div>
+            );
+          })}
+      </>
+    );
+  }
+);
+
+export default memo(TableRow);
