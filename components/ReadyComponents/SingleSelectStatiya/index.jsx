@@ -1,100 +1,136 @@
-import { keepPreviousData } from '@tanstack/react-query'
-import { debounce } from 'lodash'
-import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import TreeSelect from '../../shared/Selects/TreeSelect'
+import { keepPreviousData } from "@tanstack/react-query";
+import { debounce } from "lodash";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useUcodeRequestQuery } from "../../../hooks/useDashboard";
+import TreeSelect from "../../shared/Selects/TreeSelect";
 
 const NOT_SELECTABLE = new Set([
-  'Доходы',
-  'Расходы',
-  'Актив',
-  'Оборотные активы',
-  'Другие оборотные',
-  'Внеоборотные активы',
-  'Основные средства',
-  'Другие внеоборотные',
-  'Обязательства',
-  'Краткосрочные обязательства',
-  'Другие краткосрочные',
-  'Долгосрочные обязательства',
-  'Другие долгосрочные',
-  'Капитал',
-  'Другие статьи капитала',
-  'Другие долгосрочные '
-])
+  "Доходы",
+  "Расходы",
+  "Актив",
+  "Оборотные активы",
+  "Другие оборотные",
+  "Внеоборотные активы",
+  "Основные средства",
+  "Другие внеоборотные",
+  "Обязательства",
+  "Краткосрочные обязательства",
+  "Другие краткосрочные",
+  "Долгосрочные обязательства",
+  "Другие долгосрочные",
+  "Капитал",
+  "Другие статьи капитала",
+  "Другие долгосрочные ",
+]);
 
-const HIDDEN_VALES = new Set([
-  'Денежная',
-  'Неденежная'
-])
-
+const HIDDEN_VALES = new Set(["Денежная", "Неденежная"]);
 
 const mapNode = (item, type, hiddenValue) => {
-  const isDisabled = NOT_SELECTABLE.has(item.nazvanie)
-  const idValue = item.guid || item.chart_of_accounts_id_2 || item.id || `fallback-key-${Math.random().toString(36).substring(2, 9)}`
+  const isDisabled = NOT_SELECTABLE.has(item.nazvanie);
+  const idValue =
+    item.guid ||
+    item.chart_of_accounts_id_2 ||
+    item.id ||
+    `fallback-key-${Math.random().toString(36).substring(2, 9)}`;
 
-  if (item?.nazvanie === type || idValue === hiddenValue || HIDDEN_VALES.has(item?.nazvanie)) return null
+  if (
+    item?.nazvanie === type ||
+    idValue === hiddenValue ||
+    HIDDEN_VALES.has(item?.nazvanie)
+  )
+    return null;
 
   return {
     value: idValue,
     label: item.nazvanie,
     bold: isDisabled,
     isSelectable: !isDisabled,
-    children: item.children?.map(child => mapNode(child, type, hiddenValue)).filter(Boolean) || []
-  }
-}
+    children:
+      item.children
+        ?.map((child) => mapNode(child, type, hiddenValue))
+        .filter(Boolean) || [],
+  };
+};
 
 const mapTree = (data, type, hiddenValue, allowedTypes) => {
-  let filtered = data?.filter(item => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie))
+  let filtered = data?.filter(
+    (item) => item.nazvanie !== type && !HIDDEN_VALES.has(item?.nazvanie)
+  );
   if (allowedTypes && allowedTypes.length > 0) {
-    filtered = filtered?.filter(item => allowedTypes.includes(item.nazvanie))
+    filtered = filtered?.filter((item) => allowedTypes.includes(item.nazvanie));
     filtered = filtered?.sort((a, b) => {
-      const ai = allowedTypes.indexOf(a.nazvanie)
-      const bi = allowedTypes.indexOf(b.nazvanie)
-      return ai - bi
-    })
+      const ai = allowedTypes.indexOf(a.nazvanie);
+      const bi = allowedTypes.indexOf(b.nazvanie);
+      return ai - bi;
+    });
   }
-  return filtered?.map(item => mapNode(item, type, hiddenValue)).filter(Boolean)
-}
+  return filtered
+    ?.map((item) => mapNode(item, type, hiddenValue))
+    .filter(Boolean);
+};
 
-const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, className, type = "Расходы", allowedTypes, dropdownClassName, parent, returnIsChild, hiddenValue, hasError, isClearable = true, handleReturnName, disabled = false, dropdownHeaderItem }) => {
-  const t = useTranslations('Common')
-  const [debouncedSearch, setDebouncedSearch] = useState("")
+const SinglSelectStatiya = ({
+  selectedValue,
+  setSelectedValue,
+  placeholder,
+  className,
+  type = "Расходы",
+  allowedTypes,
+  dropdownClassName,
+  parent,
+  returnIsChild,
+  hiddenValue,
+  hasError,
+  isClearable = true,
+  handleReturnName,
+  disabled = false,
+  dropdownHeaderItem,
+}) => {
+  const t = useTranslations("Common");
 
-  const handleSearch = useMemo(() =>
-    debounce((val) => setDebouncedSearch(val), 500),
-    [])
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const handleSearch = useMemo(
+    () => debounce((val) => setDebouncedSearch(val), 500),
+    []
+  );
 
   useEffect(() => {
-    return () => handleSearch.cancel()
-  }, [handleSearch])
+    return () => handleSearch.cancel();
+  }, [handleSearch]);
 
   const { data: chartOfAccountsData, isFetching } = useUcodeRequestQuery({
     method: "get_chart_of_accounts",
     data: {
       page: 1,
       limit: 100,
-      search: debouncedSearch
+      search: debouncedSearch,
     },
     querySetting: {
       select: (res) => res?.data?.data,
       staleTime: 1000 * 60 * 30,
-      placeholderData: keepPreviousData
-    }
-  })
+      placeholderData: keepPreviousData,
+    },
+  });
 
   const result = useMemo(() => {
-    const effectiveType = (allowedTypes && allowedTypes.length > 0) ? null : type
-    return mapTree(chartOfAccountsData, effectiveType, hiddenValue, allowedTypes)
-  }, [chartOfAccountsData, type, hiddenValue, allowedTypes])
+    const effectiveType = allowedTypes && allowedTypes.length > 0 ? null : type;
+    return mapTree(
+      chartOfAccountsData,
+      effectiveType,
+      hiddenValue,
+      allowedTypes
+    );
+  }, [chartOfAccountsData, type, hiddenValue, allowedTypes]);
 
   // Flattened map to track ancestry by value
   const flattenedAncestry = useMemo(() => {
     const flat = {};
     const traverse = (nodes, ancestors = []) => {
-      nodes.forEach(node => {
-        const id = node.guid || node.chart_of_accounts_id_2 || node.id || node.value;
+      nodes.forEach((node) => {
+        const id =
+          node.guid || node.chart_of_accounts_id_2 || node.id || node.value;
         const currentAncestors = [...ancestors, node.label || node.nazvanie];
         flat[id] = currentAncestors;
         if (node.children) traverse(node.children, currentAncestors);
@@ -102,38 +138,44 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, clas
     };
     if (result) traverse(result);
     return flat;
-  }, [result])
+  }, [result]);
 
   // Find label by value from tree data
   const findLabelByValue = (nodes, value) => {
     for (const node of nodes) {
-      if (node.value === value) return node.label
+      if (node.value === value) return node.label;
       if (node.children) {
-        const found = findLabelByValue(node.children, value)
-        if (found) return found
+        const found = findLabelByValue(node.children, value);
+        if (found) return found;
       }
     }
-    return null
-  }
+    return null;
+  };
 
   useEffect(() => {
     if (selectedValue && returnIsChild) {
       const ancestors = flattenedAncestry[selectedValue] || [];
       const parentArray = Array.isArray(parent) ? parent : [parent];
       // Check if any ancestor matches any of the parent names
-      const isDescendant = ancestors.some(name => parentArray.includes(name));
+      const isDescendant = ancestors.some((name) => parentArray.includes(name));
       returnIsChild(isDescendant);
     }
-  }, [selectedValue, flattenedAncestry, parent, returnIsChild])
+  }, [selectedValue, flattenedAncestry, parent, returnIsChild]);
 
   useEffect(() => {
     if (selectedValue) {
       const ancestors = flattenedAncestry[selectedValue] || [];
       if (!ancestors?.length) {
-        setSelectedValue('')
+        setSelectedValue("");
       }
     }
-  }, [selectedValue, flattenedAncestry, parent, returnIsChild, setSelectedValue])
+  }, [
+    selectedValue,
+    flattenedAncestry,
+    parent,
+    returnIsChild,
+    setSelectedValue,
+  ]);
 
   // Return selected item label when value changes
   useEffect(() => {
@@ -141,18 +183,18 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, clas
       // Inline label lookup to avoid dependency issues
       const findLabel = (nodes, val) => {
         for (const node of nodes) {
-          if (node.value === val) return node.label
+          if (node.value === val) return node.label;
           if (node.children) {
-            const found = findLabel(node.children, val)
-            if (found) return found
+            const found = findLabel(node.children, val);
+            if (found) return found;
           }
         }
-        return null
-      }
-      const label = selectedValue ? findLabel(result, selectedValue) : ''
-      handleReturnName(label || '')
+        return null;
+      };
+      const label = selectedValue ? findLabel(result, selectedValue) : "";
+      handleReturnName(label || "");
     }
-  }, [selectedValue, result, handleReturnName])
+  }, [selectedValue, result, handleReturnName]);
 
   const handleSelect = (val) => {
     setSelectedValue?.(val);
@@ -160,31 +202,33 @@ const SinglSelectStatiya = ({ selectedValue, setSelectedValue, placeholder, clas
       const ancestors = flattenedAncestry[val] || [];
       const parentArray = Array.isArray(parent) ? parent : [parent];
       // Check if any ancestor matches any of the parent names
-      const isDescendant = ancestors.some(name => parentArray.includes(name));
+      const isDescendant = ancestors.some((name) => parentArray.includes(name));
       returnIsChild(isDescendant);
     }
     // Return label of selected item
     if (handleReturnName && result) {
-      const label = val ? findLabelByValue(result, val) : ''
-      handleReturnName(label || '')
+      const label = val ? findLabelByValue(result, val) : "";
+      handleReturnName(label || "");
     }
-  }
+  };
 
-  return <TreeSelect
-    data={result}
-    multi={false}
-    placeholder={placeholder || t('placeholders.selectStatiya')}
-    value={selectedValue}
-    isClearable={isClearable}
-    onChange={handleSelect}
-    className={className}
-    dropdownClassName={dropdownClassName}
-    hasError={hasError}
-    disabled={disabled}
-    onSearch={handleSearch}
-    isSearching={isFetching}
-    dropdownHeaderItem={dropdownHeaderItem}
-  />
-}
+  return (
+    <TreeSelect
+      data={result}
+      multi={false}
+      placeholder={placeholder || t("placeholders.selectStatiya")}
+      value={selectedValue}
+      isClearable={isClearable}
+      onChange={handleSelect}
+      className={className}
+      dropdownClassName={dropdownClassName}
+      hasError={hasError}
+      disabled={disabled}
+      onSearch={handleSearch}
+      isSearching={isFetching}
+      dropdownHeaderItem={dropdownHeaderItem}
+    />
+  );
+};
 
-export default SinglSelectStatiya
+export default SinglSelectStatiya;
