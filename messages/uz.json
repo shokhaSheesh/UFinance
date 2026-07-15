@@ -3,6 +3,33 @@
 		"pageTitle": "Mening omborim",
 		"searchPlaceholder": "Nom bo'yicha qidirish",
 		"empty": "Ombor bo'sh",
+		"createButton": "Ombor qo'shish",
+		"searchWarehousesPlaceholder": "Nomi yoki manzili bo'yicha qidirish",
+		"emptyWarehouses": "Omborlar topilmadi",
+		"defaultBadge": "Asosiy",
+		"table": {
+			"name": "Nomi",
+			"address": "Manzil",
+			"comment": "Izoh",
+			"default": "Asosiy"
+		},
+		"createModal": {
+			"titleNew": "Yangi ombor",
+			"titleEdit": "Omborni tahrirlash",
+			"name": "Nomi",
+			"namePlaceholder": "Masalan, Asosiy ombor",
+			"nameRequired": "Ombor nomini kiriting",
+			"address": "Manzil",
+			"addressPlaceholder": "Ombor manzilini kiriting",
+			"comment": "Izoh",
+			"commentPlaceholder": "Omborga izoh",
+			"isDefault": "Asosiy ombor qilib belgilash"
+		},
+		"deleteModal": {
+			"title": "Omborni o'chirasizmi?",
+			"message": "Haqiqatan ham «{name}» omborini o'chirmoqchimisiz? Uni tiklab bo'lmaydi.",
+			"deleting": "O'chirilmoqda..."
+		},
 		"columns": {
 			"name": "Nomi",
 			"artikul": "Artikul",

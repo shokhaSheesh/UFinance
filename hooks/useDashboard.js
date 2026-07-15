@@ -1,6 +1,7 @@
 import { dashboardAPI } from '@/lib/api/dashboard'
 import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
+import { createWarehouse, deleteWarehouse, listWarehouses, updateWarehouse } from '@/lib/api/ucode/warehouse'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import {
 	useInfiniteQuery,
@@ -691,5 +692,62 @@ export const useUcodeDefaultApiQuery = ({
 		refetchOnMount: true,
 		refetchOnWindowFocus: false,
 		...querySetting,
+	})
+}
+
+// ============================================
+// WAREHOUSE (Склады) CRUD
+// ============================================
+
+export const useWarehousesList = (params = {}) => {
+	return useQuery({
+		queryKey: ['list_warehouses', params],
+		queryFn: () => listWarehouses(params),
+		select: response => response?.data?.data || [],
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при загрузке складов')
+		},
+	})
+}
+
+export const useCreateWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: createWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно создан!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при создании склада')
+		},
+	})
+}
+
+export const useUpdateWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: updateWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно обновлён!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при обновлении склада')
+		},
+	})
+}
+
+export const useDeleteWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: deleteWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно удалён!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при удалении склада')
+		},
 	})
 }

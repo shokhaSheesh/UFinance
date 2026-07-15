@@ -3,6 +3,33 @@
 		"pageTitle": "My warehouse",
 		"searchPlaceholder": "Search by name",
 		"empty": "Warehouse is empty",
+		"createButton": "Add warehouse",
+		"searchWarehousesPlaceholder": "Search by name or address",
+		"emptyWarehouses": "No warehouses found",
+		"defaultBadge": "Default",
+		"table": {
+			"name": "Name",
+			"address": "Address",
+			"comment": "Comment",
+			"default": "Default"
+		},
+		"createModal": {
+			"titleNew": "New warehouse",
+			"titleEdit": "Edit warehouse",
+			"name": "Name",
+			"namePlaceholder": "E.g. Main warehouse",
+			"nameRequired": "Enter a warehouse name",
+			"address": "Address",
+			"addressPlaceholder": "Enter the warehouse address",
+			"comment": "Comment",
+			"commentPlaceholder": "Comment about this warehouse",
+			"isDefault": "Set as default warehouse"
+		},
+		"deleteModal": {
+			"title": "Delete warehouse?",
+			"message": "Are you sure you want to delete the warehouse \"{name}\"? This cannot be undone.",
+			"deleting": "Deleting..."
+		},
 		"columns": {
 			"name": "Name",
 			"artikul": "SKU",

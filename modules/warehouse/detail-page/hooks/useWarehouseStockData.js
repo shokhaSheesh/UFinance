@@ -4,13 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 const LIMIT = 50;
 
 /**
- * Data hook for the "Мой склад" (warehouse) page.
- * Fetches stock balances via `list_stock_balances`, with server-side
- * pagination + search. `branch_id` is injected automatically by the API client.
+ * Data hook for a single warehouse's stock table.
+ * Fetches stock balances via `list_stock_balances`, scoped to `warehouseId`,
+ * with server-side pagination + search. `branch_id` is injected automatically
+ * by the API client.
  *
  * Остаток = Ожидание (waiting_quantity) + Доступно (quantity)
  */
-export function useWarehouseData() {
+export function useWarehouseStockData(warehouseId) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -30,7 +31,8 @@ export function useWarehouseData() {
   const { data, isLoading, isFetching } = useUcodeRequestQuery({
     queryKey: "list_stock_balances",
     method: "list_stock_balances",
-    data: { page, limit: LIMIT, search: debouncedSearch },
+    data: { warehouse_id: warehouseId, page, limit: LIMIT, search: debouncedSearch },
+    skip: !warehouseId,
     querySetting: {
       select: (res) => res?.data,
       placeholderData: (prev) => prev,
