@@ -697,6 +697,7 @@
 			"emptySubtitle": "Majburiyatlar bajarilishini nazorat qilish uchun tovar/xizmat yetkazmalarini hisobga oling",
 			"deleteSupplyTitle": "Yetkazmani o'chirish",
 			"deleteSupplyConfirm": "Haqiqatan ham <strong>{amount}</strong> summadagi yetkazmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+			"deleteBlockedClosedWarehouse": "O'chirish mumkin emas: «Rejalashtirilgan» belgisi joriy sklad moduli sozlamasiga mos kelmayapti",
 			"unallocatedExpense": "Taqsimlanmagan xarajat"
 		},
 		"createDealModal": {
@@ -1020,6 +1021,7 @@
 			"warehouse": "Ombor",
 			"warehousePlaceholder": "Omborni tanlang",
 			"warehouseRequired": "Omborni tanlang",
+			"saveBlockedClosedWarehouse": "Saqlash mumkin emas: «Rejalashtirilgan» belgisi joriy sklad moduli sozlamasiga mos kelmayapti",
 			"requiredFields": "Majburiy maydonlar",
 			"cancel": "Bekor qilish",
 			"create": "Yaratish",
@@ -1886,6 +1888,7 @@
 				"unallocatedIncome": "Taqsimlanmagan daromad",
 				"deleteShipmentTitle": "Yukni o'chirish",
 				"deleteShipmentConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali yukni o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+				"deleteBlockedClosedWarehouse": "O'chirish mumkin emas: «Rejalashtirilgan» belgisi joriy sklad moduli sozlamasiga mos kelmayapti",
 				"cancel": "Bekor qilish",
 				"delete": "O'chirish",
 				"emptyTitle": "Bitimga yetkazib berishni qo'shing",

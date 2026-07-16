@@ -8,7 +8,7 @@ import CreateLegalEntityModal from '../../directories/CreateLegalEntityModal/Cre
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFieldName, returnFieldValue, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false, dropdownHeaderItem }) => {
+const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFieldName, returnFieldValue, returnLabel, dropdownClassName, multi = false, hasError, isClearable = true, disabled = false, dropdownHeaderItem }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -44,6 +44,15 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
 
   const Component = multi ? MultiSelect : SingleSelect;
 
+  // Pass the selected legal-entity name up (for contract templates etc.)
+  const handleChange = (val) => {
+    onChange?.(val)
+    if (returnLabel) {
+      const found = (mappedData || []).find((i) => i.value === val)
+      returnLabel(found?.label ?? '')
+    }
+  }
+
   const createLegalEntityHeader = (
     <button
       type="button"
@@ -66,7 +75,7 @@ const SelectLegelEntitties = ({ value, onChange, placeholder, className, childFi
       <Component
         data={mappedData}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         placeholder={isLoading ? t('loading') : placeholder || t('placeholders.selectLegalEntity')}
         className={className}
         dropdownClassName={dropdownClassName}

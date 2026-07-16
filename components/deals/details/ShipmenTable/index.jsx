@@ -6,9 +6,11 @@ import {
 import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import { shipmentsDto } from '@/lib/dtos/shipmentsDto'
+import { appStore } from '@/store/app.store'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
@@ -17,7 +19,7 @@ import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
-const ShipmenTable = ({
+const ShipmenTable = observer(({
   dealName = '', dealGuid = '', onAdd, canAdd,
   listMethod = 'list_sales_operations',
   dealIdField = 'sales_transaction_id',
@@ -191,8 +193,10 @@ const ShipmenTable = ({
           </thead>
           <tbody className='w-full'>
             {shipmentsList?.map((item) => {
+              const isRowPlanned = isPurchase ? item?.planned_supply : item?.planned_shipment
+              const deleteBlocked = Boolean(appStore.warehouseActive) !== Boolean(isRowPlanned)
               return (
-                <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${(isPurchase ? item?.planned_supply : item?.planned_shipment) ? 'text-primary' : 'text-neutral-900'}`}>
+                <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${isRowPlanned ? 'text-primary' : 'text-neutral-900'}`}>
                   <td className="px-4 py-3 text-left">{item.operationDate}</td>
                   <td className="px-4 py-3 text-left w-[50px]">{item?.legal_entity_name || t('legalEntity')}</td>
                   <td className="px-4 py-3 text-left">{item.counterparty}</td>
@@ -237,7 +241,12 @@ const ShipmenTable = ({
                         <button onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                           <IoCopyOutline size={16} className='text-gray-400' />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); if (!deleteBlocked) handleDeleteShipment(item); }}
+                          disabled={deleteBlocked}
+                          title={deleteBlocked ? (isPurchase ? tp('deleteBlockedClosedWarehouse') : t('deleteBlockedClosedWarehouse')) : undefined}
+                          className={`text-neutral-600 size-6 flex items-center justify-center rounded-full ${deleteBlocked ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200 cursor-pointer hover:text-neutral-900'}`}
+                        >
                           <IoCloseOutline size={16} className='text-gray-400' />
                         </button>
                       </div>
@@ -323,6 +332,6 @@ const ShipmenTable = ({
       )}
     </>
   )
-}
+})
 
 export default ShipmenTable

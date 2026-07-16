@@ -1,28 +1,31 @@
 // import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 const CustomDialog = ({ open, onClose, children, contentClass }) => {
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <>
       <div
         className="fixed inset-0 z-60! h-screen bg-slate-950/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
-        style={{ zIndex: '1000 !important' }}
+        style={{ zIndex: "1000 !important" }}
       />
-      <div style={{ zIndex: 50 }} className="fixed inset-0 z-100! flex items-center justify-center p-4 pointer-events-none">
+      <div
+        style={{ zIndex: 50 }}
+        className="fixed inset-0 z-100! flex items-center justify-center p-4 pointer-events-none"
+      >
         <div
-          className={`relative max-screen overflow-y-auto rounded-xl bg-white shadow-2xl min-w-fit pointer-events-auto ${contentClass}`}
+          className={`relative max-screen overflow-y-auto rounded-xl bg-white shadow-2xl pointer-events-auto ${contentClass}`}
           onClick={(e) => e.stopPropagation()}
         >
           {children}
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default CustomDialog
+export default CustomDialog;
 
 // const CustomDialog = ({ open, onClose, children, contentClass }) => {
 //   return (
@@ -34,7 +37,6 @@ export default CustomDialog
 //     </Dialog>
 //   )
 // }
-
 
 // if (!open) return null
 
