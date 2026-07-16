@@ -20,6 +20,7 @@ const SelectProductService = ({
   isClearable = false,
   name = '',
   returnFieldValue,
+  returnName,
   disabled = false,
   dropdownHeaderItem
 }) => {
@@ -77,14 +78,18 @@ const SelectProductService = ({
   const handleChange = (val) => {
     onChange(val)
 
-    if (name && returnFieldValue) {
-      // For multi-select, use the last selected value
-      const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
-      const rawItem = rawDataMap.get(lookupValue)
-      if (rawItem) {
-        const fieldValue = rawItem[name] ?? rawItem.summa ?? null
-        returnFieldValue(fieldValue)
-      }
+    // For multi-select, use the last selected value
+    const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
+    const rawItem = rawDataMap.get(lookupValue)
+
+    if (name && returnFieldValue && rawItem) {
+      const fieldValue = rawItem[name] ?? rawItem.summa ?? null
+      returnFieldValue(fieldValue)
+    }
+
+    // Return the readable product/service name (e.g. tariff name) on selection
+    if (returnName) {
+      returnName(rawItem?.name ?? '')
     }
   }
 
