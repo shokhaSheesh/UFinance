@@ -265,7 +265,13 @@ const CreateShipment = observer(
       ) {
         setWarehouse(warehouseOptions[0].value);
       }
-    }, [isWarehouseModuleOn, open, initialData?.guid, warehouseOptions, warehouse]);
+    }, [
+      isWarehouseModuleOn,
+      open,
+      initialData?.guid,
+      warehouseOptions,
+      warehouse,
+    ]);
 
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
@@ -304,7 +310,10 @@ const CreateShipment = observer(
             data: { product_and_service_id: pid, warehouse_id: warehouse },
           })
           .then((res) =>
-            setStockByProduct((prev) => ({ ...prev, [pid]: readStockCount(res) }))
+            setStockByProduct((prev) => ({
+              ...prev,
+              [pid]: readStockCount(res),
+            }))
           )
           .catch((e) => console.error("get_stock_count failed", e));
       });
@@ -334,7 +343,13 @@ const CreateShipment = observer(
       });
       return out;
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [rows, stockByProduct, effectivePlanned, warehouse, productServicesList]);
+    }, [
+      rows,
+      stockByProduct,
+      effectivePlanned,
+      warehouse,
+      productServicesList,
+    ]);
 
     const shortedProductIds = useMemo(
       () => new Set(stockShortages.map((s) => s.pid)),
@@ -593,7 +608,8 @@ const CreateShipment = observer(
     // for outflow ops with the warehouse module on. When called from a product
     // pick (rowId given), the arrived stock count also autofills that row's Кол-во.
     const fetchStockCount = async (productId, rowId) => {
-      if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId) return;
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId)
+        return;
       try {
         const res = await apiClient.invokeFunction({
           method: "get_stock_count",

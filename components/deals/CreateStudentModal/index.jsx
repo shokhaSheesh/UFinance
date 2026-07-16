@@ -101,7 +101,8 @@ const CreateStudentModal = observer(
           pinf: initialData?.jshshr_guardian || null,
           issuedBy: initialData?.place_of_issue || "",
           tariffName: initialData?.product_and_service_id?.name || "",
-          chartOfAccounts: initialData?.chart_of_accounts_id_data?.nazvanie || "",
+          chartOfAccounts:
+            initialData?.chart_of_accounts_id_data?.nazvanie || "",
           legalEntity: initialData?.legal_entity_id_data?.nazvanie || "",
           birthDate: initialData?.birthday_pupil
             ? moment(initialData.birthday_pupil).format("YYYY-MM-DD")
@@ -336,7 +337,6 @@ const CreateStudentModal = observer(
     // Contract data mapper for different contract types
     const getContractDataForType = () => {
       const values = getValues();
-      console.log("values", values);
       // Get years and months difference
       const from = moment(values.validFrom).format("YYYY-MM-DD");
       const to = moment(values.validTo).format("YYYY-MM-DD");
@@ -349,6 +349,39 @@ const CreateStudentModal = observer(
         (totalMonths + 1) * values.monthlyPayment
       );
 
+      // Placeholder shown in the contract when a field has no value
+      const EMPTY = "____";
+
+      // Select fields are stored as internal values ("male", "old", "passive"),
+      // but the contract must show their localized labels ("Мужской", "Старый"…)
+      const genderOptions = [
+        { value: "male", label: t("genderMale") },
+        { value: "female", label: t("genderFemale") },
+      ];
+      const genderLabel =
+        genderOptions.find((o) => o.value === values.gender)?.label || EMPTY;
+      const clientTypeLabel =
+        clientType.find((o) => o.value === values.clientType)?.label || EMPTY;
+      const statusLabel =
+        sostayaniya.find((o) => o.value === values.status)?.label || EMPTY;
+
+      // Resolve each value once, then expose it under BOTH the legacy template
+      // variable names (${guardianPhone1}, ${studentName}, …) and the current
+      // backend template names (${phone1}, ${student}, …) so either resolves.
+      const passport = values.passport || EMPTY;
+      const issuedBy = values.issuedBy || EMPTY;
+      const phone1 = values.phone1 || EMPTY;
+      const phone2 = values.phone2 || EMPTY;
+      const address = values.address || EMPTY;
+      const pinfl = values.pinf || EMPTY;
+      const student = values.studentName || EMPTY;
+      const tariff = values.tariffName || EMPTY;
+      const studentClass = values.className || EMPTY;
+      const branchName = values.branchName || EMPTY;
+      const birthDate = values.birthDate
+        ? moment(values.birthDate).format("DD.MM.YYYY")
+        : EMPTY;
+
       const baseData = {
         contractNumber: values.contractNumber || "___",
         contractDate:
@@ -356,26 +389,49 @@ const CreateStudentModal = observer(
         contractEndDate: values.validTo
           ? moment(values.validTo).format("DD.MM.YYYY")
           : "____-__-__",
-        guardianPassport: values.passport || "________________________",
-        guardianPassportIssuedBy: values.issuedBy || "________________________",
-        guardianPhone1: values.phone1 || "________________________",
-        guardianPhone2: values.phone2 || "________________________",
-        guardianAddress: values.address || "________________________",
-        guardianPinfl: values.pinf || "________________________",
-        studentName: values.studentName || "________________________",
-        guardianType: values.guardianType || "________________________",
-        tariffName: values.tariffName || "______",
+
+        // Guardian — legacy template variable names
+        guardianPassport: passport,
+        guardianPassportIssuedBy: issuedBy,
+        guardianPhone1: phone1,
+        guardianPhone2: phone2,
+        guardianAddress: address,
+        guardianPinfl: pinfl,
+        // Guardian — current backend template variable names
+        passport,
+        issuedBy,
+        phone1,
+        phone2,
+        address,
+        pinfl,
+
+        // Student — legacy + current names
+        studentName: student,
+        student,
+        studentBirthday: birthDate,
+        birthDate,
+        className: studentClass,
+        studentClass,
+        gender: genderLabel,
+
+        // Tariff — legacy + current names
+        tariffName: tariff,
+        tariff,
+
+        guardianType: values.guardianType || EMPTY,
         chartOfAccounts: values.chartOfAccounts || "______",
         legalEntity: values.legalEntity || "______",
         monthlyPayment: monthlyAmount,
         yearlyPayment: totalContractPayment,
-        guardianName: values.guardianName,
+        guardianName: values.guardianName || EMPTY,
         academicYear: values.academicYear || "2025-2026",
-        className: values.className || "___",
         language: values.language || "O'zbek tili",
-        studentBirthday: values.birthDate
-          ? moment(values.birthDate).format("DD.MM.YYYY")
-          : "____-__-__",
+
+        // Organization
+        branchName,
+        clientType: clientTypeLabel,
+        status: statusLabel,
+
         validFrom: values.validFrom
           ? moment(values.validFrom).format("MMM, DD YYYY")
           : "____-__-__",
