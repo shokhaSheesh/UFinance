@@ -13,6 +13,7 @@ import {
   useWarehousesList,
 } from "../../../../hooks/useDashboard";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
+import { apiClient } from "../../../../lib/api/ucode/base";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
@@ -21,6 +22,7 @@ import {
   formatNumber,
   StringtoNumber,
 } from "../../../../utils/helpers";
+import { showErrorNotification } from "../../../../utils/notifications";
 import SentMessages from "../../../operations/OperationModal/SentMessages";
 import MyAccountCurrensies from "../../../ReadyComponents/MyAccountCurrensies";
 import SelectLegelEntitties from "../../../ReadyComponents/SelectLegelEntitties";
@@ -32,6 +34,26 @@ import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
 import Loader from "../../../shared/Loader";
 import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
+
+// get_stock_count → доступный остаток. Значение лежит в data.data.quantity,
+// но уровней вложенности `data` в конверте может быть разное число, поэтому
+// ищем поле `quantity` защитно на любой глубине ответа.
+const readStockCount = (res) => {
+  const seen = new Set();
+  const find = (obj) => {
+    if (!obj || typeof obj !== "object" || seen.has(obj)) return undefined;
+    seen.add(obj);
+    if (obj.quantity != null && !Number.isNaN(Number(obj.quantity))) {
+      return Number(obj.quantity);
+    }
+    for (const key of Object.keys(obj)) {
+      const found = find(obj[key]);
+      if (found != null) return found;
+    }
+    return undefined;
+  };
+  return find(res) ?? 0;
+};
 
 const CreateShipment = observer(
   ({
@@ -123,6 +145,10 @@ const CreateShipment = observer(
     // movement itself carries the accounting), but a Отгрузка still needs it.
     const isWarehouseModuleOn = appStore.warehouseActive;
     const hideArticleField = isWarehouseModuleOn && isPurchase;
+    // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
+    // so their quantities are validated against available stock.
+    const isOutflow = (isPurchase && isReturn) || (!isPurchase && !isReturn);
+    const effectivePlanned = isFutureDate ? true : isPlanned;
     const { data: warehousesData } = useWarehousesList();
     const warehouseOptions = useMemo(
       () =>
@@ -244,6 +270,10 @@ const CreateShipment = observer(
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
     const [errors, setErrors] = useState({});
+    const [isCheckingStock, setIsCheckingStock] = useState(false);
+    // product_and_service_id → available quantity in the selected warehouse,
+    // fetched via get_stock_count the moment a product is picked (real-time).
+    const [stockByProduct, setStockByProduct] = useState({});
 
     // Fetch legal entities data
 
@@ -260,6 +290,56 @@ const CreateShipment = observer(
     const productServicesList = useMemo(() => {
       return productServiceDto(productServices);
     }, [productServices]);
+
+    // Stock is per-warehouse — reset the cache and re-fetch for already-picked
+    // products whenever the warehouse changes.
+    useEffect(() => {
+      setStockByProduct({});
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
+      const pids = [...new Set(rows.map((r) => r.name).filter(Boolean))];
+      pids.forEach((pid) => {
+        apiClient
+          .invokeFunction({
+            method: "get_stock_count",
+            data: { product_and_service_id: pid, warehouse_id: warehouse },
+          })
+          .then((res) =>
+            setStockByProduct((prev) => ({ ...prev, [pid]: readStockCount(res) }))
+          )
+          .catch((e) => console.error("get_stock_count failed", e));
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [warehouse]);
+
+    // Real-time shortages: which products have total requested qty > available.
+    // Only meaningful once "planned" is off (goods actually move) for an outflow.
+    const stockShortages = useMemo(() => {
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse || effectivePlanned)
+        return [];
+      const requested = new Map();
+      rows.forEach((r) => {
+        if (!r.name) return;
+        const q = formatDecimal(StringtoNumber(r.quantity)) || 0;
+        requested.set(r.name, (requested.get(r.name) || 0) + q);
+      });
+      const out = [];
+      requested.forEach((req, pid) => {
+        const avail = stockByProduct[pid];
+        if (avail == null) return; // not fetched yet
+        if (req > avail) {
+          const pname =
+            productServicesList.find((p) => p.guid === pid)?.name || "";
+          out.push({ pid, name: pname, requested: req, available: avail });
+        }
+      });
+      return out;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows, stockByProduct, effectivePlanned, warehouse, productServicesList]);
+
+    const shortedProductIds = useMemo(
+      () => new Set(stockShortages.map((s) => s.pid)),
+      [stockShortages]
+    );
 
     const addRow = () => {
       setRows((prev) => [
@@ -347,6 +427,65 @@ const CreateShipment = observer(
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
+      }
+
+      // Warehouse stock guard — an executed (non-planned) OUTFLOW must not exceed
+      // available stock. Applies with the warehouse module on when saving a
+      // supply-return or a sale-shipment with "planned" switched off. Re-fetches
+      // fresh counts here (authoritative), on top of the real-time on-select
+      // check. Quantities of the same product across rows are summed first.
+      if (isWarehouseModuleOn && warehouse && !effectivePlanned && isOutflow) {
+        const requestedByProduct = new Map();
+        productData.forEach((row) => {
+          const pid =
+            productServicesList.find((p) => p.guid === row.name)?.guid ||
+            row.name;
+          const qty = formatDecimal(StringtoNumber(row.quantity)) || 0;
+          requestedByProduct.set(pid, (requestedByProduct.get(pid) || 0) + qty);
+        });
+
+        try {
+          setIsCheckingStock(true);
+          const shortages = [];
+          await Promise.all(
+            [...requestedByProduct.entries()].map(async ([pid, requested]) => {
+              const stockRes = await apiClient.invokeFunction({
+                method: "get_stock_count",
+                data: {
+                  product_and_service_id: pid,
+                  warehouse_id: warehouse,
+                },
+              });
+              const available = readStockCount(stockRes);
+              if (requested > available) {
+                const pname =
+                  productServicesList.find((p) => p.guid === pid)?.name || "";
+                shortages.push({ name: pname, requested, available });
+              }
+            })
+          );
+
+          if (shortages.length > 0) {
+            const message = shortages
+              .map((s) =>
+                t("stockExceeded", {
+                  name: s.name,
+                  available: s.available,
+                  requested: s.requested,
+                })
+              )
+              .join("\n");
+            showErrorNotification(message);
+            setErrors((prev) => ({ ...prev, products: t("stockError") }));
+            return;
+          }
+        } catch (stockError) {
+          console.error("get_stock_count failed", stockError);
+          showErrorNotification(t("stockCheckFailed"));
+          return;
+        } finally {
+          setIsCheckingStock(false);
+        }
       }
 
       const productCurrency = appStore.isDonoSchool
@@ -449,6 +588,29 @@ const CreateShipment = observer(
       setSelectedProducts(new Set());
     };
 
+    // Real-time stock lookup — fires the moment a product is chosen (and on
+    // warehouse change) so quantities can be validated on the fly. Only relevant
+    // for outflow ops with the warehouse module on. When called from a product
+    // pick (rowId given), the arrived stock count also autofills that row's Кол-во.
+    const fetchStockCount = async (productId, rowId) => {
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId) return;
+      try {
+        const res = await apiClient.invokeFunction({
+          method: "get_stock_count",
+          data: { product_and_service_id: productId, warehouse_id: warehouse },
+        });
+        const available = readStockCount(res);
+        setStockByProduct((prev) => ({ ...prev, [productId]: available }));
+        // Autofill the picked row's quantity with the just-arrived stock count
+        // (recomputes the row sum through updateRow).
+        if (rowId != null) {
+          updateRow(rowId, "quantity", available);
+        }
+      } catch (e) {
+        console.error("get_stock_count failed", e);
+      }
+    };
+
     const handleSelectProductSerice = (rowId, value) => {
       const product = productServicesList?.find((p) => p.guid === value);
       if (!product) return;
@@ -469,6 +631,7 @@ const CreateShipment = observer(
           };
         })
       );
+      fetchStockCount(value, rowId);
     };
 
     // The "planned" flag must agree with whether warehouse tracking is on:
@@ -702,6 +865,18 @@ const CreateShipment = observer(
                         {errors.products}
                       </span>
                     )}
+                    {stockShortages.map((s) => (
+                      <span
+                        key={s.pid}
+                        className="text-[10px] text-red-500 font-medium"
+                      >
+                        {t("stockExceeded", {
+                          name: s.name,
+                          available: s.available,
+                          requested: s.requested,
+                        })}
+                      </span>
+                    ))}
                   </div>
                   {/* <button
                 className={styles.fillFromDeal}
@@ -837,9 +1012,12 @@ const CreateShipment = observer(
                                   formatNumber(e.target.value)
                                 )
                               }
-                              className={
-                                "w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2"
-                              }
+                              className={cn(
+                                "w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2",
+                                row.name &&
+                                  shortedProductIds.has(row.name) &&
+                                  "bg-red-50 text-red-600"
+                              )}
                             />
                           </td>
                           <td className="w-[120px] border-l">
@@ -937,8 +1115,12 @@ const CreateShipment = observer(
                     {t("saveBlockedClosedWarehouse")}
                   </span>
                 ) : (
-                  <button className="primary-btn" onClick={handleCreate}>
-                    {isCreating ? (
+                  <button
+                    className="primary-btn"
+                    onClick={handleCreate}
+                    disabled={isCreating || isCheckingStock}
+                  >
+                    {isCreating || isCheckingStock ? (
                       <Loader />
                     ) : isEditing ? (
                       t("save")
