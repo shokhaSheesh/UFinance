@@ -660,8 +660,15 @@ const CreateShipment = observer(
       fetchStockCount(value);
     };
 
+    // Compare the SAVED planned flag (from the response) against the current
+    // warehouse-module setting — NOT the live checkbox — so toggling "Плановая"
+    // never hides the Save button. A genuine mismatch (e.g. a planned shipment
+    // while the warehouse module is off) still blocks; enabling "Мой склад" resolves it.
+    const savedPlanned = isPurchase
+      ? SingleShipment?.planned_supply
+      : SingleShipment?.planned_shipment;
     const isSaveBlockedByClosedWarehouse =
-      isEditing && Boolean(isWarehouseModuleOn) !== Boolean(isPlanned);
+      isEditing && Boolean(isWarehouseModuleOn) !== Boolean(savedPlanned);
 
     const handleSelect = (value) => {
       setLegalEntity(value);
@@ -1130,25 +1137,24 @@ const CreateShipment = observer(
                 <button className={styles.cancelBtn} onClick={onClose}>
                   {t("cancel")}
                 </button>
-                {isSaveBlockedByClosedWarehouse ? (
-                  <span className="text-xs text-neutral-400 italic px-2">
-                    {t("saveBlockedClosedWarehouse")}
-                  </span>
-                ) : (
-                  <button
-                    className="primary-btn"
-                    onClick={handleCreate}
-                    disabled={isCreating || isCheckingStock}
-                  >
-                    {isCreating || isCheckingStock ? (
-                      <Loader />
-                    ) : isEditing ? (
-                      t("save")
-                    ) : (
-                      t("create")
-                    )}
-                  </button>
-                )}
+
+                <button
+                  className="primary-btn"
+                  onClick={handleCreate}
+                  disabled={
+                    isCreating ||
+                    isCheckingStock ||
+                    isSaveBlockedByClosedWarehouse
+                  }
+                >
+                  {isCreating || isCheckingStock ? (
+                    <Loader />
+                  ) : isEditing ? (
+                    t("save")
+                  ) : (
+                    t("create")
+                  )}
+                </button>
               </div>
             </div>
           </div>
