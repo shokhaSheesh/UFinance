@@ -9,7 +9,7 @@ import RoleDetailActions from './components/RoleDetailActions'
 import RoleDetailHeader from './components/RoleDetailHeader'
 import { usePermissionTree } from './hooks/usePermissionTree'
 import { useRolePermissions, useUpdateRolePermissions } from './hooks/useRoleDetailData'
-import { buildPermissionsPayload, getPermissionsData } from './utils/permissionUtils'
+import { buildPermissionsPayload, getPermissionsData, mergePermissionsConfig } from './utils/permissionUtils'
 
 const RoleDetailPage = () => {
   const router = useRouter()
@@ -19,9 +19,12 @@ const RoleDetailPage = () => {
   const tr = useTranslations('Settings.roles')
   const tc = useTranslations('Settings.common')
 
-  const PERMISSIONS_DATA = useMemo(() => getPermissionsData(tr), [tr])
-
   const { data: rolePermission, isLoading: isLoadingPermissions } = useRolePermissions(guid)
+
+  const PERMISSIONS_DATA = useMemo(
+    () => mergePermissionsConfig(getPermissionsData(tr), rolePermission),
+    [tr, rolePermission],
+  )
 
   const {
     form,

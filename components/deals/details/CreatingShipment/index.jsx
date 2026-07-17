@@ -144,6 +144,10 @@ const CreateShipment = observer(
     // Warehouse tracking hides the expense article for a Поставка (the stock
     // movement itself carries the accounting), but a Отгрузка still needs it.
     const isWarehouseModuleOn = appStore.warehouseActive;
+    // The "planned" flag toggles stock commitment, so only a user with warehouse
+    // read access may change it; without access the checkbox stays locked.
+    const hasWarehouseAccess = Boolean(appStore.permission.warehouse?.read);
+    const isPlannedLocked = isFutureDate || !hasWarehouseAccess;
     const hideArticleField = isWarehouseModuleOn && isPurchase;
     // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
     // so their quantities are validated against available stock.
@@ -229,7 +233,9 @@ const CreateShipment = observer(
         }
       } else if (open && !initialData?.guid) {
         setShipmentDate(today.toISOString().split("T")[0]);
-        setIsPlanned(true);
+        // Default the "planned" flag to on only when the user can toggle it
+        // (has warehouse access); without access it defaults to off.
+        setIsPlanned(hasWarehouseAccess);
         setLegalEntity("");
         setClient(kontragentId || "");
         setChartOfAccounts([]);
@@ -250,7 +256,7 @@ const CreateShipment = observer(
         setSelectedProducts(new Set());
         setErrors({});
       }
-    }, [open, SingleShipment, kontragentId, today, initialData?.guid || null]);
+    }, [open, SingleShipment, kontragentId, today, initialData?.guid || null, hasWarehouseAccess]);
 
     // Default to the first warehouse on create — the list may still be
     // loading when the modal opens, so this re-fires once it arrives
@@ -751,14 +757,14 @@ const CreateShipment = observer(
                       <div
                         className="flex items-center"
                         style={{
-                          opacity: isFutureDate ? 0.5 : 1,
-                          pointerEvents: isFutureDate ? "none" : "auto",
+                          opacity: isPlannedLocked ? 0.5 : 1,
+                          pointerEvents: isPlannedLocked ? "none" : "auto",
                         }}
                       >
                         <OperationCheckbox
                           checked={isFutureDate ? true : isPlanned}
                           onChange={(e) => {
-                            if (!isFutureDate) {
+                            if (!isPlannedLocked) {
                               setIsPlanned(e.target.checked);
                             }
                           }}

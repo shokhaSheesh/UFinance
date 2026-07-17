@@ -8,7 +8,7 @@ const thBase =
   'sticky top-0 z-10 bg-white text-left font-medium text-neutral-400 text-xs px-3.5 py-3 border-b border-gray-200 whitespace-nowrap'
 const tdBase = 'px-3.5 py-3 border-b border-gray-100 whitespace-nowrap text-neutral-700'
 
-const WarehousesTable = ({ t, tc, warehouses, isLoading, onEdit, onDelete }) => {
+const WarehousesTable = ({ t, tc, warehouses, isLoading, canEdit, canDelete, onEdit, onDelete }) => {
   const router = useRouter()
 
   return (
@@ -54,7 +54,13 @@ const WarehousesTable = ({ t, tc, warehouses, isLoading, onEdit, onDelete }) => 
                   )}
                 </td>
                 <td className={cn(tdBase, 'text-center')} onClick={(e) => e.stopPropagation()}>
-                  <WarehouseMenu warehouse={warehouse} onEdit={onEdit} onDelete={onDelete} />
+                  <WarehouseMenu
+                    warehouse={warehouse}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
                 </td>
               </tr>
             ))

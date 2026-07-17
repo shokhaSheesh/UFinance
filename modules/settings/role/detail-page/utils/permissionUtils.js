@@ -70,6 +70,77 @@ export const getPermissionsData = (t) => [
   },
 ]
 
+// The static config above can drift from what the backend actually returns in two ways:
+//   1. A whole top-level menu is missing (e.g. "warehouse" / "Мой склад").
+//   2. A known menu (e.g. "deals" / "Сделки") gains sub-menus on the backend
+//      (e.g. "Продажи" / "Закупки") that the static config still lists as a plain leaf.
+// In both cases the extra permissions never render and are silently dropped from the
+// save payload. Merge whatever the API returns into the config so every permission is
+// both displayed and saved.
+export const mergePermissionsConfig = (baseConfig, rolePermission) => {
+  if (!Array.isArray(rolePermission) || rolePermission?.length === 0) {
+    return baseConfig
+  }
+
+  const apiBySlug = {}
+  rolePermission?.forEach((perm) => {
+    if (perm?.menu_slug) apiBySlug[perm.menu_slug] = perm
+  })
+
+  const toChildConfig = (child) => ({
+    id: child?.menu_slug,
+    label: child?.menu_name || child?.menu_slug,
+    menuId: null,
+  })
+
+  // 1. Enrich known sections with any API sub-menus the static config is missing.
+  const enriched = (baseConfig || [])?.map((item) => {
+    const apiChildren = apiBySlug[item?.id]?.children || []
+    if (apiChildren?.length === 0) return item
+
+    const existingChildIds = new Set((item?.children || [])?.map((c) => c?.id))
+    const extraChildren = apiChildren
+      ?.filter((c) => c?.menu_slug && !existingChildIds.has(c?.menu_slug))
+      ?.map(toChildConfig)
+
+    if (extraChildren?.length === 0) return item
+
+    return {
+      ...item,
+      hasSubmenu: true,
+      children: [...(item?.children || []), ...extraChildren],
+    }
+  })
+
+  // 2. Append top-level menus the static config does not cover at all.
+  const knownIds = new Set((baseConfig || [])?.map((item) => item?.id))
+  const extraSections = rolePermission
+    ?.filter((perm) => perm?.menu_slug && !knownIds.has(perm?.menu_slug))
+    ?.map((perm) => {
+      const children = (perm?.children || [])
+        ?.filter((child) => child?.menu_slug)
+        ?.map(toChildConfig)
+
+      const section = {
+        id: perm?.menu_slug,
+        label: perm?.menu_name || perm?.menu_slug,
+        hasSubmenu: children?.length > 0,
+        allowedActions: ['read', 'add', 'edit', 'delete'],
+        menuId: null,
+      }
+
+      // Only attach `children` when there really are sub-items — an empty array would
+      // route a leaf row through the parent-checkbox handler in PermissionRow.
+      if (children?.length > 0) {
+        section.children = children
+      }
+
+      return section
+    })
+
+  return [...(enriched || []), ...extraSections]
+}
+
 export const cn = (...classes) => classes.filter(Boolean).join(' ')
 
 export const processRolePermissions = (rolePermission) => {

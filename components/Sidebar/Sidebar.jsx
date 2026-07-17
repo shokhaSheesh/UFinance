@@ -115,21 +115,24 @@ export const Sidebar = observer(() => {
       label: t("nav.deals"),
       href: "/deals",
       hasPage: true,
-      canShow: permissions?.deals?.read,
+      canShow:
+        permissions?.deals?.read ||
+        permissions?.deals?.sales?.read ||
+        permissions?.deals?.purchases?.read,
       submenu: [
         {
           label: t("nav.dealsSelling"),
           description: t("nav.dealsSellingDesc"),
           href: "/deals/selling",
           hasPage: true,
-          canShow: permissions?.deals?.read,
+          canShow: permissions?.deals?.sales?.read,
         },
         {
           label: t("nav.dealsPurchase"),
           description: t("nav.dealsPurchaseDesc"),
           href: "/deals/purchase",
           hasPage: true,
-          canShow: permissions?.deals?.read,
+          canShow: permissions?.deals?.purchases?.read,
         },
       ],
     },
@@ -245,7 +248,7 @@ export const Sidebar = observer(() => {
       label: t("nav.warehouse"),
       href: "/warehouse",
       hasPage: true,
-      canShow: appStore.warehouseActive,
+      canShow: appStore.warehouseActive && permissions?.warehouse?.read,
     },
     {
       icon: IoSettingsOutline,

@@ -28,7 +28,15 @@ class AppStore {
       shipment: { read: true, add: false, edit: false, delete: false },
       supply: { read: true, add: false, edit: false, delete: false },
     },
-    deals: { read: true, add: false, edit: false, delete: false },
+    deals: {
+      read: true,
+      add: false,
+      edit: false,
+      delete: false,
+      sales: { read: true, add: false, edit: false, delete: false },
+      purchases: { read: true, add: false, edit: false, delete: false },
+    },
+    warehouse: { read: true, add: false, edit: false, delete: false },
     reports: {
       cashflow: { read: true },
       pnl: { read: true },
@@ -57,6 +65,9 @@ class AppStore {
 
   constructor() {
     makeAutoObservable(this);
+    // Capture the default permission tree before persistence hydration replaces it,
+    // so permission fields added after a user's last login can be merged in.
+    const defaultPermission = this.permission;
     if (typeof window !== "undefined") {
       makePersistable(this, {
         name: "plan_fact_app",
@@ -71,22 +82,21 @@ class AppStore {
           "myCurrencies",
           "companyCurrencies",
           "localApiUrl",
-          "permission",
+          {
+            // makePersistable has no top-level deserialize hook (it is ignored), so the
+            // merge must live on the property itself. Without this, permissions added
+            // after a user's last login (e.g. `warehouse`, `deals.sales/purchases`)
+            // stay missing from the persisted tree until they log in again.
+            key: "permission",
+            serialize: (value) => value,
+            deserialize: (value) =>
+              this.mergePermissions(defaultPermission, value || {}),
+          },
           "accuralDateBranch",
         ],
         storage: window.localStorage,
         debugMode: true,
         version: 1,
-        deserialize: (storedValue, defaultValue) => {
-          // Merge persisted permission with defaults to handle new fields
-          if (storedValue?.permission && defaultValue?.permission) {
-            storedValue.permission = this.mergePermissions(
-              defaultValue.permission,
-              storedValue.permission
-            );
-          }
-          return { ...defaultValue, ...storedValue };
-        },
       });
     }
   }
@@ -185,7 +195,15 @@ class AppStore {
         shipment: { read: true, add: false, edit: false, delete: false },
         supply: { read: true, add: false, edit: false, delete: false },
       },
-      deals: { read: true, add: false, edit: false, delete: false },
+      deals: {
+        read: true,
+        add: false,
+        edit: false,
+        delete: false,
+        sales: { read: true, add: false, edit: false, delete: false },
+        purchases: { read: true, add: false, edit: false, delete: false },
+      },
+      warehouse: { read: true, add: false, edit: false, delete: false },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -229,7 +247,15 @@ class AppStore {
         shipment: { read: true, add: true, edit: true, delete: true },
         supply: { read: true, add: true, edit: true, delete: true },
       },
-      deals: { read: true, add: true, edit: true, delete: true },
+      deals: {
+        read: true,
+        add: true,
+        edit: true,
+        delete: true,
+        sales: { read: true, add: true, edit: true, delete: true },
+        purchases: { read: true, add: true, edit: true, delete: true },
+      },
+      warehouse: { read: true, add: true, edit: true, delete: true },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -284,7 +310,15 @@ class AppStore {
         shipment: { read: false, add: false, edit: false, delete: false },
         supply: { read: true, add: false, edit: false, delete: false },
       },
-      deals: { read: false, add: false, edit: false, delete: false },
+      deals: {
+        read: false,
+        add: false,
+        edit: false,
+        delete: false,
+        sales: { read: false, add: false, edit: false, delete: false },
+        purchases: { read: false, add: false, edit: false, delete: false },
+      },
+      warehouse: { read: false, add: false, edit: false, delete: false },
       reports: {
         cashflow: { read: false },
         pnl: { read: false },
@@ -349,7 +383,24 @@ class AppStore {
           break;
 
         case "deals":
-          newPermission.deals = convertPermissions(item);
+          newPermission.deals.read = item.read || false;
+          newPermission.deals.add = item.write || false;
+          newPermission.deals.edit = item.update || false;
+          newPermission.deals.delete = item.delete || false;
+          item.children?.forEach((child) => {
+            switch (child.menu_slug) {
+              case "shipment":
+                newPermission.deals.sales = convertPermissions(child);
+                break;
+              case "supply":
+                newPermission.deals.purchases = convertPermissions(child);
+                break;
+            }
+          });
+          break;
+
+        case "warehouse":
+          newPermission.warehouse = convertPermissions(item);
           break;
 
         case "reports":

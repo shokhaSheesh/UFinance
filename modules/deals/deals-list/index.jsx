@@ -78,7 +78,7 @@ export default observer(function DealsPage() {
 
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
-  const dealPermission = appStore.permission.deals
+  const dealPermission = appStore.permission.deals.sales || appStore.permission.deals
 
   // ── Store state ────────────────────────────────────────────────────────────
   const {

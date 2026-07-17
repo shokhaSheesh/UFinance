@@ -3,6 +3,7 @@
 import CreateWarehouseModal from '@/components/warehouse/CreateWarehouseModal/CreateWarehouseModal'
 import DeleteWarehouseConfirmModal from '@/components/warehouse/DeleteWarehouseConfirmModal/DeleteWarehouseConfirmModal'
 import FixedContent from '@/layouts/FixedContent'
+import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
@@ -18,6 +19,7 @@ export default observer(function WarehousesListPage() {
 
   const { searchQuery, setSearchQuery, warehouses, isLoading, deleteMutation } = useWarehousesData()
   const modals = useWarehousesModals()
+  const warehousePermission = appStore.permission.warehouse
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -40,6 +42,7 @@ export default observer(function WarehousesListPage() {
     <FixedContent className="flex-col bg-white">
       <WarehousesHeader
         t={t}
+        canAdd={!!warehousePermission?.add}
         onCreateClick={() => modals.setIsCreateModalOpen(true)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -50,6 +53,8 @@ export default observer(function WarehousesListPage() {
         tc={tc}
         warehouses={warehouses}
         isLoading={isLoading}
+        canEdit={!!warehousePermission?.edit}
+        canDelete={!!warehousePermission?.delete}
         onEdit={modals.handleEdit}
         onDelete={modals.handleDelete}
       />
