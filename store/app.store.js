@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
+import { authStore } from "./auth.store";
 
 class AppStore {
   isPayment = false;
@@ -111,6 +112,24 @@ class AppStore {
       }
     }
     return result;
+  }
+
+  // Recursively force every add/edit/delete flag to false, preserving `read`.
+  // Used to make a branch view-only when its `is_employee` flag is not true.
+  stripWriteAccess(node) {
+    if (!node || typeof node !== "object") return;
+    for (const key in node) {
+      if (key === "add" || key === "edit" || key === "delete") {
+        node[key] = false;
+      } else if (node[key] && typeof node[key] === "object") {
+        this.stripWriteAccess(node[key]);
+      }
+    }
+  }
+
+  // View-only unless the active branch marks the user as an employee there.
+  isViewOnlyBranch() {
+    return !authStore.selectBranch?.is_employee;
   }
 
   setWLCMPayment(value) {
@@ -281,6 +300,10 @@ class AppStore {
         exchangerates: { read: true, add: true, edit: true, delete: true },
       },
     };
+    // A non-employee branch is view-only everywhere — no create/edit/delete.
+    if (this.isViewOnlyBranch()) {
+      this.stripWriteAccess(this.permission);
+    }
   }
 
   setNewPermission(permission) {
@@ -469,6 +492,12 @@ class AppStore {
           break;
       }
     });
+
+    // A non-employee branch is view-only everywhere — no create/edit/delete,
+    // regardless of what the role grants.
+    if (this.isViewOnlyBranch()) {
+      this.stripWriteAccess(newPermission);
+    }
 
     this.permission = newPermission;
   }

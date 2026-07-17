@@ -473,6 +473,7 @@ export default observer(function DealDetailPage() {
                     (activeTab === 'expenses' && paymentPermission) ||
                     (activeTab === 'shipments' && shipmentPermission) ? (
                     activeTab === 'shipments' ? (
+                      appStore.warehouseActive && appStore.returnActive ? (
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'>
@@ -506,6 +507,17 @@ export default observer(function DealDetailPage() {
                           </div>
                         </PopoverContent>
                       </Popover>
+                      ) : (
+                        <button
+                          className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
+                          onClick={() => {
+                            setIsReturnMode(false);
+                            setShowShipmentModal(true);
+                          }}
+                        >
+                          {t('addButton')}
+                        </button>
+                      )
                     ) : (
                       <button
                         className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'

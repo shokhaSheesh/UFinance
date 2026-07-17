@@ -551,6 +551,7 @@ export default observer(function PurchaseDetailPage() {
                   (activeTab === "payments" && paymentPermission) ||
                   (activeTab === "supplies" && shipmentPermission) ? (
                     activeTab === "supplies" ? (
+                      appStore.warehouseActive && appStore.returnActive ? (
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0">
@@ -591,6 +592,17 @@ export default observer(function PurchaseDetailPage() {
                           </div>
                         </PopoverContent>
                       </Popover>
+                      ) : (
+                        <button
+                          className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
+                          onClick={() => {
+                            setIsReturnMode(false);
+                            setShowShipmentModal(true);
+                          }}
+                        >
+                          {t("addButton")}
+                        </button>
+                      )
                     ) : (
                       <button
                         className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"

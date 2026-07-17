@@ -59,7 +59,7 @@ export function useLogin() {
         authStore.setBranches(branches)
         authStore.setBranchId(id)
         appStore.setBranchIsAccrualDate(id)
-        authStore.selectBranch = branches[0]
+        authStore.selectBranch = branch || branches[0]
       }
 
 
@@ -138,7 +138,7 @@ export function useRegister() {
         authStore.setBranches(branches)
         authStore.setBranchId(id)
         appStore.setBranchIsAccrualDate(id)
-        authStore.selectBranch = branches[0]
+        authStore.selectBranch = branch || branches[0]
       }
 
 

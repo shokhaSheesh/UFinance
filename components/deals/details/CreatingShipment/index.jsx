@@ -256,7 +256,14 @@ const CreateShipment = observer(
         setSelectedProducts(new Set());
         setErrors({});
       }
-    }, [open, SingleShipment, kontragentId, today, initialData?.guid || null, hasWarehouseAccess]);
+    }, [
+      open,
+      SingleShipment,
+      kontragentId,
+      today,
+      initialData?.guid || null,
+      hasWarehouseAccess,
+    ]);
 
     // Default to the first warehouse on create — the list may still be
     // loading when the modal opens, so this re-fires once it arrives
@@ -611,9 +618,9 @@ const CreateShipment = observer(
 
     // Real-time stock lookup — fires the moment a product is chosen (and on
     // warehouse change) so quantities can be validated on the fly. Only relevant
-    // for outflow ops with the warehouse module on. When called from a product
-    // pick (rowId given), the arrived stock count also autofills that row's Кол-во.
-    const fetchStockCount = async (productId, rowId) => {
+    // for outflow ops with the warehouse module on. Stores the available count
+    // for the shortage check only — it does not autofill the row's Кол-во.
+    const fetchStockCount = async (productId) => {
       if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId)
         return;
       try {
@@ -622,12 +629,9 @@ const CreateShipment = observer(
           data: { product_and_service_id: productId, warehouse_id: warehouse },
         });
         const available = readStockCount(res);
+        // Keep the available count only for the shortage check — do NOT autofill
+        // the row's quantity; the user enters it manually.
         setStockByProduct((prev) => ({ ...prev, [productId]: available }));
-        // Autofill the picked row's quantity with the just-arrived stock count
-        // (recomputes the row sum through updateRow).
-        if (rowId != null) {
-          updateRow(rowId, "quantity", available);
-        }
       } catch (e) {
         console.error("get_stock_count failed", e);
       }
@@ -653,15 +657,9 @@ const CreateShipment = observer(
           };
         })
       );
-      fetchStockCount(value, rowId);
+      fetchStockCount(value);
     };
 
-    // The "planned" flag must agree with whether warehouse tracking is on:
-    // module on + still planned (nothing committed yet), or module off +
-    // already executed (no tracking to protect), are both fine. The two
-    // mismatched combinations mean the record's stock impact is ambiguous
-    // relative to the current setting, so editing is locked until the user
-    // flips the planned checkbox back into agreement.
     const isSaveBlockedByClosedWarehouse =
       isEditing && Boolean(isWarehouseModuleOn) !== Boolean(isPlanned);
 
