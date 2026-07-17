@@ -195,17 +195,6 @@ const CreateShipment = observer(
       }
     }, [open, SingleShipment, kontragentId, today, initialData?.guid || null]);
 
-    useEffect(() => {
-      if (
-        open &&
-        !initialData?.guid &&
-        !warehouse &&
-        warehouseOptions.length > 0
-      ) {
-        setWarehouse(warehouseOptions[0].value);
-      }
-    }, [open, initialData?.guid, warehouseOptions, warehouse]);
-
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
     const [errors, setErrors] = useState({});
