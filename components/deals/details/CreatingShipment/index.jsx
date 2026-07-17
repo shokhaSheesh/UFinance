@@ -195,6 +195,21 @@ const CreateShipment = observer(
       }
     }, [open, SingleShipment, kontragentId, today, initialData?.guid || null]);
 
+    // Default to the first warehouse on create — the list may still be
+    // loading when the modal opens, so this re-fires once it arrives
+    // without touching a warehouse the user already picked.
+    useEffect(() => {
+      if (
+        isWarehouseModuleOn &&
+        open &&
+        !initialData?.guid &&
+        !warehouse &&
+        warehouseOptions.length > 0
+      ) {
+        setWarehouse(warehouseOptions[0].value);
+      }
+    }, [isWarehouseModuleOn, open, initialData?.guid, warehouseOptions, warehouse]);
+
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
     const [errors, setErrors] = useState({});
@@ -411,6 +426,15 @@ const CreateShipment = observer(
         })
       );
     };
+
+    // The "planned" flag must agree with whether warehouse tracking is on:
+    // module on + still planned (nothing committed yet), or module off +
+    // already executed (no tracking to protect), are both fine. The two
+    // mismatched combinations mean the record's stock impact is ambiguous
+    // relative to the current setting, so editing is locked until the user
+    // flips the planned checkbox back into agreement.
+    const isSaveBlockedByClosedWarehouse =
+      isEditing && Boolean(isWarehouseModuleOn) !== Boolean(isPlanned);
 
     const handleSelect = (value) => {
       setLegalEntity(value);
@@ -835,15 +859,21 @@ const CreateShipment = observer(
                 <button className={styles.cancelBtn} onClick={onClose}>
                   {t("cancel")}
                 </button>
-                <button className="primary-btn" onClick={handleCreate}>
-                  {isCreating ? (
-                    <Loader />
-                  ) : isEditing ? (
-                    t("save")
-                  ) : (
-                    t("create")
-                  )}
-                </button>
+                {isSaveBlockedByClosedWarehouse ? (
+                  <span className="text-xs text-neutral-400 italic px-2">
+                    {t("saveBlockedClosedWarehouse")}
+                  </span>
+                ) : (
+                  <button className="primary-btn" onClick={handleCreate}>
+                    {isCreating ? (
+                      <Loader />
+                    ) : isEditing ? (
+                      t("save")
+                    ) : (
+                      t("create")
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
