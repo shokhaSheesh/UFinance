@@ -154,7 +154,8 @@ const CreateStudentModal = observer(
           pinf: initialData?.jshshr_guardian || null,
           issuedBy: initialData?.place_of_issue || "",
           tariffName: initialData?.product_and_service_id?.name || "",
-          chartOfAccounts: initialData?.chart_of_accounts_id_data?.nazvanie || "",
+          chartOfAccounts:
+            initialData?.chart_of_accounts_id_data?.nazvanie || "",
           legalEntity: initialData?.legal_entity_id_data?.nazvanie || "",
           birthDate: initialData?.birthday_pupil
             ? moment(initialData.birthday_pupil).format("YYYY-MM-DD")
@@ -669,8 +670,8 @@ const CreateStudentModal = observer(
       });
     };
 
-    // Форма прошла валидацию: при обновлении сначала просим подтвердить,
-    // что договор проверили в предпросмотре
+    // Форма прошла валидацию: и при создании, и при обновлении сначала просим
+    // подтвердить, что договор проверили в предпросмотре
     const handleValidSubmit = (data) => {
       setPendingSubmitData(data);
     };
