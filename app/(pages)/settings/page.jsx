@@ -63,6 +63,12 @@ const SettingsPage = observer(() => {
     label: `${c?.kod} (${c.nazvanie})`,
   }))
 
+  // Возвраты работают только вместе со складом — выключаем их вместе с ним
+  const handleWarehouseToggle = value => {
+    setWarehouseActive(value)
+    if (!value) setReturnActive(false)
+  }
+
   const isPaymentChanged = isPayment !== appStore.isPayment
   const isAccrualDateChanged = isAccrualDate !== appStore.isAccrualDate
   const isWarehouseActiveChanged = warehouseActive !== appStore.warehouseActive
@@ -187,13 +193,15 @@ const SettingsPage = observer(() => {
           </h2>
           <OperationCheckbox
             checked={warehouseActive}
-            onChange={() => setWarehouseActive(!warehouseActive)}
+            onChange={() => handleWarehouseToggle(!warehouseActive)}
             label={tg('modules.warehouse')}
           />
           <OperationCheckbox
             checked={returnActive}
             onChange={() => setReturnActive(!returnActive)}
             label={tg('modules.returns')}
+            disabled={!warehouseActive}
+            className={!warehouseActive ? 'opacity-50 pointer-events-none' : ''}
           />
         </section>
       </section>

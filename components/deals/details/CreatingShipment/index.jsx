@@ -488,8 +488,6 @@ const CreateShipment = observer(
       if (!client) newErrors.client = L.clientRequired;
       // A service supply posts against an article instead of a warehouse, so the
       // warehouse is only required in warehouse mode.
-      if (isWarehouseModuleOn && !warehouse && !isServiceSupply)
-        newErrors.warehouse = t("warehouseRequired");
 
       const productData = rows.filter((row) => row.name);
       if (productData.length === 0) newErrors.products = t("productsRequired");
@@ -906,9 +904,7 @@ const CreateShipment = observer(
               {/* Warehouse — above the article; shown once the module is on */}
               {isWarehouseModuleOn && (
                 <div className="w-full flex items-center gap-2 pb-2">
-                  <label className="w-40! text-xss!">
-                    {t("warehouse")} <span className="text-red-500">*</span>
-                  </label>
+                  <label className="w-40! text-xss!">{t("warehouse")}</label>
                   <div className="flex-1">
                     <SingleSelect
                       data={warehouseOptions}
