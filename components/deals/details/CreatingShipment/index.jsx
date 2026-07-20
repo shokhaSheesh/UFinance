@@ -141,14 +141,14 @@ const CreateShipment = observer(
     const [currency, setCurrency] = useState("");
     const [showChartOfAccounts, setShowChartOfAccounts] = useState(true);
     const [warehouse, setWarehouse] = useState("");
-    // Warehouse tracking hides the expense article for a Поставка (the stock
-    // movement itself carries the accounting), but a Отгрузка still needs it.
+    // A Поставка posts either against a warehouse (goods, Tip=product) or directly
+    // against an expense article (services, Tip=service). Picking one drives the other.
+    const [isServiceSupply, setIsServiceSupply] = useState(false);
     const isWarehouseModuleOn = appStore.warehouseActive;
     // The "planned" flag toggles stock commitment, so only a user with warehouse
     // read access may change it; without access the checkbox stays locked.
     const hasWarehouseAccess = Boolean(appStore.permission.warehouse?.read);
     const isPlannedLocked = isFutureDate || !hasWarehouseAccess;
-    const hideArticleField = isWarehouseModuleOn && isPurchase;
     // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
     // so their quantities are validated against available stock.
     const isOutflow = (isPurchase && isReturn) || (!isPurchase && !isReturn);
@@ -159,6 +159,15 @@ const CreateShipment = observer(
         (warehousesData || []).map((w) => ({ value: w.guid, label: w.name })),
       [warehousesData]
     );
+    // Product picker filter: a warehouse supply lists goods (Tip=product), a
+    // service supply lists services. Only the purchase form with the warehouse
+    // module on makes this split; otherwise both are shown.
+    const productType =
+      isPurchase && isWarehouseModuleOn
+        ? isServiceSupply
+          ? "service"
+          : "product"
+        : undefined;
     const [rows, setRows] = useState([
       {
         id: 1,
@@ -203,6 +212,12 @@ const CreateShipment = observer(
         setClient(SingleShipment.partners_id || kontragentId || "");
         setChartOfAccounts(SingleShipment.chart_of_accounts_id || "");
         setWarehouse(SingleShipment.warehouse_id || "");
+        // Restore the supply mode: a saved article with no warehouse = service supply.
+        setIsServiceSupply(
+          isPurchase &&
+            !!SingleShipment.chart_of_accounts_id &&
+            !SingleShipment.warehouse_id
+        );
         setCurrency(
           SingleShipment.currencies_id ||
             SingleShipment.currencyId ||
@@ -240,6 +255,7 @@ const CreateShipment = observer(
         setClient(kontragentId || "");
         setChartOfAccounts([]);
         setWarehouse("");
+        setIsServiceSupply(false);
         setCurrency("");
         setCode("");
         setRows([
@@ -265,26 +281,43 @@ const CreateShipment = observer(
       hasWarehouseAccess,
     ]);
 
-    // Default to the first warehouse on create — the list may still be
-    // loading when the modal opens, so this re-fires once it arrives
-    // without touching a warehouse the user already picked.
+    // Default to the first warehouse on create (sale/Отгрузка only) — the list may
+    // still be loading when the modal opens, so this re-fires once it arrives.
+    // A Поставка requires the warehouse to be picked manually, so it is NOT
+    // auto-selected there (also avoids re-selecting it right after the user clears it).
     useEffect(() => {
       if (
         isWarehouseModuleOn &&
+        !isPurchase &&
         open &&
         !initialData?.guid &&
         !warehouse &&
+        !isServiceSupply &&
         warehouseOptions.length > 0
       ) {
         setWarehouse(warehouseOptions[0].value);
       }
     }, [
       isWarehouseModuleOn,
+      isPurchase,
       open,
       initialData?.guid,
       warehouseOptions,
       warehouse,
+      isServiceSupply,
     ]);
+
+    // Поставка: in warehouse mode the article follows the selected warehouse
+    // (autofilled) and clears when the warehouse is cleared; service mode keeps
+    // the user-picked article. Runs on every warehouse / warehouse-list change so
+    // the article is filled even for the default warehouse picked above.
+    useEffect(() => {
+      if (!isPurchase || isServiceSupply) return;
+      const wh = warehouse
+        ? (warehousesData || []).find((w) => w.guid === warehouse)
+        : null;
+      setChartOfAccounts(wh?.chart_of_accounts_id || "");
+    }, [isPurchase, isServiceSupply, warehouse, warehousesData]);
 
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
@@ -310,12 +343,19 @@ const CreateShipment = observer(
       return productServiceDto(productServices);
     }, [productServices]);
 
+    // Stock lives only for physical products (Tip === "product"); services never
+    // have a warehouse balance, so the stock limit / shortage checks skip them.
+    const isStockTrackedProduct = (productId) =>
+      productServicesList.find((p) => p.guid === productId)?.tip === "product";
+
     // Stock is per-warehouse — reset the cache and re-fetch for already-picked
     // products whenever the warehouse changes.
     useEffect(() => {
       setStockByProduct({});
       if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
-      const pids = [...new Set(rows.map((r) => r.name).filter(Boolean))];
+      const pids = [...new Set(rows.map((r) => r.name).filter(Boolean))].filter(
+        isStockTrackedProduct
+      );
       pids.forEach((pid) => {
         apiClient
           .invokeFunction({
@@ -340,7 +380,7 @@ const CreateShipment = observer(
         return [];
       const requested = new Map();
       rows.forEach((r) => {
-        if (!r.name) return;
+        if (!r.name || !isStockTrackedProduct(r.name)) return;
         const q = formatDecimal(StringtoNumber(r.quantity)) || 0;
         requested.set(r.name, (requested.get(r.name) || 0) + q);
       });
@@ -446,7 +486,9 @@ const CreateShipment = observer(
       if (!shipmentDate) newErrors.shipmentDate = t("shipmentDateRequired");
       if (!legalEntity) newErrors.legalEntity = t("legalEntityRequired");
       if (!client) newErrors.client = L.clientRequired;
-      if (isWarehouseModuleOn && !warehouse)
+      // A service supply posts against an article instead of a warehouse, so the
+      // warehouse is only required in warehouse mode.
+      if (isWarehouseModuleOn && !warehouse && !isServiceSupply)
         newErrors.warehouse = t("warehouseRequired");
 
       const productData = rows.filter((row) => row.name);
@@ -465,6 +507,7 @@ const CreateShipment = observer(
       if (isWarehouseModuleOn && warehouse && !effectivePlanned && isOutflow) {
         const requestedByProduct = new Map();
         productData.forEach((row) => {
+          if (!isStockTrackedProduct(row.name)) return;
           const pid =
             productServicesList.find((p) => p.guid === row.name)?.guid ||
             row.name;
@@ -623,6 +666,7 @@ const CreateShipment = observer(
     const fetchStockCount = async (productId) => {
       if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId)
         return;
+      if (!isStockTrackedProduct(productId)) return;
       try {
         const res = await apiClient.invokeFunction({
           method: "get_stock_count",
@@ -669,6 +713,28 @@ const CreateShipment = observer(
       : SingleShipment?.planned_shipment;
     const isSaveBlockedByClosedWarehouse =
       isEditing && Boolean(isWarehouseModuleOn) !== Boolean(savedPlanned);
+
+    // Поставка: warehouse ↔ article are linked. Picking a warehouse autofills its
+    // article and lists goods; clearing it resets the article. (Sale keeps plain behaviour.)
+    const handleWarehouseChange = (value) => {
+      setWarehouse(value);
+      if (errors.warehouse) setErrors({ ...errors, warehouse: null });
+      // Leaving warehouse mode; the article is autofilled/reset by an effect.
+      if (isPurchase) setIsServiceSupply(false);
+    };
+
+    // Поставка: picking an article directly = a service supply — clear/disable the
+    // warehouse and list services in the product picker.
+    const handleArticleChange = (value) => {
+      setChartOfAccounts(value);
+      if (!isPurchase) return;
+      if (value) {
+        setIsServiceSupply(true);
+        setWarehouse("");
+      } else {
+        setIsServiceSupply(false);
+      }
+    };
 
     const handleSelect = (value) => {
       setLegalEntity(value);
@@ -837,23 +903,7 @@ const CreateShipment = observer(
                 )}
               </div>
 
-              {/* Chart of accounts — hidden for a Поставка once warehouse tracking is on */}
-              {showChartOfAccounts && !hideArticleField && (
-                <div className="w-full flex items-center gap-2 pb-2">
-                  <label className="w-40! text-xss!">{L.incomeArticle}</label>
-                  <div className="flex-1">
-                    <SinglSelectStatiya
-                      selectedValue={chartOfAccounts}
-                      setSelectedValue={(value) => setChartOfAccounts(value)}
-                      placeholder={L.undistributedIncome}
-                      className="w-80! bg-white"
-                      allowedTypes={allowedTypes}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Warehouse — shown for both Отгрузка and Поставка once the module is on */}
+              {/* Warehouse — above the article; shown once the module is on */}
               {isWarehouseModuleOn && (
                 <div className="w-full flex items-center gap-2 pb-2">
                   <label className="w-40! text-xss!">
@@ -863,12 +913,7 @@ const CreateShipment = observer(
                     <SingleSelect
                       data={warehouseOptions}
                       value={warehouse}
-                      onChange={(value) => {
-                        setWarehouse(value);
-                        if (errors.warehouse) {
-                          setErrors({ ...errors, warehouse: null });
-                        }
-                      }}
+                      onChange={handleWarehouseChange}
                       placeholder={t("warehousePlaceholder")}
                       className="w-80! bg-white"
                       hasError={!!errors.warehouse}
@@ -878,6 +923,22 @@ const CreateShipment = observer(
                         {errors.warehouse}
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Chart of accounts — shown for both Отгрузка and Поставка */}
+              {showChartOfAccounts && (
+                <div className="w-full flex items-center gap-2 pb-2">
+                  <label className="w-40! text-xss!">{L.incomeArticle}</label>
+                  <div className="flex-1">
+                    <SinglSelectStatiya
+                      selectedValue={chartOfAccounts}
+                      setSelectedValue={handleArticleChange}
+                      placeholder={L.undistributedIncome}
+                      className="w-80! bg-white"
+                      allowedTypes={allowedTypes}
+                    />
                   </div>
                 </div>
               )}
@@ -1022,6 +1083,7 @@ const CreateShipment = observer(
                                 onChange={(value) =>
                                   handleSelectProductSerice(row?.id, value)
                                 }
+                                type={productType}
                                 placeholder={t("selectPosition")}
                                 className="bg-white border-none"
                               />

@@ -22,7 +22,8 @@ const SelectProductService = ({
   returnFieldValue,
   returnName,
   disabled = false,
-  dropdownHeaderItem
+  dropdownHeaderItem,
+  type
 }) => {
   const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
@@ -39,7 +40,10 @@ const SelectProductService = ({
     method: "list_products_and_services",
     data: {
       sales_transaction_id: sellingDealId,
-      search: searchQuery
+      search: searchQuery,
+      // Optionally restrict the list to physical goods ("product") or
+      // services ("service"); omitted → both are returned.
+      ...(type ? { type } : {})
     },
     querySetting: {
       select: (response) => productServiceDto(response?.data?.data) || [],
