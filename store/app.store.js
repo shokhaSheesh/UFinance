@@ -96,7 +96,7 @@ class AppStore {
           "accuralDateBranch",
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
         version: 1,
       });
     }

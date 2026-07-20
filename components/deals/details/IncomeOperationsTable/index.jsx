@@ -70,7 +70,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
   })
 
   const { data: operationsTotal } = useQuery({
-    queryKey: ['get_operations_total_income'],
+    queryKey: ['get_operations_total_income', sellingDealId],
     queryFn: () => apiClient.invokeFunction({
       method: "summary_operations", data: {
         selling_deal_ids: [sellingDealId],

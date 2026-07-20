@@ -43,7 +43,7 @@ class PaymentCalendarStore {
           'selectedCurrency',
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

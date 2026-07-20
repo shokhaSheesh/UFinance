@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaSortDown } from 'react-icons/fa'
 import { appStore } from '../../../store/app.store'
 import { allowedTip, operationFilterStore, tips } from '../../../store/operationFilter.store'
@@ -87,6 +87,8 @@ export const OperationsFiltersSidebar = observer(({
     setLocalAmount({ min: '', max: '' })
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
   }, [queryClient])
+
+  useEffect(() => () => clearTimeout(amountDebounceRef.current), [])
 
   const handleAmountChange = useCallback((field, rawValue) => {
     const digitsOnly = rawValue.replace(/[^0-9]/g, '')

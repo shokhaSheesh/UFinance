@@ -73,7 +73,7 @@ class OperationFilterStore {
 					'dateRangeTypeNachisleniya'
 				],
 				storage: window.localStorage,
-				debugMode: true,
+				debugMode: false,
 			})
 		}
 	}

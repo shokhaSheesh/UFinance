@@ -42,7 +42,7 @@ class CashFlowStore {
 					'dateRangeType'
 				],
 				storage: window.localStorage,
-				debugMode: true,
+				debugMode: false,
 			})
 		}
 	}

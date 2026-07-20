@@ -40,7 +40,7 @@ class Indicators {
           "profitableclientsMethod"
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

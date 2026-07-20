@@ -34,7 +34,7 @@ class CounterpartiesStore {
         name: "counterparties",
         properties: ["filters", "dateRangType", 'singePageDateRangeType'],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

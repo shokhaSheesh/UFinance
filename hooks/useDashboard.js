@@ -16,10 +16,8 @@ export const useChartOfAccountsV2 = (params = {}) => {
 	return useQuery({
 		queryKey: ['chartOfAccountsV2', params],
 		queryFn: async () => {
-			console.log('useChartOfAccountsV2: Making request with params:', params)
 			try {
 				const result = await dashboardAPI.getChartOfAccountsV2(params)
-				console.log('useChartOfAccountsV2: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useChartOfAccountsV2: Error:', error)
@@ -42,11 +40,9 @@ export const useBankAccountsPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['bankAccountsPlanFact', params],
 		queryFn: async () => {
-			console.log('useBankAccountsPlanFact: Making request with params:', params)
 			try {
 				const { bankAccountsAPI } = await import('@/lib/api/ucode/bankAccounts')
 				const result = await bankAccountsAPI.getBankAccountsInvokeFunction(params)
-				console.log('useBankAccountsPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useBankAccountsPlanFact: Error:', error)
@@ -69,10 +65,8 @@ export const useCounterparties = (params = {}) => {
 	return useQuery({
 		queryKey: ['counterparties', params],
 		queryFn: async () => {
-			console.log('useCounterparties: Making request with params:', params)
 			try {
 				const result = await dashboardAPI.getCounterparties(params)
-				console.log('useCounterparties: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useCounterparties: Error:', error)
@@ -164,11 +158,9 @@ export const useCounterpartiesGroupsPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['counterpartiesGroupsPlanFact', params],
 		queryFn: async () => {
-			console.log('useCounterpartiesGroupsPlanFact: Making request with params:', params)
 			try {
 				const { counterpartiesAPI } = await import('@/lib/api/ucode/counterparties')
 				const result = await counterpartiesAPI.getCounterpartiesGroupInvokeFunction(params)
-				console.log('useCounterpartiesGroupsPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useCounterpartiesGroupsPlanFact: Error:', error)
@@ -472,11 +464,9 @@ export const useLegalEntitiesPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['legalEntitiesPlanFact', params],
 		queryFn: async () => {
-			console.log('useLegalEntitiesPlanFact: Making request with params:', params)
 			try {
 				const { legalEntitiesAPI } = await import('@/lib/api/ucode/legalEntities')
 				const result = await legalEntitiesAPI.getLegalEntitiesInvokeFunction(params)
-				console.log('useLegalEntitiesPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useLegalEntitiesPlanFact: Error:', error)

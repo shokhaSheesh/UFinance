@@ -43,7 +43,7 @@ class SealDeal {
           'dateRangeType'
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

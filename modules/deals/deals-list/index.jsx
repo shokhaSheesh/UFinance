@@ -94,7 +94,7 @@ export default observer(function DealsPage() {
     setState('search', value || null)
   }
 
-  const dateRanges = toJS(dateRange)
+  const dateRanges = useMemo(() => toJS(dateRange), [dateRange])
   // ── Filters ────────────────────────────────────────────────────────────────
   const dealsFilters = useMemo(() => ({
     limit: 50,

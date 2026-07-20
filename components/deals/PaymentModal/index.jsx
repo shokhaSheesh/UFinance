@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api/ucode/base'
 import { useMutation } from '@tanstack/react-query'
 import { CheckCheck, CircleQuestionMark, Copy, Mail, Send, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const PaymentModal = ({ open, onClose, dealId }) => {
   const t = useTranslations('Deals.detail.payment')
@@ -16,6 +16,13 @@ const PaymentModal = ({ open, onClose, dealId }) => {
   const [showEmailInput, setShowEmailInput] = useState(false)
   const [email, setEmail] = useState('')
   const [emailSent, setEmailSent] = useState(false)
+  const emailSentTimerRef = useRef(null)
+  const copiedTimerRef = useRef(null)
+
+  useEffect(() => () => {
+    clearTimeout(emailSentTimerRef.current)
+    clearTimeout(copiedTimerRef.current)
+  }, [])
 
   let linkHead = ''
   if (typeof window !== 'undefined') {
@@ -53,7 +60,8 @@ const PaymentModal = ({ open, onClose, dealId }) => {
       setEmailSent(true)
       setShowEmailInput(false)
       setEmail('')
-      setTimeout(() => setEmailSent(false), 3000)
+      clearTimeout(emailSentTimerRef.current)
+      emailSentTimerRef.current = setTimeout(() => setEmailSent(false), 3000)
     },
     onError: (error) => {
       console.error('Error sending email:', error)
@@ -74,7 +82,8 @@ const PaymentModal = ({ open, onClose, dealId }) => {
     try {
       await navigator.clipboard.writeText(link)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      clearTimeout(copiedTimerRef.current)
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
     }

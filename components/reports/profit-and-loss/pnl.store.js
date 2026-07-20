@@ -37,7 +37,7 @@ class PnLStore {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
-				name: 'cashflow_store_v2',
+				name: 'pnl_store_v1',
 				properties: [
 					'profitTypes',
 					'selectedAccounts',
@@ -52,7 +52,7 @@ class PnLStore {
 					'dateRangeType'
 				],
 				storage: window.localStorage,
-				debugMode: true,
+				debugMode: false,
 			})
 		}
 	}

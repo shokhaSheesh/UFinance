@@ -294,7 +294,6 @@ const OperationsListPage = observer(() => {
   };
 
   const handleDeleteOperation = (operation) => {
-    console.log("operation.tip", operation);
     if (operation.tip === "Отгрузка") {
       _handleDeleteShipment(operation);
       return;
