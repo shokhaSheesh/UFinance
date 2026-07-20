@@ -84,7 +84,7 @@ export default observer(function DealsPage() {
   const {
     selectedCounterparties, dealsMethod, dateRange,
     amountFrom, amountTo, profitFrom, profitTo,
-    status, search: searchValue, setState,
+    status, schoolYear, search: searchValue, setState,
   } = sealDeal
 
   // ── Debounced search ───────────────────────────────────────────────────────
@@ -107,12 +107,13 @@ export default observer(function DealsPage() {
     profit_to: StringtoNumber(profitTo) || null,
     counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
     status: status?.length > 0 ? status : null,
+    school_year: appStore.isDonoSchool ? schoolYear || null : null,
     accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }), [
     searchValue, dateRanges, amountFrom, amountTo,
     profitFrom, profitTo, selectedCounterparties,
-    status, dealsMethod, t
+    status, dealsMethod, schoolYear, t
   ])
 
   // Outer debounce: delays actual request (1 second)
