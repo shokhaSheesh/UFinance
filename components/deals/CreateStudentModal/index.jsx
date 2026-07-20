@@ -26,7 +26,7 @@ import {
   getPeriodLength,
 } from "@/utils/helpers";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import { Edit2, Loader2, Trash2 } from "lucide-react";
+import { Edit2, Eye, Loader2, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";
@@ -40,8 +40,21 @@ const academicYears = Array.from({ length: 20 }, (_, i) => {
 
 const today = moment(new Date()).format("YYYY-MM-DD");
 
+// Состояние договора приходит из API массивом status: ["active" | "passive"].
+// Отчёт по ученикам хранит его же как булев contract_status — поддерживаем оба.
+// Неизвестное значение считаем активным, чтобы не заблокировать форму по ошибке.
+const resolveContractStatus = (data) => {
+  if (!data) return null;
+  const raw = Array.isArray(data.status) ? data.status[0] : data.status;
+  if (raw === "active" || raw === "passive") return raw;
+  if (typeof data.contract_status === "boolean") {
+    return data.contract_status ? "active" : "passive";
+  }
+  return "active";
+};
+
 const CreateStudentModal = observer(
-  ({ isOpen, onClose, onSubmit, dealGuid, canUpdateForms }) => {
+  ({ isOpen, onClose, onSubmit, dealGuid }) => {
     const t = useTranslations("Deals.createStudentModal");
 
     const clientType = [
@@ -67,10 +80,16 @@ const CreateStudentModal = observer(
     const [editingGuardian, setEditingGuardian] = useState(null);
     const [guardianTypeInput, setGuardianTypeInput] = useState("");
     const [deleteGuardianItem, setDeleteGuardianItem] = useState(null);
+    // Данные валидной формы, ожидающие подтверждения перед обновлением
+    const [pendingUpdateData, setPendingUpdateData] = useState(null);
     const branch = authStore.selectBranch;
-    const isEditing = dealGuid && !canUpdateForms;
+    const isEditMode = !!dealGuid;
 
-    const { data: initialData, isLoading } = useUcodeRequestQuery({
+    const {
+      data: initialData,
+      isLoading,
+      refetch: refetchContract,
+    } = useUcodeRequestQuery({
       method: "get_contract_with_counterparty",
       data: {
         guid: dealGuid,
@@ -82,6 +101,24 @@ const CreateStudentModal = observer(
         select: (res) => res?.data?.data,
       },
     });
+
+    // Модалка не размонтируется при закрытии, поэтому при каждом открытии
+    // подтягиваем свежие данные договора вручную
+    useEffect(() => {
+      if (isOpen && dealGuid) refetchContract();
+    }, [isOpen, dealGuid, refetchContract]);
+
+    const contractStatus = useMemo(
+      () => resolveContractStatus(initialData),
+      [initialData]
+    );
+
+    // Пассивный договор редактировать нельзя — форма только для чтения
+    const isPassiveContract = isEditMode && contractStatus === "passive";
+    // Поля, согласованные как редактируемые: открыты при создании и у активного договора
+    const isEditableLocked = isPassiveContract;
+    // Остальные поля договора: задаются только при создании
+    const isFixedLocked = isEditMode;
 
     const defaultValues = useMemo(() => {
       if (initialData && dealGuid) {
@@ -122,7 +159,7 @@ const CreateStudentModal = observer(
             null,
           clientType: initialData?.pupil_type?.[0] || "",
           language: initialData?.language_classes_id_data?.name || "",
-          status: "passive",
+          status: resolveContractStatus(initialData) || "active",
           address: initialData?.address || "",
           passiveDate: initialData?.passive_date
             ? moment(initialData.passive_date).format("YYYY-MM-DD")
@@ -224,13 +261,16 @@ const CreateStudentModal = observer(
       mutationKey: ["create-student"],
       mutationFn: (data) =>
         apiClient.invokeFunction({
-          method: isEditing
-            ? "update_contract_with_counterparty_passive"
+          method: isEditMode
+            ? "update_contract_with_counterparty"
             : "create_contract_with_counterparty",
           data,
         }),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get_sales_list_simple"] });
+        queryClient.invalidateQueries({
+          queryKey: ["get_contract_with_counterparty"],
+        });
         handleClose();
         reset();
       },
@@ -244,6 +284,9 @@ const CreateStudentModal = observer(
         }),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get_sales_list_simple"] });
+        queryClient.invalidateQueries({
+          queryKey: ["get_contract_with_counterparty"],
+        });
         handleClose();
         reset();
       },
@@ -472,124 +515,159 @@ const CreateStudentModal = observer(
 
       let requestData = {};
 
-      if (!isEditing) {
-        const htmlContent = getContractHtml()
-          .replace(/\s*highlight\s*/g, " ")
-          .replace(/\s+/g, " ");
-        try {
-          // Step 1: Convert HTML to PDF
-          const convertResponse = await fetch(
-            "https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authStore.authToken}`,
-              },
-              body: JSON.stringify({
-                html_content: htmlContent,
-                output_format: "pdf",
-              }),
-            }
-          );
+      // Пассивный договор редактировать нельзя — страховка, если UI обойдут
+      if (isPassiveContract) {
+        setIsSaving(false);
+        return;
+      }
 
-          if (!convertResponse.ok) {
-            throw new Error("Failed to convert HTML to PDF");
+      const htmlContent = getContractHtml()
+        .replace(/\s*highlight\s*/g, " ")
+        .replace(/\s+/g, " ");
+
+      try {
+        // Step 1: Convert HTML to PDF
+        const convertResponse = await fetch(
+          "https://api.admin.u-code.io/v2/html/convert?project-id=3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authStore.authToken}`,
+            },
+            body: JSON.stringify({
+              html_content: htmlContent,
+              output_format: "pdf",
+            }),
           }
+        );
 
-          const pdfBlob = await convertResponse.blob();
-
-          // Step 2: Upload PDF file
-          const formData = new FormData();
-          formData.append("file", pdfBlob, "contract.pdf");
-
-          const uploadResponse = await fetch(
-            "https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${authStore.authToken}`,
-              },
-              body: formData,
-            }
-          );
-
-          if (!uploadResponse.ok) {
-            throw new Error("Failed to upload PDF file");
-          }
-
-          const uploadData = await uploadResponse.json();
-          const fileLink = uploadData?.data?.link;
-
-          if (fileLink) {
-            contractFileLink = `https://cdn.u-code.io/${fileLink}`;
-          }
-        } catch (error) {
-          console.error("Error processing contract file:", error);
-          showErrorNotification(
-            "Ошибка при обработке договора: " + error.message
-          );
-          return;
-        } finally {
-          setIsSaving(false);
+        if (!convertResponse.ok) {
+          throw new Error("Failed to convert HTML to PDF");
         }
 
+        const pdfBlob = await convertResponse.blob();
+
+        // Step 2: Upload PDF file
+        const formData = new FormData();
+        formData.append("file", pdfBlob, "contract.pdf");
+
+        const uploadResponse = await fetch(
+          "https://api.admin.u-code.io/v1/files/folder_upload?folder_name=Media&format=png",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authStore.authToken}`,
+            },
+            body: formData,
+          }
+        );
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload PDF file");
+        }
+
+        const uploadData = await uploadResponse.json();
+        const fileLink = uploadData?.data?.link;
+
+        if (fileLink) {
+          contractFileLink = `https://cdn.u-code.io/${fileLink}`;
+        }
+      } catch (error) {
+        console.error("Error processing contract file:", error);
+        showErrorNotification("Ошибка при обработке договора: " + error.message);
+        return;
+      } finally {
+        setIsSaving(false);
+      }
+
+      // Поля, доступные для изменения у активного договора
+      const contractFields = {
+        name: data.contractNumber || "",
+        number_contract: data.contractNumber || "",
+        school_year: data.academicYear,
+        date_contract: moment(data.contractDate).format("YYYY-MM-DD"),
+        deal_date: moment(data.contractDate).format("YYYY-MM-DD"),
+        full_name_guardian: data.guardianName || "",
+        type_guardian: toArray(data.guardianType),
+        address: data.address || "",
+        first_phone_number: String(data.phone1).replace(/\s/, "") || "",
+        second_phone_number: String(data.phone2).replace(/\s/, "") || "",
+        number_passport: data.passport || "",
+        jshshr_guardian: data.pinf || "",
+        place_of_issue: data.issuedBy || "",
+        html: htmlContent,
+        contract_file: contractFileLink,
+        birthday_pupil: data.birthDate
+          ? moment(data.birthDate).format("YYYY-MM-DD")
+          : null,
+        select_gender: toArray(data.gender),
+        classes_id: data.classes_id,
+        pupil_type: toArray(data.clientType),
+        language_classes_id: data.language_classes_id,
+      };
+
+      const passiveDate = data.passiveDate
+        ? moment(data.passiveDate).format("YYYY-MM-DD")
+        : null;
+
+      if (isEditMode) {
         requestData = {
-          name: data.contractNumber || "",
-          number_contract: data.contractNumber || "",
-          school_year: data.academicYear,
-          date_contract: moment(data.contractDate).format("YYYY-MM-DD"),
-          deal_date: moment(data.contractDate).format("YYYY-MM-DD"),
+          guid: initialData.guid,
+          ...contractFields,
+          passive_date: passiveDate,
+        };
+      } else {
+        // Поля, которые задаются только при создании договора
+        requestData = {
+          ...contractFields,
           the_contract_period_is_from: moment(data.validFrom).format(
             "YYYY-MM-DD"
           ),
           the_contract_period_is_to: moment(data.validTo).format("YYYY-MM-DD"),
           counterparties_id: data.counterparties_id || "",
-          product_and_service_id: data.product_and_service_id, // TODO: get from tariff lookup
-          chart_of_accounts_id: data.chart_of_accounts_id, // TODO: get from settings
+          product_and_service_id: data.product_and_service_id,
+          chart_of_accounts_id: data.chart_of_accounts_id,
           legal_entity_id: data?.legal_entity_id || null,
-          full_name_guardian: data.guardianName || "",
-          type_guardian: toArray(data.guardianType),
-          address: data.address || "",
-          first_phone_number: String(data.phone1).replace(/\s/, "") || "",
-          second_phone_number: String(data.phone2).replace(/\s/, "") || "",
-          number_passport: data.passport || "",
-          jshshr_guardian: data.pinf || "",
-          place_of_issue: data.issuedBy || "",
-          html: htmlContent,
-          contract_file: contractFileLink,
-          birthday_pupil: data.birthDate
-            ? moment(data.birthDate).format("YYYY-MM-DD")
-            : null,
-          select_gender: toArray(data.gender),
-          classes_id: data.classes_id, // TODO: get from class lookup
-          pupil_type: toArray(data.clientType),
-          language_classes_id: data.language_classes_id, // TODO: get from language lookup
           status: toArray(data.status),
-          passive_date: data.passiveDate
-            ? moment(data.passiveDate).format("YYYY-MM-DD")
-            : null,
-        };
-      } else {
-        requestData = {
-          guid: initialData.guid,
-          passive_date: moment(data.passiveDate).format("YYYY-MM-DD"),
+          passive_date: passiveDate,
         };
       }
 
       createStudent(requestData, {
         onSuccess: () => {
-          showSuccessNotification("Ученик успешно создан");
+          showSuccessNotification(
+            isEditMode ? "Договор успешно обновлён" : "Ученик успешно создан"
+          );
           setStep("form");
           onClose();
           handleClose();
         },
         onError: (error) => {
           showErrorNotification(
-            error?.message || "Ошибка при создании ученика"
+            error?.message ||
+              (isEditMode
+                ? "Ошибка при обновлении договора"
+                : "Ошибка при создании ученика")
           );
         },
       });
+    };
+
+    // Форма прошла валидацию: при обновлении сначала просим подтвердить,
+    // что договор проверили в предпросмотре
+    const handleValidSubmit = (data) => {
+      if (isEditMode) {
+        setPendingUpdateData(data);
+        return;
+      }
+      handleFormSubmit(data);
+    };
+
+    const handleConfirmUpdate = () => {
+      const data = pendingUpdateData;
+      setPendingUpdateData(null);
+      if (data) handleFormSubmit(data);
     };
 
     // never change this btn submit funtionolities. Because this is only  developer
@@ -907,7 +985,7 @@ const CreateStudentModal = observer(
                   <div className="flex-1 overflow-auto p-4">
                     <form
                       id="student-form"
-                      onSubmit={handleSubmit(handleFormSubmit)}
+                      onSubmit={handleSubmit(handleValidSubmit)}
                       className="grid grid-cols-3 gap-3"
                     >
                       <fieldset className="contents">
@@ -919,11 +997,11 @@ const CreateStudentModal = observer(
                             placeholder={t("contractNumberPlaceholder")}
                             error={!!errors.contractNumber}
                             {...register("contractNumber", {
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("contractNumberRequired")
                                 : false,
                             })}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                           />
                           {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
                         </div>
@@ -936,7 +1014,7 @@ const CreateStudentModal = observer(
                             name="contractDate"
                             control={control}
                             rules={{
-                              required: isEditing
+                              required: isEditableLocked
                                 ? false
                                 : "Выберите дату договора",
                             }}
@@ -953,7 +1031,7 @@ const CreateStudentModal = observer(
                                   placeholder="Выберите дату"
                                   className={"w-full!"}
                                   inputClass={"bg-white!"}
-                                  disabled={isEditing}
+                                  disabled={isEditableLocked}
                                 />
                               );
                             }}
@@ -969,11 +1047,11 @@ const CreateStudentModal = observer(
                             placeholder={t("guardianNamePlaceholder")}
                             error={!!errors.guardianName}
                             {...register("guardianName", {
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("guardianNameRequired")
                                 : false,
                             })}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                           />
                           {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
                         </div>
@@ -1002,7 +1080,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="guardianType"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isEditableLocked ? true : false }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("guardianTypePlaceholder")}
@@ -1040,7 +1118,7 @@ const CreateStudentModal = observer(
                                 data={guardianTypeList}
                                 className="bg-white"
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1054,7 +1132,7 @@ const CreateStudentModal = observer(
                             name="academicYear"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("academicYearRequired")
                                 : false,
                             }}
@@ -1067,7 +1145,7 @@ const CreateStudentModal = observer(
                                 className="bg-white"
                                 hasError={errors.academicYear}
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1082,7 +1160,7 @@ const CreateStudentModal = observer(
                             name="phone1"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("phone1Required")
                                 : false,
                             }}
@@ -1092,7 +1170,7 @@ const CreateStudentModal = observer(
                                   type="text"
                                   placeholder={t("phone1Placeholder")}
                                   value={field.value}
-                                  disabled={isEditing}
+                                  disabled={isEditableLocked}
                                   hasError={errors.phone1}
                                   onChange={(e) =>
                                     field.onChange(
@@ -1113,7 +1191,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="counterparties_id"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isFixedLocked ? true : false }}
                             render={({ field }) => (
                               <SingleCounterParty
                                 placeholder={t("studentNamePlaceholder")}
@@ -1126,7 +1204,7 @@ const CreateStudentModal = observer(
                                 className={"bg-white"}
                                 isClearable={false}
                                 hasError={errors.counterparties_id}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1146,7 +1224,7 @@ const CreateStudentModal = observer(
                                   type="text"
                                   placeholder={t("phone2Placeholder")}
                                   value={field.value}
-                                  disabled={isEditing}
+                                  disabled={isEditableLocked}
                                   onChange={(e) =>
                                     field.onChange(
                                       formatPhoneNumber(e.target.value)
@@ -1166,11 +1244,11 @@ const CreateStudentModal = observer(
                             placeholder={t("passportPlaceholder")}
                             error={!!errors.passport}
                             {...register("passport", {
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("passportRequired")
                                 : false,
                             })}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                           />
                           {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
                         </div>
@@ -1183,10 +1261,10 @@ const CreateStudentModal = observer(
                           <Input
                             placeholder={t("pinflPlaceholder")}
                             maxLength={14}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                             error={!!errors.pinf}
                             {...register("pinf", {
-                              required: !isEditing ? t("pinflRequired") : false,
+                              required: !isEditableLocked ? t("pinflRequired") : false,
                               pattern: {
                                 value: /^\d{14}$/,
                                 message: t("pinflInvalid"),
@@ -1202,10 +1280,10 @@ const CreateStudentModal = observer(
                           </label>
                           <Input
                             placeholder={t("issuedByPlaceholder")}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                             error={!!errors.issuedBy}
                             {...register("issuedBy", {
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("issuedByRequired")
                                 : false,
                             })}
@@ -1220,7 +1298,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="product_and_service_id"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isFixedLocked ? true : false }}
                             render={({ field }) => (
                               <SelectProductService
                                 value={field.value}
@@ -1235,7 +1313,7 @@ const CreateStudentModal = observer(
                                 hasError={!!errors.product_and_service_id}
                                 placeholder={t("tariffPlaceholder")}
                                 className={"w-full! bg-white"}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1250,7 +1328,7 @@ const CreateStudentModal = observer(
                             name="birthDate"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("birthDateRequired")
                                 : false,
                             }}
@@ -1266,7 +1344,7 @@ const CreateStudentModal = observer(
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
                                 inputClass={"bg-white!"}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1281,7 +1359,7 @@ const CreateStudentModal = observer(
                             name="validFrom"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isFixedLocked
                                 ? t("validFromRequired")
                                 : false,
                             }}
@@ -1301,7 +1379,7 @@ const CreateStudentModal = observer(
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
                                 inputClass={"bg-white!"}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1315,7 +1393,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="gender"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isEditableLocked ? true : false }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("gender")}
@@ -1328,7 +1406,7 @@ const CreateStudentModal = observer(
                                 className="bg-white"
                                 isClearable={false}
                                 hasError={errors.gender}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1343,7 +1421,7 @@ const CreateStudentModal = observer(
                             name="validTo"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isFixedLocked
                                 ? t("validToRequired")
                                 : false,
                             }}
@@ -1363,7 +1441,7 @@ const CreateStudentModal = observer(
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
                                 inputClass={"bg-white!"}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1376,7 +1454,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="classes_id"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isEditableLocked ? true : false }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("classPlaceholder")}
@@ -1416,7 +1494,7 @@ const CreateStudentModal = observer(
                                 data={classeList}
                                 isClearable={false}
                                 className="bg-white"
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1437,7 +1515,7 @@ const CreateStudentModal = observer(
                                 data={clientType}
                                 className="bg-white"
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
@@ -1445,7 +1523,7 @@ const CreateStudentModal = observer(
                       </fieldset>
 
                       {/* Row 7 */}
-                      {isEditing && (
+                      {isEditMode && (
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
                             {t("passiveDate")} *
@@ -1464,6 +1542,7 @@ const CreateStudentModal = observer(
                                 }
                                 minDate={new Date(defaultValues.validFrom)}
                                 maxDate={new Date(defaultValues.validTo)}
+                                disabled={isPassiveContract}
                                 placeholder={t("datePlaceholder")}
                                 format="YYYY-MM-DD"
                                 className={
@@ -1498,7 +1577,7 @@ const CreateStudentModal = observer(
                                 data={sostayaniya}
                                 className="bg-white"
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled
                               />
                             )}
                           />
@@ -1506,9 +1585,9 @@ const CreateStudentModal = observer(
                       </fieldset>
 
                       <fieldset
-                        disabled={isEditing}
+                        disabled={isEditableLocked}
                         className={`contents ${
-                          isEditing ? "pointer-events-none opacity-70" : ""
+                          isEditableLocked ? "pointer-events-none opacity-70" : ""
                         }`}
                       >
                         <div className="flex flex-col gap-1.5">
@@ -1518,9 +1597,9 @@ const CreateStudentModal = observer(
                           <Input
                             placeholder={t("addressPlaceholder")}
                             error={!!errors.address}
-                            disabled={isEditing}
+                            disabled={isEditableLocked}
                             {...register("address", {
-                              required: !isEditing
+                              required: !isEditableLocked
                                 ? t("addressRequired")
                                 : false,
                             })}
@@ -1536,7 +1615,7 @@ const CreateStudentModal = observer(
                           <Controller
                             name="language_classes_id"
                             control={control}
-                            rules={{ required: !isEditing ? true : false }}
+                            rules={{ required: !isEditableLocked ? true : false }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("languagePlaceholder")}
@@ -1555,12 +1634,20 @@ const CreateStudentModal = observer(
                                 className="bg-white"
                                 hasError={errors.language_classes_id}
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled={isEditableLocked}
                               />
                             )}
                           />
                           {/* {errors.language_classes_id && <span className="text-xs text-red-500">{errors.language_classes_id.message}</span>} */}
                         </div>
+                      </fieldset>
+
+                      <fieldset
+                        disabled={isFixedLocked}
+                        className={`contents ${
+                          isFixedLocked ? "pointer-events-none opacity-70" : ""
+                        }`}
+                      >
                         {/* Row 9 */}
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
@@ -1579,7 +1666,7 @@ const CreateStudentModal = observer(
                                 placeholder={t("undistributedIncome")}
                                 className=" bg-white"
                                 isClearable={false}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1593,7 +1680,7 @@ const CreateStudentModal = observer(
                             name="legal_entity_id"
                             control={control}
                             rules={{
-                              required: !isEditing
+                              required: !isFixedLocked
                                 ? t("legalEntityRequired")
                                 : false,
                             }}
@@ -1608,7 +1695,7 @@ const CreateStudentModal = observer(
                                 className=" bg-white"
                                 isClearable={false}
                                 hasError={errors.legal_entity_id}
-                                disabled={isEditing}
+                                disabled={isFixedLocked}
                               />
                             )}
                           />
@@ -1634,18 +1721,20 @@ const CreateStudentModal = observer(
                     >
                       {t("preview")}
                     </button>
-                    <button
-                      type="submit"
-                      form="student-form"
-                      disabled={isSubmitting}
-                      className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSubmitting || isPending
-                        ? t("saving")
-                        : isEditing
-                        ? t("update")
-                        : t("add")}
-                    </button>
+                    {!isPassiveContract && (
+                      <button
+                        type="submit"
+                        form="student-form"
+                        disabled={isSubmitting || isSaving || isPending}
+                        className="px-5 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting || isSaving || isPending
+                          ? t("saving")
+                          : isEditMode
+                          ? t("update")
+                          : t("add")}
+                      </button>
+                    )}
                   </div>
                 </>
               ) : (
@@ -1691,18 +1780,20 @@ const CreateStudentModal = observer(
                       >
                         {t("print")}
                       </button>
-                      <button
-                        type="submit"
-                        form="student-form"
-                        disabled={isSubmitting}
-                        className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSubmitting || isPending
-                          ? t("saving")
-                          : isEditing
-                          ? t("update")
-                          : t("add")}
-                      </button>
+                      {!isPassiveContract && (
+                        <button
+                          type="submit"
+                          form="student-form"
+                          disabled={isSubmitting || isSaving || isPending}
+                          className="px-5 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isSubmitting || isSaving || isPending
+                            ? t("saving")
+                            : isEditMode
+                            ? t("update")
+                            : t("add")}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </>
@@ -1751,6 +1842,45 @@ const CreateStudentModal = observer(
         </CustomDialog>
 
         {/* Delete Confirmation Modal */}
+        {/* Подтверждение обновления договора */}
+        <CustomDialog
+          open={!!pendingUpdateData}
+          onClose={() => setPendingUpdateData(null)}
+          elevated
+          overlayClass="bg-slate-950/55! animate-in fade-in duration-200"
+          contentClass="w-[460px] max-w-[calc(100vw-2rem)] animate-in fade-in zoom-in-95 duration-200"
+        >
+          <div className="flex gap-4 p-6">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+              <Eye size={22} />
+            </div>
+            <div className="flex flex-col gap-1.5 pt-0.5">
+              <h3 className="text-base font-semibold text-gray-900">
+                {t("updateConfirmation")}
+              </h3>
+              <p className="text-sm leading-relaxed text-gray-500">
+                {t("updateConfirmText")}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+            <button
+              type="button"
+              onClick={() => setPendingUpdateData(null)}
+              className="px-5 py-2 cursor-pointer rounded-md border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmUpdate}
+              className="px-5 py-2 cursor-pointer rounded-md bg-blue-600 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+            >
+              {t("update")}
+            </button>
+          </div>
+        </CustomDialog>
+
         <CustomDialog
           open={!!deleteConfirmItem}
           onClose={() => setDeleteConfirmItem(null)}
