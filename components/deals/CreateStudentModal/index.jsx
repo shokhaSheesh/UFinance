@@ -53,6 +53,22 @@ const resolveContractStatus = (data) => {
   return "active";
 };
 
+// Сохранённый номер может прийти без маски или с потерянными пробелами —
+// приводим его к виду +998 XX XXX XX XX для показа в форме
+const formatSavedPhone = (value) => {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length <= 3) return "";
+  const withCode = digits.startsWith("998") ? digits : `998${digits}`;
+  return formatPhoneNumber(`+${withCode}`);
+};
+
+// В API номер уходит без пробелов: +998XXXXXXXXX
+const cleanPhone = (value) => {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length <= 3) return "";
+  return `+${digits}`;
+};
+
 const CreateStudentModal = observer(
   ({ isOpen, onClose, onSubmit, dealGuid }) => {
     const t = useTranslations("Deals.createStudentModal");
@@ -80,8 +96,8 @@ const CreateStudentModal = observer(
     const [editingGuardian, setEditingGuardian] = useState(null);
     const [guardianTypeInput, setGuardianTypeInput] = useState("");
     const [deleteGuardianItem, setDeleteGuardianItem] = useState(null);
-    // Данные валидной формы, ожидающие подтверждения перед обновлением
-    const [pendingUpdateData, setPendingUpdateData] = useState(null);
+    // Данные валидной формы, ожидающие подтверждения перед сохранением
+    const [pendingSubmitData, setPendingSubmitData] = useState(null);
     const branch = authStore.selectBranch;
     const isEditMode = !!dealGuid;
 
@@ -131,9 +147,9 @@ const CreateStudentModal = observer(
           branchName: branch?.name || "",
           guardianType: initialData?.type_guardian?.[0] || null,
           academicYear: initialData?.school_year,
-          phone1: initialData?.first_phone_number || "",
+          phone1: formatSavedPhone(initialData?.first_phone_number),
           studentName: initialData?.counterparties_id_data?.nazvanie || "",
-          phone2: initialData?.second_phone_number || "",
+          phone2: formatSavedPhone(initialData?.second_phone_number),
           passport: initialData?.number_passport || "",
           pinf: initialData?.jshshr_guardian || null,
           issuedBy: initialData?.place_of_issue || "",
@@ -575,7 +591,9 @@ const CreateStudentModal = observer(
         }
       } catch (error) {
         console.error("Error processing contract file:", error);
-        showErrorNotification("Ошибка при обработке договора: " + error.message);
+        showErrorNotification(
+          "Ошибка при обработке договора: " + error.message
+        );
         return;
       } finally {
         setIsSaving(false);
@@ -591,8 +609,8 @@ const CreateStudentModal = observer(
         full_name_guardian: data.guardianName || "",
         type_guardian: toArray(data.guardianType),
         address: data.address || "",
-        first_phone_number: String(data.phone1).replace(/\s/, "") || "",
-        second_phone_number: String(data.phone2).replace(/\s/, "") || "",
+        first_phone_number: cleanPhone(data.phone1),
+        second_phone_number: cleanPhone(data.phone2),
         number_passport: data.passport || "",
         jshshr_guardian: data.pinf || "",
         place_of_issue: data.issuedBy || "",
@@ -654,19 +672,15 @@ const CreateStudentModal = observer(
       });
     };
 
-    // Форма прошла валидацию: при обновлении сначала просим подтвердить,
-    // что договор проверили в предпросмотре
+    // Форма прошла валидацию: и при создании, и при обновлении сначала просим
+    // подтвердить, что договор проверили в предпросмотре
     const handleValidSubmit = (data) => {
-      if (isEditMode) {
-        setPendingUpdateData(data);
-        return;
-      }
-      handleFormSubmit(data);
+      setPendingSubmitData(data);
     };
 
-    const handleConfirmUpdate = () => {
-      const data = pendingUpdateData;
-      setPendingUpdateData(null);
+    const handleConfirmSubmit = () => {
+      const data = pendingSubmitData;
+      setPendingSubmitData(null);
       if (data) handleFormSubmit(data);
     };
 
@@ -1080,7 +1094,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="guardianType"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("guardianTypePlaceholder")}
@@ -1264,7 +1280,9 @@ const CreateStudentModal = observer(
                             disabled={isEditableLocked}
                             error={!!errors.pinf}
                             {...register("pinf", {
-                              required: !isEditableLocked ? t("pinflRequired") : false,
+                              required: !isEditableLocked
+                                ? t("pinflRequired")
+                                : false,
                               pattern: {
                                 value: /^\d{14}$/,
                                 message: t("pinflInvalid"),
@@ -1393,7 +1411,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="gender"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("gender")}
@@ -1454,7 +1474,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="classes_id"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("classPlaceholder")}
@@ -1587,7 +1609,9 @@ const CreateStudentModal = observer(
                       <fieldset
                         disabled={isEditableLocked}
                         className={`contents ${
-                          isEditableLocked ? "pointer-events-none opacity-70" : ""
+                          isEditableLocked
+                            ? "pointer-events-none opacity-70"
+                            : ""
                         }`}
                       >
                         <div className="flex flex-col gap-1.5">
@@ -1615,7 +1639,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="language_classes_id"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("languagePlaceholder")}
@@ -1844,8 +1870,8 @@ const CreateStudentModal = observer(
         {/* Delete Confirmation Modal */}
         {/* Подтверждение обновления договора */}
         <CustomDialog
-          open={!!pendingUpdateData}
-          onClose={() => setPendingUpdateData(null)}
+          open={!!pendingSubmitData}
+          onClose={() => setPendingSubmitData(null)}
           elevated
           overlayClass="bg-slate-950/55! animate-in fade-in duration-200"
           contentClass="w-[460px] max-w-[calc(100vw-2rem)] animate-in fade-in zoom-in-95 duration-200"
@@ -1856,27 +1882,27 @@ const CreateStudentModal = observer(
             </div>
             <div className="flex flex-col gap-1.5 pt-0.5">
               <h3 className="text-base font-semibold text-gray-900">
-                {t("updateConfirmation")}
+                {isEditMode ? t("updateConfirmation") : t("createConfirmation")}
               </h3>
               <p className="text-sm leading-relaxed text-gray-500">
-                {t("updateConfirmText")}
+                {isEditMode ? t("updateConfirmText") : t("createConfirmText")}
               </p>
             </div>
           </div>
           <div className="flex justify-end gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
             <button
               type="button"
-              onClick={() => setPendingUpdateData(null)}
+              onClick={() => setPendingSubmitData(null)}
               className="px-5 py-2 cursor-pointer rounded-md border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
               {t("cancel")}
             </button>
             <button
               type="button"
-              onClick={handleConfirmUpdate}
+              onClick={handleConfirmSubmit}
               className="px-5 py-2 cursor-pointer rounded-md bg-blue-600 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
             >
-              {t("update")}
+              {isEditMode ? t("update") : t("add")}
             </button>
           </div>
         </CustomDialog>

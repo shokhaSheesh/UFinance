@@ -1,2251 +1,2253 @@
 {
-	"Warehouse": {
-		"pageTitle": "Мой склад",
-		"searchPlaceholder": "Поиск по названию",
-		"empty": "Склад пуст",
-		"createButton": "Добавить склад",
-		"searchWarehousesPlaceholder": "Поиск по названию или адресу",
-		"emptyWarehouses": "Склады не найдены",
-		"defaultBadge": "Основной",
-		"table": {
-			"name": "Название",
-			"address": "Адрес",
-			"comment": "Комментарий",
-			"default": "Основной"
-		},
-		"createModal": {
-			"titleNew": "Новый склад",
-			"titleEdit": "Редактирование склада",
-			"name": "Название",
-			"namePlaceholder": "Например, Основной склад",
-			"nameRequired": "Введите название склада",
-			"address": "Адрес",
-			"addressPlaceholder": "Укажите адрес склада",
-			"comment": "Комментарий",
-			"commentPlaceholder": "Комментарий к складу",
-			"isDefault": "Сделать основным складом"
-		},
-		"deleteModal": {
-			"title": "Удалить склад?",
-			"message": "Вы действительно хотите удалить склад «{name}»? Восстановить его будет невозможно.",
-			"deleting": "Удаление..."
-		},
-		"columns": {
-			"name": "Наименование",
-			"artikul": "Артикул",
-			"balance": "Остаток",
-			"waiting": "Ожидание",
-			"available": "Доступно",
-			"unit": "Ед. изм.",
-			"daysInStock": "Дней на складе",
-			"cost": "Себестоимость",
-			"totalCost": "Сумма себестоимости",
-			"salePrice": "Цена продажи",
-			"saleTotal": "Сумма продажи"
-		},
-		"footer": {
-			"positions": "Позиций",
-			"totalBalance": "Общий остаток",
-			"waitingBalance": "Остаток ожидание",
-			"availableBalance": "Остаток доступно",
-			"totalCost": "Сумма себестоимости",
-			"totalSale": "Сумма продажи",
-			"pageInfo": "{from}-{to} из {total}"
-		}
-	},
-	"filter": "Фильтры",
-	"search": "Поиск...",
-	"Common": {
-		"loading": "Загрузка...",
-		"pay": "Оплата",
-		"noName": "Без названия",
-		"search": "Поиск...",
-		"parameters": "Параметры",
-		"searching": "Поиск...",
-		"empty": "Ничего не найдено",
-		"noGroup": "Без группы",
-		"selectAll": "Выбрать все",
-		"selected": "Выбрано: {{count}}",
-		"create": "Создать",
-		"save": "Сохранить",
-		"cancel": "Отменить",
-		"creating": "Создание...",
-		"saving": "Сохранение...",
-		"delete": "Удалить",
-		"edit": "Редактировать",
-		"copy": "Копировать",
-		"close": "Закрыть",
-		"forToday": "На сегодня",
-		"rootElement": "Корневой элемент",
-		"createAsRoot": "Создать как корневой элемент",
-		"placeholders": {
-			"select": "Выберите...",
-			"selectAccount": "Выберите счет",
-			"selectAccounts": "Выберите счета",
-			"selectCounterparty": "Выберите контрагента",
-			"selectCounterparties": "Выберите контрагентов",
-			"selectStatiya": "Выберите статью",
-			"selectStatii": "Выберите статьи",
-			"selectLegalEntity": "Выберите юрлицо",
-			"selectDeal": "Выберите сделку",
-			"selectDeals": "Выберите сделки",
-			"selectProduct": "Выберите товар или услугу",
-			"selectCurrency": "Выберите валюту",
-			"selectGroup": "Выберите группу",
-			"selectCounterpartyGroup": "Выберите группу контрагентов"
-		},
-		"deleteConfirmTitle": "Подтверждение удаления",
-		"tooltips": {
-			"editGroup": "Редактировать группу",
-			"deleteGroup": "Удалить группу",
-			"edit": "Редактировать",
-			"delete": "Удалить",
-			"createChild": "Создать подстатью",
-			"createCounterparty": "Создать контрагента"
-		},
-		"selects": {
-			"placeholder": "Выберите",
-			"searchInList": "Поиск по списку",
-			"search": "Поиск...",
-			"notFound": "Не найдено",
-			"selectedPrefix": "Выбрано"
-		},
-		"createAccount": "Создать счет",
-		"createAccountGroup": "Создать группу",
-		"createLegalEntity": "Создать юрлицо",
-		"createCounterparty": "Создать контрагента",
-		"createCounterparties": "Создать контрагентов",
-		"createDeal": "Создать сделку",
-		"createDeals": "Создать сделки"
-	},
-	"Auth": {
-		"title": {
-			"login": "Вход в аккаунт",
-			"register": "Регистрация",
-			"forgot": "Восстановление пароля"
-		},
-		"fields": {
-			"branchName": "Название организации",
-			"name": "ФИО пользователя",
-			"email": "Email",
-			"phone": "+998 XX XXX XX XX",
-			"password": "Пароль",
-			"passwordCreate": "Создать пароль"
-		},
-		"errors": {
-			"branchNameRequired": "Введите название организации",
-			"nameRequired": "Введите ФИО",
-			"emailRequired": "Введите email",
-			"emailInvalid": "Неверный формат email",
-			"phoneIncomplete": "Введите полный номер телефона",
-			"termsRequired": "Необходимо согласиться с условиями",
-			"passwordRequired": "Введите пароль"
-		},
-		"forgotPasswordLink": "Забыли пароль?",
-		"termsCheckboxPrefix": "Я ",
-		"termsCheckboxAccent": "соглашаюсь",
-		"termsCheckboxSuffix": " на получение информационных и справочных материалов",
-		"actions": {
-			"backToLoginPrefix": "Вернуться ко ",
-			"backToLoginLink": "входу",
-			"noAccount": "Нет учётной записи? ",
-			"hasAccount": "Есть учётная запись? ",
-			"toRegister": "Зарегистрироваться",
-			"toLogin": "Войти"
-		},
-		"submit": {
-			"login": "Войти",
-			"register": "Зарегистрироваться",
-			"forgot": "Отправить"
-		},
-		"termsNoticePrefix": "Нажав кнопку «",
-		"termsNoticeSuffix": "», вы подтверждаете ",
-		"termsNoticeLink": "Политика конфеденциальности",
-		"notifications": {
-			"loginSuccess": "Успешный вход!",
-			"loginError": "Адрес электронной почты или пароль неверны, попробуйте еще раз.",
-			"registerSuccess": "Успешная регистрация!",
-			"registerError": "Ошибка: токен или данные пользователя не получены",
-			"registerGenericError": "Ошибка при регистрации",
-			"registerExistEmailError": "Подобное электронное письмо существует.",
-			"forgotSuccess": "Инструкции по восстановлению пароля отправлены на ваш email",
-			"forgotError": "Ошибка при отправке запроса"
-		}
-	},
-	"Sidebar": {
-		"nav": {
-			"indicators": "Показатели",
-			"operations": "Операции",
-			"counterparties": "Контрагенты",
-			"deals": "Сделки",
-			"purchases": "Закупки",
-			"dealsSelling": "Продажи",
-			"dealsSellingDesc": "Сделки, в которых вы продаете товар или оказываете услуги",
-			"dealsPurchase": "Закупки",
-			"dealsPurchaseDesc": "Сделки, в которых вы закупаете товар или получаете услуги",
-			"reports": "Отчёты",
-			"directories": "Справочники",
-			"settings": "Настройки",
-			"plans": "Планы",
-			"warehouse": "Мой склад"
-		},
-		"reports": {
-			"cashflow": "Движение денег (ДДС)",
-			"pnl": "Прибыли и убытки (ОПУ)",
-			"balance": "Баланс",
-			"students": "Студенты"
-		},
-		"directories": {
-			"counterparties": "Контрагенты",
-			"transactionCategories": "Учетные статьи",
-			"accounts": "Мои счета",
-			"legalEntities": "Мои юрлица",
-			"productsServices": "Товары & Услуги"
-		},
-		"transactionCategories": {
-			"pageTitle": "Учетные статьи",
+  "Warehouse": {
+    "pageTitle": "Мой склад",
+    "searchPlaceholder": "Поиск по названию",
+    "empty": "Склад пуст",
+    "createButton": "Добавить склад",
+    "searchWarehousesPlaceholder": "Поиск по названию или адресу",
+    "emptyWarehouses": "Склады не найдены",
+    "defaultBadge": "Основной",
+    "table": {
+      "name": "Название",
+      "address": "Адрес",
+      "comment": "Комментарий",
+      "default": "Основной"
+    },
+    "createModal": {
+      "titleNew": "Новый склад",
+      "titleEdit": "Редактирование склада",
+      "name": "Название",
+      "namePlaceholder": "Например, Основной склад",
+      "nameRequired": "Введите название склада",
+      "address": "Адрес",
+      "addressPlaceholder": "Укажите адрес склада",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Комментарий к складу",
+      "isDefault": "Сделать основным складом"
+    },
+    "deleteModal": {
+      "title": "Удалить склад?",
+      "message": "Вы действительно хотите удалить склад «{name}»? Восстановить его будет невозможно.",
+      "deleting": "Удаление..."
+    },
+    "columns": {
+      "name": "Наименование",
+      "artikul": "Артикул",
+      "balance": "Остаток",
+      "waiting": "Ожидание",
+      "available": "Доступно",
+      "unit": "Ед. изм.",
+      "daysInStock": "Дней на складе",
+      "cost": "Себестоимость",
+      "totalCost": "Сумма себестоимости",
+      "salePrice": "Цена продажи",
+      "saleTotal": "Сумма продажи"
+    },
+    "footer": {
+      "positions": "Позиций",
+      "totalBalance": "Общий остаток",
+      "waitingBalance": "Остаток ожидание",
+      "availableBalance": "Остаток доступно",
+      "totalCost": "Сумма себестоимости",
+      "totalSale": "Сумма продажи",
+      "pageInfo": "{from}-{to} из {total}"
+    }
+  },
+  "filter": "Фильтры",
+  "search": "Поиск...",
+  "Common": {
+    "loading": "Загрузка...",
+    "pay": "Оплата",
+    "noName": "Без названия",
+    "search": "Поиск...",
+    "parameters": "Параметры",
+    "searching": "Поиск...",
+    "empty": "Ничего не найдено",
+    "noGroup": "Без группы",
+    "selectAll": "Выбрать все",
+    "selected": "Выбрано: {{count}}",
+    "create": "Создать",
+    "save": "Сохранить",
+    "cancel": "Отменить",
+    "creating": "Создание...",
+    "saving": "Сохранение...",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "copy": "Копировать",
+    "close": "Закрыть",
+    "forToday": "На сегодня",
+    "rootElement": "Корневой элемент",
+    "createAsRoot": "Создать как корневой элемент",
+    "placeholders": {
+      "select": "Выберите...",
+      "selectAccount": "Выберите счет",
+      "selectAccounts": "Выберите счета",
+      "selectCounterparty": "Выберите контрагента",
+      "selectCounterparties": "Выберите контрагентов",
+      "selectStatiya": "Выберите статью",
+      "selectStatii": "Выберите статьи",
+      "selectLegalEntity": "Выберите юрлицо",
+      "selectDeal": "Выберите сделку",
+      "selectDeals": "Выберите сделки",
+      "selectProduct": "Выберите товар или услугу",
+      "selectCurrency": "Выберите валюту",
+      "selectGroup": "Выберите группу",
+      "selectCounterpartyGroup": "Выберите группу контрагентов"
+    },
+    "deleteConfirmTitle": "Подтверждение удаления",
+    "tooltips": {
+      "editGroup": "Редактировать группу",
+      "deleteGroup": "Удалить группу",
+      "edit": "Редактировать",
+      "delete": "Удалить",
+      "createChild": "Создать подстатью",
+      "createCounterparty": "Создать контрагента"
+    },
+    "selects": {
+      "placeholder": "Выберите",
+      "searchInList": "Поиск по списку",
+      "search": "Поиск...",
+      "notFound": "Не найдено",
+      "selectedPrefix": "Выбрано"
+    },
+    "createAccount": "Создать счет",
+    "createAccountGroup": "Создать группу",
+    "createLegalEntity": "Создать юрлицо",
+    "createCounterparty": "Создать контрагента",
+    "createCounterparties": "Создать контрагентов",
+    "createDeal": "Создать сделку",
+    "createDeals": "Создать сделки"
+  },
+  "Auth": {
+    "title": {
+      "login": "Вход в аккаунт",
+      "register": "Регистрация",
+      "forgot": "Восстановление пароля"
+    },
+    "fields": {
+      "branchName": "Название организации",
+      "name": "ФИО пользователя",
+      "email": "Email",
+      "phone": "+998 XX XXX XX XX",
+      "password": "Пароль",
+      "passwordCreate": "Создать пароль"
+    },
+    "errors": {
+      "branchNameRequired": "Введите название организации",
+      "nameRequired": "Введите ФИО",
+      "emailRequired": "Введите email",
+      "emailInvalid": "Неверный формат email",
+      "phoneIncomplete": "Введите полный номер телефона",
+      "termsRequired": "Необходимо согласиться с условиями",
+      "passwordRequired": "Введите пароль"
+    },
+    "forgotPasswordLink": "Забыли пароль?",
+    "termsCheckboxPrefix": "Я ",
+    "termsCheckboxAccent": "соглашаюсь",
+    "termsCheckboxSuffix": " на получение информационных и справочных материалов",
+    "actions": {
+      "backToLoginPrefix": "Вернуться ко ",
+      "backToLoginLink": "входу",
+      "noAccount": "Нет учётной записи? ",
+      "hasAccount": "Есть учётная запись? ",
+      "toRegister": "Зарегистрироваться",
+      "toLogin": "Войти"
+    },
+    "submit": {
+      "login": "Войти",
+      "register": "Зарегистрироваться",
+      "forgot": "Отправить"
+    },
+    "termsNoticePrefix": "Нажав кнопку «",
+    "termsNoticeSuffix": "», вы подтверждаете ",
+    "termsNoticeLink": "Политика конфеденциальности",
+    "notifications": {
+      "loginSuccess": "Успешный вход!",
+      "loginError": "Адрес электронной почты или пароль неверны, попробуйте еще раз.",
+      "registerSuccess": "Успешная регистрация!",
+      "registerError": "Ошибка: токен или данные пользователя не получены",
+      "registerGenericError": "Ошибка при регистрации",
+      "registerExistEmailError": "Подобное электронное письмо существует.",
+      "forgotSuccess": "Инструкции по восстановлению пароля отправлены на ваш email",
+      "forgotError": "Ошибка при отправке запроса"
+    }
+  },
+  "Sidebar": {
+    "nav": {
+      "indicators": "Показатели",
+      "operations": "Операции",
+      "counterparties": "Контрагенты",
+      "deals": "Сделки",
+      "purchases": "Закупки",
+      "dealsSelling": "Продажи",
+      "dealsSellingDesc": "Сделки, в которых вы продаете товар или оказываете услуги",
+      "dealsPurchase": "Закупки",
+      "dealsPurchaseDesc": "Сделки, в которых вы закупаете товар или получаете услуги",
+      "reports": "Отчёты",
+      "directories": "Справочники",
+      "settings": "Настройки",
+      "plans": "Планы",
+      "warehouse": "Мой склад"
+    },
+    "reports": {
+      "cashflow": "Движение денег (ДДС)",
+      "pnl": "Прибыли и убытки (ОПУ)",
+      "balance": "Баланс",
+      "students": "Студенты"
+    },
+    "directories": {
+      "counterparties": "Контрагенты",
+      "transactionCategories": "Учетные статьи",
+      "accounts": "Мои счета",
+      "legalEntities": "Мои юрлица",
+      "productsServices": "Товары & Услуги"
+    },
+    "transactionCategories": {
+      "pageTitle": "Учетные статьи",
 
-			"create": "Создать",
-			"searchPlaceholder": "Поиск по названию",
-			"loading": "Загрузка",
-			"error": "Ошибка",
-			"errorLoading": "Не удалось загрузить данные",
-			"noResults": "Ничего не найдено",
-			"noData": "Нет данных для отображения",
-			"deleteError": "Не удалось удалить учетную статью",
-			"tabs": {
-				"income": "Доходы",
-				"expense": "Расходы",
-				"assets": "Актив",
-				"liabilities": "Обязательства",
-				"capital": "Капитал"
-			},
-			"categories": {
-				"income": "Доходы",
-				"expense": "Расходы",
-				"assets": "Актив",
-				"liabilities": "Обязательства",
-				"capital": "Капитал"
-			},
-			"info": {
-				"title": "Эта схема наглядно показывает, как статьи участвуют в формировании отчета Баланс"
-			},
-			"reports": {
-				"cashFlow": {
-					"title": "Движение денег",
-					"operational": "Операционный поток",
-					"investment": "Инвестиционный поток",
-					"financial": "Финансовый поток",
-					"receipts": "Поступления",
-					"payments": "Выплаты",
-					"total": "ОБЩИЙ ДЕНЕЖНЫЙ ПОТОК"
-				},
-				"pAndL": {
-					"title": "Прибыли и убытки",
-					"income": "Доходы",
-					"incomeItems": {
-						"goodsSales": "Продажа товаров",
-						"services": "Оказание услуг",
-						"other": "Прочие доходы"
-					},
-					"expenses": "Расходы",
-					"minus": "минус",
-					"expenseItems": {
-						"productionStaff": "Производственный персонал",
-						"goodsPurchase": "Покупка товаров",
-						"adminStaff": "Административный персонал",
-						"rent": "Аренда",
-						"other": "Прочие расходы",
-						"bankServices": "Банковские услуги",
-						"soon": "скоро",
-						"exchangeDiff": "Курсовая разница минус",
-						"depreciation": "Амортизация",
-						"interest": "Проценты",
-						"incomeTax": "Налог на прибыль (доходы)"
-					},
-					"undistributedProfit": "НЕРАСПРЕДЕЛЕННАЯ ПРИБЫЛЬ"
-				},
-				"balance": {
-					"title": "Баланс",
-					"currentAssets": {
-						"title": "Оборотные активы",
-						"receivables": "Дебиторская задолженность",
-						"cash": "Денежные средства",
-						"inventory": "Запасы",
-						"other": "Другие оборотные",
-						"advancePayments": "Заготовые платежи",
-						"loansShort": "Выданные займы (до 1 года)"
-					},
-					"nonCurrentAssets": {
-						"title": "Внеоборотные активы",
-						"and": "И",
-						"fixedAssets": "Основные средства",
-						"equipment": "Оборудование",
-						"transport": "Транспорт",
-						"other": "Другие внеоборотные",
-						"loansLong": "Выданные займы (от 1 года)",
-						"financialInvestments": "Финансовые вложения",
-						"intangible": "Нематериальные активы"
-					},
-					"totalAssets": "ИТОГО АКТИВЫ",
-					"currentLiabilities": {
-						"title": "Краткосрочные обязательства",
-						"payables": "Кредиторская задолженность",
-						"other": "Другие краткосрочные",
-						"thirdParty": "Платежи третьим лицам",
-						"loansShort": "Полученные займы (до 1 года)"
-					},
-					"longTermLiabilities": {
-						"title": "Долгосрочные обязательства",
-						"fin": "Ф",
-						"credits": "Кредиты",
-						"other": "Другие долгосрочные",
-						"loansLong": "Полученные займы (от 1 года)"
-					},
-					"totalLiabilities": "ИТОГО ОБЯЗАТЕЛЬСТВА",
-					"capital": {
-						"title": "Капитал",
-						"fin": "Ф",
-						"founderInvestments": "Вложения учредителей",
-						"plus": "плюс",
-						"undistributedProfit": "Нераспределенная прибыль"
-					},
-					"totalCapital": "ИТОГО КАПИТАЛ",
-					"balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
-				}
-			}
-		},
-		"plans": {
-			"cash_flow_budget": "Бюджет денежных потоков",
-			"income_expense_budget": "Бюджет доходов и расходов",
-			"payment_calendar": "Платежный календарь"
-		},
-		"apiModal": {
-			"title": "Настройка локального API",
-			"label": "URL локального API",
-			"placeholder": "https://your-local-api-url.com",
-			"savedNotice": "URL уже сохранен и не может быть изменен",
-			"cancel": "Отмена",
-			"clear": "Очистить",
-			"save": "Сохранить"
-		}
-	},
-	"Header": {
-		"branches": {
-			"selectPlaceholder": "Выберите филиал"
-		},
-		"profile": {
-			"fallbackName": "Пользователь",
-			"logout": "Выйти из аккаунта"
-		},
-		"balance": {
-			"label": "На счетах",
-			"viewCompact": "Компактный",
-			"viewFull": "Полный",
-			"collapse": "Свернуть",
-			"expand": "Развернуть",
-			"emptyGroup": "Переместите счета в эту группу"
-		}
-	},
-	"Operations": {
-		"page": {
-			"title": "Операции",
-			"create": "Создать",
-			"import": "Импорт",
-			"export": "Скачать в Excel",
-			"searchPlaceholder": "По счету, контрагенту, или статья",
-			"delete": "Удалить",
-			"noData": "Нет данных",
-			"sectionToday": "Сегодня",
-			"sectionBefore": "Вчера и ранее",
-			"fileDownloaded": "Файл успешно загружен.",
-			"importedSuccess": "Операции успешно импортированы.",
-			"importErrorPrefix": "Импорт завершен с ошибками:",
-			"importFailed": "Не удалось импортировать операции.",
-			"importErrorTitle": "Проблемы с импортом",
-			"importErrorDescription": "В вашем xlsx файле обнаружены ошибки. Пожалуйста, скачайте файл с ошибками, чтобы увидеть детали.",
-			"downloadErrorFile": "Скачать файл с ошибками",
-			"cancel": "Отмена"
-		},
-		"columns": {
-			"date": "Дата",
-			"account": "Счет",
-			"paymentType": "Тип платежа",
-			"type": "Тип",
-			"counterparty": "Контрагент",
-			"statya": "Статья",
-			"deal": "Сделка",
-			"amount": "Сумма"
-		},
-		"filters": {
-			"operationType": "Тип операции",
-			"paymentDate": "Дата оплаты",
-			"accrualDate": "Дата начисления",
-			"parameters": "Параметры",
-			"confirmed": "Подтверждена",
-			"notConfirmed": "Не подтверждена",
-			"income": "Поступление",
-			"payout": "Выплата",
-			"transfer": "Перемещение",
-			"writeOff": "Списание",
-			"enrollment": "Зачисление",
-			"accrual": "Начисление",
-			"debit": "Дебет",
-			"credit": "Кредит",
-			"shipment": "Отгрузка",
-			"supply": "Поставка",
-			"legalEntitiesPlaceholder": "Юрлица и счета",
-			"counterpartiesPlaceholder": "Контрагенты",
-			"chartOfAccountsPlaceholder": "Статьи учета",
-			"dealsPlaceholder": "Сделки",
-			"purchaseDealsPlaceholder": "Сделки закупок",
-			"paymentTypePlaceholder": "Тип платежа",
-			"amountFrom": "Сумма от",
-			"amountTo": "до"
-		},
-		"paymentTypes": {
-			"cash": "Наличный",
-			"card": "Карта",
-			"transfer": "Перечисление"
-		},
-		"footer": {
-			"operations": "операций",
-			"receipts": "поступлений:",
-			"payments": "выплат:",
-			"transfers": "перемещения:",
-			"total": "Итого:"
-		},
-		"deleteModal": {
-			"title": "Подтверждение удаления",
-			"confirmation": "Вы уверены, что хотите удалить операцию?",
-			"description": "Описание:",
-			"amount": "Сумма:",
-			"date": "Дата:",
-			"cancel": "Отмена",
-			"delete": "Удалить"
-		},
-		"menu": {
-			"edit": "Редактировать",
-			"copy": "Копировать",
-			"delete": "Удалить",
-			"createdLabel": "Создана",
-			"updatedLabel": "Изменена"
-		},
-		"modal": {
-			"createTitle": "Создание операции",
-			"editTitle": "Редактирование операции",
-			"createdAt": "Создана {date}",
-			"tabIncome": "Поступление",
-			"tabPayment": "Выплата",
-			"tabTransfer": "Перемещение",
-			"tabAccrual": "Начисление",
-			"cancel": "Отмена",
-			"create": "Создать",
-			"save": "Сохранить"
-		},
-		"forms": {
-			"paymentDate": "Дата оплаты",
-			"confirmPayment": "Подтвердить оплату",
-			"accountAndLegalEntity": "Счет и юрлицо",
-			"selectAccountError": "Выберите счет и юрлицо",
-			"legalEntityPlaceholder": "Юрлица и счета",
-			"amount": "Сумма",
-			"amountPlaceholder": "Сумму",
-			"amountZero": "0",
-			"accrualDate": "Дата начисления",
-			"confirmAccrual": "Подтвердить начисление",
-			"counterparty": "Контрагент",
-			"counterpartyPlaceholder": "Не выбран.",
-			"statya": "Статья",
-			"statyaIncomePlaceholder": "Нераспределенный доход",
-			"statyaPaymentPlaceholder": "Нераспределенный расход",
-			"paymentType": "Тип платежа",
-			"paymentTypePlaceholder": "Выберите тип платежа...",
-			"salesDeal": "Сделка продажи",
-			"salesDealPlaceholder": "Выберите сделку...",
-			"purchaseDeal": "Сделка закупки",
-			"purchaseDealPlaceholder": "Выберите сделку закупки...",
-			"purpose": "Назначение платежа",
-			"purposePlaceholder": "Назначение платежа",
-			"purposeRequired": "Введите назначение платежа",
-			"selectDate": "Выберите дату",
-			"debit": "Дебит",
-			"credit": "Кредит",
-			"debitArticle": "Статья по дебету",
-			"debitArticleRequired": "Выберите статью по дебету",
-			"debitArticlePlaceholder": "Выберите статью по дебету...",
-			"creditArticle": "Статья по кредиту",
-			"creditArticleRequired": "Выберите статью по кредиту",
-			"creditArticlePlaceholder": "Выберите статью по кредиту...",
-			"legalEntity": "Юрлицо",
-			"legalEntityRequired": "Выберите юрлицо",
-			"legalEntityPlaceholderEntity": "Выберите юрлицо...",
-			"selectCurrencyRequired": "Выберите валюту",
-			"sellingDealPlaceholder": "Выберите сделку продажи...",
-			"fromAccountRequired": "Выберите счет списания",
-			"toAccountRequired": "Выберите счет зачисления",
-			"purposeShort": "Назначение",
-			"purposeShortRequired": "Введите назначение",
-			"fromSection": "ОТКУДА",
-			"toSection": "КУДА",
-			"transferDate": "Дата",
-			"writeOffAmount": "Сумма списания",
-			"enrollAmount": "Сумма зачисления",
-			"enrollAmountRequired": "Укажите сумму зачисления",
-			"canAllowOpiu": "Учитывать в ОПиУ кассовым методом",
-			"create": "Создать",
-			"save": "Сохранить",
-			"cancel": "Отмена"
-		},
-		"splitAmount": {
-			"cancelSplit": "Отменить разбиение",
-			"splitAmount": "Разбить сумму",
-			"accrualDate": "Дата начисления",
-			"confirm": "Подтвердить",
-			"counterparty": "Контрагент",
-			"counterpartyPlaceholder": "Не выбран",
-			"statya": "Статья",
-			"statyaPlaceholder": "Выберите статью...",
-			"amount": "Сумма",
-			"share": "Доля",
-			"addRow": "Добавить строку",
-			"removeRow": "Удалить строку",
-			"decreaseBy": "Уменьшите на",
-			"total": "Итого:",
-			"cancelDialogText": "Подтвердите, что вы хотите отменить разбиение суммы операции. Это приведет к удалению ранее введенных данных.",
-			"back": "Вернуться",
-			"confirmAction": "Подтвердить",
-			"splitAccrual": "Начисление",
-			"splitCounterparty": "Контрагент",
-			"splitStatya": "Статья"
-		},
-		"comments": {
-			"plugTitle": "Прикрепляйте к операциям файлы, например, акты или счета, добавляйте комментарии",
-			"plugMaxFiles": "Не более 10 файлов к операции",
-			"plugMaxSize": "Максимальный размер файла — 5 МБ",
-			"plugFormatsLabel": "Поддерживаемые форматы:",
-			"plugFormats": "pdf, doc, docx, xls, xlsx, jpeg, png, zip, rar, txt, csv, xml",
-			"placeholder": "Написать комментарий",
-			"attachFile": "Прикрепить файл",
-			"send": "Отправить",
-			"edit": "Редактировать",
-			"delete": "Удалить",
-			"cancel": "Отмена",
-			"save": "Сохранить",
-			"download": "Скачать",
-			"removeFile": "Убрать файл",
-			"deleteCommentTitle": "Удалить комментарий",
-			"deleteCommentTextStart": "Вы действительно хотите удалить комментарий? Восстановить его будет ",
-			"deleteCommentTextEnd": ".",
-			"deleteCommentImpossible": "невозможно",
-			"deleteCancel": "Отменить",
-			"deleteConfirm": "Удалить"
-		},
-		"row": {
-			"accrualPlaceholder": "[Начисление]",
-			"counterpartiesCount": "{count} [контрагента]",
-			"statyaCount": "{count} [статьи]",
-			"dealsCount": "2 [сделки]",
-			"transferWriteOff": "[Перемещение списание]",
-			"transferEnrollment": "[Перемещение зачисление]",
-			"byDebit": "[по дебету]",
-			"byCredit": "[по кредиту]"
-		}
-	},
-	"Reports": {
-		"common": {
-			"downloadExcel": "Скачать в Excel",
-			"buildingMethod": "Способ построения",
-			"total": "Итого",
-			"period": "Период",
-			"allDeals": "Все сделки",
-			"allCounterparties": "Все контрагенты",
-			"legalEntitiesAndAccounts": "Юрлица и счета",
-			"fileDownloaded": "Файл успешно загружен.",
-			"accountingMethod": "Метод учета",
-			"date": "Дата",
-			"counterparty": "Контрагент",
-			"counterpartyGroup": "Группа контрагентов",
-			"deals": "Сделки"
-		},
-		"cashflow": {
-			"title": "Отчет о движении денежных средств",
-			"articleHeader": "По статьям учета",
-			"grouping": {
-				"daily": "День",
-				"monthly": "По месяцам",
-				"quarterly": "По кварталам",
-				"yearly": "По годам"
-			}
-		},
-		"paymentCalendar": {
-			"title": "Платежный календарь"
-		},
-		"pnl": {
-			"title": "Отчет о прибылях и убытках (P&L)",
-			"grouping": {
-				"daily": "День",
-				"weekly": "Неделя",
-				"monthly": "Месяц"
-			},
-			"accounting": {
-				"accrual": "Метод начисления",
-				"cash": "Кассовый метод"
-			},
-			"article": "Статья",
-			"emptyPeriod": "Выберите период для отображения отчета",
-			"emptyHint": "Используйте фильтры слева для настройки параметров отчета",
-			"profitTypes": "Виды прибыли",
-			"operational": "Операционная"
-		},
-		"balance": {
-			"title": "Балансовый отчет",
-			"formula": "Активы = Обязательства + Капитал",
-			"accountHeader": "СЧЕТ",
-			"errorLoading": "Ошибка загрузки данных:",
-			"retry": "Повторить"
-		},
-		"students": {
-			"title": "Ежемесячный отчет по студентам",
-			"accounting": {
-				"accrual": "Метод начисления",
-				"cash": "Кассовый метод"
-			},
-			"statusTile": "Статус",
-			"columns": {
-				"fio": "ФИО",
-				"group": "Группа",
-				"status": "Статус",
-				"plan": "План",
-				"fact": "Факт",
-				"difference": "Разница",
-				"totalPlan": "Общий план",
-				"totalFact": "Общий факт",
-				"totalDifference": "Общая разница"
-			},
-			"status": {
-				"active": "Активный",
-				"passive": "Пассивный"
-			}
-		}
-	},
-	"NewDateRangeComponent": {
-		"selectDate": "Выберите дату",
-		"selectPeriod": "Укажите период",
-		"specifyPrefix": "Укажите ",
-		"periodWord": "период",
-		"start": "Начало",
-		"end": "Конец",
-		"reset": "Сбросить",
-		"apply": "Применить",
-		"presets": {
-			"yesterday": "Вчера",
-			"today": "Сегодня",
-			"prevWeek": "Прошлая неделя",
-			"week": "Эта неделя",
-			"prevMonth": "Прошлый месяц",
-			"month": "Этот месяц",
-			"prevQuarter": "Прошлый квартал",
-			"quarter": "Этот квартал",
-			"prevYear": "Прошлый год",
-			"year": "Этот год"
-		}
-	},
-	"OperationCashFlowModal": {
-		"title": "Операции",
-		"reportPeriod": "Период отчета",
-		"operationsSum": "Сумма операций",
-		"date": "Дата ▾",
-		"type": "Тип",
-		"from": "Откуда",
-		"counterparty": "Контрагент",
-		"to": "Куда",
-		"article": "Статья",
-		"amount": "Сумма",
-		"noData": "Нет данных",
-		"after": "После",
-		"today": "Сегодня",
-		"before": "До",
-		"openInOperations": "Открыть в разделе Операции",
-		"close": "Закрыть"
-	},
-	"Purchases": {
-		"pageTitle": "Сделки по закупкам",
-		"backToList": "Сделки по закупкам",
-		"table": {
-			"client": "Поставщик",
-			"received": "Выплачено",
-			"shipped": "Поставлено"
-		},
-		"filters": {
-			"sectionTitle": "Параметры сделки",
-			"selectSuppliers": "Поставщики",
-			"createdDate": "Дата создания"
-		},
-		"createSupply": {
-			"titleNew": "Новая поставка",
-			"titleEdit": "Редактирование поставки",
-			"supplyDate": "Дата поставки",
-			"plannedSupply": "Плановая поставка",
-			"supplier": "Поставщик",
-			"supplierRequired": "Выберите поставщика",
-			"expenseArticle": "Статья закупки товаров",
-			"undistributedExpense": "Нераспределенный расход",
-			"removeFromSupply": "Убрать из поставки",
-			"supplySum": "Сумма поставки",
-			"products": "Товары/услуги для поставки"
-		},
-		"supplyTable": {
-			"emptyTitle": "Добавьте поставки в сделку",
-			"emptySubtitle": "Учитывайте поставки товара/услуг, чтобы контролировать выполнение обязательств по сделке",
-			"deleteSupplyTitle": "Удалить поставку",
-			"deleteSupplyConfirm": "Вы действительно хотите удалить поставку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
-			"deleteBlockedClosedWarehouse": "Удаление недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
-			"unallocatedExpense": "Нераспределенный расход"
-		},
-		"createDealModal": {
-			"titleNew": "Новая закупка",
-			"titleEdit": "Редактирование закупки",
-			"supplier": "Поставщик",
-			"supplierPlaceholder": "Укажите, у кого закупаете товар или услугу"
-		}
-	},
-	"Deals": {
-		"pageTitle": "Сделки по продажам",
-		"createDeal": "Создать",
-		"createStudent": "Создать студента",
-		"searchPlaceholder": "Поиск по краткому названию",
-		"downloadExcel": "Скачать в Excel",
-		"fileDownloaded": "Файл успешно загружен.",
-		"methods": {
-			"accrual": "Метод начисления",
-			"cash": "Кассовый метод"
-		},
-		"table": {
-			"date": "Дата",
-			"name": "Название",
-			"client": "Клиент",
-			"status": "Статус",
-			"dealAmount": "Сумма сделки",
-			"received": "Поступило",
-			"shipped": "Отгружено",
-			"profit": "Прибыль"
-		},
-		"empty": "Нет данных",
-		"statusNew": "Новая",
-		"tooltips": {
-			"editContract": "Редактировать договор",
-			"downloadContract": "Скачать договор",
-			"edit": "Редактировать",
-			"copy": "Скопировать",
-			"delete": "Удалить"
-		},
-		"footer": {
-			"dealsCount": "{count} сделок на сумму:",
-			"totalProfit": "Общая прибыль:"
-		},
-		"detail": {
-			"backToList": "Сделки по продажам",
-			"noName": "Без названия",
-			"actions": {
-				"edit": "Редактировать",
-				"delete": "Удалить"
-			},
-			"cards": {
-				"type": "Тип",
-				"client": "Клиент",
-				"supplier": "Поставщик",
-				"created": "Создана",
-				"sale": "Продажа",
-				"purchase": "Закупка",
-				"receipts": "Поступления",
-				"shipments": "Отгрузки клиенту",
-				"profit": "Прибыль сделки",
-				"accounting": "Учет",
-				"from": "из",
-				"received": "Поступило",
-				"clientDebt": "Клиент должен:",
-				"shipped": "Отгружено",
-				"weOwe": "Мы должны:",
-				"profitability": "Рентабельность",
-				"income": "Доходы",
-				"expenses": "Расходы"
-			},
-			"accountingMethods": {
-				"accrual": "Методом начисления",
-				"cash": "Кассовым методом"
-			},
-			"tabs": {
-				"products": "Товары и услуги",
-				"receipts": "Поступления",
-				"expenses": "Расходы",
-				"shipments": "Отгрузки"
-			},
-			"tabDescriptions": {
-				"products": "Выберите товары или услуги для продажи",
-				"receipts": "Платежи от клиентов за проданные товары или оказанные услуги",
-				"expenses": "Понесенные затраты по сделке",
-				"shipments": "Товары и услуги, которые вы отгрузили клиенту",
-				"supplies": "Товары и услуги, которые вы получили от поставщика"
-			},
-			"searchPlaceholder": "Поиск",
-			"addButton": "Добавить",
-			"newReturnButton": "Новый возврат",
-			"payment": {
-				"createPayment": "Создать платеж",
-				"paymentAmount": "Сумма платежа",
-				"enterAmount": "Введите сумму",
-				"paymentLink": "Платежная ссылка",
-				"copy": "Копировать",
-				"copied": "Скопировано",
-				"cancel": "Отмена",
-				"createLink": "Создать ссылку",
-				"creating": "Создание...",
-				"change_price": "Изменение цены",
-				"send": "Отправить",
-				"sending": "Отправка...",
-				"enterEmail": "Введите свой адрес электронной почты.",
-				"emailSentSuccess": "Сообщение успешно отправлено.",
-				"sendToEmail": "Отправить QR-код на электронную почту",
-				"payment_rule": "Если вы не укажете фиксированную сумму, плательщик может оплатить любую сумму."
-			}
-		},
-		"filters": {
-			"dealStatus": "Статус сделки",
-			"selectCounterparties": "Выберите контрагентов",
-			"dealAmount": "Сумма сделки",
-			"dealProfit": "Прибыль сделки",
-			"from": "От",
-			"to": "До"
-		},
-		"createDealModal": {
-			"titleNew": "Новая продажа",
-			"titleEdit": "Редактирование продажи",
-			"dealName": "Название сделки",
-			"dealNamePlaceholder": "Например, разработка сайта",
-			"dealNameRequired": "Название сделки обязательно",
-			"dealDate": "Дата сделки",
-			"dealDatePlaceholder": "Выберите дату",
-			"client": "Клиент",
-			"clientPlaceholder": "Укажите кому поставите товар или услугу",
-			"vat": "НДС",
-			"vatWith": "С учетом НДС",
-			"vatWithout": "Без учета НДС",
-			"vatPlaceholder": "Выберите опцию",
-			"comment": "Комментарий",
-			"cancel": "Отменить",
-			"create": "Создать",
-			"save": "Сохранить"
-		},
-		"createStudentModal": {
-			"titleNew": "Новая продажа",
-			"titleEdit": "Редактирование продажи",
-			"titlePreview": "Предварительный просмотр договора",
-			"titleEditSale": "Редактирование продажи",
-			"titleNewSale": "Новая продажа",
-			"contractNumber": "Номер договора",
-			"contractNumberPlaceholder": "Введите номер договора",
-			"contractNumberRequired": "Введите номер договора",
-			"contractDate": "Дата договора",
-			"contractDatePlaceholder": "Выберите дату",
-			"contractDateRequired": "Выберите дату договора",
-			"guardianName": "Ф.И.О. опекуна",
-			"guardianNamePlaceholder": "Введите Ф.И.О. опекуна",
-			"guardianNameRequired": "Введите Ф.И.О. опекуна",
-			"branchName": "Название филиала",
-			"guardianType": "Выберите тип опекуна",
-			"guardianTypePlaceholder": "Выберите тип опекуна",
-			"guardianTypeRequired": "Выберите тип опекуна",
-			"addGuardianType": "Добавить тип опекуна",
-			"academicYear": "Выберите учебный год",
-			"academicYearPlaceholder": "Выберите учебный год",
-			"academicYearRequired": "Выберите учебный год",
-			"phone1": "Телефон 1",
-			"phone1Placeholder": "XX XXX XX XX",
-			"phone1Required": "Введите номер телефона",
-			"phone2": "Телефон 2",
-			"phone2Placeholder": "XX XXX XX XX",
-			"studentName": "Ф.И.О. ученика",
-			"studentNamePlaceholder": "Введите Ф.И.О. ученика",
-			"studentNameRequired": "Выберите ученика",
-			"passport": "Серия и номер паспорта",
-			"passportPlaceholder": "Введите серию и номер паспорта",
-			"passportRequired": "Введите серию и номер паспорта",
-			"pinfl": "ПИНФЛ опекуна",
-			"pinflPlaceholder": "Введите ПИНФЛ опекуна",
-			"pinflRequired": "Введите ПИНФЛ опекуна",
-			"pinflInvalid": "ПИНФЛ должен содержать 14 цифр",
-			"issuedBy": "Место выдачи",
-			"issuedByPlaceholder": "Введите место выдачи",
-			"issuedByRequired": "Введите место выдачи",
-			"tariffName": "Название тарифа",
-			"tariffPlaceholder": "Выберите тариф",
-			"birthDate": "Дата рождения ученика",
-			"birthDateRequired": "Выберите дату рождения",
-			"datePlaceholder": "Выберите дату",
-			"validFrom": "Срок действия договора от",
-			"validFromRequired": "Выберите дату начала",
-			"gender": "Выберите пол",
-			"genderRequired": "Выберите пол",
-			"genderMale": "Мужской",
-			"genderFemale": "Женский",
-			"validTo": "Срок действия договора до",
-			"validToRequired": "Выберите дату окончания",
-			"class": "Класс",
-			"classPlaceholder": "Введите класс",
-			"classRequired": "Выберите класс",
-			"addClass": "Добавить класс",
-			"clientType": "Тип клиента",
-			"clientTypePlaceholder": "Тип клиента",
-			"passiveDate": "Пассивная дата",
-			"passiveDateRequired": "Выберите пассивную дату",
-			"status": "Состояние",
-			"statusPlaceholder": "Состояние",
-			"address": "Адрес",
-			"addressPlaceholder": "Адрес",
-			"addressRequired": "Введите адрес",
-			"language": "Выберите язык",
-			"languageRequired": "Выберите язык",
-			"languagePlaceholder": "Выберите язык",
-			"chartOfAccounts": "Статья",
-			"undistributedIncome": "Нераспределенный доход",
-			"dealDatePlaceholder": "Выберите дату",
-			"legalEntity": "Юрлица",
-			"legalEntityRequired": "Выберите юрлицо",
-			"legalEntityPlaceholder": "Выберите юрлицо",
-			"createClass": "Создать класс",
-			"editClass": "Редактировать класс",
-			"classNamePlaceholder": "Введите название класса",
-			"classCreated": "Класс успешно создан",
-			"classUpdated": "Класс успешно обновлен",
-			"classDeleted": "Класс успешно удален",
-			"classCreateError": "Ошибка при создании класса",
-			"guardianTypeCreated": "Тип опекуна успешно создан",
-			"guardianTypeUpdated": "Тип опекуна успешно обновлен",
-			"guardianTypeDeleted": "Тип опекуна успешно удален",
-			"guardianTypeCreateError": "Ошибка при создании типа опекуна",
-			"guardianTypeUpdateError": "Ошибка при обновлении типа опекуна",
-			"guardianTypeDeleteError": "Ошибка при удалении типа опекуна",
-			"contractTemplateLoading": "Загрузка шаблона договора...",
-			"studentCreated": "Ученик успешно создан",
-			"studentCreateError": "Ошибка при создании ученика",
-			"contractUpdated": "Договор успешно обновлен",
-			"contractUpdateError": "Ошибка при обновлении договора",
-			"cancel": "Отмена",
-			"save": "Сохранить",
-			"statusActive": "Активный",
-			"statusPassive": "Пассивный",
-			"create": "Создать",
-			"new": "Новый",
-			"old": "Старый",
-			"showContractPreview": "Предварительный просмотр договора",
-			"preview": "Предпросмотр",
-			"edit": "Редактировать",
-			"delete": "Удалить",
-			"saving": "Сохранение...",
-			"update": "Обновить",
-			"add": "Добавить",
-			"back": "Назад",
-			"print": "Печать",
-			"deleteConfirmation": "Подтверждение удаления",
-			"updateConfirmation": "Подтверждение обновления",
-			"updateConfirmText": "Вы проверили договор через «Предпросмотр»? После обновления договор будет сформирован заново с текущими данными.",
-			"deleteClassConfirm": "Вы уверены, что хотите удалить класс \"{name}\"?",
-			"deleteGuardianConfirm": "Вы уверены, что хотите удалить тип опекуна \"{name}\"?",
-			"className": "Название класса",
-			"createGuardianType": "Создать тип опекуна",
-			"editGuardianType": "Редактировать тип опекуна",
-			"guardianTypeName": "Название типа опекуна",
-			"guardianTypeNamePlaceholder": "Введите название типа опекуна"
-		},
-		"deleteDealModal": {
-			"title": "Подтверждение удаления",
-			"confirmation": "Вы уверены, что хотите удалить сделку?",
-			"nameLabel": "Название:",
-			"clientLabel": "Клиент:",
-			"amountLabel": "Сумма:",
-			"noData": "—",
-			"cancel": "Отмена",
-			"delete": "Удалить"
-		},
-		"commentChat": {
-			"title": "ФАЙЛЫ И КОММЕНТАРИИ",
-			"emptyState": "Прикрепляйте файлы и оставляйте комментарии для себя и своих коллег",
-			"edit": "Редактировать",
-			"save": "Сохранить",
-			"cancel": "Отмена",
-			"delete": "Удалить",
-			"writeComment": "Написать комментарий"
-		},
-		"createProductService": {
-			"titleNew": "Добавление товара/услуги",
-			"titleEdit": "Редактирование товара/услуги",
-			"product": "Наименование",
-			"productPlaceholder": "Выберите товар или услугу",
-			"productRequired": "Выберите наименование",
-			"quantity": "Количество",
-			"quantityRequired": "Введите количество",
-			"price": "Цена",
-			"priceRequired": "Введите цену",
-			"discount": "Скидка (%)",
-			"nds": "НДС (%)",
-			"total": "Итого",
-			"cancel": "Отмена",
-			"add": "Добавить",
-			"save": "Сохранить",
-			"unit": "Единица",
-			"pricePerUnit": "Цена за единицу"
-		},
-		"createShipment": {
-			"titleNew": "Новая отгрузка",
-			"titleEdit": "Редактирование отгрузки",
-			"titleNewReturn": "Новый возврат",
-			"titleEditReturn": "Редактирование возврата",
-			"shipmentDate": "Дата отгрузки",
-			"shipmentDateRequired": "Выберите дату",
-			"dealDatePlaceholder": "Выберите дату",
-			"legalEntity": "Юрлицо",
-			"legalEntityRequired": "Выберите юрлицо",
-			"client": "Клиент",
-			"clientRequired": "Выберите клиента",
-			"products": "Товары и услуги",
-			"productsRequired": "Добавьте хотя бы одну позицию",
-			"plannedShipment": "Плановая отгрузка",
-			"productName": "Наименование",
-			"quantity": "Кол-во",
-			"price": "Цена",
-			"discount": "Скидка",
-			"nds": "НДС",
-			"sum": "Сумма",
-			"addRow": "Добавить строку",
-			"removeFromShipment": "Убрать из отгрузки",
-			"selectPosition": "Выберите позицию",
-			"shipmentSum": "Сумма отгрузки",
-			"incomeArticle": "Статья доходов",
-			"undistributedIncome": "Нераспределенный доход",
-			"warehouse": "Склад",
-			"warehousePlaceholder": "Выберите склад",
-			"warehouseRequired": "Выберите склад",
-			"saveBlockedClosedWarehouse": "Сохранение недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
-			"stockExceeded": "«{name}»: доступно {available}, запрошено {requested}",
-			"stockError": "Недостаточно товара на складе",
-			"stockCheckFailed": "Не удалось проверить остатки склада",
-			"requiredFields": "Обязательные поля",
-			"cancel": "Отмена",
-			"create": "Создать",
-			"save": "Сохранить"
-		}
-	},
-	"Settings": {
-		"pageTitle": "Настройки",
-		"nav": {
-			"general": "Общие настройки",
-			"profile": "Мой профиль",
-			"branches": "Филиалы",
-			"currencies": "Валюты",
-			"roles": "Роли",
-			"contract": "Договор"
-		},
-		"general": {
-			"pageTitle": "Общие настройки",
-			"account": {
-				"title": "Настройки аккаунта",
-				"currency": "Основная валюта",
-				"placeholder": "Выберите валюту"
-			},
-			"accounting": {
-				"title": "Настройки учета",
-				"operations": "Создание и редактирование операций",
-				"paymentType": "Тип платежа",
-				"wlcm_title": "Создайте личный аккаунт на WLCM.",
-				"wlcm": "Внесите свой токен WLCM.uz",
-				"accrualDate": "Включить в работу поле << Дата начисления >> при выборе Сделка"
-			},
-			"modules": {
-				"title": "Модули",
-				"warehouse": "Мой склад",
-				"returns": "Возвраты"
-			},
-			"save": "Сохранить",
-			"saving": "Сохранение...",
-			"success": "Настройки успешно сохранены.",
-			"error": "Не удалось сохранить настройки."
-		},
-		"profile": {
-			"pageTitle": "Мой профиль",
-			"fullName": "ФИО",
-			"fullNamePlaceholder": "Введите ФИО",
-			"phone": "Телефон",
-			"phonePlaceholder": "+998 XX XXX XX XX",
-			"save": "Сохранить",
-			"saving": "Сохранение...",
-			"success": "Профиль успешно обновлен",
-			"error": "Ошибка при обновлении профиля",
-			"errors": {
-				"nameRequired": "Введите ФИО",
-				"phoneRequired": "Введите полный номер телефона"
-			},
-			"password": {
-				"title": "Смена пароля",
-				"current": "Текущий пароль",
-				"currentPlaceholder": "Введите текущий пароль",
-				"new": "Новый пароль",
-				"newPlaceholder": "Введите новый пароль",
-				"confirm": "Подтвердите пароль",
-				"confirmPlaceholder": "Повторите новый пароль",
-				"change": "Сменить пароль",
-				"success": "Пароль успешно изменен",
-				"error": "Ошибка при смене пароля",
-				"errors": {
-					"currentRequired": "Введите текущий пароль",
-					"newRequired": "Введите новый пароль",
-					"minLength": "Пароль должен содержать минимум 6 символов",
-					"uppercase": "Пароль должен содержать заглавную букву",
-					"lowercase": "Пароль должен содержать строчную букву",
-					"number": "Пароль должен содержать цифру",
-					"confirmRequired": "Подтвердите новый пароль",
-					"match": "Пароли не совпадают"
-				}
-			}
-		},
-		"branches": {
-			"pageTitle": "Филиалы",
-			"add": "Добавить",
-			"create": "Создать филиал",
-			"edit": "Редактировать филиал",
-			"name": "Название филиала",
-			"namePlaceholder": "Название филиала",
-			"email": "Электронная почта",
-			"emailPlaceholder": "example@mail.com",
-			"username": "Имя пользователя",
-			"usernamePlaceholder": "Имя пользователя",
-			"phone": "Телефон",
-			"phonePlaceholder": "+998 XX XXX XX XX",
-			"errors": {
-				"nameRequired": "Введите название филиала",
-				"emailRequired": "Введите email",
-				"emailInvalid": "Неверный формат email",
-				"usernameRequired": "Введите имя пользователя",
-				"phoneInvalid": "Введите полный номер (+998 XX XXX XX XX)",
-				"roleRequired": "Выберите роль"
-			},
-			"delete": {
-				"title": "Подтверждение удаления",
-				"confirm": "Вы уверены, что хотите удалить филиал?",
-				"name": "Название:",
-				"email": "Email:",
-				"user": "Пользователь:",
-				"cancel": "Отмена",
-				"delete": "Удалить"
-			},
-			"warning": {
-				"title": "Внимание",
-				"message": "У вас уже есть транзакции, сначала удалите их.",
-				"understood": "Понятно"
-			},
-			"empty": {
-				"title": "Создайте филиал",
-				"description": "Филиалы помогают сравнивать прибыль и рентабельность разных частей бизнеса. Например, заказов, направлений или каналов продаж.",
-				"help": "Для удобства филиалы можно объединять в группами.",
-				"video": "посмотрите видео",
-				"article": "почитайте статью"
-			},
-			"table": {
-				"name": "Название филиала"
-			},
-			"admin": "Администратор",
-			"branchStaff": "Сотрудники филиала",
-			"staff": {
-				"name": "Имя",
-				"email": "Email",
-				"phone": "Телефон",
-				"role": "Роль",
-				"actions": "Действия"
-			},
-			"addStaff": "Добавить сотрудника",
-			"editStaff": "Редактировать сотрудника",
-			"deleteStaffTitle": "Подтверждение удаления",
-			"deleteStaffConfirm": "Вы уверены, что хотите удалить сотрудника",
-			"noStaff": "Нет сотрудников",
-			"userAdded": "Пользователь успешно добавлен",
-			"userUpdated": "Пользователь успешно обновлен",
-			"userDeleted": "Пользователь успешно удален"
-		},
-		"currencies": {
-			"pageTitle": "Курсы валют по ЦБ",
-			"updated": "обновлено",
-			"name": "Название валюты",
-			"code": "Обозначение",
-			"symbol": "Символ",
-			"rate": "Курс"
-		},
-		"roles": {
-			"pageTitle": "Роли",
-			"add": "Добавить роль",
-			"edit": "Редактировать роль",
-			"name": "Название роли",
-			"namePlaceholder": "Введите название роли",
-			"description": "Описание",
-			"noData": "Нет данных",
-			"descriptionPlaceholder": "Введите описание роли",
-			"errors": {
-				"nameRequired": "Введите название роли"
-			},
-			"permissions": {
-				"title": "Права доступа",
-				"menu": "Меню",
-				"submenu": "Подменю",
-				"read": "Просмотр",
-				"add": "Добавление",
-				"edit": "Редактирование",
-				"delete": "Удаление",
-				"sections": {
-					"indicators": "Показатели",
-					"operations": "Операции",
-					"income": "Поступление",
-					"expense": "Выплата",
-					"transfer": "Перемещение",
-					"accrual": "Начисление",
-					"shipment": "Отгрузка",
-					"deals": "Сделки",
-					"reports": "Отчёты",
-					"cash_flow": "Движение денег (ДДС)",
-					"p_and_l": "Прибыли и убытки (ОПУ)",
-					"balance": "Баланс",
-					"students_report": "Студенты",
-					"directories": "Справочники",
-					"counterparties": "Контрагенты",
-					"accounting_items": "Учётные статьи",
-					"my_accounts": "Мои счета",
-					"my_entities": "Мои юрлица",
-					"products_and_services": "Товары и услуги",
-					"settings": "Настройки",
-					"general_settings": "Общие настройки",
-					"my_profile": "Мой профиль",
-					"branches": "Филиалы",
-					"exchange_rates": "Курсы валют",
-					"users": "Роли"
-				}
-			},
-			"delete": {
-				"confirm": "Вы действительно хотите удалить эту роль?"
-			}
-		},
-		"contract": {
-			"pageTitle": "Договоры",
-			"subtitle": "Список договоров по филиалам",
-			"branch": "Филиал",
-			"name": "Название",
-			"file": "Файл",
-			"actions": "Действия",
-			"edit": "Редактировать",
-			"empty": "Договоры не найдены",
-			"editDialog": {
-				"title": "Редактирование договора",
-				"cancel": "Отмена",
-				"save": "Сохранить",
-				"loading": "Загрузка договора...",
-				"saveError": "Не удалось сохранить договор",
-				"uploadError": "Не удалось загрузить файл договора"
-			}
-		},
-		"common": {
-			"save": "Сохранить",
-			"saving": "Сохранение...",
-			"create": "Создать",
-			"creating": "Создание...",
-			"cancel": "Отменить",
-			"delete": "Удалить",
-			"edit": "Редактировать",
-			"add": "Добавить",
-			"noData": "Нет данных",
-			"createdAt": "Дата создания",
-			"loading": "Загрузка...",
-			"role_error": "Нельзя удалить роль, которая назначена пользователям"
-		},
-		"details": {
-			"emptyState": {
-				"addButton": "Добавить"
-			},
-			"status": {
-				"defaultStatus": "Новая",
-				"statusNamePlaceholder": "Название статуса",
-				"addStatus": "Добавить статус",
-				"edit": "Редактировать",
-				"delete": "Удалить",
-				"cancel": "Отменить",
-				"save": "Сохранить"
-			},
-			"productServiceTable": {
-				"title": "Наименование",
-				"quantity": "Кол-во",
-				"unit": "Единица",
-				"pricePerUnit": "Цена за ед.",
-				"discount": "Скидка",
-				"vat": "НДС",
-				"sum": "Сумма",
-				"selected": "выбрано",
-				"delete": "Удалить",
-				"deletePositionsTitle": "Удалить позиции из сделки",
-				"deletePositionsConfirm": "Вы действительно хотите удалить {count} {count, plural, one {позицию} few {позиции} other {позиций}} из сделки?",
-				"cancel": "Отмена",
-				"emptyTitle": "Добавьте товары или услуги в сделку",
-				"emptySubtitle": "Наполните сделку товарами/услугами, которые покупаете или продаете своим клиентам"
-			},
-			"incomeOperationsTable": {
-				"date": "Дата",
-				"account": "Счет",
-				"counterparty": "Контрагент",
-				"article": "Статья",
-				"amount": "Сумма",
-				"total": "Итого:",
-				"deleteOperationTitle": "Удалить операцию",
-				"deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте поступления по сделке",
-				"emptySubtitle": "Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
-			},
-			"expenseOperationsTable": {
-				"date": "Дата",
-				"account": "Счет",
-				"counterparty": "Контрагент",
-				"article": "Статья",
-				"amount": "Сумма",
-				"total": "Итого:",
-				"accrual": "[Начисление]",
-				"deleteOperationTitle": "Удалить операцию",
-				"deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте расходы по сделке",
-				"emptySubtitle": "Учитывайте расходы по сделке, чтобы контролировать финансовый результат"
-			},
-			"shipmentTable": {
-				"date": "Дата",
-				"legalEntity": "Юрлицо",
-				"counterparty": "Контрагент",
-				"composition": "Состав",
-				"article": "Статья",
-				"amount": "Сумма",
-				"position": "{count, plural, one {позиция} few {позиции} other {позиций}}",
-				"noName": "Без названия",
-				"goodsServices": "Товары/услуги",
-				"unallocatedIncome": "Нераспределенный доход",
-				"deleteShipmentTitle": "Удалить отгрузку",
-				"deleteShipmentConfirm": "Вы действительно хотите удалить отгрузку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте отгрузки в сделку",
-				"emptySubtitle": "Учитывайте отгрузки товара/услуг, чтобы контролировать выполнение обязательств по сделке"
-			}
-		},
-		"editDealModal": {
-			"title": "Редактировать продажу",
-			"dealName": "Название сделки",
-			"dealNamePlaceholder": "Например, разработка сайта",
-			"dealDate": "Дата сделки",
-			"dealDatePlaceholder": "11.02.2024",
-			"client": "Клиент",
-			"clientPlaceholder": "Укажите кому падаете товар или услугу",
-			"vat": "НДС",
-			"vatWith": "С учетом НДС",
-			"comment": "Комментарий",
-			"commentPlaceholder": "Ваш комментарий или пояснение к этой сделке",
-			"cancel": "Отменить",
-			"save": "Сохранить"
-		}
-	},
-	"Directories": {
-		"counterparty": {
-			"createTitle": "Создать контрагента",
-			"editTitle": "Редактировать контрагента",
-			"createGroupTitle": "Создать группу",
-			"tabCounterparty": "Создать контрагента",
-			"tabGroup": "Создать группу",
-			"fields": {
-				"name": "Название",
-				"fullName": "Полное название",
-				"group": "Группа контрагентов",
-				"address": "Адрес",
-				"inn": "ИНН",
-				"kpp": "ОКЭД",
-				"accountNumber": "Номер счета",
-				"bank": "Банк",
-				"mfo": "МФО",
-				"defaultArticles": "Применять статьи по умолчанию",
-				"articleIn": "Статья для поступлений",
-				"articleOut": "Статья для выплат",
-				"comment": "Комментарий",
-				"groupName": "Название",
-				"groupComment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Например, Васильев",
-				"fullName": "Например, ООО «Васильев и партнеры»",
-				"selectGroup": "Выберите группу контрагентов",
-				"inn": "Укажите ИНН",
-				"kpp": "Укажите ОКЭД",
-				"account": "Укажите номер счета",
-				"address": "Укажите адрес",
-				"bank": "Укажите банк",
-				"mfo": "Укажите МФО",
-				"comment": "Пояснение к контрагенту",
-				"groupComment": "Пояснение к группе контрагентов",
-				"groupName": "Например, мои поставщики"
-			},
-			"errors": {
-				"nameRequired": "Укажите название",
-				"groupNameRequired": "Укажите название группы",
-				"createFailed": "Не удалось создать контрагента",
-				"createGroupFailed": "Не удалось создать группу контрагентов"
-			},
-			"save": "Сохранить",
-			"saving": "Сохранение...",
-			"creating": "Создание...",
-			"save": "Сохранить",
-			"cancel": "Отменить",
-			"create": "Создать",
-			"requisites": "Реквизиты",
-			"groupNameLabel": "Название группы:",
-			"groupDescriptionLabel": "Описание:",
-			"deleteConfirmTitle": "Подтверждение удаления",
-			"deleteConfirmMessage": "Вы уверены, что хотите удалить группу контрагентов?",
-			"pageTitle": "Контрагенты",
-			"list": {
-				"title": "Контрагенты",
-				"createButton": "Создать",
-				"downloadExcel": "Скачать в Excel",
-				"searchPlaceholder": "Поиск...",
-				"viewModes": {
-					"list": "Список",
-					"nested": "Вложенный вид"
-				},
-				"tableHeaders": {
-					"counterparty": "Контрагент",
-					"group": "Группа",
-					"inn": "ИНН",
-					"operations": "Операций",
-					"receivables": "Дебит.",
-					"payables": "Кредит.",
-					"income": "Доходы",
-					"expense": "Расходы",
-					"profit": "Прибыль",
-					"receipts": "Поступ.",
-					"payments": "Выплаты",
-					"difference": "Разница"
-				},
-				"filters": {
-					"parameters": "Параметры",
-					"period": "Период аналитики",
-					"receivables": "Дебиторка",
-					"payables": "Кредиторка",
-					"cash": "Денежная",
-					"nonCash": "Неденежная",
-					"without": "Без задолженности",
-					"selectChartOfAccounts": "Выберите статьи учета",
-					"selectDeals": "Выберите сделки",
-					"selectLegalEntities": "Выберите юрлицо"
-				},
-				"calculationOptions": {
-					"cashflow": "Учет по денежному потоку",
-					"cash": "Учет кассовым методом",
-					"calculation": "Учет методом начисления"
-				},
-				"empty": "Нет данных",
-				"noCounterpartiesInGroup": "Нет контрагентов",
-				"noName": "Без названия",
-				"noGroup": "Без группы",
-				"counterpartyCount": "{count} контрагент",
-				"counterpartyCountPlural": "{count} контрагента",
-				"counterpartyCountPluralMany": "{count} контрагентов",
-				"summary": {
-					"receivables": "Дебиторка",
-					"payables": "Кредиторка",
-					"receipts": "Поступления",
-					"payments": "Выплаты",
-					"difference": "Разница"
-				}
-			},
-			"detail": {
-				"backToList": "Список контрагентов",
-				"notFound": "Контрагент не найден",
-				"calculationOptions": {
-					"cashflow": "Учет по денежному потоку",
-					"cash": "Учет кассовым методом",
-					"calculation": "Учет методом начисления"
-				},
-				"operationsTitle": "Операции по контрагенту",
-				"createOperation": "Создать",
-				"filters": "Фильтры",
-				"stats": {
-					"receipts": "Поступления",
-					"payments": "Выплаты",
-					"difference": "Разница",
-					"receivables": "Дебиторка",
-					"payables": "Кредиторка",
-					"noDebt": "Нет задолженности",
-					"income": "Доходы",
-					"expenses": "Расходы",
-					"profit": "Прибыль"
-				},
-				"info": {
-					"title": "Реквизиты",
-					"inn": "ИНН",
-					"kpp": "ОКЭД",
-					"accountNumber": "№ счета",
-					"bank": "Банк",
-					"mfo": "МФО",
-					"address": "Адрес",
-					"receiptArticle": "Статья для поступлений",
-					"paymentArticle": "Статья для выплат",
-					"comment": "Комментарий",
-					"noRequisites": "Реквизиты контрагента отсутствуют",
-					"addRequisites": "Добавить",
-					"additionalKpp": "Дополнительные ОКЭД",
-					"additionalAccounts": "Дополнительные номера счетов"
-				},
-				"table": {
-					"date": "Дата",
-					"account": "Счет",
-					"type": "Тип",
-					"counterparty": "Контрагент",
-					"article": "Статья",
-					"deal": "Сделка",
-					"amount": "Сумма"
-				},
-				"sections": {
-					"future": "После",
-					"today": "Сегодня",
-					"before": "Вчера и ранее"
-				},
-				"empty": {
-					"title": "Создайте операции с контрагентом",
-					"description": "Добавляйте платежи и учитывайте предоплаты или отсрочки."
-				},
-				"footer": {
-					"operations": "операция",
-					"operationsPlural": "операции",
-					"operationsPluralMany": "операций",
-					"receipts": "поступление",
-					"receiptsPlural": "поступления",
-					"receiptsPluralMany": "поступлений",
-					"payments": "выплата",
-					"paymentsPlural": "выплаты",
-					"paymentsPluralMany": "выплат",
-					"total": "Итого"
-				},
-				"actions": {
-					"edit": "Редактировать",
-					"delete": "Удалить",
-					"deleting": "Удаление..."
-				}
-			}
-		},
-		"legalEntity": {
-			"createTitle": "Создание юрлица",
-			"editTitle": "Редактирование юрлица",
-			"fields": {
-				"name": "Название",
-				"fullName": "Полное название",
-				"innKpp": "ИНН/КПП",
-				"comment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Например: Васильев",
-				"fullName": "Например: ООО «Васильев и партнеры»",
-				"comment": "Дайте краткое пояснение этому юрлицу, если это необходимо"
-			},
-			"errors": {
-				"nameRequired": "Укажите название",
-				"createFailed": "Не удалось создать юрлицо",
-				"updateFailed": "Не удалось обновить юрлицо"
-			},
-			"pageTitle": "Мои юрлица",
-			"searchPlaceholder": "Поиск по краткому названию",
-			"tableHeaders": {
-				"index": "№",
-				"shortName": "Краткое название",
-				"fullName": "Полное название",
-				"inn": "ИНН",
-				"kpp": "КПП"
-			},
-			"loading": "Загрузка...",
-			"noResults": "Ничего не найдено",
-			"noData": "Нет данных",
-			"entityCount": "{count} {count, plural, one {юрлицо} few {юрлица} other {юрлиц}}",
-			"deleteConfirmTitle": "Удаление юрлица",
-			"deleteConfirmMessage": "Вы уверены, что хотите удалить юрлицо «{name}»?",
-			"deleteWarning": "Это действие нельзя отменить.",
-			"deleting": "Удаление..."
-		},
-		"accountGroup": {
-			"createTitle": "Создать группу",
-			"editTitle": "Редактировать группу",
-			"fields": {
-				"name": "Название группы",
-				"comment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Введите название группы",
-				"comment": "Введите описание группы"
-			},
-			"errors": {
-				"nameRequired": "Название группы обязательно",
-				"createFailed": "Ошибка при создании группы"
-			}
-		},
-		"chartOfAccounts": {
-			"createTitle": "Создать учетную статью",
-			"deleteConfirmMessage": "Вы действительно хотите удалить статью «{name}»?",
-			"editTitle": "Редактировать учетную статью",
-			"tabs": {
-				"income": "Доходы",
-				"expense": "Расходы",
-				"assets": "Активы",
-				"liabilities": "Обязательства",
-				"capital": "Капитал"
-			},
-			"fields": {
-				"name": "Название",
-				"parent": "Относится к",
-				"comment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Укажите название статьи",
-				"selectParent": "Выберите родительскую статью",
-				"comment": "Пояснение к статье"
-			},
-			"errors": {
-				"nameRequired": "Укажите название статьи"
-			}
-		},
-		"account": {
-			"createTitle": "Создание счета",
-			"editTitle": "Редактирование счета",
-			"fields": {
-				"name": "Название",
-				"group": "Группа",
-				"legalEntity": "Юрлицо",
-				"type": "Выберите тип счета",
-				"bik": "Бик",
-				"bank": "Банк",
-				"accountNumber": "Расч. счет №",
-				"corrAccount": "Кор. счет №",
-				"number": "Номер",
-				"initialBalance": "Начальный остаток",
-				"currency": "Выберите валюту счета",
-				"comment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Например, ВТБ",
-				"selectLegalEntity": "Выберите юрлицо или создайте новое",
-				"selectType": "Выберите тип",
-				"selectDate": "Выберите дату",
-				"comment": "Ваш комментарий или пояснение к этому счету"
-			},
-			"types": {
-				"type": "Тип",
-				"cash": "Наличный",
-				"nonCash": "Безналичный",
-				"card": "Карта физлица",
-				"electronic": "Электронный"
-			},
-			"requisites": {
-				"show": "Реквизиты",
-				"hide": "Скрыть реквизиты"
-			},
-			"errors": {
-				"nameRequired": "Укажите название",
-				"legalEntityRequired": "Выберите юрлицо"
-			},
-			"deleteConfirmMessage": "Вы действительно хотите удалить счет «{name}»?",
-			"pageTitle": "Мои счета",
-			"createGroup": "Создать группу",
-			"selectAccounts": "Выберите счета",
-			"selectLegalEntity": "Выберите юрлицо",
-			"currentBalance": "Текущий остаток",
-			"grouping": {
-				"none": "Без группировки",
-				"groups": "По группам",
-				"legalEntities": "По юрлицам"
-			},
-			"searchPlaceholder": "Поиск по названию или номеру",
-			"tableHeaders": {
-				"name": "Название",
-				"accountNumber": "Номер счета",
-				"balance": "Текущий остаток",
-				"initialBalance": "Начальный остаток",
-				"currency": "Валюта",
-				"type": "Тип",
-				"created": "Дата создания",
-				"legalEntity": "Юрлицо",
-				"requisites": "Реквизиты"
-			},
+      "create": "Создать",
+      "searchPlaceholder": "Поиск по названию",
+      "loading": "Загрузка",
+      "error": "Ошибка",
+      "errorLoading": "Не удалось загрузить данные",
+      "noResults": "Ничего не найдено",
+      "noData": "Нет данных для отображения",
+      "deleteError": "Не удалось удалить учетную статью",
+      "tabs": {
+        "income": "Доходы",
+        "expense": "Расходы",
+        "assets": "Актив",
+        "liabilities": "Обязательства",
+        "capital": "Капитал"
+      },
+      "categories": {
+        "income": "Доходы",
+        "expense": "Расходы",
+        "assets": "Актив",
+        "liabilities": "Обязательства",
+        "capital": "Капитал"
+      },
+      "info": {
+        "title": "Эта схема наглядно показывает, как статьи участвуют в формировании отчета Баланс"
+      },
+      "reports": {
+        "cashFlow": {
+          "title": "Движение денег",
+          "operational": "Операционный поток",
+          "investment": "Инвестиционный поток",
+          "financial": "Финансовый поток",
+          "receipts": "Поступления",
+          "payments": "Выплаты",
+          "total": "ОБЩИЙ ДЕНЕЖНЫЙ ПОТОК"
+        },
+        "pAndL": {
+          "title": "Прибыли и убытки",
+          "income": "Доходы",
+          "incomeItems": {
+            "goodsSales": "Продажа товаров",
+            "services": "Оказание услуг",
+            "other": "Прочие доходы"
+          },
+          "expenses": "Расходы",
+          "minus": "минус",
+          "expenseItems": {
+            "productionStaff": "Производственный персонал",
+            "goodsPurchase": "Покупка товаров",
+            "adminStaff": "Административный персонал",
+            "rent": "Аренда",
+            "other": "Прочие расходы",
+            "bankServices": "Банковские услуги",
+            "soon": "скоро",
+            "exchangeDiff": "Курсовая разница минус",
+            "depreciation": "Амортизация",
+            "interest": "Проценты",
+            "incomeTax": "Налог на прибыль (доходы)"
+          },
+          "undistributedProfit": "НЕРАСПРЕДЕЛЕННАЯ ПРИБЫЛЬ"
+        },
+        "balance": {
+          "title": "Баланс",
+          "currentAssets": {
+            "title": "Оборотные активы",
+            "receivables": "Дебиторская задолженность",
+            "cash": "Денежные средства",
+            "inventory": "Запасы",
+            "other": "Другие оборотные",
+            "advancePayments": "Заготовые платежи",
+            "loansShort": "Выданные займы (до 1 года)"
+          },
+          "nonCurrentAssets": {
+            "title": "Внеоборотные активы",
+            "and": "И",
+            "fixedAssets": "Основные средства",
+            "equipment": "Оборудование",
+            "transport": "Транспорт",
+            "other": "Другие внеоборотные",
+            "loansLong": "Выданные займы (от 1 года)",
+            "financialInvestments": "Финансовые вложения",
+            "intangible": "Нематериальные активы"
+          },
+          "totalAssets": "ИТОГО АКТИВЫ",
+          "currentLiabilities": {
+            "title": "Краткосрочные обязательства",
+            "payables": "Кредиторская задолженность",
+            "other": "Другие краткосрочные",
+            "thirdParty": "Платежи третьим лицам",
+            "loansShort": "Полученные займы (до 1 года)"
+          },
+          "longTermLiabilities": {
+            "title": "Долгосрочные обязательства",
+            "fin": "Ф",
+            "credits": "Кредиты",
+            "other": "Другие долгосрочные",
+            "loansLong": "Полученные займы (от 1 года)"
+          },
+          "totalLiabilities": "ИТОГО ОБЯЗАТЕЛЬСТВА",
+          "capital": {
+            "title": "Капитал",
+            "fin": "Ф",
+            "founderInvestments": "Вложения учредителей",
+            "plus": "плюс",
+            "undistributedProfit": "Нераспределенная прибыль"
+          },
+          "totalCapital": "ИТОГО КАПИТАЛ",
+          "balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
+        }
+      }
+    },
+    "plans": {
+      "cash_flow_budget": "Бюджет денежных потоков",
+      "income_expense_budget": "Бюджет доходов и расходов",
+      "payment_calendar": "Платежный календарь"
+    },
+    "apiModal": {
+      "title": "Настройка локального API",
+      "label": "URL локального API",
+      "placeholder": "https://your-local-api-url.com",
+      "savedNotice": "URL уже сохранен и не может быть изменен",
+      "cancel": "Отмена",
+      "clear": "Очистить",
+      "save": "Сохранить"
+    }
+  },
+  "Header": {
+    "branches": {
+      "selectPlaceholder": "Выберите филиал"
+    },
+    "profile": {
+      "fallbackName": "Пользователь",
+      "logout": "Выйти из аккаунта"
+    },
+    "balance": {
+      "label": "На счетах",
+      "viewCompact": "Компактный",
+      "viewFull": "Полный",
+      "collapse": "Свернуть",
+      "expand": "Развернуть",
+      "emptyGroup": "Переместите счета в эту группу"
+    }
+  },
+  "Operations": {
+    "page": {
+      "title": "Операции",
+      "create": "Создать",
+      "import": "Импорт",
+      "export": "Скачать в Excel",
+      "searchPlaceholder": "По счету, контрагенту, или статья",
+      "delete": "Удалить",
+      "noData": "Нет данных",
+      "sectionToday": "Сегодня",
+      "sectionBefore": "Вчера и ранее",
+      "fileDownloaded": "Файл успешно загружен.",
+      "importedSuccess": "Операции успешно импортированы.",
+      "importErrorPrefix": "Импорт завершен с ошибками:",
+      "importFailed": "Не удалось импортировать операции.",
+      "importErrorTitle": "Проблемы с импортом",
+      "importErrorDescription": "В вашем xlsx файле обнаружены ошибки. Пожалуйста, скачайте файл с ошибками, чтобы увидеть детали.",
+      "downloadErrorFile": "Скачать файл с ошибками",
+      "cancel": "Отмена"
+    },
+    "columns": {
+      "date": "Дата",
+      "account": "Счет",
+      "paymentType": "Тип платежа",
+      "type": "Тип",
+      "counterparty": "Контрагент",
+      "statya": "Статья",
+      "deal": "Сделка",
+      "amount": "Сумма"
+    },
+    "filters": {
+      "operationType": "Тип операции",
+      "paymentDate": "Дата оплаты",
+      "accrualDate": "Дата начисления",
+      "parameters": "Параметры",
+      "confirmed": "Подтверждена",
+      "notConfirmed": "Не подтверждена",
+      "income": "Поступление",
+      "payout": "Выплата",
+      "transfer": "Перемещение",
+      "writeOff": "Списание",
+      "enrollment": "Зачисление",
+      "accrual": "Начисление",
+      "debit": "Дебет",
+      "credit": "Кредит",
+      "shipment": "Отгрузка",
+      "supply": "Поставка",
+      "legalEntitiesPlaceholder": "Юрлица и счета",
+      "counterpartiesPlaceholder": "Контрагенты",
+      "chartOfAccountsPlaceholder": "Статьи учета",
+      "dealsPlaceholder": "Сделки",
+      "purchaseDealsPlaceholder": "Сделки закупок",
+      "paymentTypePlaceholder": "Тип платежа",
+      "amountFrom": "Сумма от",
+      "amountTo": "до"
+    },
+    "paymentTypes": {
+      "cash": "Наличный",
+      "card": "Карта",
+      "transfer": "Перечисление"
+    },
+    "footer": {
+      "operations": "операций",
+      "receipts": "поступлений:",
+      "payments": "выплат:",
+      "transfers": "перемещения:",
+      "total": "Итого:"
+    },
+    "deleteModal": {
+      "title": "Подтверждение удаления",
+      "confirmation": "Вы уверены, что хотите удалить операцию?",
+      "description": "Описание:",
+      "amount": "Сумма:",
+      "date": "Дата:",
+      "cancel": "Отмена",
+      "delete": "Удалить"
+    },
+    "menu": {
+      "edit": "Редактировать",
+      "copy": "Копировать",
+      "delete": "Удалить",
+      "createdLabel": "Создана",
+      "updatedLabel": "Изменена"
+    },
+    "modal": {
+      "createTitle": "Создание операции",
+      "editTitle": "Редактирование операции",
+      "createdAt": "Создана {date}",
+      "tabIncome": "Поступление",
+      "tabPayment": "Выплата",
+      "tabTransfer": "Перемещение",
+      "tabAccrual": "Начисление",
+      "cancel": "Отмена",
+      "create": "Создать",
+      "save": "Сохранить"
+    },
+    "forms": {
+      "paymentDate": "Дата оплаты",
+      "confirmPayment": "Подтвердить оплату",
+      "accountAndLegalEntity": "Счет и юрлицо",
+      "selectAccountError": "Выберите счет и юрлицо",
+      "legalEntityPlaceholder": "Юрлица и счета",
+      "amount": "Сумма",
+      "amountPlaceholder": "Сумму",
+      "amountZero": "0",
+      "accrualDate": "Дата начисления",
+      "confirmAccrual": "Подтвердить начисление",
+      "counterparty": "Контрагент",
+      "counterpartyPlaceholder": "Не выбран.",
+      "statya": "Статья",
+      "statyaIncomePlaceholder": "Нераспределенный доход",
+      "statyaPaymentPlaceholder": "Нераспределенный расход",
+      "paymentType": "Тип платежа",
+      "paymentTypePlaceholder": "Выберите тип платежа...",
+      "salesDeal": "Сделка продажи",
+      "salesDealPlaceholder": "Выберите сделку...",
+      "purchaseDeal": "Сделка закупки",
+      "purchaseDealPlaceholder": "Выберите сделку закупки...",
+      "purpose": "Назначение платежа",
+      "purposePlaceholder": "Назначение платежа",
+      "purposeRequired": "Введите назначение платежа",
+      "selectDate": "Выберите дату",
+      "debit": "Дебит",
+      "credit": "Кредит",
+      "debitArticle": "Статья по дебету",
+      "debitArticleRequired": "Выберите статью по дебету",
+      "debitArticlePlaceholder": "Выберите статью по дебету...",
+      "creditArticle": "Статья по кредиту",
+      "creditArticleRequired": "Выберите статью по кредиту",
+      "creditArticlePlaceholder": "Выберите статью по кредиту...",
+      "legalEntity": "Юрлицо",
+      "legalEntityRequired": "Выберите юрлицо",
+      "legalEntityPlaceholderEntity": "Выберите юрлицо...",
+      "selectCurrencyRequired": "Выберите валюту",
+      "sellingDealPlaceholder": "Выберите сделку продажи...",
+      "fromAccountRequired": "Выберите счет списания",
+      "toAccountRequired": "Выберите счет зачисления",
+      "purposeShort": "Назначение",
+      "purposeShortRequired": "Введите назначение",
+      "fromSection": "ОТКУДА",
+      "toSection": "КУДА",
+      "transferDate": "Дата",
+      "writeOffAmount": "Сумма списания",
+      "enrollAmount": "Сумма зачисления",
+      "enrollAmountRequired": "Укажите сумму зачисления",
+      "canAllowOpiu": "Учитывать в ОПиУ кассовым методом",
+      "create": "Создать",
+      "save": "Сохранить",
+      "cancel": "Отмена"
+    },
+    "splitAmount": {
+      "cancelSplit": "Отменить разбиение",
+      "splitAmount": "Разбить сумму",
+      "accrualDate": "Дата начисления",
+      "confirm": "Подтвердить",
+      "counterparty": "Контрагент",
+      "counterpartyPlaceholder": "Не выбран",
+      "statya": "Статья",
+      "statyaPlaceholder": "Выберите статью...",
+      "amount": "Сумма",
+      "share": "Доля",
+      "addRow": "Добавить строку",
+      "removeRow": "Удалить строку",
+      "decreaseBy": "Уменьшите на",
+      "total": "Итого:",
+      "cancelDialogText": "Подтвердите, что вы хотите отменить разбиение суммы операции. Это приведет к удалению ранее введенных данных.",
+      "back": "Вернуться",
+      "confirmAction": "Подтвердить",
+      "splitAccrual": "Начисление",
+      "splitCounterparty": "Контрагент",
+      "splitStatya": "Статья"
+    },
+    "comments": {
+      "plugTitle": "Прикрепляйте к операциям файлы, например, акты или счета, добавляйте комментарии",
+      "plugMaxFiles": "Не более 10 файлов к операции",
+      "plugMaxSize": "Максимальный размер файла — 5 МБ",
+      "plugFormatsLabel": "Поддерживаемые форматы:",
+      "plugFormats": "pdf, doc, docx, xls, xlsx, jpeg, png, zip, rar, txt, csv, xml",
+      "placeholder": "Написать комментарий",
+      "attachFile": "Прикрепить файл",
+      "send": "Отправить",
+      "edit": "Редактировать",
+      "delete": "Удалить",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "download": "Скачать",
+      "removeFile": "Убрать файл",
+      "deleteCommentTitle": "Удалить комментарий",
+      "deleteCommentTextStart": "Вы действительно хотите удалить комментарий? Восстановить его будет ",
+      "deleteCommentTextEnd": ".",
+      "deleteCommentImpossible": "невозможно",
+      "deleteCancel": "Отменить",
+      "deleteConfirm": "Удалить"
+    },
+    "row": {
+      "accrualPlaceholder": "[Начисление]",
+      "counterpartiesCount": "{count} [контрагента]",
+      "statyaCount": "{count} [статьи]",
+      "dealsCount": "2 [сделки]",
+      "transferWriteOff": "[Перемещение списание]",
+      "transferEnrollment": "[Перемещение зачисление]",
+      "byDebit": "[по дебету]",
+      "byCredit": "[по кредиту]"
+    }
+  },
+  "Reports": {
+    "common": {
+      "downloadExcel": "Скачать в Excel",
+      "buildingMethod": "Способ построения",
+      "total": "Итого",
+      "period": "Период",
+      "allDeals": "Все сделки",
+      "allCounterparties": "Все контрагенты",
+      "legalEntitiesAndAccounts": "Юрлица и счета",
+      "fileDownloaded": "Файл успешно загружен.",
+      "accountingMethod": "Метод учета",
+      "date": "Дата",
+      "counterparty": "Контрагент",
+      "counterpartyGroup": "Группа контрагентов",
+      "deals": "Сделки"
+    },
+    "cashflow": {
+      "title": "Отчет о движении денежных средств",
+      "articleHeader": "По статьям учета",
+      "grouping": {
+        "daily": "День",
+        "monthly": "По месяцам",
+        "quarterly": "По кварталам",
+        "yearly": "По годам"
+      }
+    },
+    "paymentCalendar": {
+      "title": "Платежный календарь"
+    },
+    "pnl": {
+      "title": "Отчет о прибылях и убытках (P&L)",
+      "grouping": {
+        "daily": "День",
+        "weekly": "Неделя",
+        "monthly": "Месяц"
+      },
+      "accounting": {
+        "accrual": "Метод начисления",
+        "cash": "Кассовый метод"
+      },
+      "article": "Статья",
+      "emptyPeriod": "Выберите период для отображения отчета",
+      "emptyHint": "Используйте фильтры слева для настройки параметров отчета",
+      "profitTypes": "Виды прибыли",
+      "operational": "Операционная"
+    },
+    "balance": {
+      "title": "Балансовый отчет",
+      "formula": "Активы = Обязательства + Капитал",
+      "accountHeader": "СЧЕТ",
+      "errorLoading": "Ошибка загрузки данных:",
+      "retry": "Повторить"
+    },
+    "students": {
+      "title": "Ежемесячный отчет по студентам",
+      "accounting": {
+        "accrual": "Метод начисления",
+        "cash": "Кассовый метод"
+      },
+      "statusTile": "Статус",
+      "columns": {
+        "fio": "ФИО",
+        "group": "Группа",
+        "status": "Статус",
+        "plan": "План",
+        "fact": "Факт",
+        "difference": "Разница",
+        "totalPlan": "Общий план",
+        "totalFact": "Общий факт",
+        "totalDifference": "Общая разница"
+      },
+      "status": {
+        "active": "Активный",
+        "passive": "Пассивный"
+      }
+    }
+  },
+  "NewDateRangeComponent": {
+    "selectDate": "Выберите дату",
+    "selectPeriod": "Укажите период",
+    "specifyPrefix": "Укажите ",
+    "periodWord": "период",
+    "start": "Начало",
+    "end": "Конец",
+    "reset": "Сбросить",
+    "apply": "Применить",
+    "presets": {
+      "yesterday": "Вчера",
+      "today": "Сегодня",
+      "prevWeek": "Прошлая неделя",
+      "week": "Эта неделя",
+      "prevMonth": "Прошлый месяц",
+      "month": "Этот месяц",
+      "prevQuarter": "Прошлый квартал",
+      "quarter": "Этот квартал",
+      "prevYear": "Прошлый год",
+      "year": "Этот год"
+    }
+  },
+  "OperationCashFlowModal": {
+    "title": "Операции",
+    "reportPeriod": "Период отчета",
+    "operationsSum": "Сумма операций",
+    "date": "Дата ▾",
+    "type": "Тип",
+    "from": "Откуда",
+    "counterparty": "Контрагент",
+    "to": "Куда",
+    "article": "Статья",
+    "amount": "Сумма",
+    "noData": "Нет данных",
+    "after": "После",
+    "today": "Сегодня",
+    "before": "До",
+    "openInOperations": "Открыть в разделе Операции",
+    "close": "Закрыть"
+  },
+  "Purchases": {
+    "pageTitle": "Сделки по закупкам",
+    "backToList": "Сделки по закупкам",
+    "table": {
+      "client": "Поставщик",
+      "received": "Выплачено",
+      "shipped": "Поставлено"
+    },
+    "filters": {
+      "sectionTitle": "Параметры сделки",
+      "selectSuppliers": "Поставщики",
+      "createdDate": "Дата создания"
+    },
+    "createSupply": {
+      "titleNew": "Новая поставка",
+      "titleEdit": "Редактирование поставки",
+      "supplyDate": "Дата поставки",
+      "plannedSupply": "Плановая поставка",
+      "supplier": "Поставщик",
+      "supplierRequired": "Выберите поставщика",
+      "expenseArticle": "Статья закупки товаров",
+      "undistributedExpense": "Нераспределенный расход",
+      "removeFromSupply": "Убрать из поставки",
+      "supplySum": "Сумма поставки",
+      "products": "Товары/услуги для поставки"
+    },
+    "supplyTable": {
+      "emptyTitle": "Добавьте поставки в сделку",
+      "emptySubtitle": "Учитывайте поставки товара/услуг, чтобы контролировать выполнение обязательств по сделке",
+      "deleteSupplyTitle": "Удалить поставку",
+      "deleteSupplyConfirm": "Вы действительно хотите удалить поставку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
+      "deleteBlockedClosedWarehouse": "Удаление недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
+      "unallocatedExpense": "Нераспределенный расход"
+    },
+    "createDealModal": {
+      "titleNew": "Новая закупка",
+      "titleEdit": "Редактирование закупки",
+      "supplier": "Поставщик",
+      "supplierPlaceholder": "Укажите, у кого закупаете товар или услугу"
+    }
+  },
+  "Deals": {
+    "pageTitle": "Сделки по продажам",
+    "createDeal": "Создать",
+    "createStudent": "Создать студента",
+    "searchPlaceholder": "Поиск по краткому названию",
+    "downloadExcel": "Скачать в Excel",
+    "fileDownloaded": "Файл успешно загружен.",
+    "methods": {
+      "accrual": "Метод начисления",
+      "cash": "Кассовый метод"
+    },
+    "table": {
+      "date": "Дата",
+      "name": "Название",
+      "client": "Клиент",
+      "status": "Статус",
+      "dealAmount": "Сумма сделки",
+      "received": "Поступило",
+      "shipped": "Отгружено",
+      "profit": "Прибыль"
+    },
+    "empty": "Нет данных",
+    "statusNew": "Новая",
+    "tooltips": {
+      "editContract": "Редактировать договор",
+      "downloadContract": "Скачать договор",
+      "edit": "Редактировать",
+      "copy": "Скопировать",
+      "delete": "Удалить"
+    },
+    "footer": {
+      "dealsCount": "{count} сделок на сумму:",
+      "totalProfit": "Общая прибыль:"
+    },
+    "detail": {
+      "backToList": "Сделки по продажам",
+      "noName": "Без названия",
+      "actions": {
+        "edit": "Редактировать",
+        "delete": "Удалить"
+      },
+      "cards": {
+        "type": "Тип",
+        "client": "Клиент",
+        "supplier": "Поставщик",
+        "created": "Создана",
+        "sale": "Продажа",
+        "purchase": "Закупка",
+        "receipts": "Поступления",
+        "shipments": "Отгрузки клиенту",
+        "profit": "Прибыль сделки",
+        "accounting": "Учет",
+        "from": "из",
+        "received": "Поступило",
+        "clientDebt": "Клиент должен:",
+        "shipped": "Отгружено",
+        "weOwe": "Мы должны:",
+        "profitability": "Рентабельность",
+        "income": "Доходы",
+        "expenses": "Расходы"
+      },
+      "accountingMethods": {
+        "accrual": "Методом начисления",
+        "cash": "Кассовым методом"
+      },
+      "tabs": {
+        "products": "Товары и услуги",
+        "receipts": "Поступления",
+        "expenses": "Расходы",
+        "shipments": "Отгрузки"
+      },
+      "tabDescriptions": {
+        "products": "Выберите товары или услуги для продажи",
+        "receipts": "Платежи от клиентов за проданные товары или оказанные услуги",
+        "expenses": "Понесенные затраты по сделке",
+        "shipments": "Товары и услуги, которые вы отгрузили клиенту",
+        "supplies": "Товары и услуги, которые вы получили от поставщика"
+      },
+      "searchPlaceholder": "Поиск",
+      "addButton": "Добавить",
+      "newReturnButton": "Новый возврат",
+      "payment": {
+        "createPayment": "Создать платеж",
+        "paymentAmount": "Сумма платежа",
+        "enterAmount": "Введите сумму",
+        "paymentLink": "Платежная ссылка",
+        "copy": "Копировать",
+        "copied": "Скопировано",
+        "cancel": "Отмена",
+        "createLink": "Создать ссылку",
+        "creating": "Создание...",
+        "change_price": "Изменение цены",
+        "send": "Отправить",
+        "sending": "Отправка...",
+        "enterEmail": "Введите свой адрес электронной почты.",
+        "emailSentSuccess": "Сообщение успешно отправлено.",
+        "sendToEmail": "Отправить QR-код на электронную почту",
+        "payment_rule": "Если вы не укажете фиксированную сумму, плательщик может оплатить любую сумму."
+      }
+    },
+    "filters": {
+      "dealStatus": "Статус сделки",
+      "selectCounterparties": "Выберите контрагентов",
+      "dealAmount": "Сумма сделки",
+      "dealProfit": "Прибыль сделки",
+      "from": "От",
+      "to": "До"
+    },
+    "createDealModal": {
+      "titleNew": "Новая продажа",
+      "titleEdit": "Редактирование продажи",
+      "dealName": "Название сделки",
+      "dealNamePlaceholder": "Например, разработка сайта",
+      "dealNameRequired": "Название сделки обязательно",
+      "dealDate": "Дата сделки",
+      "dealDatePlaceholder": "Выберите дату",
+      "client": "Клиент",
+      "clientPlaceholder": "Укажите кому поставите товар или услугу",
+      "vat": "НДС",
+      "vatWith": "С учетом НДС",
+      "vatWithout": "Без учета НДС",
+      "vatPlaceholder": "Выберите опцию",
+      "comment": "Комментарий",
+      "cancel": "Отменить",
+      "create": "Создать",
+      "save": "Сохранить"
+    },
+    "createStudentModal": {
+      "titleNew": "Новая продажа",
+      "titleEdit": "Редактирование продажи",
+      "titlePreview": "Предварительный просмотр договора",
+      "titleEditSale": "Редактирование продажи",
+      "titleNewSale": "Новая продажа",
+      "contractNumber": "Номер договора",
+      "contractNumberPlaceholder": "Введите номер договора",
+      "contractNumberRequired": "Введите номер договора",
+      "contractDate": "Дата договора",
+      "contractDatePlaceholder": "Выберите дату",
+      "contractDateRequired": "Выберите дату договора",
+      "guardianName": "Ф.И.О. опекуна",
+      "guardianNamePlaceholder": "Введите Ф.И.О. опекуна",
+      "guardianNameRequired": "Введите Ф.И.О. опекуна",
+      "branchName": "Название филиала",
+      "guardianType": "Выберите тип опекуна",
+      "guardianTypePlaceholder": "Выберите тип опекуна",
+      "guardianTypeRequired": "Выберите тип опекуна",
+      "addGuardianType": "Добавить тип опекуна",
+      "academicYear": "Выберите учебный год",
+      "academicYearPlaceholder": "Выберите учебный год",
+      "academicYearRequired": "Выберите учебный год",
+      "phone1": "Телефон 1",
+      "phone1Placeholder": "XX XXX XX XX",
+      "phone1Required": "Введите номер телефона",
+      "phone2": "Телефон 2",
+      "phone2Placeholder": "XX XXX XX XX",
+      "studentName": "Ф.И.О. ученика",
+      "studentNamePlaceholder": "Введите Ф.И.О. ученика",
+      "studentNameRequired": "Выберите ученика",
+      "passport": "Серия и номер паспорта",
+      "passportPlaceholder": "Введите серию и номер паспорта",
+      "passportRequired": "Введите серию и номер паспорта",
+      "pinfl": "ПИНФЛ опекуна",
+      "pinflPlaceholder": "Введите ПИНФЛ опекуна",
+      "pinflRequired": "Введите ПИНФЛ опекуна",
+      "pinflInvalid": "ПИНФЛ должен содержать 14 цифр",
+      "issuedBy": "Место выдачи",
+      "issuedByPlaceholder": "Введите место выдачи",
+      "issuedByRequired": "Введите место выдачи",
+      "tariffName": "Название тарифа",
+      "tariffPlaceholder": "Выберите тариф",
+      "birthDate": "Дата рождения ученика",
+      "birthDateRequired": "Выберите дату рождения",
+      "datePlaceholder": "Выберите дату",
+      "validFrom": "Срок действия договора от",
+      "validFromRequired": "Выберите дату начала",
+      "gender": "Выберите пол",
+      "genderRequired": "Выберите пол",
+      "genderMale": "Мужской",
+      "genderFemale": "Женский",
+      "validTo": "Срок действия договора до",
+      "validToRequired": "Выберите дату окончания",
+      "class": "Класс",
+      "classPlaceholder": "Введите класс",
+      "classRequired": "Выберите класс",
+      "addClass": "Добавить класс",
+      "clientType": "Тип клиента",
+      "clientTypePlaceholder": "Тип клиента",
+      "passiveDate": "Пассивная дата",
+      "passiveDateRequired": "Выберите пассивную дату",
+      "status": "Состояние",
+      "statusPlaceholder": "Состояние",
+      "address": "Адрес",
+      "addressPlaceholder": "Адрес",
+      "addressRequired": "Введите адрес",
+      "language": "Выберите язык",
+      "languageRequired": "Выберите язык",
+      "languagePlaceholder": "Выберите язык",
+      "chartOfAccounts": "Статья",
+      "undistributedIncome": "Нераспределенный доход",
+      "dealDatePlaceholder": "Выберите дату",
+      "legalEntity": "Юрлица",
+      "legalEntityRequired": "Выберите юрлицо",
+      "legalEntityPlaceholder": "Выберите юрлицо",
+      "createClass": "Создать класс",
+      "editClass": "Редактировать класс",
+      "classNamePlaceholder": "Введите название класса",
+      "classCreated": "Класс успешно создан",
+      "classUpdated": "Класс успешно обновлен",
+      "classDeleted": "Класс успешно удален",
+      "classCreateError": "Ошибка при создании класса",
+      "guardianTypeCreated": "Тип опекуна успешно создан",
+      "guardianTypeUpdated": "Тип опекуна успешно обновлен",
+      "guardianTypeDeleted": "Тип опекуна успешно удален",
+      "guardianTypeCreateError": "Ошибка при создании типа опекуна",
+      "guardianTypeUpdateError": "Ошибка при обновлении типа опекуна",
+      "guardianTypeDeleteError": "Ошибка при удалении типа опекуна",
+      "contractTemplateLoading": "Загрузка шаблона договора...",
+      "studentCreated": "Ученик успешно создан",
+      "studentCreateError": "Ошибка при создании ученика",
+      "contractUpdated": "Договор успешно обновлен",
+      "contractUpdateError": "Ошибка при обновлении договора",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "statusActive": "Активный",
+      "statusPassive": "Пассивный",
+      "create": "Создать",
+      "new": "Новый",
+      "old": "Старый",
+      "showContractPreview": "Предварительный просмотр договора",
+      "preview": "Предпросмотр",
+      "edit": "Редактировать",
+      "delete": "Удалить",
+      "saving": "Сохранение...",
+      "update": "Обновить",
+      "add": "Добавить",
+      "back": "Назад",
+      "print": "Печать",
+      "deleteConfirmation": "Подтверждение удаления",
+      "createConfirmation": "Подтверждение создания",
+      "createConfirmText": "Вы проверили договор через «Предпросмотр»? После сохранения договор будет сформирован с текущими данными.",
+      "updateConfirmation": "Подтверждение обновления",
+      "updateConfirmText": "Вы проверили договор через «Предпросмотр»? После обновления договор будет сформирован заново с текущими данными.",
+      "deleteClassConfirm": "Вы уверены, что хотите удалить класс \"{name}\"?",
+      "deleteGuardianConfirm": "Вы уверены, что хотите удалить тип опекуна \"{name}\"?",
+      "className": "Название класса",
+      "createGuardianType": "Создать тип опекуна",
+      "editGuardianType": "Редактировать тип опекуна",
+      "guardianTypeName": "Название типа опекуна",
+      "guardianTypeNamePlaceholder": "Введите название типа опекуна"
+    },
+    "deleteDealModal": {
+      "title": "Подтверждение удаления",
+      "confirmation": "Вы уверены, что хотите удалить сделку?",
+      "nameLabel": "Название:",
+      "clientLabel": "Клиент:",
+      "amountLabel": "Сумма:",
+      "noData": "—",
+      "cancel": "Отмена",
+      "delete": "Удалить"
+    },
+    "commentChat": {
+      "title": "ФАЙЛЫ И КОММЕНТАРИИ",
+      "emptyState": "Прикрепляйте файлы и оставляйте комментарии для себя и своих коллег",
+      "edit": "Редактировать",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "delete": "Удалить",
+      "writeComment": "Написать комментарий"
+    },
+    "createProductService": {
+      "titleNew": "Добавление товара/услуги",
+      "titleEdit": "Редактирование товара/услуги",
+      "product": "Наименование",
+      "productPlaceholder": "Выберите товар или услугу",
+      "productRequired": "Выберите наименование",
+      "quantity": "Количество",
+      "quantityRequired": "Введите количество",
+      "price": "Цена",
+      "priceRequired": "Введите цену",
+      "discount": "Скидка (%)",
+      "nds": "НДС (%)",
+      "total": "Итого",
+      "cancel": "Отмена",
+      "add": "Добавить",
+      "save": "Сохранить",
+      "unit": "Единица",
+      "pricePerUnit": "Цена за единицу"
+    },
+    "createShipment": {
+      "titleNew": "Новая отгрузка",
+      "titleEdit": "Редактирование отгрузки",
+      "titleNewReturn": "Новый возврат",
+      "titleEditReturn": "Редактирование возврата",
+      "shipmentDate": "Дата отгрузки",
+      "shipmentDateRequired": "Выберите дату",
+      "dealDatePlaceholder": "Выберите дату",
+      "legalEntity": "Юрлицо",
+      "legalEntityRequired": "Выберите юрлицо",
+      "client": "Клиент",
+      "clientRequired": "Выберите клиента",
+      "products": "Товары и услуги",
+      "productsRequired": "Добавьте хотя бы одну позицию",
+      "plannedShipment": "Плановая отгрузка",
+      "productName": "Наименование",
+      "quantity": "Кол-во",
+      "price": "Цена",
+      "discount": "Скидка",
+      "nds": "НДС",
+      "sum": "Сумма",
+      "addRow": "Добавить строку",
+      "removeFromShipment": "Убрать из отгрузки",
+      "selectPosition": "Выберите позицию",
+      "shipmentSum": "Сумма отгрузки",
+      "incomeArticle": "Статья доходов",
+      "undistributedIncome": "Нераспределенный доход",
+      "warehouse": "Склад",
+      "warehousePlaceholder": "Выберите склад",
+      "warehouseRequired": "Выберите склад",
+      "saveBlockedClosedWarehouse": "Сохранение недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
+      "stockExceeded": "«{name}»: доступно {available}, запрошено {requested}",
+      "stockError": "Недостаточно товара на складе",
+      "stockCheckFailed": "Не удалось проверить остатки склада",
+      "requiredFields": "Обязательные поля",
+      "cancel": "Отмена",
+      "create": "Создать",
+      "save": "Сохранить"
+    }
+  },
+  "Settings": {
+    "pageTitle": "Настройки",
+    "nav": {
+      "general": "Общие настройки",
+      "profile": "Мой профиль",
+      "branches": "Филиалы",
+      "currencies": "Валюты",
+      "roles": "Роли",
+      "contract": "Договор"
+    },
+    "general": {
+      "pageTitle": "Общие настройки",
+      "account": {
+        "title": "Настройки аккаунта",
+        "currency": "Основная валюта",
+        "placeholder": "Выберите валюту"
+      },
+      "accounting": {
+        "title": "Настройки учета",
+        "operations": "Создание и редактирование операций",
+        "paymentType": "Тип платежа",
+        "wlcm_title": "Создайте личный аккаунт на WLCM.",
+        "wlcm": "Внесите свой токен WLCM.uz",
+        "accrualDate": "Включить в работу поле << Дата начисления >> при выборе Сделка"
+      },
+      "modules": {
+        "title": "Модули",
+        "warehouse": "Мой склад",
+        "returns": "Возвраты"
+      },
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "success": "Настройки успешно сохранены.",
+      "error": "Не удалось сохранить настройки."
+    },
+    "profile": {
+      "pageTitle": "Мой профиль",
+      "fullName": "ФИО",
+      "fullNamePlaceholder": "Введите ФИО",
+      "phone": "Телефон",
+      "phonePlaceholder": "+998 XX XXX XX XX",
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "success": "Профиль успешно обновлен",
+      "error": "Ошибка при обновлении профиля",
+      "errors": {
+        "nameRequired": "Введите ФИО",
+        "phoneRequired": "Введите полный номер телефона"
+      },
+      "password": {
+        "title": "Смена пароля",
+        "current": "Текущий пароль",
+        "currentPlaceholder": "Введите текущий пароль",
+        "new": "Новый пароль",
+        "newPlaceholder": "Введите новый пароль",
+        "confirm": "Подтвердите пароль",
+        "confirmPlaceholder": "Повторите новый пароль",
+        "change": "Сменить пароль",
+        "success": "Пароль успешно изменен",
+        "error": "Ошибка при смене пароля",
+        "errors": {
+          "currentRequired": "Введите текущий пароль",
+          "newRequired": "Введите новый пароль",
+          "minLength": "Пароль должен содержать минимум 6 символов",
+          "uppercase": "Пароль должен содержать заглавную букву",
+          "lowercase": "Пароль должен содержать строчную букву",
+          "number": "Пароль должен содержать цифру",
+          "confirmRequired": "Подтвердите новый пароль",
+          "match": "Пароли не совпадают"
+        }
+      }
+    },
+    "branches": {
+      "pageTitle": "Филиалы",
+      "add": "Добавить",
+      "create": "Создать филиал",
+      "edit": "Редактировать филиал",
+      "name": "Название филиала",
+      "namePlaceholder": "Название филиала",
+      "email": "Электронная почта",
+      "emailPlaceholder": "example@mail.com",
+      "username": "Имя пользователя",
+      "usernamePlaceholder": "Имя пользователя",
+      "phone": "Телефон",
+      "phonePlaceholder": "+998 XX XXX XX XX",
+      "errors": {
+        "nameRequired": "Введите название филиала",
+        "emailRequired": "Введите email",
+        "emailInvalid": "Неверный формат email",
+        "usernameRequired": "Введите имя пользователя",
+        "phoneInvalid": "Введите полный номер (+998 XX XXX XX XX)",
+        "roleRequired": "Выберите роль"
+      },
+      "delete": {
+        "title": "Подтверждение удаления",
+        "confirm": "Вы уверены, что хотите удалить филиал?",
+        "name": "Название:",
+        "email": "Email:",
+        "user": "Пользователь:",
+        "cancel": "Отмена",
+        "delete": "Удалить"
+      },
+      "warning": {
+        "title": "Внимание",
+        "message": "У вас уже есть транзакции, сначала удалите их.",
+        "understood": "Понятно"
+      },
+      "empty": {
+        "title": "Создайте филиал",
+        "description": "Филиалы помогают сравнивать прибыль и рентабельность разных частей бизнеса. Например, заказов, направлений или каналов продаж.",
+        "help": "Для удобства филиалы можно объединять в группами.",
+        "video": "посмотрите видео",
+        "article": "почитайте статью"
+      },
+      "table": {
+        "name": "Название филиала"
+      },
+      "admin": "Администратор",
+      "branchStaff": "Сотрудники филиала",
+      "staff": {
+        "name": "Имя",
+        "email": "Email",
+        "phone": "Телефон",
+        "role": "Роль",
+        "actions": "Действия"
+      },
+      "addStaff": "Добавить сотрудника",
+      "editStaff": "Редактировать сотрудника",
+      "deleteStaffTitle": "Подтверждение удаления",
+      "deleteStaffConfirm": "Вы уверены, что хотите удалить сотрудника",
+      "noStaff": "Нет сотрудников",
+      "userAdded": "Пользователь успешно добавлен",
+      "userUpdated": "Пользователь успешно обновлен",
+      "userDeleted": "Пользователь успешно удален"
+    },
+    "currencies": {
+      "pageTitle": "Курсы валют по ЦБ",
+      "updated": "обновлено",
+      "name": "Название валюты",
+      "code": "Обозначение",
+      "symbol": "Символ",
+      "rate": "Курс"
+    },
+    "roles": {
+      "pageTitle": "Роли",
+      "add": "Добавить роль",
+      "edit": "Редактировать роль",
+      "name": "Название роли",
+      "namePlaceholder": "Введите название роли",
+      "description": "Описание",
+      "noData": "Нет данных",
+      "descriptionPlaceholder": "Введите описание роли",
+      "errors": {
+        "nameRequired": "Введите название роли"
+      },
+      "permissions": {
+        "title": "Права доступа",
+        "menu": "Меню",
+        "submenu": "Подменю",
+        "read": "Просмотр",
+        "add": "Добавление",
+        "edit": "Редактирование",
+        "delete": "Удаление",
+        "sections": {
+          "indicators": "Показатели",
+          "operations": "Операции",
+          "income": "Поступление",
+          "expense": "Выплата",
+          "transfer": "Перемещение",
+          "accrual": "Начисление",
+          "shipment": "Отгрузка",
+          "deals": "Сделки",
+          "reports": "Отчёты",
+          "cash_flow": "Движение денег (ДДС)",
+          "p_and_l": "Прибыли и убытки (ОПУ)",
+          "balance": "Баланс",
+          "students_report": "Студенты",
+          "directories": "Справочники",
+          "counterparties": "Контрагенты",
+          "accounting_items": "Учётные статьи",
+          "my_accounts": "Мои счета",
+          "my_entities": "Мои юрлица",
+          "products_and_services": "Товары и услуги",
+          "settings": "Настройки",
+          "general_settings": "Общие настройки",
+          "my_profile": "Мой профиль",
+          "branches": "Филиалы",
+          "exchange_rates": "Курсы валют",
+          "users": "Роли"
+        }
+      },
+      "delete": {
+        "confirm": "Вы действительно хотите удалить эту роль?"
+      }
+    },
+    "contract": {
+      "pageTitle": "Договоры",
+      "subtitle": "Список договоров по филиалам",
+      "branch": "Филиал",
+      "name": "Название",
+      "file": "Файл",
+      "actions": "Действия",
+      "edit": "Редактировать",
+      "empty": "Договоры не найдены",
+      "editDialog": {
+        "title": "Редактирование договора",
+        "cancel": "Отмена",
+        "save": "Сохранить",
+        "loading": "Загрузка договора...",
+        "saveError": "Не удалось сохранить договор",
+        "uploadError": "Не удалось загрузить файл договора"
+      }
+    },
+    "common": {
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "create": "Создать",
+      "creating": "Создание...",
+      "cancel": "Отменить",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "add": "Добавить",
+      "noData": "Нет данных",
+      "createdAt": "Дата создания",
+      "loading": "Загрузка...",
+      "role_error": "Нельзя удалить роль, которая назначена пользователям"
+    },
+    "details": {
+      "emptyState": {
+        "addButton": "Добавить"
+      },
+      "status": {
+        "defaultStatus": "Новая",
+        "statusNamePlaceholder": "Название статуса",
+        "addStatus": "Добавить статус",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "cancel": "Отменить",
+        "save": "Сохранить"
+      },
+      "productServiceTable": {
+        "title": "Наименование",
+        "quantity": "Кол-во",
+        "unit": "Единица",
+        "pricePerUnit": "Цена за ед.",
+        "discount": "Скидка",
+        "vat": "НДС",
+        "sum": "Сумма",
+        "selected": "выбрано",
+        "delete": "Удалить",
+        "deletePositionsTitle": "Удалить позиции из сделки",
+        "deletePositionsConfirm": "Вы действительно хотите удалить {count} {count, plural, one {позицию} few {позиции} other {позиций}} из сделки?",
+        "cancel": "Отмена",
+        "emptyTitle": "Добавьте товары или услуги в сделку",
+        "emptySubtitle": "Наполните сделку товарами/услугами, которые покупаете или продаете своим клиентам"
+      },
+      "incomeOperationsTable": {
+        "date": "Дата",
+        "account": "Счет",
+        "counterparty": "Контрагент",
+        "article": "Статья",
+        "amount": "Сумма",
+        "total": "Итого:",
+        "deleteOperationTitle": "Удалить операцию",
+        "deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте поступления по сделке",
+        "emptySubtitle": "Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
+      },
+      "expenseOperationsTable": {
+        "date": "Дата",
+        "account": "Счет",
+        "counterparty": "Контрагент",
+        "article": "Статья",
+        "amount": "Сумма",
+        "total": "Итого:",
+        "accrual": "[Начисление]",
+        "deleteOperationTitle": "Удалить операцию",
+        "deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте расходы по сделке",
+        "emptySubtitle": "Учитывайте расходы по сделке, чтобы контролировать финансовый результат"
+      },
+      "shipmentTable": {
+        "date": "Дата",
+        "legalEntity": "Юрлицо",
+        "counterparty": "Контрагент",
+        "composition": "Состав",
+        "article": "Статья",
+        "amount": "Сумма",
+        "position": "{count, plural, one {позиция} few {позиции} other {позиций}}",
+        "noName": "Без названия",
+        "goodsServices": "Товары/услуги",
+        "unallocatedIncome": "Нераспределенный доход",
+        "deleteShipmentTitle": "Удалить отгрузку",
+        "deleteShipmentConfirm": "Вы действительно хотите удалить отгрузку на сумму <strong>{amount}</strong>? <br />Восстановить её будет невозможно.",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте отгрузки в сделку",
+        "emptySubtitle": "Учитывайте отгрузки товара/услуг, чтобы контролировать выполнение обязательств по сделке"
+      }
+    },
+    "editDealModal": {
+      "title": "Редактировать продажу",
+      "dealName": "Название сделки",
+      "dealNamePlaceholder": "Например, разработка сайта",
+      "dealDate": "Дата сделки",
+      "dealDatePlaceholder": "11.02.2024",
+      "client": "Клиент",
+      "clientPlaceholder": "Укажите кому падаете товар или услугу",
+      "vat": "НДС",
+      "vatWith": "С учетом НДС",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Ваш комментарий или пояснение к этой сделке",
+      "cancel": "Отменить",
+      "save": "Сохранить"
+    }
+  },
+  "Directories": {
+    "counterparty": {
+      "createTitle": "Создать контрагента",
+      "editTitle": "Редактировать контрагента",
+      "createGroupTitle": "Создать группу",
+      "tabCounterparty": "Создать контрагента",
+      "tabGroup": "Создать группу",
+      "fields": {
+        "name": "Название",
+        "fullName": "Полное название",
+        "group": "Группа контрагентов",
+        "address": "Адрес",
+        "inn": "ИНН",
+        "kpp": "ОКЭД",
+        "accountNumber": "Номер счета",
+        "bank": "Банк",
+        "mfo": "МФО",
+        "defaultArticles": "Применять статьи по умолчанию",
+        "articleIn": "Статья для поступлений",
+        "articleOut": "Статья для выплат",
+        "comment": "Комментарий",
+        "groupName": "Название",
+        "groupComment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Например, Васильев",
+        "fullName": "Например, ООО «Васильев и партнеры»",
+        "selectGroup": "Выберите группу контрагентов",
+        "inn": "Укажите ИНН",
+        "kpp": "Укажите ОКЭД",
+        "account": "Укажите номер счета",
+        "address": "Укажите адрес",
+        "bank": "Укажите банк",
+        "mfo": "Укажите МФО",
+        "comment": "Пояснение к контрагенту",
+        "groupComment": "Пояснение к группе контрагентов",
+        "groupName": "Например, мои поставщики"
+      },
+      "errors": {
+        "nameRequired": "Укажите название",
+        "groupNameRequired": "Укажите название группы",
+        "createFailed": "Не удалось создать контрагента",
+        "createGroupFailed": "Не удалось создать группу контрагентов"
+      },
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "creating": "Создание...",
+      "save": "Сохранить",
+      "cancel": "Отменить",
+      "create": "Создать",
+      "requisites": "Реквизиты",
+      "groupNameLabel": "Название группы:",
+      "groupDescriptionLabel": "Описание:",
+      "deleteConfirmTitle": "Подтверждение удаления",
+      "deleteConfirmMessage": "Вы уверены, что хотите удалить группу контрагентов?",
+      "pageTitle": "Контрагенты",
+      "list": {
+        "title": "Контрагенты",
+        "createButton": "Создать",
+        "downloadExcel": "Скачать в Excel",
+        "searchPlaceholder": "Поиск...",
+        "viewModes": {
+          "list": "Список",
+          "nested": "Вложенный вид"
+        },
+        "tableHeaders": {
+          "counterparty": "Контрагент",
+          "group": "Группа",
+          "inn": "ИНН",
+          "operations": "Операций",
+          "receivables": "Дебит.",
+          "payables": "Кредит.",
+          "income": "Доходы",
+          "expense": "Расходы",
+          "profit": "Прибыль",
+          "receipts": "Поступ.",
+          "payments": "Выплаты",
+          "difference": "Разница"
+        },
+        "filters": {
+          "parameters": "Параметры",
+          "period": "Период аналитики",
+          "receivables": "Дебиторка",
+          "payables": "Кредиторка",
+          "cash": "Денежная",
+          "nonCash": "Неденежная",
+          "without": "Без задолженности",
+          "selectChartOfAccounts": "Выберите статьи учета",
+          "selectDeals": "Выберите сделки",
+          "selectLegalEntities": "Выберите юрлицо"
+        },
+        "calculationOptions": {
+          "cashflow": "Учет по денежному потоку",
+          "cash": "Учет кассовым методом",
+          "calculation": "Учет методом начисления"
+        },
+        "empty": "Нет данных",
+        "noCounterpartiesInGroup": "Нет контрагентов",
+        "noName": "Без названия",
+        "noGroup": "Без группы",
+        "counterpartyCount": "{count} контрагент",
+        "counterpartyCountPlural": "{count} контрагента",
+        "counterpartyCountPluralMany": "{count} контрагентов",
+        "summary": {
+          "receivables": "Дебиторка",
+          "payables": "Кредиторка",
+          "receipts": "Поступления",
+          "payments": "Выплаты",
+          "difference": "Разница"
+        }
+      },
+      "detail": {
+        "backToList": "Список контрагентов",
+        "notFound": "Контрагент не найден",
+        "calculationOptions": {
+          "cashflow": "Учет по денежному потоку",
+          "cash": "Учет кассовым методом",
+          "calculation": "Учет методом начисления"
+        },
+        "operationsTitle": "Операции по контрагенту",
+        "createOperation": "Создать",
+        "filters": "Фильтры",
+        "stats": {
+          "receipts": "Поступления",
+          "payments": "Выплаты",
+          "difference": "Разница",
+          "receivables": "Дебиторка",
+          "payables": "Кредиторка",
+          "noDebt": "Нет задолженности",
+          "income": "Доходы",
+          "expenses": "Расходы",
+          "profit": "Прибыль"
+        },
+        "info": {
+          "title": "Реквизиты",
+          "inn": "ИНН",
+          "kpp": "ОКЭД",
+          "accountNumber": "№ счета",
+          "bank": "Банк",
+          "mfo": "МФО",
+          "address": "Адрес",
+          "receiptArticle": "Статья для поступлений",
+          "paymentArticle": "Статья для выплат",
+          "comment": "Комментарий",
+          "noRequisites": "Реквизиты контрагента отсутствуют",
+          "addRequisites": "Добавить",
+          "additionalKpp": "Дополнительные ОКЭД",
+          "additionalAccounts": "Дополнительные номера счетов"
+        },
+        "table": {
+          "date": "Дата",
+          "account": "Счет",
+          "type": "Тип",
+          "counterparty": "Контрагент",
+          "article": "Статья",
+          "deal": "Сделка",
+          "amount": "Сумма"
+        },
+        "sections": {
+          "future": "После",
+          "today": "Сегодня",
+          "before": "Вчера и ранее"
+        },
+        "empty": {
+          "title": "Создайте операции с контрагентом",
+          "description": "Добавляйте платежи и учитывайте предоплаты или отсрочки."
+        },
+        "footer": {
+          "operations": "операция",
+          "operationsPlural": "операции",
+          "operationsPluralMany": "операций",
+          "receipts": "поступление",
+          "receiptsPlural": "поступления",
+          "receiptsPluralMany": "поступлений",
+          "payments": "выплата",
+          "paymentsPlural": "выплаты",
+          "paymentsPluralMany": "выплат",
+          "total": "Итого"
+        },
+        "actions": {
+          "edit": "Редактировать",
+          "delete": "Удалить",
+          "deleting": "Удаление..."
+        }
+      }
+    },
+    "legalEntity": {
+      "createTitle": "Создание юрлица",
+      "editTitle": "Редактирование юрлица",
+      "fields": {
+        "name": "Название",
+        "fullName": "Полное название",
+        "innKpp": "ИНН/КПП",
+        "comment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Например: Васильев",
+        "fullName": "Например: ООО «Васильев и партнеры»",
+        "comment": "Дайте краткое пояснение этому юрлицу, если это необходимо"
+      },
+      "errors": {
+        "nameRequired": "Укажите название",
+        "createFailed": "Не удалось создать юрлицо",
+        "updateFailed": "Не удалось обновить юрлицо"
+      },
+      "pageTitle": "Мои юрлица",
+      "searchPlaceholder": "Поиск по краткому названию",
+      "tableHeaders": {
+        "index": "№",
+        "shortName": "Краткое название",
+        "fullName": "Полное название",
+        "inn": "ИНН",
+        "kpp": "КПП"
+      },
+      "loading": "Загрузка...",
+      "noResults": "Ничего не найдено",
+      "noData": "Нет данных",
+      "entityCount": "{count} {count, plural, one {юрлицо} few {юрлица} other {юрлиц}}",
+      "deleteConfirmTitle": "Удаление юрлица",
+      "deleteConfirmMessage": "Вы уверены, что хотите удалить юрлицо «{name}»?",
+      "deleteWarning": "Это действие нельзя отменить.",
+      "deleting": "Удаление..."
+    },
+    "accountGroup": {
+      "createTitle": "Создать группу",
+      "editTitle": "Редактировать группу",
+      "fields": {
+        "name": "Название группы",
+        "comment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Введите название группы",
+        "comment": "Введите описание группы"
+      },
+      "errors": {
+        "nameRequired": "Название группы обязательно",
+        "createFailed": "Ошибка при создании группы"
+      }
+    },
+    "chartOfAccounts": {
+      "createTitle": "Создать учетную статью",
+      "deleteConfirmMessage": "Вы действительно хотите удалить статью «{name}»?",
+      "editTitle": "Редактировать учетную статью",
+      "tabs": {
+        "income": "Доходы",
+        "expense": "Расходы",
+        "assets": "Активы",
+        "liabilities": "Обязательства",
+        "capital": "Капитал"
+      },
+      "fields": {
+        "name": "Название",
+        "parent": "Относится к",
+        "comment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Укажите название статьи",
+        "selectParent": "Выберите родительскую статью",
+        "comment": "Пояснение к статье"
+      },
+      "errors": {
+        "nameRequired": "Укажите название статьи"
+      }
+    },
+    "account": {
+      "createTitle": "Создание счета",
+      "editTitle": "Редактирование счета",
+      "fields": {
+        "name": "Название",
+        "group": "Группа",
+        "legalEntity": "Юрлицо",
+        "type": "Выберите тип счета",
+        "bik": "Бик",
+        "bank": "Банк",
+        "accountNumber": "Расч. счет №",
+        "corrAccount": "Кор. счет №",
+        "number": "Номер",
+        "initialBalance": "Начальный остаток",
+        "currency": "Выберите валюту счета",
+        "comment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Например, ВТБ",
+        "selectLegalEntity": "Выберите юрлицо или создайте новое",
+        "selectType": "Выберите тип",
+        "selectDate": "Выберите дату",
+        "comment": "Ваш комментарий или пояснение к этому счету"
+      },
+      "types": {
+        "type": "Тип",
+        "cash": "Наличный",
+        "nonCash": "Безналичный",
+        "card": "Карта физлица",
+        "electronic": "Электронный"
+      },
+      "requisites": {
+        "show": "Реквизиты",
+        "hide": "Скрыть реквизиты"
+      },
+      "errors": {
+        "nameRequired": "Укажите название",
+        "legalEntityRequired": "Выберите юрлицо"
+      },
+      "deleteConfirmMessage": "Вы действительно хотите удалить счет «{name}»?",
+      "pageTitle": "Мои счета",
+      "createGroup": "Создать группу",
+      "selectAccounts": "Выберите счета",
+      "selectLegalEntity": "Выберите юрлицо",
+      "currentBalance": "Текущий остаток",
+      "grouping": {
+        "none": "Без группировки",
+        "groups": "По группам",
+        "legalEntities": "По юрлицам"
+      },
+      "searchPlaceholder": "Поиск по названию или номеру",
+      "tableHeaders": {
+        "name": "Название",
+        "accountNumber": "Номер счета",
+        "balance": "Текущий остаток",
+        "initialBalance": "Начальный остаток",
+        "currency": "Валюта",
+        "type": "Тип",
+        "created": "Дата создания",
+        "legalEntity": "Юрлицо",
+        "requisites": "Реквизиты"
+      },
 
-			"loading": "Загрузка...",
-			"noResults": "Ничего не найдено",
-			"noData": "Нет данных",
-			"accountCount": "{count} {count, plural, one {счет} few {счета} other {счетов}}"
-		},
-		"product": {
-			"createProductTitle": "Создание товара",
-			"editProductTitle": "Редактирование товара",
-			"createServiceTitle": "Создание услуги",
-			"editServiceTitle": "Редактирование услуги",
-			"createGroupTitle": "Создать группу",
-			"editGroupTitle": "Редактирование группы",
-			"createAnother": "Создать еще один товар",
-			"fields": {
-				"type": "Тип",
-				"name": "Название товара",
-				"groupName": "Название группы",
-				"groupComment": "Комментарий",
-				"article": "Артикул",
-				"unit": "Единица измерения",
-				"group": "Группа товаров",
-				"price": "Цена продажи",
-				"vat": "НДС",
-				"comment": "Комментарий"
-			},
-			"placeholders": {
-				"name": "Например, кафельная плитка",
-				"groupName": "Например, кафельная плитка",
-				"groupComment": "Добавьте комментарий к этой группе",
-				"article": "Введите артикул",
-				"selectUnit": "Выберите единицу измерения",
-				"selectGroup": "Выберите группу",
-				"price": "0.00",
-				"vat": "0%",
-				"comment": "Добавьте комментарий к этому товару"
-			},
-			"types": {
-				"products": "Товары",
-				"services": "Услуги",
-				"all": "Все"
-			},
-			"errors": {
-				"nameRequired": "Укажите название"
-			},
-			"pageTitle": "Товары и услуги",
-			"searchPlaceholder": "Поиск по названию или артикулу",
-			"noGroup": "Без группы",
-			"noName": "Без названия",
-			"loading": "Загрузка...",
-			"noResults": "Ничего не найдено",
-			"noData": "Нет данных",
-			"tableHeaders": {
-				"name": "Название",
-				"article": "Артикул",
-				"group": "Группа",
-				"price": "Цена",
-				"unit": "Ед. изм.",
-				"vat": "НДС",
-				"priceWithVat": "Цена с НДС",
-				"type": "Тип",
-				"comment": "Комментарий"
-			},
-			"footer": {
-				"total": "{count} товара & услуги"
-			},
-			"bulkDeleteTitle": "Удаление выбранных элементов",
-			"bulkDeleteMessage": "Вы уверены, что хотите удалить {count} {count, plural, one {элемент} few {элемента} other {элементов}}?",
-			"deleteError": "Ошибка при удалении",
-			"grouping": {
-				"none": "Без группировки",
-				"group": "По группам"
-			},
-			"selected": "Выбрано",
-			"successDeleted": "Успешно удалено",
-			"bulkSuccessDeleted": "Выбранные элементы успешно удалены",
-			"bulkDeleteError": "Ошибка при массовом удалении"
-		},
-		"details": {
-			"status": {
-				"defaultStatus": "Новая",
-				"statusNamePlaceholder": "Название статуса",
-				"addStatus": "Добавить статус",
-				"edit": "Редактировать",
-				"delete": "Удалить",
-				"cancel": "Отменить",
-				"save": "Сохранить"
-			},
-			"productServiceTable": {
-				"title": "Наименование",
-				"quantity": "Кол-во",
-				"unit": "Единица",
-				"pricePerUnit": "Цена за ед.",
-				"discount": "Скидка",
-				"vat": "НДС",
-				"sum": "Сумма",
-				"selected": "выбрано",
-				"delete": "Удалить",
-				"deletePositionsTitle": "Удалить позиции из сделки",
-				"deletePositionsConfirm": "Вы действительно хотите удалить {count} {count, plural, one {позицию} few {позиции} other {позиций}} из сделки?",
-				"cancel": "Отмена",
-				"emptyTitle": "Добавьте товары или услуги в сделку",
-				"emptySubtitle": "Наполните сделку товарами/услугами, которые покупаете или продаете своим клиентам"
-			},
-			"incomeOperationsTable": {
-				"date": "Дата",
-				"account": "Счет",
-				"counterparty": "Контрагент",
-				"article": "Статья",
-				"amount": "Сумма",
-				"total": "Итого:",
-				"deleteOperationTitle": "Удалить операцию",
-				"deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму Восстановить её будет невозможно.",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте поступления по сделке",
-				"emptySubtitle": "Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
-			},
-			"expenseOperationsTable": {
-				"date": "Дата",
-				"account": "Счет",
-				"counterparty": "Контрагент",
-				"article": "Статья",
-				"amount": "Сумма",
-				"total": "Итого:",
-				"accrual": "[Начисление]",
-				"deleteOperationTitle": "Удалить операцию",
-				"deleteOperationConfirm": "Вы действительно хотите удалить операцию? Восстановить её будет невозможно.",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте расходы по сделке",
-				"emptySubtitle": "Учитывайте расходы по сделке, чтобы контролировать финансовый результат"
-			},
-			"shipmentTable": {
-				"date": "Дата",
-				"legalEntity": "Юрлицо",
-				"counterparty": "Контрагент",
-				"composition": "Состав",
-				"article": "Статья",
-				"amount": "Сумма",
-				"position": "{count, plural, one {позиция} few {позиции} other {позиций}}",
-				"noName": "Без названия",
-				"goodsServices": "Товары/услуги",
-				"unallocatedIncome": "Нераспределенный доход",
-				"deleteShipmentTitle": "Удалить отгрузку",
-				"deleteShipmentConfirm": "Вы действительно хотите удалить отгрузку? Восстановить её будет невозможно.",
-				"deleteBlockedClosedWarehouse": "Удаление недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
-				"cancel": "Отменить",
-				"delete": "Удалить",
-				"emptyTitle": "Добавьте отгрузки в сделку",
-				"emptySubtitle": "Учитывайте отгрузки товара/услуг, чтобы контролировать выполнение обязательств по сделке"
-			}
-		}
-	},
-	"TransactionCategories": {
-		"pageTitle": "Учетные статьи",
-		"create": "Создать",
-		"searchPlaceholder": "Поиск по названию",
-		"loading": "Загрузка",
-		"error": "Ошибка",
-		"errorLoading": "Не удалось загрузить данные",
-		"noResults": "Ничего не найдено",
-		"noData": "Нет данных для отображения",
-		"deleteError": "Не удалось удалить учетную статью",
-		"tabs": {
-			"income": "Доходы",
-			"expense": "Расходы",
-			"assets": "Актив",
-			"liabilities": "Обязательства",
-			"capital": "Капитал"
-		},
-		"info": {
-			"title": "Эта схема наглядно показывает, как статьи участвуют в формировании отчета Баланс"
-		},
-		"reports": {
-			"cashFlow": {
-				"title": "Движение денег",
-				"operational": "Операционный поток",
-				"investment": "Инвестиционный поток",
-				"financial": "Финансовый поток",
-				"receipts": "Поступления",
-				"payments": "Выплаты",
-				"total": "ОБЩИЙ ДЕНЕЖНЫЙ ПОТОК"
-			},
-			"pAndL": {
-				"title": "Прибыли и убытки",
-				"income": "Доходы",
-				"incomeItems": {
-					"goodsSales": "Продажа товаров",
-					"services": "Оказание услуг",
-					"other": "Прочие доходы"
-				},
-				"expenses": "Расходы",
-				"minus": "минус",
-				"expenseItems": {
-					"productionStaff": "Производственный персонал",
-					"goodsPurchase": "Покупка товаров",
-					"adminStaff": "Административный персонал",
-					"rent": "Аренда",
-					"other": "Прочие расходы",
-					"bankServices": "Банковские услуги",
-					"soon": "скоро",
-					"exchangeDiff": "Курсовая разница минус",
-					"depreciation": "Амортизация",
-					"interest": "Проценты",
-					"incomeTax": "Налог на прибыль (доходы)"
-				},
-				"undistributedProfit": "НЕРАСПРЕДЕЛЕННАЯ ПРИБЫЛЬ"
-			},
-			"balance": {
-				"title": "Баланс",
-				"currentAssets": {
-					"title": "Оборотные активы",
-					"receivables": "Дебиторская задолженность",
-					"cash": "Денежные средства",
-					"inventory": "Запасы",
-					"other": "Другие оборотные",
-					"advancePayments": "Заготовые платежи",
-					"loansShort": "Выданные займы (до 1 года)"
-				},
-				"nonCurrentAssets": {
-					"title": "Внеоборотные активы",
-					"and": "И",
-					"fixedAssets": "Основные средства",
-					"equipment": "Оборудование",
-					"transport": "Транспорт",
-					"other": "Другие внеоборотные",
-					"loansLong": "Выданные займы (от 1 года)",
-					"financialInvestments": "Финансовые вложения",
-					"intangible": "Нематериальные активы"
-				},
-				"totalAssets": "ИТОГО АКТИВЫ",
-				"currentLiabilities": {
-					"title": "Краткосрочные обязательства",
-					"payables": "Кредиторская задолженность",
-					"other": "Другие краткосрочные",
-					"thirdParty": "Платежи третьим лицам",
-					"loansShort": "Полученные займы (до 1 года)"
-				},
-				"longTermLiabilities": {
-					"title": "Долгосрочные обязательства",
-					"fin": "Ф",
-					"credits": "Кредиты",
-					"other": "Другие долгосрочные",
-					"loansLong": "Полученные займы (от 1 года)"
-				},
-				"totalLiabilities": "ИТОГО ОБЯЗАТЕЛЬСТВА",
-				"capital": {
-					"title": "Капитал",
-					"fin": "Ф",
-					"founderInvestments": "Вложения учредителей",
-					"plus": "плюс",
-					"undistributedProfit": "Нераспределенная прибыль"
-				},
-				"totalCapital": "ИТОГО КАПИТАЛ",
-				"balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
-			}
-		}
-	},
-	"Plans": {
-		"cashFlowBudget": {
-			"title": "Бюджет движения денег",
-			"searchPlaceholder": "Поиск по названию",
-			"columns": {
-				"name": "Название",
-				"currency": "Валюта",
-				"legalEntity": "Юрлицо",
-				"project": "Проект",
-				"period": "Период",
-				"modifiedDate": "Обновлено",
-				"modifiedBy": "Кто изменил"
-			},
-			"noData": "Нет данных для отображения",
-			"footer": {
-				"total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
-				"lastUpdated": "Обновлено: сегодня"
-			}
-		},
-		"incomeExpenseBudget": {
-			"title": "Бюджет доходов и расходов",
-			"searchPlaceholder": "Поиск по названию",
-			"columns": {
-				"name": "Название",
-				"currency": "Валюта",
-				"legalEntity": "Юрлицо",
-				"project": "Проект",
-				"period": "Период",
-				"modifiedDate": "Обновлено",
-				"modifiedBy": "Кто изменил"
-			},
-			"noData": "Нет данных для отображения",
-			"footer": {
-				"total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
-				"lastUpdated": "Обновлено: сегодня"
-			}
-		},
-		"CashFlowBudgetSingle": {
-			"breadcrumb": {
-				"list": "Список бюджетов"
-			},
-			"title": "Общий 2025",
-			"type": "БДДС",
-			"period": "Ноя '25 — сен '26",
-			"currency": "RUB",
-			"downloadXls": ".xls",
-			"grouping": {
-				"months": "По месяцам",
-				"quarters": "По кварталам",
-				"years": "По годам"
-			},
-			"columns": {
-				"article": "Общий бюджет",
-				"plan": "План",
-				"fact": "Факт",
-				"planExec": "Вып. плана, %",
-				"deviation": "Откл.",
-				"deviationPct": "Откл., %"
-			},
-			"periodTotal": "Итого",
-			"months": {
-				"1": "Янв",
-				"2": "Фев",
-				"3": "Мар",
-				"4": "Апр",
-				"5": "Май",
-				"6": "Июн",
-				"7": "Июл",
-				"8": "Авг",
-				"9": "Сен",
-				"10": "Окт",
-				"11": "Ноя",
-				"12": "Дек"
-			},
-			"rows": {
-				"balanceStart": "Остаток средств на начало",
-				"operating": "Операционный поток",
-				"income": "Поступления",
-				"revenue": "Доходы",
-				"currentAssets": "Оборотные активы",
-				"shortLiabilities": "Краткосрочные обязательства",
-				"expense": "Выплаты",
-				"expenses": "Расходы",
-				"investing": "Инвестиционный поток",
-				"investingOut": "Инвестиционные выплаты",
-				"financing": "Финансовый поток",
-				"financingOps": "Финансовые операции",
-				"totalFlow": "Общий денежный поток",
-				"closingBalance": "Остаток на конец периода"
-			},
-			"na": "н/о",
-			"actions": {
-				"expand": "Развернуть",
-				"collapse": "Свернуть"
-			}
-		},
-		"IncomeExpenseBudgetSingle": {
-			"breadcrumb": { "list": "Список бюджетов" },
-			"title": "Куйбышева, 45",
-			"type": "БДР",
-			"period": "Ноя '25 — сен '26",
-			"currency": "RUB",
-			"downloadXls": ".xls",
-			"grouping": {
-				"months": "По месяцам",
-				"quarters": "По кварталам",
-				"years": "По годам"
-			},
-			"method": {
-				"cash": "Кассовый метод",
-				"accrual": "Метод начисления"
-			},
-			"indicators": {
-				"profit": "Показатели прибыли",
-				"revenue": "Показатели выручки"
-			},
-			"columns": {
-				"article": "Все юрлица",
-				"plan": "План",
-				"fact": "Факт",
-				"planExec": "Вып. плана, %",
-				"deviation": "Откл.",
-				"deviationPct": "Откл., %"
-			},
-			"periodTotal": "Итого",
-			"months": {
-				"1": "Янв",
-				"2": "Фев",
-				"3": "Мар",
-				"4": "Апр",
-				"5": "Май",
-				"6": "Июн",
-				"7": "Июл",
-				"8": "Авг",
-				"9": "Сен",
-				"10": "Окт",
-				"11": "Ноя",
-				"12": "Дек"
-			},
-			"entityHeader": "Куйбышева, 45",
-			"rows": {
-				"income": "Доходы",
-				"undistributedIncome": "Нераспределенный доход",
-				"otherIncome": "Прочие доходы",
-				"repairServices": "Услуги ремонта",
-				"clientIncome": "Поступление от заказчика",
-				"expense": "Расходы",
-				"staffCosts": "Затраты на персонал",
-				"rentCosts": "Аренда и коммунальные",
-				"otherCosts": "Прочие расходы",
-				"netProfit": "Чистая прибыль/убыток",
-				"profitability": "Рентабельность, %"
-			},
-			"na": "н/о",
-			"actions": { "expand": "Развернуть", "collapse": "Свернуть" }
-		}
-	},
-	"Indicators": {
-		"common": {
-			"loading": "Загрузка...",
-			"billion": "млрд",
-			"million": "млн",
-			"thousand": "тыс",
-			"monthNamesShort": "Янв,Фев,Мар,Апр,Май,Июн,Июл,Авг,Сен,Окт,Ноя,Дек",
-			"monthNamesFull": "января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря",
-			"weekdayNames": "воскресенье,понедельник,вторник,среда,четверг,пятница,суббота"
-		},
-		"header": {
-			"title": "Моя компания",
-			"reset": "Сбросить",
-			"displayOptions": {
-				"weekly": "По неделям",
-				"monthly": "По месяцам",
-				"quarterly": "По кварталам",
-				"yearly": "По годам"
-			},
-			"placeholders": {
-				"display": "Отображение",
-				"account": "Счет",
-				"deal": "Сделка"
-			}
-		},
-		"accountBalance": {
-			"title": "Остатки на счетах",
-			"totalBalance": "Общий остаток",
-			"today": "Сегодня",
-			"monthNames": "янв,фев,мар,апр,май,июн,июл,авг,сен,окт,ноя,дек"
-		},
-		"cashFlow": {
-			"title": "Денежный поток",
-			"tabs": {
-				"total": "Общий",
-				"operational": "Операционный",
-				"investment": "Инвестиционный",
-				"financial": "Финансовый"
-			},
-			"series": {
-				"receipts": "Поступления",
-				"payments": "Выплаты",
-				"difference": "Разница"
-			}
-		},
-		"income": {
-			"labelIncome": "Доходы",
-			"labelReceipts": "Поступления"
-		},
-		"expenses": {
-			"title": "Расходы",
-			"labelExpenses": "Расходы",
-			"labelPayments": "Выплаты"
-		},
-		"paymentStructure": {
-			"title": "Структура платежей",
-			"incomeExpenses": "Доходы и расходы",
-			"receiptsPayments": "Поступления и выплаты"
-		},
-		"profit": {
-			"title": "Прибыль",
-			"accrualMethod": "Метод начисления",
-			"cashMethod": "Кассовый метод",
-			"series": {
-				"income": "Доходы",
-				"expenses": "Расходы",
-				"netProfit": "Чистая прибыль",
-				"dividends": "Дивиденды"
-			},
-			"stats": {
-				"income": "Доходы",
-				"expenses": "Расходы",
-				"netProfit": "Чистая прибыль",
-				"profitability": "Рентабельность, %",
-				"dividends": "Дивиденды"
-			}
-		},
-		"profitableClients": {
-			"title": "Самые доходные клиенты",
-			"accrualMethod": "Метод начисления",
-			"cashMethod": "Кассовый метод",
-			"notSelected": "Не выбран",
-			"legend": {
-				"clients80": "Клиенты, приносящие более 80% доходов",
-				"incomeShare": "Доля доходов с накопительным итогом, %",
-				"clients20": "Клиенты, приносящие менее 20% доходов"
-			}
-		},
-		"students": {
-			"title": "Студенты",
-			"accrualMethod": "Метод начисления",
-			"cashMethod": "Кассовый метод",
-			"series": {
-				"plan": "План",
-				"fact": "Факт",
-				"difference": "Разница (план − факт)"
-			},
-			"stats": {
-				"totalPlan": "Общий план",
-				"totalFact": "Общий факт",
-				"difference": "Разница",
-				"activeStudents": "Активные студенты",
-				"passiveStudents": "Пассивные студенты"
-			}
-		}
-	},
-	"Payment": {
-		"header": {
-			"to": "to",
-			"uFinance": "UFinance"
-		},
-		"paymentAmount": {
-			"label": "СУММА ПЛАТЕЖА",
-			"currency": "сум"
-		},
-		"byCard": {
-			"title": "Картой",
-			"commission": "КОМИССИЯ 0%",
-			"cardNumber": "Номер карты",
-			"cardPlaceholder": "0000 0000 0000 0000",
-			"expiry": "Срок",
-			"expiryPlaceholder": "ММ/ГГ"
-		},
-		"onlinePayment": {
-			"title": "Онлайн платеж"
-		},
-		"paymentMethods": {
-			"click": "Click",
-			"clickCommission": "1.5%",
-			"uzum": "Uzum",
-			"uzumCommission": "1%",
-			"payme": "Payme",
-			"paymeCommission": "1%"
-		},
-		"terms": {
-			"text": "Нажимая «Оплатить», вы соглашаетесь с условиями Оферты"
-		},
-		"payButton": {
-			"text": "Оплатить {amount}",
-			"processing": "Платеж обрабатывается"
-		},
-		"success": "Оплата успешно завершена.",
-		"error_card": "Информация о такой карте отсутствует.",
-		"otp": {
-			"title": "Подтверждение оплаты",
-			"description": "Введите 6-значный код, отправленный на ваш номер телефона",
-			"confirm": "Подтвердить",
-			"cancel": "Отмена"
-		}
-	}
+      "loading": "Загрузка...",
+      "noResults": "Ничего не найдено",
+      "noData": "Нет данных",
+      "accountCount": "{count} {count, plural, one {счет} few {счета} other {счетов}}"
+    },
+    "product": {
+      "createProductTitle": "Создание товара",
+      "editProductTitle": "Редактирование товара",
+      "createServiceTitle": "Создание услуги",
+      "editServiceTitle": "Редактирование услуги",
+      "createGroupTitle": "Создать группу",
+      "editGroupTitle": "Редактирование группы",
+      "createAnother": "Создать еще один товар",
+      "fields": {
+        "type": "Тип",
+        "name": "Название товара",
+        "groupName": "Название группы",
+        "groupComment": "Комментарий",
+        "article": "Артикул",
+        "unit": "Единица измерения",
+        "group": "Группа товаров",
+        "price": "Цена продажи",
+        "vat": "НДС",
+        "comment": "Комментарий"
+      },
+      "placeholders": {
+        "name": "Например, кафельная плитка",
+        "groupName": "Например, кафельная плитка",
+        "groupComment": "Добавьте комментарий к этой группе",
+        "article": "Введите артикул",
+        "selectUnit": "Выберите единицу измерения",
+        "selectGroup": "Выберите группу",
+        "price": "0.00",
+        "vat": "0%",
+        "comment": "Добавьте комментарий к этому товару"
+      },
+      "types": {
+        "products": "Товары",
+        "services": "Услуги",
+        "all": "Все"
+      },
+      "errors": {
+        "nameRequired": "Укажите название"
+      },
+      "pageTitle": "Товары и услуги",
+      "searchPlaceholder": "Поиск по названию или артикулу",
+      "noGroup": "Без группы",
+      "noName": "Без названия",
+      "loading": "Загрузка...",
+      "noResults": "Ничего не найдено",
+      "noData": "Нет данных",
+      "tableHeaders": {
+        "name": "Название",
+        "article": "Артикул",
+        "group": "Группа",
+        "price": "Цена",
+        "unit": "Ед. изм.",
+        "vat": "НДС",
+        "priceWithVat": "Цена с НДС",
+        "type": "Тип",
+        "comment": "Комментарий"
+      },
+      "footer": {
+        "total": "{count} товара & услуги"
+      },
+      "bulkDeleteTitle": "Удаление выбранных элементов",
+      "bulkDeleteMessage": "Вы уверены, что хотите удалить {count} {count, plural, one {элемент} few {элемента} other {элементов}}?",
+      "deleteError": "Ошибка при удалении",
+      "grouping": {
+        "none": "Без группировки",
+        "group": "По группам"
+      },
+      "selected": "Выбрано",
+      "successDeleted": "Успешно удалено",
+      "bulkSuccessDeleted": "Выбранные элементы успешно удалены",
+      "bulkDeleteError": "Ошибка при массовом удалении"
+    },
+    "details": {
+      "status": {
+        "defaultStatus": "Новая",
+        "statusNamePlaceholder": "Название статуса",
+        "addStatus": "Добавить статус",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "cancel": "Отменить",
+        "save": "Сохранить"
+      },
+      "productServiceTable": {
+        "title": "Наименование",
+        "quantity": "Кол-во",
+        "unit": "Единица",
+        "pricePerUnit": "Цена за ед.",
+        "discount": "Скидка",
+        "vat": "НДС",
+        "sum": "Сумма",
+        "selected": "выбрано",
+        "delete": "Удалить",
+        "deletePositionsTitle": "Удалить позиции из сделки",
+        "deletePositionsConfirm": "Вы действительно хотите удалить {count} {count, plural, one {позицию} few {позиции} other {позиций}} из сделки?",
+        "cancel": "Отмена",
+        "emptyTitle": "Добавьте товары или услуги в сделку",
+        "emptySubtitle": "Наполните сделку товарами/услугами, которые покупаете или продаете своим клиентам"
+      },
+      "incomeOperationsTable": {
+        "date": "Дата",
+        "account": "Счет",
+        "counterparty": "Контрагент",
+        "article": "Статья",
+        "amount": "Сумма",
+        "total": "Итого:",
+        "deleteOperationTitle": "Удалить операцию",
+        "deleteOperationConfirm": "Вы действительно хотите удалить операцию на сумму Восстановить её будет невозможно.",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте поступления по сделке",
+        "emptySubtitle": "Учитывайте поступления клиента, чтобы контролировать выполнение обязательств по сделке"
+      },
+      "expenseOperationsTable": {
+        "date": "Дата",
+        "account": "Счет",
+        "counterparty": "Контрагент",
+        "article": "Статья",
+        "amount": "Сумма",
+        "total": "Итого:",
+        "accrual": "[Начисление]",
+        "deleteOperationTitle": "Удалить операцию",
+        "deleteOperationConfirm": "Вы действительно хотите удалить операцию? Восстановить её будет невозможно.",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте расходы по сделке",
+        "emptySubtitle": "Учитывайте расходы по сделке, чтобы контролировать финансовый результат"
+      },
+      "shipmentTable": {
+        "date": "Дата",
+        "legalEntity": "Юрлицо",
+        "counterparty": "Контрагент",
+        "composition": "Состав",
+        "article": "Статья",
+        "amount": "Сумма",
+        "position": "{count, plural, one {позиция} few {позиции} other {позиций}}",
+        "noName": "Без названия",
+        "goodsServices": "Товары/услуги",
+        "unallocatedIncome": "Нераспределенный доход",
+        "deleteShipmentTitle": "Удалить отгрузку",
+        "deleteShipmentConfirm": "Вы действительно хотите удалить отгрузку? Восстановить её будет невозможно.",
+        "deleteBlockedClosedWarehouse": "Удаление недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
+        "cancel": "Отменить",
+        "delete": "Удалить",
+        "emptyTitle": "Добавьте отгрузки в сделку",
+        "emptySubtitle": "Учитывайте отгрузки товара/услуг, чтобы контролировать выполнение обязательств по сделке"
+      }
+    }
+  },
+  "TransactionCategories": {
+    "pageTitle": "Учетные статьи",
+    "create": "Создать",
+    "searchPlaceholder": "Поиск по названию",
+    "loading": "Загрузка",
+    "error": "Ошибка",
+    "errorLoading": "Не удалось загрузить данные",
+    "noResults": "Ничего не найдено",
+    "noData": "Нет данных для отображения",
+    "deleteError": "Не удалось удалить учетную статью",
+    "tabs": {
+      "income": "Доходы",
+      "expense": "Расходы",
+      "assets": "Актив",
+      "liabilities": "Обязательства",
+      "capital": "Капитал"
+    },
+    "info": {
+      "title": "Эта схема наглядно показывает, как статьи участвуют в формировании отчета Баланс"
+    },
+    "reports": {
+      "cashFlow": {
+        "title": "Движение денег",
+        "operational": "Операционный поток",
+        "investment": "Инвестиционный поток",
+        "financial": "Финансовый поток",
+        "receipts": "Поступления",
+        "payments": "Выплаты",
+        "total": "ОБЩИЙ ДЕНЕЖНЫЙ ПОТОК"
+      },
+      "pAndL": {
+        "title": "Прибыли и убытки",
+        "income": "Доходы",
+        "incomeItems": {
+          "goodsSales": "Продажа товаров",
+          "services": "Оказание услуг",
+          "other": "Прочие доходы"
+        },
+        "expenses": "Расходы",
+        "minus": "минус",
+        "expenseItems": {
+          "productionStaff": "Производственный персонал",
+          "goodsPurchase": "Покупка товаров",
+          "adminStaff": "Административный персонал",
+          "rent": "Аренда",
+          "other": "Прочие расходы",
+          "bankServices": "Банковские услуги",
+          "soon": "скоро",
+          "exchangeDiff": "Курсовая разница минус",
+          "depreciation": "Амортизация",
+          "interest": "Проценты",
+          "incomeTax": "Налог на прибыль (доходы)"
+        },
+        "undistributedProfit": "НЕРАСПРЕДЕЛЕННАЯ ПРИБЫЛЬ"
+      },
+      "balance": {
+        "title": "Баланс",
+        "currentAssets": {
+          "title": "Оборотные активы",
+          "receivables": "Дебиторская задолженность",
+          "cash": "Денежные средства",
+          "inventory": "Запасы",
+          "other": "Другие оборотные",
+          "advancePayments": "Заготовые платежи",
+          "loansShort": "Выданные займы (до 1 года)"
+        },
+        "nonCurrentAssets": {
+          "title": "Внеоборотные активы",
+          "and": "И",
+          "fixedAssets": "Основные средства",
+          "equipment": "Оборудование",
+          "transport": "Транспорт",
+          "other": "Другие внеоборотные",
+          "loansLong": "Выданные займы (от 1 года)",
+          "financialInvestments": "Финансовые вложения",
+          "intangible": "Нематериальные активы"
+        },
+        "totalAssets": "ИТОГО АКТИВЫ",
+        "currentLiabilities": {
+          "title": "Краткосрочные обязательства",
+          "payables": "Кредиторская задолженность",
+          "other": "Другие краткосрочные",
+          "thirdParty": "Платежи третьим лицам",
+          "loansShort": "Полученные займы (до 1 года)"
+        },
+        "longTermLiabilities": {
+          "title": "Долгосрочные обязательства",
+          "fin": "Ф",
+          "credits": "Кредиты",
+          "other": "Другие долгосрочные",
+          "loansLong": "Полученные займы (от 1 года)"
+        },
+        "totalLiabilities": "ИТОГО ОБЯЗАТЕЛЬСТВА",
+        "capital": {
+          "title": "Капитал",
+          "fin": "Ф",
+          "founderInvestments": "Вложения учредителей",
+          "plus": "плюс",
+          "undistributedProfit": "Нераспределенная прибыль"
+        },
+        "totalCapital": "ИТОГО КАПИТАЛ",
+        "balanceEquation": "АКТИВЫ = ОБЯЗАТЕЛЬСТВА + КАПИТАЛ"
+      }
+    }
+  },
+  "Plans": {
+    "cashFlowBudget": {
+      "title": "Бюджет движения денег",
+      "searchPlaceholder": "Поиск по названию",
+      "columns": {
+        "name": "Название",
+        "currency": "Валюта",
+        "legalEntity": "Юрлицо",
+        "project": "Проект",
+        "period": "Период",
+        "modifiedDate": "Обновлено",
+        "modifiedBy": "Кто изменил"
+      },
+      "noData": "Нет данных для отображения",
+      "footer": {
+        "total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
+        "lastUpdated": "Обновлено: сегодня"
+      }
+    },
+    "incomeExpenseBudget": {
+      "title": "Бюджет доходов и расходов",
+      "searchPlaceholder": "Поиск по названию",
+      "columns": {
+        "name": "Название",
+        "currency": "Валюта",
+        "legalEntity": "Юрлицо",
+        "project": "Проект",
+        "period": "Период",
+        "modifiedDate": "Обновлено",
+        "modifiedBy": "Кто изменил"
+      },
+      "noData": "Нет данных для отображения",
+      "footer": {
+        "total": "{count, plural, one {# бюджет} few {# бюджета} other {# бюджетов}}",
+        "lastUpdated": "Обновлено: сегодня"
+      }
+    },
+    "CashFlowBudgetSingle": {
+      "breadcrumb": {
+        "list": "Список бюджетов"
+      },
+      "title": "Общий 2025",
+      "type": "БДДС",
+      "period": "Ноя '25 — сен '26",
+      "currency": "RUB",
+      "downloadXls": ".xls",
+      "grouping": {
+        "months": "По месяцам",
+        "quarters": "По кварталам",
+        "years": "По годам"
+      },
+      "columns": {
+        "article": "Общий бюджет",
+        "plan": "План",
+        "fact": "Факт",
+        "planExec": "Вып. плана, %",
+        "deviation": "Откл.",
+        "deviationPct": "Откл., %"
+      },
+      "periodTotal": "Итого",
+      "months": {
+        "1": "Янв",
+        "2": "Фев",
+        "3": "Мар",
+        "4": "Апр",
+        "5": "Май",
+        "6": "Июн",
+        "7": "Июл",
+        "8": "Авг",
+        "9": "Сен",
+        "10": "Окт",
+        "11": "Ноя",
+        "12": "Дек"
+      },
+      "rows": {
+        "balanceStart": "Остаток средств на начало",
+        "operating": "Операционный поток",
+        "income": "Поступления",
+        "revenue": "Доходы",
+        "currentAssets": "Оборотные активы",
+        "shortLiabilities": "Краткосрочные обязательства",
+        "expense": "Выплаты",
+        "expenses": "Расходы",
+        "investing": "Инвестиционный поток",
+        "investingOut": "Инвестиционные выплаты",
+        "financing": "Финансовый поток",
+        "financingOps": "Финансовые операции",
+        "totalFlow": "Общий денежный поток",
+        "closingBalance": "Остаток на конец периода"
+      },
+      "na": "н/о",
+      "actions": {
+        "expand": "Развернуть",
+        "collapse": "Свернуть"
+      }
+    },
+    "IncomeExpenseBudgetSingle": {
+      "breadcrumb": { "list": "Список бюджетов" },
+      "title": "Куйбышева, 45",
+      "type": "БДР",
+      "period": "Ноя '25 — сен '26",
+      "currency": "RUB",
+      "downloadXls": ".xls",
+      "grouping": {
+        "months": "По месяцам",
+        "quarters": "По кварталам",
+        "years": "По годам"
+      },
+      "method": {
+        "cash": "Кассовый метод",
+        "accrual": "Метод начисления"
+      },
+      "indicators": {
+        "profit": "Показатели прибыли",
+        "revenue": "Показатели выручки"
+      },
+      "columns": {
+        "article": "Все юрлица",
+        "plan": "План",
+        "fact": "Факт",
+        "planExec": "Вып. плана, %",
+        "deviation": "Откл.",
+        "deviationPct": "Откл., %"
+      },
+      "periodTotal": "Итого",
+      "months": {
+        "1": "Янв",
+        "2": "Фев",
+        "3": "Мар",
+        "4": "Апр",
+        "5": "Май",
+        "6": "Июн",
+        "7": "Июл",
+        "8": "Авг",
+        "9": "Сен",
+        "10": "Окт",
+        "11": "Ноя",
+        "12": "Дек"
+      },
+      "entityHeader": "Куйбышева, 45",
+      "rows": {
+        "income": "Доходы",
+        "undistributedIncome": "Нераспределенный доход",
+        "otherIncome": "Прочие доходы",
+        "repairServices": "Услуги ремонта",
+        "clientIncome": "Поступление от заказчика",
+        "expense": "Расходы",
+        "staffCosts": "Затраты на персонал",
+        "rentCosts": "Аренда и коммунальные",
+        "otherCosts": "Прочие расходы",
+        "netProfit": "Чистая прибыль/убыток",
+        "profitability": "Рентабельность, %"
+      },
+      "na": "н/о",
+      "actions": { "expand": "Развернуть", "collapse": "Свернуть" }
+    }
+  },
+  "Indicators": {
+    "common": {
+      "loading": "Загрузка...",
+      "billion": "млрд",
+      "million": "млн",
+      "thousand": "тыс",
+      "monthNamesShort": "Янв,Фев,Мар,Апр,Май,Июн,Июл,Авг,Сен,Окт,Ноя,Дек",
+      "monthNamesFull": "января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря",
+      "weekdayNames": "воскресенье,понедельник,вторник,среда,четверг,пятница,суббота"
+    },
+    "header": {
+      "title": "Моя компания",
+      "reset": "Сбросить",
+      "displayOptions": {
+        "weekly": "По неделям",
+        "monthly": "По месяцам",
+        "quarterly": "По кварталам",
+        "yearly": "По годам"
+      },
+      "placeholders": {
+        "display": "Отображение",
+        "account": "Счет",
+        "deal": "Сделка"
+      }
+    },
+    "accountBalance": {
+      "title": "Остатки на счетах",
+      "totalBalance": "Общий остаток",
+      "today": "Сегодня",
+      "monthNames": "янв,фев,мар,апр,май,июн,июл,авг,сен,окт,ноя,дек"
+    },
+    "cashFlow": {
+      "title": "Денежный поток",
+      "tabs": {
+        "total": "Общий",
+        "operational": "Операционный",
+        "investment": "Инвестиционный",
+        "financial": "Финансовый"
+      },
+      "series": {
+        "receipts": "Поступления",
+        "payments": "Выплаты",
+        "difference": "Разница"
+      }
+    },
+    "income": {
+      "labelIncome": "Доходы",
+      "labelReceipts": "Поступления"
+    },
+    "expenses": {
+      "title": "Расходы",
+      "labelExpenses": "Расходы",
+      "labelPayments": "Выплаты"
+    },
+    "paymentStructure": {
+      "title": "Структура платежей",
+      "incomeExpenses": "Доходы и расходы",
+      "receiptsPayments": "Поступления и выплаты"
+    },
+    "profit": {
+      "title": "Прибыль",
+      "accrualMethod": "Метод начисления",
+      "cashMethod": "Кассовый метод",
+      "series": {
+        "income": "Доходы",
+        "expenses": "Расходы",
+        "netProfit": "Чистая прибыль",
+        "dividends": "Дивиденды"
+      },
+      "stats": {
+        "income": "Доходы",
+        "expenses": "Расходы",
+        "netProfit": "Чистая прибыль",
+        "profitability": "Рентабельность, %",
+        "dividends": "Дивиденды"
+      }
+    },
+    "profitableClients": {
+      "title": "Самые доходные клиенты",
+      "accrualMethod": "Метод начисления",
+      "cashMethod": "Кассовый метод",
+      "notSelected": "Не выбран",
+      "legend": {
+        "clients80": "Клиенты, приносящие более 80% доходов",
+        "incomeShare": "Доля доходов с накопительным итогом, %",
+        "clients20": "Клиенты, приносящие менее 20% доходов"
+      }
+    },
+    "students": {
+      "title": "Студенты",
+      "accrualMethod": "Метод начисления",
+      "cashMethod": "Кассовый метод",
+      "series": {
+        "plan": "План",
+        "fact": "Факт",
+        "difference": "Разница (план − факт)"
+      },
+      "stats": {
+        "totalPlan": "Общий план",
+        "totalFact": "Общий факт",
+        "difference": "Разница",
+        "activeStudents": "Активные студенты",
+        "passiveStudents": "Пассивные студенты"
+      }
+    }
+  },
+  "Payment": {
+    "header": {
+      "to": "to",
+      "uFinance": "UFinance"
+    },
+    "paymentAmount": {
+      "label": "СУММА ПЛАТЕЖА",
+      "currency": "сум"
+    },
+    "byCard": {
+      "title": "Картой",
+      "commission": "КОМИССИЯ 0%",
+      "cardNumber": "Номер карты",
+      "cardPlaceholder": "0000 0000 0000 0000",
+      "expiry": "Срок",
+      "expiryPlaceholder": "ММ/ГГ"
+    },
+    "onlinePayment": {
+      "title": "Онлайн платеж"
+    },
+    "paymentMethods": {
+      "click": "Click",
+      "clickCommission": "1.5%",
+      "uzum": "Uzum",
+      "uzumCommission": "1%",
+      "payme": "Payme",
+      "paymeCommission": "1%"
+    },
+    "terms": {
+      "text": "Нажимая «Оплатить», вы соглашаетесь с условиями Оферты"
+    },
+    "payButton": {
+      "text": "Оплатить {amount}",
+      "processing": "Платеж обрабатывается"
+    },
+    "success": "Оплата успешно завершена.",
+    "error_card": "Информация о такой карте отсутствует.",
+    "otp": {
+      "title": "Подтверждение оплаты",
+      "description": "Введите 6-значный код, отправленный на ваш номер телефона",
+      "confirm": "Подтвердить",
+      "cancel": "Отмена"
+    }
+  }
 }
