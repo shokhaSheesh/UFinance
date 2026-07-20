@@ -917,6 +917,8 @@
       "back": "Orqaga",
       "print": "Chop etish",
       "deleteConfirmation": "O'chirishni tasdiqlash",
+      "updateConfirmation": "Yangilashni tasdiqlash",
+      "updateConfirmText": "Shartnomani «Oldindan ko'rish» orqali tekshirdingizmi? Yangilashdan so'ng shartnoma joriy ma'lumotlar bilan qaytadan shakllantiriladi.",
       "deleteClassConfirm": "Sinfni \"{name}\" o'chirishga ishonchingiz komilmi?",
       "deleteGuardianConfirm": "Vasiy turini \"{name}\" o'chirishga ishonchingiz komilmi?",
       "className": "Sinf nomi",
