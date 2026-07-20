@@ -808,6 +808,7 @@
 			}
 		},
 		"filters": {
+			"academicYear": "O'quv yili",
 			"dealStatus": "Bitim statusi",
 			"selectCounterparties": "Tomonlarni tanlang",
 			"dealAmount": "Bitim summasi",

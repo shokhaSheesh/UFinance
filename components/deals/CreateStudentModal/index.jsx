@@ -4,6 +4,7 @@ import SelectProductService from "@/components/ReadyComponents/SelectProductServ
 import SingleCounterParty from "@/components/ReadyComponents/SingleCounterParty";
 import SinglSelectStatiya from "@/components/ReadyComponents/SingleSelectStatiya";
 import CustomDialog from "@/components/shared/CustomDialog";
+import { academicYears } from "@/constants/academicYears";
 import FormDatepicker from "@/components/shared/DatePicker/form-datepicker";
 import Input from "@/components/shared/Input";
 import Loader from "@/components/shared/Loader";
@@ -32,11 +33,6 @@ import moment from "moment";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-
-const academicYears = Array.from({ length: 20 }, (_, i) => {
-  const start = 2020 + i;
-  return { value: `${start}-${start + 1}`, label: `${start}-${start + 1}` };
-});
 
 const today = moment(new Date()).format("YYYY-MM-DD");
 
