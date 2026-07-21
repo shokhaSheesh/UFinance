@@ -702,15 +702,16 @@ const CreateShipment = observer(
       fetchStockCount(value);
     };
 
-    // Compare the SAVED planned flag (from the response) against the current
-    // warehouse-module setting — NOT the live checkbox — so toggling "Плановая"
-    // never hides the Save button. A genuine mismatch (e.g. a planned shipment
-    // while the warehouse module is off) still blocks; enabling "Мой склад" resolves it.
+    // Блокируем по СОХРАНЁННОМУ флагу из ответа, а не по живой галке: документ,
+    // пришедший исполненным (planned = false), уже двинул остатки и правке не
+    // подлежит. Снятие галки в форме — наоборот, штатный способ исполнить
+    // плановый документ, поэтому кнопку оно гасить не должно.
+    // При выключенном модуле «Мой склад» остатков нет — ограничение не действует.
     const savedPlanned = isPurchase
       ? SingleShipment?.planned_supply
       : SingleShipment?.planned_shipment;
     const isSaveBlockedByClosedWarehouse =
-      isEditing && Boolean(isWarehouseModuleOn) !== Boolean(savedPlanned);
+      isEditing && isWarehouseModuleOn && !!SingleShipment && !savedPlanned;
 
     // Поставка: warehouse ↔ article are linked. Picking a warehouse autofills its
     // article and lists goods; clearing it resets the article. (Sale keeps plain behaviour.)

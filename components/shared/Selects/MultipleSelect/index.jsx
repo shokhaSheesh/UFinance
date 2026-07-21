@@ -73,9 +73,11 @@ const CustomMultipleSelect = ({
     }, [data, value])
 
     const filteredData = useMemo(() => {
-        if (!searchQuery) return data
+        // Пробелы по краям не должны влиять на поиск
+        const query = searchQuery.trim().toLowerCase()
+        if (!query) return data
         return data.filter(item =>
-            item.label?.toLowerCase().includes(searchQuery.toLowerCase())
+            item.label?.toLowerCase().includes(query)
         )
     }, [data, searchQuery])
 

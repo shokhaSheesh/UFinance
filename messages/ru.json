@@ -847,6 +847,7 @@
     },
     "filters": {
       "dealStatus": "Статус сделки",
+      "academicYear": "Учебный год",
       "selectCounterparties": "Выберите контрагентов",
       "dealAmount": "Сумма сделки",
       "dealProfit": "Прибыль сделки",

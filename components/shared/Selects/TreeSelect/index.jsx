@@ -154,10 +154,12 @@ const TreeSelect = ({
 
 
   const filteredData = useMemo(() => {
-    if (!searchQuery) return data;
+    // Пробелы по краям не должны влиять на поиск
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return data;
     const filterNodes = (nodes) => {
       return nodes.reduce((acc, node) => {
-        const matchesSearch = node.label?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = node.label?.toLowerCase().includes(query);
         const filteredChildren = node.children ? filterNodes(node.children) : [];
 
         if (matchesSearch || filteredChildren.length > 0) {

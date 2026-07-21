@@ -844,6 +844,7 @@
     },
     "filters": {
       "dealStatus": "Bitim statusi",
+      "academicYear": "O'quv yili",
       "selectCounterparties": "Tomonlarni tanlang",
       "dealAmount": "Bitim summasi",
       "dealProfit": "Bitim foydasi",
