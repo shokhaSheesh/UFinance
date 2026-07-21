@@ -4,7 +4,13 @@ import Input from '@/components/shared/Input'
 import { Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-const WarehouseDetailHeader = ({ t, warehouseName, searchQuery, setSearchQuery }) => {
+const WarehouseDetailHeader = ({
+  t,
+  warehouseName,
+  searchQuery,
+  setSearchQuery,
+  onOpenPlanned,
+}) => {
   const router = useRouter()
 
   return (
@@ -22,6 +28,22 @@ const WarehouseDetailHeader = ({ t, warehouseName, searchQuery, setSearchQuery }
       </div>
       <div className="flex items-center justify-between gap-4 px-6 pt-1.5 pb-4">
         <h1 className="text-xl font-bold text-neutral-800 truncate">{warehouseName || t('pageTitle')}</h1>
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <button
+            type="button"
+            onClick={() => onOpenPlanned?.('shipment')}
+            className="primary-btn text-sm rounded-sm! cursor-pointer"
+          >
+            {t('planned.sales')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenPlanned?.('supply')}
+            className="primary-btn text-sm rounded-sm! cursor-pointer"
+          >
+            {t('planned.purchases')}
+          </button>
+        </div>
         <div className="w-72 shrink-0">
           <Input
             type="text"

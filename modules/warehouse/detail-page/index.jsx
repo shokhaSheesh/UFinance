@@ -3,11 +3,14 @@
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import FixedContent from '@/layouts/FixedContent'
+import { queryClient } from '@/lib/queryClient'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
+import PlannedDocModal from '../components/PlannedDocModal'
+import PlannedListModal from '../components/PlannedListModal'
 import WarehouseDetailHeader from '../components/WarehouseDetailHeader'
 import WarehouseFooter from '../components/WarehouseFooter'
 import WarehouseRow from '../components/WarehouseRow'
@@ -44,6 +47,18 @@ export default observer(function WarehouseDetailPage() {
     isLoading,
   } = useWarehouseStockData(warehouseId)
 
+  // Плановые документы: 'shipment' (продажа) | 'supply' (закупка)
+  const [plannedType, setPlannedType] = useState(null)
+  const [selectedDoc, setSelectedDoc] = useState(null)
+
+  const handleDocClosed = () => {
+    queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_shipments'] })
+    queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_supplies'] })
+    queryClient.invalidateQueries({ queryKey: ['list_stock_balances'] })
+    setSelectedDoc(null)
+    setPlannedType(null)
+  }
+
   // Match the other list pages: the app shell owns scrolling, not the body
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -61,6 +76,7 @@ export default observer(function WarehouseDetailPage() {
         warehouseName={warehouse?.name}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        onOpenPlanned={setPlannedType}
       />
 
       <div className="flex-1 min-h-0 overflow-auto px-3">
@@ -90,6 +106,25 @@ export default observer(function WarehouseDetailPage() {
         total={total}
         limit={limit}
         onPageChange={setPage}
+      />
+
+      <PlannedListModal
+        open={!!plannedType && !selectedDoc}
+        onClose={() => setPlannedType(null)}
+        type={plannedType}
+        warehouseId={warehouseId}
+        onSelect={setSelectedDoc}
+        t={t}
+      />
+
+      <PlannedDocModal
+        open={!!selectedDoc}
+        onClose={() => setSelectedDoc(null)}
+        type={plannedType}
+        item={selectedDoc}
+        warehouseName={warehouse?.name}
+        onClosed={handleDocClosed}
+        t={t}
       />
     </FixedContent>
   )
