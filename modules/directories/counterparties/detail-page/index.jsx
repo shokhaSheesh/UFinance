@@ -104,7 +104,6 @@ const CounterpartyDetailPage = observer(() => {
           counterpartyInfo={detail.counterpartyInfo}
           filters={detail.filters}
           setFilters={detail.setFilters}
-          selectedOperations={ops.selectedOperations}
           onCreateOperation={() => ops.openCreate('income')}
           onEditOperation={handleEditOperation}
           onDeleteOperation={handleDeleteOperation}

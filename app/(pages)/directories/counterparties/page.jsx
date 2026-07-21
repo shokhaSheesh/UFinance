@@ -58,7 +58,6 @@ const CounterpartiesPage = observer(() => {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedRows, setSelectedRows] = useState([])
   const [viewMode, setViewMode] = useState('list') // 'list' | 'nested' | 'groups'
   const [editingCounterparty, setEditingCounterparty] = useState(null)
   const [deletingCounterparty, setDeletingCounterparty] = useState(null)
@@ -178,20 +177,6 @@ const CounterpartiesPage = observer(() => {
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
 
-  const toggleRowSelection = (id) => {
-    setSelectedRows(prev => {
-      if (prev?.includes(id)) {
-        return prev.filter(rowId => rowId !== id)
-      } else {
-        return [...prev, id]
-      }
-    })
-  }
-
-  const isRowSelected = (id) => {
-    return selectedRows?.includes(id)
-  }
-
 
   // Convert counterparties API data to component format with grouping
   const { groupedCounterparties, flatCounterparties } = useMemo(() => {
@@ -268,18 +253,6 @@ const CounterpartiesPage = observer(() => {
       flatCounterparties: items
     }
   }, [allCounterparties])
-
-  const allSelected = () => {
-    return flatCounterparties.length > 0 && selectedRows.length === flatCounterparties.length
-  }
-
-  const toggleSelectAll = () => {
-    if (allSelected()) {
-      setSelectedRows([])
-    } else {
-      setSelectedRows(flatCounterparties.map(item => item.id))
-    }
-  }
 
 
   // Create array of only groups for 'groups' view mode
@@ -476,15 +449,7 @@ const CounterpartiesPage = observer(() => {
 
         {/* Column Headers */}
         <div className='flex h-12 sticky top-16 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
-          <div className='w-12 flex items-center justify-center'>
-            <OperationCheckbox checked={allSelected()} onChange={toggleSelectAll} />
-          </div>
-          {selectedRows.length > 0 && <>
-            <div className='flex-1 px-3 items-center justify-center'>
-              {tc('selected', { count: selectedRows.length })}
-            </div>
-          </>}
-          {selectedRows.length === 0 && <>
+          <>
             <div className='flex-1 min-w-[200px] flex px-3 items-center justify-start cursor-pointer hover:text-neutral-700'>
               {viewMode === 'nested' ? t('list.tableHeaders.group') : t('list.tableHeaders.counterparty')}
               <ChevronDown className='size-4' />
@@ -508,7 +473,7 @@ const CounterpartiesPage = observer(() => {
               {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.difference') : t('list.tableHeaders.profit')}
             </div>
             <div className='w-10 flex px-2 items-center justify-center'>&nbsp;</div>
-          </>}
+          </>
         </div>
 
         {allCounterparties.length === 0 && !isLoadingCounterparties && (
@@ -537,9 +502,6 @@ const CounterpartiesPage = observer(() => {
                       className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
                       onClick={() => toggleGroup(item.guid)}
                     >
-                      <div className="w-12 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                        <OperationCheckbox checked={isRowSelected(item.id)} onChange={() => toggleRowSelection(item.id)} />
-                      </div>
                       <div className="flex-1 min-w-[200px] flex px-3 items-center gap-2 font-medium">
                         <button
                           className="text-neutral-400 hover:text-neutral-600 outline-none flex items-center justify-center p-1"
@@ -602,15 +564,9 @@ const CounterpartiesPage = observer(() => {
                       return (
                         <div
                           key={counterparty.id}
-                          className={cn(
-                            "flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm",
-                            isRowSelected(counterparty?.id) && "bg-blue-50/50"
-                          )}
+                          className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
                           onClick={() => router.push(`/directories/counterparties/${counterparty?.guid}`)}
                         >
-                          <div className="w-10 flex items-center justify-center pl-4" onClick={(e) => e.stopPropagation()}>
-                            <OperationCheckbox checked={isRowSelected(counterparty.id)} onChange={() => toggleRowSelection(counterparty?.id)} />
-                          </div>
                           <div className="flex-1 min-w-[200px] flex flex-col px-3 pl-8 justify-center">
                             <span className="text-slate-900 font-medium truncate">{counterparty?.nazvanie}</span>
                             {counterparty?.komentariy && <span className="text-neutral-400 text-mini truncate">{counterparty?.komentariy}</span>}
@@ -655,15 +611,9 @@ const CounterpartiesPage = observer(() => {
                 return (
                   <div
                     key={item?.id}
-                    className={cn(
-                      "flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm",
-                      isRowSelected(item?.id) && "bg-blue-50/50"
-                    )}
+                    className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
                     onClick={() => router.push(`/directories/counterparties/${item.guid}`)}
                   >
-                    <div className="w-12 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                      <OperationCheckbox checked={isRowSelected(item.id)} onChange={() => toggleRowSelection(item.id)} />
-                    </div>
                     <div className="flex-1 min-w-[200px] flex flex-col px-2 justify-center">
                       <span className="text-slate-900 font-medium truncate">{item.nazvanie}</span>
                       {item.komentariy && <span className="text-neutral-400 text-mini truncate">{item.komentariy}</span>}

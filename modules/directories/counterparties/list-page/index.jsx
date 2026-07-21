@@ -39,7 +39,6 @@ const CounterpartiesListPage = observer(() => {
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
-  const [selectedRows, setSelectedRows] = useState([])
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
   const {
@@ -58,13 +57,6 @@ const CounterpartiesListPage = observer(() => {
 
   const directoryPermissions = appStore.permission.directories
   const canAdd = directoryPermissions.counterparties.add
-
-  const toggleRowSelection = (id) => {
-    setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id])
-  }
-  const isRowSelected = (id) => selectedRows.includes(id)
-  const allSelected = flatCounterparties.length > 0 && selectedRows.length === flatCounterparties.length
-  const toggleSelectAll = () => setSelectedRows(allSelected ? [] : flatCounterparties.map(i => i.id))
 
   const toggleGroup = (groupId) => {
     setExpandedGroups(prev => {
@@ -146,8 +138,6 @@ const CounterpartiesListPage = observer(() => {
         <CounterpartiesTableHeader
           t={viewMode === 'nested' ? t : t} tc={tc}
           viewMode={viewMode} filters={filters}
-          allSelected={allSelected} toggleSelectAll={toggleSelectAll}
-          selectedRows={selectedRows}
         />
 
         {allCounterparties.length === 0 && !isLoading && (
@@ -162,11 +152,8 @@ const CounterpartiesListPage = observer(() => {
                   key={item.id}
                   group={item}
                   isExpanded={expandedGroups.has(item.guid)}
-                  isSelected={isRowSelected(item.id)}
                   filters={filters}
                   onToggleGroup={toggleGroup}
-                  onToggleSelect={toggleRowSelection}
-                  isRowSelected={isRowSelected}
                   onNavigate={(guid) => router.push(`/directories/counterparties/${guid}`)}
                   onGroupEdit={modals.setEditingGroup}
                   onGroupDelete={modals.setDeletingGroup}
@@ -178,8 +165,6 @@ const CounterpartiesListPage = observer(() => {
                 <CounterpartyRow
                   key={item.id}
                   item={item}
-                  isSelected={isRowSelected(item.id)}
-                  onToggleSelect={toggleRowSelection}
                   onNavigate={(guid) => router.push(`/directories/counterparties/${guid}`)}
                   filters={filters}
                   onEdit={modals.setEditingCounterparty}

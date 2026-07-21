@@ -1354,6 +1354,7 @@ const CreateStudentModal = observer(
                                     moment(value).format("YYYY-MM-DD")
                                   )
                                 }
+                                maxDate={new Date()}
                                 placeholder={t("datePlaceholder")}
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}

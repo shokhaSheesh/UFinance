@@ -9,8 +9,7 @@ const DetailOperationsSection = ({
   t, tc,
   operationsList, operations, isLoading,
   counterpartyInfo, filters, setFilters,
-  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation,
-  selectedOperations
+  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation
 }) => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [selectedLegalEntities, setSelectedLegalEntities] = useState([])
@@ -74,7 +73,6 @@ const DetailOperationsSection = ({
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations}
                         openOperationModal={onEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={onEditOperation}

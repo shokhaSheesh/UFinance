@@ -17,7 +17,6 @@ export function useDetailOperationActions(counterpartyGuid) {
   const [isEditOpening, setIsEditOpening] = useState(false)
 
   const [deletingOperation, setDeletingOperation] = useState(null)
-  const [selectedOperations, setSelectedOperations] = useState([])
 
   const openCreate = (modalType = 'income') => {
     setCreatingOperation({ isNew: true })
@@ -99,7 +98,6 @@ export function useDetailOperationActions(counterpartyGuid) {
     creatingOperation,
     editingOperation,
     deletingOperation,
-    selectedOperations,
     isCreateClosing,
     isCreateOpening,
     isEditClosing,

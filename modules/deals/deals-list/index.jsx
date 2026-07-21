@@ -24,7 +24,6 @@ import DealsFooter from '../components/DealsFooter'
 import DealsHeader from '../components/DealsHeader'
 import DealsTable from '../components/DealsTable'
 import { useDealsActions } from '../hooks/useDealsActions'
-import { useDealsSelection } from '../hooks/useDealsSelection'
 
 export function formatDeals(rawDeals = [], t) {
   return rawDeals.map(deal => ({
@@ -62,7 +61,6 @@ const ModalFallback = () => (
 export default observer(function DealsPage() {
   const router = useRouter()
   const t = useTranslations('Deals')
-  const tc = useTranslations('Common')
   const mounted = useMounted()
   const queryClient = useQueryClient()
 
@@ -178,16 +176,11 @@ export default observer(function DealsPage() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
-          removeSelected(dealToDelete.guid)
           setDealToDelete(null)
         },
       }
     )
   }
-
-  // ── Selection ──────────────────────────────────────────────────────────────
-  const { selectedDeals, isAllSelected, handleSelectAll, handleSelectOne, removeSelected } =
-    useDealsSelection(formattedDeals)
 
   // ── Row actions ────────────────────────────────────────────────────────────
   const { handleRowClick, handleDeleteClick, handleEditClick, handleCopyClick, handleUpdate } =
@@ -250,10 +243,7 @@ export default observer(function DealsPage() {
 
         <DealsTable
           t={t}
-          tc={tc}
           formattedDeals={formattedDeals}
-          selectedDeals={selectedDeals}
-          isAllSelected={isAllSelected}
           dealsMethod={dealsMethod}
           dealPermission={dealPermission}
           isLoading={isLoading}
@@ -262,8 +252,6 @@ export default observer(function DealsPage() {
           isFetching={isFetching}
           fetchNextPage={fetchNextPage}
           onRowClick={handleRowClick}
-          onSelectAll={handleSelectAll}
-          onSelectOne={handleSelectOne}
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
           onCopyClick={handleCopyClick}

@@ -85,7 +85,6 @@ const OperationsListPage = observer(() => {
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [selectedOperations, setSelectedOperations] = useState([]);
   const [openModal, setOpenModal] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -208,21 +207,6 @@ const OperationsListPage = observer(() => {
     importErrorData,
     handleImportOperations,
   } = useImportOperations({ t, queryClient });
-
-  // ── Selection ──────────────────────────────────────────────────────────────
-  const isAllSelected =
-    allOperations.length > 0 &&
-    selectedOperations.length === allOperations.length;
-
-  const toggleSelectAll = () =>
-    isAllSelected
-      ? setSelectedOperations([])
-      : setSelectedOperations(allOperations.map((op) => op.guid));
-
-  const toggleOperation = (id) =>
-    setSelectedOperations((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
 
   // ── Modal helpers ──────────────────────────────────────────────────────────
   const openWithAnimation = (cb) => {
@@ -445,12 +429,7 @@ const OperationsListPage = observer(() => {
           onScroll={handleScroll}
           className="overflow-auto h-full w-full px-2 bg-white pb-10"
         >
-          <OperationsTableHeader
-            t={t}
-            isAllSelected={isAllSelected}
-            selectedCount={selectedOperations.length}
-            onSelectAll={toggleSelectAll}
-          />
+          <OperationsTableHeader t={t} />
 
           {allOperations.length === 0 && !isLoadingOperations && (
             <div className="py-20 text-center text-neutral-500 bg-white">
@@ -502,8 +481,6 @@ const OperationsListPage = observer(() => {
                       >
                         <OperationTableRow
                           op={item.op}
-                          selectedOperations={selectedOperations}
-                          toggleOperation={toggleOperation}
                           openOperationModal={openOperationModal}
                           handleEditOperation={handleEditOperation}
                           handleDeleteOperation={handleDeleteOperation}
