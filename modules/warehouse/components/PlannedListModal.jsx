@@ -28,6 +28,10 @@ const readCounterparty = item =>
 const readDealName = item =>
   item?.sales_transactions_name || item?.purchase_transactions_name || '—'
 
+// Плановый документ (true) — синий текст, исполненный (false) — обычный чёрный
+const isPlanned = item =>
+  (item?.planned_supply ?? item?.planned_shipment) === true
+
 const PlannedListModal = ({ open, onClose, type, warehouseId, onSelect, t }) => {
   const { data, isFetching } = useUcodeRequestQuery({
     method: LIST_METHOD[type] || LIST_METHOD.shipment,
@@ -58,7 +62,7 @@ const PlannedListModal = ({ open, onClose, type, warehouseId, onSelect, t }) => 
         </button>
       </div>
 
-      <div className="max-h-[60vh] overflow-auto px-6 py-2">
+      <div className="max-h-[60vh] overflow-auto px-3 py-3">
         {isFetching && rows.length === 0 ? (
           <div className="flex justify-center py-12">
             <Loader />
@@ -71,9 +75,11 @@ const PlannedListModal = ({ open, onClose, type, warehouseId, onSelect, t }) => 
           <table className="w-full border-collapse text-[13.5px]">
             <thead>
               <tr className="text-left text-xs text-neutral-500">
-                <th className="py-2 font-medium">{t('planned.colDate')}</th>
-                <th className="py-2 font-medium">{t('planned.colCounterparty')}</th>
-                <th className="py-2 font-medium">{t('planned.colDeal')}</th>
+                <th className="px-3 pb-2.5 font-medium">{t('planned.colDate')}</th>
+                <th className="px-3 pb-2.5 font-medium">
+                  {t('planned.colCounterparty')}
+                </th>
+                <th className="px-3 pb-2.5 font-medium">{t('planned.colDeal')}</th>
               </tr>
             </thead>
             <tbody>
@@ -81,13 +87,15 @@ const PlannedListModal = ({ open, onClose, type, warehouseId, onSelect, t }) => 
                 <tr
                   key={item?.guid || index}
                   onClick={() => onSelect(item)}
-                  className="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
+                  className={`cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50 ${
+                    isPlanned(item) ? 'text-blue-600' : ''
+                  }`}
                 >
-                  <td className="py-2.5 whitespace-nowrap">
+                  <td className="px-3 py-3 whitespace-nowrap">
                     {FormatDateRu(readDate(item)) || '—'}
                   </td>
-                  <td className="py-2.5">{readCounterparty(item)}</td>
-                  <td className="py-2.5">{readDealName(item)}</td>
+                  <td className="px-3 py-3">{readCounterparty(item)}</td>
+                  <td className="px-3 py-3">{readDealName(item)}</td>
                 </tr>
               ))}
             </tbody>

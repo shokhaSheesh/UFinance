@@ -103,6 +103,14 @@ const PlannedDocModal = ({
 
   // Возврат отличают по отрицательной сумме — та же конвенция, что в сделках
   const isReturn = Number(doc?.summa ?? item?.summa) < 0
+
+  // Закрывать можно только плановый документ: у исполненного (planned = false)
+  // действие уже выполнено, повторное закрытие ничего не меняет
+  const isExecutedDoc =
+    (doc?.planned_supply ??
+      doc?.planned_shipment ??
+      item?.planned_supply ??
+      item?.planned_shipment) === false
   const shape =
     DOC_SHAPE[`${type}:${isReturn ? 'return' : 'normal'}`] ||
     DOC_SHAPE['shipment:normal']
@@ -252,7 +260,7 @@ const PlannedDocModal = ({
         <button
           type="button"
           onClick={handleClose}
-          disabled={isPending || !guid}
+          disabled={isPending || !guid || isExecutedDoc}
           className="primary-btn cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? t('planned.closing') : t('planned.closeDoc')}
