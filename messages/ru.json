@@ -892,6 +892,7 @@
 			"genderFemale": "Женский",
 			"validTo": "Срок действия договора до",
 			"validToRequired": "Выберите дату окончания",
+			"validRangeInvalid": "Срок действия договора «от» не должен быть больше «до»",
 			"class": "Класс",
 			"classPlaceholder": "Введите класс",
 			"classRequired": "Выберите класс",

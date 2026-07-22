@@ -149,7 +149,12 @@ const CreateStudentModal = observer(
           passport: initialData?.number_passport || "",
           pinf: initialData?.jshshr_guardian || null,
           issuedBy: initialData?.place_of_issue || "",
-          tariffName: initialData?.product_and_service_id?.name || "",
+          tariffName:
+            initialData?.product_and_service_id_data?.name ||
+            initialData?.product_and_service_id_data?.naimenovanie ||
+            initialData?.product_and_service_id_data?.Naimenovanie ||
+            initialData?.product_and_service_id_data?.nazvanie ||
+            "",
           chartOfAccounts:
             initialData?.chart_of_accounts_id_data?.nazvanie || "",
           legalEntity: initialData?.legal_entity_id_data?.nazvanie || "",
@@ -228,6 +233,7 @@ const CreateStudentModal = observer(
       getValues,
       setValue,
       reset,
+      trigger,
       formState: { errors, isSubmitting },
     } = useForm({
       mode: "onChange",
@@ -381,7 +387,16 @@ const CreateStudentModal = observer(
       );
     }, [language_classes]);
 
-    const handlePreview = () => {
+    const handlePreview = async () => {
+      const isValid = await trigger(["validFrom", "validTo"]);
+      if (!isValid) {
+        const from = getValues("validFrom");
+        const to = getValues("validTo");
+        if (from && to && moment(from).isAfter(moment(to), "day")) {
+          showErrorNotification(t("validRangeInvalid"));
+        }
+        return;
+      }
       setStep("preview");
     };
 
@@ -1370,6 +1385,14 @@ const CreateStudentModal = observer(
                               required: !isFixedLocked
                                 ? t("validFromRequired")
                                 : false,
+                              validate: (value) => {
+                                if (isFixedLocked) return true;
+                                const to = getValues("validTo");
+                                if (!value || !to) return true;
+                                return moment(value).isAfter(moment(to), "day")
+                                  ? t("validRangeInvalid")
+                                  : true;
+                              },
                             }}
                             render={({ field }) => (
                               <FormDatepicker
@@ -1382,16 +1405,26 @@ const CreateStudentModal = observer(
                                     "the_contract_period_is_from",
                                     dateString
                                   );
+                                  trigger("validTo");
                                 }}
                                 placeholder={t("datePlaceholder")}
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
                                 inputClass={"bg-white!"}
+                                maxDate={
+                                  getValues("validTo")
+                                    ? new Date(getValues("validTo"))
+                                    : undefined
+                                }
                                 disabled={isFixedLocked}
                               />
                             )}
                           />
-                          {/* {errors.validFrom && <span className="text-xs text-red-500">{errors.validFrom.message}</span>} */}
+                          {errors.validFrom && (
+                            <span className="text-xs text-red-500">
+                              {errors.validFrom.message}
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex flex-col gap-1.5">
@@ -1432,6 +1465,17 @@ const CreateStudentModal = observer(
                               required: !isFixedLocked
                                 ? t("validToRequired")
                                 : false,
+                              validate: (value) => {
+                                if (isFixedLocked) return true;
+                                const from = getValues("validFrom");
+                                if (!value || !from) return true;
+                                return moment(value).isBefore(
+                                  moment(from),
+                                  "day"
+                                )
+                                  ? t("validRangeInvalid")
+                                  : true;
+                              },
                             }}
                             render={({ field }) => (
                               <FormDatepicker
@@ -1444,16 +1488,26 @@ const CreateStudentModal = observer(
                                     "the_contract_period_is_to",
                                     dateString
                                   );
+                                  trigger("validFrom");
                                 }}
                                 placeholder={t("datePlaceholder")}
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
                                 inputClass={"bg-white!"}
+                                minDate={
+                                  getValues("validFrom")
+                                    ? new Date(getValues("validFrom"))
+                                    : undefined
+                                }
                                 disabled={isFixedLocked}
                               />
                             )}
                           />
-                          {/* {errors.validTo && <span className="text-xs text-red-500">{errors.validTo.message}</span>} */}
+                          {errors.validTo && (
+                            <span className="text-xs text-red-500">
+                              {errors.validTo.message}
+                            </span>
+                          )}
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
