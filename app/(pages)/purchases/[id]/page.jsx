@@ -720,7 +720,13 @@ export default observer(function PurchaseDetailPage() {
             }, 300);
           }}
           preselectedCounterparty={summeryCards?.counterparties_id}
-          onSuccess={() => setShowOperationModal(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["get_purchase_transaction_by_guid"] })
+            queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] })
+            queryClient.invalidateQueries({ queryKey: ["get_operations_total_income"] })
+            queryClient.invalidateQueries({ queryKey: ["get_operations_total_expense"] })
+            setShowOperationModal(false)
+          }}
           initialTab={activeTab === "payments" ? "payment" : "income"}
         />
       )}

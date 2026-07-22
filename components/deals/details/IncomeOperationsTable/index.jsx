@@ -169,6 +169,8 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
     }
@@ -275,6 +277,9 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
           }}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+            queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
             setShowModal(false)
           }}
           initialTab={modalType}

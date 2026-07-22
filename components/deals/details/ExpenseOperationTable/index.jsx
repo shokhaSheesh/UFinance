@@ -174,6 +174,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
     }
@@ -265,6 +267,9 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
           }}
           onSuccess={() => {
             invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
+            queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
             setShowModal(false)
           }}
           initialTab={modalType}

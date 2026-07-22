@@ -17,7 +17,7 @@ import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
 import TextArea from '../../shared/TextArea';
 
-export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals', isPurchase = false }) {
+export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals', isPurchase = false, onCreated }) {
   const t = useTranslations('Deals.createDealModal');
   const tp = useTranslations('Purchases.createDealModal');
 
@@ -99,9 +99,17 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
         data: payload
       });
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }));
+
+      const resultGuid = response?.data?.data?.guid || (isEditing ? initialData?.guid : null);
       onClose();
 
-      // Navigate to the detail page
+      // Inline-select rejimi: sahifaga o'tmaymiz — yangi sделка'ni tanlab, ochiq modalda qolamiz
+      if (onCreated) {
+        if (resultGuid) onCreated({ guid: resultGuid, name: dealName });
+        return;
+      }
+
+      // Navigate to the detail page (deals/purchases ro'yxatidan ochilganda)
       if (response?.data?.data?.guid) {
         router.push(`${redirectBase}/${response.data.data.guid}`);
       } else if (isEditing && initialData?.guid) {
