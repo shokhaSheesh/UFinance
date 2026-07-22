@@ -27,13 +27,19 @@ const CustomRangeMonthPicker = ({ value, onChange: onSelect, inputClass, handleS
     if (Array.isArray(rangeMonth)) {
       const [start, end] = rangeMonth
 
+      // Bitta oy tanlanganda "end" bo'lmaydi — o'sha oyning o'zini oxiri qilib olamiz
+      const endMonth = end || start
+
       const startDate = start
         ? new Date(start.year, start.monthIndex, 1)           // Oyning 1-kuni
         : null
 
-      const endDate = end
-        ? new Date(end.year, end.monthIndex + 1, 0)           // Oyning oxirgi kuni (0 = oldingi oyning so'nggisi)
+      const endDate = endMonth
+        ? new Date(endMonth.year, endMonth.monthIndex + 1, 0) // Oyning oxirgi kuni (0 = oldingi oyning so'nggisi)
         : null
+
+      // Bitta oy tanlansa ham inputda diapazon ko'rinsin: "Jan '26 ~ Jan '26"
+      if (startDate && endDate) setRangeMonth([startDate, endDate])
 
       onSelect?.({ start: moment(startDate).format('YYYY-MM-DD'), end: moment(endDate).format('YYYY-MM-DD') })
 
@@ -41,6 +47,8 @@ const CustomRangeMonthPicker = ({ value, onChange: onSelect, inputClass, handleS
       // Bitta oy tanlanganda
       const startDate = new Date(rangeMonth.year, rangeMonth.monthIndex, 1)
       const endDate = new Date(rangeMonth.year, rangeMonth.monthIndex + 1, 0)
+
+      setRangeMonth([startDate, endDate])
 
       onSelect?.({ start: moment(startDate).format('YYYY-MM-DD'), end: moment(endDate).format('YYYY-MM-DD') })
     }

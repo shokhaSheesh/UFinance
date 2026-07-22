@@ -8,6 +8,8 @@ export default function CustomDatePicker({ value, onChange, format = "DD MMM, YY
   return (
     <div className={cn("date_picker_wrapper w-full", className)}>
       <DatePicker
+        portal
+        className="ufinance_datepicker"
         value={value || new Date()}
         format={format}
         {...(type === 'month' ? { onlyMonthPicker: true } : {})}

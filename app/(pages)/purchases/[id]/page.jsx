@@ -487,7 +487,7 @@ export default observer(function PurchaseDetailPage() {
                 {t("cards.weOwe")}
               </span>
               <span className="font-medium text-[#344054] truncate">
-                {formatAmount(dealAmount)} {GlobalCurrency?.name}
+                {formatAmount(remainingShipment)} {GlobalCurrency?.name}
               </span>
             </div>
           )}
