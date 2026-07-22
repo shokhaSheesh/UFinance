@@ -924,6 +924,7 @@
       "genderFemale": "Ayol",
       "validTo": "Shartnoma amal qilish muddati (gacha)",
       "validToRequired": "Tugash sanasini tanlang",
+      "validRangeInvalid": "Shartnomaning boshlanish sanasi tugash sanasidan katta bo'lmasligi kerak",
       "class": "Sinf",
       "classPlaceholder": "Sinfni kiriting",
       "classRequired": "Sinfni tanlang",
