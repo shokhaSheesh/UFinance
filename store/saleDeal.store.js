@@ -16,6 +16,7 @@ class SealDeal {
   profitFrom = ''
   profitTo = ''
   status = []
+  schoolYear = ''
   isCalculation = false
 
   dateRangeType = ''
@@ -39,6 +40,7 @@ class SealDeal {
           "profitFrom",
           "profitTo",
           "status",
+          "schoolYear",
           "isCalculation",
           'dateRangeType'
         ],
@@ -65,6 +67,7 @@ class SealDeal {
     this.profitFrom = ''
     this.profitTo = ''
     this.status = []
+    this.schoolYear = ''
     this.isCalculation = false
     this.dateRangeType = ''
 

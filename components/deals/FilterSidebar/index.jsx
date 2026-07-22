@@ -4,12 +4,15 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
+import { academicYears } from '../../../constants/academicYears'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
+import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatNumber } from '../../../utils/helpers'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
 import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
+import SingleSelect from '../../shared/Selects/SingleSelect'
 
 const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 	const t = useTranslations('Deals.filters')
@@ -30,6 +33,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 		profitFrom,
 		profitTo,
 		status,
+		schoolYear,
 		setState,
 		dateRangeType
 	} = sealDeal
@@ -57,6 +61,9 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 	}, [fetchedData])
 
 
+	// Учебный год — только для школ и только на сделках по продажам
+	const showSchoolYear = appStore.isDonoSchool && !isPurchase
+
 	const activeFilterCount = useMemo(() => {
 		let count = 0
 		if (selectedCounterparties?.length > 0) count++
@@ -64,6 +71,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 		if (dateRange?.end || dateRange?.start) count++
 		if (amountFrom || amountTo) count++
 		if (!isPurchase && (profitFrom || profitTo)) count++
+		if (showSchoolYear && schoolYear) count++
 		return count
 	}, [
 		selectedCounterparties,
@@ -73,7 +81,9 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 		profitFrom,
 		profitTo,
 		status,
-		isPurchase
+		isPurchase,
+		schoolYear,
+		showSchoolYear
 	])
 
 	const handlePriceDebouce = (field, value) => {
@@ -95,6 +105,18 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 			<div className='flex flex-col gap-4'>
 				{isPurchase && (
 					<p className='text-neutral-500 text-xs font-medium'>{tp('sectionTitle')}</p>
+				)}
+
+				{/* Учебный год — только для школ */}
+				{showSchoolYear && (
+					<div className='flex flex-col gap-1.5 mt-2'>
+						<SingleSelect
+							data={academicYears}
+							value={schoolYear || ''}
+							onChange={val => handleFilterChange('schoolYear', val)}
+							placeholder={t('academicYear')}
+						/>
+					</div>
 				)}
 
 				{/* status filter with singleSelect component */}

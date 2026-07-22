@@ -3,6 +3,33 @@
 		"pageTitle": "Мой склад",
 		"searchPlaceholder": "Поиск по названию",
 		"empty": "Склад пуст",
+		"createButton": "Добавить склад",
+		"searchWarehousesPlaceholder": "Поиск по названию или адресу",
+		"emptyWarehouses": "Склады не найдены",
+		"defaultBadge": "Основной",
+		"table": {
+			"name": "Название",
+			"address": "Адрес",
+			"comment": "Комментарий",
+			"default": "Основной"
+		},
+		"createModal": {
+			"titleNew": "Новый склад",
+			"titleEdit": "Редактирование склада",
+			"name": "Название",
+			"namePlaceholder": "Например, Основной склад",
+			"nameRequired": "Введите название склада",
+			"address": "Адрес",
+			"addressPlaceholder": "Укажите адрес склада",
+			"comment": "Комментарий",
+			"commentPlaceholder": "Комментарий к складу",
+			"isDefault": "Сделать основным складом"
+		},
+		"deleteModal": {
+			"title": "Удалить склад?",
+			"message": "Вы действительно хотите удалить склад «{name}»? Восстановить его будет невозможно.",
+			"deleting": "Удаление..."
+		},
 		"columns": {
 			"name": "Наименование",
 			"artikul": "Артикул",
@@ -763,6 +790,7 @@
 			},
 			"searchPlaceholder": "Поиск",
 			"addButton": "Добавить",
+			"newReturnButton": "Новый возврат",
 			"payment": {
 				"createPayment": "Создать платеж",
 				"paymentAmount": "Сумма платежа",
@@ -783,6 +811,7 @@
 			}
 		},
 		"filters": {
+			"academicYear": "Учебный год",
 			"dealStatus": "Статус сделки",
 			"selectCounterparties": "Выберите контрагентов",
 			"dealAmount": "Сумма сделки",
@@ -920,6 +949,10 @@
 			"back": "Назад",
 			"print": "Печать",
 			"deleteConfirmation": "Подтверждение удаления",
+			"createConfirmation": "Подтверждение создания",
+			"createConfirmText": "Вы проверили договор через «Предпросмотр»? После сохранения договор будет сформирован с текущими данными.",
+			"updateConfirmation": "Подтверждение обновления",
+			"updateConfirmText": "Вы проверили договор через «Предпросмотр»? После обновления договор будет сформирован заново с текущими данными.",
 			"deleteClassConfirm": "Вы уверены, что хотите удалить класс \"{name}\"?",
 			"deleteGuardianConfirm": "Вы уверены, что хотите удалить тип опекуна \"{name}\"?",
 			"className": "Название класса",
@@ -969,6 +1002,8 @@
 		"createShipment": {
 			"titleNew": "Новая отгрузка",
 			"titleEdit": "Редактирование отгрузки",
+			"titleNewReturn": "Новый возврат",
+			"titleEditReturn": "Редактирование возврата",
 			"shipmentDate": "Дата отгрузки",
 			"shipmentDateRequired": "Выберите дату",
 			"dealDatePlaceholder": "Выберите дату",
@@ -991,6 +1026,13 @@
 			"shipmentSum": "Сумма отгрузки",
 			"incomeArticle": "Статья доходов",
 			"undistributedIncome": "Нераспределенный доход",
+			"warehouse": "Склад",
+			"warehousePlaceholder": "Выберите склад",
+			"warehouseRequired": "Выберите склад",
+			"saveBlockedClosedWarehouse": "Сохранение недоступно: отметка «Плановая» не соответствует текущей настройке модуля склада",
+			"stockExceeded": "«{name}»: доступно {available}, запрошено {requested}",
+			"stockError": "Недостаточно товара на складе",
+			"stockCheckFailed": "Не удалось проверить остатки склада",
 			"requiredFields": "Обязательные поля",
 			"cancel": "Отмена",
 			"create": "Создать",
@@ -1021,6 +1063,11 @@
 				"wlcm_title": "Создайте личный аккаунт на WLCM.",
 				"wlcm": "Внесите свой токен WLCM.uz",
 				"accrualDate": "Включить в работу поле << Дата начисления >> при выборе Сделка"
+			},
+			"modules": {
+				"title": "Модули",
+				"warehouse": "Мой склад",
+				"returns": "Возвраты"
 			},
 			"save": "Сохранить",
 			"saving": "Сохранение...",
