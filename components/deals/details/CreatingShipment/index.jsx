@@ -332,8 +332,15 @@ const CreateShipment = observer(
     const { mutateAsync: createShipment, isPending: isCreating } =
       useUcodeRequestMutation();
 
+    // Faqat shu сделкага tegishli товарларни оламиз (акс ҳолда барча товарлар келади)
     const { data: productServices } = useUcodeRequestQuery({
       method: "list_products_and_services",
+      data: {
+        [isPurchase ? "purchase_transactions_id" : "sales_transactions_id"]: dealGuid,
+        page: 1,
+        limit: 1000,
+      },
+      skip: !dealGuid,
       querySetting: {
         select: (data) => data?.data?.data,
       },
@@ -342,6 +349,13 @@ const CreateShipment = observer(
     const productServicesList = useMemo(() => {
       return productServiceDto(productServices);
     }, [productServices]);
+
+    // Picker qiymati — сделка-товар боғланма guid'и; лекин backend'га ҳақиқий
+    // product_and_service_id юборилиши керак. Edit'да row.name аллақачон
+    // product_and_service_id бўлса, ўзи қайтади (guid бўйича топилмайди).
+    const resolveProductId = (rowName) =>
+      productServicesList.find((p) => p.guid === rowName)?.product_and_service_id ||
+      rowName;
 
     // Stock lives only for physical products (Tip === "product"); services never
     // have a warehouse balance, so the stock limit / shortage checks skip them.
@@ -360,7 +374,7 @@ const CreateShipment = observer(
         apiClient
           .invokeFunction({
             method: "get_stock_count",
-            data: { product_and_service_id: pid, warehouse_id: warehouse },
+            data: { product_and_service_id: resolveProductId(pid), warehouse_id: warehouse },
           })
           .then((res) =>
             setStockByProduct((prev) => ({
@@ -506,9 +520,7 @@ const CreateShipment = observer(
         const requestedByProduct = new Map();
         productData.forEach((row) => {
           if (!isStockTrackedProduct(row.name)) return;
-          const pid =
-            productServicesList.find((p) => p.guid === row.name)?.guid ||
-            row.name;
+          const pid = resolveProductId(row.name);
           const qty = formatDecimal(StringtoNumber(row.quantity)) || 0;
           requestedByProduct.set(pid, (requestedByProduct.get(pid) || 0) + qty);
         });
@@ -528,7 +540,9 @@ const CreateShipment = observer(
               const available = readStockCount(stockRes);
               if (requested > available) {
                 const pname =
-                  productServicesList.find((p) => p.guid === pid)?.name || "";
+                  productServicesList.find(
+                    (p) => p.product_and_service_id === pid || p.guid === pid
+                  )?.name || "";
                 shortages.push({ name: pname, requested, available });
               }
             })
@@ -583,7 +597,7 @@ const CreateShipment = observer(
               (p) => p.guid === row.name
             );
             const result = {
-              product_and_service_id: product?.guid || row.name || undefined,
+              product_and_service_id: product?.product_and_service_id || row.name || undefined,
               Naimenovanie: product ? product.name : row.naimenovanie || "",
               Artikul: product?.article || row.artikul || "",
               Kol_vo: formatDecimal(StringtoNumber(row.quantity)) || 0,
@@ -668,7 +682,7 @@ const CreateShipment = observer(
       try {
         const res = await apiClient.invokeFunction({
           method: "get_stock_count",
-          data: { product_and_service_id: productId, warehouse_id: warehouse },
+          data: { product_and_service_id: resolveProductId(productId), warehouse_id: warehouse },
         });
         const available = readStockCount(res);
         // Keep the available count only for the shortage check — do NOT autofill
@@ -1081,6 +1095,8 @@ const CreateShipment = observer(
                                   handleSelectProductSerice(row?.id, value)
                                 }
                                 type={productType}
+                                sellingDealId={dealGuid}
+                                dealIdField={isPurchase ? "purchase_transactions_id" : "sales_transactions_id"}
                                 placeholder={t("selectPosition")}
                                 className="bg-white border-none"
                               />

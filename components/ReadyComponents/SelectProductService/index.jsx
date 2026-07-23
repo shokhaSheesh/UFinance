@@ -16,6 +16,7 @@ const SelectProductService = ({
   multi = false,
   selected,
   sellingDealId,
+  dealIdField = 'sales_transactions_id',
   hasError,
   isClearable = false,
   name = '',
@@ -39,7 +40,7 @@ const SelectProductService = ({
   const { data: productsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "list_products_and_services",
     data: {
-      sales_transaction_id: sellingDealId,
+      [dealIdField]: sellingDealId,
       search: searchQuery,
       // Optionally restrict the list to physical goods ("product") or
       // services ("service"); omitted → both are returned.

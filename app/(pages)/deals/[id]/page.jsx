@@ -64,6 +64,22 @@ export default observer(function DealDetailPage() {
     }
   })
 
+  // Сделкада товар/услуга бор-йўқлиги: отгрузка учун улар шарт.
+  // queryKey 'products_services_list' — CreateProductService шу префиксни invalidate қилади.
+  const { data: hasProducts } = useUcodeRequestQuery({
+    queryKey: 'products_services_list',
+    method: 'list_products_and_services',
+    data: { sales_transactions_id: dealId, page: 1, limit: 1 },
+    skip: !dealId,
+    querySetting: {
+      select: (res) => {
+        const total = res?.data?.pagination?.total
+        if (typeof total === 'number') return total > 0
+        return (res?.data?.data?.length || 0) > 0
+      },
+    },
+  })
+
   const { mutateAsync: updateDeal } = useUcodeRequestMutation()
 
 
@@ -473,7 +489,7 @@ export default observer(function DealDetailPage() {
                     (activeTab === 'expenses' && paymentPermission) ||
                     (activeTab === 'shipments' && shipmentPermission) ? (
                     activeTab === 'shipments' ? (
-                      appStore.warehouseActive && appStore.returnActive ? (
+                      hasProducts === false ? null : appStore.warehouseActive && appStore.returnActive ? (
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'>
@@ -542,7 +558,7 @@ export default observer(function DealDetailPage() {
 
                 {activeTab === 'expenses' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
-                {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} />}
+                {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} onAddProducts={() => setActiveTab('products')} hasProducts={hasProducts} />}
               </div>
             </div>
           </div>

@@ -82,6 +82,23 @@ export default observer(function PurchaseDetailPage() {
     },
   });
 
+  // Сделкада товар/услуга бор-йўқлиги: поставка учун улар шарт.
+  // queryKey 'products_services_list' — CreateProductService шу префиксни invalidate қилади,
+  // шунинг учун товар қўшилса, автомат янгиланади.
+  const { data: hasProducts } = useUcodeRequestQuery({
+    queryKey: "products_services_list",
+    method: "list_products_and_services",
+    data: { purchase_transactions_id: dealId, page: 1, limit: 1 },
+    skip: !dealId,
+    querySetting: {
+      select: (res) => {
+        const total = res?.data?.pagination?.total;
+        if (typeof total === "number") return total > 0;
+        return (res?.data?.data?.length || 0) > 0;
+      },
+    },
+  });
+
   const { mutateAsync: updateDeal } = useUcodeRequestMutation();
 
   const summeryCards = useMemo(() => {
@@ -484,7 +501,7 @@ export default observer(function PurchaseDetailPage() {
           {shippedPercent < 100 && (
             <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
               <span className="font-normal text-gray-ucode-500 whitespace-nowrap">
-                {t("cards.weOwe")}
+                {t("cards.supplierOwes")}
               </span>
               <span className="font-medium text-[#344054] truncate">
                 {formatAmount(remainingShipment)} {GlobalCurrency?.name}
@@ -551,7 +568,7 @@ export default observer(function PurchaseDetailPage() {
                   (activeTab === "payments" && paymentPermission) ||
                   (activeTab === "supplies" && shipmentPermission) ? (
                     activeTab === "supplies" ? (
-                      appStore.warehouseActive && appStore.returnActive ? (
+                      hasProducts === false ? null : appStore.warehouseActive && appStore.returnActive ? (
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0">
@@ -653,6 +670,8 @@ export default observer(function PurchaseDetailPage() {
                     dealGuid={dealId}
                     dealName={summeryCards?.name}
                     onAdd={() => setShowShipmentModal(true)}
+                    onAddProducts={() => setActiveTab("products")}
+                    hasProducts={hasProducts}
                     listMethod="list_purchase_operations"
                     dealIdField="purchase_transactions_id"
                     deleteMethod="delete_supply_transaction"

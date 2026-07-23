@@ -730,6 +730,9 @@
     "supplyTable": {
       "emptyTitle": "Bitimga yetkazmalar qo'shing",
       "emptySubtitle": "Majburiyatlar bajarilishini nazorat qilish uchun tovar/xizmat yetkazmalarini hisobga oling",
+      "emptyProductsTitle": "Yetkazmani yarating",
+      "emptyProductsSubtitle": "Yetkazmalarni kuzatishni boshlash uchun bitimni tovar yoki xizmatlar bilan to'ldiring",
+      "goToProducts": "Tovar va xizmatlarga o'tish",
       "deleteSupplyTitle": "Yetkazmani o'chirish",
       "deleteSupplyConfirm": "Haqiqatan ham <strong>{amount}</strong> summadagi yetkazmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
       "deleteBlockedClosedWarehouse": "O'chirish mumkin emas: «Rejalashtirilgan» belgisi joriy sklad moduli sozlamasiga mos kelmayapti",
@@ -799,6 +802,7 @@
         "clientDebt": "Mijoz qarzi:",
         "shipped": "Yuklangan",
         "weOwe": "Biz qarzdor:",
+        "supplierOwes": "Yetkazib beruvchi qarzdor:",
         "profitability": "Rentabellik",
         "income": "Daromadlar",
         "expenses": "Xarajatlar"
@@ -1936,7 +1940,10 @@
         "cancel": "Bekor qilish",
         "delete": "O'chirish",
         "emptyTitle": "Bitimga yetkazib berishni qo'shing",
-        "emptySubtitle": "Bitim bo'yicha majburiyatlarni bajarishni nazorat qilish uchun tovarlar/xizmatlarni yetkazib berishni hisobga oling"
+        "emptySubtitle": "Bitim bo'yicha majburiyatlarni bajarishni nazorat qilish uchun tovarlar/xizmatlarni yetkazib berishni hisobga oling",
+        "emptyProductsTitle": "Yetkazib berishni yarating",
+        "emptyProductsSubtitle": "Yetkazib berishlarni kuzatishni boshlash uchun bitimni tovar yoki xizmatlar bilan to'ldiring",
+        "goToProducts": "Tovar va xizmatlarga o'tish"
       }
     },
     "editDealModal": {

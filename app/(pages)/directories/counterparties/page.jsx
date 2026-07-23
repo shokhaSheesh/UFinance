@@ -11,7 +11,8 @@ import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
+// OperationCheckbox — Дебиторка/Кредиторка фильтрлари вақтинча яширилгани учун ишлатилмаяпти
+// import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -334,6 +335,7 @@ const CounterpartiesPage = observer(() => {
           />
         </FilterSection>
 
+        {/* Дебиторка / Кредиторка фильтры временно скрыты
         <FilterSection title={t('list.filters.receivables')}>
           <div className="space-y-2.5 flex flex-col items-start">
             {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
@@ -376,6 +378,7 @@ const CounterpartiesPage = observer(() => {
             ))}
           </div>
         </FilterSection>
+        */}
 
       </FilterSidebar>
 
