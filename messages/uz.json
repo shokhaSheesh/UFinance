@@ -1,4 +1,19 @@
 {
+  "AiChat": {
+    "buttonLabel": "AI Yordamchi",
+    "title": "UF Assistant",
+    "subtitle": "Sizning moliyaviy yordamchingiz",
+    "greeting": "Salom! Operatsiyalar, hisoblar va bitimlar bo'yicha yordam beraman. Biror narsa so'rang 👇",
+    "placeholder": "Moliya haqida so'rang…",
+    "footNote": "AI xato qilishi mumkin. Muhim raqamlarni tekshiring.",
+    "today": "Bugun",
+    "close": "Yopish",
+    "send": "Yuborish",
+    "suggestTitle": "Tezkor savollar",
+    "suggest1": "Oyning eng katta xarajatlari",
+    "suggest2": "Hisoblar bo'yicha balans",
+    "suggest3": "Oylik sof foyda"
+  },
   "Warehouse": {
     "pageTitle": "Mening omborim",
     "searchPlaceholder": "Nom bo'yicha qidirish",
