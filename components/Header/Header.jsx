@@ -1,22 +1,24 @@
-"use client"
+"use client";
 
-import LocaleSwitcher from '../shared/LocaleSwitcher/LocaleSwitcher'
-import Branches from './branches'
-import { Profile } from './profile'
-import TotalPrice from './total-prices'
+import AiChatButton from "../AiChat/AiChatButton";
+import LocaleSwitcher from "../shared/LocaleSwitcher/LocaleSwitcher";
+import Branches from "./branches";
+import { Profile } from "./profile";
+import TotalPrice from "./total-prices";
 
 export function Header() {
+  return (
+    <>
+      <header className="flex items-center justify-between h-[60px] left-20! px-2 w-full  top-0  bg-blue-950">
+        <AiChatButton />
+        <div className="flex items-center gap-3">
+          <TotalPrice />
 
-    return (
-        <>
-            <header className="flex items-center h-[60px] left-20! pr-2 w-full  top-0 justify-end bg-blue-950">
-                <div className="flex items-center gap-3">
-                    <TotalPrice />
-                    <Profile />
-                    <Branches />
-                    <LocaleSwitcher />
-                </div>
-            </header>
-        </>
-    )
+          <Profile />
+          <Branches />
+          <LocaleSwitcher />
+        </div>
+      </header>
+    </>
+  );
 }
