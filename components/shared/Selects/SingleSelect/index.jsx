@@ -1,3 +1,4 @@
+import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
@@ -35,6 +36,12 @@ const SingleSelect = ({
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0, width: 0 })
 
   const inputRef = useRef(null)
+
+  // На сервере value из персистентного стора недоступно → рендерим плейсхолдер,
+  // пока не смонтировались, чтобы первый клиентский рендер совпал с серверным
+  // (иначе hydration mismatch: сервер «Выберите» ↔ клиент, напр., «UZS»).
+  const mounted = useMounted()
+  const hasValue = mounted && !!value
 
   useEffect(() => {
     if (open && withSearch && inputRef.current) {
@@ -128,9 +135,9 @@ const SingleSelect = ({
       >
         {/* x button to delete selected */}
 
-        <span className={cn('text-start line-clamp-1 font-normal text-xss!', value ? 'text-gray-800' : 'text-gray-400')}>{getSelectedLabel()}</span>
+        <span className={cn('text-start line-clamp-1 font-normal text-xss!', hasValue ? 'text-gray-800' : 'text-gray-400')}>{mounted ? getSelectedLabel() : placeholderText}</span>
         <div className="flex items-center">
-          {isClearable && value && !disabled && (
+          {isClearable && hasValue && !disabled && (
             <div
               role="button"
               tabIndex={0}

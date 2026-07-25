@@ -33,8 +33,12 @@ const CounterpartyDetailPage = observer(() => {
 
   const [isEditCounterpartyModalOpen, setIsEditCounterpartyModalOpen] = useState(false)
 
+  // Отгрузка (продажа) и Поставка (закупка) редактируются/копируются в модалке CreateShipment
+  const isShipmentOp = (operation) =>
+    operation?.tip === 'Отгрузка' || operation?.tip === 'Поставка'
+
   const handleEditOperation = (operation) => {
-    if (operation.tip === 'Отгрузка') {
+    if (isShipmentOp(operation)) {
       shipment.handleEdit(operation)
       return
     }
@@ -42,7 +46,7 @@ const CounterpartyDetailPage = observer(() => {
   }
 
   const handleCopyOperation = (operation) => {
-    if (operation.tip === 'Отгрузка') {
+    if (isShipmentOp(operation)) {
       shipment.handleCopy(operation)
       return
     }
@@ -161,9 +165,29 @@ const CounterpartyDetailPage = observer(() => {
           initialData={shipment.selectedShipment}
           isEditing={shipment.isEditing}
           isCopying={shipment.isCopying}
-          dealName={shipment.selectedShipment?.selling_deal_name}
-          dealGuid={shipment.selectedShipment?.selling_deal_id}
           kontragentId={detail.counterparty?.guid}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ['counterpartyById', counterpartyGuid] })}
+          {...(shipment.isPurchase
+            ? {
+                isPurchase: true,
+                dealName: shipment.selectedShipment?.purchase_transaction_name,
+                dealGuid: shipment.selectedShipment?.purchase_transactions_id,
+                dealIdField: 'purchase_transactions_id',
+                createMethod: 'create_supply_transaction',
+                updateMethod: 'update_supply_transaction',
+                getMethod: 'get_supply_transaction',
+                operationType: ['Поставка'],
+                allowedTypes: ['Расходы', 'Актив', 'Обязательства'],
+                invalidateKeys: [
+                  'get_purchase_transaction_by_guid',
+                  'list_purchase_operations',
+                  'find_operations',
+                ],
+              }
+            : {
+                dealName: shipment.selectedShipment?.selling_deal_name,
+                dealGuid: shipment.selectedShipment?.selling_deal_id,
+              })}
         />
       )}
 

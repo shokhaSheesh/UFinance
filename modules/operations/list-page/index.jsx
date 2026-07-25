@@ -593,6 +593,10 @@ const OperationsListPage = observer(() => {
             }
             onSuccess={() => {
               closeShipmentModal();
+              // Список операций страницы идёт по list_operations_by_query — без его
+              // инвалидации таблица не обновлялась после апдейта поставки/отгрузки.
+              queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] });
+              queryClient.invalidateQueries({ queryKey: ["get_operations_total"] });
               queryClient.invalidateQueries({ queryKey: ["find_operations"] });
             }}
           />

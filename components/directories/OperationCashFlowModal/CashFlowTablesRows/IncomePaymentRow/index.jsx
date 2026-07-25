@@ -5,6 +5,7 @@ import { operationFilterStore } from '@/store/operationFilter.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
+import styles from './style.module.scss'
 
 const IncomePaymentTableRow = observer(({
   op,
