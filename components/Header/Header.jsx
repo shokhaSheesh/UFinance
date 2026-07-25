@@ -11,7 +11,7 @@ export function Header() {
     <>
       <header className="flex items-center justify-between h-[60px] left-20! px-2 w-full  top-0  bg-blue-950">
         <AiChatButton />
-        <div className="flex items-center gap-3">
+        <div className="flex ml-auto items-center gap-3">
           <TotalPrice />
 
           <Profile />
