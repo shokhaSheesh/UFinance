@@ -133,7 +133,6 @@ const ProfitAndLossPage = observer(() => {
 
     // tip har doim root (top-level) item asosida hisoblanadi
     const getTip = (rootItem) => {
-      let tips = []
       const income =
         rootItem?.name === "income" ||
         rootItem?.id === "income" ||
@@ -143,17 +142,20 @@ const ProfitAndLossPage = observer(() => {
         rootItem?.id === "expenses" ||
         rootItem?.type === "expenses"
 
-      if (isCalculation === 'accrual') {
-        tips.push("Отгрузка")
-      }
+      let tips
       if (expenses) {
         tips = ["Выплата", "Кредит", "Начисление"]
+      } else if (income) {
+        tips = ["Поступление", "Кредит", "Начисление"]
+      } else {
+        tips = ["Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
       }
-      if (income) {
-        tips = [...tips, "Поступление", "Кредит", "Начисление"]
-      }
-      if (!income && !expenses) {
-        tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
+
+      // Метод начисления: доходы → Отгрузка, расходы → Поставка
+      if (isCalculation === 'accrual') {
+        if (income) tips.push("Отгрузка")
+        else if (expenses) tips.push("Поставка")
+        else tips.push("Отгрузка", "Поставка")
       }
       return tips
     }
