@@ -26,7 +26,7 @@ import { queryClient } from '../../../../../lib/queryClient'
 import { appStore } from '../../../../../store/app.store'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDecimal, formatNumber } from '../../../../../utils/helpers'
+import { formatDecimal, formatAmountInput } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
@@ -326,8 +326,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 									render={({ field }) => (
 										<Input
 											type='text'
-											value={formatNumber(field.value)}
-											onChange={e => field.onChange(formatNumber(e.target.value))}
+											value={formatAmountInput(field.value)}
+											onChange={e => field.onChange(formatAmountInput(e.target.value))}
 											placeholder='0'
 											className={cn('w-56', errors.fromAmount && 'border - red - 500')}
 										/>
@@ -419,8 +419,8 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										render={({ field }) => (
 											<Input
 												type='text'
-												value={formatNumber(field.value)}
-												onChange={e => field.onChange(formatNumber(e.target.value))}
+												value={formatAmountInput(field.value)}
+												onChange={e => field.onChange(formatAmountInput(e.target.value))}
 												placeholder={t('amountZero')}
 												className={cn('w-56', errors.toAmount && 'border-red-500')}
 											/>
