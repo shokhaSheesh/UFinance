@@ -152,6 +152,36 @@ export function formatNumber(value) {
   return (negative ? '-' : '') + (grouped || '') + dec;
 }
 
+// Форматирование ввода суммы: точка, запятая и слэш — все дают ОДНУ десятичную
+// точку (напр. вставка «2/3» → «2.3»); незавершённая точка сохраняется, чтобы
+// можно было продолжать ввод («2.» → «2.» → «2.3»); группировка — пробелами, до 2 знаков.
+export function formatAmountInput(value) {
+  let s = String(value ?? '')
+  const negative = s.trim().startsWith('-')
+  // все разделители (. , /) → точка, затем оставляем только цифры и точки
+  s = s.replace(/[.,/]/g, '.').replace(/[^\d.]/g, '')
+
+  // десятичный разделитель — только ПЕРВАЯ точка; лишние точки убираем
+  const firstDot = s.indexOf('.')
+  let intPart
+  let decPart
+  const hasDot = firstDot !== -1
+  if (!hasDot) {
+    intPart = s
+    decPart = ''
+  } else {
+    intPart = s.slice(0, firstDot).replace(/\./g, '')
+    decPart = s.slice(firstDot + 1).replace(/\./g, '')
+  }
+
+  // группировка целой части пробелами
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  // точку сохраняем даже без знаков после неё (незавершённый ввод), максимум 2 знака
+  const dec = hasDot ? '.' + decPart.slice(0, 2) : ''
+
+  return (negative ? '-' : '') + (grouped || '') + dec
+}
+
 export function includeNumber(value) {
   // strip everything except digits and dot
   const clean = String(value).replace(/[^\d.-]/g, '')

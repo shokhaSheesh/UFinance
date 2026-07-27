@@ -7,7 +7,7 @@ import CustomMultipleSelect from '@/components/shared/Selects/MultipleSelect'
 import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon, SortArrow } from '@/constants/icons'
 import { appStore } from '@/store/app.store'
 import { isFuture } from '@/utils/formatDate'
-import { formatAmount, formatDateRu, formatNumber } from '@/utils/helpers'
+import { formatAmount, formatAmountInput, formatDateRu, formatNumber } from '@/utils/helpers'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -290,9 +290,9 @@ const SplitAmount = ({ amount, onChange, rows,
                               type="text"
                               className="value-input"
                               placeholder="0"
-                              value={formatNumber(row.value)}
+                              value={formatAmountInput(row.value)}
                               onChange={e => {
-                                const val = formatNumber(e.target.value)
+                                const val = formatAmountInput(e.target.value)
                                 dispatch({ type: 'UPDATE', index: i, field: 'value', value: val, amount });
                               }}
                             />

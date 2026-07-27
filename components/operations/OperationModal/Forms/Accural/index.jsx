@@ -11,7 +11,7 @@ import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { isFuture, isPastDate } from '@/utils/formatDate'
-import { formatDateParseZone, formatDecimal, formatNumber, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
+import { formatDateParseZone, formatDecimal, formatAmountInput, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -364,8 +364,8 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                   render={({ field }) => (
                     <Input
                       type="text"
-                      value={formatNumber(field.value)}
-                      onChange={(e) => field.onChange(formatNumber(e.target.value))}
+                      value={formatAmountInput(field.value)}
+                      onChange={(e) => field.onChange(formatAmountInput(e.target.value))}
                       placeholder={t('amountZero')}
                       className={cn("w-[200px]", errors.summa && "border-red-500")}
                     />
