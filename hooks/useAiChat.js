@@ -2,12 +2,18 @@
 
 import createDOMPurify from "dompurify";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { aiChatHistory, aiChatSendMessage, unwrapAiData } from "@/lib/api/ucode/aiChat";
+import {
+  aiChatHistory,
+  aiChatSendMessage,
+  buildAiChatContent,
+  unwrapAiData,
+} from "@/lib/api/ucode/aiChat";
 import { authStore } from "@/store/auth.store";
 
 const CHAT_WS = "wss://chat-service.u-code.io/socket.io/?EIO=4&transport=websocket";
 const PROJECT_ID = "3ed54a59-5eda-4cfe-b4ae-8a201c1ea4ed";
 const AI_ROW_ID = "planfact_ai";
+const HISTORY_LIMIT = 20; // размер страницы истории (подгрузка старых при скролле вверх)
 
 const SANITIZE_OPTS = {
   ALLOWED_TAGS: [
@@ -62,11 +68,13 @@ const normalizeMessage = (m) => ({
  * @param {boolean} isOpen — открыта ли панель (инициализация лениво, при первом открытии)
  */
 export function useAiChat(isOpen) {
-  const [messages, setMessages] = useState([]); // {id, role, content, isHtml}
+  const [messages, setMessages] = useState([]); // {id, role, content, isHtml} — старые→новые (сверху вниз)
   const [streamingText, setStreamingText] = useState(null); // string | null — живой стрим
   const [isAwaiting, setIsAwaiting] = useState(false); // ждём первый токен (индикатор «печатает»)
   const [connected, setConnected] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false); // есть ли ещё старые страницы истории
+  const [loadingMore, setLoadingMore] = useState(false); // идёт подгрузка старых сообщений
 
   const wsRef = useRef(null);
   const roomIdRef = useRef("");
@@ -76,8 +84,12 @@ export function useAiChat(isOpen) {
   const stopTimerRef = useRef(null);
   const pollTimerRef = useRef(null);
   const reconnectRef = useRef(null);
-  const initializedRef = useRef(false);
   const openRef = useRef(isOpen);
+  const everOpenedRef = useRef(false); // панель открывали хотя бы раз (не дёргаем API на старте)
+  const pageRef = useRef(1); // текущая загруженная страница истории
+  const totalRef = useRef(0); // всего сообщений (из pagination.total)
+  const hasMoreRef = useRef(false); // зеркало hasMore для обработчика скролла
+  const loadingMoreRef = useRef(false); // защита от параллельных подгрузок
 
   const userId = () =>
     authStore?.userData?.guid || authStore?.userData?.id || "";
@@ -233,11 +245,14 @@ export function useAiChat(isOpen) {
       attempts += 1;
       if (attempts > 60) return stopPolling(); // ~2.5 мин
       try {
-        const res = await aiChatHistory({ page: 1, limit: 50 });
+        const res = await aiChatHistory({ page: 1, limit: HISTORY_LIMIT });
         const d = unwrapAiData(res);
         const msgs = Array.isArray(d.messages) ? d.messages : [];
-        const last = msgs[msgs.length - 1];
-        if (last?.role === "assistant" && finalizeReply(readContent(last.content)))
+        const newest = msgs[0]; // история приходит DESC (новые первыми)
+        if (
+          newest?.role === "assistant" &&
+          finalizeReply(readContent(newest.content))
+        )
           return;
       } catch {
         /* keep polling */
@@ -248,16 +263,24 @@ export function useAiChat(isOpen) {
     pollTimerRef.current = setTimeout(tick, 4000);
   }, [finalizeReply, stopPolling]);
 
-  // ─── Загрузка истории (при первом открытии) ─────────────────────────
+  // ─── Загрузка истории (первая страница — при каждом открытии) ────────
   const loadHistory = useCallback(async () => {
     setHistoryLoading(true);
+    pageRef.current = 1;
     try {
-      const res = await aiChatHistory({ page: 1, limit: 50 });
+      const res = await aiChatHistory({ page: 1, limit: HISTORY_LIMIT });
       const d = unwrapAiData(res);
       const room = d.live_chat_room_id || "";
-      const msgs = Array.isArray(d.messages) ? d.messages : [];
+      const raw = Array.isArray(d.messages) ? d.messages : [];
+      // API отдаёт новые→старые (DESC); разворачиваем в старые→новые (сверху вниз)
+      const ordered = raw.map(normalizeMessage).reverse();
+      const total = Number(d.pagination?.total) || 0;
+      totalRef.current = total;
+      const more = total ? HISTORY_LIMIT < total : raw.length >= HISTORY_LIMIT;
+      hasMoreRef.current = more;
+      setHasMore(more);
       if (room) roomIdRef.current = room;
-      setMessages(msgs.map(normalizeMessage));
+      setMessages(ordered);
       if (room) connect(room);
     } catch {
       /* пустая история — не критично */
@@ -266,23 +289,55 @@ export function useAiChat(isOpen) {
     }
   }, [connect]);
 
-  // ─── Отправка сообщения ─────────────────────────────────────────────
+  // ─── Подгрузка старых сообщений (скролл вверх) ───────────────────────
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current || !hasMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    const nextPage = pageRef.current + 1;
+    try {
+      const res = await aiChatHistory({ page: nextPage, limit: HISTORY_LIMIT });
+      const d = unwrapAiData(res);
+      const raw = Array.isArray(d.messages) ? d.messages : [];
+      // страница тоже DESC → разворачиваем; вся страница старше текущих — добавляем сверху
+      const older = raw.map(normalizeMessage).reverse();
+      pageRef.current = nextPage;
+      const total = Number(d.pagination?.total) || totalRef.current;
+      totalRef.current = total;
+      const loaded = nextPage * HISTORY_LIMIT;
+      const more = total ? loaded < total : raw.length >= HISTORY_LIMIT;
+      hasMoreRef.current = more;
+      setHasMore(more);
+      if (older.length) setMessages((prev) => [...older, ...prev]);
+    } catch {
+      /* игнор — можно повторить при следующем скролле */
+    } finally {
+      loadingMoreRef.current = false;
+      setLoadingMore(false);
+    }
+  }, []);
+
+  // ─── Отправка сообщения (с опциональными файлами) ───────────────────
   const send = useCallback(
-    async (text) => {
+    async (text, files = []) => {
       const content = String(text || "").trim();
-      if (!content) return;
+      const atts = Array.isArray(files) ? files : [];
+      if (!content && atts.length === 0) return;
 
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: "user", content, isHtml: false },
+        { id: uid(), role: "user", content, files: atts, isHtml: false },
       ]);
       setIsAwaiting(true);
       streamRef.current = "";
       setStreamingText(null);
       awaitingReplyRef.current = true;
 
+      // AI получает текст со ссылками: {filename} → [name](url), остальные — в конец
+      const apiContent = buildAiChatContent(content, atts);
+
       try {
-        const res = await aiChatSendMessage({ content });
+        const res = await aiChatSendMessage({ content: apiContent });
         const d = unwrapAiData(res);
         const room = d.live_chat_room_id || roomIdRef.current;
         if (room) {
@@ -307,12 +362,16 @@ export function useAiChat(isOpen) {
     [connect, startPolling]
   );
 
-  // ленивая инициализация при первом открытии
+  // перезагружаем историю при каждом открытии; при закрытии тоже дёргаем history
   useEffect(() => {
     openRef.current = isOpen;
-    if (isOpen && !initializedRef.current) {
-      initializedRef.current = true;
+    if (isOpen) {
+      everOpenedRef.current = true;
       loadHistory();
+    } else if (everOpenedRef.current) {
+      // закрытие после открытия — сбрасываем пагинацию и обновляем историю
+      pageRef.current = 1;
+      aiChatHistory({ page: 1, limit: HISTORY_LIMIT }).catch(() => {});
     }
   }, [isOpen, loadHistory]);
 
@@ -337,6 +396,9 @@ export function useAiChat(isOpen) {
     isAwaiting,
     connected,
     historyLoading,
+    hasMore,
+    loadingMore,
+    loadMore,
     send,
   };
 }

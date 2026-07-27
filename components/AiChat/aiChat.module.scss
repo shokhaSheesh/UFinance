@@ -180,6 +180,14 @@ $chat-bg: #f7f8fb;
   flex-direction: column;
   gap: 16px;
 }
+/* индикатор подгрузки старых сообщений (сверху) */
+.loadMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18px;
+  margin-top: -4px;
+}
 .daySep {
   text-align: center;
   font-size: 11px;
@@ -260,6 +268,12 @@ $chat-bg: #f7f8fb;
   a {
     color: $blue;
     text-decoration: underline;
+  }
+  /* чипы файлов — свой стиль, перебиваем общий `a` выше по специфичности */
+  .inlineFile,
+  .msgFile {
+    color: #fff;
+    text-decoration: none;
   }
   code {
     background: #f1f3f8;
@@ -462,21 +476,67 @@ $chat-bg: #f7f8fb;
     border-color: $blue;
     box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.12);
   }
-  textarea {
-    flex: 1;
-    border: none;
-    outline: none;
-    resize: none;
-    font: inherit;
-    font-size: 13px;
-    max-height: 96px;
-    line-height: 1.5;
-    padding: 7px 2px;
-    color: $text;
-    background: transparent;
-    &::placeholder {
-      color: $muted-2;
-    }
+}
+/* contentEditable-композер: текст + синие чипы-ссылки файлов */
+.editor {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  max-height: 96px;
+  overflow-y: auto;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 7px 2px;
+  color: $text;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: $muted-2;
+    pointer-events: none;
+  }
+}
+/* файл в композере — синяя кликабельная ссылка */
+.chipLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+  max-width: 240px;
+  margin: 0 1px;
+  padding: 2px 8px 2px 6px;
+  border-radius: 8px;
+  background: $blue-soft;
+  color: $blue;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.14s, box-shadow 0.14s;
+  &:hover {
+    background: #dce6ff;
+    box-shadow: 0 1px 4px rgba(47, 107, 255, 0.18);
+  }
+  svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -553,6 +613,131 @@ $chat-bg: #f7f8fb;
   font-size: 10.5px;
   color: $muted-2;
   margin-top: 8px;
+}
+
+/* кнопка «скрепка» — прикрепить файл */
+.attach {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 11px;
+  background: #f2f4f9;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s;
+  &:hover:not(:disabled) {
+    background: $blue-soft;
+    color: $blue;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+.spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(47, 107, 255, 0.25);
+  border-top-color: $blue;
+  animation: aiSpin 0.7s linear infinite;
+}
+@keyframes aiSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* файлы внутри сообщения пользователя */
+.msgFiles {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+/* ссылка на файл прямо в тексте сообщения (на синем пузыре) */
+.inlineFile {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+  max-width: 100%;
+  margin: 0 2px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 12.5px;
+  transition: background 0.14s, box-shadow 0.14s;
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  }
+  svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    opacity: 0.92;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  span {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.msgFile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 9px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  transition: background 0.14s;
+  &:hover {
+    background: rgba(255, 255, 255, 0.32);
+  }
+  svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 /* адаптив: на узких экранах во всю ширину */

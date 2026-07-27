@@ -13,7 +13,11 @@
     "suggest1": "Oyning eng katta xarajatlari",
     "suggest2": "Hisoblar bo'yicha balans",
     "suggest3": "Oylik sof foyda",
-    "resizeHint": "Panel enini o'zgartirish"
+    "resizeHint": "Panel enini o'zgartirish",
+    "attach": "Fayl biriktirish",
+    "fileTooBig": "Fayl 5 MB dan katta",
+    "filesMax": "{max} tadan ortiq fayl biriktirib bo'lmaydi",
+    "fileUploadError": "Faylni yuklab bo'lmadi"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",
