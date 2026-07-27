@@ -52,6 +52,19 @@ const SUGGESTIONS = [
   { key: "suggest3", Icon: TrendUpIcon },
 ];
 
+// Изменение ширины панели перетаскиванием
+const MIN_W = 340;
+const MAX_W = 860;
+const DEFAULT_W = 424;
+const WIDTH_KEY = "aiChatWidth";
+const clampWidth = (w) => {
+  if (typeof window === "undefined") return w;
+  return Math.max(
+    Math.min(MIN_W, window.innerWidth),
+    Math.min(w, Math.min(MAX_W, window.innerWidth))
+  );
+};
+
 const AiChatPanel = observer(() => {
   const t = useTranslations("AiChat");
   const mounted = useMounted();
@@ -62,8 +75,48 @@ const AiChatPanel = observer(() => {
 
   const [draft, setDraft] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_W);
+  const [resizing, setResizing] = useState(false);
   const bodyRef = useRef(null);
   const textareaRef = useRef(null);
+  const widthRef = useRef(DEFAULT_W);
+
+  // восстанавливаем сохранённую ширину
+  useEffect(() => {
+    const saved = Number(localStorage.getItem(WIDTH_KEY));
+    if (saved) {
+      const w = clampWidth(saved);
+      widthRef.current = w;
+      setPanelWidth(w);
+    }
+  }, []);
+
+  // перетаскивание левого края → изменение ширины (панель прижата вправо)
+  const startResize = (e) => {
+    e.preventDefault();
+    setResizing(true);
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "ew-resize";
+    const onMove = (ev) => {
+      const w = clampWidth(window.innerWidth - ev.clientX);
+      widthRef.current = w;
+      setPanelWidth(w);
+    };
+    const onUp = () => {
+      setResizing(false);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      try {
+        localStorage.setItem(WIDTH_KEY, String(Math.round(widthRef.current)));
+      } catch {
+        /* noop */
+      }
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
 
   // автоскролл вниз при новых сообщениях / стриме
   useEffect(() => {
@@ -119,9 +172,19 @@ const AiChatPanel = observer(() => {
         onClick={() => aiChatStore.close()}
       />
       <aside
-        className={`${styles.panel} ${isOpen ? "" : styles.closed}`}
+        className={`${styles.panel} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
+        style={{ width: panelWidth }}
         aria-hidden={!isOpen}
       >
+        {/* Ручка изменения ширины (левый край, по центру) */}
+        <div
+          className={styles.resizeHandle}
+          onPointerDown={startResize}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t("resizeHint")}
+        />
+
         {/* Header */}
         <div className={styles.head}>
           <div className={styles.avatar}>
