@@ -12,7 +12,8 @@
     "suggestTitle": "Tezkor savollar",
     "suggest1": "Oyning eng katta xarajatlari",
     "suggest2": "Hisoblar bo'yicha balans",
-    "suggest3": "Oylik sof foyda"
+    "suggest3": "Oylik sof foyda",
+    "resizeHint": "Panel enini o'zgartirish"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",
@@ -1163,7 +1164,6 @@
         }
       }
     },
-
     "branches": {
       "pageTitle": "Filiallar",
       "add": "Qo'shish",
@@ -1663,7 +1663,6 @@
         "kpp": "KPP"
       },
       "loading": "Yuklanmoqda...",
-
       "noResults": "Hech narsa topilmadi",
       "noData": "Ma'lumot yo'q",
       "entityCount": "{count} ta yuridik shaxs",
@@ -2074,7 +2073,9 @@
       }
     },
     "IncomeExpenseBudgetSingle": {
-      "breadcrumb": { "list": "Byudjetlar ro'yxati" },
+      "breadcrumb": {
+        "list": "Byudjetlar ro'yxati"
+      },
       "title": "Kuybыsheva, 45",
       "type": "DXB",
       "period": "Noy '25 — sen '26",
@@ -2131,7 +2132,10 @@
         "profitability": "Rentabellik, %"
       },
       "na": "n/a",
-      "actions": { "expand": "Yoyish", "collapse": "Yig'ish" }
+      "actions": {
+        "expand": "Yoyish",
+        "collapse": "Yig'ish"
+      }
     }
   },
   "Indicators": {

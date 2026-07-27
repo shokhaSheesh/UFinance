@@ -12,7 +12,8 @@
     "suggestTitle": "Быстрые вопросы",
     "suggest1": "Топ расходов месяца",
     "suggest2": "Баланс по счетам",
-    "suggest3": "Чистая прибыль за месяц"
+    "suggest3": "Чистая прибыль за месяц",
+    "resizeHint": "Изменить ширину панели"
   },
   "Warehouse": {
     "pageTitle": "Мой склад",
@@ -254,7 +255,6 @@
     },
     "transactionCategories": {
       "pageTitle": "Учетные статьи",
-
       "create": "Создать",
       "searchPlaceholder": "Поиск по названию",
       "loading": "Загрузка",
@@ -1464,7 +1464,6 @@
       "save": "Сохранить",
       "saving": "Сохранение...",
       "creating": "Создание...",
-      "save": "Сохранить",
       "cancel": "Отменить",
       "create": "Создать",
       "requisites": "Реквизиты",
@@ -1743,7 +1742,6 @@
         "legalEntity": "Юрлицо",
         "requisites": "Реквизиты"
       },
-
       "loading": "Загрузка...",
       "noResults": "Ничего не найдено",
       "noData": "Нет данных",
@@ -2102,7 +2100,9 @@
       }
     },
     "IncomeExpenseBudgetSingle": {
-      "breadcrumb": { "list": "Список бюджетов" },
+      "breadcrumb": {
+        "list": "Список бюджетов"
+      },
       "title": "Куйбышева, 45",
       "type": "БДР",
       "period": "Ноя '25 — сен '26",
@@ -2159,7 +2159,10 @@
         "profitability": "Рентабельность, %"
       },
       "na": "н/о",
-      "actions": { "expand": "Развернуть", "collapse": "Свернуть" }
+      "actions": {
+        "expand": "Развернуть",
+        "collapse": "Свернуть"
+      }
     }
   },
   "Indicators": {
