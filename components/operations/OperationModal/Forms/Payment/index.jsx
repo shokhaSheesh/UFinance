@@ -33,7 +33,7 @@ import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
-import { formatDateParseZone, formatDecimal, formatNumber, StringtoNumber } from '../../../../../utils/helpers'
+import { formatDateParseZone, formatDecimal, formatAmountInput, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Helper to update find_operations infinite query cache
@@ -574,8 +574,8 @@ const PaymentForm = observer(({
                         <div className='flex items-center gap-2'>
                           <Input
                             type="text"
-                            value={formatNumber(field.value)}
-                            onChange={(e) => field.onChange(formatNumber(e.target.value))}
+                            value={formatAmountInput(field.value)}
+                            onChange={(e) => field.onChange(formatAmountInput(e.target.value))}
                             placeholder={t('amountPlaceholder')}
                             className={cn("w-[230px]", errors.amount && "border-red-500")}
                           />
