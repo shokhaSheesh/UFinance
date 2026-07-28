@@ -1,0 +1,51 @@
+.title {
+  font-family: Inter, sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 28px;
+  color: #0f172a;
+  margin: 0;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+// сегментированный переключатель вида списка
+.viewToggle {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e3e6ec;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+.viewToggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: #98a2b3;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+
+  &:hover {
+    color: #475467;
+  }
+  &.active {
+    background: #eaf0ff;
+    color: #2f6bff;
+  }
+  & + & {
+    border-left: 1px solid #e3e6ec;
+  }
+}

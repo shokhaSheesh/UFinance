@@ -27,6 +27,7 @@ import SentMessages from "../../../operations/OperationModal/SentMessages";
 import MyAccountCurrensies from "../../../ReadyComponents/MyAccountCurrensies";
 import SelectLegelEntitties from "../../../ReadyComponents/SelectLegelEntitties";
 import SelectProductService from "../../../ReadyComponents/SelectProductService";
+import SelectProjects from "../../../ReadyComponents/SelectProjects";
 import SingleCounterParty from "../../../ReadyComponents/SingleCounterParty";
 import SinglSelectStatiya from "../../../ReadyComponents/SingleSelectStatiya";
 import OperationCheckbox from "../../../shared/Checkbox/operationCheckbox";
@@ -137,6 +138,7 @@ const CreateShipment = observer(
     const [isPlanned, setIsPlanned] = useState(true);
     const [legalEntity, setLegalEntity] = useState("");
     const [client, setClient] = useState(kontragentId || "");
+    const [project, setProject] = useState("");
     const [chartOfAccounts, setChartOfAccounts] = useState([]);
     const [currency, setCurrency] = useState("");
     const [showChartOfAccounts, setShowChartOfAccounts] = useState(true);
@@ -210,6 +212,7 @@ const CreateShipment = observer(
         );
         setLegalEntity(SingleShipment.legal_entity_id || "");
         setClient(SingleShipment.partners_id || kontragentId || "");
+        setProject(SingleShipment.projects_id || "");
         setChartOfAccounts(SingleShipment.chart_of_accounts_id || "");
         setWarehouse(SingleShipment.warehouse_id || "");
         // Restore the supply mode: a saved article with no warehouse = service supply.
@@ -253,6 +256,7 @@ const CreateShipment = observer(
         setIsPlanned(hasWarehouseAccess);
         setLegalEntity("");
         setClient(kontragentId || "");
+        setProject("");
         setChartOfAccounts([]);
         setWarehouse("");
         setIsServiceSupply(false);
@@ -349,6 +353,23 @@ const CreateShipment = observer(
     const productServicesList = useMemo(() => {
       return productServiceDto(productServices);
     }, [productServices]);
+
+    // Проект сделки — для автозаполнения поля «Проект» при создании отгрузки/поставки
+    const { data: shipmentDealData } = useUcodeRequestQuery({
+      queryKey: "shipment_deal_project",
+      method: isPurchase
+        ? "get_purchase_transaction_by_guid"
+        : "get_sales_transaction_by_guid",
+      data: { guid: dealGuid },
+      skip: !dealGuid || !appStore.projectActive || isEditing,
+      querySetting: { select: (d) => d?.data?.data },
+    });
+
+    useEffect(() => {
+      if (open && !initialData?.guid && shipmentDealData?.projects_id) {
+        setProject(shipmentDealData.projects_id);
+      }
+    }, [open, initialData?.guid, shipmentDealData?.projects_id]);
 
     // Picker qiymati — сделка-товар боғланма guid'и; лекин backend'га ҳақиқий
     // product_and_service_id юборилиши керак. Edit'да row.name аллақачон
@@ -580,6 +601,7 @@ const CreateShipment = observer(
           legal_entity_id: legalEntity,
           [dealIdField]: dealGuid,
           partners_id: client,
+          ...(appStore.projectActive ? { projects_id: project || null } : {}),
           [isPurchase ? "planned_supply" : "planned_shipment"]: isFutureDate
             ? true
             : isPlanned,
@@ -694,12 +716,19 @@ const CreateShipment = observer(
     };
 
     const handleSelectProductSerice = (rowId, value) => {
-      const product = productServicesList?.find((p) => p.guid === value);
-      if (!product) return;
+      // Товар может отсутствовать в productServicesList (напр. когда «Мой склад»
+      // выключен и список подтягивается иначе) — выбор всё равно должен сработать.
+      const product =
+        productServicesList?.find((p) => p.guid === value) ||
+        productServicesList?.find((p) => p.product_and_service_id === value);
 
       setRows((prev) =>
         prev.map((row) => {
           if (row.id !== rowId) return row;
+          if (!product) {
+            // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
+            return { ...row, name: value };
+          }
           const q = Number(product.kolvo) || 0;
           const p = signPrice(Number(product.tsena_za_ed) || 0);
           return {
@@ -916,6 +945,21 @@ const CreateShipment = observer(
                 )}
               </div>
 
+              {/* Проект — только если включён модуль проектов (автозаполнение из сделки) */}
+              {appStore.projectActive && (
+                <div className="w-full flex items-center gap-2 pb-2">
+                  <label className="w-40! text-xss!">{t("project")}</label>
+                  <div className="flex-1">
+                    <SelectProjects
+                      value={project}
+                      onChange={(value) => setProject(value)}
+                      placeholder={t("projectPlaceholder")}
+                      className="w-80! bg-white"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Warehouse — above the article; shown once the module is on */}
               {isWarehouseModuleOn && (
                 <div className="w-full flex items-center gap-2 pb-2">
@@ -1091,6 +1135,7 @@ const CreateShipment = observer(
                             <div className="pr-2 pt-2 pb-2">
                               <SelectProductService
                                 value={row.name}
+                                selectedLabel={row.naimenovanie}
                                 onChange={(value) =>
                                   handleSelectProductSerice(row?.id, value)
                                 }

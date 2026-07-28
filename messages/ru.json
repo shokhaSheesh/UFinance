@@ -171,7 +171,9 @@
     "createCounterparty": "Создать контрагента",
     "createCounterparties": "Создать контрагентов",
     "createDeal": "Создать сделку",
-    "createDeals": "Создать сделки"
+    "createDeals": "Создать сделки",
+    "archive": "Архивировать",
+    "unarchive": "Разархивировать"
   },
   "Auth": {
     "title": {
@@ -242,7 +244,8 @@
       "directories": "Справочники",
       "settings": "Настройки",
       "plans": "Планы",
-      "warehouse": "Мой склад"
+      "warehouse": "Мой склад",
+      "projects": "Проекты"
     },
     "reports": {
       "cashflow": "Движение денег (ДДС)",
@@ -429,7 +432,8 @@
       "counterparty": "Контрагент",
       "statya": "Статья",
       "deal": "Сделка",
-      "amount": "Сумма"
+      "amount": "Сумма",
+      "project": "Проект"
     },
     "filters": {
       "operationType": "Тип операции",
@@ -455,7 +459,9 @@
       "purchaseDealsPlaceholder": "Сделки закупок",
       "paymentTypePlaceholder": "Тип платежа",
       "amountFrom": "Сумма от",
-      "amountTo": "до"
+      "amountTo": "до",
+      "projectsPlaceholder": "Проекты",
+      "project": "Проект"
     },
     "paymentTypes": {
       "cash": "Наличный",
@@ -549,7 +555,9 @@
       "canAllowOpiu": "Учитывать в ОПиУ кассовым методом",
       "create": "Создать",
       "save": "Сохранить",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "project": "Проект",
+      "projectPlaceholder": "Выберите проект"
     },
     "splitAmount": {
       "cancelSplit": "Отменить разбиение",
@@ -620,7 +628,8 @@
       "date": "Дата",
       "counterparty": "Контрагент",
       "counterpartyGroup": "Группа контрагентов",
-      "deals": "Сделки"
+      "deals": "Сделки",
+      "projects": "Проекты"
     },
     "cashflow": {
       "title": "Отчет о движении денежных средств",
@@ -875,7 +884,8 @@
       "dealAmount": "Сумма сделки",
       "dealProfit": "Прибыль сделки",
       "from": "От",
-      "to": "До"
+      "to": "До",
+      "selectProjects": "Проекты"
     },
     "createDealModal": {
       "titleNew": "Новая продажа",
@@ -894,7 +904,9 @@
       "comment": "Комментарий",
       "cancel": "Отменить",
       "create": "Создать",
-      "save": "Сохранить"
+      "save": "Сохранить",
+      "project": "Проект",
+      "projectPlaceholder": "Выберите проект"
     },
     "createStudentModal": {
       "titleNew": "Новая продажа",
@@ -1095,7 +1107,9 @@
       "requiredFields": "Обязательные поля",
       "cancel": "Отмена",
       "create": "Создать",
-      "save": "Сохранить"
+      "save": "Сохранить",
+      "project": "Проект",
+      "projectPlaceholder": "Выберите проект"
     }
   },
   "Settings": {
@@ -1126,7 +1140,8 @@
       "modules": {
         "title": "Модули",
         "warehouse": "Мой склад",
-        "returns": "Возвраты"
+        "returns": "Возвраты",
+        "projects": "Проекты"
       },
       "save": "Сохранить",
       "saving": "Сохранение...",
@@ -2191,7 +2206,8 @@
       "placeholders": {
         "display": "Отображение",
         "account": "Счет",
-        "deal": "Сделка"
+        "deal": "Сделка",
+        "project": "Проекты"
       }
     },
     "accountBalance": {
@@ -2317,6 +2333,131 @@
       "description": "Введите 6-значный код, отправленный на ваш номер телефона",
       "confirm": "Подтвердить",
       "cancel": "Отмена"
+    }
+  },
+  "Projects": {
+    "pageTitle": "Проекты",
+    "searchPlaceholder": "Поиск по названию или комментарию",
+    "create": "Создать",
+    "createProject": "Создать проект",
+    "createGroup": "Создать группу проектов",
+    "analysisIndicator": "Показатель для анализа",
+    "empty": "Проекты не найдены",
+    "downloadExcel": "Скачать в Excel",
+    "methods": {
+      "cash": "Прибыль кассовым методом",
+      "accrual": "Прибыль методом начисления"
+    },
+    "status": {
+      "planned": "Плановый",
+      "in_progress": "В работе",
+      "completed": "Завершен"
+    },
+    "table": {
+      "name": "Название проекта",
+      "group": "Группа",
+      "period": "Начало / Конец",
+      "start": "Начало",
+      "end": "Конец",
+      "status": "Статус",
+      "income": "Доходы",
+      "expenses": "Расходы",
+      "profit": "Прибыль",
+      "profitability": "Рентабельность"
+    },
+    "footer": {
+      "count": "{count, plural, one {# проект} few {# проекта} many {# проектов} other {# проекта}}",
+      "income": "Доходы:",
+      "expenses": "Расходы:",
+      "profit": "Прибыль:",
+      "profitability": "Рентабельность:"
+    },
+    "filters": {
+      "projectStatus": "Статус проекта",
+      "parameters": "Параметры",
+      "startDate": "Начало проекта",
+      "endDate": "Конец проекта",
+      "projects": "Проекты",
+      "archive": "Архив",
+      "showActive": "Показать активные",
+      "showArchived": "Показать архивные",
+      "period": "Период проекта"
+    },
+    "createModal": {
+      "title": "Создать проект",
+      "name": "Название",
+      "namePlaceholder": "Например, Жукова, 1",
+      "nameRequired": "Укажите название",
+      "group": "Группа проектов",
+      "groupPlaceholder": "Выберите или создайте новую",
+      "createNewGroup": "Создать новую группу",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Описание проекта"
+    },
+    "createGroupModal": {
+      "title": "Создать группу проектов",
+      "name": "Название",
+      "namePlaceholder": "Например, ключевые заказы",
+      "nameRequired": "Укажите название",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Описание группы проектов"
+    },
+    "detail": {
+      "allProjects": "Все проекты",
+      "period": "Период",
+      "analysisIndicator": "Показатель для анализа",
+      "planSource": "Источник плана",
+      "planSourceOperations": "Операции",
+      "profit": "Прибыль",
+      "profitability": "Рентабельность",
+      "income": "Доходы",
+      "expenses": "Расходы",
+      "planBudget": "Спланировать бюджет",
+      "pnlReport": "Отчет о прибылях и убытках",
+      "byWeeks": "По неделям",
+      "operationsTitle": "Операции по проекту",
+      "noOperationsToday": "Сегодня нет операций",
+      "earlier": "Вчера и ранее",
+      "opCount": "{count, plural, one {# операция} few {# операции} many {# операций} other {# операции}}",
+      "opIncome": "поступление:",
+      "opExpense": "выплат:",
+      "opTotal": "Итого:",
+      "filters": "Фильтры",
+      "toggleStatus": "Изменить статус",
+      "createOperation": "Создать",
+      "sections": {
+        "future": "После",
+        "today": "Сегодня",
+        "before": "Вчера и ранее"
+      },
+      "emptyOps": {
+        "title": "Создайте операции по проекту",
+        "description": "Добавляйте поступления и выплаты — они появятся здесь."
+      },
+      "opFooter": {
+        "operations": "операция",
+        "operationsPlural": "операции",
+        "operationsPluralMany": "операций",
+        "receipts": "поступление",
+        "receiptsPlural": "поступления",
+        "receiptsPluralMany": "поступлений",
+        "payments": "выплата",
+        "paymentsPlural": "выплаты",
+        "paymentsPluralMany": "выплат",
+        "total": "Итого"
+      },
+      "byMonths": "По месяцам",
+      "noChartData": "Нет данных за период"
+    },
+    "operationsTable": {
+      "date": "Дата",
+      "account": "Счет",
+      "type": "Тип",
+      "counterparty": "Контрагент",
+      "article": "Статья",
+      "project": "Проект",
+      "deal": "Сделка",
+      "amount": "Сумма"
     }
   }
 }

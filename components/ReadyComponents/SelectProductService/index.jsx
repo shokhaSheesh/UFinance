@@ -24,7 +24,8 @@ const SelectProductService = ({
   returnName,
   disabled = false,
   dropdownHeaderItem,
-  type
+  type,
+  selectedLabel
 }) => {
   const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
@@ -79,6 +80,15 @@ const SelectProductService = ({
     return data;
   }, [productsData, selected])
 
+  // Выбранное значение может отсутствовать в подгруженном списке (напр. при
+  // редактировании value = product_and_service_id, а опции по guid). Чтобы товар
+  // всё равно отображался — добавляем его отдельной опцией из selectedLabel.
+  const optionsWithSelected = useMemo(() => {
+    if (multi || !value || Array.isArray(value)) return mappedData
+    if (mappedData.some((o) => o.value === value)) return mappedData
+    return [{ value, label: selectedLabel || value }, ...mappedData]
+  }, [mappedData, value, selectedLabel, multi])
+
   // Handle selection and return field value
   const handleChange = (val) => {
     onChange(val)
@@ -108,7 +118,7 @@ const SelectProductService = ({
 
   return (
     <Component
-      data={mappedData}
+      data={optionsWithSelected}
       value={value}
       onChange={handleChange}
       onSearch={handleSearch}

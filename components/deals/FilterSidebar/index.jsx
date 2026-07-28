@@ -10,6 +10,7 @@ import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
 import { formatNumber } from '../../../utils/helpers'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
+import SelectProjects from '../../ReadyComponents/SelectProjects'
 import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
@@ -27,6 +28,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 
 	const {
 		selectedCounterparties,
+		selectedProjects,
 		dateRange,
 		amountFrom,
 		amountTo,
@@ -67,6 +69,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 	const activeFilterCount = useMemo(() => {
 		let count = 0
 		if (selectedCounterparties?.length > 0) count++
+		if (selectedProjects?.length > 0) count++
 		if (status?.length > 0) count++
 		if (dateRange?.end || dateRange?.start) count++
 		if (amountFrom || amountTo) count++
@@ -75,6 +78,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 		return count
 	}, [
 		selectedCounterparties,
+		selectedProjects,
 		dateRange,
 		amountFrom,
 		amountTo,
@@ -137,6 +141,18 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 						value={selectedCounterparties}
 					/>
 				</div>
+
+				{/* Проекты — только если включён модуль проектов */}
+				{appStore.projectActive && (
+					<div className='flex flex-col gap-1.5'>
+						<SelectProjects
+							multi
+							value={selectedProjects}
+							onChange={values => handleFilterChange('selectedProjects', values)}
+							placeholder={t('selectProjects')}
+						/>
+					</div>
+				)}
 
 				{/* Date Range Selector */}
 				<div className='flex flex-col gap-1.5'>

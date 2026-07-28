@@ -334,7 +334,21 @@ const TableRow = observer(
             </div>
           </div>
 
-          {/* Project/Deal */}
+          {/* Project — колонка проекта (если включён модуль) */}
+          {appStore.projectActive && (
+            <div
+              className={cn(
+                "flex-1 flex px-2 py-1 items-center justify-start min-w-20",
+                isActive && styles.activeRow
+              )}
+            >
+              <p className={cn("text-xs text-neutral-600 truncate w-full", textPrimary)}>
+                {op?.projectName || ""}
+              </p>
+            </div>
+          )}
+
+          {/* Deal */}
           <div
             className={cn(
               "flex-1 flex px-2 py-1 items-center justify-center  min-w-20",

@@ -38,6 +38,7 @@ const ProfitableClients = observer(() => {
     period_type: indicators.periodType,
     accounting_method: profitableclientsMethod,
     sellingDealId: deals,
+    project_ids: indicators.projects,
     accountId: accounts,
     currencyCode: indicators?.currencyCode
   }

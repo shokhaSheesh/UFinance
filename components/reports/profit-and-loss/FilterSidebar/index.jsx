@@ -9,6 +9,8 @@ import { useTranslations } from 'next-intl'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
+import SelectProjects from '../../../ReadyComponents/SelectProjects'
+import { appStore } from '../../../../store/app.store'
 import { pnlStore } from '../pnl.store'
 
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
@@ -18,7 +20,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
     pnlStore.setDateRange(range)
   }
 
-  const { dateRange, selectedAccounts, selectedCounterparties, deals, selectedLegalEntities, operational, ebitda, ebit, ebt, defaultDate, dateRangeType } = pnlStore
+  const { dateRange, selectedAccounts, selectedCounterparties, selectedProjects, deals, selectedLegalEntities, operational, ebitda, ebit, ebt, defaultDate, dateRangeType } = pnlStore
 
   const datesEqual = (a, b) =>
     a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
@@ -28,6 +30,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
       !datesEqual(dateRange.end, defaultDate.end) ? 1 : 0) +
     selectedAccounts.length +
     selectedCounterparties.length +
+    (selectedProjects?.length || 0) +
     deals.length +
     selectedLegalEntities.length +
     (operational || ebitda || ebit || ebt ? 1 : 0)
@@ -74,6 +77,18 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             onChange={(val) => pnlStore.setSelectedCounterparties(val)}
           />
         </div>
+        {/* Проекты — только если включён модуль проектов */}
+        {appStore.projectActive && (
+          <div>
+            <SelectProjects
+              multi
+              value={pnlStore.selectedProjects}
+              onChange={(val) => pnlStore.setSelectedProjects(val)}
+              placeholder={t('common.projects')}
+            />
+          </div>
+        )}
+
         {/* deals */}
         <div>
           <MultiSelectZdelka

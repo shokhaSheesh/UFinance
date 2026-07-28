@@ -23,6 +23,7 @@ class CashFlowStore {
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
 	accountId = []
 	dealId = [] // these are same values
+	projectId = []
 	dateRangeType = 'year'
 
 	constructor() {
@@ -39,6 +40,7 @@ class CashFlowStore {
 					'contrAgentId',
 					'accountId',
 					'dealId',
+					'projectId',
 					'dateRangeType'
 				],
 				storage: window.localStorage,
@@ -73,6 +75,10 @@ class CashFlowStore {
 		this.sellingDealId = value
 	}
 
+	setSelectedProjects(value) {
+		this.projectId = value
+	}
+
 	setCounterparties(value) {
 		this.contrAgentId = value
 	}
@@ -90,6 +96,7 @@ class CashFlowStore {
 		this.contrAgentId = []
 		this.accountId = []
 		this.dealId = []
+		this.projectId = []
 		this.dateRangeType = 'year'
 	}
 }

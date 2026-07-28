@@ -26,6 +26,7 @@ class PnLStore {
 	ebit = false
 	ebt = false
 	deals = []
+	selectedProjects = []
 	selectedAccounts = []
 	selectedLegalEntities = []
 	selectedCounterparties = []
@@ -47,6 +48,7 @@ class PnLStore {
 					'selectedPeriod',
 					'selectedGrouping',
 					'deals',
+					'selectedProjects',
 					'isCalculation',
 					'dateRange',
 					'dateRangeType'
@@ -105,6 +107,10 @@ class PnLStore {
 		this.deals = value
 	}
 
+	setSelectedProjects(value) {
+		this.selectedProjects = value
+	}
+
 	resetFilters() {
 		this.dateRange = getDefaultDateRange()
 		this.selectedPeriod = 'all'
@@ -115,6 +121,7 @@ class PnLStore {
 		this.ebit = false
 		this.ebt = false
 		this.deals = []
+		this.selectedProjects = []
 		this.selectedAccounts = []
 		this.selectedLegalEntities = []
 		this.selectedCounterparties = []

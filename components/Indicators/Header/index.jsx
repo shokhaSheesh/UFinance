@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { indicators } from '../../../store/indicatos.store'
 import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts"
+import SelectProjects from "../../ReadyComponents/SelectProjects"
+import { appStore } from "../../../store/app.store"
 import CustomRangeMonthPicker from '../../shared/CustomRangeMonthPicker'
 import SingleSelect from "../../shared/Selects/SingleSelect"
 import './style.scss'
@@ -75,6 +77,18 @@ const IndicatorsNavbar = () => {
                         className="bg-neutral-50/50"
                     />
                 </div>
+
+                {appStore.projectActive && (
+                    <div className="w-[200px] shrink-0">
+                        <SelectProjects
+                            multi
+                            value={indicators.projects}
+                            onChange={(value) => indicators.setState('projects', value)}
+                            placeholder={t('header.placeholders.project')}
+                            className="bg-neutral-50/50"
+                        />
+                    </div>
+                )}
 
                 <div className="w-[200px] shrink-0">
                     <MultiSelectZdelka

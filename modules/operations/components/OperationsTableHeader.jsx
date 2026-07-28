@@ -27,6 +27,11 @@ export default function OperationsTableHeader({ t }) {
       <div className="min-w-20 flex-1 text-start p-3 items-center justify-start">
         {t('columns.statya')}
       </div>
+      {appStore.projectActive && (
+        <div className="min-w-20 flex-1 flex p-3 items-center justify-start">
+          {t('columns.project')}
+        </div>
+      )}
       <div className="min-w-20 flex-1 flex p-3 items-center justify-center">
         {t('columns.deal')}
       </div>

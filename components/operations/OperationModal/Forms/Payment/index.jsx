@@ -14,6 +14,7 @@ import { formatDate, isFuture } from '@/utils/formatDate'
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SelectProjects from '../../../../ReadyComponents/SelectProjects'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import SinglePurchaseZdelka from '../../../../ReadyComponents/SinglePurchaseZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
@@ -296,6 +297,7 @@ const PaymentForm = observer(({
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.sales_transactions_id || defaultDealGuid || null,
         purchaseDeal: raw.purchase_transactions_id || defaultPurchaseDealGuid || null,
+        projects_id: raw?.projects_id || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || raw.currencyId || 'RUB',
       }
@@ -313,6 +315,7 @@ const PaymentForm = observer(({
       paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
       purchaseDeal: defaultPurchaseDealGuid || null,
+      projects_id: null,
       purpose: '',
       currency: '',
     }
@@ -398,6 +401,7 @@ const PaymentForm = observer(({
       chart_of_accounts_id: chart_of_accounts_id || data?.chartOfAccount,
       sales_transactions_id: watchSalesDeal,
       purchase_transactions_id: watchPurchaseDeal || null,
+      ...(appStore.projectActive ? { projects_id: data?.projects_id || null } : {}),
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
@@ -719,6 +723,27 @@ const PaymentForm = observer(({
                         withSearch={false}
                         isClearable={false}
                         className='bg-white border rounded-md'
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Проект — только если включён модуль проектов */}
+            {appStore.projectActive && (
+              <div className="flex items-center gap-4">
+                <label className="w-[150px] text-xss">{t('project')}</label>
+                <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
+                  <Controller
+                    name="projects_id"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectProjects
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={t('projectPlaceholder')}
+                        className='bg-white border rounded-md h-[36px]!'
                       />
                     )}
                   />

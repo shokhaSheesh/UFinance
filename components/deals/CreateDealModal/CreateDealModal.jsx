@@ -11,6 +11,7 @@ import { useUcodeRequestMutation } from '../../../hooks/useDashboard';
 import { appStore } from '../../../store/app.store';
 import { authStore } from '../../../store/auth.store';
 import { formatDate } from '../../../utils/formatDate';
+import SelectProjects from '../../ReadyComponents/SelectProjects';
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty';
 import CustomDialog from '../../shared/CustomDialog';
 import Loader from '../../shared/Loader';
@@ -29,6 +30,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
   const [dealName, setDealName] = useState('');
   const [dealDate, setDealDate] = useState();
   const [client, setClient] = useState('');
+  const [project, setProject] = useState('');
   const [nds, setNds] = useState('true');
   const [comment, setComment] = useState('');
   const [errors, setErrors] = useState({});
@@ -43,6 +45,8 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       const dateVal = initialData.Data_sdelki || initialData.sale_date;
       setDealDate(dateVal ? formatDate(dateVal) : '');
       setClient(initialData.partners_id || initialData.counterparties_id || '');
+      // autofill проекта, если он приходит в данных сделки
+      setProject(initialData.projects_id || '');
       const ndsVal = initialData.NDS !== undefined ? initialData.NDS : initialData.nds;
       setNds(ndsVal ? 'true' : 'false');
       setComment(initialData.Kommentariy || initialData.commentary || '');
@@ -50,6 +54,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       setDealName('');
       setDealDate('');
       setClient('');
+      setProject('');
       setNds('true');
       setComment('');
     }
@@ -83,6 +88,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       currenies_id: appStore?.currency?.guid,
       status: ["Новая"],
       branch_id: authStore.branch_id,
+      ...(appStore.projectActive ? { projects_id: project || null } : {}),
     };
 
     if (!isPurchase) {
@@ -183,6 +189,21 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
             />
           </div>
         </div>
+
+        {/* Проект — только если включён модуль проектов */}
+        {appStore.projectActive && (
+          <div className="grid grid-cols-7">
+            <label className=" col-span-2 flex items-center">{t('project')}</label>
+            <div className=" col-span-5">
+              <SelectProjects
+                value={project}
+                onChange={(value) => setProject(value)}
+                placeholder={t('projectPlaceholder')}
+                className={'bg-white'}
+              />
+            </div>
+          </div>
+        )}
 
         {!isPurchase && (
           <div className="grid grid-cols-7">

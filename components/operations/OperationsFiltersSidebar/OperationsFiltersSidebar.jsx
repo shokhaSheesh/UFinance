@@ -12,6 +12,7 @@ import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import MultiSelectPurchaseZdelka from '../../ReadyComponents/MultiPurchaseZdelka'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '../../ReadyComponents/SelectMyAccounts'
+import SelectProjects from '../../ReadyComponents/SelectProjects'
 import { FilterSection, FilterSidebar } from '../../directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '../../directories/NewDateRangeComponent'
 import OperationCheckbox from '../../shared/Checkbox/operationCheckbox'
@@ -30,6 +31,7 @@ export const OperationsFiltersSidebar = observer(({
     selectedLegalEntities,
     selectedCounterAgents,
     selectedChartOfAccounts,
+    selectedProjects,
     paymentType,
     deals,
     purchaseDeals,
@@ -66,6 +68,7 @@ export const OperationsFiltersSidebar = observer(({
     if (selectedCounterAgents?.length) count++
     if (selectedLegalEntities?.length) count++
     if (selectedChartOfAccounts?.length) count++
+    if (selectedProjects?.length) count++
     if (deals?.length) count++
     if (purchaseDeals?.length) count++
 
@@ -79,7 +82,7 @@ export const OperationsFiltersSidebar = observer(({
     if (!paymentConfirm || !paymentNotConfirm || !accrualConfirm || !accrualNotConfirm) count++
 
     return count
-  }, [safeSelectedFilters, selectedDatePaymentRange, selectedDateStartRange, selectedCounterAgents, selectedLegalEntities, selectedChartOfAccounts, deals, purchaseDeals, paymentType, amountRange, paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm])
+  }, [safeSelectedFilters, selectedDatePaymentRange, selectedDateStartRange, selectedCounterAgents, selectedLegalEntities, selectedChartOfAccounts, selectedProjects, deals, purchaseDeals, paymentType, amountRange, paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm])
 
   // Clear all filters
   const onClear = useCallback(() => {
@@ -277,6 +280,18 @@ export const OperationsFiltersSidebar = observer(({
               placeholder={t('filters.counterpartiesPlaceholder')}
               className={'bg-gray-ucode-25'}
             />
+
+            {/* Проекты — только если включён модуль проектов */}
+            {appStore.projectActive && (
+              <SelectProjects
+                multi
+                value={selectedProjects}
+                onChange={(val) => operationFilterStore.setSelectedProjects(val)}
+                placeholder={t('filters.projectsPlaceholder')}
+                className={'bg-gray-ucode-25'}
+                dropdownClassName={'w-64'}
+              />
+            )}
 
             {/* Payment filter  */}
             {appStore.isPayment && <SingleSelect

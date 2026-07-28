@@ -169,7 +169,9 @@
     "createCounterparty": "Kontragent yaratish",
     "createCounterparties": "Kontragentlar yaratish",
     "createDeal": "Bitim yaratish",
-    "createDeals": "Bitimlar yaratish"
+    "createDeals": "Bitimlar yaratish",
+    "archive": "Arxivlash",
+    "unarchive": "Arxivdan chiqarish"
   },
   "Auth": {
     "title": {
@@ -240,7 +242,8 @@
       "directories": "Ma'lumotlar",
       "settings": "Sozlamalar",
       "plans": "Rejalar",
-      "warehouse": "Mening omborim"
+      "warehouse": "Mening omborim",
+      "projects": "Loyihalar"
     },
     "plans": {
       "cash_flow_budget": "Pul oqimi byudjeti",
@@ -428,7 +431,8 @@
       "counterparty": "Tomon",
       "statya": "Maqola",
       "deal": "Bitim",
-      "amount": "Summa"
+      "amount": "Summa",
+      "project": "Loyiha"
     },
     "filters": {
       "operationType": "Operatsiya turi",
@@ -454,7 +458,9 @@
       "purchaseDealsPlaceholder": "Xarid bitimlari",
       "paymentTypePlaceholder": "To'lov turi",
       "amountFrom": "Summa, dan",
-      "amountTo": "gacha"
+      "amountTo": "gacha",
+      "projectsPlaceholder": "Loyihalar",
+      "project": "Loyiha"
     },
     "paymentTypes": {
       "cash": "Naqd",
@@ -548,7 +554,9 @@
       "canAllowOpiu": "OPiU kassa usulida hisobga olish",
       "create": "Yaratish",
       "save": "Saqlash",
-      "cancel": "Bekor qilish"
+      "cancel": "Bekor qilish",
+      "project": "Loyiha",
+      "projectPlaceholder": "Loyihani tanlang"
     },
     "splitAmount": {
       "cancelSplit": "Bo'lishni bekor qilish",
@@ -619,7 +627,8 @@
       "date": "Sana",
       "counterparty": "Hamkor",
       "counterpartyGroup": "Hamkorlar guruhi",
-      "deals": "Bitimlar"
+      "deals": "Bitimlar",
+      "projects": "Loyihalar"
     },
     "cashflow": {
       "title": "Pul mablag'larining harakati to'g'risida hisobot",
@@ -873,7 +882,8 @@
       "dealAmount": "Bitim summasi",
       "dealProfit": "Bitim foydasi",
       "from": "Dan",
-      "to": "Gacha"
+      "to": "Gacha",
+      "selectProjects": "Loyihalar"
     },
     "createDealModal": {
       "titleNew": "Yangi sotuv",
@@ -892,7 +902,9 @@
       "comment": "Izoh",
       "cancel": "Bekor qilish",
       "create": "Yaratish",
-      "save": "Saqlash"
+      "save": "Saqlash",
+      "project": "Loyiha",
+      "projectPlaceholder": "Loyihani tanlang"
     },
     "createStudentModal": {
       "titleNew": "Yangi shartnoma",
@@ -1093,7 +1105,9 @@
       "requiredFields": "Majburiy maydonlar",
       "cancel": "Bekor qilish",
       "create": "Yaratish",
-      "save": "Saqlash"
+      "save": "Saqlash",
+      "project": "Loyiha",
+      "projectPlaceholder": "Loyihani tanlang"
     }
   },
   "Settings": {
@@ -1124,7 +1138,8 @@
       "modules": {
         "title": "Modullar",
         "warehouse": "Mening omborim",
-        "returns": "Qaytarishlar"
+        "returns": "Qaytarishlar",
+        "projects": "Loyihalar"
       },
       "save": "Saqlash",
       "saving": "Saqlanmoqda...",
@@ -2164,7 +2179,8 @@
       "placeholders": {
         "display": "Ko'rinish",
         "account": "Hisob",
-        "deal": "Bitim"
+        "deal": "Bitim",
+        "project": "Loyihalar"
       }
     },
     "accountBalance": {
@@ -2290,6 +2306,131 @@
       "description": "Telefon raqamingizga yuborilgan 6 xonali kodni kiriting",
       "confirm": "Tasdiqlash",
       "cancel": "Bekor qilish"
+    }
+  },
+  "Projects": {
+    "pageTitle": "Loyihalar",
+    "searchPlaceholder": "Nomi yoki izoh bo'yicha qidirish",
+    "create": "Yaratish",
+    "createProject": "Loyiha yaratish",
+    "createGroup": "Loyihalar guruhini yaratish",
+    "analysisIndicator": "Tahlil ko'rsatkichi",
+    "empty": "Loyihalar topilmadi",
+    "downloadExcel": "Excelga yuklab olish",
+    "methods": {
+      "cash": "Kassa usulida foyda",
+      "accrual": "Hisoblash usulida foyda"
+    },
+    "status": {
+      "planned": "Rejalashtirilgan",
+      "in_progress": "Jarayonda",
+      "completed": "Yakunlangan"
+    },
+    "table": {
+      "name": "Loyiha nomi",
+      "group": "Guruh",
+      "period": "Boshlanishi / Tugashi",
+      "start": "Boshlanishi",
+      "end": "Tugashi",
+      "status": "Holati",
+      "income": "Daromadlar",
+      "expenses": "Xarajatlar",
+      "profit": "Foyda",
+      "profitability": "Rentabellik"
+    },
+    "footer": {
+      "count": "{count, plural, one {# loyiha} other {# loyiha}}",
+      "income": "Daromadlar:",
+      "expenses": "Xarajatlar:",
+      "profit": "Foyda:",
+      "profitability": "Rentabellik:"
+    },
+    "filters": {
+      "projectStatus": "Loyiha holati",
+      "parameters": "Parametrlar",
+      "startDate": "Loyiha boshlanishi",
+      "endDate": "Loyiha tugashi",
+      "projects": "Loyihalar",
+      "archive": "Arxiv",
+      "showActive": "Faollarni ko'rsatish",
+      "showArchived": "Arxivlanganlarni ko'rsatish",
+      "period": "Loyiha davri"
+    },
+    "createModal": {
+      "title": "Loyiha yaratish",
+      "name": "Nomi",
+      "namePlaceholder": "Masalan, Jukova, 1",
+      "nameRequired": "Nomini kiriting",
+      "group": "Loyihalar guruhi",
+      "groupPlaceholder": "Tanlang yoki yangi yarating",
+      "createNewGroup": "Yangi guruh yaratish",
+      "comment": "Izoh",
+      "commentPlaceholder": "Loyiha tavsifi"
+    },
+    "createGroupModal": {
+      "title": "Loyihalar guruhini yaratish",
+      "name": "Nomi",
+      "namePlaceholder": "Masalan, asosiy buyurtmalar",
+      "nameRequired": "Nomini kiriting",
+      "comment": "Izoh",
+      "commentPlaceholder": "Loyihalar guruhi tavsifi"
+    },
+    "detail": {
+      "allProjects": "Barcha loyihalar",
+      "period": "Davr",
+      "analysisIndicator": "Tahlil ko'rsatkichi",
+      "planSource": "Reja manbasi",
+      "planSourceOperations": "Operatsiyalar",
+      "profit": "Foyda",
+      "profitability": "Rentabellik",
+      "income": "Daromadlar",
+      "expenses": "Xarajatlar",
+      "planBudget": "Byudjetni rejalashtirish",
+      "pnlReport": "Foyda va zararlar hisoboti",
+      "byWeeks": "Haftalar bo'yicha",
+      "operationsTitle": "Loyiha operatsiyalari",
+      "noOperationsToday": "Bugun operatsiyalar yo'q",
+      "earlier": "Kecha va oldinroq",
+      "opCount": "{count, plural, one {# operatsiya} other {# operatsiya}}",
+      "opIncome": "tushum:",
+      "opExpense": "to'lov:",
+      "opTotal": "Jami:",
+      "filters": "Filtrlar",
+      "toggleStatus": "Holatni o'zgartirish",
+      "createOperation": "Yaratish",
+      "sections": {
+        "future": "Keyin",
+        "today": "Bugun",
+        "before": "Kecha va oldinroq"
+      },
+      "emptyOps": {
+        "title": "Loyiha boʻyicha operatsiyalar yarating",
+        "description": "Tushum va toʻlovlarni qoʻshing — ular shu yerda koʻrinadi."
+      },
+      "opFooter": {
+        "operations": "operatsiya",
+        "operationsPlural": "operatsiya",
+        "operationsPluralMany": "operatsiya",
+        "receipts": "tushum",
+        "receiptsPlural": "tushum",
+        "receiptsPluralMany": "tushum",
+        "payments": "toʻlov",
+        "paymentsPlural": "toʻlov",
+        "paymentsPluralMany": "toʻlov",
+        "total": "Jami"
+      },
+      "byMonths": "Oylar boʻyicha",
+      "noChartData": "Davr uchun maʼlumot yoʻq"
+    },
+    "operationsTable": {
+      "date": "Sana",
+      "account": "Hisob",
+      "type": "Turi",
+      "counterparty": "Kontragent",
+      "article": "Modda",
+      "project": "Loyiha",
+      "deal": "Bitim",
+      "amount": "Summa"
     }
   }
 }

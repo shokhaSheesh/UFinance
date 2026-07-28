@@ -3,8 +3,10 @@
 import SalesTransactions from '@/components/ReadyComponents/SalesTransactions'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
+import SelectProjects from '@/components/ReadyComponents/SelectProjects'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
+import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
@@ -12,7 +14,7 @@ import { cashFlowStore } from '../cashflow.store'
 
 const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')
-  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, defaultDate, dateRangeType } = cashFlowStore
+  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, projectId, defaultDate, dateRangeType } = cashFlowStore
 
   const handleDateRangeChange = (range) => {
     cashFlowStore.setPeriodDateRange(range)
@@ -26,6 +28,7 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
       !datesEqual(periodEndDate, defaultDate.end) ? 1 : 0) +
     accountId.length +
     contrAgentId.length +
+    (projectId?.length || 0) +
     sellingDealId.length
 
   const handleClear = () => {
@@ -71,6 +74,17 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
           onChange={(val) => cashFlowStore.setCounterparties(val)}
           className="bg-gray-ucode-25"
         />
+
+        {/* Проекты — только если включён модуль проектов */}
+        {appStore.projectActive && (
+          <SelectProjects
+            multi
+            value={projectId}
+            onChange={(val) => cashFlowStore.setSelectedProjects(val)}
+            placeholder={t('common.projects')}
+            className="bg-gray-ucode-25"
+          />
+        )}
 
         {/* Sales transtions */}
         <SalesTransactions

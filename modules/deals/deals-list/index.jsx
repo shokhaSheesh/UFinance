@@ -80,7 +80,7 @@ export default observer(function DealsPage() {
 
   // ── Store state ────────────────────────────────────────────────────────────
   const {
-    selectedCounterparties, dealsMethod, dateRange,
+    selectedCounterparties, selectedProjects, dealsMethod, dateRange,
     amountFrom, amountTo, profitFrom, profitTo,
     status, schoolYear, search: searchValue, setState,
   } = sealDeal
@@ -104,13 +104,14 @@ export default observer(function DealsPage() {
     profit_from: StringtoNumber(profitFrom) || null,
     profit_to: StringtoNumber(profitTo) || null,
     counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
+    project_ids: selectedProjects?.length > 0 ? selectedProjects : null,
     status: status?.length > 0 ? status : null,
     school_year: appStore.isDonoSchool ? schoolYear || null : null,
     accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }), [
     searchValue, dateRanges, amountFrom, amountTo,
-    profitFrom, profitTo, selectedCounterparties,
+    profitFrom, profitTo, selectedCounterparties, selectedProjects,
     status, dealsMethod, schoolYear, t
   ])
 

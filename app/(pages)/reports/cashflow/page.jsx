@@ -148,7 +148,7 @@ export default observer(function CashFlowReportPage() {
   const didAutoExpand = useRef(false)
 
   // Extract legend (month columns)
-  const { periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId } = cashFlowStore
+  const { periodStartDate, periodEndDate, periodType, currencyCode, sellingDealId, contrAgentId, accountId, dealId, projectId } = cashFlowStore
 
 
   const filterData = {
@@ -160,6 +160,7 @@ export default observer(function CashFlowReportPage() {
     contrAgentId: contrAgentId,
     accountId: accountId,
     dealId: dealId, // these are same values
+    project_ids: projectId,
   }
 
 

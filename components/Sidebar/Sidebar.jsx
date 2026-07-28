@@ -4,6 +4,7 @@ import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import {
+  Briefcase,
   CalendarCheck,
   ChartLine,
   ClipboardList,
@@ -162,6 +163,13 @@ export const Sidebar = observer(() => {
           canShow: true,
         },
       ],
+    },
+    {
+      icon: Briefcase,
+      label: t("nav.projects"),
+      href: "/projects",
+      hasPage: true,
+      canShow: appStore.projectActive,
     },
     {
       icon: ClipboardList,

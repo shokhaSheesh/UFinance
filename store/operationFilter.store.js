@@ -22,6 +22,7 @@ class OperationFilterStore {
 	selectedDateStartRange = null
 	selectedCounterAgents = []
 	selectedLegalEntities = []
+	selectedProjects = []
 	selectedFilters = tips
 	amountRange = { min: '', max: '' }
 	selectedChartOfAccounts = []
@@ -55,6 +56,7 @@ class OperationFilterStore {
 					'selectedDateStartRange',
 					'selectedCounterAgents',
 					'selectedLegalEntities',
+					'selectedProjects',
 					'selectedFilters',
 					'amountRange',
 					'selectedChartOfAccounts',
@@ -116,6 +118,10 @@ class OperationFilterStore {
 
 	setSelectedCounterAgents(agents) {
 		this.selectedCounterAgents = agents
+	}
+
+	setSelectedProjects(projects) {
+		this.selectedProjects = projects
 	}
 
 	setSelectedLegalEntities(entities) {
@@ -240,6 +246,7 @@ class OperationFilterStore {
 		this.selectedDatePaymentRange = null
 		this.selectedDateStartRange = null
 		this.selectedCounterAgents = []
+		this.selectedProjects = []
 		this.selectedLegalEntities = []
 		this.selectedFilters = tips
 		this.amountRange = { min: '', max: '' }

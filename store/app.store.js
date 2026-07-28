@@ -14,6 +14,7 @@ class AppStore {
   isWLCMPayment = false;
   warehouseActive = false;
   returnActive = false;
+  projectActive = false;
   isAiActive = false;
   currencies = [];
   myCurrencies = [];
@@ -79,6 +80,7 @@ class AppStore {
           "isAccrualDate",
           "warehouseActive",
           "returnActive",
+          "projectActive",
           "isAiActive",
           "currencies",
           "isDonoSchool",
@@ -144,6 +146,10 @@ class AppStore {
 
   setReturnActive(value) {
     this.returnActive = value;
+  }
+
+  setProjectActive(value) {
+    this.projectActive = value;
   }
 
   setAiActive(value) {

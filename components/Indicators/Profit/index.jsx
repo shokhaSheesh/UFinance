@@ -47,6 +47,7 @@ const Profit = () => {
     currencyCode: indicators?.currencyCode,
     accountId: indicatorsStore.accounts,
     sellingDealId: indicatorsStore?.deals,
+    project_ids: indicatorsStore?.projects,
     isEbitda: false,
     isEbit: false,
     isEbt: false,

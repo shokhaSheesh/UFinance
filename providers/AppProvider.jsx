@@ -37,6 +37,7 @@ const AppProvider = ({ children }) => {
       appStore.setWLCMPayment(data?.wlcm_active)
       appStore.setWarehouseActive(data?.warehouse_active)
       appStore.setReturnActive(data?.return_active)
+      appStore.setProjectActive(data?.project_active)
       appStore.setAiActive(Boolean(data?.ia_active ?? data?.ai_active))
       if (currency) {
         appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency?.kod })

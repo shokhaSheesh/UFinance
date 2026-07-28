@@ -65,6 +65,7 @@ const ProfitAndLossPage = observer(() => {
     selectedAccounts,
     selectedCounterparties,
     selectedLegalEntities,
+    selectedProjects,
     ebt, isCalculation }
     = pnlStore
 
@@ -78,6 +79,7 @@ const ProfitAndLossPage = observer(() => {
     my_accounts_ids: selectedAccounts,
     counterparties_ids: selectedCounterparties,
     legal_entity_ids: selectedLegalEntities,
+    project_ids: selectedProjects,
     isEbitda: ebitda,
     isEbit: ebit,
     isEbt: ebt,

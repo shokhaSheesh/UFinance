@@ -13,6 +13,7 @@ class Indicators {
   periodType = 'monthly'
   deals = []
   accounts = []
+  projects = []
   rangeMonth = defaultDateRange
   currencyCode = GlobalCurrency?.code
 
@@ -35,6 +36,7 @@ class Indicators {
           "periodType",
           "deals",
           'accounts',
+          "projects",
           "rangeMonth",
           "paymentStructureMethod",
           "profitableclientsMethod"
@@ -55,6 +57,7 @@ class Indicators {
     this.periodType = 'monthly'
     this.deals = []
     this.accounts = []
+    this.projects = []
     this.rangeMonth = defaultDateRange
   }
   resetMonth = () => {

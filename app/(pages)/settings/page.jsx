@@ -43,6 +43,7 @@ const SettingsPage = observer(() => {
   const [isAccrualDate, setIsAccrualDate] = useState(appStore.isAccrualDate)
   const [warehouseActive, setWarehouseActive] = useState(appStore.warehouseActive)
   const [returnActive, setReturnActive] = useState(appStore.returnActive)
+  const [projectActive, setProjectActive] = useState(appStore.projectActive)
   const [currencyId, setCurrencyId] = useState(appStore?.currency?.guid)
   // const [wlcmHashcode, setWlcmHashcode] = useState('')
 
@@ -54,9 +55,10 @@ const SettingsPage = observer(() => {
     setIsAccrualDate(appStore.isAccrualDate)
     setWarehouseActive(appStore.warehouseActive)
     setReturnActive(appStore.returnActive)
+    setProjectActive(appStore.projectActive)
     setCurrencyId(appStore?.currency?.guid)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appStore.isPayment, appStore.isAccrualDate, appStore.warehouseActive, appStore.returnActive, appStore?.currency?.guid])
+  }, [appStore.isPayment, appStore.isAccrualDate, appStore.warehouseActive, appStore.returnActive, appStore.projectActive, appStore?.currency?.guid])
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
@@ -73,8 +75,9 @@ const SettingsPage = observer(() => {
   const isAccrualDateChanged = isAccrualDate !== appStore.isAccrualDate
   const isWarehouseActiveChanged = warehouseActive !== appStore.warehouseActive
   const isReturnActiveChanged = returnActive !== appStore.returnActive
+  const isProjectActiveChanged = projectActive !== appStore.projectActive
   const isCurrencyChanged = currencyId !== appStore?.currency?.guid
-  const hasChanges = isPaymentChanged || isAccrualDateChanged || isWarehouseActiveChanged || isReturnActiveChanged || isCurrencyChanged
+  const hasChanges = isPaymentChanged || isAccrualDateChanged || isWarehouseActiveChanged || isReturnActiveChanged || isProjectActiveChanged || isCurrencyChanged
 
 
   const handleSaveSettings = async () => {
@@ -84,6 +87,7 @@ const SettingsPage = observer(() => {
     if (isAccrualDateChanged) data.is_accural_date = isAccrualDate
     if (isWarehouseActiveChanged) data.warehouse_active = warehouseActive
     if (isReturnActiveChanged) data.return_active = returnActive
+    if (isProjectActiveChanged) data.project_active = projectActive
     // if (wlcmHashcode) {
     //   try {
     //     await createWlcmToken({
@@ -119,6 +123,7 @@ const SettingsPage = observer(() => {
       }
       if (isWarehouseActiveChanged) appStore.setWarehouseActive(warehouseActive)
       if (isReturnActiveChanged) appStore.setReturnActive(returnActive)
+      if (isProjectActiveChanged) appStore.setProjectActive(projectActive)
       if (isCurrencyChanged) {
         const selected = appStore.currencies.find(c => c.guid === currencyId)
         appStore.setCurrency({
@@ -202,6 +207,11 @@ const SettingsPage = observer(() => {
             label={tg('modules.returns')}
             disabled={!warehouseActive}
             className={!warehouseActive ? 'opacity-50 pointer-events-none' : ''}
+          />
+          <OperationCheckbox
+            checked={projectActive}
+            onChange={() => setProjectActive(!projectActive)}
+            label={tg('modules.projects')}
           />
         </section>
       </section>

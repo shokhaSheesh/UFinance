@@ -18,6 +18,7 @@ import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
+import SelectProjects from '../../../../ReadyComponents/SelectProjects'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
@@ -70,6 +71,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
         chartOfAccountEnrollment: raw.chart_of_accounts_id_2 || null,
         sellingDealId: raw.sales_transactions_id || '',
         sellingDealId2: raw.sales_transactions_id_2 || '',
+        projects_id: raw?.projects_id || null,
         comment: raw.opisanie || '',
         counterpary_id: raw.counterparties_id || '',
         repeatEvery: raw.repeat_every || null,
@@ -90,6 +92,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       chartOfAccountEnrollment: null,
       sellingDealId: '',
       sellingDealId2: '',
+      projects_id: null,
       comment: '',
       counterpary_id: '',
       repeatEvery: null,
@@ -155,6 +158,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
         chart_of_accounts_id_2: data.chartOfAccountEnrollment,
+        ...(appStore.projectActive && isFromRasxodChild ? { projects_id: data?.projects_id || null } : {}),
         sales_transactions_id: data.sellingDealId || null,
         sales_transactions_id_2: data.sellingDealId2 || null,
         // counterparties_id: data.counterpary_id,
@@ -352,6 +356,27 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
               />
             </div>
           </div>}
+
+          {/* Проект — только при расходной статье по дебету и включённом модуле */}
+          {isFromRasxodChild && appStore.projectActive && (
+            <div className="flex items-center gap-4">
+              <label className="w-[150px] text-[13px]">{t('project')}</label>
+              <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
+                <Controller
+                  name="projects_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SelectProjects
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={t('projectPlaceholder')}
+                      className="flex-1 bg-white border rounded-md"
+                    />
+                  )}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Сумма */}
           <div className="flex items-center gap-4">
