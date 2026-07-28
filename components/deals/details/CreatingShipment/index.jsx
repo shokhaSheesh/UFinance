@@ -16,6 +16,7 @@ import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
 import {
+  formatAmountInput,
   formatDecimal,
   formatNumber,
   StringtoNumber,
@@ -749,12 +750,12 @@ const CreateShipment = observer(
                             <input
                               type="text"
                               min={0}
-                              value={formatNumber(row.price)}
+                              value={formatAmountInput(row.price)}
                               onChange={(e) =>
                                 updateRow(
                                   row.id,
                                   "price",
-                                  formatNumber(e.target.value)
+                                  formatAmountInput(e.target.value)
                                 )
                               }
                               className={
@@ -794,12 +795,12 @@ const CreateShipment = observer(
                             <input
                               type="text"
                               min={0}
-                              value={formatNumber(row.sum)}
+                              value={formatAmountInput(row.sum)}
                               onChange={(e) =>
                                 updateRow(
                                   row.id,
                                   "sum",
-                                  formatNumber(e.target.value)
+                                  formatAmountInput(e.target.value)
                                 )
                               }
                               className={
