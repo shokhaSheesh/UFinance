@@ -2,12 +2,17 @@
 
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { initAnalytics } from "@/lib/firebase"
+import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
 import { useUcodeRequestQuery } from "../hooks/useDashboard"
 import { appStore } from "../store/app.store"
 import { authStore } from "../store/auth.store"
 
-const AppProvider = ({ children }) => {
+// observer: AppProvider монтируется в корневом layout и живёт при клиентском
+// переходе с /auth после логина. Без observer смена authStore.isAuthenticated не
+// вызывает ре-рендер, и запросы с `skip: !isAuthenticated` (get_general_settings,
+// get_currencies) не стартуют, пока не перезагрузишь страницу.
+const AppProvider = observer(({ children }) => {
   const { data } = useUcodeRequestQuery({
     method: 'get_general_settings',
     querySetting: {
@@ -50,6 +55,6 @@ const AppProvider = ({ children }) => {
       <div>{children}</div>
     </TooltipProvider>
   )
-}
+})
 
 export default AppProvider
