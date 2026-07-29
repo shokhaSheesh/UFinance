@@ -7,7 +7,7 @@ import { FilterSection, FilterSidebar } from '@/components/directories/FilterSid
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { paymentCalendarStore } from '../store'
+import { paymentCalendarStore } from '@/modules/plans/PaymentCalendar/store'
 
 const PaymentCalendarFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')

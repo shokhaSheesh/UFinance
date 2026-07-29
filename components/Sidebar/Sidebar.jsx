@@ -144,12 +144,12 @@ export const Sidebar = observer(() => {
       hasPage: true,
       canShow: true,
       submenu: [
-        {
-          label: t("plans.payment_calendar"),
-          href: "/payment_calendar",
-          hasPage: true,
-          canShow: true,
-        },
+        // {
+        //   label: t("plans.payment_calendar"),
+        //   href: "/payment_calendar",
+        //   hasPage: true,
+        //   canShow: true,
+        // },
         {
           label: t("plans.income_expense_budget"),
           href: "/income_expense_budget",

@@ -2034,28 +2034,54 @@
     },
     "CashFlowBudgetSingle": {
       "breadcrumb": {
-        "list": "Byudjetlar ro'yxati"
+        "list": "Byudjetlar ro‘yxati"
       },
-      "title": "Umumiy 2025",
-      "type": "PHB",
-      "period": "Noy '25 — sen '26",
-      "currency": "RUB",
       "downloadXls": ".xls",
+      "actions": {
+        "import": "Import qilish",
+        "edit": "Tahrirlash",
+        "delete": "O‘chirish",
+        "expand": "Yoyish",
+        "collapse": "Yig‘ish",
+        "clearColumn": "Ustunni tozalash",
+        "columnMenu": "Ustun menyusi"
+      },
       "grouping": {
-        "months": "Oylar bo'yicha",
-        "quarters": "Choraklar bo'yicha",
-        "years": "Yillar bo'yicha"
+        "months": "Oylar bo‘yicha",
+        "quarters": "Choraklar bo‘yicha",
+        "years": "Yillar bo‘yicha"
       },
       "columns": {
-        "article": "Umumiy byudjet",
         "plan": "Reja",
         "fact": "Fakt",
         "planExec": "Reja bajarilishi, %",
-        "deviation": "Og'ish",
-        "deviationPct": "Og'ish, %"
+        "deviation": "Og‘ish",
+        "deviationPct": "Og‘ish, %"
+      },
+      "hints": {
+        "fact": "Davr uchun haqiqiy qiymatlar",
+        "planExec": "Faktning rejaga nisbati, foizda",
+        "deviation": "Reja va fakt orasidagi farq",
+        "deviationPct": "Reja va fakt orasidagi farq, foizda"
       },
       "periodTotal": "Jami",
+      "quarter": "{q}-chorak",
+      "quarterShort": "ch",
       "months": {
+        "1": "Yanvar",
+        "2": "Fevral",
+        "3": "Mart",
+        "4": "Aprel",
+        "5": "May",
+        "6": "Iyun",
+        "7": "Iyul",
+        "8": "Avgust",
+        "9": "Sentabr",
+        "10": "Oktabr",
+        "11": "Noyabr",
+        "12": "Dekabr"
+      },
+      "monthsShort": {
         "1": "Yan",
         "2": "Fev",
         "3": "Mar",
@@ -2069,92 +2095,201 @@
         "11": "Noy",
         "12": "Dek"
       },
+      "na": "a/e",
       "rows": {
-        "balanceStart": "Davr boshidagi qoldiq",
+        "balanceStart": "Davr boshiga qoldiq",
         "operating": "Operatsion oqim",
         "income": "Tushumlar",
         "revenue": "Daromadlar",
+        "undistributedIncome": "Taqsimlanmagan daromad",
+        "goodsSale": "Tayyor mahsulot sotuvi",
+        "semiFinished": "Yarim tayyor mahsulot sotuvi",
+        "scrapSale": "Chiqindi va brak sotuvi",
+        "supportServices": "Yordamchi xizmatlar ko‘rsatish",
         "currentAssets": "Aylanma aktivlar",
+        "loansReturned": "Qarzlarning qaytarilishi",
         "shortLiabilities": "Qisqa muddatli majburiyatlar",
-        "expense": "To'lovlar",
+        "creditReceived": "Kredit olish",
+        "expense": "To‘lovlar",
         "expenses": "Xarajatlar",
+        "staffCosts": "Xodimlar xarajatlari",
+        "rentCosts": "Ijara va kommunal",
+        "materialCosts": "Materiallar va xomashyo",
+        "loansIssued": "Qarz berish",
+        "creditRepaid": "Kreditni qoplash",
         "investing": "Investitsion oqim",
-        "investingOut": "Investitsion to'lovlar",
+        "equipmentPurchase": "Uskuna sotib olish",
         "financing": "Moliyaviy oqim",
         "financingOps": "Moliyaviy operatsiyalar",
         "totalFlow": "Umumiy pul oqimi",
-        "closingBalance": "Davr oxiridagi qoldiq"
+        "closingBalance": "Davr oxiriga qoldiq"
       },
-      "na": "n/a",
-      "actions": {
-        "expand": "Yoyish",
-        "collapse": "Yig'ish"
-      }
+      "form": {
+        "createTitle": "Byudjet yaratish",
+        "editTitle": "Byudjetni tahrirlash",
+        "close": "Yopish",
+        "name": "Byudjet nomi",
+        "namePlaceholder": "Masalan, 2027-yil byudjeti",
+        "period": "Davr",
+        "legalEntity": "Yuridik shaxs",
+        "legalEntityPlaceholder": "Yuridik shaxsni tanlang",
+        "project": "Loyiha yoki guruh",
+        "projectPlaceholder": "Loyiha yoki loyihalar guruhini tanlang",
+        "currency": "Valyuta",
+        "comment": "Izoh",
+        "commentPlaceholder": "Ushbu byudjetga izoh yoki tushuntirish",
+        "cancel": "Bekor qilish",
+        "create": "Yaratish",
+        "save": "Saqlash",
+        "errors": {
+          "name": "Nomini kiriting",
+          "legalEntity": "Yuridik shaxsni tanlang",
+          "currency": "Valyutani tanlang"
+        },
+        "projectGroup": "guruh",
+        "currencyPlaceholder": "Valyutani tanlang"
+      },
+      "typeLabel": "PHB",
+      "allLegalEntities": "Barcha yuridik shaxslar",
+      "empty": "Bu byudjet uchun hozircha moddalar yo‘q"
     },
     "IncomeExpenseBudgetSingle": {
       "breadcrumb": {
-        "list": "Byudjetlar ro'yxati"
+        "list": "Byudjetlar ro‘yxati"
       },
-      "title": "Kuybыsheva, 45",
-      "type": "DXB",
-      "period": "Noy '25 — sen '26",
-      "currency": "RUB",
       "downloadXls": ".xls",
-      "grouping": {
-        "months": "Oylar bo'yicha",
-        "quarters": "Choraklar bo'yicha",
-        "years": "Yillar bo'yicha"
+      "actions": {
+        "import": "Import qilish",
+        "edit": "Tahrirlash",
+        "delete": "O‘chirish",
+        "expand": "Yoyish",
+        "collapse": "Yig‘ish",
+        "clearColumn": "Ustunni tozalash",
+        "columnMenu": "Ustun menyusi"
       },
+      "grouping": {
+        "months": "Oylar bo‘yicha",
+        "quarters": "Choraklar bo‘yicha",
+        "years": "Yillar bo‘yicha"
+      },
+      "columns": {
+        "plan": "Reja",
+        "fact": "Fakt",
+        "planExec": "Reja bajarilishi, %",
+        "deviation": "Og‘ish",
+        "deviationPct": "Og‘ish, %"
+      },
+      "hints": {
+        "fact": "Davr uchun haqiqiy qiymatlar",
+        "planExec": "Faktning rejaga nisbati, foizda",
+        "deviation": "Reja va fakt orasidagi farq",
+        "deviationPct": "Reja va fakt orasidagi farq, foizda"
+      },
+      "periodTotal": "Jami",
+      "quarter": "{q}-chorak",
+      "quarterShort": "ch",
+      "months": {
+        "1": "Yanvar",
+        "2": "Fevral",
+        "3": "Mart",
+        "4": "Aprel",
+        "5": "May",
+        "6": "Iyun",
+        "7": "Iyul",
+        "8": "Avgust",
+        "9": "Sentabr",
+        "10": "Oktabr",
+        "11": "Noyabr",
+        "12": "Dekabr"
+      },
+      "monthsShort": {
+        "1": "Yan",
+        "2": "Fev",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Iyn",
+        "7": "Iyl",
+        "8": "Avg",
+        "9": "Sen",
+        "10": "Okt",
+        "11": "Noy",
+        "12": "Dek"
+      },
+      "na": "a/e",
       "method": {
         "cash": "Kassa usuli",
         "accrual": "Hisoblash usuli"
       },
       "indicators": {
-        "profit": "Foyda ko'rsatkichlari",
-        "revenue": "Daromad ko'rsatkichlari"
+        "profit": "Foyda ko‘rsatkichlari"
       },
-      "columns": {
-        "article": "Barcha yuridik shaxslar",
-        "plan": "Reja",
-        "fact": "Fakt",
-        "planExec": "Reja bajarilishi, %",
-        "deviation": "Og'ish",
-        "deviationPct": "Og'ish, %"
+      "profitIndicators": {
+        "gross": "Yalpi foyda",
+        "operating": "Operatsion foyda",
+        "ebitda": "EBITDA",
+        "ebit": "EBIT",
+        "ebt": "EBT"
       },
-      "periodTotal": "Jami",
-      "months": {
-        "1": "Yan",
-        "2": "Fev",
-        "3": "Mar",
-        "4": "Apr",
-        "5": "May",
-        "6": "Iyn",
-        "7": "Iyl",
-        "8": "Avg",
-        "9": "Sen",
-        "10": "Okt",
-        "11": "Noy",
-        "12": "Dek"
-      },
-      "entityHeader": "Kuybыsheva, 45",
       "rows": {
-        "income": "Daromadlar",
+        "revenue": "Tushum",
         "undistributedIncome": "Taqsimlanmagan daromad",
-        "otherIncome": "Boshqa daromadlar",
-        "repairServices": "Ta'mirlash xizmatlari",
-        "clientIncome": "Buyurtmachidan tushum",
-        "expense": "Xarajatlar",
+        "goodsSale": "Tayyor mahsulot sotuvi",
+        "semiFinished": "Yarim tayyor mahsulot sotuvi",
+        "scrapSale": "Chiqindi va brak sotuvi",
+        "supportServices": "Yordamchi xizmatlar ko‘rsatish",
+        "mainExpenses": "Asosiy xarajatlar",
         "staffCosts": "Xodimlar xarajatlari",
         "rentCosts": "Ijara va kommunal",
-        "otherCosts": "Boshqa xarajatlar",
-        "netProfit": "Sof foyda/zarar",
-        "profitability": "Rentabellik, %"
+        "materialCosts": "Materiallar va xomashyo",
+        "operatingProfit": "Operatsion foyda",
+        "operatingMargin": "Operatsion rentabellik",
+        "otherIncome": "Boshqa daromadlar",
+        "grants": "Subsidiya va grantlar",
+        "otherExpenses": "Boshqa xarajatlar",
+        "fines": "Jarima va penyalar",
+        "ebitda": "EBITDA",
+        "ebitdaMargin": "EBITDA bo‘yicha rentabellik",
+        "depreciation": "Amortizatsiya",
+        "ebit": "Foiz va soliqlargacha foyda (EBIT)",
+        "ebitMargin": "EBIT bo‘yicha rentabellik",
+        "interest": "Kredit va qarz foizlari",
+        "ebt": "Soliqlargacha foyda (EBT)",
+        "ebtMargin": "EBT bo‘yicha rentabellik",
+        "profitTax": "Foyda solig‘i",
+        "netProfit": "Sof foyda (zarar)",
+        "netMargin": "Sof foyda rentabelligi",
+        "dividends": "Dividendlar",
+        "retainedProfit": "Taqsimlanmagan foyda"
       },
-      "na": "n/a",
-      "actions": {
-        "expand": "Yoyish",
-        "collapse": "Yig'ish"
-      }
+      "form": {
+        "createTitle": "Byudjet yaratish",
+        "editTitle": "Byudjetni tahrirlash",
+        "close": "Yopish",
+        "name": "Byudjet nomi",
+        "namePlaceholder": "Masalan, 2027-yil byudjeti",
+        "period": "Davr",
+        "legalEntity": "Yuridik shaxs",
+        "legalEntityPlaceholder": "Yuridik shaxsni tanlang",
+        "project": "Loyiha yoki guruh",
+        "projectPlaceholder": "Loyiha yoki loyihalar guruhini tanlang",
+        "currency": "Valyuta",
+        "comment": "Izoh",
+        "commentPlaceholder": "Ushbu byudjetga izoh yoki tushuntirish",
+        "cancel": "Bekor qilish",
+        "create": "Yaratish",
+        "save": "Saqlash",
+        "errors": {
+          "name": "Nomini kiriting",
+          "legalEntity": "Yuridik shaxsni tanlang",
+          "currency": "Valyutani tanlang"
+        },
+        "projectGroup": "guruh",
+        "currencyPlaceholder": "Valyutani tanlang"
+      },
+      "typeLabel": "DXB",
+      "allLegalEntities": "Barcha yuridik shaxslar",
+      "empty": "Bu byudjet uchun hozircha moddalar yo‘q"
     }
   },
   "Indicators": {

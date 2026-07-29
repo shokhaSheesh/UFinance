@@ -1,4 +1,4 @@
-import CashFlowBudgetSingle from "@/modules/plans/CashFlowBudget/CashFlowBudgetSingle"
+import CashFlowBudgetSingle from "@/modules/plans/CashFlowBudget/detail-page"
 
 const CashFlowBudgetSinglePage = () => {
   return <CashFlowBudgetSingle />

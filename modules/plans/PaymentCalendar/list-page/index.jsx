@@ -13,8 +13,8 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useMemo, useState } from 'react'
-import PaymentCalendarFilterSidebar from './FilterSidebar'
-import { paymentCalendarStore } from './store'
+import PaymentCalendarFilterSidebar from './components/FilterSidebar'
+import { paymentCalendarStore } from '../store'
 
 const formatDateLocal = (date) => {
   if (!date) return null

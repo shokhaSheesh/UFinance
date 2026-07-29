@@ -1,112 +1,65 @@
 'use client'
 
-import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import Input from '@/components/shared/Input'
-import { ChevronDown, MoreHorizontal, Plus, Search } from 'lucide-react'
+import BudgetRowMenu from '@/modules/plans/components/BudgetRowMenu'
+import BudgetFormModal from '@/modules/plans/components/BudgetDetail/BudgetFormModal'
+import { useBudgetDictionaries } from '@/modules/plans/hooks/useBudgetDictionaries'
+import { useBudgetList } from '@/modules/plans/hooks/useBudgetList'
+import {
+  useBudgets,
+  useCreateBudget,
+  useDeleteBudget,
+  useUpdateBudget
+} from '@/modules/plans/hooks/useBudgets'
+import { ChevronDown, Loader2, MoreHorizontal, Plus, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
-// Static data for the table
-const STATIC_BUDGET_DATA = [
-  {
-    id: 1,
-    name: 'Бюджет 2025',
-    currency: 'RUB',
-    legalEntity: 'ООО "Ромашка"',
-    project: 'Основной бизнес',
-    period: 'Янв \'25 – дек \'25',
-    modifiedDate: '04.05.2026',
-    modifiedBy: 'demo@planfact.io'
-  },
-  {
-    id: 2,
-    name: 'Q1 Маркетинг',
-    currency: 'RUB',
-    legalEntity: 'ООО "Ромашка"',
-    project: 'Digital Campaign',
-    period: 'Янв \'26 – мар \'26',
-    modifiedDate: '03.05.2026',
-    modifiedBy: 'admin@planfact.io'
-  },
-  {
-    id: 3,
-    name: 'IT Проект',
-    currency: 'USD',
-    legalEntity: 'ООО "ТехноСофт"',
-    project: 'Cloud Migration',
-    period: 'Апр \'25 – дек \'25',
-    modifiedDate: '02.05.2026',
-    modifiedBy: 'it@planfact.io'
-  },
-  {
-    id: 4,
-    name: 'HR Бюджет',
-    currency: 'RUB',
-    legalEntity: null,
-    project: 'Recruitment 2025',
-    period: 'Май \'25 – авг \'25',
-    modifiedDate: '01.05.2026',
-    modifiedBy: 'hr@planfact.io'
-  },
-  {
-    id: 5,
-    name: 'Sales Plan',
-    currency: 'EUR',
-    legalEntity: 'ООО "ЕвроТрейд"',
-    project: 'Europe Market',
-    period: 'Янв \'25 – дек \'25',
-    modifiedDate: '30.04.2026',
-    modifiedBy: 'sales@planfact.io'
-  }
-]
+const BUDGET_TYPE = 'pnl'
 
 const IncomeExpenseBudget = () => {
   const t = useTranslations('Plans.incomeExpenseBudget')
   const tc = useTranslations('Common')
+  const tf = useTranslations('Plans.IncomeExpenseBudgetSingle')
+  const router = useRouter()
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedAccount, setSelectedAccount] = useState(null)
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' })
+  const [legalEntityFilter, setLegalEntityFilter] = useState(null)
 
-  // Filter and sort data using useMemo
-  const filteredData = useMemo(() => {
-    let data = [...STATIC_BUDGET_DATA]
+  const monthLabels = useMemo(
+    () => Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, tf(`monthsShort.${i + 1}`)])),
+    [tf]
+  )
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      data = data.filter(item =>
-        item.name.toLowerCase().includes(query) ||
-        (item.legalEntity && item.legalEntity.toLowerCase().includes(query)) ||
-        (item.project && item.project.toLowerCase().includes(query)) ||
-        item.modifiedBy.toLowerCase().includes(query)
-      )
-    }
+  const { budgets, isLoading } = useBudgets(BUDGET_TYPE, { legalEntityId: legalEntityFilter })
+  const createBudget = useCreateBudget(BUDGET_TYPE)
+  const updateBudget = useUpdateBudget(BUDGET_TYPE)
+  const deleteBudget = useDeleteBudget(BUDGET_TYPE)
+  const { legalEntities, projects, currencies } = useBudgetDictionaries({ groupLabel: tf('form.projectGroup') })
 
-    // Sort data
-    data.sort((a, b) => {
-      const aValue = a[sortConfig.key] || ''
-      const bValue = b[sortConfig.key] || ''
+  const {
+    filteredData,
+    searchQuery,
+    setSearchQuery,
+    sortConfig,
+    handleSort,
+    modalOpen,
+    editing,
+    openCreate,
+    openEdit,
+    closeModal,
+    submit,
+    remove
+  } = useBudgetList({
+    budgets,
+    monthLabels,
+    onCreate: createBudget.mutateAsync,
+    onUpdate: updateBudget.mutateAsync,
+    onDelete: deleteBudget.mutateAsync
+  })
 
-      if (sortConfig.direction === 'asc') {
-        return aValue > bValue ? 1 : -1
-      }
-      return aValue < bValue ? 1 : -1
-    })
-
-    return data
-  }, [searchQuery, sortConfig])
-
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }))
-  }
-
-  const handleCreate = () => {
-    // Placeholder for create action
-    console.log('Create new budget')
-  }
+  const openBudget = (id) => router.push(`/income_expense_budget/${id}`)
 
   const renderSortIcon = (columnKey) => {
     if (sortConfig.key !== columnKey) {
@@ -125,31 +78,30 @@ const IncomeExpenseBudget = () => {
       <div className="flex items-center justify-between px-6 py-4 ">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-semibold text-slate-900">
-            {t('title') || 'Бюджет доходов и расходов'}
+            {t('title')}
           </h1>
           <button
-            onClick={handleCreate}
+            onClick={openCreate}
             className="primary-btn flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            {tc('create') || 'Создать'}
+            {tc('create')}
           </button>
         </div>
 
         {/* Right side filters */}
         <div className="flex items-center gap-3">
-          <SelectMyAccounts
-            value={selectedAccount}
-            onChange={setSelectedAccount}
-            placeholder={tc('placeholders.selectAccount') || 'Все счета'}
-            multi={false}
+          <SelectLegelEntitties
+            value={legalEntityFilter}
+            onChange={setLegalEntityFilter}
+            placeholder={t('columns.legalEntity')}
             className="w-[220px] bg-white"
             isClearable
           />
           <Input
             type="text"
             leftIcon={<Search className="w-4 h-4" />}
-            placeholder={t('searchPlaceholder') || 'Поиск по названию'}
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-[280px]"
@@ -163,50 +115,43 @@ const IncomeExpenseBudget = () => {
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors  w-[300px] line-clamp-1"
           onClick={() => handleSort('name')}
         >
-          {t('columns.name') || 'Название'}
+          {t('columns.name')}
           {renderSortIcon('name')}
         </div>
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors w-[80px] justify-center"
           onClick={() => handleSort('currency')}
         >
-          {t('columns.currency') || 'Валюта'}
+          {t('columns.currency')}
           {renderSortIcon('currency')}
         </div>
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors flex-1 min-w-[140px]"
           onClick={() => handleSort('legalEntity')}
         >
-          {t('columns.legalEntity') || 'Юрлицо'}
+          {t('columns.legalEntity')}
           {renderSortIcon('legalEntity')}
         </div>
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors flex-1 min-w-[140px]"
           onClick={() => handleSort('project')}
         >
-          {t('columns.project') || 'Проект'}
+          {t('columns.project')}
           {renderSortIcon('project')}
         </div>
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors w-[140px]"
           onClick={() => handleSort('period')}
         >
-          {t('columns.period') || 'Период'}
+          {t('columns.period')}
           {renderSortIcon('period')}
         </div>
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors w-[120px]"
           onClick={() => handleSort('modifiedDate')}
         >
-          {t('columns.modifiedDate') || 'Дата изменения'}
+          {t('columns.modifiedDate')}
           {renderSortIcon('modifiedDate')}
-        </div>
-        <div
-          className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors flex-1 min-w-[160px]"
-          onClick={() => handleSort('modifiedBy')}
-        >
-          {t('columns.modifiedBy') || 'Кто изменил'}
-          {renderSortIcon('modifiedBy')}
         </div>
         <div className="w-[50px] flex justify-center px-3 py-2">
           <MoreHorizontal className="w-4 h-4 text-gray-400" />
@@ -215,16 +160,29 @@ const IncomeExpenseBudget = () => {
 
       {/* Table Body */}
       <div className="flex-1 mx-4 overflow-auto">
-        {filteredData.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-gray-500">
             <div className="text-6xl mb-4">📊</div>
-            <p className="text-sm">{t('noData') || 'Нет данных для отображения'}</p>
+            <p className="text-sm">{t('noData')}</p>
           </div>
         ) : (
           <div className="flex flex-col">
             {filteredData.map((item, index) => (
               <div
                 key={item.id}
+                role='button'
+                tabIndex={0}
+                onClick={() => openBudget(item.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    openBudget(item.id)
+                  }
+                }}
                 className={`flex items-center text-sm border-b border-gray-100 hover:bg-blue-50 transition-colors cursor-pointer ${
                   index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                 }`}
@@ -233,7 +191,7 @@ const IncomeExpenseBudget = () => {
                   {item.name}
                 </div>
                 <div className="px-4 py-3 w-[80px] text-start text-gray-600 font-medium">
-                  {item.currency}
+                  {item.currency || '—'}
                 </div>
                 <div className="px-4 py-3 flex-1 min-w-[140px] text-gray-600">
                   {item.legalEntity || '—'}
@@ -245,15 +203,18 @@ const IncomeExpenseBudget = () => {
                   {item.period}
                 </div>
                 <div className="px-4 py-3 w-[120px] text-gray-600 text-xs">
-                  {item.modifiedDate}
+                  {item.modifiedDate || '—'}
                 </div>
-                <div className="px-4 py-3 flex-1 min-w-[160px] text-gray-600 text-xs">
-                  {item.modifiedBy}
-                </div>
-                <div className="w-[50px] px-4 py-3 flex justify-center">
-                  <button className="p-1 hover:bg-gray-200 rounded transition-colors">
-                    <MoreHorizontal className="w-4 h-4 text-gray-400" />
-                  </button>
+                <div
+                  className="w-[50px] px-4 py-3 flex justify-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <BudgetRowMenu
+                    onEdit={() => openEdit(item)}
+                    onDelete={() => remove(item.id)}
+                    editLabel={tf('actions.edit')}
+                    deleteLabel={tf('actions.delete')}
+                  />
                 </div>
               </div>
             ))}
@@ -263,13 +224,21 @@ const IncomeExpenseBudget = () => {
 
       {/* Footer */}
       <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-600">
-        <span>
-          {t('footer.total', { count: filteredData.length }) || `${filteredData.length} бюджетов`}
-        </span>
-        <span className="text-gray-400">
-          {t('footer.lastUpdated') || 'Обновлено: сегодня'}
-        </span>
+        <span>{t('footer.total', { count: filteredData.length })}</span>
       </div>
+
+      <BudgetFormModal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        onSubmit={submit}
+        budget={editing}
+        t={tf}
+        monthLabels={monthLabels}
+        legalEntities={legalEntities}
+        projects={projects}
+        currencies={currencies}
+        isSaving={createBudget.isPending || updateBudget.isPending}
+      />
     </div>
   )
 }
