@@ -240,6 +240,7 @@ const CreateShipment = observer(
               id: idx + 1,
               row_guid: row.guid,
               name: row.product_and_service_id || "",
+              productServiceId: row.product_and_service_id || "",
               naimenovanie: row.Naimenovanie || "",
               artikul: row.Artikul || "",
               quantity: row.Kol_vo ?? 0,
@@ -620,7 +621,11 @@ const CreateShipment = observer(
               (p) => p.guid === row.name
             );
             const result = {
-              product_and_service_id: product?.product_and_service_id || row.name || undefined,
+              product_and_service_id:
+                row.productServiceId ||
+                product?.product_and_service_id ||
+                row.name ||
+                undefined,
               Naimenovanie: product ? product.name : row.naimenovanie || "",
               Artikul: product?.article || row.artikul || "",
               Kol_vo: formatDecimal(StringtoNumber(row.quantity)) || 0,
@@ -716,25 +721,32 @@ const CreateShipment = observer(
       }
     };
 
-    const handleSelectProductSerice = (rowId, value) => {
+    const handleSelectProductSerice = (rowId, value, raw) => {
       // Товар может отсутствовать в productServicesList (напр. когда «Мой склад»
       // выключен и список подтягивается иначе) — выбор всё равно должен сработать.
       const product =
         productServicesList?.find((p) => p.guid === value) ||
         productServicesList?.find((p) => p.product_and_service_id === value);
 
+      // Реальный product_and_service_id для payload: берём напрямую из выбранного
+      // элемента пикера (authoritative), иначе из списка сделки, иначе — само
+      // значение. Иначе на create ушёл бы guid связки вместо product_and_service_id.
+      const productServiceId =
+        raw?.product_and_service_id || product?.product_and_service_id || value;
+
       setRows((prev) =>
         prev.map((row) => {
           if (row.id !== rowId) return row;
           if (!product) {
             // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
-            return { ...row, name: value };
+            return { ...row, name: value, productServiceId };
           }
           const q = Number(product.kolvo) || 0;
           const p = signPrice(Number(product.tsena_za_ed) || 0);
           return {
             ...row,
             name: value,
+            productServiceId,
             price: p,
             quantity: q,
             discount: String(product.discount || 0),
@@ -1137,8 +1149,8 @@ const CreateShipment = observer(
                               <SelectProductService
                                 value={row.name}
                                 selectedLabel={row.naimenovanie}
-                                onChange={(value) =>
-                                  handleSelectProductSerice(row?.id, value)
+                                onChange={(value, raw) =>
+                                  handleSelectProductSerice(row?.id, value, raw)
                                 }
                                 type={productType}
                                 sellingDealId={dealGuid}

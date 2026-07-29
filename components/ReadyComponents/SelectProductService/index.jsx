@@ -91,11 +91,14 @@ const SelectProductService = ({
 
   // Handle selection and return field value
   const handleChange = (val) => {
-    onChange(val)
-
     // For multi-select, use the last selected value
     const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
     const rawItem = rawDataMap.get(lookupValue)
+
+    // Pass the picked raw item as a 2nd arg so callers can read the real
+    // product_and_service_id directly (authoritative) instead of re-resolving
+    // the guid against a possibly-incomplete list.
+    onChange(val, rawItem)
 
     if (name && returnFieldValue && rawItem) {
       const fieldValue = rawItem[name] ?? rawItem.summa ?? null
