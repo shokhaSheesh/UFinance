@@ -19,7 +19,7 @@ import {
   toInputValue
 } from '@/modules/plans/utils/format'
 import { buildPeriodColumns } from '@/modules/plans/utils/periods'
-import { BUDGET_TOKENS as T, COLUMN_DEFS } from '@/modules/plans/utils/tokens'
+import { BUDGET_ROW_CLASSES as R, BUDGET_TOKENS as T, COLUMN_DEFS } from '@/modules/plans/utils/tokens'
 
 /* ------------------------------------------------------------------ */
 /* Агрегация                                                          */
@@ -136,19 +136,20 @@ const aggregateNode = (node, byRow, col) => {
 /* Ячейки                                                             */
 /* ------------------------------------------------------------------ */
 
-const CellShell = ({ children, bold, bg, isLast, onClick, editable }) => (
+const CellShell = ({ children, bold, className = '', isLast, onClick, editable }) => (
   <div
     onClick={onClick}
-    className={`flex shrink-0 items-center justify-end tabular-nums ${editable ? 'cursor-text' : ''}`}
+    className={`flex shrink-0 items-center justify-end tabular-nums transition-colors ${
+      editable ? 'cursor-text' : ''
+    } ${className}`}
     style={{
       width: T.cellWidth,
       height: '100%',
-      padding: '0 10px 0 0',
-      fontSize: 12,
-      lineHeight: '17px',
+      padding: `0 ${T.cellPadX}px`,
+      fontSize: 12.5,
+      lineHeight: '18px',
       fontWeight: bold ? 600 : 400,
       color: T.text,
-      background: bg || 'transparent',
       borderRight: isLast ? 'none' : `1px solid ${T.border}`
     }}
   >
@@ -249,6 +250,23 @@ const BudgetPivotTable = ({
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }))
   }, [])
 
+  /**
+   * Собственная плановая сумма статьи по колонке — `plan.by` из API,
+   * без подстатей. Показывается второй строкой под свёрнутым итогом и
+   * подставляется в инпут при редактировании.
+   */
+  const ownPlanFor = useCallback(
+    (node, col) => {
+      const months = col.months
+      const get = (m) => planOverrides[`${node.id}|${m}`] ?? node.values?.[m]?.plan ?? 0
+      if (months.length === 1 || node.aggregation === 'first') return get(months[0])
+      if (node.aggregation === 'last') return get(months[months.length - 1])
+      if (node.aggregation === 'percent') return null // проценты не суммируются
+      return months.reduce((sum, m) => sum + get(m), 0)
+    },
+    [planOverrides]
+  )
+
   /** Правка плана: локально — сразу, на бэк — через onPlanChange. */
   const setPlanValue = useCallback(
     (rowId, month, amount) => {
@@ -260,9 +278,10 @@ const BudgetPivotTable = ({
 
   const clearColumn = useCallback(
     (column) => {
+      // чистим все планируемые статьи, в том числе те, у которых есть подстатьи
       const targets = []
       const walk = (n) => {
-        if (!n.children?.length && n.kind !== 'computed' && n.kind !== 'ratio' && n.editable !== false) {
+        if (n.kind !== 'computed' && n.kind !== 'ratio' && !n.isPercent && n.editable !== false) {
           targets.push(n)
         }
         n.children?.forEach(walk)
@@ -309,7 +328,7 @@ const BudgetPivotTable = ({
   const renderHead = () => (
     <div
       className='sticky top-0 flex items-stretch bg-white'
-      style={{ zIndex: 30, borderBottom: `1px solid ${T.border}` }}
+      style={{ zIndex: 30, borderBottom: `2px solid ${T.borderStrong}` }}
     >
       {/* Первая колонка */}
       <div
@@ -320,7 +339,8 @@ const BudgetPivotTable = ({
           minWidth: T.titleColWidth,
           height: T.headerFirstRowHeight + T.headerSecondRowHeight,
           padding: `0 12px ${T.headerSecondRowHeight + 8}px 20px`,
-          borderRight: `1px solid ${T.border}`
+          borderRight: `1px solid ${T.borderStrong}`,
+          boxShadow: '2px 0 4px -2px rgba(16, 24, 40, 0.06)'
         }}
       >
         <div className='truncate' style={{ fontSize: 16, fontWeight: 700, color: T.textHeading }}>
@@ -341,26 +361,26 @@ const BudgetPivotTable = ({
             <div
               key={col.id}
               className='flex shrink-0 flex-col'
-              style={{ width: groupWidth, borderRight: isLast ? 'none' : `1px solid ${T.border}` }}
+              style={{ width: groupWidth, borderRight: isLast ? 'none' : `1px solid ${T.borderStrong}` }}
             >
               {/* Верхняя часть: год / квартал / сам период */}
               <div
                 className='flex flex-col items-end justify-end'
-                style={{ height: T.headerFirstRowHeight, padding: '0 10px 6px 0', gap: 2 }}
+                style={{ height: T.headerFirstRowHeight, padding: `0 ${T.cellPadX}px 8px 0`, gap: 2 }}
               >
                 {col.head.year && (
-                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.text }}>
+                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }}>
                     <span>{col.head.year.label}</span>
                     <CollapseBtn id={col.head.year.id} collapsed={false} />
                   </div>
                 )}
                 {col.head.quarter && (
-                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.text }}>
+                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }}>
                     <span>{col.head.quarter.label}</span>
                     <CollapseBtn id={col.head.quarter.id} collapsed={false} />
                   </div>
                 )}
-                <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.text }}>
+                <div className='flex items-center' style={{ fontSize: 13, fontWeight: 700, color: T.textHeading }}>
                   <span className='capitalize'>{col.head.self}</span>
                   {col.head.collapsedNode && <CollapseBtn id={col.head.collapsedNode.id} collapsed />}
                 </div>
@@ -368,7 +388,7 @@ const BudgetPivotTable = ({
 
               {/* Нижняя часть: план/факт/… */}
               <div
-                className='flex items-stretch'
+                className={`flex items-stretch ${R.headerSub}`}
                 style={{ height: T.headerSecondRowHeight, borderTop: `1px solid ${T.border}` }}
               >
                 {activeCols.map((c, ci) => (
@@ -377,9 +397,10 @@ const BudgetPivotTable = ({
                     className='flex shrink-0 items-center justify-end gap-1'
                     style={{
                       width: T.cellWidth,
-                      padding: '0 10px 0 0',
+                      padding: `0 ${T.cellPadX}px`,
                       fontSize: 12,
-                      color: T.text,
+                      fontWeight: 500,
+                      color: T.textMuted,
                       borderRight: ci === activeCols.length - 1 ? 'none' : `1px solid ${T.border}`
                     }}
                   >
@@ -433,6 +454,21 @@ const BudgetPivotTable = ({
     return null
   }
 
+  /**
+   * Знак значения расчётной колонки для окраски: плюс — зелёный, минус —
+   * красный, ноль — обычный цвет. Округляем так же, как при выводе, чтобы
+   * «0%» не оказался зелёным из-за сотых долей.
+   */
+  const signOf = (colKey, metrics) => {
+    const { plan, fact } = metrics
+    let value = null
+    if (colKey === 'planExec') value = planExecution(plan, fact)
+    else if (colKey === 'deviation') value = deviation(plan, fact)
+    else if (colKey === 'deviationPct') value = deviationPercent(plan, fact)
+    if (value == null || !Number.isFinite(value)) return 0
+    return Math.sign(Math.round(value))
+  }
+
   const renderRatioContent = (colKey, metrics) => {
     const { plan, fact } = metrics
     if (colKey === 'plan') return formatPercent(plan, t('na'))
@@ -448,27 +484,41 @@ const BudgetPivotTable = ({
     const hasChildren = !!node.children?.length
     const isExpanded = expandedRows[node.id] ?? node.defaultExpanded !== false
     const isRatio = node.kind === 'ratio' || !!node.isPercent
-    const isLeafArticle = !hasChildren && node.kind !== 'computed' && !isRatio
-    const rowEditable = editable && isLeafArticle && node.editable !== false
     const bold = node.bold ?? depth === 0
+    // Три типа строк: расчётные (прибыль/рентабельность/остатки), разделы
+    // верхнего уровня и обычные статьи — у каждого свой фон и вес
+    const isResultRow = isRatio || node.kind === 'computed' || node.apiType === 'result' || node.apiType === 'total'
+    // Статью с подстатьями тоже можно планировать: план пишется на неё саму,
+    // а в ячейке показывается сумма с детьми
+    const rowEditable = editable && !isResultRow && node.editable !== false
+    const rowClass = isResultRow ? R.result : depth === 0 ? R.section : R.leaf
 
     return (
       <div key={node.id}>
-        <div className='group flex items-stretch' style={{ height: T.rowHeight, borderBottom: `1px solid ${T.border}` }}>
+        <div
+          className='group flex items-stretch'
+          style={{
+            height: T.rowHeight,
+            // расчётные строки отделяем фоном и жирным начертанием, а не
+            // дополнительной линией — иначе рядом стоящие дают двойную границу
+            borderBottom: `1px solid ${isResultRow ? T.borderStrong : T.border}`
+          }}
+        >
           {/* Название статьи */}
           <div
-            className='sticky left-0 flex shrink-0 items-center bg-white group-hover:bg-gray-50'
+            className={`sticky left-0 flex shrink-0 items-center transition-colors ${rowClass}`}
             style={{
               zIndex: 10,
               width: T.titleColWidth,
               minWidth: T.titleColWidth,
               paddingLeft: T.indentBase + depth * T.indentStep,
               paddingRight: 12,
-              borderRight: `1px solid ${T.border}`,
-              fontSize: 12,
-              lineHeight: '17px',
+              borderRight: `1px solid ${T.borderStrong}`,
+              boxShadow: '2px 0 4px -2px rgba(16, 24, 40, 0.06)',
+              fontSize: 12.5,
+              lineHeight: '18px',
               fontWeight: bold ? 600 : 400,
-              color: T.text
+              color: bold ? T.textHeading : T.text
             }}
           >
             {hasChildren ? (
@@ -476,13 +526,13 @@ const BudgetPivotTable = ({
                 type='button'
                 onClick={() => toggleRow(node.id)}
                 className='mr-2 inline-flex shrink-0 items-center justify-center bg-white transition-colors hover:border-slate-400'
-                style={{ width: 14, height: 14, border: `1px solid ${T.borderStrong}`, borderRadius: 2, color: T.textMuted }}
+                style={{ width: 15, height: 15, border: `1px solid ${T.borderStrong}`, borderRadius: 3, color: T.textMuted }}
                 aria-label={isExpanded ? t('actions.collapse') : t('actions.expand')}
               >
                 {isExpanded ? <Minus style={{ width: 9, height: 9 }} /> : <Plus style={{ width: 9, height: 9 }} />}
               </button>
             ) : (
-              <span className='mr-2 inline-block shrink-0' style={{ width: 14 }} />
+              <span className='mr-2 inline-block shrink-0' style={{ width: 15 }} />
             )}
             <span className='truncate' title={node.label}>
               {node.label}
@@ -498,14 +548,17 @@ const BudgetPivotTable = ({
               return (
                 <div
                   key={col.id}
-                  className='flex shrink-0 items-stretch group-hover:bg-gray-50'
-                  style={{ width: groupWidth, borderRight: isLastGroup ? 'none' : `1px solid ${T.border}` }}
+                  className={`flex shrink-0 items-stretch transition-colors ${rowClass}`}
+                  style={{ width: groupWidth, borderRight: isLastGroup ? 'none' : `1px solid ${T.borderStrong}` }}
                 >
                   {activeCols.map((c, i) => {
                     const isLastCell = i === activeCols.length - 1
                     const isEditableCell =
                       rowEditable && c.key === 'plan' && col.kind === 'month'
                     const editKey = `${node.id}|${col.months[0]}`
+                    // Редактируем собственную сумму статьи (`plan.by`), а не
+                    // свёрнутую с подстатьями — её и пишет create_budget_plan
+                    const ownPlan = ownPlanFor(node, col) ?? 0
                     // Ключ месяца совпадает у «Итого» и свёрнутых периодов с их
                     // первым месяцем, поэтому инпут показываем только в самой
                     // редактируемой ячейке — иначе их монтируется несколько
@@ -521,10 +574,10 @@ const BudgetPivotTable = ({
                         >
                           <input
                             autoFocus
-                            defaultValue={toInputValue(metrics.plan)}
+                            defaultValue={toInputValue(ownPlan)}
                             onBlur={(e) => {
                               const parsed = parseInputNumber(e.target.value) ?? 0
-                              if (parsed !== metrics.plan) setPlanValue(node.id, col.months[0], parsed)
+                              if (parsed !== ownPlan) setPlanValue(node.id, col.months[0], parsed)
                               setEditing(null)
                             }}
                             onKeyDown={(e) => {
@@ -533,29 +586,59 @@ const BudgetPivotTable = ({
                             }}
                             className='w-full bg-white text-right tabular-nums outline-none'
                             style={{
-                              height: T.rowHeight - 2,
-                              padding: '0 9px',
-                              fontSize: 12,
-                              color: T.text,
-                              border: `1px solid ${T.accent}`
+                              height: T.rowHeight - 4,
+                              padding: `0 ${T.cellPadX - 2}px`,
+                              fontSize: 12.5,
+                              fontWeight: 600,
+                              color: T.planValue,
+                              border: `2px solid ${T.planValue}`,
+                              borderRadius: 3,
+                              boxShadow: '0 0 0 3px rgba(14, 115, 246, 0.12)'
                             }}
                           />
                         </div>
                       )
                     }
 
-                    const isPlanValue = c.key === 'plan' && isLeafArticle && metrics.plan !== 0
+                    // Плановые суммы выделяем цветом — как в ПланФакт,
+                    // чтобы план визуально отличался от факта
+                    const isPlanValue = c.key === 'plan' && !isResultRow && metrics.plan !== 0
+                    // «Вып. плана, %», «Откл.» и «Откл., %» красим по знаку
+                    const sign = c.key === 'plan' || c.key === 'fact' ? 0 : signOf(c.key, metrics)
+                    const color = isPlanValue && !isRatio
+                      ? T.planValue
+                      : sign > 0
+                        ? T.positive
+                        : sign < 0
+                          ? T.negative
+                          : undefined
+
+                    // У статьи с подстатьями показываем её собственный план
+                    // (`plan.by`) второй строкой под свёрнутой суммой
+                    const showOwnPlan =
+                      c.key === 'plan' && hasChildren && !isRatio && ownPlan !== 0 && ownPlan !== metrics.plan
+
                     return (
                       <CellShell
                         key={c.key}
                         bold={bold}
                         isLast={isLastCell}
                         editable={isEditableCell}
-                        bg={isEditableCell ? T.editableBg : undefined}
+                        className={isEditableCell ? R.editable : ''}
                         onClick={isEditableCell ? () => setEditing(editKey) : undefined}
                       >
-                        <span style={isPlanValue && !isRatio ? { color: T.planValue } : undefined}>
-                          {isRatio ? renderRatioContent(c.key, metrics) : renderCellContent(c.key, metrics)}
+                        <span className='flex flex-col items-end'>
+                          <span style={{ lineHeight: '16px', ...(color ? { color } : {}) }}>
+                            {isRatio ? renderRatioContent(c.key, metrics) : renderCellContent(c.key, metrics)}
+                          </span>
+                          {showOwnPlan && (
+                            <span
+                              style={{ fontSize: 10.5, lineHeight: '13px', fontWeight: 400, color: T.textHeading }}
+                              title={t('columns.plan')}
+                            >
+                              {formatMoney(ownPlan)}
+                            </span>
+                          )}
                         </span>
                       </CellShell>
                     )
@@ -587,8 +670,10 @@ const BudgetPivotTable = ({
     )
   }
 
+  // overflow-hidden/border-radius на обёртке ломает sticky-шапку и первую
+  // колонку, поэтому таблица остаётся во всю ширину без «карточки»
   return (
-    <div className='flex-1 overflow-auto bg-white'>
+    <div className='flex-1 overflow-auto bg-white' style={{ borderTop: `1px solid ${T.borderStrong}` }}>
       <div className='min-w-max'>
         {renderHead()}
         {rows.map((node) => renderRow(node, 0))}

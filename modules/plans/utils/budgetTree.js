@@ -12,7 +12,19 @@
  * ещё до перезапроса.
  */
 
+import { isUUID } from '@/utils/helpers'
+
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0)
+
+/**
+ * План можно писать только в реальные статьи учёта — у них id это guid
+ * chart_of_accounts. Синтетические узлы отчёта (`revenue`, `other-expenses`,
+ * `ebitda`, `net-profit` …) считаются на бэке, в них писать нельзя.
+ * Наличие потомков значения не имеет: у статьи с подстатьями план пишется
+ * на неё саму (`plan.by`), а `plan.total` собирается уже с детьми.
+ * Слайс — на случай суффиксов в id (в отчётах встречается `<guid>':N`).
+ */
+const isAccountId = (id) => isUUID(String(id || '').slice(0, 36))
 
 /** Строки-остатки не суммируются по месяцам: берётся первый / последний месяц. */
 const OPENING_BALANCE_IDS = ['starting-balance', 'opening-balance', 'balance-start']
@@ -68,7 +80,7 @@ export const buildBudgetRows = (apiRows = [], legend = []) => {
       apiType: node?.type,
       isPercent,
       bold: level === 0 || node?.type === 'result' || node?.type === 'total',
-      editable: !isDerived && !aggregation,
+      editable: isAccountId(node?.id) && !isDerived && !aggregation,
       defaultExpanded: level === 0,
       aggregation,
       values,

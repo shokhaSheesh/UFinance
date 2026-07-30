@@ -36,7 +36,9 @@ const IncomeExpenseBudgetSingle = () => {
 
   const [grouping, setGrouping] = useState('years')
   const [method, setMethod] = useState('accrual')
-  const [profitIndicators, setProfitIndicators] = useState(PROFIT_OPTIONS)
+  // по умолчанию показатели прибыли выключены — строки EBITDA/EBIT/EBT
+  // и операционная прибыль появляются только по выбору пользователя
+  const [profitIndicators, setProfitIndicators] = useState([])
   const [modalOpen, setModalOpen] = useState(false)
   const [visibleCols, setVisibleCols] = useState({
     fact: true,

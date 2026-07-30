@@ -7,27 +7,45 @@
 
 export const BUDGET_TOKENS = {
   // Геометрия
-  titleColWidth: 265,
-  cellWidth: 100,
-  rowHeight: 36,
-  headerFirstRowHeight: 61,
-  headerSecondRowHeight: 36,
+  titleColWidth: 280,
+  cellWidth: 112,
+  rowHeight: 40,
+  headerFirstRowHeight: 56,
+  headerSecondRowHeight: 34,
+  cellPadX: 12,
   indentBase: 20,
   indentStep: 20,
 
   // Палитра (значения из _variables.scss)
-  text: '#475467', // $gray-600 — основной текст ячеек
-  textHeading: '#0f172a', // $slate-900 — заголовки
+  text: '#344054', // $gray-700 — основной текст ячеек
+  textHeading: '#101828', // $gray-900 — заголовки
   textMuted: '#667085', // $gray-500 — приглушённый текст
-  border: '#eaecf0', // $gray-200 — границы
-  borderStrong: '#d0d5dd', // $gray-300 — сильные границы / инпуты
+  border: '#eaecf0', // $gray-200 — тонкие линии внутри группы периода
+  borderStrong: '#d0d5dd', // $gray-300 — границы между группами периодов
   planValue: '#0e73f6', // $primary — плановые значения
   accent: '#1e98ad', // $accent — акцент (чекбоксы, активная граница)
   danger: '#ef4444', // $danger — удаление
-  editableBg: 'rgba(30, 152, 173, 0.04)', // лёгкая заливка редактируемой ячейки
-  hoverBg: '#f9fafb', // $gray-50 — hover строки
+  positive: '#16a34a', // $success-dark — положительные отклонения
+  negative: '#dc2626', // $danger-dark — отрицательные отклонения
   pillBg: '#f1f5f9', // $slate-100 — чипы (тип/период/валюта)
   white: '#ffffff'
+}
+
+/**
+ * Фоны строк и ячеек — классами Tailwind, а не инлайном: иначе инлайн-стиль
+ * перебивает `group-hover` и строка не подсвечивается под курсором.
+ */
+export const BUDGET_ROW_CLASSES = {
+  // обычная статья
+  leaf: 'bg-white group-hover:bg-[#f0f6ff]',
+  // раздел верхнего уровня (Доходы / Расходы / потоки)
+  section: 'bg-[#f9fafb] group-hover:bg-[#eef4ff]',
+  // расчётные строки (прибыль, рентабельность, остатки)
+  result: 'bg-[#f2f4f7] group-hover:bg-[#e8effa]',
+  // редактируемая плановая ячейка
+  editable: 'bg-[#eff6ff] hover:bg-[#dceafd]',
+  // шапка: нижняя строка «План / Факт / …»
+  headerSub: 'bg-[#f9fafb]'
 }
 
 /** Колонки внутри одной группы периода. `plan` включена всегда. */
