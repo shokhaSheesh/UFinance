@@ -1,6 +1,6 @@
 'use client'
 
-import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
+import MultiSelectPurchaseZdelka from '@/components/ReadyComponents/MultiPurchaseZdelka'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
@@ -11,7 +11,9 @@ import { useState } from 'react'
 
 /**
  * Блок «Операции по проекту» — как на странице контрагента, но с рабочими фильтрами
- * (юрлица/счета, контрагенты, статьи, сделки) и подгрузкой по мере прокрутки.
+ * (юрлица/счета, контрагенты, сделки продаж и закупок) и подгрузкой по мере
+ * прокрутки. Статьи не выбираются: запрос всегда ограничен разделами
+ * «Доходы» и «Расходы» (см. useProjectOperations).
  */
 export default function ProjectOperations({
   td,
@@ -77,19 +79,18 @@ export default function ProjectOperations({
               />
             </div>
             <div className="w-52">
-              <MultiSelectStatiya
-                value={filters.chart_of_accounts_ids}
-                onChange={(v) => setFilter('chart_of_accounts_ids', v)}
-                placeholder={tc('placeholders.selectStatii')}
-                className="bg-white"
-                dropdownClassName="w-64"
-              />
-            </div>
-            <div className="w-52">
               <MultiSelectZdelka
                 value={filters.deals}
                 onChange={(v) => setFilter('deals', v)}
                 placeholder={tc('placeholders.selectDeals')}
+                className="bg-white w-full"
+              />
+            </div>
+            <div className="w-52">
+              <MultiSelectPurchaseZdelka
+                value={filters.purchaseDeals}
+                onChange={(v) => setFilter('purchaseDeals', v)}
+                placeholder={tc('placeholders.selectPurchaseDeals')}
                 className="bg-white w-full"
               />
             </div>

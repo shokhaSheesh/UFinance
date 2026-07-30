@@ -1,4 +1,4 @@
-import { useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useUcodeRequestInfinite, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { tips } from '@/store/operationFilter.store'
 import { useMemo, useState } from 'react'
@@ -6,9 +6,18 @@ import { useMemo, useState } from 'react'
 const EMPTY_FILTERS = {
   my_accounts_ids: [],
   counterparties_ids: [],
-  chart_of_accounts_ids: [],
   deals: [],
+  purchaseDeals: [],
 }
+
+/** Корневые разделы плана счетов, по которым фильтруем операции проекта. */
+const isIncomeOrExpenseRoot = (name) => /^\s*(доход|расход)/i.test(String(name || ''))
+
+/** Статья + все вложенные: бэк не разворачивает раздел, ids передаём явно. */
+const collectAccountIds = (node) => [
+  node?.guid,
+  ...(node?.children || []).flatMap(collectAccountIds),
+].filter(Boolean)
 
 // Считаем сводку по операциям (для футера)
 function calcStats(operations) {
@@ -36,13 +45,33 @@ function calcStats(operations) {
 export function useProjectOperations(projectGuid) {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
 
+  // Статьи не выбираются вручную: всегда показываем операции по разделам
+  // «Доходы» и «Расходы» — их guid'ы берём из плана счетов
+  const { data: chartOfAccounts, isPending: isChartLoading } = useUcodeRequestQuery({
+    method: 'get_chart_of_accounts',
+    data: { page: 1, limit: 100, search: '' },
+    querySetting: {
+      select: (res) => res?.data?.data,
+      staleTime: 1000 * 60 * 30,
+    },
+  })
+
+  const incomeExpenseIds = useMemo(
+    () =>
+      (chartOfAccounts || [])
+        .filter((root) => isIncomeOrExpenseRoot(root?.nazvanie))
+        .flatMap(collectAccountIds),
+    [chartOfAccounts]
+  )
+
   const requestData = useMemo(
     () => ({
       project_ids: projectGuid ? [projectGuid] : [],
       my_accounts_ids: filters.my_accounts_ids,
       counterparties_ids: filters.counterparties_ids,
-      chart_of_accounts_ids: filters.chart_of_accounts_ids,
+      chart_of_accounts_ids: incomeExpenseIds,
       sellingDealId: filters.deals,
+      purchaseDealId: filters.purchaseDeals,
       tip: tips,
       paymentConfirm: true,
       paymentNotConfirm: true,
@@ -50,14 +79,15 @@ export function useProjectOperations(projectGuid) {
       accrualNotConfirm: true,
       limit: 50,
     }),
-    [projectGuid, filters]
+    [projectGuid, filters, incomeExpenseIds]
   )
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useUcodeRequestInfinite({
       method: 'list_operations_by_query',
       data: requestData,
-      skip: !projectGuid,
+      // ждём план счетов, иначе первый запрос уйдёт без фильтра по статьям
+      skip: !projectGuid || isChartLoading,
     })
 
   const rawOps = useMemo(
@@ -93,7 +123,7 @@ export function useProjectOperations(projectGuid) {
     summary,
     filters,
     setFilters,
-    isLoading,
+    isLoading: isLoading || isChartLoading,
     isFetching,
     fetchNextPage,
     hasNextPage,

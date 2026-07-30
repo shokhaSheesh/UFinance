@@ -2,6 +2,9 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import { cn } from '@/lib/utils'
 import { formatAmount } from '@/utils/helpers'
 
+// Суммы в сводке — целыми, как в карточках проекта
+const money = (v) => formatAmount(Math.round(Number(v) || 0))
+
 // Русские склонения: 1 → ед., 2–4 → мн., иначе → род.
 const plural = (n, td, base) =>
   n === 1 ? td(`opFooter.${base}`) : n < 5 ? td(`opFooter.${base}Plural`) : td(`opFooter.${base}PluralMany`)
@@ -24,7 +27,7 @@ export default function ProjectOpsFooter({ td, summary, stats }) {
           <span className="text-gray-600">
             {stats.receiptsCount} {plural(stats.receiptsCount, td, 'receipts')}:{' '}
             <span className="font-semibold text-slate-900">
-              {formatAmount(summary?.incoming)} {symbol}
+              {money(summary?.incoming)} {symbol}
             </span>
           </span>
         )}
@@ -33,7 +36,7 @@ export default function ProjectOpsFooter({ td, summary, stats }) {
           <span className="text-gray-600">
             {stats.paymentsCount} {plural(stats.paymentsCount, td, 'payments')}:{' '}
             <span className="font-semibold text-slate-900">
-              {formatAmount(summary?.outgoing)} {symbol}
+              {money(summary?.outgoing)} {symbol}
             </span>
           </span>
         )}
@@ -42,7 +45,7 @@ export default function ProjectOpsFooter({ td, summary, stats }) {
           {td('opFooter.total')}:{' '}
           <span className={cn('font-semibold', (summary?.profit || 0) >= 0 ? 'text-emerald-600' : 'text-red-600')}>
             {(summary?.profit || 0) >= 0 ? '+' : ''}
-            {formatAmount(summary?.profit || 0)} {symbol}
+            {money(summary?.profit)} {symbol}
           </span>
         </span>
       </div>

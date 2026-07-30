@@ -1,4 +1,3 @@
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,15 +10,10 @@ import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { IoCopyOutline } from "react-icons/io5"
 
 const ProductServiceRow = ({
-  item, tc, isSelected, permissions,
-  onToggleSelect, onEdit, onCopy, onDelete
+  item, tc, permissions,
+  onEdit, onCopy, onDelete
 }) => (
   <tr className="hover:bg-neutral-50 border-b border-gray-200 text-sm">
-    <td className="p-3 text-center">
-      <div className="flex items-center justify-center">
-        <OperationCheckbox checked={isSelected} onChange={() => onToggleSelect(item)} />
-      </div>
-    </td>
     <td className="p-3 text-start font-medium text-neutral-700">{item?.name || '—'}</td>
     <td className="p-3 text-start font-normal text-xs text-neutral-500">{item?.type || '—'}</td>
     <td className="p-3 text-start text-neutral-500">{item?.artikul || '—'}</td>

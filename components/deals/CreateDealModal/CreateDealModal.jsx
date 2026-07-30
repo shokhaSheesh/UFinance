@@ -39,7 +39,8 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (isOpen && initialData) {
+    if (isOpen) {
+      if (!initialData) return;
       // eslint-disable-next-line
       setDealName(initialData.Nazvanie || initialData.name || '');
       const dateVal = initialData.Data_sdelki || initialData.sale_date;
@@ -50,14 +51,18 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       const ndsVal = initialData.NDS !== undefined ? initialData.NDS : initialData.nds;
       setNds(ndsVal ? 'true' : 'false');
       setComment(initialData.Kommentariy || initialData.commentary || '');
-    } else if (isOpen && !initialData) {
-      setDealName('');
-      setDealDate('');
-      setClient('');
-      setProject('');
-      setNds('true');
-      setComment('');
+      return;
     }
+
+    // Чистим поля на закрытии, а не на открытии: эффекты детей выполняются
+    // раньше родительских, поэтому сброс на открытии затирал значения,
+    // которые селекты успевают подставить по умолчанию (например, проект)
+    setDealName('');
+    setDealDate('');
+    setClient('');
+    setProject('');
+    setNds('true');
+    setComment('');
   }, [isOpen, initialData]);
 
   const { mutateAsync: createDeal, isPending: isCreatingDeal } = useUcodeRequestMutation()
@@ -200,6 +205,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
                 onChange={(value) => setProject(value)}
                 placeholder={t('projectPlaceholder')}
                 className={'bg-white'}
+                selectFirst={!isEditing && !initialData}
               />
             </div>
           </div>

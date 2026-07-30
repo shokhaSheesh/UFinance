@@ -26,7 +26,6 @@ export default observer(function ProductServiceListPage() {
     searchQuery, setSearchQuery,
     filters, setFilters,
     productServicesList,
-    totalItemsCount,
     isLoading,
   } = useProductServiceData(t, tc)
 
@@ -40,17 +39,13 @@ export default observer(function ProductServiceListPage() {
     editGroup, setEditGroup,
     itemToEdit, setItemToEdit,
     isCopying, setIsCopying,
-    isBulkDeleteModalOpen, setIsBulkDeleteModalOpen,
-    isBulkDeleting,
     handleCreateSingle,
     handleCreateGroup,
     handleDeleteConfirm,
-    handleBulkDelete,
   } = useProductServiceModals(t)
 
   const productsServicesPermissions = appStore.permission.directories.productsServices
 
-  const [selectedItems, setSelectedItems] = useState(new Set())
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
   const toggleGroup = (id) => {
@@ -77,49 +72,6 @@ export default observer(function ProductServiceListPage() {
       const allGroupIds = productServicesList.filter(item => item.isGroup).map(g => g.guid)
       setExpandedGroups(new Set(allGroupIds))
     }
-  }
-
-  const handleSelectAll = () => {
-    let allItemGuids = []
-    if (filters.group !== 'none') {
-      productServicesList.forEach(group => {
-        group.items?.forEach(item => allItemGuids.push(item.guid))
-      })
-    } else {
-      allItemGuids = productServicesList.map(item => item.guid)
-    }
-
-    if (selectedItems.size === allItemGuids.length && allItemGuids.length > 0) {
-      setSelectedItems(new Set())
-    } else {
-      setSelectedItems(new Set(allItemGuids))
-    }
-  }
-
-  const handleSelectChilds = (group) => {
-    const childGuids = group.items?.map(item => item.guid) || []
-    setSelectedItems(prev => {
-      const next = new Set(prev)
-      const isAllSelected = childGuids.every(guid => next.has(guid))
-      if (isAllSelected) {
-        childGuids.forEach(guid => next.delete(guid))
-      } else {
-        childGuids.forEach(guid => next.add(guid))
-      }
-      return next
-    })
-  }
-
-  const handleSelectChild = (child) => {
-    setSelectedItems(prev => {
-      const next = new Set(prev)
-      if (next.has(child.guid)) {
-        next.delete(child.guid)
-      } else {
-        next.add(child.guid)
-      }
-      return next
-    })
   }
 
   const handleEditItem = (item) => {
@@ -172,15 +124,9 @@ export default observer(function ProductServiceListPage() {
           <table className='w-full max-h-[calc(100vh-60px)] overflow-y-auto'>
             <ProductServiceTableHeader
               t={t}
-              tc={tc}
               filters={filters}
-              selectedItems={selectedItems}
-              totalItemsCount={totalItemsCount}
-              onSelectAll={handleSelectAll}
-              canDelete={productsServicesPermissions.delete}
               isAllExpanded={isAllExpanded}
               toggleExpandAll={toggleExpandAll}
-              onBulkDelete={() => setIsBulkDeleteModalOpen(true)}
             />
             <tbody className='flex-1 overflow-y-auto'>
               {productServicesList.length === 0 ? (
@@ -193,7 +139,6 @@ export default observer(function ProductServiceListPage() {
                 productServicesList.map((item, index) => {
                   if (item.isGroup) {
                     const isExpanded = expandedGroups.has(item.guid)
-                    const isAllChildsSelected = item?.items?.length > 0 && item.items.every(child => selectedItems.has(child.guid))
                     return (
                       <ProductServiceGroupRow
                         key={item.guid}
@@ -202,11 +147,7 @@ export default observer(function ProductServiceListPage() {
                         tc={tc}
                         isExpanded={isExpanded}
                         permissions={productsServicesPermissions}
-                        isAllChildsSelected={isAllChildsSelected}
-                        selectedItems={selectedItems}
                         onToggleGroup={toggleGroup}
-                        onSelectChilds={handleSelectChilds}
-                        onSelectChild={handleSelectChild}
                         onEditGroup={handleEditGroup}
                         onDeleteGroup={(group) => setItemToDelete(group)}
                         onEditItem={handleEditItem}
@@ -220,9 +161,7 @@ export default observer(function ProductServiceListPage() {
                         key={item.guid || index}
                         item={item}
                         tc={tc}
-                        isSelected={selectedItems.has(item.guid)}
                         permissions={productsServicesPermissions}
-                        onToggleSelect={handleSelectChild}
                         onEdit={handleEditItem}
                         onCopy={handleCopyItem}
                         onDelete={(item) => setItemToDelete(item)}
@@ -278,32 +217,6 @@ export default observer(function ProductServiceListPage() {
               disabled={isDeletingItem}
             >
               {isDeletingItem ? <Loader size={20} color='white' /> : 'Удалить'}
-            </button>
-          </div>
-        </div>
-      </CustomModal>
-
-      <CustomModal isOpen={isBulkDeleteModalOpen} onClose={() => setIsBulkDeleteModalOpen(false)}>
-        <div className='flex flex-col gap-6 p-2'>
-          <h2 className="text-xl font-bold text-neutral-900 font-sans">
-            {'Удалить выбранные элементы?'}
-          </h2>
-          <p className='text-sm text-neutral-600 leading-relaxed font-sans'>
-            {`Вы действительно хотите удалить ${selectedItems.size} ${selectedItems.size === 1 ? 'элемент' : 'элементов'}? Восстановить ${selectedItems.size === 1 ? 'его' : 'их'} будет невозможно.`}
-          </p>
-          <div className='flex justify-end items-center gap-6 mt-2'>
-            <button
-              onClick={() => setIsBulkDeleteModalOpen(false)}
-              className='text-[#00A389] font-semibold text-sm hover:underline cursor-pointer'
-            >
-              {'Отменить'}
-            </button>
-            <button
-              onClick={() => handleBulkDelete(selectedItems, setSelectedItems)}
-              className='px-6 py-2.5 text-sm font-semibold text-white bg-[#F04438] rounded-md hover:bg-[#D92D20] transition-colors cursor-pointer min-w-[100px]'
-              disabled={isBulkDeleting}
-            >
-              {isBulkDeleting ? <Loader size={20} color='white' /> : 'Удалить'}
             </button>
           </div>
         </div>

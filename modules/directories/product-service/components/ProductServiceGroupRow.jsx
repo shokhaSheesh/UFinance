@@ -1,4 +1,3 @@
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,18 +13,12 @@ import { IoCopyOutline } from "react-icons/io5"
 
 const ProductServiceGroupRow = ({
   group, t, tc, isExpanded, permissions,
-  isAllChildsSelected, selectedItems,
-  onToggleGroup, onSelectChilds, onSelectChild,
+  onToggleGroup,
   onEditGroup, onDeleteGroup,
   onEditItem, onCopyItem, onDeleteItem
 }) => (
   <React.Fragment>
     <tr className="hover:bg-neutral-50 bg-neutral-50/50 font-medium cursor-pointer border-b border-gray-200" onClick={() => onToggleGroup(group?.guid)}>
-      <td className="p-3 text-center">
-        <div className="flex items-center justify-center">
-          <OperationCheckbox checked={isAllChildsSelected} onChange={() => onSelectChilds(group)} />
-        </div>
-      </td>
       <td colSpan={6} className="p-3">
         <div className="flex items-center gap-2">
           <button onClick={(e) => { e.stopPropagation(); onToggleGroup(group?.guid) }} className="p-1 hover:bg-neutral-100 rounded">
@@ -69,11 +62,6 @@ const ProductServiceGroupRow = ({
 
     {isExpanded && group?.items?.map((child, childIndex) => (
       <tr key={child?.guid || childIndex} className="hover:bg-neutral-50 border-b border-gray-200 text-sm">
-        <td className="p-3 text-center">
-          <div className="flex items-center justify-center">
-            <OperationCheckbox checked={selectedItems.has(child?.guid)} onChange={() => onSelectChild(child)} />
-          </div>
-        </td>
         <td className="p-3 text-start font-medium text-neutral-700 pl-8 relative">
           <div className="absolute left-4 top-1/2 -ms-1 h-full border-s border-dashed border-gray-300 -translate-y-1/2" />
           {child?.name || '—'}

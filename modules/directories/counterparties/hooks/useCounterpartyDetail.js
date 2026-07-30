@@ -14,7 +14,10 @@ export function useCounterpartyDetail(counterpartyGuid, tc) {
     operationDateEnd: "",
     calculationMethod: "Cashflow",
     dateRange: null,
-    deals: []
+    legalEntities: [],
+    chartOfAccounts: [],
+    deals: [],
+    purchaseDeals: []
   })
   const [isDeletingCounterparty, setIsDeletingCounterparty] = useState(false)
 
@@ -23,9 +26,10 @@ export function useCounterpartyDetail(counterpartyGuid, tc) {
     operationDateStart: filters.operationDateStart,
     operationDateEnd: filters.operationDateEnd,
     calculationMethod: filters.calculationMethod,
-    legal_entity_ids: [],
-    chartOfAccountsIds: [],
+    legal_entity_ids: filters.legalEntities,
+    chartOfAccountsIds: filters.chartOfAccounts,
     sellingDealId: filters.deals,
+    purchaseDealId: filters.purchaseDeals,
     page: 1
   }), [counterpartyGuid, filters])
 

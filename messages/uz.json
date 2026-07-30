@@ -146,7 +146,8 @@
       "selectProduct": "Tovar yoki xizmatni tanlang",
       "selectCurrency": "Valyutani tanlang",
       "selectGroup": "Guruhni tanlang",
-      "selectCounterpartyGroup": "Hamkorlar guruhini tanlang"
+      "selectCounterpartyGroup": "Hamkorlar guruhini tanlang",
+      "selectPurchaseDeals": "Xarid bitimlari"
     },
     "tooltips": {
       "editGroup": "Guruhni tahrirlash",
@@ -171,7 +172,8 @@
     "createDeal": "Bitim yaratish",
     "createDeals": "Bitimlar yaratish",
     "archive": "Arxivlash",
-    "unarchive": "Arxivdan chiqarish"
+    "unarchive": "Arxivdan chiqarish",
+    "clear": "Tozalash"
   },
   "Auth": {
     "title": {

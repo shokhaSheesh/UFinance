@@ -7,12 +7,14 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import { toJS } from 'mobx'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * Готовый селект проектов (list_projects из projects-API).
  * multi=false → SingleSelect (для форм), multi=true → MultiSelect (для фильтров).
  * Гейтинг по project_active делает вызывающий (оборачивает в appStore.projectActive).
+ *
+ * selectFirst — подставить первый проект, если значение не задано (формы создания).
  */
 const SelectProjects = ({
   value,
@@ -23,6 +25,7 @@ const SelectProjects = ({
   isClearable = true,
   disabled = false,
   multi = false,
+  selectFirst = false,
 }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -44,6 +47,16 @@ const SelectProjects = ({
   )
 
   const busy = isLoading || isFetching
+
+  // Автовыбор первого проекта — один раз за монтирование, чтобы ручная
+  // очистка селекта не возвращала значение обратно
+  const autoSelected = useRef(false)
+  useEffect(() => {
+    if (!selectFirst || multi || autoSelected.current) return
+    if (value || !options.length) return
+    autoSelected.current = true
+    onChange?.(options[0].value)
+  }, [selectFirst, multi, value, options, onChange])
 
   // MultiSelect читает `value?.includes(...)` напрямую — отдаём ему обычный массив
   // (не MobX-observable), а single — значение как есть.

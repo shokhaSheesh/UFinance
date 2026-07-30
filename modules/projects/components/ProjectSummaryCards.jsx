@@ -13,8 +13,10 @@ import {
   YAxis,
 } from 'recharts'
 
-const fmtMoney = (v, symbol) => `${formatAmount(v || 0)} ${symbol}`
-const fmtPercent = (v) => (v == null ? '—' : `${Number(v).toFixed(1)}%`)
+// Суммы и проценты в карточках показываем целыми — копейки тут не нужны
+const round = (v) => Math.round(Number(v) || 0)
+const fmtMoney = (v, symbol) => `${formatAmount(round(v))} ${symbol}`
+const fmtPercent = (v) => (v == null ? '—' : `${round(v)}%`)
 
 // Метрика: крупное фактическое значение + значение ниже
 const Metric = ({ label, fact, plan }) => (
@@ -104,10 +106,10 @@ export default function ProjectSummaryCards({ td, plan, chartData, symbol, loadi
                       tickLine={false}
                       width={48}
                       tick={{ fontSize: 11, fill: '#98a2b3' }}
-                      tickFormatter={(v) => formatAmount(v)}
+                      tickFormatter={(v) => formatAmount(round(v))}
                     />
                     <Tooltip
-                      formatter={(value, name) => [`${formatAmount(value)} ${symbol}`, td(name)]}
+                      formatter={(value, name) => [`${formatAmount(round(value))} ${symbol}`, td(name)]}
                       labelStyle={{ fontSize: 12 }}
                       contentStyle={{ borderRadius: 8, fontSize: 12, border: '1px solid #e3e6ec' }}
                     />

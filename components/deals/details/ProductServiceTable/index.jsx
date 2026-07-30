@@ -101,22 +101,35 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
     setSelectedItems(new Set(selectedItems))
   }
 
-  const handleDelete = async () => {
-    try {
-      if (selectedItem.length === 0) return;
+  /** Удаление выбранных позиций — открываем то же окно подтверждения. */
+  const handleDeleteSelected = () => {
+    if (selectedItems.size === 0) return
+    setSelectedItem(Array.from(selectedItems))
+    setOpen(true)
+  }
 
-      await mutateProductServiceCustom({
-        method: "delete_product_and_service",
-        data: {
-          guid: selectedItem?.length > 1 ? selectedItem : selectedItem?.[0]
-        }
-      })
+  const handleDelete = async () => {
+    const guids = (Array.isArray(selectedItem) ? selectedItem : [selectedItem]).filter(Boolean)
+    if (guids.length === 0) return
+
+    try {
+      // По одному запросу на каждый guid: метод принимает один id,
+      // массив в `guid` бэк не обрабатывает
+      await Promise.all(
+        guids.map((guid) =>
+          mutateProductServiceCustom({
+            method: "delete_product_and_service",
+            data: { guid }
+          })
+        )
+      )
 
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['list_sales_operations'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       setOpen(false)
+      setSelectedItem([])
       setSelectedItems(new Set())
     } catch (error) {
       console.error('mutateProductService', error?.message)
@@ -156,7 +169,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-neutral-600">{selectedItems.size} {t('selected')}</p>
-                    <button onClick={handleSelectCancel} className='text-red-400  hover:text-red-600 cursor-pointer flex items-center justify-center gap-2 px-2 py-1 '>
+                    <button onClick={handleDeleteSelected} className='text-red-400  hover:text-red-600 cursor-pointer flex items-center justify-center gap-2 px-2 py-1 '>
                       <BsTrash size={16} className='' />
                       <p className='text-sm '>{t('delete')}</p>
                     </button>
@@ -236,7 +249,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
       <CustomModal isOpen={open} onClose={() => setOpen(false)}>
         <div className='p-4'>
           <h1 className='text-lg font-semibold text-neutral-900'>{t('deletePositionsTitle')}</h1>
-          <p className='text-sm text-neutral-600'>{t('deletePositionsConfirm', { count: selectedItems.size })}</p>
+          <p className='text-sm text-neutral-600'>{t('deletePositionsConfirm', { count: selectedItem.length })}</p>
           <div className='flex justify-end gap-2 mt-4'>
             <button onClick={() => setOpen(false)} className='secondary-btn'>
               {t('cancel')}

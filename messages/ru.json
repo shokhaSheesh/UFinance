@@ -147,7 +147,8 @@
       "selectProduct": "Выберите товар или услугу",
       "selectCurrency": "Выберите валюту",
       "selectGroup": "Выберите группу",
-      "selectCounterpartyGroup": "Выберите группу контрагентов"
+      "selectCounterpartyGroup": "Выберите группу контрагентов",
+      "selectPurchaseDeals": "Сделки закупок"
     },
     "deleteConfirmTitle": "Подтверждение удаления",
     "tooltips": {
@@ -173,7 +174,8 @@
     "createDeal": "Создать сделку",
     "createDeals": "Создать сделки",
     "archive": "Архивировать",
-    "unarchive": "Разархивировать"
+    "unarchive": "Разархивировать",
+    "clear": "Очистить"
   },
   "Auth": {
     "title": {

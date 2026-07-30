@@ -1,4 +1,4 @@
-import { useUcodeDefaultApiMutation, useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { authStore } from '@/store/auth.store'
 import { useQueryClient } from '@tanstack/react-query'
@@ -6,7 +6,6 @@ import { useState } from 'react'
 
 export function useProductServiceModals(t) {
   const queryClient = useQueryClient()
-  const { mutateAsync: deleteProductService } = useUcodeDefaultApiMutation({ mutationKey: 'DELETE_PRODUCT_SERVICE' })
   const { mutateAsync: deleteProductServiceFn } = useUcodeRequestMutation()
 
   const [isCreateSingleOpen, setIsCreateSingleOpen] = useState(false)
@@ -18,8 +17,6 @@ export function useProductServiceModals(t) {
   const [editGroup, setEditGroup] = useState(null)
   const [itemToEdit, setItemToEdit] = useState(null)
   const [isCopying, setIsCopying] = useState(false)
-  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
-  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: ['get_product_services_list'] })
@@ -67,29 +64,6 @@ export function useProductServiceModals(t) {
     }
   }
 
-  const handleBulkDelete = async (selectedItems, setSelectedItems) => {
-    setIsBulkDeleting(true)
-    try {
-      const guids = Array.from(selectedItems)
-      await deleteProductServiceFn({
-        method: 'delete_product_and_service',
-        data: {
-          ids: guids,
-          branch_id: authStore.branch_id,
-        }
-      })
-      invalidateQueries()
-      setSelectedItems(new Set())
-      setIsBulkDeleteModalOpen(false)
-      showSuccessNotification(t('bulkSuccessDeleted'))
-    } catch (error) {
-      console.error('Bulk delete error:', error)
-      showErrorNotification(t('bulkDeleteError'))
-    } finally {
-      setIsBulkDeleting(false)
-    }
-  }
-
   return {
     isCreateSingleOpen, setIsCreateSingleOpen,
     isCreateGroupOpen, setIsCreateGroupOpen,
@@ -100,11 +74,8 @@ export function useProductServiceModals(t) {
     editGroup, setEditGroup,
     itemToEdit, setItemToEdit,
     isCopying, setIsCopying,
-    isBulkDeleteModalOpen, setIsBulkDeleteModalOpen,
-    isBulkDeleting,
     handleCreateSingle,
     handleCreateGroup,
     handleDeleteConfirm,
-    handleBulkDelete,
   }
 }
