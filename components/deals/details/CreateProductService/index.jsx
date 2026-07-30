@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard';
 import { queryClient } from '../../../../lib/queryClient';
-import { formatAmount, formatNumber } from '../../../../utils/helpers';
+import { formatAmount, formatAmountInput } from '../../../../utils/helpers';
 import Input from '../../../shared/Input';
 import Loader from '../../../shared/Loader';
 import SingleSelect from '../../../shared/Selects/SingleSelect';
@@ -277,8 +277,8 @@ const CreateProductService = ({
               </label>
               <Input
                 type='text'
-                value={formatNumber(formData.quantity)}
-                onChange={(e) => setFormData(prev => ({ ...prev, quantity: formatNumber(e.target.value) }))}
+                value={formatAmountInput(formData.quantity)}
+                onChange={(e) => setFormData(prev => ({ ...prev, quantity: formatAmountInput(e.target.value) }))}
                 className={`${styles.input} ${errors.quantity ? styles.inputError : ''}`}
                 placeholder='0'
               />
@@ -303,8 +303,8 @@ const CreateProductService = ({
             </label>
             <Input
               type='text'
-              value={formatNumber(formData.tsena_za_ed)}
-              onChange={(e) => setFormData(prev => ({ ...prev, tsena_za_ed: formatNumber(e.target.value) }))}
+              value={formatAmountInput(formData.tsena_za_ed)}
+              onChange={(e) => setFormData(prev => ({ ...prev, tsena_za_ed: formatAmountInput(e.target.value) }))}
               className={`${styles.input} ${styles.textRight} ${errors.tsena_za_ed ? styles.inputError : ''}`}
               placeholder={t('pricePerUnit')}
             />
