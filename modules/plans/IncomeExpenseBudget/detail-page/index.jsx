@@ -46,7 +46,10 @@ const IncomeExpenseBudgetSingle = () => {
   })
 
   const { budget } = useBudget(id, BUDGET_TYPE)
-  const { data, isLoading } = useBudgetPlan(id, { accountingMethod: method })
+  const { data, isLoading } = useBudgetPlan(id, {
+    accountingMethod: method,
+    profitIndicators
+  })
   const savePlan = useSaveBudgetPlan(id)
   const updateBudget = useUpdateBudget(BUDGET_TYPE)
   const deleteBudget = useDeleteBudget(BUDGET_TYPE)

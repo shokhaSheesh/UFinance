@@ -126,12 +126,16 @@ export function useDeleteBudget(type) {
 /**
  * Дерево статей бюджета с планом и фактом.
  * @param {string} budgetsId
- * @param {{accountingMethod?: 'accrual'|'cash'}} params
+ * @param {{accountingMethod?: 'accrual'|'cash', profitIndicators?: string[]}} params
  */
-export function useBudgetPlan(budgetsId, { accountingMethod } = {}) {
+export function useBudgetPlan(budgetsId, { accountingMethod, profitIndicators } = {}) {
   return useQuery({
-    queryKey: ['get_budget_plan', budgetsId, accountingMethod || null],
-    queryFn: () => getBudgetPlan(budgetsId, { accounting_method: accountingMethod }),
+    queryKey: ['get_budget_plan', budgetsId, accountingMethod || null, profitIndicators || null],
+    queryFn: () =>
+      getBudgetPlan(budgetsId, {
+        accounting_method: accountingMethod,
+        profitIndicators,
+      }),
     enabled: !!budgetsId,
     select: (res) => res?.data || null,
     staleTime: 0,
