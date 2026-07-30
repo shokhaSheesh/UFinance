@@ -1,19 +1,15 @@
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { ChevronDown } from 'lucide-react'
 
 /**
  * Строка заголовков таблицы проектов.
  */
-export default function ProjectsTableHeader({ t, allChecked, onToggleAll }) {
+export default function ProjectsTableHeader({ t }) {
   const symbol = GlobalCurrency?.name || '₽'
 
   return (
     <div className="flex h-11 sticky top-[60px] z-10 text-xs font-medium text-neutral-500 items-center bg-white border-b border-neutral-200">
-      <div className="w-10 shrink-0 flex px-2 items-center justify-center">
-        <OperationCheckbox checked={allChecked} onChange={onToggleAll} />
-      </div>
-      <div className="flex-1 min-w-40 flex px-2 items-center justify-start gap-1 cursor-pointer">
+      <div className="flex-1 min-w-40 flex pl-4 pr-2 items-center justify-start gap-1 cursor-pointer">
         <span className="text-neutral-700 font-semibold">{t('table.name')}</span>
         <ChevronDown size={14} />
       </div>

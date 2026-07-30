@@ -36,12 +36,14 @@ export default observer(function ProductServiceListPage() {
     itemToDelete, setItemToDelete,
     isDeletingItem,
     errorGroup, setErrorGroup,
+    usedItem, setUsedItem,
     editGroup, setEditGroup,
     itemToEdit, setItemToEdit,
     isCopying, setIsCopying,
     handleCreateSingle,
     handleCreateGroup,
     handleDeleteConfirm,
+    requestDelete,
   } = useProductServiceModals(t)
 
   const productsServicesPermissions = appStore.permission.directories.productsServices
@@ -152,7 +154,7 @@ export default observer(function ProductServiceListPage() {
                         onDeleteGroup={(group) => setItemToDelete(group)}
                         onEditItem={handleEditItem}
                         onCopyItem={handleCopyItem}
-                        onDeleteItem={(child) => setItemToDelete(child)}
+                        onDeleteItem={(child) => requestDelete(child)}
                       />
                     )
                   } else {
@@ -164,7 +166,7 @@ export default observer(function ProductServiceListPage() {
                         permissions={productsServicesPermissions}
                         onEdit={handleEditItem}
                         onCopy={handleCopyItem}
-                        onDelete={(item) => setItemToDelete(item)}
+                        onDelete={(item) => requestDelete(item)}
                       />
                     )
                   }
@@ -219,6 +221,33 @@ export default observer(function ProductServiceListPage() {
               {isDeletingItem ? <Loader size={20} color='white' /> : 'Удалить'}
             </button>
           </div>
+        </div>
+      </CustomModal>
+
+      {/* Товар уже используется в операциях/сделках — удалить нельзя */}
+      <CustomModal isOpen={!!usedItem} onClose={() => setUsedItem(null)}>
+        <div className="flex items-start gap-4 mb-4">
+          <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M15 9L9 15" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M9 9L15 15" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-neutral-900 font-sans">
+            {'Удаление невозможно'}
+          </h2>
+        </div>
+        <p className="mb-7 text-sm text-neutral-600 leading-5 font-sans">
+          {'Товар «'}<strong>{usedItem?.name}</strong>{'» уже используется в сделках или операциях, поэтому удалить его нельзя.'}
+        </p>
+        <div className="flex justify-end items-center">
+          <button
+            onClick={() => setUsedItem(null)}
+            className="bg-[#00A389] text-white font-semibold text-sm px-5 py-2 rounded-md hover:bg-[#048F7C] cursor-pointer"
+          >
+            {'Закрыть'}
+          </button>
         </div>
       </CustomModal>
 

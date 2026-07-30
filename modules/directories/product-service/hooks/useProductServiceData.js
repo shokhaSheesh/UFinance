@@ -61,6 +61,9 @@ export function useProductServiceData(t, tc) {
         comment: item?.Kommentariy || '',
         type: item?.Status ? item?.Status?.[0] === 'product' ? t('types.products') : t('types.services') : '',
         raw: item,
+        // used === true → товар уже задействован в операциях/сделках:
+        // валюту менять нельзя и удалять его нельзя
+        used: !!item?.used,
         currency: item?.currenies_symbol,
         groupName: groupName,
         groupId: groupId

@@ -1,4 +1,3 @@
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,18 +26,13 @@ export default function ProjectsTable({
   isLoading,
   hasNextPage,
   fetchNextPage,
-  selected,
-  onToggleAll,
-  onToggleOne,
   onRowClick,
   onEdit,
   onDelete,
 }) {
-  const allChecked = projects.length > 0 && selected.size === projects.length
-
   return (
     <>
-      <ProjectsTableHeader t={t} allChecked={allChecked} onToggleAll={onToggleAll} />
+      <ProjectsTableHeader t={t} />
 
       {projects.length === 0 && !isLoading && (
         <div className="py-20 text-center text-neutral-500 text-sm">{t('empty')}</div>
@@ -59,8 +53,6 @@ export default function ProjectsTable({
               project={project}
               ts={ts}
               tc={tc}
-              checked={selected.has(project.id)}
-              onToggleOne={onToggleOne}
               onRowClick={onRowClick}
               onEdit={onEdit}
               onDelete={onDelete}
@@ -72,7 +64,7 @@ export default function ProjectsTable({
   )
 }
 
-function ProjectRow({ project, ts, tc, checked, onToggleOne, onRowClick, onEdit, onDelete }) {
+function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
   const color = STATUS_COLORS[project.status]
   const profitPositive = project.profit > 0
   const profitNegative = project.profit < 0
@@ -82,15 +74,8 @@ function ProjectRow({ project, ts, tc, checked, onToggleOne, onRowClick, onEdit,
       onClick={() => onRowClick(project)}
       className="flex items-center min-h-14 border-b border-neutral-100 hover:bg-neutral-50 group cursor-pointer text-xs"
     >
-      <div
-        className="w-10 shrink-0 flex px-2 items-center justify-center"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <OperationCheckbox checked={checked} onChange={() => onToggleOne(project.id)} />
-      </div>
-
       {/* Название + комментарий */}
-      <div className="flex-1 min-w-40 flex flex-col px-2">
+      <div className="flex-1 min-w-40 flex flex-col pl-4 pr-2">
         <p className="truncate font-medium text-slate-900">{project.name}</p>
         {project.comment && <p className="text-neutral-400 truncate">{project.comment}</p>}
       </div>

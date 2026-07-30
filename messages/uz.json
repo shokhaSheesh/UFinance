@@ -1956,7 +1956,9 @@
         "cancel": "Bekor qilish",
         "delete": "O'chirish",
         "emptyTitle": "Bitim bo'yicha xarajatlarni qo'shing",
-        "emptySubtitle": "Moliyaviy natijani nazorat qilish uchun bitim bo'yicha xarajatlarni hisobga oling"
+        "emptySubtitle": "Moliyaviy natijani nazorat qilish uchun bitim bo'yicha xarajatlarni hisobga oling",
+        "byDebit": "[debet bo‘yicha]",
+        "byCredit": "[kredit bo‘yicha]"
       },
       "shipmentTable": {
         "date": "Sana",

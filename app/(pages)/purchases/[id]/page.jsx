@@ -659,7 +659,6 @@ export default observer(function PurchaseDetailPage() {
                     onAdd={handleCreateOperation}
                     dealIdField="purchase_transactions_id"
                     invalidateKeys={["get_purchase_transaction_by_guid"]}
-                    tipTypes={["Выплата"]}
                     isPurchase
                   />
                 )}

@@ -14,9 +14,23 @@ export function useProductServiceModals(t) {
   const [itemToDelete, setItemToDelete] = useState(null)
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [errorGroup, setErrorGroup] = useState(null)
+  const [usedItem, setUsedItem] = useState(null)
   const [editGroup, setEditGroup] = useState(null)
   const [itemToEdit, setItemToEdit] = useState(null)
   const [isCopying, setIsCopying] = useState(false)
+
+  /**
+   * Запрос на удаление: товар, который уже используется в операциях или
+   * сделках (used === true), удалить нельзя — вместо подтверждения
+   * показываем пояснение.
+   */
+  const requestDelete = (item) => {
+    if (!item?.isGroup && (item?.used || item?.raw?.used)) {
+      setUsedItem(item)
+      return
+    }
+    setItemToDelete(item)
+  }
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: ['get_product_services_list'] })
@@ -71,11 +85,13 @@ export function useProductServiceModals(t) {
     itemToDelete, setItemToDelete,
     isDeletingItem,
     errorGroup, setErrorGroup,
+    usedItem, setUsedItem,
     editGroup, setEditGroup,
     itemToEdit, setItemToEdit,
     isCopying, setIsCopying,
     handleCreateSingle,
     handleCreateGroup,
     handleDeleteConfirm,
+    requestDelete,
   }
 }

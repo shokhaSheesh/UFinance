@@ -1,7 +1,7 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { debounce } from "lodash";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUcodeRequestQuery } from "../../../hooks/useDashboard";
 import TreeSelect from "../../shared/Selects/TreeSelect";
 
@@ -80,6 +80,9 @@ const SinglSelectStatiya = ({
   dropdownClassName,
   parent,
   returnIsChild,
+  // Отдаёт цепочку разделов выбранной статьи (от корня до неё самой) —
+  // когда одного флага returnIsChild недостаточно
+  returnAncestors,
   hiddenValue,
   hasError,
   isClearable = true,
@@ -161,6 +164,18 @@ const SinglSelectStatiya = ({
       returnIsChild(isDescendant);
     }
   }, [selectedValue, flattenedAncestry, parent, returnIsChild]);
+
+  // Сообщаем цепочку разделов только когда она реально изменилась — иначе
+  // инлайновый колбэк в родителе зациклил бы рендер
+  const lastAncestorsRef = useRef(null);
+  useEffect(() => {
+    if (!returnAncestors) return;
+    const ancestors = selectedValue ? flattenedAncestry[selectedValue] || [] : [];
+    const key = ancestors.join(" > ");
+    if (lastAncestorsRef.current === key) return;
+    lastAncestorsRef.current = key;
+    returnAncestors(ancestors);
+  }, [selectedValue, flattenedAncestry, returnAncestors]);
 
   useEffect(() => {
     if (selectedValue) {

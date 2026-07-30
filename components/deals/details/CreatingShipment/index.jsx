@@ -135,6 +135,8 @@ const CreateShipment = observer(
     );
     const isFutureDate =
       new Date(shipmentDate).setHours(0, 0, 0, 0) > today.setHours(0, 0, 0, 0);
+    // Остаток считается на дату отгрузки/поставки — её и передаём в get_stock_count
+    const stockDate = moment.parseZone(shipmentDate).format("YYYY-MM-DD");
 
     const [isPlanned, setIsPlanned] = useState(true);
     const [legalEntity, setLegalEntity] = useState("");
@@ -171,6 +173,12 @@ const CreateShipment = observer(
           ? "service"
           : "product"
         : undefined;
+    // Поставка на склад: товар приходуется складом, проект к ней не относится —
+    // поле «Проект» скрываем и не отправляем. В сервисной поставке (без склада)
+    // проект остаётся.
+    const isWarehouseSupply =
+      isPurchase && isWarehouseModuleOn && !isServiceSupply && !!warehouse;
+    const showProjectField = appStore.projectActive && !isWarehouseSupply;
     const [rows, setRows] = useState([
       {
         id: 1,
@@ -368,10 +376,12 @@ const CreateShipment = observer(
     });
 
     useEffect(() => {
+      // у складской поставки поле скрыто — автозаполнять нечего
+      if (isWarehouseSupply) return;
       if (open && !initialData?.guid && shipmentDealData?.projects_id) {
         setProject(shipmentDealData.projects_id);
       }
-    }, [open, initialData?.guid, shipmentDealData?.projects_id]);
+    }, [open, initialData?.guid, shipmentDealData?.projects_id, isWarehouseSupply]);
 
     // Picker qiymati — сделка-товар боғланма guid'и; лекин backend'га ҳақиқий
     // product_and_service_id юборилиши керак. Edit'да row.name аллақачон
@@ -385,8 +395,8 @@ const CreateShipment = observer(
     const isStockTrackedProduct = (productId) =>
       productServicesList.find((p) => p.guid === productId)?.tip === "product";
 
-    // Stock is per-warehouse — reset the cache and re-fetch for already-picked
-    // products whenever the warehouse changes.
+    // Stock is per-warehouse and per-date — reset the cache and re-fetch for
+    // already-picked products whenever the warehouse or the date changes.
     useEffect(() => {
       setStockByProduct({});
       if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
@@ -397,7 +407,11 @@ const CreateShipment = observer(
         apiClient
           .invokeFunction({
             method: "get_stock_count",
-            data: { product_and_service_id: resolveProductId(pid), warehouse_id: warehouse },
+            data: {
+              product_and_service_id: resolveProductId(pid),
+              warehouse_id: warehouse,
+              date: stockDate,
+            },
           })
           .then((res) =>
             setStockByProduct((prev) => ({
@@ -408,7 +422,7 @@ const CreateShipment = observer(
           .catch((e) => console.error("get_stock_count failed", e));
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [warehouse]);
+    }, [warehouse, stockDate]);
 
     // Real-time shortages: which products have total requested qty > available.
     // Only meaningful once "planned" is off (goods actually move) for an outflow.
@@ -558,6 +572,7 @@ const CreateShipment = observer(
                 data: {
                   product_and_service_id: pid,
                   warehouse_id: warehouse,
+                  date: stockDate,
                 },
               });
               const available = readStockCount(stockRes);
@@ -603,7 +618,8 @@ const CreateShipment = observer(
           legal_entity_id: legalEntity,
           [dealIdField]: dealGuid,
           partners_id: client,
-          ...(appStore.projectActive ? { projects_id: project || null } : {}),
+          // поле скрыто у складской поставки — значение не отправляем
+          ...(showProjectField ? { projects_id: project || null } : {}),
           [isPurchase ? "planned_supply" : "planned_shipment"]: isFutureDate
             ? true
             : isPlanned,
@@ -710,7 +726,11 @@ const CreateShipment = observer(
       try {
         const res = await apiClient.invokeFunction({
           method: "get_stock_count",
-          data: { product_and_service_id: resolveProductId(productId), warehouse_id: warehouse },
+          data: {
+            product_and_service_id: resolveProductId(productId),
+            warehouse_id: warehouse,
+            date: stockDate,
+          },
         });
         const available = readStockCount(res);
         // Keep the available count only for the shortage check — do NOT autofill
@@ -776,6 +796,9 @@ const CreateShipment = observer(
       if (errors.warehouse) setErrors({ ...errors, warehouse: null });
       // Leaving warehouse mode; the article is autofilled/reset by an effect.
       if (isPurchase) setIsServiceSupply(false);
+      // У поставки на склад проекта нет: поле скрывается, поэтому сбрасываем
+      // и ранее выбранное (в т.ч. автозаполненное из сделки) значение
+      if (isPurchase && isWarehouseModuleOn && value) setProject("");
     };
 
     // Поставка: picking an article directly = a service supply — clear/disable the
@@ -958,8 +981,9 @@ const CreateShipment = observer(
                 )}
               </div>
 
-              {/* Проект — только если включён модуль проектов (автозаполнение из сделки) */}
-              {appStore.projectActive && (
+              {/* Проект — только если включён модуль проектов (автозаполнение из
+                  сделки) и это не поставка на склад */}
+              {showProjectField && (
                 <div className="w-full flex items-center gap-2 pb-2">
                   <label className="w-40! text-xss!">{t("project")}</label>
                   <div className="flex-1">
