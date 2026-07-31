@@ -120,11 +120,18 @@ const PlannedDocModal = ({
     : []
 
   const handleClose = () => {
-    if (!guid) return
+    if (!guid || !doc) return
     closeDoc(
       {
         method: UPDATE_METHOD[type] || UPDATE_METHOD.shipment,
-        data: { guid, [PLANNED_FIELD[type] || PLANNED_FIELD.shipment]: false },
+        // Отдаём документ целиком, как он пришёл из get_*_transaction
+        // (склад, юрлицо, контрагент, позиции…), и снимаем «плановый» —
+        // иначе бэк перезаписал бы недостающие поля пустыми значениями
+        data: {
+          ...doc,
+          guid,
+          [PLANNED_FIELD[type] || PLANNED_FIELD.shipment]: false,
+        },
       },
       {
         onSuccess: () => {
@@ -260,7 +267,7 @@ const PlannedDocModal = ({
         <button
           type="button"
           onClick={handleClose}
-          disabled={isPending || !guid || isExecutedDoc}
+          disabled={isPending || !guid || !doc || isFetching || isExecutedDoc}
           className="primary-btn cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? t('planned.closing') : t('planned.closeDoc')}

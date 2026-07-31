@@ -5,7 +5,7 @@ import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalCurrency } from "../../../../constants/globalCurrency";
 import {
   useUcodeRequestMutation,
@@ -383,32 +383,65 @@ const CreateShipment = observer(
       }
     }, [open, initialData?.guid, shipmentDealData?.projects_id, isWarehouseSupply]);
 
-    // Picker qiymati — сделка-товар боғланма guid'и; лекин backend'га ҳақиқий
-    // product_and_service_id юборилиши керак. Edit'да row.name аллақачон
-    // product_and_service_id бўлса, ўзи қайтади (guid бўйича топилмайди).
-    const resolveProductId = (rowName) =>
-      productServicesList.find((p) => p.guid === rowName)?.product_and_service_id ||
-      rowName;
-
-    // Stock lives only for physical products (Tip === "product"); services never
-    // have a warehouse balance, so the stock limit / shortage checks skip them.
-    const isStockTrackedProduct = (productId) =>
-      productServicesList.find((p) => p.guid === productId)?.tip === "product";
-
-    // Stock is per-warehouse and per-date — reset the cache and re-fetch for
-    // already-picked products whenever the warehouse or the date changes.
-    useEffect(() => {
-      setStockByProduct({});
-      if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
-      const pids = [...new Set(rows.map((r) => r.name).filter(Boolean))].filter(
-        isStockTrackedProduct
+    // Значение пикера — guid связки «сделка-товар», но при редактировании и
+    // копировании в строку кладётся product_and_service_id. Ищем по обоим
+    // ключам, иначе товар из скопированной отгрузки считается неизвестным.
+    const findProduct = (rowName) =>
+      productServicesList.find(
+        (p) => p.guid === rowName || p.product_and_service_id === rowName
       );
-      pids.forEach((pid) => {
+
+    /**
+     * Товары строк, по которым нужно проверять остаток:
+     *   ключ строки (row.name) → реальный product_and_service_id.
+     * Услуги пропускаем. Товар, которого нет в списке сделки (так бывает у
+     * скопированной отгрузки, пока список не подгрузился, и у позиций,
+     * заведённых вне сделки), считаем складским — лучше проверить остаток,
+     * чем молча пропустить проверку.
+     */
+    const stockTargets = useMemo(() => {
+      const map = new Map();
+      rows.forEach((row) => {
+        if (!row.name) return;
+        const product = productServicesList.find(
+          (p) => p.guid === row.name || p.product_and_service_id === row.name
+        );
+        if (product?.tip && product.tip !== "product") return;
+        map.set(
+          row.name,
+          row.productServiceId || product?.product_and_service_id || row.name
+        );
+      });
+      return map;
+    }, [rows, productServicesList]);
+
+    // Остаток считается на конкретный склад и дату: при их смене прошлые
+    // значения больше не годятся. Сбрасываем во время рендера, а не в эффекте,
+    // чтобы не гонять лишний цикл и не подсовывать устаревшие цифры.
+    const stockScope = `${warehouse}|${stockDate}`;
+    const [prevStockScope, setPrevStockScope] = useState(stockScope);
+    if (prevStockScope !== stockScope) {
+      setPrevStockScope(stockScope);
+      setStockByProduct({});
+    }
+
+    // Догружаем остатки для всех выбранных товаров — в том числе для строк,
+    // которые пришли из копируемой/редактируемой отгрузки уже заполненными.
+    // Без этого предупреждение о нехватке появлялось только после того, как
+    // пользователь заново выбирал товар в списке.
+    const stockInFlight = useRef(new Set());
+    useEffect(() => {
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
+      stockTargets.forEach((productId, rowKey) => {
+        if (stockByProduct[rowKey] != null) return;
+        const key = `${stockScope}|${rowKey}`;
+        if (stockInFlight.current.has(key)) return;
+        stockInFlight.current.add(key);
         apiClient
           .invokeFunction({
             method: "get_stock_count",
             data: {
-              product_and_service_id: resolveProductId(pid),
+              product_and_service_id: productId,
               warehouse_id: warehouse,
               date: stockDate,
             },
@@ -416,13 +449,14 @@ const CreateShipment = observer(
           .then((res) =>
             setStockByProduct((prev) => ({
               ...prev,
-              [pid]: readStockCount(res),
+              [rowKey]: readStockCount(res),
             }))
           )
-          .catch((e) => console.error("get_stock_count failed", e));
+          .catch((e) => console.error("get_stock_count failed", e))
+          .finally(() => stockInFlight.current.delete(key));
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [warehouse, stockDate]);
+    }, [warehouse, stockDate, stockTargets, stockByProduct]);
 
     // Real-time shortages: which products have total requested qty > available.
     // Only meaningful once "planned" is off (goods actually move) for an outflow.
@@ -431,7 +465,7 @@ const CreateShipment = observer(
         return [];
       const requested = new Map();
       rows.forEach((r) => {
-        if (!r.name || !isStockTrackedProduct(r.name)) return;
+        if (!r.name || !stockTargets.has(r.name)) return;
         const q = formatDecimal(StringtoNumber(r.quantity)) || 0;
         requested.set(r.name, (requested.get(r.name) || 0) + q);
       });
@@ -440,8 +474,12 @@ const CreateShipment = observer(
         const avail = stockByProduct[pid];
         if (avail == null) return; // not fetched yet
         if (req > avail) {
+          // название ищем по обоим ключам, иначе у скопированной строки
+          // предупреждение выводилось без имени товара
           const pname =
-            productServicesList.find((p) => p.guid === pid)?.name || "";
+            findProduct(pid)?.name ||
+            rows.find((r) => r.name === pid)?.naimenovanie ||
+            "";
           out.push({ pid, name: pname, requested: req, available: avail });
         }
       });
@@ -450,6 +488,7 @@ const CreateShipment = observer(
     }, [
       rows,
       stockByProduct,
+      stockTargets,
       effectivePlanned,
       warehouse,
       productServicesList,
@@ -556,8 +595,8 @@ const CreateShipment = observer(
       if (isWarehouseModuleOn && warehouse && !effectivePlanned && isOutflow) {
         const requestedByProduct = new Map();
         productData.forEach((row) => {
-          if (!isStockTrackedProduct(row.name)) return;
-          const pid = resolveProductId(row.name);
+          const pid = stockTargets.get(row.name);
+          if (!pid) return;
           const qty = formatDecimal(StringtoNumber(row.quantity)) || 0;
           requestedByProduct.set(pid, (requestedByProduct.get(pid) || 0) + qty);
         });
@@ -715,32 +754,6 @@ const CreateShipment = observer(
       setSelectedProducts(new Set());
     };
 
-    // Real-time stock lookup — fires the moment a product is chosen (and on
-    // warehouse change) so quantities can be validated on the fly. Only relevant
-    // for outflow ops with the warehouse module on. Stores the available count
-    // for the shortage check only — it does not autofill the row's Кол-во.
-    const fetchStockCount = async (productId) => {
-      if (!isWarehouseModuleOn || !isOutflow || !warehouse || !productId)
-        return;
-      if (!isStockTrackedProduct(productId)) return;
-      try {
-        const res = await apiClient.invokeFunction({
-          method: "get_stock_count",
-          data: {
-            product_and_service_id: resolveProductId(productId),
-            warehouse_id: warehouse,
-            date: stockDate,
-          },
-        });
-        const available = readStockCount(res);
-        // Keep the available count only for the shortage check — do NOT autofill
-        // the row's quantity; the user enters it manually.
-        setStockByProduct((prev) => ({ ...prev, [productId]: available }));
-      } catch (e) {
-        console.error("get_stock_count failed", e);
-      }
-    };
-
     const handleSelectProductSerice = (rowId, value, raw) => {
       // Товар может отсутствовать в productServicesList (напр. когда «Мой склад»
       // выключен и список подтягивается иначе) — выбор всё равно должен сработать.
@@ -761,6 +774,16 @@ const CreateShipment = observer(
             // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
             return { ...row, name: value, productServiceId };
           }
+          // Тот же товар выбран повторно — только фиксируем выбор. Иначе
+          // подстановка значений из сделки затирала бы количество и цену,
+          // перенесённые из копируемой/редактируемой отгрузки.
+          const isSameProduct =
+            row.name === value ||
+            (!!row.productServiceId &&
+              row.productServiceId === productServiceId);
+          if (isSameProduct) {
+            return { ...row, name: value, productServiceId };
+          }
           const q = Number(product.kolvo) || 0;
           const p = signPrice(Number(product.tsena_za_ed) || 0);
           return {
@@ -775,7 +798,7 @@ const CreateShipment = observer(
           };
         })
       );
-      fetchStockCount(value);
+      // остаток по выбранному товару догрузит эффект — он следит за строками
     };
 
     // Блокируем по СОХРАНЁННОМУ флагу из ответа, а не по живой галке: документ,
@@ -1171,7 +1194,11 @@ const CreateShipment = observer(
                           <td className="w-[200px]">
                             <div className="pr-2 pt-2 pb-2">
                               <SelectProductService
-                                value={row.name}
+                                // Приводим значение к guid опции: при копировании
+                                // и редактировании в строке лежит
+                                // product_and_service_id, и пикер, не найдя его
+                                // среди опций, дорисовывал товар вторым пунктом
+                                value={findProduct(row.name)?.guid || row.name}
                                 selectedLabel={row.naimenovanie}
                                 onChange={(value, raw) =>
                                   handleSelectProductSerice(row?.id, value, raw)
