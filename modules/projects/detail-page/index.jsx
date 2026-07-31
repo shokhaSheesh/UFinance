@@ -17,6 +17,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 import ProjectDetailHeader from '../components/ProjectDetailHeader'
+import { appStore } from '@/store/app.store'
 import ProjectOperations from '../components/ProjectOperations'
 import ProjectOpsFooter from '../components/ProjectOpsFooter'
 import ProjectSummaryCards from '../components/ProjectSummaryCards'
@@ -46,6 +47,9 @@ export default observer(function ProjectDetailPage() {
   const router = useRouter()
 
   const guid = params?.id
+
+  // Права раздела «Проекты»
+  const permissions = appStore.permission.projects || {}
 
   const [analysisMethod, setAnalysisMethod] = useState('accrual')
   const [planSource, setPlanSource] = useState('operations')
@@ -151,9 +155,13 @@ export default observer(function ProjectDetailPage() {
         onPlanSourceChange={setPlanSource}
         onDateRangeChange={setDateRange}
         onDateRangeTypeChange={setDateRangeType}
-        onEdit={() => setEditOpen(true)}
-        onToggleStatus={() => statusMut.mutate({ guid: project.id })}
-        onDelete={() => deleteProjectMut.mutate(project.id, { onSuccess: () => router.push('/projects') })}
+        onEdit={permissions.edit ? () => setEditOpen(true) : undefined}
+        onToggleStatus={permissions.edit ? () => statusMut.mutate({ guid: project.id }) : undefined}
+        onDelete={
+          permissions.delete
+            ? () => deleteProjectMut.mutate(project.id, { onSuccess: () => router.push('/projects') })
+            : undefined
+        }
       />
 
       <ProjectSummaryCards

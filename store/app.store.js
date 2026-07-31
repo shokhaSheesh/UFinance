@@ -40,6 +40,15 @@ class AppStore {
       purchases: { read: true, add: false, edit: false, delete: false },
     },
     warehouse: { read: true, add: false, edit: false, delete: false },
+    projects: { read: true, add: false, edit: false, delete: false },
+    plans: {
+      read: true,
+      add: false,
+      edit: false,
+      delete: false,
+      cashflow: { read: true, add: false, edit: false, delete: false },
+      pnl: { read: true, add: false, edit: false, delete: false },
+    },
     reports: {
       cashflow: { read: true },
       pnl: { read: true },
@@ -235,6 +244,15 @@ class AppStore {
         purchases: { read: true, add: false, edit: false, delete: false },
       },
       warehouse: { read: true, add: false, edit: false, delete: false },
+      projects: { read: true, add: false, edit: false, delete: false },
+      plans: {
+        read: true,
+        add: false,
+        edit: false,
+        delete: false,
+        cashflow: { read: true, add: false, edit: false, delete: false },
+        pnl: { read: true, add: false, edit: false, delete: false },
+      },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -287,6 +305,15 @@ class AppStore {
         purchases: { read: true, add: true, edit: true, delete: true },
       },
       warehouse: { read: true, add: true, edit: true, delete: true },
+      projects: { read: true, add: true, edit: true, delete: true },
+      plans: {
+        read: true,
+        add: true,
+        edit: true,
+        delete: true,
+        cashflow: { read: true, add: true, edit: true, delete: true },
+        pnl: { read: true, add: true, edit: true, delete: true },
+      },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -354,6 +381,15 @@ class AppStore {
         purchases: { read: false, add: false, edit: false, delete: false },
       },
       warehouse: { read: false, add: false, edit: false, delete: false },
+      projects: { read: false, add: false, edit: false, delete: false },
+      plans: {
+        read: false,
+        add: false,
+        edit: false,
+        delete: false,
+        cashflow: { read: false, add: false, edit: false, delete: false },
+        pnl: { read: false, add: false, edit: false, delete: false },
+      },
       reports: {
         cashflow: { read: false },
         pnl: { read: false },
@@ -385,8 +421,35 @@ class AppStore {
       },
     };
 
+    // «Планы» (бюджеты) бэкенд добавил позже статического конфига ролей и слаг
+    // может отличаться (plans / plan / budgets), а дочерние пункты приходят
+    // только с бэка. Поэтому раздел ищем по началу слага, а бюджеты внутри —
+    // по слагу и названию. Не распознанный дочерний пункт наследует права
+    // самого раздела, чтобы страница не осталась без прав вовсе.
+    const isPlansMenu = (slug) => /^(plans?|budgets?)$/i.test(String(slug || ""));
+    const matchBudget = (child) => {
+      const text = `${child?.menu_slug || ""} ${child?.menu_name || ""}`.toLowerCase();
+      if (/cash|денеж|поток|бддс|dds/.test(text)) return "cashflow";
+      if (/income|expense|profit|pnl|доход|расход|бдр/.test(text)) return "pnl";
+      return null;
+    };
+
     // Process each top-level menu item
     permission.forEach((item) => {
+      if (isPlansMenu(item.menu_slug)) {
+        const parent = convertPermissions(item);
+        newPermission.plans = {
+          ...parent,
+          cashflow: { ...parent },
+          pnl: { ...parent },
+        };
+        item.children?.forEach((child) => {
+          const key = matchBudget(child);
+          if (key) newPermission.plans[key] = convertPermissions(child);
+        });
+        return;
+      }
+
       switch (item.menu_slug) {
         case "indicators":
           newPermission.indicators.read = item.read || false;
@@ -436,6 +499,11 @@ class AppStore {
 
         case "warehouse":
           newPermission.warehouse = convertPermissions(item);
+          break;
+
+        case "project":
+        case "projects":
+          newPermission.projects = convertPermissions(item);
           break;
 
         case "reports":

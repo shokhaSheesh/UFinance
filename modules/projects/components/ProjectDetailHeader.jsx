@@ -75,24 +75,33 @@ export default function ProjectDetailHeader({
           </div>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button type="button" className="outline-btn h-9 px-2.5">
-              <EllipsisVertical size={18} className="text-neutral-500" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-40 p-1.5" align="end">
-            <DropdownMenuItem onClick={onEdit} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none">
-              {tc('edit')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onToggleStatus} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none">
-              {td('toggleStatus')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600">
-              {tc('delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Меню действий — только доступные по правам пункты */}
+        {(onEdit || onToggleStatus || onDelete) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className="outline-btn h-9 px-2.5">
+                <EllipsisVertical size={18} className="text-neutral-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40 p-1.5" align="end">
+              {onEdit && (
+                <DropdownMenuItem onClick={onEdit} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none">
+                  {tc('edit')}
+                </DropdownMenuItem>
+              )}
+              {onToggleStatus && (
+                <DropdownMenuItem onClick={onToggleStatus} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none">
+                  {td('toggleStatus')}
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem onClick={onDelete} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600">
+                  {tc('delete')}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {/* Панель фильтров */}

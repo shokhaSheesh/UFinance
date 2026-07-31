@@ -118,8 +118,9 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
         {percent(project.profitability)}
       </div>
 
-      {/* Меню действий */}
+      {/* Меню действий — только доступные по правам пункты */}
       <div className="w-10 shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+        {(onEdit || onDelete) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -130,20 +131,25 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 p-1.5" align="end">
-            <DropdownMenuItem
-              onClick={() => onEdit?.(project)}
-              className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-            >
-              <Pencil size={15} /> <span>{tc('edit')}</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete?.(project)}
-              className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
-            >
-              <Trash2 size={15} /> <span>{tc('delete')}</span>
-            </DropdownMenuItem>
+            {onEdit && (
+              <DropdownMenuItem
+                onClick={() => onEdit(project)}
+                className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+              >
+                <Pencil size={15} /> <span>{tc('edit')}</span>
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <DropdownMenuItem
+                onClick={() => onDelete(project)}
+                className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
+              >
+                <Trash2 size={15} /> <span>{tc('delete')}</span>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
+        )}
       </div>
     </div>
   )

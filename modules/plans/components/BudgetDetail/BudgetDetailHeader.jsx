@@ -59,6 +59,8 @@ const BudgetDetailHeader = ({ t, title, pills = [], onExport, onEdit, onDelete, 
               {t('downloadXls')}
             </HeaderButton>
           )}
+          {/* Меню действий — только если есть хотя бы одно доступное */}
+          {(onEdit || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -69,26 +71,31 @@ const BudgetDetailHeader = ({ t, title, pills = [], onExport, onEdit, onDelete, 
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[162px] p-1" align="end">
-              <DropdownMenuItem asChild>
-                <button
-                  className="flex w-full cursor-pointer items-center gap-2 text-sm outline-none"
-                  onClick={onEdit}
-                >
-                  <Pencil className="h-4 w-4" />
-                  <span>{t('actions.edit')}</span>
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button
-                  className="flex w-full cursor-pointer items-center gap-2 text-sm text-[#ed5564] outline-none"
-                  onClick={onDelete}
-                >
-                  <Trash2 className="h-4 w-4 text-[#ed5564]" />
-                  <span>{t('actions.delete')}</span>
-                </button>
-              </DropdownMenuItem>
+              {onEdit && (
+                <DropdownMenuItem asChild>
+                  <button
+                    className="flex w-full cursor-pointer items-center gap-2 text-sm outline-none"
+                    onClick={onEdit}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span>{t('actions.edit')}</span>
+                  </button>
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem asChild>
+                  <button
+                    className="flex w-full cursor-pointer items-center gap-2 text-sm text-[#ed5564] outline-none"
+                    onClick={onDelete}
+                  >
+                    <Trash2 className="h-4 w-4 text-[#ed5564]" />
+                    <span>{t('actions.delete')}</span>
+                  </button>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+          )}
         </div>
       </div>
     </div>

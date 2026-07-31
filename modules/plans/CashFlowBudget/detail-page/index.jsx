@@ -14,6 +14,8 @@ import {
   useUpdateBudget
 } from '@/modules/plans/hooks/useBudgets'
 import { buildBudgetPeriod, buildBudgetRows } from '@/modules/plans/utils/budgetTree'
+import { appStore } from '@/store/app.store'
+import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -33,6 +35,9 @@ const CashFlowBudgetSingle = () => {
 
   const [grouping, setGrouping] = useState('years')
   const [modalOpen, setModalOpen] = useState(false)
+
+  // Права раздела «Планы» → нужный бюджет
+  const permissions = appStore.permission.plans?.cashflow || {}
   const [visibleCols, setVisibleCols] = useState({
     fact: true,
     planExec: true,
@@ -95,8 +100,8 @@ const CashFlowBudgetSingle = () => {
         title={budget?.name || ''}
         pills={pills}
         backHref={LIST_HREF}
-        onEdit={() => setModalOpen(true)}
-        onDelete={handleDelete}
+        onEdit={permissions.edit ? () => setModalOpen(true) : undefined}
+        onDelete={permissions.delete ? handleDelete : undefined}
       />
 
       <BudgetToolbar
@@ -118,6 +123,7 @@ const CashFlowBudgetSingle = () => {
         visibleCols={visibleCols}
         loading={isLoading || !period}
         emptyLabel={t('empty')}
+        editable={!!permissions.edit}
         onPlanChange={savePlan.mutate}
       />
 
@@ -137,4 +143,5 @@ const CashFlowBudgetSingle = () => {
   )
 }
 
-export default CashFlowBudgetSingle
+// observer: доступные действия зависят от прав в appStore
+export default observer(CashFlowBudgetSingle)

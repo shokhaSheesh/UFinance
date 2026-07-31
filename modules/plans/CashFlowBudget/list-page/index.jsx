@@ -29,6 +29,9 @@ const CashFlowBudget = () => {
 
   const [legalEntityFilter, setLegalEntityFilter] = useState(null)
 
+  // Права раздела «Планы» → нужный бюджет
+  const permissions = appStore.permission.plans?.cashflow || {}
+
   const monthLabels = useMemo(
     () => Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, tf(`monthsShort.${i + 1}`)])),
     [tf]
@@ -82,13 +85,15 @@ const CashFlowBudget = () => {
           <h1 className="text-xl font-semibold text-slate-900">
             {t('title')}
           </h1>
-          <button
-            onClick={openCreate}
-            className="primary-btn flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            {tc('create')}
-          </button>
+          {permissions.add && (
+            <button
+              onClick={openCreate}
+              className="primary-btn flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {tc('create')}
+            </button>
+          )}
         </div>
 
         {/* Right side filters */}
@@ -221,6 +226,8 @@ const CashFlowBudget = () => {
                     onDelete={() => remove(item.id)}
                     editLabel={tf('actions.edit')}
                     deleteLabel={tf('actions.delete')}
+                    canEdit={permissions.edit}
+                    canDelete={permissions.delete}
                   />
                 </div>
               </div>

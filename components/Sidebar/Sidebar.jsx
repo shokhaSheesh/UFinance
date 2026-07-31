@@ -142,7 +142,10 @@ export const Sidebar = observer(() => {
       label: t("nav.plans"),
       href: "",
       hasPage: true,
-      canShow: true,
+      canShow:
+        permissions?.plans?.read ||
+        permissions?.plans?.pnl?.read ||
+        permissions?.plans?.cashflow?.read,
       submenu: [
         // {
         //   label: t("plans.payment_calendar"),
@@ -154,13 +157,13 @@ export const Sidebar = observer(() => {
           label: t("plans.income_expense_budget"),
           href: "/income_expense_budget",
           hasPage: true,
-          canShow: true,
+          canShow: permissions?.plans?.pnl?.read,
         },
         {
           label: t("plans.cash_flow_budget"),
           href: "/cash_flow_budget",
           hasPage: true,
-          canShow: true,
+          canShow: permissions?.plans?.cashflow?.read,
         },
       ],
     },
@@ -169,7 +172,7 @@ export const Sidebar = observer(() => {
       label: t("nav.projects"),
       href: "/projects",
       hasPage: true,
-      canShow: appStore.projectActive,
+      canShow: appStore.projectActive && permissions?.projects?.read,
     },
     {
       icon: ClipboardList,

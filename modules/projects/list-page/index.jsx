@@ -6,6 +6,7 @@ import ScreenLoader from '@/components/shared/ScreenLoader'
 import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
 import { statusToRu } from '@/lib/api/ucode/projects'
+import { appStore } from '@/store/app.store'
 import { projectsStore } from '@/store/projects.store'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -35,6 +36,9 @@ export default observer(function ProjectsListPage() {
   const router = useRouter()
 
   const [isFilterOpen, setIsFilterOpen] = useState(true)
+
+  // Права раздела «Проекты»
+  const permissions = appStore.permission.projects || {}
   const [projectModal, setProjectModal] = useState({ open: false, project: null })
   const [groupModalOpen, setGroupModalOpen] = useState(false)
 
@@ -163,6 +167,7 @@ export default observer(function ProjectsListPage() {
           methodOptions={methodOptions}
           viewMode={viewMode}
           onSearch={(v) => setState('search', v)}
+          canAdd={permissions.add}
           onCreateProject={() => setProjectModal({ open: true, project: null })}
           onCreateGroup={() => setGroupModalOpen(true)}
           onMethodChange={(v) => setState('analysisMethod', v)}
@@ -179,8 +184,8 @@ export default observer(function ProjectsListPage() {
           hasNextPage={hasNextPage}
           fetchNextPage={fetchNextPage}
           onRowClick={(project) => router.push(`/projects/${project.id}`)}
-          onEdit={(project) => setProjectModal({ open: true, project })}
-          onDelete={(project) => deleteProjectMut.mutate(project.id)}
+          onEdit={permissions.edit ? (project) => setProjectModal({ open: true, project }) : undefined}
+          onDelete={permissions.delete ? (project) => deleteProjectMut.mutate(project.id) : undefined}
         />
 
         {showInitialLoader && <ScreenLoader className="left-0!" />}
