@@ -49,8 +49,11 @@ const SelectProductService = ({
     },
     querySetting: {
       select: (response) => productServiceDto(response?.data?.data) || [],
-      staleTime: 1000 * 60 * 30, // 30 minutes
-      placeholder: keepPreviousData
+      // Товар могли добавить в сделку только что: держать список полчаса в кэше
+      // нельзя — он открывался бы без новой позиции. Обновляем при монтировании.
+      staleTime: 0,
+      refetchOnMount: 'always',
+      placeholderData: keepPreviousData
     }
 
   })

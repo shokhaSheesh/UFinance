@@ -17,7 +17,8 @@ import WarehouseRow from '../components/WarehouseRow'
 import WarehouseTableHeader from '../components/WarehouseTableHeader'
 import { useWarehouseStockData } from './hooks/useWarehouseStockData'
 
-const COLUMN_COUNT = 12
+// колонки: № + 11 данных + иконка единицы
+const COLUMN_COUNT = 13
 
 export default observer(function WarehouseDetailPage() {
   const t = useTranslations('Warehouse')
@@ -44,6 +45,7 @@ export default observer(function WarehouseDetailPage() {
     total,
     totalPages,
     totals,
+    currency,
     isLoading,
   } = useWarehouseStockData(warehouseId)
 
@@ -81,7 +83,7 @@ export default observer(function WarehouseDetailPage() {
 
       <div className="flex-1 min-h-0 overflow-auto px-3">
         <table className="w-full border-collapse text-[13.5px]">
-          <WarehouseTableHeader t={t} />
+          <WarehouseTableHeader t={t} currency={currency} />
           <tbody>
             {items.length === 0 ? (
               <tr>
@@ -91,7 +93,12 @@ export default observer(function WarehouseDetailPage() {
               </tr>
             ) : (
               items.map((item, index) => (
-                <WarehouseRow key={item.guid || index} item={item} />
+                <WarehouseRow
+                  key={item.guid || index}
+                  item={item}
+                  // сквозная нумерация: на второй странице продолжается, а не начинается с 1
+                  number={(page - 1) * limit + index + 1}
+                />
               ))
             )}
           </tbody>
@@ -106,6 +113,7 @@ export default observer(function WarehouseDetailPage() {
         total={total}
         limit={limit}
         onPageChange={setPage}
+        currency={currency}
       />
 
       <PlannedListModal

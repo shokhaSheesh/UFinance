@@ -89,6 +89,8 @@ export function useWarehouseStockData(warehouseId) {
     total,
     totalPages,
     totals,
+    // Валюта остатков приходит вместе со списком — суммы считаются именно в ней
+    currency: data?.currency || "",
     isLoading,
     isFetching,
   };

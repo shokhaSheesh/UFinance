@@ -51,6 +51,7 @@
       "deleting": "O'chirilmoqda..."
     },
     "columns": {
+      "number": "№",
       "name": "Nomi",
       "artikul": "Artikul",
       "balance": "Qoldiq",

@@ -357,6 +357,10 @@ const CreateShipment = observer(
       skip: !dealGuid,
       querySetting: {
         select: (data) => data?.data?.data,
+        // Товар могли добавить в сделку только что — глобальный staleTime в
+        // 5 минут отдал бы старый список без него
+        staleTime: 0,
+        refetchOnMount: "always",
       },
     });
 
@@ -761,6 +765,12 @@ const CreateShipment = observer(
         productServicesList?.find((p) => p.guid === value) ||
         productServicesList?.find((p) => p.product_and_service_id === value);
 
+      // Данные для автозаполнения берём из выбранного элемента самого пикера:
+      // его список всегда актуален, а список сделки в модалке может быть из
+      // кэша и не содержать только что добавленный товар — тогда количество,
+      // цена и НДС оставались пустыми до перезагрузки страницы.
+      const source = raw || product;
+
       // Реальный product_and_service_id для payload: берём напрямую из выбранного
       // элемента пикера (authoritative), иначе из списка сделки, иначе — само
       // значение. Иначе на create ушёл бы guid связки вместо product_and_service_id.
@@ -770,7 +780,7 @@ const CreateShipment = observer(
       setRows((prev) =>
         prev.map((row) => {
           if (row.id !== rowId) return row;
-          if (!product) {
+          if (!source) {
             // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
             return { ...row, name: value, productServiceId };
           }
@@ -784,16 +794,17 @@ const CreateShipment = observer(
           if (isSameProduct) {
             return { ...row, name: value, productServiceId };
           }
-          const q = Number(product.kolvo) || 0;
-          const p = signPrice(Number(product.tsena_za_ed) || 0);
+          const q = Number(source.kolvo) || 0;
+          const p = signPrice(Number(source.tsena_za_ed) || 0);
           return {
             ...row,
             name: value,
             productServiceId,
+            naimenovanie: source.name || row.naimenovanie,
             price: p,
             quantity: q,
-            discount: String(product.discount || 0),
-            nds: String(product.nds || 0),
+            discount: String(source.discount || 0),
+            nds: String(source.nds || 0),
             sum: signPrice(q * p),
           };
         })

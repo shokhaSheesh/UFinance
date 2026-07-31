@@ -51,6 +51,7 @@
       "deleting": "Удаление..."
     },
     "columns": {
+      "number": "№",
       "name": "Наименование",
       "artikul": "Артикул",
       "balance": "Остаток",

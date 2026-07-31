@@ -1,8 +1,6 @@
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/helpers'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
-import { GlobalCurrency } from '@/constants/globalCurrency'
-import useMounted from '@/hooks/useMounted'
 
 const SummaryItem = ({ label, value, cur, green }) => (
   <span className="flex items-center gap-1.5">
@@ -23,10 +21,9 @@ const PagerButton = ({ disabled, onClick, children }) => (
   </button>
 )
 
-const WarehouseFooter = ({ t, totals, page, totalPages, total, limit, onPageChange }) => {
-  const mounted = useMounted()
-  const currency = mounted ? GlobalCurrency?.name : ''
-
+// currency приходит из list_stock_balances — суммы считаются в валюте остатков,
+// а не в валюте, выбранной в шапке приложения
+const WarehouseFooter = ({ t, totals, page, totalPages, total, limit, onPageChange, currency }) => {
   const from = total === 0 ? 0 : (page - 1) * limit + 1
   const to = Math.min(page * limit, total)
 
