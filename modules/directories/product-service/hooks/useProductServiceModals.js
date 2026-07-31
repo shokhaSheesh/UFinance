@@ -1,11 +1,14 @@
 import { useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { authStore } from '@/store/auth.store'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 export function useProductServiceModals(t) {
   const queryClient = useQueryClient()
+  const tErrors = useTranslations('Errors')
   const { mutateAsync: deleteProductServiceFn } = useUcodeRequestMutation()
 
   const [isCreateSingleOpen, setIsCreateSingleOpen] = useState(false)
@@ -59,20 +62,29 @@ export function useProductServiceModals(t) {
     setIsDeletingItem(true)
     try {
       const isGroup = itemToDelete.isGroup
-      await deleteProductServiceFn({
+      const result = await deleteProductServiceFn({
         method: 'delete_product_and_service',
         data: {
           guid: itemToDelete.guid,
           branch_id: authStore.branch_id,
         }
       })
+      // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+      if (isObjectInUseError(result)) {
+        showErrorNotification(tErrors('cannotDelete.productService'))
+        return
+      }
       invalidateQueries()
       if (isGroup) queryClient.invalidateQueries({ queryKey: ['product-services-grouped'] })
       setItemToDelete(null)
       showSuccessNotification(t('successDeleted'))
     } catch (error) {
       console.error('Delete error:', error)
-      showErrorNotification(t('deleteError'))
+      showErrorNotification(
+        isObjectInUseError(error)
+          ? tErrors('cannotDelete.productService')
+          : t('deleteError')
+      )
     } finally {
       setIsDeletingItem(false)
     }

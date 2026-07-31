@@ -16,7 +16,9 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
 import { cn } from '@/lib/utils'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import { accountsStore } from '@/store/accounts.store'
 import { appStore } from '@/store/app.store'
 import { useQueryClient } from '@tanstack/react-query'
@@ -32,6 +34,7 @@ import styles from './accounts.module.scss'
 export default observer(function AccountsPageList() {
   const t = useTranslations('Directories.account')
   const tc = useTranslations('Common')
+  const tErrors = useTranslations('Errors')
   const mounted = useMounted()
   const accountPermissions = appStore.permission.directories.accounts
   const queryClient = useQueryClient()
@@ -147,11 +150,19 @@ export default observer(function AccountsPageList() {
     if (!modals.deletingAccount) return
 
     try {
-      await deleteMutation.mutateAsync([modals.deletingAccount.guid])
+      const result = await deleteMutation.mutateAsync([modals.deletingAccount.guid])
+      // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+      if (isObjectInUseError(result)) {
+        showErrorNotification(tErrors('cannotDelete.account'))
+        return
+      }
       modals.closeDeleteAccountModal()
       queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
     } catch (error) {
       console.error('Error deleting account:', error)
+      if (isObjectInUseError(error)) {
+        showErrorNotification(tErrors('cannotDelete.account'))
+      }
     }
   }
 

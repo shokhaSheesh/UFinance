@@ -2572,5 +2572,14 @@
       "deal": "Bitim",
       "amount": "Summa"
     }
+  },
+  "Errors": {
+    "cannotDelete": {
+      "counterparty": "Ushbu kontragentni o‘chirib bo‘lmaydi, chunki u operatsiyalarda ishlatilgan. Avval unga bog‘liq operatsiyalarni o‘chiring yoki boshqasiga o‘tkazing.",
+      "deal": "Ushbu bitimni o‘chirib bo‘lmaydi, chunki uning ichida operatsiyalar mavjud. Avval bitim ichidagi barcha operatsiyalarni o‘chiring.",
+      "account": "Hisobni o‘chirib bo‘lmaydi, chunki u operatsiyalarda ishlatilgan. Avval ushbu hisobga tegishli operatsiyalarni o‘chiring yoki arxivlang.",
+      "legalEntity": "Ushbu yuridik shaxsni o‘chirib bo‘lmaydi, chunki u bo‘yicha operatsiyalar bajarilgan. Avval unga bog‘liq operatsiyalarni o‘chiring.",
+      "productService": "Ushbu pozitsiyani o‘chirib bo‘lmaydi, chunki u Sotuvlar yoki Xaridlarda ishlatilgan. Avval tegishli hujjatlardan uni o‘chirib tashlang."
+    }
   }
 }

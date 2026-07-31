@@ -4,6 +4,7 @@ import CustomDialog from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import TextArea from '@/components/shared/TextArea'
+import { appStore } from '@/store/app.store'
 import { Loader2, X } from 'lucide-react'
 import { useState } from 'react'
 import MonthRangePicker from './MonthRangePicker'
@@ -156,15 +157,18 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
           {errors.legalEntity && <p className="mt-1 text-xs text-red-500">{errors.legalEntity}</p>}
         </Row>
 
-        <Row label={t('form.project')}>
-          <SingleSelect
-            data={toOptions(projects)}
-            value={form.project}
-            onChange={(v) => set('project', v)}
-            placeholder={t('form.projectPlaceholder')}
-            className="bg-white"
-          />
-        </Row>
+        {/* Проект — только при включённом модуле «Проекты» */}
+        {appStore.projectActive && (
+          <Row label={t('form.project')}>
+            <SingleSelect
+              data={toOptions(projects)}
+              value={form.project}
+              onChange={(v) => set('project', v)}
+              placeholder={t('form.projectPlaceholder')}
+              className="bg-white"
+            />
+          </Row>
+        )}
 
         <Row label={t('form.currency')} required>
           <SingleSelect

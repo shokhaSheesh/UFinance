@@ -3,6 +3,8 @@
 import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
 import DeleteLegalEntityConfirmModal from '@/components/directories/DeleteLegalEntityConfirmModal/DeleteLegalEntityConfirmModal'
 import FixedContent from '@/layouts/FixedContent'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -17,6 +19,7 @@ import { useLegalEntitiesModals } from '../hooks/useLegalEntitiesModals'
 const LegalEntitiesListPage = observer(() => {
   const t = useTranslations('Directories.legalEntity')
   const tc = useTranslations('Common')
+  const tErrors = useTranslations('Errors')
 
   const legelEntityPermissions = appStore.permission.directories.legalentities
 
@@ -31,11 +34,19 @@ const LegalEntitiesListPage = observer(() => {
   const handleDeleteConfirm = async () => {
     if (modals.deletingLegalEntity?.guid) {
       try {
-        await data.deleteMutation.mutateAsync([modals.deletingLegalEntity.guid])
+        const result = await data.deleteMutation.mutateAsync([modals.deletingLegalEntity.guid])
+        // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+        if (isObjectInUseError(result)) {
+          showErrorNotification(tErrors('cannotDelete.legalEntity'))
+          return
+        }
         modals.setDeletingLegalEntity(null)
         data.invalidateQueries()
       } catch (error) {
         console.error('Error deleting legal entity:', error)
+        if (isObjectInUseError(error)) {
+          showErrorNotification(tErrors('cannotDelete.legalEntity'))
+        }
       }
     }
   }

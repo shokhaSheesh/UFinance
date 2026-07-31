@@ -17,6 +17,8 @@ import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
 
 
 import ScreenLoader from '@/components/shared/ScreenLoader'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import FixedContent from '@/layouts/FixedContent'
 import { toJS } from 'mobx'
 import moment from 'moment'
@@ -61,6 +63,7 @@ const ModalFallback = () => (
 export default observer(function DealsPage() {
   const router = useRouter()
   const t = useTranslations('Deals')
+  const tErrors = useTranslations('Errors')
   const mounted = useMounted()
   const queryClient = useQueryClient()
 
@@ -175,9 +178,17 @@ export default observer(function DealsPage() {
     deleteDeal(
       { method: 'delete_sales_transaction', data: { guid: dealToDelete.guid } },
       {
-        onSuccess: () => {
+        // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+        onSuccess: (result) => {
+          if (isObjectInUseError(result)) {
+            showErrorNotification(tErrors('cannotDelete.deal'))
+            return
+          }
           queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
           setDealToDelete(null)
+        },
+        onError: (error) => {
+          if (isObjectInUseError(error)) showErrorNotification(tErrors('cannotDelete.deal'))
         },
       }
     )

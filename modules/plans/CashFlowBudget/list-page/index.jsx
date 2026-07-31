@@ -12,6 +12,8 @@ import {
   useDeleteBudget,
   useUpdateBudget
 } from '@/modules/plans/hooks/useBudgets'
+import { appStore } from '@/store/app.store'
+import { observer } from 'mobx-react-lite'
 import { ChevronDown, Loader2, MoreHorizontal, Plus, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -132,13 +134,16 @@ const CashFlowBudget = () => {
           {t('columns.legalEntity')}
           {renderSortIcon('legalEntity')}
         </div>
-        <div
-          className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors flex-1 min-w-[140px]"
-          onClick={() => handleSort('project')}
-        >
-          {t('columns.project')}
-          {renderSortIcon('project')}
-        </div>
+        {/* Проект — только при включённом модуле «Проекты» */}
+        {appStore.projectActive && (
+          <div
+            className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors flex-1 min-w-[140px]"
+            onClick={() => handleSort('project')}
+          >
+            {t('columns.project')}
+            {renderSortIcon('project')}
+          </div>
+        )}
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors w-[140px]"
           onClick={() => handleSort('period')}
@@ -196,9 +201,11 @@ const CashFlowBudget = () => {
                 <div className="px-4 py-3 flex-1 min-w-[140px] text-gray-600">
                   {item.legalEntity || '—'}
                 </div>
-                <div className="px-4 py-3 flex-1 min-w-[140px] text-gray-600">
-                  {item.project || '—'}
-                </div>
+                {appStore.projectActive && (
+                  <div className="px-4 py-3 flex-1 min-w-[140px] text-gray-600">
+                    {item.project || '—'}
+                  </div>
+                )}
                 <div className="px-4 py-3 w-[140px] text-gray-600 text-xs">
                   {item.period}
                 </div>
@@ -243,4 +250,5 @@ const CashFlowBudget = () => {
   )
 }
 
-export default CashFlowBudget
+// observer: колонка «Проект» зависит от флага модуля в appStore
+export default observer(CashFlowBudget)

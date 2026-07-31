@@ -2,6 +2,7 @@ import { dashboardAPI } from '@/lib/api/dashboard'
 import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
 import { createWarehouse, deleteWarehouse, listWarehouses, updateWarehouse } from '@/lib/api/ucode/warehouse'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import {
 	useInfiniteQuery,
@@ -9,6 +10,7 @@ import {
 	useQuery,
 	useQueryClient
 } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 
 
 // Get chart of accounts using v2/items/chart_of_accounts endpoint (GET)
@@ -309,6 +311,7 @@ export const useUpdateCounterparty = () => {
 // Delete counterparties mutation
 export const useDeleteCounterparties = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 	return useMutation({
 		mutationFn: dashboardAPI.deleteCounterparties,
 		onMutate: async guidsToDelete => {
@@ -369,7 +372,12 @@ export const useDeleteCounterparties = () => {
 					queryClient.setQueryData(queryKey, data)
 				})
 			}
-			showErrorNotification(error.message || 'Ошибка при удалении контрагента(ов)')
+			// Занятый объект бэк объясняет своим текстом — переводим его в понятный
+			showErrorNotification(
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.counterparty')
+					: error.message || 'Ошибка при удалении контрагента(ов)',
+			)
 		},
 		onSuccess: () => {
 			// Invalidate all counterparties queries to refetch fresh data
@@ -441,6 +449,7 @@ export const useUpdateMyAccount = () => {
 // Delete my accounts mutation
 export const useDeleteMyAccounts = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 
 	return useMutation({
 		mutationFn: dashboardAPI.deleteMyAccounts,
@@ -452,7 +461,11 @@ export const useDeleteMyAccounts = () => {
 		},
 		onError: error => {
 			showErrorNotification(
-				error.response?.data?.description || error.message || 'Ошибка при удалении счетов',
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.account')
+					: error.response?.data?.description ||
+							error.message ||
+							'Ошибка при удалении счетов',
 			)
 		},
 	})
@@ -525,6 +538,7 @@ export const useUpdateLegalEntity = () => {
 // Delete legal entities mutation
 export const useDeleteLegalEntities = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 
 	return useMutation({
 		mutationFn: dashboardAPI.deleteLegalEntities,
@@ -535,7 +549,11 @@ export const useDeleteLegalEntities = () => {
 		},
 		onError: error => {
 			showErrorNotification(
-				error.response?.data?.description || error.message || 'Ошибка при удалении юрлица',
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.legalEntity')
+					: error.response?.data?.description ||
+							error.message ||
+							'Ошибка при удалении юрлица',
 			)
 		},
 	})

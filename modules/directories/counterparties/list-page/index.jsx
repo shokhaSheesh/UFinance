@@ -197,6 +197,7 @@ const CounterpartiesListPage = observer(() => {
       <DeleteCounterpartyConfirmModal
         isOpen={!!modals.deletingCounterparty}
         counterparty={modals.deletingCounterparty}
+        errorMessage={modals.deleteError}
         onConfirm={modals.handleDeleteConfirm}
         onCancel={() => modals.setDeletingCounterparty(null)}
         isDeleting={modals.isDeleting}

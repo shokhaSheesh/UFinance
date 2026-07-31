@@ -7,7 +7,9 @@ import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { useUcodeRequestMutation } from '../../../../hooks/useDashboard'
 import { apiClient } from '../../../../lib/api/ucode/base'
+import { isObjectInUseError } from '../../../../lib/api/ucode/errors'
 import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
+import { showErrorNotification } from '../../../../lib/utils/notifications'
 import { formatAmount } from '../../../../utils/helpers'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
 import CustomModal from '../../../shared/CustomModal'
@@ -17,6 +19,7 @@ import EmptyState from '../EmptyState'
 
 const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealIdField = 'sales_transactions_id', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
   const t = useTranslations('Directories.details.productServiceTable')
+  const tErrors = useTranslations('Errors')
 
   const [selectedItems, setSelectedItems] = useState(new Set())
   const [selectedItem, setSelectedItem] = useState([])
@@ -115,7 +118,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
     try {
       // По одному запросу на каждый guid: метод принимает один id,
       // массив в `guid` бэк не обрабатывает
-      await Promise.all(
+      const results = await Promise.all(
         guids.map((guid) =>
           mutateProductServiceCustom({
             method: "delete_product_and_service",
@@ -123,6 +126,12 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
           })
         )
       )
+
+      // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешные ответы
+      if (results.some(isObjectInUseError)) {
+        showErrorNotification(tErrors('cannotDelete.productService'))
+        return
+      }
 
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
@@ -133,6 +142,9 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
       setSelectedItems(new Set())
     } catch (error) {
       console.error('mutateProductService', error?.message)
+      if (isObjectInUseError(error)) {
+        showErrorNotification(tErrors('cannotDelete.productService'))
+      }
     }
   }
 

@@ -1,12 +1,16 @@
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { appStore } from '@/store/app.store'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { buildCounterpartyInfo, calculateOperationStats } from '../utils/counterpartiesUtils'
 
 export function useCounterpartyDetail(counterpartyGuid, tc) {
   const router = useRouter()
+  const tErrors = useTranslations('Errors')
   const ucodeRequestMutation = useUcodeRequestMutation()
 
   const [filters, setFilters] = useState({
@@ -67,13 +71,22 @@ export function useCounterpartyDetail(counterpartyGuid, tc) {
   const handleDeleteCounterparty = async () => {
     try {
       setIsDeletingCounterparty(true)
-      await ucodeRequestMutation.mutateAsync({
+      const result = await ucodeRequestMutation.mutateAsync({
         method: 'delete_counterparty',
         data: { guid: counterpartyGuid }
       })
+      // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+      if (isObjectInUseError(result)) {
+        showErrorNotification(tErrors('cannotDelete.counterparty'))
+        setIsDeletingCounterparty(false)
+        return
+      }
       router.push('/directories/counterparties')
     } catch (error) {
       console.error('Error deleting counterparty:', error)
+      if (isObjectInUseError(error)) {
+        showErrorNotification(tErrors('cannotDelete.counterparty'))
+      }
       setIsDeletingCounterparty(false)
     }
   }
