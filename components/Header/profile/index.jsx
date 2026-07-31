@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { authStore } from '../../../store/auth.store'
+import { clearAllSiteData } from '../../../utils/clearSiteData'
 
 export const Profile = observer(() => {
   const t = useTranslations('Header.profile')
@@ -28,9 +29,13 @@ export const Profile = observer(() => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Сбрасываем состояние стора, затем полностью чистим данные сайта
+    // (localStorage, sessionStorage, cookies, IndexedDB, Cache Storage, кеш React
+    // Query) и жёстко перезагружаемся — чтобы не осталось данных прошлой сессии.
     authStore.logout()
-    window.location.href = '/auth'
+    await clearAllSiteData()
+    window.location.replace('/auth')
   }
 
   return (
