@@ -28,7 +28,7 @@ const BudgetToolbar = ({
   }));
 
   return (
-    <div className="border-b border-gray-200 bg-white px-6 pb-4">
+    <div className="bg-white px-6 pb-4">
       <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3">
         <div className="w-52 shrink-0">
           <SingleSelect

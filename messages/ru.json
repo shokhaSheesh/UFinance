@@ -2097,7 +2097,7 @@
       },
       "periodTotal": "Итого",
       "quarter": "{q} Квартал",
-      "quarterShort": "кв",
+      "quarterShort": "Кв",
       "months": {
         "1": "Январь",
         "2": "Февраль",
@@ -2218,7 +2218,7 @@
       },
       "periodTotal": "Итого",
       "quarter": "{q} Квартал",
-      "quarterShort": "кв",
+      "quarterShort": "Кв",
       "months": {
         "1": "Январь",
         "2": "Февраль",

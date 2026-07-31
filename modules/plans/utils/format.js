@@ -37,13 +37,14 @@ export const formatPercent = (value, naLabel = 'н/о') => {
 }
 
 /**
- * Значение для колонки «Вып. плана, %» — `plan.profit_percentage`:
- *   profit_percentage = план / факт × 100.
+ * Значение для колонки «Вып. плана, %» — `plan.profit_percentage`
+ * из get_budget_plan: факт / план × 100.
+ * (Формула сверена с ответом API: план 500 000, факт 100 000 → 20 %.)
  * Как и на бэке, нулевой делитель даёт 0, а не «н/о».
  */
 export const planExecution = (plan, fact) => {
-  if (!fact) return 0
-  return ((plan || 0) / fact) * 100
+  if (!plan) return 0
+  return ((fact || 0) / plan) * 100
 }
 
 /**
@@ -54,15 +55,15 @@ export const deviation = (plan, fact) => (plan || 0) - (fact || 0)
 
 /**
  * Значение для колонки «Откл., %» — `plan.distinction_percentage`:
- *   distinction = план / (план − факт) × 100.
- * Считаем по той же формуле, чтобы значение совпадало и в свёрнутых периодах,
- * и сразу после правки плана — до перезапроса дерева.
- * Нулевой делитель, как и на бэке, даёт 0.
+ *   (план − факт) / план × 100, то есть отклонение в долях плана.
+ * (Сверено с API: план 500 000, факт 100 000 → profit 400 000 → 80 %.)
+ * Считаем по той же формуле, а не берём поле напрямую, чтобы значение
+ * совпадало и в свёрнутых периодах, и сразу после правки плана — до
+ * перезапроса дерева. Нулевой делитель, как и на бэке, даёт 0.
  */
 export const deviationPercent = (plan, fact) => {
-  const diff = deviation(plan, fact)
-  if (!diff) return 0
-  return ((plan || 0) / diff) * 100
+  if (!plan) return 0
+  return (deviation(plan, fact) / plan) * 100
 }
 
 /** Разбор пользовательского ввода в редактируемой ячейке плана. */

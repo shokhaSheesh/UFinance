@@ -105,9 +105,9 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     select: (response) => response?.data?.data
   })
 
-  // «Итого» по сделке — чистый денежный поток из summary_operations
-  const netCashFlow = useMemo(
-    () => Number(operationsTotal?.net_cash_flow) || 0,
+  // «Итого» по сделке — net_sales_payment из summary_operations
+  const netTotal = useMemo(
+    () => Number(operationsTotal?.net_sales_payment) || 0,
     [operationsTotal]
   )
 
@@ -286,8 +286,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
         </div>
         <div className='flex justify-end'>
           <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
-          <div className={cn('p-4 text-right font-semibold', netCashFlow > 0 ? 'text-emerald-600' : 'text-red-600')}>
-            {formatAmount(netCashFlow)} {GlobalCurrency?.name}
+          <div className={cn('p-4 text-right font-semibold', netTotal > 0 ? 'text-emerald-600' : 'text-red-600')}>
+            {formatAmount(netTotal)} {GlobalCurrency?.name}
           </div>
         </div>
       </>}

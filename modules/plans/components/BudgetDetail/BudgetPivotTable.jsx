@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Loader2, Minus, MoreVertical, Plus, Trash2 } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Loader2, MoreVertical, Trash2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import {
   deviation,
   deviationPercent,
@@ -16,98 +16,102 @@ import {
   formatPercent,
   parseInputNumber,
   planExecution,
-  toInputValue
-} from '@/modules/plans/utils/format'
-import { buildPeriodColumns } from '@/modules/plans/utils/periods'
-import { BUDGET_ROW_CLASSES as R, BUDGET_TOKENS as T, COLUMN_DEFS } from '@/modules/plans/utils/tokens'
+  toInputValue,
+} from "@/modules/plans/utils/format";
+import { buildPeriodColumns } from "@/modules/plans/utils/periods";
+import {
+  BUDGET_ROW_CLASSES as R,
+  BUDGET_TOKENS as T,
+  COLUMN_DEFS,
+} from "@/modules/plans/utils/tokens";
 
 /* ------------------------------------------------------------------ */
 /* Агрегация                                                          */
 /* ------------------------------------------------------------------ */
 
-const emptyCell = () => ({ plan: 0, fact: 0 })
+const emptyCell = () => ({ plan: 0, fact: 0 });
 
 /**
  * Считает значения по всем месяцам для каждой строки дерева.
  * Возвращает map: rowId → { 'YYYY-MM': { plan, fact } }
  */
 const buildMonthlyValues = (rows, months, planOverrides) => {
-  const byRow = {}
+  const byRow = {};
 
   /** Собственные значения узла (без потомков) с учётом локальной правки плана. */
   const ownValues = (node) => {
-    const values = {}
+    const values = {};
     months.forEach((m) => {
-      const base = node.values?.[m] || emptyCell()
-      const override = planOverrides?.[`${node.id}|${m}`]
-      values[m] = { plan: override != null ? override : base.plan || 0, fact: base.fact || 0 }
-    })
-    return values
-  }
+      const base = node.values?.[m] || emptyCell();
+      const override = planOverrides?.[`${node.id}|${m}`];
+      values[m] = {
+        plan: override != null ? override : base.plan || 0,
+        fact: base.fact || 0,
+      };
+    });
+    return values;
+  };
 
   const walk = (node) => {
-    if (node.kind === 'computed' || node.kind === 'ratio') {
-      byRow[node.id] = null // считается позже, после всех обычных строк
-      return
+    if (node.kind === "computed" || node.kind === "ratio") {
+      byRow[node.id] = null; // считается позже, после всех обычных строк
+      return;
     }
     if (!node.children?.length) {
-      byRow[node.id] = ownValues(node)
-      return
+      byRow[node.id] = ownValues(node);
+      return;
     }
-    node.children.forEach(walk)
+    node.children.forEach(walk);
     // Группа = собственные значения (у данных из API это «остаток» узла,
     // у мока — их нет) плюс сумма потомков
-    const own = ownValues(node)
-    const values = {}
+    const own = ownValues(node);
+    const values = {};
     months.forEach((m) => {
-      values[m] = node.children.reduce(
-        (acc, child) => {
-          const cv = byRow[child.id]?.[m] || emptyCell()
-          return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact }
-        },
-        own[m]
-      )
-    })
-    byRow[node.id] = values
-  }
+      values[m] = node.children.reduce((acc, child) => {
+        const cv = byRow[child.id]?.[m] || emptyCell();
+        return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact };
+      }, own[m]);
+    });
+    byRow[node.id] = values;
+  };
 
-  rows.forEach(walk)
+  rows.forEach(walk);
 
   // Вычисляемые строки — во втором проходе, они могут ссылаться на любые id
-  const resolve = (id, m) => byRow[id]?.[m] || emptyCell()
+  const resolve = (id, m) => byRow[id]?.[m] || emptyCell();
   const computeWalk = (node) => {
-    if ((node.kind === 'computed' || node.kind === 'ratio') && typeof node.compute === 'function') {
-      const values = {}
+    if (
+      (node.kind === "computed" || node.kind === "ratio") &&
+      typeof node.compute === "function"
+    ) {
+      const values = {};
       months.forEach((m) => {
-        values[m] = node.compute(resolve, m) || emptyCell()
-      })
-      byRow[node.id] = values
+        values[m] = node.compute(resolve, m) || emptyCell();
+      });
+      byRow[node.id] = values;
     }
-    node.children?.forEach(computeWalk)
-  }
-  rows.forEach(computeWalk)
+    node.children?.forEach(computeWalk);
+  };
+  rows.forEach(computeWalk);
 
-  return byRow
-}
+  return byRow;
+};
 
 /** Суммирует месячные значения строки по месяцам колонки. */
 const sumMonths = (values, months) => {
-  if (!values) return emptyCell()
-  return months.reduce(
-    (acc, m) => {
-      const cv = values[m] || emptyCell()
-      return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact }
-    },
-    emptyCell()
-  )
-}
+  if (!values) return emptyCell();
+  return months.reduce((acc, m) => {
+    const cv = values[m] || emptyCell();
+    return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact };
+  }, emptyCell());
+};
 
 /** Среднее по месяцам — для процентных строк, которые нельзя складывать. */
 const avgMonths = (values, months) => {
-  if (!values || !months.length) return emptyCell()
-  const sum = sumMonths(values, months)
-  return { plan: sum.plan / months.length, fact: sum.fact / months.length }
-}
+  if (!values || !months.length) return emptyCell();
+  const sum = sumMonths(values, months);
+  return { plan: sum.plan / months.length, fact: sum.fact / months.length };
+};
 
 /**
  * Агрегация значения строки по колонке.
@@ -116,46 +120,74 @@ const avgMonths = (values, months) => {
  * за свёрнутый период — усредняются.
  */
 const aggregateNode = (node, byRow, col) => {
-  const months = col.months
-  if (node?.kind === 'ratio' && typeof node.aggregate === 'function') {
-    const resolve = (id) => sumMonths(byRow[id], months)
-    return node.aggregate(resolve) || { plan: null, fact: null }
+  const months = col.months;
+  if (node?.kind === "ratio" && typeof node.aggregate === "function") {
+    const resolve = (id) => sumMonths(byRow[id], months);
+    return node.aggregate(resolve) || { plan: null, fact: null };
   }
-  const values = byRow[node.id]
-  if (months.length === 1) return values?.[months[0]] || emptyCell()
-  if (node?.aggregation === 'first') return values?.[months[0]] || emptyCell()
-  if (node?.aggregation === 'last') return values?.[months[months.length - 1]] || emptyCell()
-  if (node?.aggregation === 'percent') {
-    if (col.kind === 'total' && node.periodTotals) return node.periodTotals
-    return avgMonths(values, months)
+  const values = byRow[node.id];
+  if (months.length === 1) return values?.[months[0]] || emptyCell();
+  if (node?.aggregation === "first") return values?.[months[0]] || emptyCell();
+  if (node?.aggregation === "last")
+    return values?.[months[months.length - 1]] || emptyCell();
+  if (node?.aggregation === "percent") {
+    if (col.kind === "total" && node.periodTotals) return node.periodTotals;
+    return avgMonths(values, months);
   }
-  return sumMonths(values, months)
-}
+  return sumMonths(values, months);
+};
 
 /* ------------------------------------------------------------------ */
-/* Ячейки                                                             */
+/* Атомы разметки                                                     */
 /* ------------------------------------------------------------------ */
 
-const CellShell = ({ children, bold, className = '', isLast, onClick, editable }) => (
+/**
+ * Иконка «свернуть / развернуть» — 1 в 1 с ПланФакт: квадрат 13×13
+ * со скруглением 2.5px, обводка и штрихи #999, толщина 1px.
+ * Используется и в статьях, и в шапке (год / квартал).
+ */
+const ExpanderIcon = ({ expanded }) => (
+  <svg
+    width={T.expanderWidth}
+    height={14}
+    viewBox="0 0 15 14"
+    fill="none"
+    className="shrink-0"
+    aria-hidden="true"
+  >
+    <rect
+      x={1.42}
+      y={0.5}
+      width={13}
+      height={13}
+      rx={2.5}
+      stroke={T.iconStroke}
+    />
+    <path d="M10.9223 6.87934H4.92535" stroke={T.iconStroke} />
+    {!expanded && <path d="M7.92383 3.88V9.87868" stroke={T.iconStroke} />}
+  </svg>
+);
+
+// overflow-hidden обязателен: длинные значения (например «Вып. плана, %» при
+// почти нулевом факте) иначе наползают на соседние колонки
+const CellShell = ({ children, bold, className = "", isLast, onClick }) => (
   <div
     onClick={onClick}
-    className={`flex shrink-0 items-center justify-end tabular-nums transition-colors ${
-      editable ? 'cursor-text' : ''
-    } ${className}`}
+    className={`flex shrink-0 items-center justify-end overflow-hidden tabular-nums ${className}`}
     style={{
       width: T.cellWidth,
-      height: '100%',
-      padding: `0 ${T.cellPadX}px`,
-      fontSize: 12.5,
-      lineHeight: '18px',
+      height: "100%",
+      padding: `0 ${T.cellPadRight}px 0 0`,
+      fontSize: T.fontSize,
+      lineHeight: T.lineHeight,
       fontWeight: bold ? 600 : 400,
       color: T.text,
-      borderRight: isLast ? 'none' : `1px solid ${T.border}`
+      borderRight: isLast ? "none" : `1px solid ${T.border}`,
     }}
   >
     {children}
   </div>
-)
+);
 
 /* ------------------------------------------------------------------ */
 /* Таблица                                                            */
@@ -191,64 +223,79 @@ const BudgetPivotTable = ({
   hiddenRowIds = [],
   onPlanChange,
   loading = false,
-  emptyLabel
+  emptyLabel,
 }) => {
-  const [collapsedPeriods, setCollapsedPeriods] = useState({})
+  const [collapsedPeriods, setCollapsedPeriods] = useState({});
   const [expandedRows, setExpandedRows] = useState(() => {
-    const init = {}
+    const init = {};
     const walk = (n) => {
-      if (n.children?.length) init[n.id] = n.defaultExpanded !== false
-      n.children?.forEach(walk)
-    }
-    rows.forEach(walk)
-    return init
-  })
-  const [planOverrides, setPlanOverrides] = useState({})
-  const [editing, setEditing] = useState(null) // `${rowId}|${monthKey}`
+      if (n.children?.length) init[n.id] = n.defaultExpanded !== false;
+      n.children?.forEach(walk);
+    };
+    rows.forEach(walk);
+    return init;
+  });
+  const [planOverrides, setPlanOverrides] = useState({});
+  const [editing, setEditing] = useState(null); // `${rowId}|${monthKey}`
 
   // Пришло свежее дерево — локальные правки больше не нужны, в нём уже
   // пересчитанные бэкендом значения (сброс во время рендера, а не в эффекте)
-  const [renderedRows, setRenderedRows] = useState(rows)
+  const [renderedRows, setRenderedRows] = useState(rows);
   if (renderedRows !== rows) {
-    setRenderedRows(rows)
-    setPlanOverrides({})
+    setRenderedRows(rows);
+    setPlanOverrides({});
   }
 
   const labels = useMemo(
     () => ({
-      total: t('periodTotal'),
+      total: t("periodTotal"),
       monthShort: (m, y) => `${t(`monthsShort.${m}`)}' ${String(y).slice(2)}`,
       monthFull: (m) => t(`months.${m}`),
-      quarter: (q, y) => (grouping === 'years' ? t('quarter', { q }) : `${q} ${t('quarterShort')}' ${String(y).slice(2)}`),
-      year: (y) => String(y)
+      quarter: (q, y) =>
+        grouping === "years"
+          ? t("quarter", { q })
+          : `${q} ${t("quarterShort")}' ${String(y).slice(2)}`,
+      year: (y) => String(y),
     }),
     [t, grouping]
-  )
+  );
 
   const columns = useMemo(
-    () => buildPeriodColumns({ start, end, grouping, collapsed: collapsedPeriods, labels }),
+    () =>
+      buildPeriodColumns({
+        start,
+        end,
+        grouping,
+        collapsed: collapsedPeriods,
+        labels,
+      }),
     [start, end, grouping, collapsedPeriods, labels]
-  )
+  );
 
-  const months = useMemo(() => columns[0]?.months || [], [columns])
-  const byRow = useMemo(() => buildMonthlyValues(rows, months, planOverrides), [rows, months, planOverrides])
+  const months = useMemo(() => columns[0]?.months || [], [columns]);
+  const byRow = useMemo(
+    () => buildMonthlyValues(rows, months, planOverrides),
+    [rows, months, planOverrides]
+  );
 
   const activeCols = useMemo(
     () =>
       COLUMN_DEFS.filter(
-        (c) => c.alwaysOn || (visibleCols[c.key] && (!c.dependsOn || visibleCols[c.dependsOn]))
+        (c) =>
+          c.alwaysOn ||
+          (visibleCols[c.key] && (!c.dependsOn || visibleCols[c.dependsOn]))
       ),
     [visibleCols]
-  )
-  const groupWidth = activeCols.length * T.cellWidth
+  );
+  const groupWidth = activeCols.length * T.cellWidth;
 
   const togglePeriod = useCallback((id) => {
-    setCollapsedPeriods((prev) => ({ ...prev, [id]: !prev[id] }))
-  }, [])
+    setCollapsedPeriods((prev) => ({ ...prev, [id]: !prev[id] }));
+  }, []);
 
   const toggleRow = useCallback((id) => {
-    setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }))
-  }, [])
+    setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
+  }, []);
 
   /**
    * Собственная плановая сумма статьи по колонке — `plan.by` из API,
@@ -257,202 +304,254 @@ const BudgetPivotTable = ({
    */
   const ownPlanFor = useCallback(
     (node, col) => {
-      const months = col.months
-      const get = (m) => planOverrides[`${node.id}|${m}`] ?? node.values?.[m]?.plan ?? 0
-      if (months.length === 1 || node.aggregation === 'first') return get(months[0])
-      if (node.aggregation === 'last') return get(months[months.length - 1])
-      if (node.aggregation === 'percent') return null // проценты не суммируются
-      return months.reduce((sum, m) => sum + get(m), 0)
+      const months = col.months;
+      const get = (m) =>
+        planOverrides[`${node.id}|${m}`] ?? node.values?.[m]?.plan ?? 0;
+      if (months.length === 1 || node.aggregation === "first")
+        return get(months[0]);
+      if (node.aggregation === "last") return get(months[months.length - 1]);
+      if (node.aggregation === "percent") return null; // проценты не суммируются
+      return months.reduce((sum, m) => sum + get(m), 0);
     },
     [planOverrides]
-  )
+  );
 
   /** Правка плана: локально — сразу, на бэк — через onPlanChange. */
   const setPlanValue = useCallback(
     (rowId, month, amount) => {
-      setPlanOverrides((prev) => ({ ...prev, [`${rowId}|${month}`]: amount }))
-      onPlanChange?.({ rowId, month, amount })
+      setPlanOverrides((prev) => ({ ...prev, [`${rowId}|${month}`]: amount }));
+      onPlanChange?.({ rowId, month, amount });
     },
     [onPlanChange]
-  )
+  );
 
   const clearColumn = useCallback(
     (column) => {
       // чистим все планируемые статьи, в том числе те, у которых есть подстатьи
-      const targets = []
+      const targets = [];
       const walk = (n) => {
-        if (n.kind !== 'computed' && n.kind !== 'ratio' && !n.isPercent && n.editable !== false) {
-          targets.push(n)
+        if (
+          n.kind !== "computed" &&
+          n.kind !== "ratio" &&
+          !n.isPercent &&
+          n.editable !== false
+        ) {
+          targets.push(n);
         }
-        n.children?.forEach(walk)
-      }
-      rows.forEach(walk)
+        n.children?.forEach(walk);
+      };
+      rows.forEach(walk);
 
       setPlanOverrides((prev) => {
-        const next = { ...prev }
+        const next = { ...prev };
         targets.forEach((n) => {
           column.months.forEach((m) => {
-            next[`${n.id}|${m}`] = 0
-          })
-        })
-        return next
-      })
+            next[`${n.id}|${m}`] = 0;
+          });
+        });
+        return next;
+      });
 
       // на бэк отправляем только реально непустые ячейки
       targets.forEach((n) => {
         column.months.forEach((m) => {
-          const current = planOverrides[`${n.id}|${m}`] ?? n.values?.[m]?.plan ?? 0
-          if (current !== 0) onPlanChange?.({ rowId: n.id, month: m, amount: 0 })
-        })
-      })
+          const current =
+            planOverrides[`${n.id}|${m}`] ?? n.values?.[m]?.plan ?? 0;
+          if (current !== 0)
+            onPlanChange?.({ rowId: n.id, month: m, amount: 0 });
+        });
+      });
     },
     [rows, planOverrides, onPlanChange]
-  )
+  );
 
   /* -------------------------------------------------------------- */
   /* Рендер шапки                                                   */
   /* -------------------------------------------------------------- */
 
+  /** Кнопка свёртки года / квартала — стоит сразу после подписи периода. */
   const CollapseBtn = ({ id, collapsed }) => (
     <button
-      type='button'
+      type="button"
       onClick={() => togglePeriod(id)}
-      className='ml-1.5 inline-flex shrink-0 items-center justify-center transition-colors hover:border-slate-400'
-      style={{ width: 14, height: 14, border: `1px solid ${T.borderStrong}`, borderRadius: 2, color: T.textMuted, background: T.white }}
-      aria-label={collapsed ? t('actions.expand') : t('actions.collapse')}
+      className="ml-1 inline-flex shrink-0 items-center"
+      aria-label={collapsed ? t("actions.expand") : t("actions.collapse")}
     >
-      {collapsed ? <Plus style={{ width: 9, height: 9 }} /> : <Minus style={{ width: 9, height: 9 }} />}
+      <ExpanderIcon expanded={!collapsed} />
     </button>
-  )
+  );
+
+  /** Одна подпись периода в верхней части шапки (год / квартал / сам период). */
+  const HeadLine = ({ label, node, collapsed = false }) => (
+    <div
+      className="flex items-center justify-end"
+      style={{
+        height: T.headLineHeight,
+        fontSize: T.fontSize,
+        fontWeight: 700,
+        color: T.textHeading,
+      }}
+    >
+      <span className="capitalize">{label}</span>
+      {node && <CollapseBtn id={node.id} collapsed={collapsed} />}
+    </div>
+  );
 
   const renderHead = () => (
     <div
-      className='sticky top-0 flex items-stretch bg-white'
-      style={{ zIndex: 30, borderBottom: `2px solid ${T.borderStrong}` }}
+      className="sticky top-0 flex items-stretch bg-white"
+      style={{ zIndex: 30, borderBottom: `1px solid ${T.border}` }}
     >
       {/* Первая колонка */}
       <div
-        className='sticky left-0 flex shrink-0 flex-col justify-end bg-white'
+        className="sticky left-0 flex shrink-0 flex-col justify-center bg-white"
         style={{
           zIndex: 31,
           width: T.titleColWidth,
           minWidth: T.titleColWidth,
           height: T.headerFirstRowHeight + T.headerSecondRowHeight,
-          padding: `0 12px ${T.headerSecondRowHeight + 8}px 20px`,
-          borderRight: `1px solid ${T.borderStrong}`,
-          boxShadow: '2px 0 4px -2px rgba(16, 24, 40, 0.06)'
+          padding: `16px ${T.titlePadX}px`,
+          borderRight: `1px solid ${T.border}`,
         }}
       >
-        <div className='truncate' style={{ fontSize: 16, fontWeight: 700, color: T.textHeading }}>
+        <div
+          className="truncate"
+          style={{
+            fontSize: T.entityFontSize,
+            lineHeight: "19px",
+            fontWeight: 700,
+            color: T.textHeading,
+          }}
+        >
           {entityTitle}
         </div>
         {entitySubtitle && (
-          <div className='truncate' style={{ fontSize: 12, color: T.textMuted }}>
+          <div
+            className="truncate"
+            style={{
+              marginTop: 6,
+              fontSize: T.fontSize,
+              lineHeight: "14px",
+              color: T.textHeading,
+            }}
+          >
             {entitySubtitle}
           </div>
         )}
       </div>
 
       {/* Группы периодов */}
-      <div className='flex items-stretch'>
-        {columns.map((col, idx) => {
-          const isLast = idx === columns.length - 1
-          return (
+      <div className="flex items-stretch">
+        {columns.map((col) => (
+          <div
+            key={col.id}
+            className="flex shrink-0 flex-col"
+            style={{
+              width: groupWidth,
+              borderLeft: `${T.sectionBorderWidth}px solid ${T.borderStrong}`,
+            }}
+          >
+            {/* Верхняя часть: год / квартал / сам период — снизу вверх, по правому краю */}
             <div
-              key={col.id}
-              className='flex shrink-0 flex-col'
-              style={{ width: groupWidth, borderRight: isLast ? 'none' : `1px solid ${T.borderStrong}` }}
+              className="flex flex-col items-end justify-center"
+              style={{
+                height: T.headerFirstRowHeight,
+                padding: `0 ${T.cellPadRight}px 0 0`,
+              }}
             >
-              {/* Верхняя часть: год / квартал / сам период */}
-              <div
-                className='flex flex-col items-end justify-end'
-                style={{ height: T.headerFirstRowHeight, padding: `0 ${T.cellPadX}px 8px 0`, gap: 2 }}
-              >
-                {col.head.year && (
-                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }}>
-                    <span>{col.head.year.label}</span>
-                    <CollapseBtn id={col.head.year.id} collapsed={false} />
-                  </div>
-                )}
-                {col.head.quarter && (
-                  <div className='flex items-center' style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }}>
-                    <span>{col.head.quarter.label}</span>
-                    <CollapseBtn id={col.head.quarter.id} collapsed={false} />
-                  </div>
-                )}
-                <div className='flex items-center' style={{ fontSize: 13, fontWeight: 700, color: T.textHeading }}>
-                  <span className='capitalize'>{col.head.self}</span>
-                  {col.head.collapsedNode && <CollapseBtn id={col.head.collapsedNode.id} collapsed />}
-                </div>
-              </div>
-
-              {/* Нижняя часть: план/факт/… */}
-              <div
-                className={`flex items-stretch ${R.headerSub}`}
-                style={{ height: T.headerSecondRowHeight, borderTop: `1px solid ${T.border}` }}
-              >
-                {activeCols.map((c, ci) => (
-                  <div
-                    key={c.key}
-                    className='flex shrink-0 items-center justify-end gap-1'
-                    style={{
-                      width: T.cellWidth,
-                      padding: `0 ${T.cellPadX}px`,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      color: T.textMuted,
-                      borderRight: ci === activeCols.length - 1 ? 'none' : `1px solid ${T.border}`
-                    }}
-                  >
-                    <span className='whitespace-nowrap'>{t(`columns.${c.key}`)}</span>
-                    {c.key === 'plan' && editable && col.kind !== 'total' && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type='button'
-                            className='inline-flex items-center justify-center text-gray-400 transition-colors hover:text-slate-700'
-                            style={{ marginRight: -6 }}
-                            aria-label={t('actions.columnMenu')}
-                          >
-                            <MoreVertical style={{ width: 14, height: 14 }} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className='w-48 p-2' align='end'>
-                          <DropdownMenuItem asChild>
-                            <button
-                              className='flex w-full cursor-pointer items-center gap-2 text-sm outline-none'
-                              onClick={() => clearColumn(col)}
-                            >
-                              <Trash2 className='h-4 w-4' />
-                              <span>{t('actions.clearColumn')}</span>
-                            </button>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
-                ))}
-              </div>
+              {col.head.year && (
+                <HeadLine label={col.head.year.label} node={col.head.year} />
+              )}
+              {col.head.quarter && (
+                <HeadLine
+                  label={col.head.quarter.label}
+                  node={col.head.quarter}
+                />
+              )}
+              <HeadLine
+                label={col.head.self}
+                node={col.head.collapsedNode}
+                collapsed
+              />
             </div>
-          )
-        })}
+
+            {/* Нижняя часть: план/факт/… */}
+            <div
+              className={`flex items-stretch ${R.headerSub}`}
+              style={{
+                height: T.headerSecondRowHeight,
+                borderTop: `${T.groupBorderWidth}px solid ${T.borderStrong}`,
+              }}
+            >
+              {activeCols.map((c, ci) => (
+                <div
+                  key={c.key}
+                  className="flex shrink-0 items-center justify-end gap-1"
+                  style={{
+                    width: T.cellWidth,
+                    padding: `0 ${T.cellPadRight}px 0 0`,
+                    fontSize: T.fontSize,
+                    lineHeight: T.headSubLineHeight,
+                    fontWeight: 400,
+                    color: T.textMuted,
+                    borderRight:
+                      ci === activeCols.length - 1
+                        ? "none"
+                        : `1px solid ${T.border}`,
+                  }}
+                >
+                  <span className="whitespace-nowrap">
+                    {t(`columns.${c.key}`)}
+                  </span>
+                  {c.key === "plan" && editable && col.kind === "month" && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center transition-colors hover:text-slate-700"
+                          style={{ marginRight: -5, color: T.iconStroke }}
+                          aria-label={t("actions.columnMenu")}
+                        >
+                          <MoreVertical style={{ width: 14, height: 14 }} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-48 p-1" align="end">
+                        <DropdownMenuItem asChild>
+                          <button
+                            className="flex w-full cursor-pointer items-center gap-2 text-sm outline-none"
+                            onClick={() => clearColumn(col)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span>{t("actions.clearColumn")}</span>
+                          </button>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
-  )
+  );
 
   /* -------------------------------------------------------------- */
   /* Рендер строк                                                   */
   /* -------------------------------------------------------------- */
 
   const renderCellContent = (colKey, metrics) => {
-    const { plan, fact } = metrics
-    if (colKey === 'plan') return formatMoney(plan)
-    if (colKey === 'fact') return formatMoney(fact)
-    if (colKey === 'planExec') return formatPercent(planExecution(plan, fact), t('na'))
-    if (colKey === 'deviation') return formatDeviation(deviation(plan, fact))
-    if (colKey === 'deviationPct') return formatPercent(deviationPercent(plan, fact), t('na'))
-    return null
-  }
+    const { plan, fact } = metrics;
+    if (colKey === "plan") return formatMoney(plan);
+    if (colKey === "fact") return formatMoney(fact);
+    if (colKey === "planExec")
+      return formatPercent(planExecution(plan, fact), t("na"));
+    if (colKey === "deviation") return formatDeviation(deviation(plan, fact));
+    if (colKey === "deviationPct")
+      return formatPercent(deviationPercent(plan, fact), t("na"));
+    return null;
+  };
 
   /**
    * Знак значения расчётной колонки для окраски: плюс — зелёный, минус —
@@ -460,226 +559,276 @@ const BudgetPivotTable = ({
    * «0%» не оказался зелёным из-за сотых долей.
    */
   const signOf = (colKey, metrics) => {
-    const { plan, fact } = metrics
-    let value = null
-    if (colKey === 'planExec') value = planExecution(plan, fact)
-    else if (colKey === 'deviation') value = deviation(plan, fact)
-    else if (colKey === 'deviationPct') value = deviationPercent(plan, fact)
-    if (value == null || !Number.isFinite(value)) return 0
-    return Math.sign(Math.round(value))
-  }
+    const { plan, fact } = metrics;
+    let value = null;
+    if (colKey === "planExec") value = planExecution(plan, fact);
+    else if (colKey === "deviation") value = deviation(plan, fact);
+    else if (colKey === "deviationPct") value = deviationPercent(plan, fact);
+    if (value == null || !Number.isFinite(value)) return 0;
+    return Math.sign(Math.round(value));
+  };
 
   const renderRatioContent = (colKey, metrics) => {
-    const { plan, fact } = metrics
-    if (colKey === 'plan') return formatPercent(plan, t('na'))
-    if (colKey === 'fact') return formatPercent(fact, t('na'))
-    if (colKey === 'planExec') return formatPercent(planExecution(plan, fact), t('na'))
-    if (colKey === 'deviation') return formatPercent(fact == null || plan == null ? null : deviation(plan, fact), t('na'))
-    if (colKey === 'deviationPct') return formatPercent(deviationPercent(plan, fact), t('na'))
-    return null
-  }
+    const { plan, fact } = metrics;
+    if (colKey === "plan") return formatPercent(plan, t("na"));
+    if (colKey === "fact") return formatPercent(fact, t("na"));
+    if (colKey === "planExec")
+      return formatPercent(planExecution(plan, fact), t("na"));
+    if (colKey === "deviation")
+      return formatPercent(
+        fact == null || plan == null ? null : deviation(plan, fact),
+        t("na")
+      );
+    if (colKey === "deviationPct")
+      return formatPercent(deviationPercent(plan, fact), t("na"));
+    return null;
+  };
 
   const renderRow = (node, depth) => {
-    if (hiddenRowIds.includes(node.id)) return null
-    const hasChildren = !!node.children?.length
-    const isExpanded = expandedRows[node.id] ?? node.defaultExpanded !== false
-    const isRatio = node.kind === 'ratio' || !!node.isPercent
-    const bold = node.bold ?? depth === 0
-    // Три типа строк: расчётные (прибыль/рентабельность/остатки), разделы
-    // верхнего уровня и обычные статьи — у каждого свой фон и вес
-    const isResultRow = isRatio || node.kind === 'computed' || node.apiType === 'result' || node.apiType === 'total'
+    if (hiddenRowIds.includes(node.id)) return null;
+    const hasChildren = !!node.children?.length;
+    const isExpanded = expandedRows[node.id] ?? node.defaultExpanded !== false;
+    const isRatio = node.kind === "ratio" || !!node.isPercent;
+    const bold = node.bold ?? depth === 0;
+    // Расчётные строки (прибыль / рентабельность / остатки) в ПланФакт
+    // отличаются от обычных только жирным начертанием — без фона и рамок
+    const isResultRow =
+      isRatio ||
+      node.kind === "computed" ||
+      node.apiType === "result" ||
+      node.apiType === "total";
     // Статью с подстатьями тоже можно планировать: план пишется на неё саму,
     // а в ячейке показывается сумма с детьми
-    const rowEditable = editable && !isResultRow && node.editable !== false
-    const rowClass = isResultRow ? R.result : depth === 0 ? R.section : R.leaf
+    const rowEditable = editable && !isResultRow && node.editable !== false;
+    const rowClass = isResultRow ? R.result : depth === 0 ? R.section : R.leaf;
 
     return (
       <div key={node.id}>
         <div
-          className='group flex items-stretch'
-          style={{
-            height: T.rowHeight,
-            // расчётные строки отделяем фоном и жирным начертанием, а не
-            // дополнительной линией — иначе рядом стоящие дают двойную границу
-            borderBottom: `1px solid ${isResultRow ? T.borderStrong : T.border}`
-          }}
+          className="flex items-stretch"
+          style={{ height: T.rowHeight, borderBottom: `1px solid ${T.border}` }}
         >
           {/* Название статьи */}
           <div
-            className={`sticky left-0 flex shrink-0 items-center transition-colors ${rowClass}`}
+            className={`sticky left-0 flex shrink-0 items-center ${rowClass}`}
             style={{
               zIndex: 10,
               width: T.titleColWidth,
               minWidth: T.titleColWidth,
               paddingLeft: T.indentBase + depth * T.indentStep,
-              paddingRight: 12,
-              borderRight: `1px solid ${T.borderStrong}`,
-              boxShadow: '2px 0 4px -2px rgba(16, 24, 40, 0.06)',
-              fontSize: 12.5,
-              lineHeight: '18px',
+              paddingRight: T.titlePadX,
+              borderRight: `1px solid ${T.border}`,
+              fontSize: T.fontSize,
+              lineHeight: T.lineHeight,
               fontWeight: bold ? 600 : 400,
-              color: bold ? T.textHeading : T.text
+              color: bold ? T.textHeading : T.text,
             }}
           >
-            {hasChildren ? (
+            {/* Строки без подстатей в ПланФакт не отбиваются пустым местом
+                под иконку — текст начинается сразу от отступа уровня */}
+            {hasChildren && (
               <button
-                type='button'
+                type="button"
                 onClick={() => toggleRow(node.id)}
-                className='mr-2 inline-flex shrink-0 items-center justify-center bg-white transition-colors hover:border-slate-400'
-                style={{ width: 15, height: 15, border: `1px solid ${T.borderStrong}`, borderRadius: 3, color: T.textMuted }}
-                aria-label={isExpanded ? t('actions.collapse') : t('actions.expand')}
+                className="inline-flex shrink-0 items-center"
+                style={{ marginRight: T.expanderGap }}
+                aria-label={
+                  isExpanded ? t("actions.collapse") : t("actions.expand")
+                }
               >
-                {isExpanded ? <Minus style={{ width: 9, height: 9 }} /> : <Plus style={{ width: 9, height: 9 }} />}
+                <ExpanderIcon expanded={isExpanded} />
               </button>
-            ) : (
-              <span className='mr-2 inline-block shrink-0' style={{ width: 15 }} />
             )}
-            <span className='truncate' title={node.label}>
+            <span className="truncate" title={node.label}>
               {node.label}
             </span>
           </div>
 
           {/* Значения */}
-          <div className='flex items-stretch'>
-            {columns.map((col, ci) => {
-              const isLastGroup = ci === columns.length - 1
-              const metrics = aggregateNode(node, byRow, col)
+          <div className="flex items-stretch">
+            {columns.map((col) => {
+              const metrics = aggregateNode(node, byRow, col);
 
               return (
                 <div
                   key={col.id}
-                  className={`flex shrink-0 items-stretch transition-colors ${rowClass}`}
-                  style={{ width: groupWidth, borderRight: isLastGroup ? 'none' : `1px solid ${T.borderStrong}` }}
+                  className={`flex shrink-0 items-stretch ${rowClass}`}
+                  style={{
+                    width: groupWidth,
+                    borderLeft: `${T.sectionBorderWidth}px solid ${T.borderStrong}`,
+                  }}
                 >
                   {activeCols.map((c, i) => {
-                    const isLastCell = i === activeCols.length - 1
+                    const isLastCell = i === activeCols.length - 1;
                     const isEditableCell =
-                      rowEditable && c.key === 'plan' && col.kind === 'month'
-                    const editKey = `${node.id}|${col.months[0]}`
+                      rowEditable && c.key === "plan" && col.kind === "month";
+                    const editKey = `${node.id}|${col.months[0]}`;
                     // Редактируем собственную сумму статьи (`plan.by`), а не
                     // свёрнутую с подстатьями — её и пишет create_budget_plan
-                    const ownPlan = ownPlanFor(node, col) ?? 0
+                    const ownPlan = ownPlanFor(node, col) ?? 0;
                     // Ключ месяца совпадает у «Итого» и свёрнутых периодов с их
                     // первым месяцем, поэтому инпут показываем только в самой
                     // редактируемой ячейке — иначе их монтируется несколько
                     // и autoFocus последнего сбрасывает blur предыдущего.
-                    const isEditing = isEditableCell && editing === editKey
+                    const isEditing = isEditableCell && editing === editKey;
 
                     if (isEditing) {
                       return (
                         <div
                           key={c.key}
-                          className='flex shrink-0 items-center'
-                          style={{ width: T.cellWidth, borderRight: isLastCell ? 'none' : `1px solid ${T.border}` }}
+                          className="flex shrink-0 items-center"
+                          style={{
+                            width: T.cellWidth,
+                            background: T.accentWash,
+                            boxShadow: `inset 0 0 0 1px ${T.accent}`,
+                            borderRight: isLastCell
+                              ? "none"
+                              : `1px solid ${T.border}`,
+                          }}
                         >
+                          {/* Инпут в ПланФакт без своей рамки: рамку рисует ячейка */}
                           <input
                             autoFocus
                             defaultValue={toInputValue(ownPlan)}
                             onBlur={(e) => {
-                              const parsed = parseInputNumber(e.target.value) ?? 0
-                              if (parsed !== ownPlan) setPlanValue(node.id, col.months[0], parsed)
-                              setEditing(null)
+                              const parsed =
+                                parseInputNumber(e.target.value) ?? 0;
+                              if (parsed !== ownPlan)
+                                setPlanValue(node.id, col.months[0], parsed);
+                              setEditing(null);
                             }}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') e.currentTarget.blur()
-                              if (e.key === 'Escape') setEditing(null)
+                              if (e.key === "Enter") e.currentTarget.blur();
+                              if (e.key === "Escape") setEditing(null);
                             }}
-                            className='w-full bg-white text-right tabular-nums outline-none'
+                            className="w-full bg-transparent text-right tabular-nums outline-none"
                             style={{
-                              height: T.rowHeight - 4,
-                              padding: `0 ${T.cellPadX - 2}px`,
-                              fontSize: 12.5,
-                              fontWeight: 600,
-                              color: T.planValue,
-                              border: `2px solid ${T.planValue}`,
-                              borderRadius: 3,
-                              boxShadow: '0 0 0 3px rgba(14, 115, 246, 0.12)'
+                              padding: `6px ${T.cellPadRight}px`,
+                              fontSize: T.fontSize,
+                              lineHeight: T.lineHeight,
+                              fontWeight: 400,
+                              color: T.text,
                             }}
                           />
                         </div>
-                      )
+                      );
                     }
 
-                    // Плановые суммы выделяем цветом — как в ПланФакт,
-                    // чтобы план визуально отличался от факта
-                    const isPlanValue = c.key === 'plan' && !isResultRow && metrics.plan !== 0
                     // «Вып. плана, %», «Откл.» и «Откл., %» красим по знаку
-                    const sign = c.key === 'plan' || c.key === 'fact' ? 0 : signOf(c.key, metrics)
-                    const color = isPlanValue && !isRatio
-                      ? T.planValue
-                      : sign > 0
-                        ? T.positive
-                        : sign < 0
-                          ? T.negative
-                          : undefined
+                    const sign =
+                      c.key === "plan" || c.key === "fact"
+                        ? 0
+                        : signOf(c.key, metrics);
+                    const color =
+                      sign > 0 ? T.positive : sign < 0 ? T.negative : undefined;
 
                     // У статьи с подстатьями показываем её собственный план
                     // (`plan.by`) второй строкой под свёрнутой суммой
                     const showOwnPlan =
-                      c.key === 'plan' && hasChildren && !isRatio && ownPlan !== 0 && ownPlan !== metrics.plan
+                      c.key === "plan" &&
+                      hasChildren &&
+                      !isRatio &&
+                      ownPlan !== 0 &&
+                      ownPlan !== metrics.plan;
+
+                    // Значение не влезает в колонку — обрезаем и показываем
+                    // полное в подсказке, чтобы не наползало на соседние
+                    const cellText = isRatio
+                      ? renderRatioContent(c.key, metrics)
+                      : renderCellContent(c.key, metrics);
 
                     return (
                       <CellShell
                         key={c.key}
                         bold={bold}
                         isLast={isLastCell}
-                        editable={isEditableCell}
-                        className={isEditableCell ? R.editable : ''}
-                        onClick={isEditableCell ? () => setEditing(editKey) : undefined}
+                        className={isEditableCell ? R.editable : ""}
+                        onClick={
+                          isEditableCell ? () => setEditing(editKey) : undefined
+                        }
                       >
-                        <span className='flex flex-col items-end'>
-                          <span style={{ lineHeight: '16px', ...(color ? { color } : {}) }}>
-                            {isRatio ? renderRatioContent(c.key, metrics) : renderCellContent(c.key, metrics)}
+                        <span className="flex min-w-0 flex-col items-end">
+                          <span
+                            className="max-w-full truncate"
+                            title={
+                              typeof cellText === "string"
+                                ? cellText
+                                : undefined
+                            }
+                            style={{
+                              lineHeight: "16px",
+                              ...(color ? { color } : {}),
+                            }}
+                          >
+                            {cellText}
                           </span>
                           {showOwnPlan && (
                             <span
-                              style={{ fontSize: 10.5, lineHeight: '13px', fontWeight: 400, color: T.textHeading }}
-                              title={t('columns.plan')}
+                              className="max-w-full truncate"
+                              style={{
+                                fontSize: 10.5,
+                                lineHeight: "13px",
+                                fontWeight: 400,
+                                color: T.textMuted,
+                                opacity: 0.6,
+                              }}
+                              title={t("columns.plan")}
                             >
                               {formatMoney(ownPlan)}
                             </span>
                           )}
                         </span>
                       </CellShell>
-                    )
+                    );
                   })}
                 </div>
-              )
+              );
             })}
           </div>
         </div>
 
-        {hasChildren && isExpanded && node.children.map((child) => renderRow(child, depth + 1))}
+        {hasChildren &&
+          isExpanded &&
+          node.children.map((child) => renderRow(child, depth + 1))}
       </div>
-    )
-  }
+    );
+  };
 
   if (loading) {
     return (
-      <div className='flex flex-1 items-center justify-center bg-white'>
-        <Loader2 className='h-6 w-6 animate-spin' style={{ color: T.planValue }} />
+      <div className="flex flex-1 items-center justify-center bg-white">
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: T.accent }} />
       </div>
-    )
+    );
   }
 
   if (!rows.length) {
     return (
-      <div className='flex flex-1 items-center justify-center bg-white' style={{ color: T.textMuted, fontSize: 13 }}>
+      <div
+        className="flex flex-1 items-center justify-center bg-white"
+        style={{ color: T.textMuted, fontSize: T.fontSize }}
+      >
         {emptyLabel}
       </div>
-    )
+    );
   }
 
   // overflow-hidden/border-radius на обёртке ломает sticky-шапку и первую
-  // колонку, поэтому таблица остаётся во всю ширину без «карточки»
+  // колонку, поэтому таблица остаётся во всю ширину без «карточки».
+  // Горизонтальная прокрутка — наше отличие от ПланФакт: там ширина периодов
+  // просто обрезается, здесь колонки доступны скроллом при закреплённой
+  // первой колонке и шапке.
   return (
-    <div className='flex-1 overflow-auto bg-white' style={{ borderTop: `1px solid ${T.borderStrong}` }}>
-      <div className='min-w-max'>
+    <div
+      className="flex-1 overflow-auto bg-white"
+      style={{ borderTop: `1px solid ${T.border}` }}
+    >
+      <div className="min-w-max">
         {renderHead()}
         {rows.map((node) => renderRow(node, 0))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BudgetPivotTable
+export default BudgetPivotTable;

@@ -27,10 +27,10 @@ const BudgetRowMenu = ({ onEdit, onDelete, editLabel, deleteLabel }) => {
             <MoreHorizontal className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-44 p-2" align="end">
+        <DropdownMenuContent className="w-[162px] p-1" align="end">
           <DropdownMenuItem asChild>
             <button
-              className="flex w-full cursor-pointer items-center gap-2 pb-2 text-sm outline-none"
+              className="flex w-full cursor-pointer items-center gap-2 text-sm outline-none"
               onClick={stop(onEdit)}
             >
               <Pencil className="h-4 w-4" />
@@ -39,10 +39,10 @@ const BudgetRowMenu = ({ onEdit, onDelete, editLabel, deleteLabel }) => {
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <button
-              className="flex w-full cursor-pointer items-center gap-2 text-sm text-red-500 outline-none"
+              className="flex w-full cursor-pointer items-center gap-2 text-sm text-[#ed5564] outline-none"
               onClick={stop(onDelete)}
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Trash2 className="h-4 w-4 text-[#ed5564]" />
               <span>{deleteLabel}</span>
             </button>
           </DropdownMenuItem>
