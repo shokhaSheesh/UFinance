@@ -11,13 +11,14 @@ import { useUcodeRequestMutation } from '../../../hooks/useDashboard';
 import { appStore } from '../../../store/app.store';
 import { authStore } from '../../../store/auth.store';
 import { formatDate } from '../../../utils/formatDate';
+import SelectProjects from '../../ReadyComponents/SelectProjects';
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty';
 import CustomDialog from '../../shared/CustomDialog';
 import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
 import TextArea from '../../shared/TextArea';
 
-export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals', isPurchase = false }) {
+export function CreateDealModal({ isOpen, onClose, initialData, isEditing, createMethod = 'create_sales_transaction', updateMethod = 'update_sales_transaction', invalidateKeys = ['deals', 'get_sales_list_simple', 'get_sales_transaction_by_guid'], redirectBase = '/deals', isPurchase = false, onCreated }) {
   const t = useTranslations('Deals.createDealModal');
   const tp = useTranslations('Purchases.createDealModal');
 
@@ -29,6 +30,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
   const [dealName, setDealName] = useState('');
   const [dealDate, setDealDate] = useState();
   const [client, setClient] = useState('');
+  const [project, setProject] = useState('');
   const [nds, setNds] = useState('true');
   const [comment, setComment] = useState('');
   const [errors, setErrors] = useState({});
@@ -37,22 +39,30 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (isOpen && initialData) {
+    if (isOpen) {
+      if (!initialData) return;
       // eslint-disable-next-line
       setDealName(initialData.Nazvanie || initialData.name || '');
       const dateVal = initialData.Data_sdelki || initialData.sale_date;
       setDealDate(dateVal ? formatDate(dateVal) : '');
       setClient(initialData.partners_id || initialData.counterparties_id || '');
+      // autofill проекта, если он приходит в данных сделки
+      setProject(initialData.projects_id || '');
       const ndsVal = initialData.NDS !== undefined ? initialData.NDS : initialData.nds;
       setNds(ndsVal ? 'true' : 'false');
       setComment(initialData.Kommentariy || initialData.commentary || '');
-    } else if (isOpen && !initialData) {
-      setDealName('');
-      setDealDate('');
-      setClient('');
-      setNds('true');
-      setComment('');
+      return;
     }
+
+    // Чистим поля на закрытии, а не на открытии: эффекты детей выполняются
+    // раньше родительских, поэтому сброс на открытии затирал значения,
+    // которые селекты успевают подставить по умолчанию (например, проект)
+    setDealName('');
+    setDealDate('');
+    setClient('');
+    setProject('');
+    setNds('true');
+    setComment('');
   }, [isOpen, initialData]);
 
   const { mutateAsync: createDeal, isPending: isCreatingDeal } = useUcodeRequestMutation()
@@ -83,6 +93,7 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
       currenies_id: appStore?.currency?.guid,
       status: ["Новая"],
       branch_id: authStore.branch_id,
+      ...(appStore.projectActive ? { projects_id: project || null } : {}),
     };
 
     if (!isPurchase) {
@@ -99,9 +110,17 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
         data: payload
       });
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }));
+
+      const resultGuid = response?.data?.data?.guid || (isEditing ? initialData?.guid : null);
       onClose();
 
-      // Navigate to the detail page
+      // Inline-select rejimi: sahifaga o'tmaymiz — yangi sделка'ni tanlab, ochiq modalda qolamiz
+      if (onCreated) {
+        if (resultGuid) onCreated({ guid: resultGuid, name: dealName });
+        return;
+      }
+
+      // Navigate to the detail page (deals/purchases ro'yxatidan ochilganda)
       if (response?.data?.data?.guid) {
         router.push(`${redirectBase}/${response.data.data.guid}`);
       } else if (isEditing && initialData?.guid) {
@@ -175,6 +194,22 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
             />
           </div>
         </div>
+
+        {/* Проект — только если включён модуль проектов */}
+        {appStore.projectActive && (
+          <div className="grid grid-cols-7">
+            <label className=" col-span-2 flex items-center">{t('project')}</label>
+            <div className=" col-span-5">
+              <SelectProjects
+                value={project}
+                onChange={(value) => setProject(value)}
+                placeholder={t('projectPlaceholder')}
+                className={'bg-white'}
+                selectFirst={!isEditing && !initialData}
+              />
+            </div>
+          </div>
+        )}
 
         {!isPurchase && (
           <div className="grid grid-cols-7">

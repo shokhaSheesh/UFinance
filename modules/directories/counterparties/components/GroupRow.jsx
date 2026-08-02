@@ -1,5 +1,4 @@
 import { GroupMenu } from '@/components/directories/GroupMenu/GroupMenu'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -7,8 +6,8 @@ import { safeCompare, safeFormatNumber } from '../utils/counterpartiesUtils'
 import CounterpartyRow from './CounterpartyRow'
 
 const GroupRow = ({
-  group, isExpanded, isSelected, filters,
-  onToggleGroup, onToggleSelect, isRowSelected,
+  group, isExpanded, filters,
+  onToggleGroup,
   onNavigate, onGroupEdit, onGroupDelete, onGroupCreateCounterparty,
   onCounterpartyEdit, onCounterpartyDelete
 }) => {
@@ -23,9 +22,6 @@ const GroupRow = ({
         className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
         onClick={() => onToggleGroup(group.guid)}
       >
-        <div className="w-12 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-          <OperationCheckbox checked={isSelected} onChange={() => onToggleSelect(group.id)} />
-        </div>
         <div className="flex-1 min-w-[200px] flex px-3 items-center gap-2 font-medium">
           <button
             className="text-neutral-400 hover:text-neutral-600 outline-none flex items-center justify-center p-1"
@@ -77,8 +73,6 @@ const GroupRow = ({
           key={counterparty.id}
           item={counterparty}
           isNested
-          isSelected={isRowSelected(counterparty.id)}
-          onToggleSelect={() => onToggleSelect(counterparty.id)}
           onNavigate={onNavigate}
           filters={filters}
           onEdit={onCounterpartyEdit}

@@ -14,6 +14,7 @@ import { formatDate, isFuture } from '@/utils/formatDate'
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
+import SelectProjects from '../../../../ReadyComponents/SelectProjects'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import SinglePurchaseZdelka from '../../../../ReadyComponents/SinglePurchaseZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
@@ -35,6 +36,13 @@ import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDateParseZone, formatDecimal, formatAmountInput, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
+
+// Разделы плана счетов, по статьям которых начисление отдельно не ведётся:
+// дата начисления и его подтверждение блокируются и следуют за оплатой
+const ACCRUAL_LOCK_PARENTS = ['Долгосрочные обязательства', 'Капитал']
+
+// Сделка продажи относится только к выплатам по статьям расходов
+const EXPENSE_ROOT = 'Расходы'
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -296,6 +304,7 @@ const PaymentForm = observer(({
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw.sales_transactions_id || defaultDealGuid || null,
         purchaseDeal: raw.purchase_transactions_id || defaultPurchaseDealGuid || null,
+        projects_id: raw?.projects_id || null,
         purpose: raw.opisanie || '',
         currency: raw.currenies_id || raw.currencyId || 'RUB',
       }
@@ -313,6 +322,7 @@ const PaymentForm = observer(({
       paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
       purchaseDeal: defaultPurchaseDealGuid || null,
+      projects_id: null,
       purpose: '',
       currency: '',
     }
@@ -373,6 +383,25 @@ const PaymentForm = observer(({
   const watchConfirmPayment = watch('confirmPayment')
   const watchConfirmAccrual = watch('confirmAccrual')
 
+  // Разделы выбранной статьи (от корня до неё самой):
+  // • «Долгосрочные обязательства» / «Капитал» — начисление приравнивается к
+  //   оплате: его поля блокируются, а подтверждение повторяет «Подтвердить оплату»
+  // • не «Расходы» — сделка продажи к такой выплате не относится
+  const [articleAncestors, setArticleAncestors] = useState([])
+  const isAccrualLocked = articleAncestors.some((name) => ACCRUAL_LOCK_PARENTS.includes(name))
+  const isExpenseArticle = articleAncestors.includes(EXPENSE_ROOT)
+  const salesDealDisabled = articleAncestors.length > 0 && !isExpenseArticle
+  const accrualDisabled = !!watchPurchaseDeal || isAccrualLocked
+
+  useEffect(() => {
+    if (isAccrualLocked) setValue('confirmAccrual', watchConfirmPayment)
+  }, [isAccrualLocked, watchConfirmPayment, setValue])
+
+  // Статья не из расходов — сделка продажи неприменима, ранее выбранную сбрасываем
+  useEffect(() => {
+    if (salesDealDisabled) setValue('salesDeal', '')
+  }, [salesDealDisabled, setValue])
+
   const currencyTitle = useMemo(() => {
     const guid = watchCurrency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
     if (!guid) return ''
@@ -398,6 +427,7 @@ const PaymentForm = observer(({
       chart_of_accounts_id: chart_of_accounts_id || data?.chartOfAccount,
       sales_transactions_id: watchSalesDeal,
       purchase_transactions_id: watchPurchaseDeal || null,
+      ...(appStore.projectActive ? { projects_id: data?.projects_id || null } : {}),
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
@@ -615,7 +645,7 @@ const PaymentForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4", watchPurchaseDeal && "opacity-50")}>
+              <div className={cn("flex items-center gap-4", accrualDisabled && "opacity-50")}>
                 <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
@@ -624,9 +654,9 @@ const PaymentForm = observer(({
                     render={({ field }) => (
                       <FormDatepicker
                         value={watchPurchaseDeal ? watchPaymentDate : field.value}
-                        disabled={!!watchPurchaseDeal}
+                        disabled={accrualDisabled}
                         onChange={(val) => {
-                          if (watchPurchaseDeal) return
+                          if (accrualDisabled) return
                           field.onChange(val)
                           setValue('confirmAccrual', !isFuture(val))
                         }}
@@ -642,11 +672,11 @@ const PaymentForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={watchPurchaseDeal ? false : field.value}
-                        disabled={!!watchPurchaseDeal}
+                        checked={watchPurchaseDeal ? false : isAccrualLocked ? watchConfirmPayment : field.value}
+                        disabled={accrualDisabled}
                         label={t('confirmAccrual')}
                         onChange={(e) => {
-                          if (watchPurchaseDeal || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
+                          if (accrualDisabled || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />
@@ -692,6 +722,7 @@ const PaymentForm = observer(({
                         placeholder={t('statyaPaymentPlaceholder')}
                         className='bg-white border rounded-md h-[36px]!'
                         type={'Доходы'}
+                        returnAncestors={setArticleAncestors}
                       />
                     )}
                   />
@@ -726,6 +757,27 @@ const PaymentForm = observer(({
               </div>
             )}
 
+            {/* Проект — только если включён модуль проектов */}
+            {appStore.projectActive && (
+              <div className="flex items-center gap-4">
+                <label className="w-[150px] text-xss">{t('project')}</label>
+                <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
+                  <Controller
+                    name="projects_id"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectProjects
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={t('projectPlaceholder')}
+                        className='bg-white border rounded-md h-[36px]!'
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-4">
               <label className="w-[150px] text-xss">{t('purchaseDeal')}</label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
@@ -746,7 +798,7 @@ const PaymentForm = observer(({
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className={cn("flex items-center gap-4", salesDealDisabled && "opacity-50")}>
               <label className="w-[150px] text-xss">{t('salesDeal')}</label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
                 <Controller
@@ -754,12 +806,13 @@ const PaymentForm = observer(({
                   control={control}
                   render={({ field }) => (
                     <SingleZdelka
-                      value={field.value}
+                      value={salesDealDisabled ? '' : field.value}
                       onChange={field.onChange}
                       placeholder={t('salesDealPlaceholder')}
                       className='bg-white border rounded-md h-[36px]!'
                       hasError={!!errors.salesDeal}
                       defaultDealGuid={defaultDealGuid}
+                      disabled={salesDealDisabled}
                     />
                   )}
                 />

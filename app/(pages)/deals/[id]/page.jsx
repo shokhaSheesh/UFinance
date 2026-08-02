@@ -30,7 +30,7 @@ import { appStore } from '@/store/app.store';
 import { sealDeal } from '@/store/saleDeal.store';
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { ChevronUp, CirclePlus, Ellipsis, Pencil, Search, Trash } from 'lucide-react';
+import { ChevronUp, CirclePlus, Ellipsis, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
@@ -47,6 +47,7 @@ export default observer(function DealDetailPage() {
   const router = useRouter();
   const mounted = useMounted()
   const t = useTranslations('Deals.detail');
+  const ts = useTranslations('Deals.createShipment');
   const tc = useTranslations('Common');
   const dealId = params.id;
 
@@ -61,6 +62,22 @@ export default observer(function DealDetailPage() {
       select: (response) => response?.data?.data,
       placeholderData: keepPreviousData,
     }
+  })
+
+  // Сделкада товар/услуга бор-йўқлиги: отгрузка учун улар шарт.
+  // queryKey 'products_services_list' — CreateProductService шу префиксни invalidate қилади.
+  const { data: hasProducts } = useUcodeRequestQuery({
+    queryKey: 'products_services_list',
+    method: 'list_products_and_services',
+    data: { sales_transactions_id: dealId, page: 1, limit: 1 },
+    skip: !dealId,
+    querySetting: {
+      select: (res) => {
+        const total = res?.data?.pagination?.total
+        if (typeof total === 'number') return total > 0
+        return (res?.data?.data?.length || 0) > 0
+      },
+    },
   })
 
   const { mutateAsync: updateDeal } = useUcodeRequestMutation()
@@ -99,6 +116,7 @@ export default observer(function DealDetailPage() {
 
   const [activeTab, setActiveTab] = useState('products');
   const [showShipmentModal, setShowShipmentModal] = useState(false);
+  const [isReturnMode, setIsReturnMode] = useState(false);
   const [showOperationModal, setShowOperationModal] = useState(false);
   const [operation, setOperation] = useState(null)
   const [isModalClosing, setIsModalClosing] = useState(false)
@@ -330,7 +348,7 @@ export default observer(function DealDetailPage() {
         <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.shipments')}</span>
-            {paymentPermission && <button onClick={() => setShowShipmentModal(true)} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
+            {paymentPermission && <button onClick={() => { setIsReturnMode(false); setShowShipmentModal(true); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
               <div className="scale-75 xl:scale-100 origin-right transition-transform"><ShipmentPlusIcon /></div>
             </button>}
           </div>
@@ -470,20 +488,66 @@ export default observer(function DealDetailPage() {
                     (activeTab === 'receipts' && incomePermission) ||
                     (activeTab === 'expenses' && paymentPermission) ||
                     (activeTab === 'shipments' && shipmentPermission) ? (
-                    <button
-                      className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
-                      onClick={() => {
-                        if (activeTab === 'shipments') {
-                          setShowShipmentModal(true);
-                        } else if (activeTab === 'receipts' || activeTab === 'expenses') {
-                          handleCreateOperation()
-                        } else if (activeTab === 'products') {
-                          setShowProductModal(true)
-                        }
-                      }}
-                    >
-                      {t('addButton')}
-                    </button>
+                    activeTab === 'shipments' ? (
+                      hasProducts === false ? null : appStore.warehouseActive && appStore.returnActive ? (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'>
+                            {t('addButton')}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-52 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
+                          <div className="flex flex-col">
+                            <button
+                              className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                              onClick={() => {
+                                setIsReturnMode(false);
+                                setShowShipmentModal(true);
+                              }}
+                            >
+                              <Plus size={16} className="text-neutral-600" />
+                              <span>{ts('titleNew')}</span>
+                            </button>
+                            {appStore.warehouseActive && appStore.returnActive && (
+                              <button
+                                className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                                onClick={() => {
+                                  setIsReturnMode(true);
+                                  setShowShipmentModal(true);
+                                }}
+                              >
+                                <Undo2 size={16} className="text-neutral-600" />
+                                <span>{t('newReturnButton')}</span>
+                              </button>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      ) : (
+                        <button
+                          className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
+                          onClick={() => {
+                            setIsReturnMode(false);
+                            setShowShipmentModal(true);
+                          }}
+                        >
+                          {t('addButton')}
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        className='primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0'
+                        onClick={() => {
+                          if (activeTab === 'receipts' || activeTab === 'expenses') {
+                            handleCreateOperation()
+                          } else if (activeTab === 'products') {
+                            setShowProductModal(true)
+                          }
+                        }}
+                      >
+                        {t('addButton')}
+                      </button>
+                    )
                   ) : null}
                 </div>
               </div>
@@ -494,7 +558,7 @@ export default observer(function DealDetailPage() {
 
                 {activeTab === 'expenses' && <ExpenseOperationsTable canAdd={paymentPermission} canEdit={paymentCanEdit} canDelete={paymentCanDelete} type='Выплата' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 
-                {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} />}
+                {activeTab === 'shipments' && <ShipmenTable canAdd={shipmentPermission} dealGuid={dealId} dealName={summeryCards?.Nazvanie} onAdd={() => setShowShipmentModal(true)} onAddProducts={() => setActiveTab('products')} hasProducts={hasProducts} />}
               </div>
             </div>
           </div>
@@ -507,10 +571,14 @@ export default observer(function DealDetailPage() {
       </div>
       <CreateShipment
         open={showShipmentModal}
-        onClose={() => setShowShipmentModal(false)}
+        onClose={() => {
+          setShowShipmentModal(false);
+          setIsReturnMode(false);
+        }}
         dealName={summeryCards?.Nazvanie}
         dealGuid={dealId}
         kontragentId={summeryCards?.counterparties_id}
+        isReturn={isReturnMode}
       />
       {/* create payment */}
       <PaymentModal
@@ -536,7 +604,13 @@ export default observer(function DealDetailPage() {
               }, 300)
             }}
             preselectedCounterparty={summeryCards?.counterparties_id}
-            onSuccess={() => setShowOperationModal(false)}
+            onSuccess={() => {
+              queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+              queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+              queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+              queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
+              setShowOperationModal(false)
+            }}
             initialTab={activeTab === 'expenses' ? 'payment' : 'income'}
           />
         )

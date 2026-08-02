@@ -34,7 +34,7 @@ class BalanceStore {
 					'dateRangeType'
 				],
 				storage: window.localStorage,
-				debugMode: true,
+				debugMode: false,
 			})
 		}
 	}

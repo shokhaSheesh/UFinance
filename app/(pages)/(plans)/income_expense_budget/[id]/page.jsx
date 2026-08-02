@@ -1,4 +1,4 @@
-import IncomeExpenseBudgetSingle from "@/modules/plans/IncomeExpenseBudget/IncomeExpenseBudgetSingle"
+import IncomeExpenseBudgetSingle from "@/modules/plans/IncomeExpenseBudget/detail-page"
 
 const IncomeExpenseBudgetSinglePage = () => {
   return <IncomeExpenseBudgetSingle/>

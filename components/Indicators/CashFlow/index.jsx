@@ -63,6 +63,7 @@ const CashFlow = () => {
     periodType: periodType,
     currencyCode: GlobalCurrency?.code,
     sellingDealId: deals,
+    project_ids: indicators.projects,
     accountId: accounts,
   }
 

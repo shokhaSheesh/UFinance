@@ -9,7 +9,7 @@ import { shipmentsDto } from '@/lib/dtos/shipmentsDto'
 import { appStore } from '@/store/app.store'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Truck } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -20,7 +20,7 @@ import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
 const ShipmenTable = observer(({
-  dealName = '', dealGuid = '', onAdd, canAdd,
+  dealName = '', dealGuid = '', onAdd, onAddProducts, canAdd, hasProducts,
   listMethod = 'list_sales_operations',
   dealIdField = 'sales_transaction_id',
   deleteMethod = 'delete_shipment_transaction',
@@ -167,6 +167,21 @@ const ShipmenTable = observer(({
   }
 
   if (shipmentsList?.length === 0) {
+    // Товар/услуга йўқ бўлса — аввал уларни қўшиш шарт (поставка/отгрузка улардан кейин).
+    // Тугма модални эмас, "Товары и услуги" табига ўтказади (link кўринишида).
+    if (hasProducts === false) {
+      return (
+        <EmptyState
+          icon={<Truck size={32} className="text-gray-400 stroke-[1.5]" />}
+          title={isPurchase ? tp('emptyProductsTitle') : t('emptyProductsTitle')}
+          subtitle={isPurchase ? tp('emptyProductsSubtitle') : t('emptyProductsSubtitle')}
+          onAdd={onAddProducts}
+          buttonLabel={isPurchase ? tp('goToProducts') : t('goToProducts')}
+          buttonVariant="link"
+          canAdd={canAdd}
+        />
+      )
+    }
     return (
       <EmptyState
         title={isPurchase ? tp('emptyTitle') : t('emptyTitle')}
@@ -293,6 +308,7 @@ const ShipmenTable = observer(({
           invalidateKeys={invalidateKeys}
           isPurchase={isPurchase}
           allowedTypes={allowedTypes}
+          isReturn={Number(selectedShipment?.summa) < 0}
         />
       )}
 

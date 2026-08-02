@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Detects when user is actively scrolling.
@@ -21,6 +21,8 @@ export function useScrollDetector(debounceMs = 2000) {
   const [isScrolling, setIsScrolling] = useState(false)
   const timeoutRef = useRef(null)
   const scrollRef = useRef(null)
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), [])
 
   const handleScroll = useCallback(() => {
     setIsScrolling(true)

@@ -37,7 +37,7 @@ class ReportsStore {
           "profitTypes"
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

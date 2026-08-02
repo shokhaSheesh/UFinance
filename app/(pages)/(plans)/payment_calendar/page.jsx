@@ -1,4 +1,4 @@
-import PaymentCalendar from '@/modules/plans/PaymentCalendar'
+import PaymentCalendar from '@/modules/plans/PaymentCalendar/list-page'
 
 const PaymentCalendarPage = () => {
   return <PaymentCalendar />

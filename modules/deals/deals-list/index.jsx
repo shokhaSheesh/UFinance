@@ -17,6 +17,8 @@ import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
 
 
 import ScreenLoader from '@/components/shared/ScreenLoader'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import FixedContent from '@/layouts/FixedContent'
 import { toJS } from 'mobx'
 import moment from 'moment'
@@ -24,7 +26,6 @@ import DealsFooter from '../components/DealsFooter'
 import DealsHeader from '../components/DealsHeader'
 import DealsTable from '../components/DealsTable'
 import { useDealsActions } from '../hooks/useDealsActions'
-import { useDealsSelection } from '../hooks/useDealsSelection'
 
 export function formatDeals(rawDeals = [], t) {
   return rawDeals.map(deal => ({
@@ -62,7 +63,7 @@ const ModalFallback = () => (
 export default observer(function DealsPage() {
   const router = useRouter()
   const t = useTranslations('Deals')
-  const tc = useTranslations('Common')
+  const tErrors = useTranslations('Errors')
   const mounted = useMounted()
   const queryClient = useQueryClient()
 
@@ -78,11 +79,11 @@ export default observer(function DealsPage() {
 
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
-  const dealPermission = appStore.permission.deals
+  const dealPermission = appStore.permission.deals.sales || appStore.permission.deals
 
   // ── Store state ────────────────────────────────────────────────────────────
   const {
-    selectedCounterparties, dealsMethod, dateRange,
+    selectedCounterparties, selectedProjects, dealsMethod, dateRange,
     amountFrom, amountTo, profitFrom, profitTo,
     status, schoolYear, search: searchValue, setState,
   } = sealDeal
@@ -94,7 +95,7 @@ export default observer(function DealsPage() {
     setState('search', value || null)
   }
 
-  const dateRanges = toJS(dateRange)
+  const dateRanges = useMemo(() => toJS(dateRange), [dateRange])
   // ── Filters ────────────────────────────────────────────────────────────────
   const dealsFilters = useMemo(() => ({
     limit: 50,
@@ -106,13 +107,14 @@ export default observer(function DealsPage() {
     profit_from: StringtoNumber(profitFrom) || null,
     profit_to: StringtoNumber(profitTo) || null,
     counterparty_ids: selectedCounterparties?.length > 0 ? selectedCounterparties : null,
+    project_ids: selectedProjects?.length > 0 ? selectedProjects : null,
     status: status?.length > 0 ? status : null,
     school_year: appStore.isDonoSchool ? schoolYear || null : null,
     accounting_method: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
     isCalculation: false,
   }), [
     searchValue, dateRanges, amountFrom, amountTo,
-    profitFrom, profitTo, selectedCounterparties,
+    profitFrom, profitTo, selectedCounterparties, selectedProjects,
     status, dealsMethod, schoolYear, t
   ])
 
@@ -176,18 +178,21 @@ export default observer(function DealsPage() {
     deleteDeal(
       { method: 'delete_sales_transaction', data: { guid: dealToDelete.guid } },
       {
-        onSuccess: () => {
+        // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+        onSuccess: (result) => {
+          if (isObjectInUseError(result)) {
+            showErrorNotification(tErrors('cannotDelete.deal'))
+            return
+          }
           queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
-          removeSelected(dealToDelete.guid)
           setDealToDelete(null)
+        },
+        onError: (error) => {
+          if (isObjectInUseError(error)) showErrorNotification(tErrors('cannotDelete.deal'))
         },
       }
     )
   }
-
-  // ── Selection ──────────────────────────────────────────────────────────────
-  const { selectedDeals, isAllSelected, handleSelectAll, handleSelectOne, removeSelected } =
-    useDealsSelection(formattedDeals)
 
   // ── Row actions ────────────────────────────────────────────────────────────
   const { handleRowClick, handleDeleteClick, handleEditClick, handleCopyClick, handleUpdate } =
@@ -250,10 +255,7 @@ export default observer(function DealsPage() {
 
         <DealsTable
           t={t}
-          tc={tc}
           formattedDeals={formattedDeals}
-          selectedDeals={selectedDeals}
-          isAllSelected={isAllSelected}
           dealsMethod={dealsMethod}
           dealPermission={dealPermission}
           isLoading={isLoading}
@@ -262,8 +264,6 @@ export default observer(function DealsPage() {
           isFetching={isFetching}
           fetchNextPage={fetchNextPage}
           onRowClick={handleRowClick}
-          onSelectAll={handleSelectAll}
-          onSelectOne={handleSelectOne}
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
           onCopyClick={handleCopyClick}

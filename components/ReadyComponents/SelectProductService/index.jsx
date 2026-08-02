@@ -16,13 +16,16 @@ const SelectProductService = ({
   multi = false,
   selected,
   sellingDealId,
+  dealIdField = 'sales_transactions_id',
   hasError,
   isClearable = false,
   name = '',
   returnFieldValue,
   returnName,
   disabled = false,
-  dropdownHeaderItem
+  dropdownHeaderItem,
+  type,
+  selectedLabel
 }) => {
   const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,13 +41,19 @@ const SelectProductService = ({
   const { data: productsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "list_products_and_services",
     data: {
-      sales_transaction_id: sellingDealId,
-      search: searchQuery
+      [dealIdField]: sellingDealId,
+      search: searchQuery,
+      // Optionally restrict the list to physical goods ("product") or
+      // services ("service"); omitted → both are returned.
+      ...(type ? { type } : {})
     },
     querySetting: {
       select: (response) => productServiceDto(response?.data?.data) || [],
-      staleTime: 1000 * 60 * 30, // 30 minutes
-      placeholder: keepPreviousData
+      // Товар могли добавить в сделку только что: держать список полчаса в кэше
+      // нельзя — он открывался бы без новой позиции. Обновляем при монтировании.
+      staleTime: 0,
+      refetchOnMount: 'always',
+      placeholderData: keepPreviousData
     }
 
   })
@@ -74,13 +83,25 @@ const SelectProductService = ({
     return data;
   }, [productsData, selected])
 
+  // Выбранное значение может отсутствовать в подгруженном списке (напр. при
+  // редактировании value = product_and_service_id, а опции по guid). Чтобы товар
+  // всё равно отображался — добавляем его отдельной опцией из selectedLabel.
+  const optionsWithSelected = useMemo(() => {
+    if (multi || !value || Array.isArray(value)) return mappedData
+    if (mappedData.some((o) => o.value === value)) return mappedData
+    return [{ value, label: selectedLabel || value }, ...mappedData]
+  }, [mappedData, value, selectedLabel, multi])
+
   // Handle selection and return field value
   const handleChange = (val) => {
-    onChange(val)
-
     // For multi-select, use the last selected value
     const lookupValue = multi && Array.isArray(val) ? val[val.length - 1] : val
     const rawItem = rawDataMap.get(lookupValue)
+
+    // Pass the picked raw item as a 2nd arg so callers can read the real
+    // product_and_service_id directly (authoritative) instead of re-resolving
+    // the guid against a possibly-incomplete list.
+    onChange(val, rawItem)
 
     if (name && returnFieldValue && rawItem) {
       const fieldValue = rawItem[name] ?? rawItem.summa ?? null
@@ -103,7 +124,7 @@ const SelectProductService = ({
 
   return (
     <Component
-      data={mappedData}
+      data={optionsWithSelected}
       value={value}
       onChange={handleChange}
       onSearch={handleSearch}

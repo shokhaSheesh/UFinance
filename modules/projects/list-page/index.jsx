@@ -1,0 +1,217 @@
+'use client'
+
+import CreateProjectGroupModal from '@/components/projects/CreateProjectGroupModal'
+import CreateProjectModal from '@/components/projects/CreateProjectModal'
+import ScreenLoader from '@/components/shared/ScreenLoader'
+import useMounted from '@/hooks/useMounted'
+import FixedContent from '@/layouts/FixedContent'
+import { statusToRu } from '@/lib/api/ucode/projects'
+import { appStore } from '@/store/app.store'
+import { projectsStore } from '@/store/projects.store'
+import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+
+import ProjectsFilterSidebar from '../components/ProjectsFilterSidebar'
+import ProjectsFooter from '../components/ProjectsFooter'
+import ProjectsHeader from '../components/ProjectsHeader'
+import ProjectsTable from '../components/ProjectsTable'
+import {
+  useCreateProject,
+  useCreateProjectGroup,
+  useDeleteProject,
+  useProjectGroups,
+  useProjectsList,
+  useUpdateProject,
+} from '../hooks/useProjectsData'
+
+export default observer(function ProjectsListPage() {
+  const t = useTranslations('Projects')
+  const ts = useTranslations('Projects.status')
+  const tc = useTranslations('Common')
+  const mounted = useMounted()
+  const router = useRouter()
+
+  const [isFilterOpen, setIsFilterOpen] = useState(true)
+
+  // Права раздела «Проекты»
+  const permissions = appStore.permission.projects || {}
+  const [projectModal, setProjectModal] = useState({ open: false, project: null })
+  const [groupModalOpen, setGroupModalOpen] = useState(false)
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
+
+  const {
+    statuses,
+    dateRange,
+    selectedProjects,
+    showActive,
+    analysisMethod,
+    viewMode,
+    search,
+    setState,
+  } = projectsStore
+
+  const statusesJs = useMemo(() => toJS(statuses), [statuses])
+  const selectedProjectsJs = useMemo(() => toJS(selectedProjects), [selectedProjects])
+  const dateRangeJs = useMemo(() => toJS(dateRange), [dateRange])
+
+  // ── Параметры для API (status — только когда выбран ровно один) ──
+  const apiFilters = useMemo(
+    () => ({
+      status: statusesJs.length === 1 ? statusToRu(statusesJs[0]) : undefined,
+      search: search?.trim() || undefined,
+      project_ids: selectedProjectsJs?.length ? selectedProjectsJs : undefined,
+      start_from_date: dateRangeJs?.start
+        ? moment(dateRangeJs.start).format('YYYY-MM-DD')
+        : undefined,
+      end_to_date: dateRangeJs?.end ? moment(dateRangeJs.end).format('YYYY-MM-DD') : undefined,
+    }),
+    [statusesJs, search, selectedProjectsJs, dateRangeJs]
+  )
+
+  // Дебаунс запроса (поиск/фильтры)
+  const [debouncedFilters, setDebouncedFilters] = useState(apiFilters)
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedFilters(apiFilters), 500)
+    return () => clearTimeout(id)
+  }, [apiFilters])
+
+  const {
+    projects,
+    total,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useProjectsList(debouncedFilters)
+
+  const { groups } = useProjectGroups()
+
+  // Клиентская доводка фильтров, которые API не покрывает напрямую
+  const filtered = useMemo(() => {
+    return projects.filter((p) => {
+      if (statusesJs.length && !statusesJs.includes(p.status)) return false
+      if (!showActive) return false // архивных нет в API — всё активно
+      return true
+    })
+  }, [projects, statusesJs, showActive])
+
+  // ── Сводка (финансовые показатели вне текущего API) ──
+  const summary = useMemo(
+    () => ({ count: total, income: 0, expenses: 0, profit: 0, profitability: null }),
+    [total]
+  )
+
+  const methodOptions = useMemo(
+    () => [
+      { value: 'cash', label: t('methods.cash') },
+      { value: 'accrual', label: t('methods.accrual') },
+    ],
+    [t]
+  )
+
+  // ── Мутации ──
+  const createProjectMut = useCreateProject()
+  const updateProjectMut = useUpdateProject()
+  const deleteProjectMut = useDeleteProject()
+  const createGroupMut = useCreateProjectGroup()
+
+  const submitProject = async (payload) => {
+    if (payload.id) {
+      await updateProjectMut.mutateAsync({
+        guid: payload.id,
+        name: payload.name,
+        project_groups_id: payload.groupId ?? '',
+        description: payload.comment ?? '',
+      })
+    } else {
+      await createProjectMut.mutateAsync({
+        name: payload.name,
+        project_groups_id: payload.groupId || undefined,
+        description: payload.comment || undefined,
+      })
+    }
+  }
+
+  const addGroup = async (payload) => {
+    const res = await createGroupMut.mutateAsync({
+      name: payload.name,
+      description: payload.comment,
+    })
+    return res?.data?.guid || null
+  }
+
+  if (!mounted) return null
+
+  const showInitialLoader = isLoading && projects.length === 0
+
+  return (
+    <FixedContent>
+      <ProjectsFilterSidebar onOpenChange={setIsFilterOpen} />
+
+      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
+        <ProjectsHeader
+          t={t}
+          searchValue={search}
+          analysisMethod={analysisMethod}
+          methodOptions={methodOptions}
+          viewMode={viewMode}
+          onSearch={(v) => setState('search', v)}
+          canAdd={permissions.add}
+          onCreateProject={() => setProjectModal({ open: true, project: null })}
+          onCreateGroup={() => setGroupModalOpen(true)}
+          onMethodChange={(v) => setState('analysisMethod', v)}
+          onViewModeChange={(v) => setState('viewMode', v)}
+          onExport={() => {}}
+        />
+
+        <ProjectsTable
+          t={t}
+          ts={ts}
+          tc={tc}
+          projects={filtered}
+          isLoading={isLoading}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
+          onRowClick={(project) => router.push(`/projects/${project.id}`)}
+          onEdit={permissions.edit ? (project) => setProjectModal({ open: true, project }) : undefined}
+          onDelete={permissions.delete ? (project) => deleteProjectMut.mutate(project.id) : undefined}
+        />
+
+        {showInitialLoader && <ScreenLoader className="left-0!" />}
+        {(isFetchingNextPage || isFetching) && !showInitialLoader && <ScreenLoader className="left-0!" />}
+      </main>
+
+      <ProjectsFooter t={t} summary={summary} isFilterOpen={isFilterOpen} />
+
+      {projectModal.open && (
+        <CreateProjectModal
+          isOpen
+          project={projectModal.project}
+          groups={groups}
+          onClose={() => setProjectModal({ open: false, project: null })}
+          onSubmit={submitProject}
+          onGroupCreated={addGroup}
+        />
+      )}
+
+      {groupModalOpen && (
+        <CreateProjectGroupModal
+          isOpen
+          onClose={() => setGroupModalOpen(false)}
+          onSubmit={(payload) => addGroup(payload)}
+        />
+      )}
+    </FixedContent>
+  )
+})

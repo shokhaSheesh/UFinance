@@ -2,7 +2,7 @@
 
 import styles from './DeleteCounterpartyConfirmModal.module.scss'
 
-export function DeleteCounterpartyConfirmModal({ isOpen, counterparty, onConfirm, onCancel, isDeleting = false }) {
+export function DeleteCounterpartyConfirmModal({ isOpen, counterparty, onConfirm, onCancel, isDeleting = false, errorMessage = '' }) {
   if (!isOpen) return null
 
   return (
@@ -40,6 +40,11 @@ export function DeleteCounterpartyConfirmModal({ isOpen, counterparty, onConfirm
                 </div>
               )}
             </div>
+          )}
+          {/* Причина отказа от бэка — показываем прямо в окне: пользователь
+              смотрит сюда, а не на всплывающее уведомление */}
+          {errorMessage && (
+            <p className="mt-3 text-sm leading-5 text-red-600">{errorMessage}</p>
           )}
         </div>
         <div className={styles.deleteModalFooter}>

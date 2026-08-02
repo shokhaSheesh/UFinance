@@ -26,6 +26,7 @@ class PnLStore {
 	ebit = false
 	ebt = false
 	deals = []
+	selectedProjects = []
 	selectedAccounts = []
 	selectedLegalEntities = []
 	selectedCounterparties = []
@@ -37,7 +38,7 @@ class PnLStore {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
-				name: 'cashflow_store_v2',
+				name: 'pnl_store_v1',
 				properties: [
 					'profitTypes',
 					'selectedAccounts',
@@ -47,12 +48,13 @@ class PnLStore {
 					'selectedPeriod',
 					'selectedGrouping',
 					'deals',
+					'selectedProjects',
 					'isCalculation',
 					'dateRange',
 					'dateRangeType'
 				],
 				storage: window.localStorage,
-				debugMode: true,
+				debugMode: false,
 			})
 		}
 	}
@@ -105,6 +107,10 @@ class PnLStore {
 		this.deals = value
 	}
 
+	setSelectedProjects(value) {
+		this.selectedProjects = value
+	}
+
 	resetFilters() {
 		this.dateRange = getDefaultDateRange()
 		this.selectedPeriod = 'all'
@@ -115,6 +121,7 @@ class PnLStore {
 		this.ebit = false
 		this.ebt = false
 		this.deals = []
+		this.selectedProjects = []
 		this.selectedAccounts = []
 		this.selectedLegalEntities = []
 		this.selectedCounterparties = []

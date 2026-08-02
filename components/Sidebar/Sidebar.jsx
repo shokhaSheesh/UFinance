@@ -4,6 +4,7 @@ import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import {
+  Briefcase,
   CalendarCheck,
   ChartLine,
   ClipboardList,
@@ -115,51 +116,64 @@ export const Sidebar = observer(() => {
       label: t("nav.deals"),
       href: "/deals",
       hasPage: true,
-      canShow: permissions?.deals?.read,
+      canShow:
+        permissions?.deals?.read ||
+        permissions?.deals?.sales?.read ||
+        permissions?.deals?.purchases?.read,
       submenu: [
         {
           label: t("nav.dealsSelling"),
           description: t("nav.dealsSellingDesc"),
           href: "/deals/selling",
           hasPage: true,
-          canShow: permissions?.deals?.read,
+          canShow: permissions?.deals?.sales?.read,
         },
         {
           label: t("nav.dealsPurchase"),
           description: t("nav.dealsPurchaseDesc"),
           href: "/deals/purchase",
           hasPage: true,
-          canShow: permissions?.deals?.read,
+          canShow: permissions?.deals?.purchases?.read,
         },
       ],
     },
-    // {
-    //   icon: CalendarCheck,
-    //   label: t("nav.plans"),
-    //   href: "",
-    //   hasPage: true,
-    //   canShow: true,
-    //   submenu: [
-    //     {
-    //       label: t("plans.payment_calendar"),
-    //       href: "/payment_calendar",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //     {
-    //       label: t("plans.income_expense_budget"),
-    //       href: "/income_expense_budget",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //     {
-    //       label: t("plans.cash_flow_budget"),
-    //       href: "/cash_flow_budget",
-    //       hasPage: true,
-    //       canShow: true,
-    //     },
-    //   ],
-    // },
+    {
+      icon: CalendarCheck,
+      label: t("nav.plans"),
+      href: "",
+      hasPage: true,
+      canShow:
+        permissions?.plans?.read ||
+        permissions?.plans?.pnl?.read ||
+        permissions?.plans?.cashflow?.read,
+      submenu: [
+        // {
+        //   label: t("plans.payment_calendar"),
+        //   href: "/payment_calendar",
+        //   hasPage: true,
+        //   canShow: true,
+        // },
+        {
+          label: t("plans.income_expense_budget"),
+          href: "/income_expense_budget",
+          hasPage: true,
+          canShow: permissions?.plans?.pnl?.read,
+        },
+        {
+          label: t("plans.cash_flow_budget"),
+          href: "/cash_flow_budget",
+          hasPage: true,
+          canShow: permissions?.plans?.cashflow?.read,
+        },
+      ],
+    },
+    {
+      icon: Briefcase,
+      label: t("nav.projects"),
+      href: "/projects",
+      hasPage: true,
+      canShow: appStore.projectActive && permissions?.projects?.read,
+    },
     {
       icon: ClipboardList,
       label: t("nav.reports"),
@@ -240,13 +254,13 @@ export const Sidebar = observer(() => {
         },
       ],
     },
-    // {
-    //   icon: Warehouse,
-    //   label: t("nav.warehouse"),
-    //   href: "/warehouse",
-    //   hasPage: true,
-    //   canShow: true,
-    // },
+    {
+      icon: Warehouse,
+      label: t("nav.warehouse"),
+      href: "/warehouse",
+      hasPage: true,
+      canShow: appStore.warehouseActive && permissions?.warehouse?.read,
+    },
     {
       icon: IoSettingsOutline,
       label: t("nav.settings"),

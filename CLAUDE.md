@@ -165,7 +165,6 @@ lib/
   config/               # API config (base URLs, project/environment IDs)
   constants/            # API endpoint constants
   queryClient.js        # React Query client instance (defaultOptions: staleTime=0)
-  chartConfig.js        # Shared ECharts/Chart.js config defaults
   firebase.js           # Firebase analytics initialization
 
 utils/

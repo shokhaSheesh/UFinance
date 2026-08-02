@@ -2,6 +2,7 @@
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
+import { cn } from '@/lib/utils'
 import operationDto from '@/lib/dtos/operationDto'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
@@ -15,10 +16,14 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
+import { useChartOfAccountsIds } from '@/hooks/useChartOfAccountsIds'
 import EmptyState from '../EmptyState'
 
+// Затраты по сделке: показываем только статьи расходов
+const EXPENSE_ROOTS = ['Расходы']
+
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Выплата", "Начисление"], isPurchase = false }) => {
+const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Дебет", "Кредит", "Начисление", "Выплата"], isPurchase = false }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -37,6 +42,9 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
   const scrollContainerRef = useRef(null)
   const LIMIT = 50
 
+  // Статьи расходов приходят из плана счетов — бэк раздел не разворачивает
+  const { ids: expenseAccountIds, isLoading: isChartLoading } = useChartOfAccountsIds(EXPENSE_ROOTS)
+
   const {
     data: infiniteData,
     fetchNextPage,
@@ -44,12 +52,14 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
     isFetchingNextPage,
     isLoading
   } = useInfiniteQuery({
-    queryKey: ['list_operations_by_query', sellingDealId, 'expense'],
+    queryKey: ['list_operations_by_query', sellingDealId, 'expense', expenseAccountIds],
+    enabled: !isChartLoading,
     queryFn: ({ pageParam = 1 }) => apiClient.invokeFunction({
       method: "list_operations_by_query",
       data: {
         [dealIdField]: [sellingDealId],
         tip: tipTypes,
+        chart_of_accounts_ids: expenseAccountIds,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,
@@ -65,31 +75,39 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       return page < totalPages ? page + 1 : undefined
     },
     initialPageParam: 1,
+    // список и итог обновляем одинаково, иначе таблица и «Итого» разойдутся
+    staleTime: 0,
+    refetchOnMount: 'always',
     placeholderData: keepPreviousData
   })
 
 
   const { data: operationsTotal } = useQuery({
-    queryKey: ['get_operations_total_expense'],
+    queryKey: ['get_operations_total_expense', sellingDealId, expenseAccountIds],
+    enabled: !isChartLoading,
     queryFn: () => apiClient.invokeFunction({
       method: "summary_operations",
       data: {
         [dealIdField]: [sellingDealId],
         tip: tipTypes,
+        chart_of_accounts_ids: expenseAccountIds,
         accrualConfirmed: true,
         accrualNotConfirmed: true,
         paymentConfirmed: true,
         paymentNotConfirmed: true
       }
     }),
-    // staleTime: 1000 * 60,
-    // gcTime: 1000 * 60,
-    // placeholderData: keepPreviousData,
+    // Глобальный staleTime — 5 минут, из-за него при возврате на вкладку итог
+    // брался из кэша и запрос не уходил. Итог должен быть свежим всегда.
+    staleTime: 0,
+    refetchOnMount: 'always',
+    placeholderData: keepPreviousData,
     select: (response) => response?.data?.data
   })
 
-  const totalSummary = useMemo(
-    () => operationsTotal?.by_type?.payment,
+  // «Итого» по сделке — net_sales_payment из summary_operations
+  const netTotal = useMemo(
+    () => Math.round(Number(operationsTotal?.net_sales_payment) || 0),
     [operationsTotal]
   )
 
@@ -174,6 +192,8 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
     }
@@ -197,19 +217,40 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
             <tbody className='w-full'>
               {dealOperations?.map((item) => {
                 const isActive = !item?.payment_confirmed && !item?.payment_accrual
+                // Начисление показываем как на странице «Операции»: юрлицо вместо
+                // счёта, две статьи (по дебету / по кредиту) и две суммы
+                const isAccrual = item?.tip === 'Начисление'
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.operationDate}</td>
-                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.my_account_name}</td>
-                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item?.tip === "Начисление" ? t('accrual') : item.counterparty}</td>
-                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.chartOfAccounts}</td>
-                    <td className={`p-3 text-right w-40`}>
-                      <div className="flex items-center justify-end gap-2 h-6">
-                        <div className="flex items-center gap-1">
-                          <p className={`font-base text-red-600`}>
-                            {'-'}{formatAmount(item.summa)} {item.currency}
-                          </p>
+                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>
+                      {isAccrual
+                        ? <span className='text-neutral-500'>{item.legal_entity_name ? `[${item.legal_entity_name}]` : ''}</span>
+                        : item.my_account_name}
+                    </td>
+                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{isAccrual ? (item.counterparty || t('accrual')) : item.counterparty}</td>
+                    <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>
+                      {isAccrual ? (
+                        <div className='flex flex-col'>
+                          <span className='line-clamp-1'>{item.chartOfAccounts} {t('byDebit')}</span>
+                          <span className='line-clamp-1'>{item.chartOfAccounts2} {t('byCredit')}</span>
                         </div>
+                      ) : item.chartOfAccounts}
+                    </td>
+                    <td className={`p-3 text-right w-40`}>
+                      <div className="flex items-center justify-end gap-2 min-h-6">
+                        {isAccrual ? (
+                          <div className='flex flex-col text-neutral-500'>
+                            <span className='whitespace-nowrap'>{item.debit ?? '+'}{formatAmount(item.summa)} {item.currency}</span>
+                            <span className='whitespace-nowrap'>{item.kredit ?? '-'}{formatAmount(item.summa)} {item.currency}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <p className={`font-base text-red-600`}>
+                              {'-'}{formatAmount(item.summa)} {item.currency}
+                            </p>
+                          </div>
+                        )}
                         <div className=' items-center  hidden group-hover:flex '>
                           {canEdit && (
                             <button
@@ -245,7 +286,9 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
         </div>
         <div className='flex justify-end'>
           <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
-          <div className={`p-4 text-right font-semibold text-red-600`}>{'-'}{formatAmount(totalSummary?.total_summa)} {GlobalCurrency?.name}</div>
+          <div className={cn('p-4 text-right font-semibold', netTotal > 0 ? 'text-emerald-600' : 'text-red-600')}>
+            {formatAmount(netTotal)} {GlobalCurrency?.name}
+          </div>
         </div>
       </>}
 
@@ -265,6 +308,9 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
           }}
           onSuccess={() => {
             invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
+            queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
             setShowModal(false)
           }}
           initialTab={modalType}

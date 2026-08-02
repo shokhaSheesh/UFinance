@@ -1,13 +1,14 @@
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/helpers'
-import { MoreVertical, Package } from 'lucide-react'
+import { Package } from 'lucide-react'
 
 const tdBase =
   'px-3.5 py-3 border-b border-gray-100 whitespace-nowrap text-neutral-700'
 
-const WarehouseRow = ({ item }) => {
+const WarehouseRow = ({ item, number }) => {
   return (
     <tr className="hover:bg-gray-50">
+      <td className={cn(tdBase, 'text-center text-neutral-400')}>{number}</td>
       <td className={cn(tdBase, 'font-medium')}>{item.name}</td>
       <td className={cn(tdBase, 'text-neutral-400')}>{item.artikul || '—'}</td>
       <td className={cn(tdBase, 'text-right')}>{formatNumber(item.balance)}</td>
@@ -24,9 +25,6 @@ const WarehouseRow = ({ item }) => {
       <td className={cn(tdBase, 'text-right')}>{formatNumber(item.totalCost)}</td>
       <td className={cn(tdBase, 'text-right')}>{formatNumber(item.salePrice)}</td>
       <td className={cn(tdBase, 'text-right')}>{formatNumber(item.saleTotal)}</td>
-      <td className={cn(tdBase, 'text-center')}>
-        <MoreVertical size={16} className="inline text-neutral-400 cursor-pointer" />
-      </td>
     </tr>
   )
 }

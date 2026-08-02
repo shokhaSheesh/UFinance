@@ -18,14 +18,20 @@ export const collectAllIds = (node) => {
 
 // Build the tip array for a root item
 export const getTip = (rootItem, isCalculation) => {
-  let tips = []
   const income = rootItem?.name === "income" || rootItem?.id === "income" || rootItem?.type === "income"
   const expenses = rootItem?.name === "expenses" || rootItem?.id === "expenses" || rootItem?.type === "expenses"
 
-  if (isCalculation === 'accrual') tips.push("Отгрузка")
+  let tips
   if (expenses) tips = ["Выплата", "Кредит", "Дебет", "Начисление"]
-  if (income) tips = [...tips, "Поступление", "Кредит", "Дебет", "Начисление"]
-  if (!income && !expenses) tips = [...tips, "Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
+  else if (income) tips = ["Поступление", "Кредит", "Дебет", "Начисление"]
+  else tips = ["Выплата", "Поступление", "Дебет", "Кредит", "Начисление"]
+
+  // Метод начисления: доходы включают Отгрузку, расходы — Поставку
+  if (isCalculation === 'accrual') {
+    if (income) tips.push("Отгрузка")
+    else if (expenses) tips.push("Поставка")
+    else tips.push("Отгрузка", "Поставка")
+  }
   return tips
 }
 

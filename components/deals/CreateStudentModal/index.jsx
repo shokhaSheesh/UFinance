@@ -602,7 +602,9 @@ const CreateStudentModal = observer(
         }
       } catch (error) {
         console.error("Error processing contract file:", error);
-        showErrorNotification("Ошибка при обработке договора: " + error.message);
+        showErrorNotification(
+          "Ошибка при обработке договора: " + error.message
+        );
         return;
       } finally {
         setIsSaving(false);
@@ -1103,7 +1105,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="guardianType"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("guardianTypePlaceholder")}
@@ -1287,7 +1291,9 @@ const CreateStudentModal = observer(
                             disabled={isEditableLocked}
                             error={!!errors.pinf}
                             {...register("pinf", {
-                              required: !isEditableLocked ? t("pinflRequired") : false,
+                              required: !isEditableLocked
+                                ? t("pinflRequired")
+                                : false,
                               pattern: {
                                 value: /^\d{14}$/,
                                 message: t("pinflInvalid"),
@@ -1363,6 +1369,7 @@ const CreateStudentModal = observer(
                                     moment(value).format("YYYY-MM-DD")
                                   )
                                 }
+                                maxDate={new Date()}
                                 placeholder={t("datePlaceholder")}
                                 format="YYYY-MM-DD"
                                 className={"w-full!"}
@@ -1434,7 +1441,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="gender"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("gender")}
@@ -1516,7 +1525,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="classes_id"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("classPlaceholder")}
@@ -1649,7 +1660,9 @@ const CreateStudentModal = observer(
                       <fieldset
                         disabled={isEditableLocked}
                         className={`contents ${
-                          isEditableLocked ? "pointer-events-none opacity-70" : ""
+                          isEditableLocked
+                            ? "pointer-events-none opacity-70"
+                            : ""
                         }`}
                       >
                         <div className="flex flex-col gap-1.5">
@@ -1677,7 +1690,9 @@ const CreateStudentModal = observer(
                           <Controller
                             name="language_classes_id"
                             control={control}
-                            rules={{ required: !isEditableLocked ? true : false }}
+                            rules={{
+                              required: !isEditableLocked ? true : false,
+                            }}
                             render={({ field }) => (
                               <SingleSelect
                                 placeholder={t("languagePlaceholder")}
@@ -1918,9 +1933,7 @@ const CreateStudentModal = observer(
             </div>
             <div className="flex flex-col gap-1.5 pt-0.5">
               <h3 className="text-base font-semibold text-gray-900">
-                {isEditMode
-                  ? t("updateConfirmation")
-                  : t("createConfirmation")}
+                {isEditMode ? t("updateConfirmation") : t("createConfirmation")}
               </h3>
               <p className="text-sm leading-relaxed text-gray-500">
                 {isEditMode ? t("updateConfirmText") : t("createConfirmText")}

@@ -1,15 +1,21 @@
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups } from '@/hooks/useDashboard'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
+import { showErrorNotification } from '@/lib/utils/notifications'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 export function useCounterpartiesModals({ setSearchQuery, setDebouncedSearchQuery }) {
   const queryClient = useQueryClient()
+  const tErrors = useTranslations('Errors')
   const deleteMutation = useDeleteCounterparties()
   const deleteGroupMutation = useDeleteCounterpartiesGroups()
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingCounterparty, setEditingCounterparty] = useState(null)
   const [deletingCounterparty, setDeletingCounterparty] = useState(null)
+  // Причина, по которой бэк отказал в удалении — показываем её в самом окне
+  const [deleteError, setDeleteError] = useState('')
   const [editingGroup, setEditingGroup] = useState(null)
   const [deletingGroup, setDeletingGroup] = useState(null)
   const [preselectedGroupId, setPreselectedGroupId] = useState(null)
@@ -36,15 +42,33 @@ export function useCounterpartiesModals({ setSearchQuery, setDebouncedSearchQuer
     invalidateQueries()
   }
 
+  const showDeleteBlocked = () => {
+    const message = tErrors('cannotDelete.counterparty')
+    setDeleteError(message)
+    showErrorNotification(message)
+  }
+
+  const openDeleteCounterparty = (counterparty) => {
+    setDeleteError('')
+    setDeletingCounterparty(counterparty)
+  }
+
   const handleDeleteConfirm = async () => {
     if (!deletingCounterparty?.guid) return
+    setDeleteError('')
     try {
-      await deleteMutation.mutateAsync([deletingCounterparty.guid])
+      const result = await deleteMutation.mutateAsync([deletingCounterparty.guid])
+      // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешный ответ
+      if (isObjectInUseError(result)) {
+        showDeleteBlocked()
+        return
+      }
       setDeletingCounterparty(null)
       resetSearch()
       invalidateQueries()
     } catch (error) {
       console.error('Error deleting counterparty:', error)
+      if (isObjectInUseError(error)) showDeleteBlocked()
     }
   }
 
@@ -70,7 +94,8 @@ export function useCounterpartiesModals({ setSearchQuery, setDebouncedSearchQuer
     openCreate,
     closeCreate,
     setEditingCounterparty,
-    setDeletingCounterparty,
+    setDeletingCounterparty: openDeleteCounterparty,
+    deleteError,
     setEditingGroup,
     setDeletingGroup,
     handleDeleteConfirm,

@@ -4,7 +4,6 @@ import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { formatDateFormat } from '@/utils/formatDate'
 import { formatAmount, handleDownload } from '@/utils/helpers'
@@ -16,10 +15,8 @@ import styles from '../deals-list/deals.module.scss'
  * Virtualised infinite-scroll table of deals.
  */
 export default function DealsTable({
-  t, tc,
+  t,
   formattedDeals,
-  selectedDeals,
-  isAllSelected,
   dealsMethod,
   dealPermission,
   isLoading,
@@ -28,8 +25,6 @@ export default function DealsTable({
   isFetching,
   fetchNextPage,
   onRowClick,
-  onSelectAll,
-  onSelectOne,
   onDeleteClick,
   onEditClick,
   onCopyClick,
@@ -37,13 +32,7 @@ export default function DealsTable({
 }) {
   return (
     <>
-      <DealsTableHeader
-        t={t}
-        tc={tc}
-        isAllSelected={isAllSelected}
-        selectedCount={selectedDeals.size}
-        onSelectAll={onSelectAll}
-      />
+      <DealsTableHeader t={t} />
 
       {formattedDeals?.length === 0 && !isLoading && (
         <div className="py-20 text-center text-neutral-500 text-sm">
@@ -65,10 +54,8 @@ export default function DealsTable({
               deal={deal}
               dealsMethod={dealsMethod}
               dealPermission={dealPermission}
-              isSelected={selectedDeals.has(deal.guid)}
               t={t}
               onRowClick={onRowClick}
-              onSelectOne={onSelectOne}
               onDeleteClick={onDeleteClick}
               onEditClick={onEditClick}
               onCopyClick={onCopyClick}
@@ -89,10 +76,8 @@ function DealRow({
   deal,
   dealsMethod,
   dealPermission,
-  isSelected,
   t,
   onRowClick,
-  onSelectOne,
   onDeleteClick,
   onEditClick,
   onCopyClick,
@@ -107,17 +92,6 @@ function DealRow({
       onClick={(e) => onRowClick(deal, e)}
       className="flex items-center h-12 border-b border-neutral-100 hover:bg-neutral-50 group cursor-pointer text-xs"
     >
-      {/* Checkbox */}
-      <div
-        className="w-10 flex items-center justify-center shrink-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <OperationCheckbox
-          checked={isSelected}
-          onChange={(e) => onSelectOne(deal.guid, e)}
-        />
-      </div>
-
       {/* Date */}
       <div className="w-32 shrink-0 px-2">{formatDateFormat(deal.Data_sdelki)}</div>
 

@@ -32,7 +32,7 @@ class Student {
           "rangeMonth",
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }

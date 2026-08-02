@@ -111,6 +111,7 @@ const SingleZdelka = ({
       <CreateDealModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onCreated={(deal) => onChange(deal.guid)}
       />
     </>
   )

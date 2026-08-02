@@ -1,4 +1,4 @@
-import IncomeExpenseBudget from "@/modules/plans/IncomeExpenseBudget"
+import IncomeExpenseBudget from "@/modules/plans/IncomeExpenseBudget/list-page"
 
 
 const IncomeExpenseBudgetPage = () => {

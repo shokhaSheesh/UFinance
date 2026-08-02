@@ -23,6 +23,7 @@ const PaymentStructure = observer(() => {
     currencyCode: indicators?.currencyCode,
     sellingDealId: indicators?.deals,
     accountId:indicators.accounts,
+    project_ids: indicators?.projects,
     isEbitda: false,
     isEbit: false,
     isEbt: false,
@@ -51,6 +52,7 @@ const PaymentStructure = observer(() => {
     currencyCode: GlobalCurrency?.code,
     sellingDealId: indicators.deals,
     accountId: indicators.accounts,
+    project_ids: indicators.projects,
   }
 
   const { data: apiCashFlowData, isLoading: isLoadingCashFlow, isPending: cashflowPending, isFetching: cashflowFetching } = useQuery({

@@ -1,6 +1,8 @@
 import { dashboardAPI } from '@/lib/api/dashboard'
 import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
+import { createWarehouse, deleteWarehouse, listWarehouses, updateWarehouse } from '@/lib/api/ucode/warehouse'
+import { isObjectInUseError } from '@/lib/api/ucode/errors'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import {
 	useInfiniteQuery,
@@ -8,6 +10,7 @@ import {
 	useQuery,
 	useQueryClient
 } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 
 
 // Get chart of accounts using v2/items/chart_of_accounts endpoint (GET)
@@ -15,10 +18,8 @@ export const useChartOfAccountsV2 = (params = {}) => {
 	return useQuery({
 		queryKey: ['chartOfAccountsV2', params],
 		queryFn: async () => {
-			console.log('useChartOfAccountsV2: Making request with params:', params)
 			try {
 				const result = await dashboardAPI.getChartOfAccountsV2(params)
-				console.log('useChartOfAccountsV2: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useChartOfAccountsV2: Error:', error)
@@ -41,11 +42,9 @@ export const useBankAccountsPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['bankAccountsPlanFact', params],
 		queryFn: async () => {
-			console.log('useBankAccountsPlanFact: Making request with params:', params)
 			try {
 				const { bankAccountsAPI } = await import('@/lib/api/ucode/bankAccounts')
 				const result = await bankAccountsAPI.getBankAccountsInvokeFunction(params)
-				console.log('useBankAccountsPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useBankAccountsPlanFact: Error:', error)
@@ -68,10 +67,8 @@ export const useCounterparties = (params = {}) => {
 	return useQuery({
 		queryKey: ['counterparties', params],
 		queryFn: async () => {
-			console.log('useCounterparties: Making request with params:', params)
 			try {
 				const result = await dashboardAPI.getCounterparties(params)
-				console.log('useCounterparties: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useCounterparties: Error:', error)
@@ -163,11 +160,9 @@ export const useCounterpartiesGroupsPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['counterpartiesGroupsPlanFact', params],
 		queryFn: async () => {
-			console.log('useCounterpartiesGroupsPlanFact: Making request with params:', params)
 			try {
 				const { counterpartiesAPI } = await import('@/lib/api/ucode/counterparties')
 				const result = await counterpartiesAPI.getCounterpartiesGroupInvokeFunction(params)
-				console.log('useCounterpartiesGroupsPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useCounterpartiesGroupsPlanFact: Error:', error)
@@ -316,6 +311,7 @@ export const useUpdateCounterparty = () => {
 // Delete counterparties mutation
 export const useDeleteCounterparties = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 	return useMutation({
 		mutationFn: dashboardAPI.deleteCounterparties,
 		onMutate: async guidsToDelete => {
@@ -376,7 +372,12 @@ export const useDeleteCounterparties = () => {
 					queryClient.setQueryData(queryKey, data)
 				})
 			}
-			showErrorNotification(error.message || 'Ошибка при удалении контрагента(ов)')
+			// Занятый объект бэк объясняет своим текстом — переводим его в понятный
+			showErrorNotification(
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.counterparty')
+					: error.message || 'Ошибка при удалении контрагента(ов)',
+			)
 		},
 		onSuccess: () => {
 			// Invalidate all counterparties queries to refetch fresh data
@@ -448,6 +449,7 @@ export const useUpdateMyAccount = () => {
 // Delete my accounts mutation
 export const useDeleteMyAccounts = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 
 	return useMutation({
 		mutationFn: dashboardAPI.deleteMyAccounts,
@@ -459,7 +461,11 @@ export const useDeleteMyAccounts = () => {
 		},
 		onError: error => {
 			showErrorNotification(
-				error.response?.data?.description || error.message || 'Ошибка при удалении счетов',
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.account')
+					: error.response?.data?.description ||
+							error.message ||
+							'Ошибка при удалении счетов',
 			)
 		},
 	})
@@ -471,11 +477,9 @@ export const useLegalEntitiesPlanFact = (params = {}) => {
 	return useQuery({
 		queryKey: ['legalEntitiesPlanFact', params],
 		queryFn: async () => {
-			console.log('useLegalEntitiesPlanFact: Making request with params:', params)
 			try {
 				const { legalEntitiesAPI } = await import('@/lib/api/ucode/legalEntities')
 				const result = await legalEntitiesAPI.getLegalEntitiesInvokeFunction(params)
-				console.log('useLegalEntitiesPlanFact: Response received:', result)
 				return result
 			} catch (error) {
 				console.error('useLegalEntitiesPlanFact: Error:', error)
@@ -534,6 +538,7 @@ export const useUpdateLegalEntity = () => {
 // Delete legal entities mutation
 export const useDeleteLegalEntities = () => {
 	const queryClient = useQueryClient()
+	const tErrors = useTranslations('Errors')
 
 	return useMutation({
 		mutationFn: dashboardAPI.deleteLegalEntities,
@@ -544,7 +549,11 @@ export const useDeleteLegalEntities = () => {
 		},
 		onError: error => {
 			showErrorNotification(
-				error.response?.data?.description || error.message || 'Ошибка при удалении юрлица',
+				isObjectInUseError(error)
+					? tErrors('cannotDelete.legalEntity')
+					: error.response?.data?.description ||
+							error.message ||
+							'Ошибка при удалении юрлица',
 			)
 		},
 	})
@@ -691,5 +700,62 @@ export const useUcodeDefaultApiQuery = ({
 		refetchOnMount: true,
 		refetchOnWindowFocus: false,
 		...querySetting,
+	})
+}
+
+// ============================================
+// WAREHOUSE (Склады) CRUD
+// ============================================
+
+export const useWarehousesList = (params = {}) => {
+	return useQuery({
+		queryKey: ['list_warehouses', params],
+		queryFn: () => listWarehouses(params),
+		select: response => response?.data?.data || [],
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при загрузке складов')
+		},
+	})
+}
+
+export const useCreateWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: createWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно создан!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при создании склада')
+		},
+	})
+}
+
+export const useUpdateWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: updateWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно обновлён!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при обновлении склада')
+		},
+	})
+}
+
+export const useDeleteWarehouse = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: deleteWarehouse,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouses'] })
+			showSuccessNotification('Склад успешно удалён!')
+		},
+		onError: error => {
+			showErrorNotification(error.message || 'Ошибка при удалении склада')
+		},
 	})
 }

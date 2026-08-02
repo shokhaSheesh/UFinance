@@ -70,7 +70,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
   })
 
   const { data: operationsTotal } = useQuery({
-    queryKey: ['get_operations_total_income'],
+    queryKey: ['get_operations_total_income', sellingDealId],
     queryFn: () => apiClient.invokeFunction({
       method: "summary_operations", data: {
         selling_deal_ids: [sellingDealId],
@@ -169,6 +169,8 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+      queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
     } catch (error) {
       console.error('Error deleting operation:', error)
     }
@@ -256,7 +258,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
         </div>
         <div className='flex justify-end'>
           <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
-          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(totalSummary?.total_summa)} {GlobalCurrency?.name}</div>
+          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(Math.round(Number(totalSummary?.total_summa) || 0))} {GlobalCurrency?.name}</div>
         </div>
       </>}
 
@@ -275,6 +277,9 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
           }}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+            queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_income'] })
+            queryClient.invalidateQueries({ queryKey: ['get_operations_total_expense'] })
             setShowModal(false)
           }}
           initialTab={modalType}

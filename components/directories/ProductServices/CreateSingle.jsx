@@ -293,7 +293,9 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                       onChange={field.onChange}
                       isClearable={false}
                       withSearch={false}
-                      disabled={isEditing}
+                      // Валюту нельзя менять только у товара, который уже
+                      // используется в операциях/сделках (used === true)
+                      disabled={!!initialData?.used}
                       className={'bg-white w-20'}
                     />
                   )}

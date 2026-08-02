@@ -78,6 +78,10 @@ const SalesTransactions = ({ value = [], onChange, placeholder = "Выберит
       <CreateDealModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onCreated={(deal) => {
+          const current = Array.isArray(value) ? value : []
+          if (!current.includes(deal.guid)) onChange([...current, deal.guid])
+        }}
       />
     </>
   )

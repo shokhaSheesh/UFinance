@@ -1,6 +1,7 @@
+import MultiSelectPurchaseZdelka from '@/components/ReadyComponents/MultiPurchaseZdelka'
 import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
-import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import OperationTableRow from '@/components/operations/TableRow/new'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -9,12 +10,21 @@ const DetailOperationsSection = ({
   t, tc,
   operationsList, operations, isLoading,
   counterpartyInfo, filters, setFilters,
-  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation,
-  selectedOperations
+  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation
 }) => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
-  const [selectedLegalEntities, setSelectedLegalEntities] = useState([])
-  const [selectedChartOfAccounts, setSelectedChartOfAccounts] = useState([])
+
+  // Все фильтры живут в состоянии страницы: они уходят в get_counterparty_by_id
+  const setFilter = (key) => (values) => setFilters((prev) => ({ ...prev, [key]: values }))
+
+  const activeCount =
+    (filters.legalEntities?.length ? 1 : 0) +
+    (filters.chartOfAccounts?.length ? 1 : 0) +
+    (filters.deals?.length ? 1 : 0) +
+    (filters.purchaseDeals?.length ? 1 : 0)
+
+  const clearFilters = () =>
+    setFilters((prev) => ({ ...prev, legalEntities: [], chartOfAccounts: [], deals: [], purchaseDeals: [] }))
 
   return (
     <div className="flex-1 bg-white">
@@ -25,21 +35,57 @@ const DetailOperationsSection = ({
             <button className="primary-btn" onClick={onCreateOperation}>{t('createOperation')}</button>
             <button className="secondary-btn flex items-center gap-2 text-primary!" onClick={() => setIsFiltersOpen(!isFiltersOpen)}>
               {t('filters')}
+              {activeCount > 0 && (
+                <span className='flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-white'>
+                  {activeCount}
+                </span>
+              )}
               <ChevronDown className='w-4 h-4' />
             </button>
           </div>
 
           {isFiltersOpen && (
-            <div className='flex items-center gap-3 mb-3 pb-2'>
+            <div className='flex flex-wrap items-center gap-3 mb-3 pb-2'>
               <div className="w-48">
-                <SelectMyAccounts value={selectedLegalEntities} onChange={setSelectedLegalEntities} placeholder={tc('placeholders.selectLegalEntity')} className={'bg-white'} dropdownClassName={'w-64'} />
+                <SelectLegelEntitties
+                  multi
+                  value={filters.legalEntities}
+                  onChange={setFilter('legalEntities')}
+                  placeholder={tc('placeholders.selectLegalEntity')}
+                  className={'bg-white'}
+                  dropdownClassName={'w-64'}
+                />
               </div>
               <div className="w-48 flex items-center">
-                <MultiSelectStatiya value={selectedChartOfAccounts} onChange={setSelectedChartOfAccounts} placeholder={tc('placeholders.selectStatii')} className={'bg-white'} dropdownClassName={'w-64'} />
+                <MultiSelectStatiya
+                  value={filters.chartOfAccounts}
+                  onChange={setFilter('chartOfAccounts')}
+                  placeholder={tc('placeholders.selectStatii')}
+                  className={'bg-white'}
+                  dropdownClassName={'w-64'}
+                />
               </div>
               <div className="w-48 flex items-center">
-                <MultiSelectZdelka value={filters.deals} onChange={(values) => setFilters(prev => ({ ...prev, deals: values }))} placeholder={tc('placeholders.selectDeals')} className={'bg-white'} />
+                <MultiSelectZdelka
+                  value={filters.deals}
+                  onChange={setFilter('deals')}
+                  placeholder={tc('placeholders.selectDeals')}
+                  className={'bg-white'}
+                />
               </div>
+              <div className="w-48 flex items-center">
+                <MultiSelectPurchaseZdelka
+                  value={filters.purchaseDeals}
+                  onChange={setFilter('purchaseDeals')}
+                  placeholder={tc('placeholders.selectPurchaseDeals')}
+                  className={'bg-white'}
+                />
+              </div>
+              {activeCount > 0 && (
+                <button className='text-sm text-primary hover:underline cursor-pointer' onClick={clearFilters}>
+                  {tc('clear')}
+                </button>
+              )}
             </div>
           )}
 
@@ -74,7 +120,6 @@ const DetailOperationsSection = ({
                       <OperationTableRow
                         key={op.guid}
                         op={op}
-                        selectedOperations={selectedOperations}
                         openOperationModal={onEditOperation}
                         counterpartyGuid={counterpartyInfo?.guid}
                         handleEditOperation={onEditOperation}

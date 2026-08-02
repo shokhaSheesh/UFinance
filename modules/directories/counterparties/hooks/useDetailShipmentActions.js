@@ -5,9 +5,12 @@ export function useDetailShipmentActions() {
   const [selectedShipment, setSelectedShipment] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isCopying, setIsCopying] = useState(false)
+  // Поставка (закупка) или Отгрузка (продажа) — от этого зависят методы модалки
+  const [isPurchase, setIsPurchase] = useState(false)
 
   const handleEdit = (shipment) => {
     setSelectedShipment(shipment)
+    setIsPurchase(shipment?.tip === 'Поставка')
     setIsEditing(true)
     setIsCopying(false)
     setShowShipmentModal(true)
@@ -15,6 +18,7 @@ export function useDetailShipmentActions() {
 
   const handleCopy = (shipment) => {
     setSelectedShipment(shipment)
+    setIsPurchase(shipment?.tip === 'Поставка')
     setIsEditing(false)
     setIsCopying(true)
     setShowShipmentModal(true)
@@ -29,6 +33,7 @@ export function useDetailShipmentActions() {
     selectedShipment,
     isEditing,
     isCopying,
+    isPurchase,
     handleEdit,
     handleCopy,
     closeModal,

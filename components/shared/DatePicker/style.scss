@@ -56,137 +56,139 @@
 			background-color: transparent !important;
 			box-shadow: none !important;
 		}
+	}
+}
 
-		.rmdp-wrapper {
-			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
-			border: 1px solid $gray-200 !important;
-			border-radius: 12px !important;
-			overflow: hidden;
+// Календарь открывается через portal в <body>, поэтому его стили вынесены
+// из .date_picker_wrapper и привязаны к классу на самом .rmdp-wrapper.
+.rmdp-wrapper.ufinance_datepicker {
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+	border: 1px solid $gray-200 !important;
+	border-radius: 12px !important;
+	overflow: hidden;
 
-			.rmdp-selected {
-				background-color: $primary !important;
-				box-shadow: none !important;
-				border-radius: 8px !important;
-				color: white !important;
-			}
+	.rmdp-selected {
+		background-color: $primary !important;
+		box-shadow: none !important;
+		border-radius: 8px !important;
+		color: white !important;
+	}
 
-			.rmdp-range {
+	.rmdp-range {
+		background-color: $primary-light !important;
+		box-shadow: none !important;
+		border-radius: 0px;
+		color: $primary !important;
+	}
+
+	.rmdp-week {
+		gap: 2px;
+	}
+
+	.rmdp-today {
+		background-color: $primary-light !important;
+		box-shadow: none !important;
+		border-radius: 8px !important;
+		color: $primary !important;
+		font-weight: 600 !important;
+	}
+
+	.rmdp-ym {
+		span {
+			background-color: transparent !important;
+			box-shadow: none !important;
+			border-radius: 6px;
+
+			&:hover {
 				background-color: $primary-light !important;
-				box-shadow: none !important;
-				border-radius: 0px;
 				color: $primary !important;
-			}
-
-			.rmdp-week {
-				gap: 2px;
-			}
-
-			.rmdp-today {
-				background-color: $primary-light !important;
-				box-shadow: none !important;
-				border-radius: 8px !important;
-				color: $primary !important;
-				font-weight: 600 !important;
-			}
-
-			.rmdp-ym {
-				span {
-					background-color: transparent !important;
-					box-shadow: none !important;
-					border-radius: 6px;
-
-					&:hover {
-						background-color: $primary-light !important;
-						color: $primary !important;
-					}
-				}
-			}
-
-			.rmdp-day {
-				margin: 2px 0px !important;
-				border-radius: 8px !important;
-				transition: background-color 0.15s, color 0.15s;
-			}
-
-			.rmdp-day:hover {
-				background-color: $primary-light !important;
-				box-shadow: none !important;
-				border-radius: 8px !important;
-				color: $primary !important;
-			}
-
-			.rmdp-arrow {
-				display: none;
-			}
-
-			.rmdp-left {
-				&::before {
-					content: '«';
-					font-size: 18px;
-					position: absolute;
-					z-index: 100;
-					color: $gray-500 !important;
-				}
-			}
-
-			.rmdp-right {
-				&::before {
-					content: '»';
-					font-size: 18px;
-					position: absolute;
-					z-index: 100;
-					color: $gray-500 !important;
-				}
-			}
-
-			.rmdp-header-values {
-				span {
-					padding: 4px 8px;
-					border-radius: 6px;
-					font-weight: 600;
-					color: $text-dark;
-					transition: background-color 0.15s, color 0.15s;
-
-					&:hover {
-						background-color: $primary-light !important;
-						box-shadow: none !important;
-						border-radius: 6px;
-						color: $primary !important;
-					}
-				}
-			}
-
-			.rmdp-week {
-				.rmdp-day {
-
-					&:first-child,
-					&:last-child {
-						background-color: transparent !important;
-					}
-				}
 			}
 		}
+	}
 
-		.rmdp-header {
-			padding: 4px 0px;
+	.rmdp-day {
+		margin: 2px 0px !important;
+		border-radius: 8px !important;
+		transition: background-color 0.15s, color 0.15s;
+	}
 
-			.rmdp-arrow-container {
-				border: 1px solid $gray-200 !important;
+	.rmdp-day:hover {
+		background-color: $primary-light !important;
+		box-shadow: none !important;
+		border-radius: 8px !important;
+		color: $primary !important;
+	}
+
+	.rmdp-arrow {
+		display: none;
+	}
+
+	.rmdp-left {
+		&::before {
+			content: '«';
+			font-size: 18px;
+			position: absolute;
+			z-index: 100;
+			color: $gray-500 !important;
+		}
+	}
+
+	.rmdp-right {
+		&::before {
+			content: '»';
+			font-size: 18px;
+			position: absolute;
+			z-index: 100;
+			color: $gray-500 !important;
+		}
+	}
+
+	.rmdp-header-values {
+		span {
+			padding: 4px 8px;
+			border-radius: 6px;
+			font-weight: 600;
+			color: $text-dark;
+			transition: background-color 0.15s, color 0.15s;
+
+			&:hover {
+				background-color: $primary-light !important;
+				box-shadow: none !important;
+				border-radius: 6px;
+				color: $primary !important;
+			}
+		}
+	}
+
+	.rmdp-week {
+		.rmdp-day {
+
+			&:first-child,
+			&:last-child {
+				background-color: transparent !important;
+			}
+		}
+	}
+
+	.rmdp-header {
+		padding: 4px 0px;
+
+		.rmdp-arrow-container {
+			border: 1px solid $gray-200 !important;
+			border-radius: 8px;
+			display: flex;
+			width: 28px;
+			height: 28px;
+			align-items: center;
+			justify-content: center;
+			transition: background-color 0.15s, border-color 0.15s;
+
+			&:hover {
+				background-color: $primary-light !important;
+				box-shadow: none !important;
 				border-radius: 8px;
-				display: flex;
-				width: 28px;
-				height: 28px;
-				align-items: center;
-				justify-content: center;
-				transition: background-color 0.15s, border-color 0.15s;
-
-				&:hover {
-					background-color: $primary-light !important;
-					box-shadow: none !important;
-					border-radius: 8px;
-					overflow: hidden;
-					border-color: $primary !important;
-				}
+				overflow: hidden;
+				border-color: $primary !important;
 			}
 		}
 	}

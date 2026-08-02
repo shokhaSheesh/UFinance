@@ -7,6 +7,11 @@ import useMounted from '../../../hooks/useMounted'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import styles from './OperationsFooter.module.scss'
 
+// formatTotalSumma отдаёт пустую строку при нуле и отсутствии значения —
+// в футере вместо пустого места должен стоять 0
+const sum = value => formatNumber(formatTotalSumma(value)) || '0'
+const count = value => value ?? 0
+
 export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }) => {
 
 
@@ -22,7 +27,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
           <div className='flex flex-col border-r border-neutral-400 px-4'>
             <p className=' capitalize'>{t('footer.operations')}</p>
             <strong className={styles.footerText}>
-              {totalSummary?.count}
+              {count(totalSummary?.count)}
             </strong>
           </div>
 
@@ -30,12 +35,12 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
             <div className="flex gap-2">
               <p className=' capitalize'>{t('footer.receipts')}</p>
               <strong className={styles.footerText}>
-                {totalSummary?.by_type?.receipt?.count}
+                {count(totalSummary?.by_type?.receipt?.count)}
               </strong>
             </div>
             <div className="flex items-center gap-2">
               <strong className={styles.footerText}>
-                {formatNumber(formatTotalSumma(totalSummary?.by_type?.receipt?.total_summa))}
+                {sum(totalSummary?.by_type?.receipt?.total_summa)}
               </strong>
               <span>{GlobalCurrency?.name}</span>
             </div>
@@ -45,12 +50,12 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
             <div className="flex gap-2">
               <p className=' capitalize'>{t('footer.payments')}</p>
               <strong className={styles.footerText}>
-                {totalSummary?.by_type?.payment?.count}
+                {count(totalSummary?.by_type?.payment?.count)}
               </strong>
             </div>
             <div className="flex items-center gap-2">
               <strong className={styles.footerText}>
-                {formatNumber(formatTotalSumma(totalSummary?.by_type?.payment?.total_summa))}
+                {sum(totalSummary?.by_type?.payment?.total_summa)}
               </strong>
               <span>{GlobalCurrency?.name}</span>
             </div>
@@ -60,12 +65,12 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
             <div className="flex gap-2">
               <p className=' capitalize'>{t('footer.transfers')}</p>
               <strong className={styles.footerText}>
-                {totalSummary?.by_type?.transfer?.count}
+                {count(totalSummary?.by_type?.transfer?.count)}
               </strong>
             </div>
             <div className="flex items-center gap-2">
               <strong className={styles.footerText}>
-                {formatNumber(formatTotalSumma(totalSummary?.by_type?.transfer?.total_summa))}
+                {sum(totalSummary?.by_type?.transfer?.total_summa)}
               </strong>
               <span>{GlobalCurrency?.name}</span>
             </div>
@@ -77,7 +82,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
           </div>
           <div className={cn("flex items-center gap-2", totalSummary?.net_cash_flow >= 0 ? "text-green-600" : "text-red-600")}>
             <strong>
-              {formatNumber(formatTotalSumma(totalSummary?.net_cash_flow))}
+              {sum(totalSummary?.net_cash_flow)}
             </strong>
             <span>{GlobalCurrency?.name}</span>
           </div>

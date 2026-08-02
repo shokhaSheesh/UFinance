@@ -3,6 +3,33 @@
     "pageTitle": "My warehouse",
     "searchPlaceholder": "Search by name",
     "empty": "Warehouse is empty",
+    "createButton": "Add warehouse",
+    "searchWarehousesPlaceholder": "Search by name or address",
+    "emptyWarehouses": "No warehouses found",
+    "defaultBadge": "Default",
+    "table": {
+      "name": "Name",
+      "address": "Address",
+      "comment": "Comment",
+      "default": "Default"
+    },
+    "createModal": {
+      "titleNew": "New warehouse",
+      "titleEdit": "Edit warehouse",
+      "name": "Name",
+      "namePlaceholder": "E.g. Main warehouse",
+      "nameRequired": "Enter a warehouse name",
+      "address": "Address",
+      "addressPlaceholder": "Enter the warehouse address",
+      "comment": "Comment",
+      "commentPlaceholder": "Comment about this warehouse",
+      "isDefault": "Set as default warehouse"
+    },
+    "deleteModal": {
+      "title": "Delete warehouse?",
+      "message": "Are you sure you want to delete the warehouse \"{name}\"? This cannot be undone.",
+      "deleting": "Deleting..."
+    },
     "columns": {
       "name": "Name",
       "artikul": "SKU",
@@ -797,6 +824,7 @@
       },
       "searchPlaceholder": "Search",
       "addButton": "Add",
+      "newReturnButton": "New return",
       "payment": {
         "createPayment": "Create payment",
         "paymentAmount": "Payment amount",
@@ -1008,6 +1036,8 @@
     "createShipment": {
       "titleNew": "New shipment",
       "titleEdit": "Edit shipment",
+      "titleNewReturn": "New return",
+      "titleEditReturn": "Edit return",
       "shipmentDate": "Shipment date",
       "shipmentDateRequired": "Select date",
       "dealDatePlaceholder": "Select date",
@@ -1030,6 +1060,13 @@
       "shipmentSum": "Shipment total",
       "incomeArticle": "Revenue category",
       "undistributedIncome": "Unallocated revenue",
+      "warehouse": "Warehouse",
+      "warehousePlaceholder": "Select warehouse",
+      "warehouseRequired": "Select warehouse",
+      "saveBlockedClosedWarehouse": "Saving unavailable: the \"Planned\" flag doesn't match the current warehouse module setting",
+      "stockExceeded": "\"{name}\": available {available}, requested {requested}",
+      "stockError": "Not enough stock in the warehouse",
+      "stockCheckFailed": "Could not verify warehouse stock",
       "requiredFields": "Required fields",
       "cancel": "Cancel",
       "create": "Create",
@@ -1060,6 +1097,11 @@
         "wlcm_title": "Create a personal account on WLCM.",
         "wlcm": "Enter your WLCM.uz token",
         "accrualDate": "Enable << Accrual date >> field when selecting a Deal"
+      },
+      "modules": {
+        "title": "Modules",
+        "warehouse": "My warehouse",
+        "returns": "Returns"
       },
       "save": "Save",
       "saving": "Saving...",
@@ -2031,7 +2073,9 @@
       }
     },
     "IncomeExpenseBudgetSingle": {
-      "breadcrumb": { "list": "Budget list" },
+      "breadcrumb": {
+        "list": "Budget list"
+      },
       "title": "Kuibysheva, 45",
       "type": "I&E Budget",
       "period": "Nov '25 — Sep '26",
@@ -2088,7 +2132,10 @@
         "profitability": "Profitability, %"
       },
       "na": "N/A",
-      "actions": { "expand": "Expand", "collapse": "Collapse" }
+      "actions": {
+        "expand": "Expand",
+        "collapse": "Collapse"
+      }
     }
   },
   "Indicators": {
@@ -2222,6 +2269,15 @@
       "description": "Enter the 6-digit code sent to your phone number",
       "confirm": "Confirm",
       "cancel": "Cancel"
+    }
+  },
+  "Errors": {
+    "cannotDelete": {
+      "counterparty": "Cannot delete this counterparty as it is used in transactions. Please delete or reassign the associated transactions first.",
+      "deal": "Cannot delete this deal because it contains transactions. Please delete all transactions inside the deal first.",
+      "account": "Cannot delete this account as it has associated transactions. Please delete the transactions related to this account or archive it.",
+      "legalEntity": "Cannot delete this legal entity because it is tied to transactions. Please delete the related transactions first.",
+      "productService": "Cannot delete this item as it is used in Sales or Purchases. Please remove it from the corresponding documents first."
     }
   }
 }

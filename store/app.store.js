@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
+import { authStore } from "./auth.store";
 
 class AppStore {
   isPayment = false;
@@ -13,6 +14,7 @@ class AppStore {
   isWLCMPayment = false;
   warehouseActive = false;
   returnActive = false;
+  projectActive = false;
   isAiActive = false;
   currencies = [];
   myCurrencies = [];
@@ -29,7 +31,24 @@ class AppStore {
       shipment: { read: true, add: false, edit: false, delete: false },
       supply: { read: true, add: false, edit: false, delete: false },
     },
-    deals: { read: true, add: false, edit: false, delete: false },
+    deals: {
+      read: true,
+      add: false,
+      edit: false,
+      delete: false,
+      sales: { read: true, add: false, edit: false, delete: false },
+      purchases: { read: true, add: false, edit: false, delete: false },
+    },
+    warehouse: { read: true, add: false, edit: false, delete: false },
+    projects: { read: true, add: false, edit: false, delete: false },
+    plans: {
+      read: true,
+      add: false,
+      edit: false,
+      delete: false,
+      cashflow: { read: true, add: false, edit: false, delete: false },
+      pnl: { read: true, add: false, edit: false, delete: false },
+    },
     reports: {
       cashflow: { read: true },
       pnl: { read: true },
@@ -58,6 +77,9 @@ class AppStore {
 
   constructor() {
     makeAutoObservable(this);
+    // Capture the default permission tree before persistence hydration replaces it,
+    // so permission fields added after a user's last login can be merged in.
+    const defaultPermission = this.permission;
     if (typeof window !== "undefined") {
       makePersistable(this, {
         name: "plan_fact_app",
@@ -67,28 +89,28 @@ class AppStore {
           "isAccrualDate",
           "warehouseActive",
           "returnActive",
+          "projectActive",
           "isAiActive",
           "currencies",
           "isDonoSchool",
           "myCurrencies",
           "companyCurrencies",
           "localApiUrl",
-          "permission",
+          {
+            // makePersistable has no top-level deserialize hook (it is ignored), so the
+            // merge must live on the property itself. Without this, permissions added
+            // after a user's last login (e.g. `warehouse`, `deals.sales/purchases`)
+            // stay missing from the persisted tree until they log in again.
+            key: "permission",
+            serialize: (value) => value,
+            deserialize: (value) =>
+              this.mergePermissions(defaultPermission, value || {}),
+          },
           "accuralDateBranch",
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
         version: 1,
-        deserialize: (storedValue, defaultValue) => {
-          // Merge persisted permission with defaults to handle new fields
-          if (storedValue?.permission && defaultValue?.permission) {
-            storedValue.permission = this.mergePermissions(
-              defaultValue.permission,
-              storedValue.permission
-            );
-          }
-          return { ...defaultValue, ...storedValue };
-        },
       });
     }
   }
@@ -105,6 +127,24 @@ class AppStore {
     return result;
   }
 
+  // Recursively force every add/edit/delete flag to false, preserving `read`.
+  // Used to make a branch view-only when its `is_employee` flag is not true.
+  stripWriteAccess(node) {
+    if (!node || typeof node !== "object") return;
+    for (const key in node) {
+      if (key === "add" || key === "edit" || key === "delete") {
+        node[key] = false;
+      } else if (node[key] && typeof node[key] === "object") {
+        this.stripWriteAccess(node[key]);
+      }
+    }
+  }
+
+  // View-only unless the active branch marks the user as an employee there.
+  isViewOnlyBranch() {
+    return !authStore.selectBranch?.is_employee;
+  }
+
   setWLCMPayment(value) {
     this.isWLCMPayment = value;
   }
@@ -115,6 +155,10 @@ class AppStore {
 
   setReturnActive(value) {
     this.returnActive = value;
+  }
+
+  setProjectActive(value) {
+    this.projectActive = value;
   }
 
   setAiActive(value) {
@@ -191,7 +235,24 @@ class AppStore {
         shipment: { read: true, add: false, edit: false, delete: false },
         supply: { read: true, add: false, edit: false, delete: false },
       },
-      deals: { read: true, add: false, edit: false, delete: false },
+      deals: {
+        read: true,
+        add: false,
+        edit: false,
+        delete: false,
+        sales: { read: true, add: false, edit: false, delete: false },
+        purchases: { read: true, add: false, edit: false, delete: false },
+      },
+      warehouse: { read: true, add: false, edit: false, delete: false },
+      projects: { read: true, add: false, edit: false, delete: false },
+      plans: {
+        read: true,
+        add: false,
+        edit: false,
+        delete: false,
+        cashflow: { read: true, add: false, edit: false, delete: false },
+        pnl: { read: true, add: false, edit: false, delete: false },
+      },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -235,7 +296,24 @@ class AppStore {
         shipment: { read: true, add: true, edit: true, delete: true },
         supply: { read: true, add: true, edit: true, delete: true },
       },
-      deals: { read: true, add: true, edit: true, delete: true },
+      deals: {
+        read: true,
+        add: true,
+        edit: true,
+        delete: true,
+        sales: { read: true, add: true, edit: true, delete: true },
+        purchases: { read: true, add: true, edit: true, delete: true },
+      },
+      warehouse: { read: true, add: true, edit: true, delete: true },
+      projects: { read: true, add: true, edit: true, delete: true },
+      plans: {
+        read: true,
+        add: true,
+        edit: true,
+        delete: true,
+        cashflow: { read: true, add: true, edit: true, delete: true },
+        pnl: { read: true, add: true, edit: true, delete: true },
+      },
       reports: {
         cashflow: { read: true },
         pnl: { read: true },
@@ -261,6 +339,10 @@ class AppStore {
         exchangerates: { read: true, add: true, edit: true, delete: true },
       },
     };
+    // A non-employee branch is view-only everywhere — no create/edit/delete.
+    if (this.isViewOnlyBranch()) {
+      this.stripWriteAccess(this.permission);
+    }
   }
 
   setNewPermission(permission) {
@@ -290,7 +372,24 @@ class AppStore {
         shipment: { read: false, add: false, edit: false, delete: false },
         supply: { read: true, add: false, edit: false, delete: false },
       },
-      deals: { read: false, add: false, edit: false, delete: false },
+      deals: {
+        read: false,
+        add: false,
+        edit: false,
+        delete: false,
+        sales: { read: false, add: false, edit: false, delete: false },
+        purchases: { read: false, add: false, edit: false, delete: false },
+      },
+      warehouse: { read: false, add: false, edit: false, delete: false },
+      projects: { read: false, add: false, edit: false, delete: false },
+      plans: {
+        read: false,
+        add: false,
+        edit: false,
+        delete: false,
+        cashflow: { read: false, add: false, edit: false, delete: false },
+        pnl: { read: false, add: false, edit: false, delete: false },
+      },
       reports: {
         cashflow: { read: false },
         pnl: { read: false },
@@ -322,8 +421,35 @@ class AppStore {
       },
     };
 
+    // «Планы» (бюджеты) бэкенд добавил позже статического конфига ролей и слаг
+    // может отличаться (plans / plan / budgets), а дочерние пункты приходят
+    // только с бэка. Поэтому раздел ищем по началу слага, а бюджеты внутри —
+    // по слагу и названию. Не распознанный дочерний пункт наследует права
+    // самого раздела, чтобы страница не осталась без прав вовсе.
+    const isPlansMenu = (slug) => /^(plans?|budgets?)$/i.test(String(slug || ""));
+    const matchBudget = (child) => {
+      const text = `${child?.menu_slug || ""} ${child?.menu_name || ""}`.toLowerCase();
+      if (/cash|денеж|поток|бддс|dds/.test(text)) return "cashflow";
+      if (/income|expense|profit|pnl|доход|расход|бдр/.test(text)) return "pnl";
+      return null;
+    };
+
     // Process each top-level menu item
     permission.forEach((item) => {
+      if (isPlansMenu(item.menu_slug)) {
+        const parent = convertPermissions(item);
+        newPermission.plans = {
+          ...parent,
+          cashflow: { ...parent },
+          pnl: { ...parent },
+        };
+        item.children?.forEach((child) => {
+          const key = matchBudget(child);
+          if (key) newPermission.plans[key] = convertPermissions(child);
+        });
+        return;
+      }
+
       switch (item.menu_slug) {
         case "indicators":
           newPermission.indicators.read = item.read || false;
@@ -355,7 +481,29 @@ class AppStore {
           break;
 
         case "deals":
-          newPermission.deals = convertPermissions(item);
+          newPermission.deals.read = item.read || false;
+          newPermission.deals.add = item.write || false;
+          newPermission.deals.edit = item.update || false;
+          newPermission.deals.delete = item.delete || false;
+          item.children?.forEach((child) => {
+            switch (child.menu_slug) {
+              case "shipment":
+                newPermission.deals.sales = convertPermissions(child);
+                break;
+              case "supply":
+                newPermission.deals.purchases = convertPermissions(child);
+                break;
+            }
+          });
+          break;
+
+        case "warehouse":
+          newPermission.warehouse = convertPermissions(item);
+          break;
+
+        case "project":
+        case "projects":
+          newPermission.projects = convertPermissions(item);
           break;
 
         case "reports":
@@ -424,6 +572,12 @@ class AppStore {
           break;
       }
     });
+
+    // A non-employee branch is view-only everywhere — no create/edit/delete,
+    // regardless of what the role grants.
+    if (this.isViewOnlyBranch()) {
+      this.stripWriteAccess(newPermission);
+    }
 
     this.permission = newPermission;
   }

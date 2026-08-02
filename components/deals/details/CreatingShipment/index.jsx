@@ -5,13 +5,15 @@ import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalCurrency } from "../../../../constants/globalCurrency";
 import {
   useUcodeRequestMutation,
   useUcodeRequestQuery,
+  useWarehousesList,
 } from "../../../../hooks/useDashboard";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
+import { apiClient } from "../../../../lib/api/ucode/base";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
@@ -20,16 +22,39 @@ import {
   formatDecimal,
   StringtoNumber,
 } from "../../../../utils/helpers";
+import { showErrorNotification } from "../../../../utils/notifications";
 import SentMessages from "../../../operations/OperationModal/SentMessages";
 import MyAccountCurrensies from "../../../ReadyComponents/MyAccountCurrensies";
 import SelectLegelEntitties from "../../../ReadyComponents/SelectLegelEntitties";
 import SelectProductService from "../../../ReadyComponents/SelectProductService";
+import SelectProjects from "../../../ReadyComponents/SelectProjects";
 import SingleCounterParty from "../../../ReadyComponents/SingleCounterParty";
 import SinglSelectStatiya from "../../../ReadyComponents/SingleSelectStatiya";
 import OperationCheckbox from "../../../shared/Checkbox/operationCheckbox";
 import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
 import Loader from "../../../shared/Loader";
+import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
+
+// get_stock_count → доступный остаток. Значение лежит в data.data.quantity,
+// но уровней вложенности `data` в конверте может быть разное число, поэтому
+// ищем поле `quantity` защитно на любой глубине ответа.
+const readStockCount = (res) => {
+  const seen = new Set();
+  const find = (obj) => {
+    if (!obj || typeof obj !== "object" || seen.has(obj)) return undefined;
+    seen.add(obj);
+    if (obj.quantity != null && !Number.isNaN(Number(obj.quantity))) {
+      return Number(obj.quantity);
+    }
+    for (const key of Object.keys(obj)) {
+      const found = find(obj[key]);
+      if (found != null) return found;
+    }
+    return undefined;
+  };
+  return find(res) ?? 0;
+};
 
 const CreateShipment = observer(
   ({
@@ -54,12 +79,13 @@ const CreateShipment = observer(
     ],
     allowedTypes,
     isPurchase = false,
+    isReturn = false,
   }) => {
     const t = useTranslations("Deals.createShipment");
     const tp = useTranslations("Purchases.createSupply");
     // Same modal is reused for a sale's "Отгрузка" and a purchase's "Поставка" —
     // only these labels diverge between the two contexts.
-    const L = isPurchase
+    const baseL = isPurchase
       ? {
           titleNew: tp("titleNew"),
           titleEdit: tp("titleEdit"),
@@ -86,6 +112,21 @@ const CreateShipment = observer(
           shipmentSum: t("shipmentSum"),
           products: t("products"),
         };
+    // A return reuses the same form/methods as a normal shipment or supply —
+    // only the header title changes to make the negative-amount mode obvious.
+    const L = isReturn
+      ? {
+          ...baseL,
+          titleNew: t("titleNewReturn"),
+          titleEdit: t("titleEditReturn"),
+        }
+      : baseL;
+    // Returns force every price/sum entry negative so the transaction reads
+    // as money/stock flowing back out; the user is never allowed to flip it positive.
+    const signPrice = (value) => {
+      const num = Number(value) || 0;
+      return isReturn ? -Math.abs(num) : num;
+    };
     const today = useMemo(() => new Date(), []);
 
     const [shipmentDate, setShipmentDate] = useState(
@@ -93,13 +134,50 @@ const CreateShipment = observer(
     );
     const isFutureDate =
       new Date(shipmentDate).setHours(0, 0, 0, 0) > today.setHours(0, 0, 0, 0);
+    // Остаток считается на дату отгрузки/поставки — её и передаём в get_stock_count
+    const stockDate = moment.parseZone(shipmentDate).format("YYYY-MM-DD");
 
     const [isPlanned, setIsPlanned] = useState(true);
     const [legalEntity, setLegalEntity] = useState("");
     const [client, setClient] = useState(kontragentId || "");
+    const [project, setProject] = useState("");
     const [chartOfAccounts, setChartOfAccounts] = useState([]);
     const [currency, setCurrency] = useState("");
     const [showChartOfAccounts, setShowChartOfAccounts] = useState(true);
+    const [warehouse, setWarehouse] = useState("");
+    // A Поставка posts either against a warehouse (goods, Tip=product) or directly
+    // against an expense article (services, Tip=service). Picking one drives the other.
+    const [isServiceSupply, setIsServiceSupply] = useState(false);
+    const isWarehouseModuleOn = appStore.warehouseActive;
+    // The "planned" flag toggles stock commitment, so only a user with warehouse
+    // read access may change it; without access the checkbox stays locked.
+    const hasWarehouseAccess = Boolean(appStore.permission.warehouse?.read);
+    const isPlannedLocked = isFutureDate || !hasWarehouseAccess;
+    // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
+    // so their quantities are validated against available stock.
+    const isOutflow = (isPurchase && isReturn) || (!isPurchase && !isReturn);
+    const effectivePlanned = isFutureDate ? true : isPlanned;
+    const { data: warehousesData } = useWarehousesList();
+    const warehouseOptions = useMemo(
+      () =>
+        (warehousesData || []).map((w) => ({ value: w.guid, label: w.name })),
+      [warehousesData]
+    );
+    // Product picker filter: a warehouse supply lists goods (Tip=product), a
+    // service supply lists services. Only the purchase form with the warehouse
+    // module on makes this split; otherwise both are shown.
+    const productType =
+      isPurchase && isWarehouseModuleOn
+        ? isServiceSupply
+          ? "service"
+          : "product"
+        : undefined;
+    // Поставка на склад: товар приходуется складом, проект к ней не относится —
+    // поле «Проект» скрываем и не отправляем. В сервисной поставке (без склада)
+    // проект остаётся.
+    const isWarehouseSupply =
+      isPurchase && isWarehouseModuleOn && !isServiceSupply && !!warehouse;
+    const showProjectField = appStore.projectActive && !isWarehouseSupply;
     const [rows, setRows] = useState([
       {
         id: 1,
@@ -142,7 +220,15 @@ const CreateShipment = observer(
         );
         setLegalEntity(SingleShipment.legal_entity_id || "");
         setClient(SingleShipment.partners_id || kontragentId || "");
+        setProject(SingleShipment.projects_id || "");
         setChartOfAccounts(SingleShipment.chart_of_accounts_id || "");
+        setWarehouse(SingleShipment.warehouse_id || "");
+        // Restore the supply mode: a saved article with no warehouse = service supply.
+        setIsServiceSupply(
+          isPurchase &&
+            !!SingleShipment.chart_of_accounts_id &&
+            !SingleShipment.warehouse_id
+        );
         setCurrency(
           SingleShipment.currencies_id ||
             SingleShipment.currencyId ||
@@ -161,6 +247,7 @@ const CreateShipment = observer(
               id: idx + 1,
               row_guid: row.guid,
               name: row.product_and_service_id || "",
+              productServiceId: row.product_and_service_id || "",
               naimenovanie: row.Naimenovanie || "",
               artikul: row.Artikul || "",
               quantity: row.Kol_vo ?? 0,
@@ -173,10 +260,15 @@ const CreateShipment = observer(
         }
       } else if (open && !initialData?.guid) {
         setShipmentDate(today.toISOString().split("T")[0]);
-        setIsPlanned(true);
+        // Default the "planned" flag to on only when the user can toggle it
+        // (has warehouse access); without access it defaults to off.
+        setIsPlanned(hasWarehouseAccess);
         setLegalEntity("");
         setClient(kontragentId || "");
+        setProject("");
         setChartOfAccounts([]);
+        setWarehouse("");
+        setIsServiceSupply(false);
         setCurrency("");
         setCode("");
         setRows([
@@ -193,27 +285,222 @@ const CreateShipment = observer(
         setSelectedProducts(new Set());
         setErrors({});
       }
-    }, [open, SingleShipment, kontragentId, today, initialData?.guid || null]);
+    }, [
+      open,
+      SingleShipment,
+      kontragentId,
+      today,
+      initialData?.guid || null,
+      hasWarehouseAccess,
+    ]);
+
+    // Default to the first warehouse on create (sale/Отгрузка only) — the list may
+    // still be loading when the modal opens, so this re-fires once it arrives.
+    // A Поставка requires the warehouse to be picked manually, so it is NOT
+    // auto-selected there (also avoids re-selecting it right after the user clears it).
+    useEffect(() => {
+      if (
+        isWarehouseModuleOn &&
+        !isPurchase &&
+        open &&
+        !initialData?.guid &&
+        !warehouse &&
+        !isServiceSupply &&
+        warehouseOptions.length > 0
+      ) {
+        setWarehouse(warehouseOptions[0].value);
+      }
+    }, [
+      isWarehouseModuleOn,
+      isPurchase,
+      open,
+      initialData?.guid,
+      warehouseOptions,
+      warehouse,
+      isServiceSupply,
+    ]);
+
+    // Поставка: in warehouse mode the article follows the selected warehouse
+    // (autofilled) and clears when the warehouse is cleared; service mode keeps
+    // the user-picked article. Runs on every warehouse / warehouse-list change so
+    // the article is filled even for the default warehouse picked above.
+    useEffect(() => {
+      if (!isPurchase || isServiceSupply) return;
+      const wh = warehouse
+        ? (warehousesData || []).find((w) => w.guid === warehouse)
+        : null;
+      setChartOfAccounts(wh?.chart_of_accounts_id || "");
+    }, [isPurchase, isServiceSupply, warehouse, warehousesData]);
 
     const [selectedProducts, setSelectedProducts] = useState(new Set());
 
     const [errors, setErrors] = useState({});
+    const [isCheckingStock, setIsCheckingStock] = useState(false);
+    // product_and_service_id → available quantity in the selected warehouse,
+    // fetched via get_stock_count the moment a product is picked (real-time).
+    const [stockByProduct, setStockByProduct] = useState({});
 
     // Fetch legal entities data
 
     const { mutateAsync: createShipment, isPending: isCreating } =
       useUcodeRequestMutation();
 
+    // Faqat shu сделкага tegishli товарларни оламиз (акс ҳолда барча товарлар келади)
     const { data: productServices } = useUcodeRequestQuery({
       method: "list_products_and_services",
+      data: {
+        [isPurchase ? "purchase_transactions_id" : "sales_transactions_id"]: dealGuid,
+        page: 1,
+        limit: 1000,
+      },
+      skip: !dealGuid,
       querySetting: {
         select: (data) => data?.data?.data,
+        // Товар могли добавить в сделку только что — глобальный staleTime в
+        // 5 минут отдал бы старый список без него
+        staleTime: 0,
+        refetchOnMount: "always",
       },
     });
 
     const productServicesList = useMemo(() => {
       return productServiceDto(productServices);
     }, [productServices]);
+
+    // Проект сделки — для автозаполнения поля «Проект» при создании отгрузки/поставки
+    const { data: shipmentDealData } = useUcodeRequestQuery({
+      queryKey: "shipment_deal_project",
+      method: isPurchase
+        ? "get_purchase_transaction_by_guid"
+        : "get_sales_transaction_by_guid",
+      data: { guid: dealGuid },
+      skip: !dealGuid || !appStore.projectActive || isEditing,
+      querySetting: { select: (d) => d?.data?.data },
+    });
+
+    useEffect(() => {
+      // у складской поставки поле скрыто — автозаполнять нечего
+      if (isWarehouseSupply) return;
+      if (open && !initialData?.guid && shipmentDealData?.projects_id) {
+        setProject(shipmentDealData.projects_id);
+      }
+    }, [open, initialData?.guid, shipmentDealData?.projects_id, isWarehouseSupply]);
+
+    // Значение пикера — guid связки «сделка-товар», но при редактировании и
+    // копировании в строку кладётся product_and_service_id. Ищем по обоим
+    // ключам, иначе товар из скопированной отгрузки считается неизвестным.
+    const findProduct = (rowName) =>
+      productServicesList.find(
+        (p) => p.guid === rowName || p.product_and_service_id === rowName
+      );
+
+    /**
+     * Товары строк, по которым нужно проверять остаток:
+     *   ключ строки (row.name) → реальный product_and_service_id.
+     * Услуги пропускаем. Товар, которого нет в списке сделки (так бывает у
+     * скопированной отгрузки, пока список не подгрузился, и у позиций,
+     * заведённых вне сделки), считаем складским — лучше проверить остаток,
+     * чем молча пропустить проверку.
+     */
+    const stockTargets = useMemo(() => {
+      const map = new Map();
+      rows.forEach((row) => {
+        if (!row.name) return;
+        const product = productServicesList.find(
+          (p) => p.guid === row.name || p.product_and_service_id === row.name
+        );
+        if (product?.tip && product.tip !== "product") return;
+        map.set(
+          row.name,
+          row.productServiceId || product?.product_and_service_id || row.name
+        );
+      });
+      return map;
+    }, [rows, productServicesList]);
+
+    // Остаток считается на конкретный склад и дату: при их смене прошлые
+    // значения больше не годятся. Сбрасываем во время рендера, а не в эффекте,
+    // чтобы не гонять лишний цикл и не подсовывать устаревшие цифры.
+    const stockScope = `${warehouse}|${stockDate}`;
+    const [prevStockScope, setPrevStockScope] = useState(stockScope);
+    if (prevStockScope !== stockScope) {
+      setPrevStockScope(stockScope);
+      setStockByProduct({});
+    }
+
+    // Догружаем остатки для всех выбранных товаров — в том числе для строк,
+    // которые пришли из копируемой/редактируемой отгрузки уже заполненными.
+    // Без этого предупреждение о нехватке появлялось только после того, как
+    // пользователь заново выбирал товар в списке.
+    const stockInFlight = useRef(new Set());
+    useEffect(() => {
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse) return;
+      stockTargets.forEach((productId, rowKey) => {
+        if (stockByProduct[rowKey] != null) return;
+        const key = `${stockScope}|${rowKey}`;
+        if (stockInFlight.current.has(key)) return;
+        stockInFlight.current.add(key);
+        apiClient
+          .invokeFunction({
+            method: "get_stock_count",
+            data: {
+              product_and_service_id: productId,
+              warehouse_id: warehouse,
+              date: stockDate,
+            },
+          })
+          .then((res) =>
+            setStockByProduct((prev) => ({
+              ...prev,
+              [rowKey]: readStockCount(res),
+            }))
+          )
+          .catch((e) => console.error("get_stock_count failed", e))
+          .finally(() => stockInFlight.current.delete(key));
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [warehouse, stockDate, stockTargets, stockByProduct]);
+
+    // Real-time shortages: which products have total requested qty > available.
+    // Only meaningful once "planned" is off (goods actually move) for an outflow.
+    const stockShortages = useMemo(() => {
+      if (!isWarehouseModuleOn || !isOutflow || !warehouse || effectivePlanned)
+        return [];
+      const requested = new Map();
+      rows.forEach((r) => {
+        if (!r.name || !stockTargets.has(r.name)) return;
+        const q = formatDecimal(StringtoNumber(r.quantity)) || 0;
+        requested.set(r.name, (requested.get(r.name) || 0) + q);
+      });
+      const out = [];
+      requested.forEach((req, pid) => {
+        const avail = stockByProduct[pid];
+        if (avail == null) return; // not fetched yet
+        if (req > avail) {
+          // название ищем по обоим ключам, иначе у скопированной строки
+          // предупреждение выводилось без имени товара
+          const pname =
+            findProduct(pid)?.name ||
+            rows.find((r) => r.name === pid)?.naimenovanie ||
+            "";
+          out.push({ pid, name: pname, requested: req, available: avail });
+        }
+      });
+      return out;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+      rows,
+      stockByProduct,
+      stockTargets,
+      effectivePlanned,
+      warehouse,
+      productServicesList,
+    ]);
+
+    const shortedProductIds = useMemo(
+      () => new Set(stockShortages.map((s) => s.pid)),
+      [stockShortages]
+    );
 
     const addRow = () => {
       setRows((prev) => [
@@ -240,18 +527,25 @@ const CreateShipment = observer(
             // sum = qty * price * (1 - discount/100) * (1 + nds/100)
             const q =
               Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
-            const p = Number(updated.price?.toString().replace(/\s/g, "")) || 0;
+            let p = Number(updated.price?.toString().replace(/\s/g, "")) || 0;
+            if (isReturn) {
+              p = signPrice(p);
+              updated.price = p;
+            }
             const d =
               Number(updated.discount?.toString().replace(/\s/g, "")) || 0;
             const n = Number(updated.nds?.toString().replace(/\s/g, "")) || 0;
             const subtotal = q * p;
             const afterDiscount = subtotal * (1 - d / 100);
-            updated.sum = afterDiscount * (1 + n / 100);
+            updated.sum = signPrice(afterDiscount * (1 + n / 100));
           }
 
           if (field === "sum") {
             // Back-calculate price from sum: price = sum / qty / (1 - d/100) / (1 + n/100)
-            const rawSum = Number(value?.toString().replace(/\s/g, "")) || 0;
+            const rawSum = signPrice(
+              Number(value?.toString().replace(/\s/g, "")) || 0
+            );
+            updated.sum = rawSum;
             const q =
               Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
             const d =
@@ -264,7 +558,7 @@ const CreateShipment = observer(
                 q *
                 (discountFactor > 0 ? discountFactor : 1) *
                 (ndsFactor || 1);
-              updated.price = divisor ? rawSum / divisor : 0;
+              updated.price = divisor ? signPrice(rawSum / divisor) : 0;
             }
           }
 
@@ -285,6 +579,8 @@ const CreateShipment = observer(
       if (!shipmentDate) newErrors.shipmentDate = t("shipmentDateRequired");
       if (!legalEntity) newErrors.legalEntity = t("legalEntityRequired");
       if (!client) newErrors.client = L.clientRequired;
+      // A service supply posts against an article instead of a warehouse, so the
+      // warehouse is only required in warehouse mode.
 
       const productData = rows.filter((row) => row.name);
       if (productData.length === 0) newErrors.products = t("productsRequired");
@@ -292,6 +588,67 @@ const CreateShipment = observer(
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
         return;
+      }
+
+      // Warehouse stock guard — an executed (non-planned) OUTFLOW must not exceed
+      // available stock. Applies with the warehouse module on when saving a
+      // supply-return or a sale-shipment with "planned" switched off. Re-fetches
+      // fresh counts here (authoritative), on top of the real-time on-select
+      // check. Quantities of the same product across rows are summed first.
+      if (isWarehouseModuleOn && warehouse && !effectivePlanned && isOutflow) {
+        const requestedByProduct = new Map();
+        productData.forEach((row) => {
+          const pid = stockTargets.get(row.name);
+          if (!pid) return;
+          const qty = formatDecimal(StringtoNumber(row.quantity)) || 0;
+          requestedByProduct.set(pid, (requestedByProduct.get(pid) || 0) + qty);
+        });
+
+        try {
+          setIsCheckingStock(true);
+          const shortages = [];
+          await Promise.all(
+            [...requestedByProduct.entries()].map(async ([pid, requested]) => {
+              const stockRes = await apiClient.invokeFunction({
+                method: "get_stock_count",
+                data: {
+                  product_and_service_id: pid,
+                  warehouse_id: warehouse,
+                  date: stockDate,
+                },
+              });
+              const available = readStockCount(stockRes);
+              if (requested > available) {
+                const pname =
+                  productServicesList.find(
+                    (p) => p.product_and_service_id === pid || p.guid === pid
+                  )?.name || "";
+                shortages.push({ name: pname, requested, available });
+              }
+            })
+          );
+
+          if (shortages.length > 0) {
+            const message = shortages
+              .map((s) =>
+                t("stockExceeded", {
+                  name: s.name,
+                  available: s.available,
+                  requested: s.requested,
+                })
+              )
+              .join("\n");
+            showErrorNotification(message);
+            setErrors((prev) => ({ ...prev, products: t("stockError") }));
+            return;
+          }
+        } catch (stockError) {
+          console.error("get_stock_count failed", stockError);
+          showErrorNotification(t("stockCheckFailed"));
+          return;
+        } finally {
+          setIsCheckingStock(false);
+        }
       }
 
       const productCurrency = appStore.isDonoSchool
@@ -303,28 +660,37 @@ const CreateShipment = observer(
           legal_entity_id: legalEntity,
           [dealIdField]: dealGuid,
           partners_id: client,
+          // поле скрыто у складской поставки — значение не отправляем
+          ...(showProjectField ? { projects_id: project || null } : {}),
           [isPurchase ? "planned_supply" : "planned_shipment"]: isFutureDate
             ? true
             : isPlanned,
           status_nachislenie: ["confirmed"],
           type: operationType,
-          summa: totalSum,
+          summa: signPrice(totalSum),
           data_nachislenie: moment.parseZone(shipmentDate).format("YYYY-MM-DD"),
           data_oplaty: moment.parseZone(shipmentDate).format("YYYY-MM-DD"),
           currencies_id: productCurrency,
           description: isPurchase ? "Supply" : "Shipment",
           chart_of_accounts_id: chartOfAccounts,
+          warehouse_id: warehouse || null,
           product_and_service_data: productData.map((row) => {
             const product = productServicesList.find(
               (p) => p.guid === row.name
             );
             const result = {
-              product_and_service_id: product?.guid || row.name || undefined,
+              product_and_service_id:
+                row.productServiceId ||
+                product?.product_and_service_id ||
+                row.name ||
+                undefined,
               Naimenovanie: product ? product.name : row.naimenovanie || "",
               Artikul: product?.article || row.artikul || "",
               Kol_vo: formatDecimal(StringtoNumber(row.quantity)) || 0,
-              TSena_za_ed: formatDecimal(StringtoNumber(row.price)) || 0,
-              Summa: formatDecimal(StringtoNumber(row.sum)) || 0,
+              TSena_za_ed: signPrice(
+                formatDecimal(StringtoNumber(row.price)) || 0
+              ),
+              Summa: signPrice(formatDecimal(StringtoNumber(row.sum)) || 0),
               Skidka: Number(row.discount?.toString().replace(/\s/g, "")) || 0,
               NDS: Number(row.nds?.toString().replace(/\s/g, "")) || 0,
               unit_of_measurement_id:
@@ -359,6 +725,7 @@ const CreateShipment = observer(
         setLegalEntity("");
         setClient(kontragentId || "");
         setChartOfAccounts([]);
+        setWarehouse("");
         setRows([
           {
             id: 1,
@@ -390,26 +757,94 @@ const CreateShipment = observer(
       setSelectedProducts(new Set());
     };
 
-    const handleSelectProductSerice = (rowId, value) => {
-      const product = productServicesList?.find((p) => p.guid === value);
-      if (!product) return;
+    const handleSelectProductSerice = (rowId, value, raw) => {
+      // Товар может отсутствовать в productServicesList (напр. когда «Мой склад»
+      // выключен и список подтягивается иначе) — выбор всё равно должен сработать.
+      const product =
+        productServicesList?.find((p) => p.guid === value) ||
+        productServicesList?.find((p) => p.product_and_service_id === value);
+
+      // Данные для автозаполнения берём из выбранного элемента самого пикера:
+      // его список всегда актуален, а список сделки в модалке может быть из
+      // кэша и не содержать только что добавленный товар — тогда количество,
+      // цена и НДС оставались пустыми до перезагрузки страницы.
+      const source = raw || product;
+
+      // Реальный product_and_service_id для payload: берём напрямую из выбранного
+      // элемента пикера (authoritative), иначе из списка сделки, иначе — само
+      // значение. Иначе на create ушёл бы guid связки вместо product_and_service_id.
+      const productServiceId =
+        raw?.product_and_service_id || product?.product_and_service_id || value;
 
       setRows((prev) =>
         prev.map((row) => {
           if (row.id !== rowId) return row;
-          const q = Number(product.kolvo) || 0;
-          const p = Number(product.tsena_za_ed) || 0;
+          if (!source) {
+            // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
+            return { ...row, name: value, productServiceId };
+          }
+          // Тот же товар выбран повторно — только фиксируем выбор. Иначе
+          // подстановка значений из сделки затирала бы количество и цену,
+          // перенесённые из копируемой/редактируемой отгрузки.
+          const isSameProduct =
+            row.name === value ||
+            (!!row.productServiceId &&
+              row.productServiceId === productServiceId);
+          if (isSameProduct) {
+            return { ...row, name: value, productServiceId };
+          }
+          const q = Number(source.kolvo) || 0;
+          const p = signPrice(Number(source.tsena_za_ed) || 0);
           return {
             ...row,
             name: value,
+            productServiceId,
+            naimenovanie: source.name || row.naimenovanie,
             price: p,
             quantity: q,
-            discount: String(product.discount || 0),
-            nds: String(product.nds || 0),
-            sum: q * p,
+            discount: String(source.discount || 0),
+            nds: String(source.nds || 0),
+            sum: signPrice(q * p),
           };
         })
       );
+      // остаток по выбранному товару догрузит эффект — он следит за строками
+    };
+
+    // Блокируем по СОХРАНЁННОМУ флагу из ответа, а не по живой галке: документ,
+    // пришедший исполненным (planned = false), уже двинул остатки и правке не
+    // подлежит. Снятие галки в форме — наоборот, штатный способ исполнить
+    // плановый документ, поэтому кнопку оно гасить не должно.
+    // При выключенном модуле «Мой склад» остатков нет — ограничение не действует.
+    const savedPlanned = isPurchase
+      ? SingleShipment?.planned_supply
+      : SingleShipment?.planned_shipment;
+    const isSaveBlockedByClosedWarehouse =
+      isEditing && isWarehouseModuleOn && !!SingleShipment && !savedPlanned;
+
+    // Поставка: warehouse ↔ article are linked. Picking a warehouse autofills its
+    // article and lists goods; clearing it resets the article. (Sale keeps plain behaviour.)
+    const handleWarehouseChange = (value) => {
+      setWarehouse(value);
+      if (errors.warehouse) setErrors({ ...errors, warehouse: null });
+      // Leaving warehouse mode; the article is autofilled/reset by an effect.
+      if (isPurchase) setIsServiceSupply(false);
+      // У поставки на склад проекта нет: поле скрывается, поэтому сбрасываем
+      // и ранее выбранное (в т.ч. автозаполненное из сделки) значение
+      if (isPurchase && isWarehouseModuleOn && value) setProject("");
+    };
+
+    // Поставка: picking an article directly = a service supply — clear/disable the
+    // warehouse and list services in the product picker.
+    const handleArticleChange = (value) => {
+      setChartOfAccounts(value);
+      if (!isPurchase) return;
+      if (value) {
+        setIsServiceSupply(true);
+        setWarehouse("");
+      } else {
+        setIsServiceSupply(false);
+      }
     };
 
     const handleSelect = (value) => {
@@ -504,14 +939,14 @@ const CreateShipment = observer(
                       <div
                         className="flex items-center"
                         style={{
-                          opacity: isFutureDate ? 0.5 : 1,
-                          pointerEvents: isFutureDate ? "none" : "auto",
+                          opacity: isPlannedLocked ? 0.5 : 1,
+                          pointerEvents: isPlannedLocked ? "none" : "auto",
                         }}
                       >
                         <OperationCheckbox
                           checked={isFutureDate ? true : isPlanned}
                           onChange={(e) => {
-                            if (!isFutureDate) {
+                            if (!isPlannedLocked) {
                               setIsPlanned(e.target.checked);
                             }
                           }}
@@ -579,14 +1014,52 @@ const CreateShipment = observer(
                 )}
               </div>
 
-              {/* Chart of accounts */}
+              {/* Проект — только если включён модуль проектов (автозаполнение из
+                  сделки) и это не поставка на склад */}
+              {showProjectField && (
+                <div className="w-full flex items-center gap-2 pb-2">
+                  <label className="w-40! text-xss!">{t("project")}</label>
+                  <div className="flex-1">
+                    <SelectProjects
+                      value={project}
+                      onChange={(value) => setProject(value)}
+                      placeholder={t("projectPlaceholder")}
+                      className="w-80! bg-white"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Warehouse — above the article; shown once the module is on */}
+              {isWarehouseModuleOn && (
+                <div className="w-full flex items-center gap-2 pb-2">
+                  <label className="w-40! text-xss!">{t("warehouse")}</label>
+                  <div className="flex-1">
+                    <SingleSelect
+                      data={warehouseOptions}
+                      value={warehouse}
+                      onChange={handleWarehouseChange}
+                      placeholder={t("warehousePlaceholder")}
+                      className="w-80! bg-white"
+                      hasError={!!errors.warehouse}
+                    />
+                    {errors.warehouse && (
+                      <div className={styles.errorMessage}>
+                        {errors.warehouse}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Chart of accounts — shown for both Отгрузка and Поставка */}
               {showChartOfAccounts && (
                 <div className="w-full flex items-center gap-2 pb-2">
                   <label className="w-40! text-xss!">{L.incomeArticle}</label>
                   <div className="flex-1">
                     <SinglSelectStatiya
                       selectedValue={chartOfAccounts}
-                      setSelectedValue={(value) => setChartOfAccounts(value)}
+                      setSelectedValue={handleArticleChange}
                       placeholder={L.undistributedIncome}
                       className="w-80! bg-white"
                       allowedTypes={allowedTypes}
@@ -605,6 +1078,18 @@ const CreateShipment = observer(
                         {errors.products}
                       </span>
                     )}
+                    {stockShortages.map((s) => (
+                      <span
+                        key={s.pid}
+                        className="text-[10px] text-red-500 font-medium"
+                      >
+                        {t("stockExceeded", {
+                          name: s.name,
+                          available: s.available,
+                          requested: s.requested,
+                        })}
+                      </span>
+                    ))}
                   </div>
                   {/* <button
                 className={styles.fillFromDeal}
@@ -719,10 +1204,18 @@ const CreateShipment = observer(
                           <td className="w-[200px]">
                             <div className="pr-2 pt-2 pb-2">
                               <SelectProductService
-                                value={row.name}
-                                onChange={(value) =>
-                                  handleSelectProductSerice(row?.id, value)
+                                // Приводим значение к guid опции: при копировании
+                                // и редактировании в строке лежит
+                                // product_and_service_id, и пикер, не найдя его
+                                // среди опций, дорисовывал товар вторым пунктом
+                                value={findProduct(row.name)?.guid || row.name}
+                                selectedLabel={row.naimenovanie}
+                                onChange={(value, raw) =>
+                                  handleSelectProductSerice(row?.id, value, raw)
                                 }
+                                type={productType}
+                                sellingDealId={dealGuid}
+                                dealIdField={isPurchase ? "purchase_transactions_id" : "sales_transactions_id"}
                                 placeholder={t("selectPosition")}
                                 className="bg-white border-none"
                               />
@@ -740,9 +1233,12 @@ const CreateShipment = observer(
                                   formatAmountInput(e.target.value)
                                 )
                               }
-                              className={
-                                "w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2"
-                              }
+                              className={cn(
+                                "w-full border-none border border-gray-400 h-10 text-end text-xs outline-none pr-2",
+                                row.name &&
+                                  shortedProductIds.has(row.name) &&
+                                  "bg-red-50 text-red-600"
+                              )}
                             />
                           </td>
                           <td className="w-[120px] border-l">
@@ -835,8 +1331,17 @@ const CreateShipment = observer(
                 <button className={styles.cancelBtn} onClick={onClose}>
                   {t("cancel")}
                 </button>
-                <button className="primary-btn" onClick={handleCreate}>
-                  {isCreating ? (
+
+                <button
+                  className="primary-btn"
+                  onClick={handleCreate}
+                  disabled={
+                    isCreating ||
+                    isCheckingStock ||
+                    isSaveBlockedByClosedWarehouse
+                  }
+                >
+                  {isCreating || isCheckingStock ? (
                     <Loader />
                   ) : isEditing ? (
                     t("save")

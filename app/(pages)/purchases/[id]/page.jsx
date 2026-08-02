@@ -45,8 +45,10 @@ import {
   CirclePlus,
   Ellipsis,
   Pencil,
+  Plus,
   Search,
   Trash,
+  Undo2,
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -77,6 +79,23 @@ export default observer(function PurchaseDetailPage() {
     querySetting: {
       select: (response) => response?.data?.data,
       placeholderData: keepPreviousData,
+    },
+  });
+
+  // Сделкада товар/услуга бор-йўқлиги: поставка учун улар шарт.
+  // queryKey 'products_services_list' — CreateProductService шу префиксни invalidate қилади,
+  // шунинг учун товар қўшилса, автомат янгиланади.
+  const { data: hasProducts } = useUcodeRequestQuery({
+    queryKey: "products_services_list",
+    method: "list_products_and_services",
+    data: { purchase_transactions_id: dealId, page: 1, limit: 1 },
+    skip: !dealId,
+    querySetting: {
+      select: (res) => {
+        const total = res?.data?.pagination?.total;
+        if (typeof total === "number") return total > 0;
+        return (res?.data?.data?.length || 0) > 0;
+      },
     },
   });
 
@@ -116,6 +135,7 @@ export default observer(function PurchaseDetailPage() {
 
   const [activeTab, setActiveTab] = useState("products");
   const [showShipmentModal, setShowShipmentModal] = useState(false);
+  const [isReturnMode, setIsReturnMode] = useState(false);
   const [showOperationModal, setShowOperationModal] = useState(false);
   const [operation, setOperation] = useState(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -435,7 +455,10 @@ export default observer(function PurchaseDetailPage() {
             </span>
             {paymentPermission && (
               <button
-                onClick={() => setShowShipmentModal(true)}
+                onClick={() => {
+                  setIsReturnMode(false);
+                  setShowShipmentModal(true);
+                }}
                 className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0"
               >
                 <div className="scale-75 xl:scale-100 origin-right transition-transform">
@@ -478,10 +501,10 @@ export default observer(function PurchaseDetailPage() {
           {shippedPercent < 100 && (
             <div className="flex text-mini xl:text-xs gap-1 xl:gap-2 flex-wrap items-end">
               <span className="font-normal text-gray-ucode-500 whitespace-nowrap">
-                {t("cards.weOwe")}
+                {t("cards.supplierOwes")}
               </span>
               <span className="font-medium text-[#344054] truncate">
-                {formatAmount(dealAmount)} {GlobalCurrency?.name}
+                {formatAmount(remainingShipment)} {GlobalCurrency?.name}
               </span>
             </div>
           )}
@@ -544,20 +567,73 @@ export default observer(function PurchaseDetailPage() {
                   {(activeTab === "products" && productsPermission) ||
                   (activeTab === "payments" && paymentPermission) ||
                   (activeTab === "supplies" && shipmentPermission) ? (
-                    <button
-                      className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
-                      onClick={() => {
-                        if (activeTab === "supplies") {
-                          setShowShipmentModal(true);
-                        } else if (activeTab === "payments") {
-                          handleCreateOperation();
-                        } else if (activeTab === "products") {
-                          setShowProductModal(true);
-                        }
-                      }}
-                    >
-                      {t("addButton")}
-                    </button>
+                    activeTab === "supplies" ? (
+                      hasProducts === false ? null : appStore.warehouseActive && appStore.returnActive ? (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0">
+                            {t("addButton")}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-52 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1"
+                          align="end"
+                        >
+                          <div className="flex flex-col">
+                            <button
+                              className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                              onClick={() => {
+                                setIsReturnMode(false);
+                                setShowShipmentModal(true);
+                              }}
+                            >
+                              <Plus size={16} className="text-neutral-600" />
+                              <span>{tp("createSupply.titleNew")}</span>
+                            </button>
+                            {appStore.warehouseActive &&
+                              appStore.returnActive && (
+                                <button
+                                  className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
+                                  onClick={() => {
+                                    setIsReturnMode(true);
+                                    setShowShipmentModal(true);
+                                  }}
+                                >
+                                  <Undo2
+                                    size={16}
+                                    className="text-neutral-600"
+                                  />
+                                  <span>{t("newReturnButton")}</span>
+                                </button>
+                              )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      ) : (
+                        <button
+                          className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
+                          onClick={() => {
+                            setIsReturnMode(false);
+                            setShowShipmentModal(true);
+                          }}
+                        >
+                          {t("addButton")}
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        className="primary-btn  text-xs xl:text-sm px-3 xl:px-4 py-2 xl:py-2.5 whitespace-nowrap shrink-0"
+                        onClick={() => {
+                          if (activeTab === "payments") {
+                            handleCreateOperation();
+                          } else if (activeTab === "products") {
+                            setShowProductModal(true);
+                          }
+                        }}
+                      >
+                        {t("addButton")}
+                      </button>
+                    )
                   ) : null}
                 </div>
               </div>
@@ -583,7 +659,6 @@ export default observer(function PurchaseDetailPage() {
                     onAdd={handleCreateOperation}
                     dealIdField="purchase_transactions_id"
                     invalidateKeys={["get_purchase_transaction_by_guid"]}
-                    tipTypes={["Выплата"]}
                     isPurchase
                   />
                 )}
@@ -594,6 +669,8 @@ export default observer(function PurchaseDetailPage() {
                     dealGuid={dealId}
                     dealName={summeryCards?.name}
                     onAdd={() => setShowShipmentModal(true)}
+                    onAddProducts={() => setActiveTab("products")}
+                    hasProducts={hasProducts}
                     listMethod="list_purchase_operations"
                     dealIdField="purchase_transactions_id"
                     deleteMethod="delete_supply_transaction"
@@ -620,7 +697,10 @@ export default observer(function PurchaseDetailPage() {
       </div>
       <CreateShipment
         open={showShipmentModal}
-        onClose={() => setShowShipmentModal(false)}
+        onClose={() => {
+          setShowShipmentModal(false);
+          setIsReturnMode(false);
+        }}
         dealName={summeryCards?.name}
         dealGuid={dealId}
         kontragentId={summeryCards?.counterparties_id}
@@ -635,6 +715,7 @@ export default observer(function PurchaseDetailPage() {
         ]}
         allowedTypes={["Расходы", "Актив", "Обязательства"]}
         isPurchase
+        isReturn={isReturnMode}
       />
 
       <PaymentModal
@@ -657,7 +738,13 @@ export default observer(function PurchaseDetailPage() {
             }, 300);
           }}
           preselectedCounterparty={summeryCards?.counterparties_id}
-          onSuccess={() => setShowOperationModal(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["get_purchase_transaction_by_guid"] })
+            queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] })
+            queryClient.invalidateQueries({ queryKey: ["get_operations_total_income"] })
+            queryClient.invalidateQueries({ queryKey: ["get_operations_total_expense"] })
+            setShowOperationModal(false)
+          }}
           initialTab={activeTab === "payments" ? "payment" : "income"}
         />
       )}

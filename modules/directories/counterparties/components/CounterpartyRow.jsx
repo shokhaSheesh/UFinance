@@ -1,10 +1,9 @@
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { cn } from '@/lib/utils'
 import { safeCompare, safeFormatNumber } from '../utils/counterpartiesUtils'
 
 const CounterpartyRow = ({
-  item, isNested = false, isSelected, onToggleSelect, onNavigate,
+  item, isNested = false, onNavigate,
   filters, onEdit, onDelete
 }) => {
   const diffStyle = safeCompare(item?.difference)
@@ -14,15 +13,9 @@ const CounterpartyRow = ({
 
   return (
     <div
-      className={cn(
-        "flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm",
-        isSelected && "bg-blue-50/50"
-      )}
+      className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
       onClick={() => onNavigate(item.guid)}
     >
-      <div className={cn("flex items-center justify-center", isNested ? "w-10 pl-4" : "w-12")} onClick={(e) => e.stopPropagation()}>
-        <OperationCheckbox checked={isSelected} onChange={() => onToggleSelect(item.id)} />
-      </div>
       <div className={cn("flex-1 min-w-[200px] flex flex-col justify-center", isNested ? "px-3 pl-8" : "px-2")}>
         <span className="text-slate-900 font-medium truncate">{item.nazvanie}</span>
         {item.komentariy && <span className="text-neutral-400 text-mini truncate">{item.komentariy}</span>}

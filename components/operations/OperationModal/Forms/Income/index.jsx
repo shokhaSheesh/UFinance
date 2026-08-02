@@ -13,6 +13,7 @@ import { formatDate, isFuture } from '@/utils/formatDate'
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
 import SingleCounterParty from '../../../../ReadyComponents/SingleCounterParty'
+import SelectProjects from '../../../../ReadyComponents/SelectProjects'
 import SinglSelectStatiya from '../../../../ReadyComponents/SingleSelectStatiya'
 import SingleZdelka from '../../../../ReadyComponents/SingleZdelka'
 import OperationCheckbox from '../../../../shared/Checkbox/operationCheckbox'
@@ -34,6 +35,10 @@ import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
 import { formatDateParseZone, formatDecimal, formatAmountInput, StringtoNumber } from '../../../../../utils/helpers'
 import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
+
+// Разделы плана счетов, по статьям которых начисление отдельно не ведётся:
+// дата начисления и его подтверждение блокируются и следуют за оплатой
+const ACCRUAL_LOCK_PARENTS = ['Долгосрочные обязательства']
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -296,6 +301,7 @@ const IncomeForm = observer(({
         chartOfAccount: raw?.chart_of_accounts_id || chart_of_accounts_id || null, // Simplified logic
         paymentType: appStore.isPayment ? 'cash' : null,
         salesDeal: raw?.sales_transactions_id || defaultDealGuid || null,
+        projects_id: raw?.projects_id || null,
         purpose: raw?.opisanie || '',
         currency: raw?.currenies_id || raw?.currencyId || null,
       }
@@ -312,6 +318,7 @@ const IncomeForm = observer(({
       chartOfAccount: chart_of_accounts_id || null,
       paymentType: appStore.isPayment ? 'cash' : null,
       salesDeal: defaultDealGuid || null,
+      projects_id: null,
       purpose: '',
       currency: null,
     }
@@ -372,6 +379,15 @@ const IncomeForm = observer(({
   const watchConfirmAccrual = watch('confirmAccrual')
   const saleDeal = watch('salesDeal')
 
+  // Статья из «Долгосрочных обязательств»: начисление приравнивается к оплате —
+  // поля начисления блокируются, подтверждение повторяет «Подтвердить оплату»
+  const [isAccrualLocked, setIsAccrualLocked] = useState(false)
+  const accrualDisabled = !!watchSalesDeal || isAccrualLocked
+
+  useEffect(() => {
+    if (isAccrualLocked) setValue('confirmAccrual', watchConfirmPayment)
+  }, [isAccrualLocked, watchConfirmPayment, setValue])
+
   const currencyTitle = useMemo(() => {
     const guid = watchCurrency || (initialData && (!isNew || initialData.isCopy) ? (initialData.currenies_id || initialData.currencyId) : null)
     if (!guid) return ''
@@ -404,7 +420,8 @@ const IncomeForm = observer(({
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
-      paymentType: data?.paymentType
+      paymentType: data?.paymentType,
+      ...(appStore.projectActive ? { projects_id: data?.projects_id || null } : {}),
     }
 
     if (divivedAmounts.length > 0) {
@@ -614,7 +631,7 @@ const IncomeForm = observer(({
           <div className="flex flex-col gap-5 mt-4">
 
             {!showDate && (
-              <div className={cn("flex items-center gap-4", watchSalesDeal && "opacity-50")}>
+              <div className={cn("flex items-center gap-4", accrualDisabled && "opacity-50")}>
                 <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
                 <div className="flex-1 flex gap-2 items-center max-w-[600px]">
                   <Controller
@@ -623,9 +640,9 @@ const IncomeForm = observer(({
                     render={({ field }) => (
                       <FormDatepicker
                         value={watchSalesDeal ? watchPaymentDate : field.value}
-                        disabled={!!watchSalesDeal}
+                        disabled={accrualDisabled}
                         onChange={(val) => {
-                          if (watchSalesDeal) return
+                          if (accrualDisabled) return
                           field.onChange(val)
                           if (appStore.isDonoSchool) {
                             // setValue('confirmAccrual', !isFuture(val))
@@ -645,11 +662,11 @@ const IncomeForm = observer(({
                     control={control}
                     render={({ field }) => (
                       <OperationCheckbox
-                        checked={watchSalesDeal ? false : field.value}
-                        disabled={!!watchSalesDeal}
+                        checked={watchSalesDeal ? false : isAccrualLocked ? watchConfirmPayment : field.value}
+                        disabled={accrualDisabled}
                         label={t('confirmAccrual')}
                         onChange={(e) => {
-                          if (watchSalesDeal || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
+                          if (accrualDisabled || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
                           field.onChange(e.target.checked)
                         }}
                       />
@@ -695,6 +712,8 @@ const IncomeForm = observer(({
                         placeholder={t('statyaIncomePlaceholder')}
                         className='bg-white border rounded-md h-[36px]!'
                         type={'Расходы'}
+                        parent={ACCRUAL_LOCK_PARENTS}
+                        returnIsChild={setIsAccrualLocked}
                       />
                     )}
                   />
@@ -722,6 +741,27 @@ const IncomeForm = observer(({
                         withSearch={false}
                         isClearable={false}
                         className='bg-white border rounded-md'
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Проект — только если включён модуль проектов */}
+            {appStore.projectActive && (
+              <div className="flex items-center gap-4">
+                <label className="w-[150px] text-xss">{t('project')}</label>
+                <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
+                  <Controller
+                    name="projects_id"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectProjects
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={t('projectPlaceholder')}
+                        className='bg-white border rounded-md h-[36px]!'
                       />
                     )}
                   />

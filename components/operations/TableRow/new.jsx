@@ -1,6 +1,5 @@
 import { OperationMenu } from "@/components/operations/OperationsTable/OperationMenu";
 import PriceStatus from "@/components/operations/PriceStatus";
-import OperationCheckbox from "@/components/shared/Checkbox/operationCheckbox";
 import {
   ExpendClose,
   ExpendOpen,
@@ -21,8 +20,6 @@ import styles from "./style.module.scss";
 const TableRow = observer(
   ({
     op,
-    selectedOperations,
-    toggleOperation,
     handleEditOperation,
     handleDeleteOperation,
     handleCopyOperation,
@@ -130,8 +127,7 @@ const TableRow = observer(
         <div
           key={op.guid}
           className={cn(
-            "flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11",
-            selectedOperations.includes(op.guid) && styles.selected
+            "flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11"
           )}
           onClick={(e) => {
             if (canEdit) {
@@ -141,20 +137,13 @@ const TableRow = observer(
             }
           }}
         >
-          {/* Checkbox/Index */}
-          {(toggleOperation || showIndex) && (
+          {/* Index */}
+          {showIndex && (
             <div
               className="min-w-10 flex items-center justify-center px-1"
               onClick={(e) => e.stopPropagation()}
             >
-              {toggleOperation ? (
-                <OperationCheckbox
-                  checked={selectedOperations.includes(op.guid)}
-                  onChange={() => toggleOperation(op.guid)}
-                />
-              ) : (
-                <span className="text-xs text-gray-500">{showIndex}</span>
-              )}
+              <span className="text-xs text-gray-500">{showIndex}</span>
             </div>
           )}
 
@@ -345,7 +334,21 @@ const TableRow = observer(
             </div>
           </div>
 
-          {/* Project/Deal */}
+          {/* Project — колонка проекта (если включён модуль) */}
+          {appStore.projectActive && (
+            <div
+              className={cn(
+                "flex-1 flex px-2 py-1 items-center justify-start min-w-20",
+                isActive && styles.activeRow
+              )}
+            >
+              <p className={cn("text-xs text-neutral-600 truncate w-full", textPrimary)}>
+                {op?.projectName || ""}
+              </p>
+            </div>
+          )}
+
+          {/* Deal */}
           <div
             className={cn(
               "flex-1 flex px-2 py-1 items-center justify-center  min-w-20",
@@ -470,8 +473,8 @@ const TableRow = observer(
                     "opacity-40 grayscale-[0.5] pointer-events-none"
                 )}
               >
-                {/* Empty Space for Checkbox + padding for index */}
-                <div className={!toggleOperation ? "w-32" : "w-40"} />
+                {/* Empty Space for index padding */}
+                <div className="w-32" />
 
                 {/* Date Part */}
                 <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">

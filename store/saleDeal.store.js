@@ -7,6 +7,7 @@ class SealDeal {
   dealsMethod = 'accrual_method' // accrual_method || cash_method
   // deals page filters
   selectedCounterparties = []
+  selectedProjects = []
   search = ''
   dateRange = { start: null, end: null }
   operationDateStart = ''
@@ -31,6 +32,7 @@ class SealDeal {
           "accounting",
           "dealsMethod",
           "selectedCounterparties",
+          "selectedProjects",
           "search",
           "dateRange",
           "operationDateStart",
@@ -45,7 +47,7 @@ class SealDeal {
           'dateRangeType'
         ],
         storage: window.localStorage,
-        debugMode: true,
+        debugMode: false,
       })
     }
   }
@@ -58,6 +60,7 @@ class SealDeal {
     this.accounting = 'accrual'
     this.dealsMethod = 'accrual_method'
     this.selectedCounterparties = []
+    this.selectedProjects = []
     this.search = ''
     this.dateRange = { start: null, end: null }
     this.operationDateStart = ''

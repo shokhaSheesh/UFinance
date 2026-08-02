@@ -85,7 +85,6 @@ const OperationsListPage = observer(() => {
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-  const [selectedOperations, setSelectedOperations] = useState([]);
   const [openModal, setOpenModal] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -209,21 +208,6 @@ const OperationsListPage = observer(() => {
     handleImportOperations,
   } = useImportOperations({ t, queryClient });
 
-  // ── Selection ──────────────────────────────────────────────────────────────
-  const isAllSelected =
-    allOperations.length > 0 &&
-    selectedOperations.length === allOperations.length;
-
-  const toggleSelectAll = () =>
-    isAllSelected
-      ? setSelectedOperations([])
-      : setSelectedOperations(allOperations.map((op) => op.guid));
-
-  const toggleOperation = (id) =>
-    setSelectedOperations((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-
   // ── Modal helpers ──────────────────────────────────────────────────────────
   const openWithAnimation = (cb) => {
     setIsModalClosing(false);
@@ -294,7 +278,6 @@ const OperationsListPage = observer(() => {
   };
 
   const handleDeleteOperation = (operation) => {
-    console.log("operation.tip", operation);
     if (operation.tip === "Отгрузка") {
       _handleDeleteShipment(operation);
       return;
@@ -446,12 +429,7 @@ const OperationsListPage = observer(() => {
           onScroll={handleScroll}
           className="overflow-auto h-full w-full px-2 bg-white pb-10"
         >
-          <OperationsTableHeader
-            t={t}
-            isAllSelected={isAllSelected}
-            selectedCount={selectedOperations.length}
-            onSelectAll={toggleSelectAll}
-          />
+          <OperationsTableHeader t={t} />
 
           {allOperations.length === 0 && !isLoadingOperations && (
             <div className="py-20 text-center text-neutral-500 bg-white">
@@ -503,8 +481,6 @@ const OperationsListPage = observer(() => {
                       >
                         <OperationTableRow
                           op={item.op}
-                          selectedOperations={selectedOperations}
-                          toggleOperation={toggleOperation}
                           openOperationModal={openOperationModal}
                           handleEditOperation={handleEditOperation}
                           handleDeleteOperation={handleDeleteOperation}
@@ -617,6 +593,10 @@ const OperationsListPage = observer(() => {
             }
             onSuccess={() => {
               closeShipmentModal();
+              // Список операций страницы идёт по list_operations_by_query — без его
+              // инвалидации таблица не обновлялась после апдейта поставки/отгрузки.
+              queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] });
+              queryClient.invalidateQueries({ queryKey: ["get_operations_total"] });
               queryClient.invalidateQueries({ queryKey: ["find_operations"] });
             }}
           />
