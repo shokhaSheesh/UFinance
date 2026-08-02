@@ -258,7 +258,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
         </div>
         <div className='flex justify-end'>
           <div className="p-4 text-right text-neutral-700 font-semibold">{t('total')}</div>
-          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(totalSummary?.total_summa)} {GlobalCurrency?.name}</div>
+          <div className={`p-4 text-right font-semibold text-green-600`}>{'+'}{formatAmount(Math.round(Number(totalSummary?.total_summa) || 0))} {GlobalCurrency?.name}</div>
         </div>
       </>}
 

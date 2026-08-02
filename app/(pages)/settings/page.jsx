@@ -85,8 +85,10 @@ const SettingsPage = observer(() => {
 
     if (isPaymentChanged) data.is_payment = isPayment
     if (isAccrualDateChanged) data.is_accural_date = isAccrualDate
-    if (isWarehouseActiveChanged) data.warehouse_active = warehouseActive
-    if (isReturnActiveChanged) data.return_active = returnActive
+    // чекбоксы «Мой склад» и «Возвраты» скрыты из UI — значения,
+    // пришедшие с бэка, отправляем обратно без изменений
+    data.warehouse_active = appStore.warehouseActive
+    data.return_active = appStore.returnActive
     if (isProjectActiveChanged) data.project_active = projectActive
     // if (wlcmHashcode) {
     //   try {
@@ -196,7 +198,9 @@ const SettingsPage = observer(() => {
           <h2 className="text-[15px] font-bold text-slate-900 mb-3.5">
             {tg('modules.title')}
           </h2>
-          <OperationCheckbox
+          {/* «Мой склад» и «Возвраты» временно скрыты из UI — при сохранении
+              их значения уходят на бэк как есть (см. handleSaveSettings) */}
+          {/* <OperationCheckbox
             checked={warehouseActive}
             onChange={() => handleWarehouseToggle(!warehouseActive)}
             label={tg('modules.warehouse')}
@@ -207,7 +211,7 @@ const SettingsPage = observer(() => {
             label={tg('modules.returns')}
             disabled={!warehouseActive}
             className={!warehouseActive ? 'opacity-50 pointer-events-none' : ''}
-          />
+          /> */}
           <OperationCheckbox
             checked={projectActive}
             onChange={() => setProjectActive(!projectActive)}

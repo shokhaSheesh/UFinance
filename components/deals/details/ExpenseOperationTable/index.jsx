@@ -107,7 +107,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
 
   // «Итого» по сделке — net_sales_payment из summary_operations
   const netTotal = useMemo(
-    () => Number(operationsTotal?.net_sales_payment) || 0,
+    () => Math.round(Number(operationsTotal?.net_sales_payment) || 0),
     [operationsTotal]
   )
 

@@ -175,7 +175,6 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
             data={toOptions(currencies)}
             value={form.currency}
             onChange={(v) => set('currency', v)}
-            withSearch={false}
             isClearable={false}
             placeholder={t('form.currencyPlaceholder')}
             hasError={!!errors.currency}

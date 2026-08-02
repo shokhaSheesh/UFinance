@@ -2,10 +2,14 @@
 
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { BUDGET_TOKENS as T } from '@/modules/plans/utils/tokens'
+import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
 
 const CELL_W = 51
 const CELL_H = 54
+// Ширина попапа: две панели (сетка 4×CELL_W + padding 8+8) и разделитель 1px
+const PANEL_W = 2 * (4 * CELL_W + 16) + 1
 
 const toKey = (year, month) => `${year}-${String(month).padStart(2, '0')}`
 const parse = (key) => {
@@ -88,15 +92,39 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
   const [open, setOpen] = useState(false)
   const [leftYear, setLeftYear] = useState(() => parse(value.start).year)
   const [rightYear, setRightYear] = useState(() => parse(value.end).year)
+  const [portalPos, setPortalPos] = useState({ top: 0, left: 0 })
   const ref = useRef(null)
+  const panelRef = useRef(null)
 
   useEffect(() => {
     const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+      if (
+        ref.current && !ref.current.contains(e.target) &&
+        (!panelRef.current || !panelRef.current.contains(e.target))
+      ) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  // Попап рендерится в портале (position: fixed), чтобы его не резал
+  // overflow-hidden модалки — пересчитываем координаты при скролле/ресайзе
+  useEffect(() => {
+    if (!open) return
+    const update = () => {
+      if (!ref.current) return
+      const rect = getZoomAwareRect(ref.current)
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - PANEL_W - 8))
+      setPortalPos({ top: rect.bottom + 4, left })
+    }
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [open])
 
   const pick = (side) => (key) => {
     const next = side === 'start' ? { start: key, end: value.end } : { start: value.start, end: key }
@@ -131,10 +159,18 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
         <span className='truncate'>{label}</span>
       </button>
 
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div
-          className='absolute left-0 top-full z-50 mt-1 flex bg-white'
-          style={{ border: '1px solid #d0d5dd', borderRadius: 4, boxShadow: '0 6px 20px rgba(0,0,0,.12)' }}
+          ref={panelRef}
+          className='z-99999 flex bg-white'
+          style={{
+            position: 'fixed',
+            top: portalPos.top,
+            left: portalPos.left,
+            border: '1px solid #d0d5dd',
+            borderRadius: 4,
+            boxShadow: '0 6px 20px rgba(0,0,0,.12)'
+          }}
         >
           <MonthPanel
             year={leftYear}
@@ -153,7 +189,8 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
             end={value.end}
             onPick={pick('end')}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
