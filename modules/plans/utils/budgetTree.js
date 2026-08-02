@@ -2,9 +2,10 @@
  * Преобразование дерева `get_budget_plan` в строки BudgetPivotTable.
  *
  * API отдаёт узлы с накопленными (roll-up) значениями:
- *   values[m]      — факт узла вместе с потомками
- *   plan[m].total  — план узла вместе с потомками
- *   plan[m].by     — план, записанный на сам узел
+ *   values[m]       — факт узла вместе с потомками
+ *   plan[m].total   — план узла вместе с потомками
+ *   plan[m].by      — план, записанный на сам узел
+ *   plan[m].profit  — отклонение («Откл.») со знаком от бэка
  *
  * Таблица же суммирует дерево снизу вверх, поэтому в `values` кладём
  * «собственный остаток» узла (значение минус сумма потомков). Так итоги
@@ -42,6 +43,23 @@ const aggregationFor = (node) => {
 }
 
 /**
+ * Направление «Откл.» у строки: бэк считает profit как «факт − план»
+ * в доходных статьях и «план − факт» в расходных. Своей формулы не вводим —
+ * определяем знак по самому ответу (по первой ячейке, где он однозначен).
+ * Нужен только чтобы пересчитать ячейку сразу после правки плана, пока
+ * дерево не перезапрошено; если знак не определить — берём родительский.
+ */
+const profitSignOf = (samples, fallback) => {
+  for (const s of samples) {
+    const diff = num(s.fact) - num(s.plan)
+    const profit = num(s.profit)
+    if (!diff || !profit) continue
+    return Math.sign(profit) === Math.sign(diff) ? 1 : -1
+  }
+  return fallback
+}
+
+/**
  * @param {Array} apiRows      data.rows из get_budget_plan
  * @param {Array} legend       data.legend — определяет набор месяцев
  * @returns {Array} дерево строк для BudgetPivotTable
@@ -49,8 +67,19 @@ const aggregationFor = (node) => {
 export const buildBudgetRows = (apiRows = [], legend = []) => {
   const months = legend.map((p) => p.key)
 
-  const mapNode = (node, level = 0) => {
-    const children = (node?.details || []).map((child) => mapNode(child, level + 1))
+  const mapNode = (node, level = 0, parentProfitSign = 1) => {
+    const profitSign = profitSignOf(
+      [
+        { plan: node?.plan?.total, fact: node?.totalValue, profit: node?.plan?.profit },
+        ...months.map((m) => ({
+          plan: node?.plan?.[m]?.total,
+          fact: node?.values?.[m],
+          profit: node?.plan?.[m]?.profit,
+        })),
+      ],
+      parentProfitSign
+    )
+    const children = (node?.details || []).map((child) => mapNode(child, level + 1, profitSign))
     const isPercent = node?.type === 'percent'
     const isDerived = DERIVED_TYPES.includes(node?.type)
     const aggregation = aggregationFor(node)
@@ -60,17 +89,27 @@ export const buildBudgetRows = (apiRows = [], legend = []) => {
     months.forEach((m) => {
       const factTotal = num(node?.values?.[m])
       const planTotal = num(node?.plan?.[m]?.total)
+      const profitTotal = num(node?.plan?.[m]?.profit)
       const childFact = children.reduce((s, c) => s + num(c.apiTotals?.[m]?.fact), 0)
       const childPlan = children.reduce((s, c) => s + num(c.apiTotals?.[m]?.plan), 0)
+      const childProfit = children.reduce((s, c) => s + num(c.apiTotals?.[m]?.profit), 0)
       values[m] = isPercent
-        ? { plan: planTotal, fact: factTotal }
-        : { plan: planTotal - childPlan, fact: factTotal - childFact }
+        ? { plan: planTotal, fact: factTotal, profit: profitTotal }
+        : {
+            plan: planTotal - childPlan,
+            fact: factTotal - childFact,
+            profit: profitTotal - childProfit,
+          }
     })
 
     // накопленные значения API — нужны родителю для расчёта остатка
     const apiTotals = {}
     months.forEach((m) => {
-      apiTotals[m] = { plan: num(node?.plan?.[m]?.total), fact: num(node?.values?.[m]) }
+      apiTotals[m] = {
+        plan: num(node?.plan?.[m]?.total),
+        fact: num(node?.values?.[m]),
+        profit: num(node?.plan?.[m]?.profit),
+      }
     })
 
     return {
@@ -83,10 +122,15 @@ export const buildBudgetRows = (apiRows = [], legend = []) => {
       editable: isAccountId(node?.id) && !isDerived && !aggregation,
       defaultExpanded: level === 0,
       aggregation,
+      profitSign,
       values,
       apiTotals,
       // итоги за весь период — для процентных строк их нельзя пересчитать сложением
-      periodTotals: { plan: num(node?.plan?.total), fact: num(node?.totalValue) },
+      periodTotals: {
+        plan: num(node?.plan?.total),
+        fact: num(node?.totalValue),
+        profit: num(node?.plan?.profit),
+      },
       children: children.length ? children : undefined,
     }
   }

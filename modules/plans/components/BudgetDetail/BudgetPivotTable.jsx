@@ -29,11 +29,24 @@ import {
 /* Агрегация                                                          */
 /* ------------------------------------------------------------------ */
 
-const emptyCell = () => ({ plan: 0, fact: 0 });
+const emptyCell = () => ({ plan: 0, fact: 0, profit: null });
+
+/**
+ * Складывает две ячейки. `profit` приходит с бэка со своим знаком; если его нет
+ * ни у одного слагаемого, оставляем null — «Откл.» посчитается по плану и факту.
+ */
+const addCells = (a, b) => ({
+  plan: (a?.plan || 0) + (b?.plan || 0),
+  fact: (a?.fact || 0) + (b?.fact || 0),
+  profit:
+    a?.profit == null && b?.profit == null
+      ? null
+      : (a?.profit || 0) + (b?.profit || 0),
+});
 
 /**
  * Считает значения по всем месяцам для каждой строки дерева.
- * Возвращает map: rowId → { 'YYYY-MM': { plan, fact } }
+ * Возвращает map: rowId → { 'YYYY-MM': { plan, fact, profit } }
  */
 const buildMonthlyValues = (rows, months, planOverrides) => {
   const byRow = {};
@@ -44,9 +57,17 @@ const buildMonthlyValues = (rows, months, planOverrides) => {
     months.forEach((m) => {
       const base = node.values?.[m] || emptyCell();
       const override = planOverrides?.[`${node.id}|${m}`];
+      const plan = override != null ? override : base.plan || 0;
+      const fact = base.fact || 0;
       values[m] = {
-        plan: override != null ? override : base.plan || 0,
-        fact: base.fact || 0,
+        plan,
+        fact,
+        // profit берём с бэка как есть; после локальной правки плана
+        // пересчитываем в том же направлении, что и в ответе API
+        profit:
+          override != null
+            ? (node.profitSign ?? 1) * (fact - plan)
+            : base.profit ?? null,
       };
     });
     return values;
@@ -67,10 +88,10 @@ const buildMonthlyValues = (rows, months, planOverrides) => {
     const own = ownValues(node);
     const values = {};
     months.forEach((m) => {
-      values[m] = node.children.reduce((acc, child) => {
-        const cv = byRow[child.id]?.[m] || emptyCell();
-        return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact };
-      }, own[m]);
+      values[m] = node.children.reduce(
+        (acc, child) => addCells(acc, byRow[child.id]?.[m] || emptyCell()),
+        own[m]
+      );
     });
     byRow[node.id] = values;
   };
@@ -100,17 +121,21 @@ const buildMonthlyValues = (rows, months, planOverrides) => {
 /** Суммирует месячные значения строки по месяцам колонки. */
 const sumMonths = (values, months) => {
   if (!values) return emptyCell();
-  return months.reduce((acc, m) => {
-    const cv = values[m] || emptyCell();
-    return { plan: acc.plan + cv.plan, fact: acc.fact + cv.fact };
-  }, emptyCell());
+  return months.reduce(
+    (acc, m) => addCells(acc, values[m] || emptyCell()),
+    emptyCell()
+  );
 };
 
 /** Среднее по месяцам — для процентных строк, которые нельзя складывать. */
 const avgMonths = (values, months) => {
   if (!values || !months.length) return emptyCell();
   const sum = sumMonths(values, months);
-  return { plan: sum.plan / months.length, fact: sum.fact / months.length };
+  return {
+    plan: sum.plan / months.length,
+    fact: sum.fact / months.length,
+    profit: sum.profit == null ? null : sum.profit / months.length,
+  };
 };
 
 /**
@@ -547,9 +572,9 @@ const BudgetPivotTable = ({
     if (colKey === "fact") return formatMoney(fact);
     if (colKey === "planExec")
       return formatPercent(planExecution(plan, fact), t("na"));
-    if (colKey === "deviation") return formatDeviation(deviation(plan, fact));
+    if (colKey === "deviation") return formatDeviation(deviation(metrics));
     if (colKey === "deviationPct")
-      return formatPercent(deviationPercent(plan, fact), t("na"));
+      return formatPercent(deviationPercent(metrics), t("na"));
     return null;
   };
 
@@ -562,8 +587,8 @@ const BudgetPivotTable = ({
     const { plan, fact } = metrics;
     let value = null;
     if (colKey === "planExec") value = planExecution(plan, fact);
-    else if (colKey === "deviation") value = deviation(plan, fact);
-    else if (colKey === "deviationPct") value = deviationPercent(plan, fact);
+    else if (colKey === "deviation") value = deviation(metrics);
+    else if (colKey === "deviationPct") value = deviationPercent(metrics);
     if (value == null || !Number.isFinite(value)) return 0;
     return Math.sign(Math.round(value));
   };
@@ -576,11 +601,11 @@ const BudgetPivotTable = ({
       return formatPercent(planExecution(plan, fact), t("na"));
     if (colKey === "deviation")
       return formatPercent(
-        fact == null || plan == null ? null : deviation(plan, fact),
+        fact == null || plan == null ? null : deviation(metrics),
         t("na")
       );
     if (colKey === "deviationPct")
-      return formatPercent(deviationPercent(plan, fact), t("na"));
+      return formatPercent(deviationPercent(metrics), t("na"));
     return null;
   };
 
