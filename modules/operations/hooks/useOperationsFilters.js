@@ -1,6 +1,7 @@
 // hooks/useOperationsFilters.js
 import { appStore } from '@/store/app.store'
 import { operationFilterStore } from '@/store/operationFilter.store'
+import { StringtoNumber } from '@/utils/helpers'
 import { toJS } from 'mobx'
 import { useEffect, useMemo, useState } from 'react'
 import { safeFormatDate } from '../utils/operationsUtils'
@@ -57,7 +58,9 @@ export function useOperationsFilters() {
     counterparties_ids:   toJS(selectedCounterAgents),
     my_accounts_ids:      toJS(selectedLegalEntities),
     tip:                  toJS(selectedFilters),
-    amount_range:         { min: Number(amountRange.min), max: Number(amountRange.max) },
+    // сумма приходит из фильтра с пробелами между разрядами («1 234.56»),
+    // поэтому разбираем её, а не приводим Number-ом — иначе NaN
+    amount_range:         { min: Number(StringtoNumber(amountRange.min)) || 0, max: Number(StringtoNumber(amountRange.max)) || 0 },
     chart_of_accounts_ids: toJS(selectedChartOfAccounts),
     payment_type:         appStore.isPayment ? paymentType : null,
     paymentConfirm,

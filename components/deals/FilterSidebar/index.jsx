@@ -8,7 +8,7 @@ import { academicYears } from '../../../constants/academicYears'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { appStore } from '../../../store/app.store'
 import { sealDeal } from '../../../store/saleDeal.store'
-import { formatNumber } from '../../../utils/helpers'
+import { formatAmountInput } from '../../../utils/helpers'
 import SelectCounterParties from '../../ReadyComponents/SelectCounterParties'
 import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
@@ -86,8 +86,10 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 		showSchoolYear
 	])
 
+	// Суммы вводятся как в остальных формах: «.», «,» и «/» дают одну
+	// десятичную точку, разряды разделяются пробелами
 	const handlePriceDebouce = (field, value) => {
-		setState(field, value)
+		setState(field, formatAmountInput(value))
 	}
 
 
@@ -158,7 +160,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 						<Input
 							type='text'
 							placeholder={t('from')}
-							value={formatNumber(amountFrom)}
+							value={formatAmountInput(amountFrom)}
 							onChange={e => handlePriceDebouce('amountFrom', e.target.value)}
 							className='h-8!'
 						/>
@@ -166,7 +168,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 						<Input
 							type='text'
 							placeholder={t('to')}
-							value={formatNumber(amountTo)}
+							value={formatAmountInput(amountTo)}
 							onChange={e => handlePriceDebouce('amountTo', e.target.value)}
 							className='h-8!'
 						/>
@@ -181,7 +183,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 							<Input
 								type='text'
 								placeholder={t('from')}
-								value={formatNumber(profitFrom)}
+								value={formatAmountInput(profitFrom)}
 								onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
 								className='h-8!'
 							/>
@@ -189,7 +191,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 							<Input
 								type='text'
 								placeholder={t('to')}
-								value={formatNumber(profitTo)}
+								value={formatAmountInput(profitTo)}
 								onChange={e => handlePriceDebouce('profitTo', e.target.value)}
 								className='h-8!'
 							/>

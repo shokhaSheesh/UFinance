@@ -7,6 +7,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { FaSortDown } from 'react-icons/fa'
 import { appStore } from '../../../store/app.store'
 import { allowedTip, operationFilterStore, tips } from '../../../store/operationFilter.store'
+import { formatAmountInput } from '../../../utils/helpers'
 import MultiSelectStatiya from '../../ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '../../ReadyComponents/MultiZdelka'
 import MultiSelectPurchaseZdelka from '../../ReadyComponents/MultiPurchaseZdelka'
@@ -45,7 +46,11 @@ export const OperationsFiltersSidebar = observer(({
 
   const [expandedFilters, setExpandedFilters] = useState({ peremescheniye: false, nachisleniye: false })
   // const [activeTab, setActiveTab] = useState('general')
-  const [localAmount, setLocalAmount] = useState({ min: amountRange?.min || '', max: amountRange?.max || '' })
+  // сохранённые в сторе суммы тоже показываем в общем формате
+  const [localAmount, setLocalAmount] = useState({
+    min: formatAmountInput(amountRange?.min ?? ''),
+    max: formatAmountInput(amountRange?.max ?? ''),
+  })
   const amountDebounceRef = useRef(null)
 
   // Calculate count of active filters
@@ -88,12 +93,14 @@ export const OperationsFiltersSidebar = observer(({
     queryClient.invalidateQueries({ queryKey: ['find_operations'] })
   }, [queryClient])
 
+  // Суммы вводятся как в остальных формах: «.», «,» и «/» дают одну
+  // десятичную точку, разряды разделяются пробелами
   const handleAmountChange = useCallback((field, rawValue) => {
-    const digitsOnly = rawValue.replace(/[^0-9]/g, '')
-    setLocalAmount(prev => ({ ...prev, [field]: digitsOnly }))
+    const amount = formatAmountInput(rawValue)
+    setLocalAmount(prev => ({ ...prev, [field]: amount }))
     if (amountDebounceRef.current) clearTimeout(amountDebounceRef.current)
     amountDebounceRef.current = setTimeout(() => {
-      operationFilterStore.setAmountRange(prev => ({ ...prev, [field]: digitsOnly }))
+      operationFilterStore.setAmountRange(prev => ({ ...prev, [field]: amount }))
     }, 200)
   }, [])
 
