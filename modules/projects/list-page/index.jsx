@@ -74,8 +74,11 @@ export default observer(function ProjectsListPage() {
         ? moment(dateRangeJs.start).format('YYYY-MM-DD')
         : undefined,
       end_to_date: dateRangeJs?.end ? moment(dateRangeJs.end).format('YYYY-MM-DD') : undefined,
+      // Метод учёта — от него зависят доходы, расходы и прибыль в списке.
+      // Имя поля как в дашборде проекта (profit_and_loss).
+      accounting_method: analysisMethod,
     }),
-    [statusesJs, search, selectedProjectsJs, dateRangeJs]
+    [statusesJs, search, selectedProjectsJs, dateRangeJs, analysisMethod]
   )
 
   // Дебаунс запроса (поиск/фильтры)
@@ -87,7 +90,7 @@ export default observer(function ProjectsListPage() {
 
   const {
     projects,
-    total,
+    summary,
     isLoading,
     isFetching,
     isFetchingNextPage,
@@ -105,12 +108,6 @@ export default observer(function ProjectsListPage() {
       return true
     })
   }, [projects, statusesJs, showActive])
-
-  // ── Сводка (финансовые показатели вне текущего API) ──
-  const summary = useMemo(
-    () => ({ count: total, income: 0, expenses: 0, profit: 0, profitability: null }),
-    [total]
-  )
 
   const methodOptions = useMemo(
     () => [

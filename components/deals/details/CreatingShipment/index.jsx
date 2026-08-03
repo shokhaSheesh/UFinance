@@ -14,6 +14,7 @@ import {
 } from "../../../../hooks/useDashboard";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
 import { apiClient } from "../../../../lib/api/ucode/base";
+import { readStockCount } from "../../../../lib/api/ucode/stock";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
@@ -35,26 +36,6 @@ import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
 import Loader from "../../../shared/Loader";
 import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
-
-// get_stock_count → доступный остаток. Значение лежит в data.data.quantity,
-// но уровней вложенности `data` в конверте может быть разное число, поэтому
-// ищем поле `quantity` защитно на любой глубине ответа.
-const readStockCount = (res) => {
-  const seen = new Set();
-  const find = (obj) => {
-    if (!obj || typeof obj !== "object" || seen.has(obj)) return undefined;
-    seen.add(obj);
-    if (obj.quantity != null && !Number.isNaN(Number(obj.quantity))) {
-      return Number(obj.quantity);
-    }
-    for (const key of Object.keys(obj)) {
-      const found = find(obj[key]);
-      if (found != null) return found;
-    }
-    return undefined;
-  };
-  return find(res) ?? 0;
-};
 
 const CreateShipment = observer(
   ({
@@ -163,15 +144,12 @@ const CreateShipment = observer(
         (warehousesData || []).map((w) => ({ value: w.guid, label: w.name })),
       [warehousesData]
     );
-    // Product picker filter: a warehouse supply lists goods (Tip=product), a
-    // service supply lists services. Only the purchase form with the warehouse
-    // module on makes this split; otherwise both are shown.
+    // Фильтр списка позиций в поставке: пока склад не выбран, поставка может
+    // оказаться и складской, и сервисной — показываем и товары, и услуги.
+    // Как только склад выбран, приходовать можно только товары.
+    // В продаже разделения нет — там список полный всегда.
     const productType =
-      isPurchase && isWarehouseModuleOn
-        ? isServiceSupply
-          ? "service"
-          : "product"
-        : undefined;
+      isPurchase && isWarehouseModuleOn && warehouse ? "product" : undefined;
     // Поставка на склад: товар приходуется складом, проект к ней не относится —
     // поле «Проект» скрываем и не отправляем. В сервисной поставке (без склада)
     // проект остаётся.
@@ -187,6 +165,7 @@ const CreateShipment = observer(
         discount: "",
         nds: "",
         sum: "",
+        unitName: "",
       },
     ]);
     const [code, setCode] = useState("");
@@ -255,6 +234,7 @@ const CreateShipment = observer(
               discount: String(row.Skidka ?? ""),
               nds: String(row.NDS ?? ""),
               sum: row.Summa ?? 0,
+              unitName: row.unit_name || "",
             }))
           );
         }
@@ -280,6 +260,7 @@ const CreateShipment = observer(
             discount: "",
             nds: "",
             sum: "",
+            unitName: "",
           },
         ]);
         setSelectedProducts(new Set());
@@ -513,6 +494,7 @@ const CreateShipment = observer(
           discount: "",
           nds: "",
           sum: "",
+          unitName: "",
         },
       ]);
     };
@@ -735,6 +717,7 @@ const CreateShipment = observer(
             discount: "",
             nds: "",
             sum: 0,
+            unitName: "",
           },
         ]);
         setSelectedProducts(new Set());
@@ -805,6 +788,7 @@ const CreateShipment = observer(
             discount: String(source.discount || 0),
             nds: String(source.nds || 0),
             sum: signPrice(q * p),
+            unitName: source.unit_name || row.unitName || "",
           };
         })
       );
@@ -1124,7 +1108,7 @@ const CreateShipment = observer(
                           </div>
                         </th>
                         {selectedProducts?.size > 0 && (
-                          <th colSpan={6}>
+                          <th colSpan={7}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <span className="text-sm font-bold text-neutral-900">
@@ -1157,6 +1141,9 @@ const CreateShipment = observer(
                             </th>
                             <th className="w-[80px] border-l text-right px-1">
                               {t("quantity")}
+                            </th>
+                            <th className="w-[90px] border-l text-right px-1">
+                              {t("unit")}
                             </th>
                             <th className="w-[120px] border-l text-right px-1">
                               {t("price")} {code}
@@ -1240,6 +1227,12 @@ const CreateShipment = observer(
                                   "bg-red-50 text-red-600"
                               )}
                             />
+                          </td>
+                          {/* Единица измерения выбранного товара — только показ */}
+                          <td className="w-[90px] border-l">
+                            <span className="block h-10 truncate pr-2 text-end text-xs leading-10 text-neutral-500">
+                              {row.unitName || "—"}
+                            </span>
                           </td>
                           <td className="w-[120px] border-l">
                             <input

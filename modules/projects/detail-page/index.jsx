@@ -157,6 +157,10 @@ export default observer(function ProjectDetailPage() {
         onDateRangeTypeChange={setDateRangeType}
         onEdit={permissions.edit ? () => setEditOpen(true) : undefined}
         onToggleStatus={permissions.edit ? () => statusMut.mutate({ guid: project.id }) : undefined}
+        onStatusChange={
+          permissions.edit ? (status) => statusMut.mutate({ guid: project.id, status }) : undefined
+        }
+        isStatusPending={statusMut.isPending}
         onDelete={
           permissions.delete
             ? () => deleteProjectMut.mutate(project.id, { onSuccess: () => router.push('/projects') })

@@ -552,7 +552,7 @@ export default observer(function DealDetailPage() {
                 </div>
               </div>
               <div className="overflow-hidden">
-                {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} />}
+                {activeTab === 'products' && <ProductServiceTable canAdd={productsPermission} handleSelect={handleSelectProduct} sellingDealId={dealId} onAdd={() => setShowProductModal(true)} onShowOperations={() => setActiveTab('shipments')} />}
 
                 {activeTab === 'receipts' && <IncomeOperationsTable canAdd={incomePermission} canEdit={incomeCanEdit} canDelete={incomeCanDelete} type='Поступление' sellingDealId={dealId} onAdd={handleCreateOperation} />}
 

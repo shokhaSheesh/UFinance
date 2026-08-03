@@ -8,12 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronRight, EllipsisVertical, HelpCircle } from 'lucide-react'
+import { STATUS_COLORS } from '@/lib/api/ucode/projects'
+import { Check, ChevronDown, ChevronRight, EllipsisVertical, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import moment from 'moment'
 import styles from '../projects.module.scss'
 
 const fmt = (d) => (d ? moment(d).format('DD.MM.YY') : '—')
+
+// Статусы, которые переключаются прямо из бейджа: «В работе» ↔ «Завершен».
+// Плановый проект так не переводится — для него остаётся пункт в меню «⋮».
+const SWITCHABLE_STATUSES = ['in_progress', 'completed']
 
 /**
  * Шапка детальной страницы проекта: хлебные крошки, название + статус,
@@ -38,8 +43,21 @@ export default function ProjectDetailHeader({
   onDateRangeTypeChange,
   onEdit,
   onToggleStatus,
+  onStatusChange,
+  isStatusPending = false,
   onDelete,
 }) {
+  const canSwitchStatus = !!onStatusChange && SWITCHABLE_STATUSES.includes(project?.status)
+
+  const statusBadge = (
+    <span
+      className={styles.status}
+      style={{ color: statusColor, backgroundColor: `${statusColor}1A` }}
+    >
+      {ts(project?.status)}
+    </span>
+  )
+
   return (
     <div className="px-6 pt-4 bg-white">
       {/* Хлебные крошки */}
@@ -60,12 +78,51 @@ export default function ProjectDetailHeader({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-900 m-0">{project?.name}</h1>
-            <span
-              className={styles.status}
-              style={{ color: statusColor, backgroundColor: `${statusColor}1A` }}
-            >
-              {ts(project?.status)}
-            </span>
+
+            {/* Статус — меню смены «В работе» ↔ «Завершен» */}
+            {canSwitchStatus ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    disabled={isStatusPending}
+                    className="group flex items-center gap-1 rounded-[10px] border-none bg-transparent p-0 cursor-pointer transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {statusBadge}
+                    <ChevronDown
+                      size={14}
+                      className="transition-transform duration-200 group-data-popup-open:rotate-180"
+                      style={{ color: statusColor }}
+                    />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="start" sideOffset={6} className="w-44! rounded-lg border border-neutral-200 p-1.5">
+                  {SWITCHABLE_STATUSES.map((key) => {
+                    const isCurrent = key === project?.status
+                    return (
+                      <DropdownMenuItem
+                        key={key}
+                        disabled={isCurrent}
+                        onClick={() => onStatusChange(key)}
+                        className="h-9 justify-between rounded-md px-2.5 text-neutral-700 data-disabled:opacity-100!"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="size-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: STATUS_COLORS[key] }}
+                          />
+                          {ts(key)}
+                        </span>
+                        {isCurrent && <Check size={15} className="text-emerald-500" />}
+                      </DropdownMenuItem>
+                    )
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              statusBadge
+            )}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-neutral-500">
             <span>

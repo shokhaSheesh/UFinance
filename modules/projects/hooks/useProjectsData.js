@@ -6,6 +6,7 @@ import {
   listProjectGroups,
   listProjects,
   normalizeProject,
+  normalizeProjectsSummary,
   updateProject,
   updateProjectStatus,
 } from '@/lib/api/ucode/projects'
@@ -42,8 +43,10 @@ export function useProjectsList(filters = {}) {
     .map(normalizeProject)
 
   const total = query.data?.pages?.[0]?.pagination?.total ?? projects.length
+  // сводка одна на всю выборку — берём с первой страницы
+  const summary = normalizeProjectsSummary(query.data?.pages?.[0]?.summary, total)
 
-  return { ...query, projects, total }
+  return { ...query, projects, total, summary }
 }
 
 /**

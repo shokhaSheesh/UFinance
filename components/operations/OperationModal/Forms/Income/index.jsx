@@ -28,6 +28,8 @@ import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { isProjectCompletedError } from '@/lib/api/ucode/errors'
+import { showErrorAlert } from '@/lib/utils/notifications'
 import { useTranslations } from 'next-intl'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
@@ -278,11 +280,15 @@ const IncomeForm = observer(({
 }) => {
 
   const t = useTranslations('Operations.forms')
+  const tErrors = useTranslations('Errors')
   const tPay = useTranslations('Operations.paymentTypes')
 
 
   // Form State
   const isNew = initialData?.isNew
+  // Форма открыта на создание — та же проверка, что и у пустых defaultValues ниже.
+  // Правку и копию не трогаем: там значения приходят из самой операции.
+  const isCreating = !initialData || (isNew && !initialData.isCopy)
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
@@ -450,9 +456,16 @@ const IncomeForm = observer(({
         data: payload
       }, {
         onSuccess: (data) => {
+          if (isProjectCompletedError(data)) return
           onClose()
         }
       })
+
+      // Бэк может ответить 200 с телом-ошибкой — тогда onError мутации молчит
+      if (isProjectCompletedError(res)) {
+        showErrorAlert(tErrors('projectCompleted.title'), tErrors('projectCompleted.text'))
+        return
+      }
 
       const operationId = isNew
         ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
@@ -761,6 +774,7 @@ const IncomeForm = observer(({
                         value={field.value}
                         onChange={field.onChange}
                         placeholder={t('projectPlaceholder')}
+                        selectFirst={isCreating}
                         className='bg-white border rounded-md h-[36px]!'
                       />
                     )}

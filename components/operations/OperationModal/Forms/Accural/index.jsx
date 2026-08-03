@@ -15,6 +15,8 @@ import { formatDateParseZone, formatDecimal, formatAmountInput, getCurrencyIcon,
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
+import { isProjectCompletedError } from '@/lib/api/ucode/errors'
+import { showErrorAlert } from '@/lib/utils/notifications'
 import { useTranslations } from 'next-intl'
 import MyAccountCurrensies from '../../../../ReadyComponents/MyAccountCurrensies'
 import SelectLegelEntitties from '../../../../ReadyComponents/SelectLegelEntitties'
@@ -50,6 +52,7 @@ const updateOperationsCache = (updatedOperation) => {
 
 const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => {
   const t = useTranslations('Operations.forms')
+  const tErrors = useTranslations('Errors')
   const [isFromRasxodChild, setIsFromRasxodChild] = useState(false)
   const [isToRasxodChild, setIsToRasxodChild] = useState(false)
   const [title, setTitle] = useState()
@@ -181,10 +184,17 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
         method: isNew ? 'create_operation' : 'update_operation',
         data: requestData
       }, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          if (isProjectCompletedError(data)) return
           onClose()
         }
       })
+      // Бэк может ответить 200 с телом-ошибкой — тогда onError мутации молчит
+      if (isProjectCompletedError(res)) {
+        showErrorAlert(tErrors('projectCompleted.title'), tErrors('projectCompleted.text'))
+        return
+      }
+
       const operationId = isNew
         ? (res?.data?.data?.guid || res?.data?.data?.[0]?.guid)
         : initialData.guid

@@ -13,8 +13,8 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import styles from '../projects.module.scss'
 import ProjectsTableHeader from './ProjectsTableHeader'
 
-const money = (v) => (v ? formatAmount(v) : '–')
-const profitText = (v) => (v == null ? '–' : formatAmount(v))
+// Суммы показываем целыми — как в карточках проекта, копейки тут не нужны
+const money = (v) => (v == null ? '–' : formatAmount(Math.round(Number(v) || 0)))
 const percent = (v) => (v == null ? '–' : `${Number(v).toFixed(1)}%`)
 const dateText = (d) => (d ? formatDateFormat(d) : '–')
 
@@ -68,6 +68,8 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
   const color = STATUS_COLORS[project.status]
   const profitPositive = project.profit > 0
   const profitNegative = project.profit < 0
+  const marginPositive = project.profitability > 0
+  const marginNegative = project.profitability < 0
 
   return (
     <div
@@ -96,7 +98,7 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
         </span>
       </div>
 
-      {/* Доходы / Расходы / Прибыль / Рентабельность (вне текущего API → «–») */}
+      {/* Доходы / Расходы / Прибыль / Рентабельность — из list_projects */}
       <div className="w-32 shrink-0 px-2 text-end text-slate-900">{money(project.income)}</div>
       <div className="w-28 shrink-0 px-2 text-end text-slate-900">{money(project.expenses)}</div>
       <div
@@ -107,12 +109,14 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
           !profitPositive && !profitNegative && 'text-slate-900'
         )}
       >
-        {profitText(project.profit)}
+        {money(project.profit)}
       </div>
       <div
         className={cn(
           'w-32 shrink-0 px-2 text-end',
-          project.profitability != null ? 'text-emerald-600' : 'text-slate-900'
+          marginPositive && 'text-emerald-600',
+          marginNegative && 'text-red-600',
+          !marginPositive && !marginNegative && 'text-slate-900'
         )}
       >
         {percent(project.profitability)}

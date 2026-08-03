@@ -19,8 +19,11 @@ const Metric = ({ label, value, value2, tone }) => (
   </span>
 )
 
+// Итоги показываем целыми — как и суммы в строках таблицы
+const money = (v) => formatAmount(Math.round(Number(v) || 0))
+
 /**
- * Нижняя сводка по отфильтрованным проектам.
+ * Нижняя сводка по выборке — `summary` из list_projects.
  */
 export default function ProjectsFooter({ t, summary, isFilterOpen }) {
   const symbol = GlobalCurrency?.name || '₽'
@@ -39,12 +42,12 @@ export default function ProjectsFooter({ t, summary, isFilterOpen }) {
       </span>
 
       <div className="w-px h-5 bg-gray-200 shrink-0" />
-      <Metric label={t('footer.income')} value={formatAmount(income)} value2={symbol} />
+      <Metric label={t('footer.income')} value={money(income)} value2={symbol} />
 
       <div className="w-px h-5 bg-gray-200 shrink-0" />
       <Metric
         label={t('footer.expenses')}
-        value={formatAmount(expenses)}
+        value={money(expenses)}
         value2={symbol}
         tone={expenses < 0 ? 'neg' : undefined}
       />
@@ -52,7 +55,7 @@ export default function ProjectsFooter({ t, summary, isFilterOpen }) {
       <div className="w-px h-5 bg-gray-200 shrink-0" />
       <Metric
         label={t('footer.profit')}
-        value={formatAmount(profit)}
+        value={money(profit)}
         value2={symbol}
         tone={profit > 0 ? 'pos' : profit < 0 ? 'neg' : undefined}
       />
@@ -61,7 +64,7 @@ export default function ProjectsFooter({ t, summary, isFilterOpen }) {
       <Metric
         label={t('footer.profitability')}
         value={profitability == null ? '–' : `${Number(profitability).toFixed(1)}%`}
-        tone={profitability != null ? 'pos' : undefined}
+        tone={profitability > 0 ? 'pos' : profitability < 0 ? 'neg' : undefined}
       />
     </footer>
   )

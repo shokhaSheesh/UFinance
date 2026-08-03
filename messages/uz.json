@@ -106,7 +106,11 @@
       "closing": "Yopilmoqda...",
       "closeSuccess": "Hujjat yopildi",
       "closeError": "Hujjatni yopib bo'lmadi",
-      "noProducts": "Tovarlar yo'q"
+      "noProducts": "Tovarlar yo'q",
+      "stockChecking": "Ombor qoldig'i tekshirilmoqda...",
+      "stockCheckFailed": "Ombor qoldig'ini tekshirib bo'lmadi",
+      "stockShortTitle": "Omborda tovar yetarli emas:",
+      "stockShortRow": "«{name}»: mavjud {available}, kerak {requested}"
     }
   },
   "filter": "Filtrlar",
@@ -1088,6 +1092,7 @@
       "plannedShipment": "Rejalashtirilgan jo'natma",
       "productName": "Nomi",
       "quantity": "Miqdor",
+      "unit": "O'lch. bir.",
       "price": "Narxi",
       "discount": "Chegirma",
       "nds": "QQS",
@@ -1928,7 +1933,14 @@
         "deletePositionsConfirm": "Siz haqiqatan ham {count} ta pozitsiyani bitimdan o'chirmoqchimisiz?",
         "cancel": "Bekor qilish",
         "emptyTitle": "Bitimga tovar yoki xizmatlar qo'shing",
-        "emptySubtitle": "Mijozlaringizga sotib olish yoki sotish uchun tovarlar/xizmatlar bilan bitimni to'ldiring"
+        "emptySubtitle": "Mijozlaringizga sotib olish yoki sotish uchun tovarlar/xizmatlar bilan bitimni to'ldiring",
+        "linkedOpsTitleSale": "Bitimdan pozitsiyalarni o'chirishda xatolik",
+        "linkedOpsTitlePurchase": "Xariddan pozitsiyalarni o'chirishda xatolik",
+        "linkedOpsTextSale": "Bitimdagi {count} ta pozitsiyaga jo'natmalar bog'langan.",
+        "linkedOpsTextPurchase": "Xariddagi {count} ta pozitsiyaga yetkazib berishlar bog'langan.",
+        "linkedOpsHint": "Avval shu operatsiyalarni o'chiring va amalni takrorlang.",
+        "linkedOpsShow": "Operatsiyalarni ko'rish",
+        "linkedOpsClose": "Yopish"
       },
       "incomeOperationsTable": {
         "date": "Sana",
@@ -2580,6 +2592,11 @@
       "account": "Hisobni o‘chirib bo‘lmaydi, chunki u operatsiyalarda ishlatilgan. Avval ushbu hisobga tegishli operatsiyalarni o‘chiring yoki arxivlang.",
       "legalEntity": "Ushbu yuridik shaxsni o‘chirib bo‘lmaydi, chunki u bo‘yicha operatsiyalar bajarilgan. Avval unga bog‘liq operatsiyalarni o‘chiring.",
       "productService": "Ushbu pozitsiyani o‘chirib bo‘lmaydi, chunki u Sotuvlar yoki Xaridlarda ishlatilgan. Avval tegishli hujjatlardan uni o‘chirib tashlang."
+    },
+    "requestFailed": "So'rovni bajarishda xatolik",
+    "projectCompleted": {
+      "title": "Operatsiyani tahrirlash",
+      "text": "Yakunlangan loyihalarga bog'langan operatsiyalarni o'zgartirib bo'lmaydi. Loyihalar holatini o'zgartiring va amalni takrorlang."
     }
   }
 }
