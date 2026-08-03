@@ -228,9 +228,9 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, onSho
                     </div>
                   </td>
                   <td className="px-4 py-3 text-left border-r border-neutral-200">{item?.name}</td>
-                  <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.kolvo}</td>
+                  <td className="px-4 py-3 text-right border-r border-neutral-200">{formatAmount(item?.kolvo)}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.unit_name}</td>
-                  <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.tsena_za_ed}</td>
+                  <td className="px-4 py-3 text-right border-r border-neutral-200">{formatAmount(item?.tsena_za_ed)}</td>
                   <td className="px-4 py-3 text-right border-r border-neutral-200">{item?.discount}%</td>
                   <td className={`px-4 py-3  w-72 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">

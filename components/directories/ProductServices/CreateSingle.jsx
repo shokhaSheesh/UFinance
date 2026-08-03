@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
+import { formatAmountInput, formatDecimal, StringtoNumber } from '../../../utils/helpers'
 import Input from '../../shared/Input'
 import Loader from '../../shared/Loader'
 import SegmentedControl from '../../shared/SegmentedControl'
@@ -278,8 +278,8 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
                     <Input
                       className="flex-1 w-32"
                       placeholder={t('placeholders.price')}
-                      value={formatNumber(field.value)}
-                      onChange={e => field.onChange(formatNumber(e.target.value))}
+                      value={formatAmountInput(field.value)}
+                      onChange={e => field.onChange(formatAmountInput(e.target.value))}
                     />
                   )}
                 />

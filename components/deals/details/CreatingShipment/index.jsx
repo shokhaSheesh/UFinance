@@ -21,7 +21,6 @@ import { appStore } from "../../../../store/app.store";
 import {
   formatAmountInput,
   formatDecimal,
-  formatNumber,
   StringtoNumber,
 } from "../../../../utils/helpers";
 import { showErrorNotification } from "../../../../utils/notifications";
@@ -1207,12 +1206,12 @@ const CreateShipment = observer(
                             <input
                               type="text"
                               min={0}
-                              value={formatNumber(row.quantity)}
+                              value={formatAmountInput(row.quantity)}
                               onChange={(e) =>
                                 updateRow(
                                   row.id,
                                   "quantity",
-                                  formatNumber(e.target.value)
+                                  formatAmountInput(e.target.value)
                                 )
                               }
                               className={cn(

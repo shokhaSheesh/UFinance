@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
-import { formatDecimal, formatNumber, StringtoNumber } from '../../../utils/helpers'
+import { formatAmountInput, formatDecimal, StringtoNumber } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
 import CustomDialog from '../../shared/CustomDialog'
 import FormDatepicker from '../../shared/DatePicker/form-datepicker'
@@ -363,8 +363,8 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
                   render={({ field }) => (
                     <Input
                       type="text"
-                      value={formatNumber(field.value)}
-                      onChange={(e) => field.onChange(formatNumber(e.target.value))}
+                      value={formatAmountInput(field.value)}
+                      onChange={(e) => field.onChange(formatAmountInput(e.target.value))}
                       placeholder="0"
                       className="w-fit"
                       onWheel={(e) => e.target.blur()}
