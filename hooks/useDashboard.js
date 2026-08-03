@@ -2,8 +2,8 @@ import { dashboardAPI } from '@/lib/api/dashboard'
 import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
 import { createWarehouse, deleteWarehouse, listWarehouses, updateWarehouse } from '@/lib/api/ucode/warehouse'
-import { isObjectInUseError } from '@/lib/api/ucode/errors'
-import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { isObjectInUseError, isProjectCompletedError } from '@/lib/api/ucode/errors'
+import { showErrorAlert, showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import {
 	useInfiniteQuery,
 	useMutation,
@@ -567,10 +567,19 @@ export const useDeleteLegalEntities = () => {
  * Universal useUcodeRequest globally accessible
  */
 export const useUcodeRequestMutation = ({ mutationSetting = {} } = {}) => {
+	const tErrors = useTranslations('Errors')
+
 	return useMutation({
 		mutationFn: ({ method, data }) => ucodeRequest({ method, data }),
 		onError: error => {
 			console.error('useUcodeRequestMutation Error:', error)
+
+			// Операция привязана к завершённому проекту — вместо английской
+			// строки бэка объясняем правило и что нужно сделать
+			if (isProjectCompletedError(error)) {
+				showErrorAlert(tErrors('projectCompleted.title'), tErrors('projectCompleted.text'))
+				return
+			}
 
 			// Handle specific "already exists" error for registration
 			const errorMessage = error.message || error.details?.data || error.details?.description || ''

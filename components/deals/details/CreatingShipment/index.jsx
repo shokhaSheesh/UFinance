@@ -144,15 +144,12 @@ const CreateShipment = observer(
         (warehousesData || []).map((w) => ({ value: w.guid, label: w.name })),
       [warehousesData]
     );
-    // Product picker filter: a warehouse supply lists goods (Tip=product), a
-    // service supply lists services. Only the purchase form with the warehouse
-    // module on makes this split; otherwise both are shown.
+    // Фильтр списка позиций в поставке: пока склад не выбран, поставка может
+    // оказаться и складской, и сервисной — показываем и товары, и услуги.
+    // Как только склад выбран, приходовать можно только товары.
+    // В продаже разделения нет — там список полный всегда.
     const productType =
-      isPurchase && isWarehouseModuleOn
-        ? isServiceSupply
-          ? "service"
-          : "product"
-        : undefined;
+      isPurchase && isWarehouseModuleOn && warehouse ? "product" : undefined;
     // Поставка на склад: товар приходуется складом, проект к ней не относится —
     // поле «Проект» скрываем и не отправляем. В сервисной поставке (без склада)
     // проект остаётся.

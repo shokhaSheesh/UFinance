@@ -2592,6 +2592,10 @@
       "legalEntity": "Ushbu yuridik shaxsni o‘chirib bo‘lmaydi, chunki u bo‘yicha operatsiyalar bajarilgan. Avval unga bog‘liq operatsiyalarni o‘chiring.",
       "productService": "Ushbu pozitsiyani o‘chirib bo‘lmaydi, chunki u Sotuvlar yoki Xaridlarda ishlatilgan. Avval tegishli hujjatlardan uni o‘chirib tashlang."
     },
-    "requestFailed": "So'rovni bajarishda xatolik"
+    "requestFailed": "So'rovni bajarishda xatolik",
+    "projectCompleted": {
+      "title": "Operatsiyani tahrirlash",
+      "text": "Yakunlangan loyihalarga bog'langan operatsiyalarni o'zgartirib bo'lmaydi. Loyihalar holatini o'zgartiring va amalni takrorlang."
+    }
   }
 }
