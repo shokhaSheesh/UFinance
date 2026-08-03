@@ -87,7 +87,7 @@ export default observer(function ProjectsListPage() {
 
   const {
     projects,
-    total,
+    summary,
     isLoading,
     isFetching,
     isFetchingNextPage,
@@ -105,12 +105,6 @@ export default observer(function ProjectsListPage() {
       return true
     })
   }, [projects, statusesJs, showActive])
-
-  // ── Сводка (финансовые показатели вне текущего API) ──
-  const summary = useMemo(
-    () => ({ count: total, income: 0, expenses: 0, profit: 0, profitability: null }),
-    [total]
-  )
 
   const methodOptions = useMemo(
     () => [
