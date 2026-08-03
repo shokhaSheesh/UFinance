@@ -74,9 +74,18 @@ export const deviationPercent = (metrics) => {
   return (deviation(metrics) / plan) * 100
 }
 
-/** Разбор пользовательского ввода в редактируемой ячейке плана. */
+/**
+ * Разбор пользовательского ввода в редактируемой ячейке плана.
+ * «б» и «ю» — это клавиши «,» и «.» английской раскладки: в русской раскладке
+ * дробную часть набирают именно ими, поэтому считаем их разделителем. Без этого
+ * буквы просто вырезались и «2ю5» превращалось в 25.
+ */
 export const parseInputNumber = (text) => {
-  const cleaned = String(text).replace(/[^\d,.\-−]/g, '').replace(/[−]/g, '-').replace(',', '.')
+  const cleaned = String(text)
+    .replace(/[бБюЮ]/g, '.')
+    .replace(/[^\d,.\-−]/g, '')
+    .replace(/[−]/g, '-')
+    .replace(',', '.')
   if (!cleaned || cleaned === '-') return null
   const num = Number(cleaned)
   return Number.isFinite(num) ? num : null
