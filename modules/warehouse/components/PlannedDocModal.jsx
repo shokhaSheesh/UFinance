@@ -3,10 +3,19 @@
 import CustomDialog from '@/components/shared/CustomDialog'
 import Loader from '@/components/shared/Loader'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { getStockCount } from '@/lib/api/ucode/stock'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import {
+  collectRequested,
+  findShortages,
+  isStockOutflow,
+} from '@/modules/warehouse/utils/stockCheck'
+import { appStore } from '@/store/app.store'
 import { FormatDateRu, formatNumber } from '@/utils/helpers'
 import { X } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
+import { useEffect, useMemo, useState } from 'react'
 
 const GET_METHOD = {
   shipment: 'get_shipment_transaction',
@@ -77,6 +86,12 @@ const readDocNumber = doc => {
 
 const readUnit = row => row?.units_of_measurement_id_data?.full_name || '—'
 
+// Дата, на которую спрашиваем остаток — дата самого документа
+const readStockDate = (doc, item) => {
+  const parsed = moment.parseZone(readDate(doc, item))
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
+}
+
 // Эти поля лежат на уровне документа, но читаем и со строки — на случай,
 // если бэкенд начнёт отдавать их по позициям
 const readRowField = (row, doc, key) => row?.[key] || doc?.[key] || '—'
@@ -86,6 +101,7 @@ const PlannedDocModal = ({
   onClose,
   type,
   item,
+  warehouseId,
   warehouseName,
   onClosed,
   t,
@@ -119,8 +135,71 @@ const PlannedDocModal = ({
     ? doc.product_and_service_data
     : []
 
+  /* ---------------------------------------------------------------- */
+  /* Проверка остатков                                                */
+  /* ---------------------------------------------------------------- */
+
+  const needsStockCheck =
+    open &&
+    appStore.warehouseActive &&
+    isStockOutflow(type, isReturn) &&
+    !isExecutedDoc
+
+  const stockWarehouseId = doc?.warehouse_id || item?.warehouse_id || warehouseId
+  const stockDate = readStockDate(doc, item)
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const requestedByProduct = useMemo(() => collectRequested(products), [doc])
+
+  // status: idle — проверка не нужна, loading — идёт, ready — есть остатки,
+  // failed — остатки не получены (закрывать вслепую нельзя)
+  const [stock, setStock] = useState({ status: 'idle', byProduct: {} })
+  const productIds = [...requestedByProduct.keys()].join(',')
+
+  useEffect(() => {
+    if (!needsStockCheck || !stockWarehouseId || !productIds) {
+      setStock({ status: 'idle', byProduct: {} })
+      return
+    }
+    let cancelled = false
+    setStock({ status: 'loading', byProduct: {} })
+    Promise.all(
+      productIds.split(',').map(async productId => [
+        productId,
+        await getStockCount({ productId, warehouseId: stockWarehouseId, date: stockDate }),
+      ])
+    )
+      .then(entries => {
+        if (!cancelled) {
+          setStock({ status: 'ready', byProduct: Object.fromEntries(entries) })
+        }
+      })
+      .catch(error => {
+        console.error('get_stock_count failed', error)
+        if (!cancelled) setStock({ status: 'failed', byProduct: {} })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [needsStockCheck, stockWarehouseId, stockDate, productIds])
+
+  // Каких товаров не хватает на складе
+  const shortages = useMemo(
+    () =>
+      stock.status === 'ready'
+        ? findShortages(requestedByProduct, stock.byProduct)
+        : [],
+    [requestedByProduct, stock]
+  )
+
+  const isCheckingStock = stock.status === 'loading'
+  const isStockCheckFailed = stock.status === 'failed'
+  const hasShortage = shortages.length > 0
+
   const handleClose = () => {
     if (!guid || !doc) return
+    // товара не хватает или остатки не проверены — списывать нечего
+    if (hasShortage || isCheckingStock || isStockCheckFailed) return
     closeDoc(
       {
         method: UPDATE_METHOD[type] || UPDATE_METHOD.shipment,
@@ -263,12 +342,48 @@ const PlannedDocModal = ({
         </>
       )}
 
-      <div className="flex justify-end border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+      <div className="flex items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+        <div className="flex min-w-0 flex-col gap-0.5 text-[12.5px]">
+          {isCheckingStock && (
+            <span className="text-neutral-500">{t('planned.stockChecking')}</span>
+          )}
+          {isStockCheckFailed && (
+            <span className="font-medium text-red-600">
+              {t('planned.stockCheckFailed')}
+            </span>
+          )}
+          {hasShortage && (
+            <>
+              <span className="font-medium text-red-600">
+                {t('planned.stockShortTitle')}
+              </span>
+              {shortages.map(s => (
+                <span key={s.productId} className="text-red-500">
+                  {t('planned.stockShortRow', {
+                    name: s.name,
+                    available: formatNumber(s.available),
+                    requested: formatNumber(s.requested),
+                  })}
+                </span>
+              ))}
+            </>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={handleClose}
-          disabled={isPending || !guid || !doc || isFetching || isExecutedDoc}
-          className="primary-btn cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={
+            isPending ||
+            !guid ||
+            !doc ||
+            isFetching ||
+            isExecutedDoc ||
+            isCheckingStock ||
+            isStockCheckFailed ||
+            hasShortage
+          }
+          className="primary-btn shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? t('planned.closing') : t('planned.closeDoc')}
         </button>
@@ -277,4 +392,5 @@ const PlannedDocModal = ({
   )
 }
 
-export default PlannedDocModal
+// observer: проверка остатков включается флагом модуля склада в appStore
+export default observer(PlannedDocModal)

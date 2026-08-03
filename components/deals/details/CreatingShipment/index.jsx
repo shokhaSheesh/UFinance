@@ -14,6 +14,7 @@ import {
 } from "../../../../hooks/useDashboard";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
 import { apiClient } from "../../../../lib/api/ucode/base";
+import { readStockCount } from "../../../../lib/api/ucode/stock";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
@@ -36,26 +37,6 @@ import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
 import Loader from "../../../shared/Loader";
 import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
-
-// get_stock_count → доступный остаток. Значение лежит в data.data.quantity,
-// но уровней вложенности `data` в конверте может быть разное число, поэтому
-// ищем поле `quantity` защитно на любой глубине ответа.
-const readStockCount = (res) => {
-  const seen = new Set();
-  const find = (obj) => {
-    if (!obj || typeof obj !== "object" || seen.has(obj)) return undefined;
-    seen.add(obj);
-    if (obj.quantity != null && !Number.isNaN(Number(obj.quantity))) {
-      return Number(obj.quantity);
-    }
-    for (const key of Object.keys(obj)) {
-      const found = find(obj[key]);
-      if (found != null) return found;
-    }
-    return undefined;
-  };
-  return find(res) ?? 0;
-};
 
 const CreateShipment = observer(
   ({

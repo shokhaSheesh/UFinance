@@ -130,6 +130,7 @@ export default observer(function WarehouseDetailPage() {
         onClose={() => setSelectedDoc(null)}
         type={plannedType}
         item={selectedDoc}
+        warehouseId={warehouseId}
         warehouseName={warehouse?.name}
         onClosed={handleDocClosed}
         t={t}
