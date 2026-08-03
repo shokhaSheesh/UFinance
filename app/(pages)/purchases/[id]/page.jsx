@@ -644,6 +644,7 @@ export default observer(function PurchaseDetailPage() {
                     handleSelect={handleSelectProduct}
                     sellingDealId={dealId}
                     onAdd={() => setShowProductModal(true)}
+                    onShowOperations={() => setActiveTab("supplies")}
                     dealIdField="purchase_transactions_id"
                     invalidateKeys={["get_purchase_transaction_by_guid"]}
                   />

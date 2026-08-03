@@ -283,6 +283,9 @@ const IncomeForm = observer(({
 
   // Form State
   const isNew = initialData?.isNew
+  // Форма открыта на создание — та же проверка, что и у пустых defaultValues ниже.
+  // Правку и копию не трогаем: там значения приходят из самой операции.
+  const isCreating = !initialData || (isNew && !initialData.isCopy)
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
@@ -761,6 +764,7 @@ const IncomeForm = observer(({
                         value={field.value}
                         onChange={field.onChange}
                         placeholder={t('projectPlaceholder')}
+                        selectFirst={isCreating}
                         className='bg-white border rounded-md h-[36px]!'
                       />
                     )}

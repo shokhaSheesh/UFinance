@@ -1932,7 +1932,14 @@
         "deletePositionsConfirm": "Siz haqiqatan ham {count} ta pozitsiyani bitimdan o'chirmoqchimisiz?",
         "cancel": "Bekor qilish",
         "emptyTitle": "Bitimga tovar yoki xizmatlar qo'shing",
-        "emptySubtitle": "Mijozlaringizga sotib olish yoki sotish uchun tovarlar/xizmatlar bilan bitimni to'ldiring"
+        "emptySubtitle": "Mijozlaringizga sotib olish yoki sotish uchun tovarlar/xizmatlar bilan bitimni to'ldiring",
+        "linkedOpsTitleSale": "Bitimdan pozitsiyalarni o'chirishda xatolik",
+        "linkedOpsTitlePurchase": "Xariddan pozitsiyalarni o'chirishda xatolik",
+        "linkedOpsTextSale": "Bitimdagi {count} ta pozitsiyaga jo'natmalar bog'langan.",
+        "linkedOpsTextPurchase": "Xariddagi {count} ta pozitsiyaga yetkazib berishlar bog'langan.",
+        "linkedOpsHint": "Avval shu operatsiyalarni o'chiring va amalni takrorlang.",
+        "linkedOpsShow": "Operatsiyalarni ko'rish",
+        "linkedOpsClose": "Yopish"
       },
       "incomeOperationsTable": {
         "date": "Sana",
@@ -2584,6 +2591,7 @@
       "account": "Hisobni o‘chirib bo‘lmaydi, chunki u operatsiyalarda ishlatilgan. Avval ushbu hisobga tegishli operatsiyalarni o‘chiring yoki arxivlang.",
       "legalEntity": "Ushbu yuridik shaxsni o‘chirib bo‘lmaydi, chunki u bo‘yicha operatsiyalar bajarilgan. Avval unga bog‘liq operatsiyalarni o‘chiring.",
       "productService": "Ushbu pozitsiyani o‘chirib bo‘lmaydi, chunki u Sotuvlar yoki Xaridlarda ishlatilgan. Avval tegishli hujjatlardan uni o‘chirib tashlang."
-    }
+    },
+    "requestFailed": "So'rovni bajarishda xatolik"
   }
 }

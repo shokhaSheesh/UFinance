@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { FileX2, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
@@ -7,7 +7,7 @@ import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import { useUcodeRequestMutation } from '../../../../hooks/useDashboard'
 import { apiClient } from '../../../../lib/api/ucode/base'
-import { isObjectInUseError } from '../../../../lib/api/ucode/errors'
+import { isLinkedToOperationError, isObjectInUseError } from '../../../../lib/api/ucode/errors'
 import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
 import { showErrorNotification } from '../../../../lib/utils/notifications'
 import { formatAmount } from '../../../../utils/helpers'
@@ -17,17 +17,31 @@ import Loader from '../../../shared/Loader'
 
 import EmptyState from '../EmptyState'
 
-const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealIdField = 'sales_transactions_id', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
+const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, onShowOperations, dealIdField = 'sales_transactions_id', invalidateKeys = ['get_sales_transaction_by_guid'] }) => {
   const t = useTranslations('Directories.details.productServiceTable')
   const tErrors = useTranslations('Errors')
+
+  // Один компонент на продажу и закупку: в закупке позиции держат поставки
+  const isPurchase = dealIdField === 'purchase_transactions_id'
 
   const [selectedItems, setSelectedItems] = useState(new Set())
   const [selectedItem, setSelectedItem] = useState([])
   const [open, setOpen] = useState(false)
+  // Сколько позиций не удалилось из-за привязанных операций (null — окна нет)
+  const [linkedCount, setLinkedCount] = useState(null)
   const scrollContainerRef = useRef(null)
   const LIMIT = 50
 
-  const { mutateAsync: mutateProductServiceCustom, isPending: isProductServiceCustomPending } = useUcodeRequestMutation()
+  const { mutateAsync: mutateProductServiceCustom, isPending: isProductServiceCustomPending } = useUcodeRequestMutation({
+    mutationSetting: {
+      // Про занятые позиции рассказываем окном ниже, а не тостом с текстом бэка
+      onError: (error) => {
+        if (isLinkedToOperationError(error) || isObjectInUseError(error)) return
+        console.error('delete_product_and_service', error)
+        showErrorNotification(error?.message || error?.details?.description || tErrors('requestFailed'))
+      },
+    },
+  })
   const queryClient = useQueryClient()
 
   const {
@@ -117,8 +131,9 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
 
     try {
       // По одному запросу на каждый guid: метод принимает один id,
-      // массив в `guid` бэк не обрабатывает
-      const results = await Promise.all(
+      // массив в `guid` бэк не обрабатывает. allSettled — чтобы посчитать,
+      // сколько именно позиций держат операции, когда упала только часть
+      const settled = await Promise.allSettled(
         guids.map((guid) =>
           mutateProductServiceCustom({
             method: "delete_product_and_service",
@@ -128,11 +143,11 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
       )
 
       // Бэк отвечает 200 с телом-ошибкой, поэтому проверяем и успешные ответы
-      if (results.some(isObjectInUseError)) {
-        showErrorNotification(tErrors('cannotDelete.productService'))
-        return
-      }
+      const payloads = settled.map(r => (r.status === 'fulfilled' ? r.value : r.reason))
+      const linked = payloads.filter(isLinkedToOperationError).length
+      const inUse = payloads.some(isObjectInUseError)
 
+      // часть позиций могла удалиться — список обновляем в любом случае
       invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: [key] }))
       queryClient.invalidateQueries({ queryKey: ['products_services_list'] })
       queryClient.invalidateQueries({ queryKey: ['list_sales_operations'] })
@@ -140,11 +155,13 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
       setOpen(false)
       setSelectedItem([])
       setSelectedItems(new Set())
+
+      if (linked > 0) setLinkedCount(linked)
+      else if (inUse) showErrorNotification(tErrors('cannotDelete.productService'))
     } catch (error) {
       console.error('mutateProductService', error?.message)
-      if (isObjectInUseError(error)) {
-        showErrorNotification(tErrors('cannotDelete.productService'))
-      }
+      if (isLinkedToOperationError(error)) setLinkedCount(guids.length)
+      else if (isObjectInUseError(error)) showErrorNotification(tErrors('cannotDelete.productService'))
     }
   }
 
@@ -268,6 +285,53 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, dealI
             </button>
             <button onClick={handleDelete} className='delete-btn'>
               {isProductServiceCustomPending ? <Loader /> : t('delete')}
+            </button>
+          </div>
+        </div>
+      </CustomModal>
+
+      {/* Позицию держат отгрузки/поставки — удалить её можно только после них */}
+      <CustomModal
+        isOpen={linkedCount != null}
+        onClose={() => setLinkedCount(null)}
+        className='w-[520px] max-w-[calc(100vw-2rem)]'
+      >
+        <div className='flex flex-col gap-5'>
+          <h1 className='pr-8 text-lg font-semibold text-neutral-900'>
+            {isPurchase ? t('linkedOpsTitlePurchase') : t('linkedOpsTitleSale')}
+          </h1>
+
+          <div className='flex items-start gap-4'>
+            <span className='flex size-12 shrink-0 items-center justify-center rounded-full bg-red-50'>
+              <FileX2 size={22} className='text-red-400' />
+            </span>
+            <div className='flex flex-col gap-1 text-sm text-neutral-600'>
+              <span>
+                {isPurchase
+                  ? t('linkedOpsTextPurchase', { count: linkedCount ?? 0 })
+                  : t('linkedOpsTextSale', { count: linkedCount ?? 0 })}
+              </span>
+              <span>{t('linkedOpsHint')}</span>
+            </div>
+          </div>
+
+          <div className='flex items-center justify-between gap-3'>
+            {onShowOperations ? (
+              <button
+                type='button'
+                onClick={() => {
+                  setLinkedCount(null)
+                  onShowOperations()
+                }}
+                className='cursor-pointer text-sm font-medium text-primary hover:underline'
+              >
+                {t('linkedOpsShow')}
+              </button>
+            ) : (
+              <span />
+            )}
+            <button type='button' onClick={() => setLinkedCount(null)} className='primary-btn'>
+              {t('linkedOpsClose')}
             </button>
           </div>
         </div>
