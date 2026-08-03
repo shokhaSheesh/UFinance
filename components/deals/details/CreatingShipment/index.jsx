@@ -165,6 +165,7 @@ const CreateShipment = observer(
         discount: "",
         nds: "",
         sum: "",
+        unitName: "",
       },
     ]);
     const [code, setCode] = useState("");
@@ -233,6 +234,7 @@ const CreateShipment = observer(
               discount: String(row.Skidka ?? ""),
               nds: String(row.NDS ?? ""),
               sum: row.Summa ?? 0,
+              unitName: row.unit_name || "",
             }))
           );
         }
@@ -258,6 +260,7 @@ const CreateShipment = observer(
             discount: "",
             nds: "",
             sum: "",
+            unitName: "",
           },
         ]);
         setSelectedProducts(new Set());
@@ -491,6 +494,7 @@ const CreateShipment = observer(
           discount: "",
           nds: "",
           sum: "",
+          unitName: "",
         },
       ]);
     };
@@ -713,6 +717,7 @@ const CreateShipment = observer(
             discount: "",
             nds: "",
             sum: 0,
+            unitName: "",
           },
         ]);
         setSelectedProducts(new Set());
@@ -783,6 +788,7 @@ const CreateShipment = observer(
             discount: String(source.discount || 0),
             nds: String(source.nds || 0),
             sum: signPrice(q * p),
+            unitName: source.unit_name || row.unitName || "",
           };
         })
       );
@@ -1102,7 +1108,7 @@ const CreateShipment = observer(
                           </div>
                         </th>
                         {selectedProducts?.size > 0 && (
-                          <th colSpan={6}>
+                          <th colSpan={7}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <span className="text-sm font-bold text-neutral-900">
@@ -1135,6 +1141,9 @@ const CreateShipment = observer(
                             </th>
                             <th className="w-[80px] border-l text-right px-1">
                               {t("quantity")}
+                            </th>
+                            <th className="w-[90px] border-l text-right px-1">
+                              {t("unit")}
                             </th>
                             <th className="w-[120px] border-l text-right px-1">
                               {t("price")} {code}
@@ -1218,6 +1227,12 @@ const CreateShipment = observer(
                                   "bg-red-50 text-red-600"
                               )}
                             />
+                          </td>
+                          {/* Единица измерения выбранного товара — только показ */}
+                          <td className="w-[90px] border-l">
+                            <span className="block h-10 truncate pr-2 text-end text-xs leading-10 text-neutral-500">
+                              {row.unitName || "—"}
+                            </span>
                           </td>
                           <td className="w-[120px] border-l">
                             <input

@@ -1094,6 +1094,7 @@
       "plannedShipment": "Плановая отгрузка",
       "productName": "Наименование",
       "quantity": "Кол-во",
+      "unit": "Ед. изм.",
       "price": "Цена",
       "discount": "Скидка",
       "nds": "НДС",
