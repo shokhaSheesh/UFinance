@@ -81,12 +81,15 @@ const emptyRow = (preselectedCounterparty = '') => ({
   percent: '',
 })
 
+// Суммы в инпутах форматируются пробелами ("11 734") — Number/parseFloat на них ломаются
+const toNumber = (v) => Number(String(v ?? '').replace(/\s/g, '')) || 0
+
 function rowsReducer(state, action) {
   switch (action.type) {
     case 'ADD': {
       const newState = [...state, emptyRow()]
       const count = newState.length
-      const totalAmount = parseFloat(action.amount) || 0
+      const totalAmount = toNumber(action.amount)
       const equalValue = Math.floor((totalAmount / count) * 100) / 100
       const equalPercent = Math.floor((100 / count) * 100) / 100
       const lastValue = +(totalAmount - equalValue * (count - 1)).toFixed(2)
@@ -102,7 +105,7 @@ function rowsReducer(state, action) {
       const newState = state.filter((_, i) => i !== action.index)
       const count = newState.length
       if (count === 0) return newState
-      const totalAmount = parseFloat(action.amount) || 0
+      const totalAmount = toNumber(action.amount)
       const remainingPercentSum = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
 
       if (remainingPercentSum > 0) {
@@ -151,10 +154,10 @@ function rowsReducer(state, action) {
         )
       }
       if (action.field === 'value' && action.amount) {
-        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
+        const numAmount = toNumber(action.amount)
         let percent = ''
         if (numAmount > 0 && action.value !== '') {
-          percent = String(Number((Number(action.value) / numAmount) * 100).toFixed(2))
+          percent = String(Number((toNumber(action.value) / numAmount) * 100).toFixed(2))
           if (percent.endsWith('.00')) percent = parseInt(percent).toString()
         }
         let newState = state.map((row, i) =>
@@ -162,7 +165,7 @@ function rowsReducer(state, action) {
         )
 
         if (numAmount > 0) {
-          const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
+          const totalValues = newState.reduce((s, r) => s + toNumber(r.value), 0)
           if (Math.abs(totalValues - numAmount) < 0.01) {
             const totalPercent = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
             if (Math.abs(totalPercent - 100) > 0.001) {
@@ -179,11 +182,11 @@ function rowsReducer(state, action) {
         return newState
       }
       if (action.field === 'percent' && action.amount) {
-        const numAmount = Number(String(action.amount).replace(/\s/g, ''))
+        const numAmount = toNumber(action.amount)
         let value = ''
         let calculatedValueStr = ''
         if (numAmount > 0 && action.value !== '') {
-          value = String(((Number(action.value) / 100) * numAmount).toFixed(2))
+          value = String(((toNumber(action.value) / 100) * numAmount).toFixed(2))
           calculatedValueStr = value.endsWith('.00') ? parseInt(value).toString() : value
         }
         let newState = state.map((row, i) =>
@@ -193,7 +196,7 @@ function rowsReducer(state, action) {
         if (numAmount > 0) {
           const totalPercents = newState.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
           if (Math.abs(totalPercents - 100) < 0.01) {
-            const totalValues = newState.reduce((s, r) => s + (Number(String(r.value).replace(/\s/g, '')) || 0), 0)
+            const totalValues = newState.reduce((s, r) => s + toNumber(r.value), 0)
             if (Math.abs(totalValues - numAmount) > 0.001) {
               const residualValue = numAmount - (totalValues - (Number(calculatedValueStr) || 0));
               newState = newState.map((row, i) =>
@@ -212,7 +215,7 @@ function rowsReducer(state, action) {
       )
     }
     case 'RECALCULATE_VALUES': {
-      const totalAmount = parseFloat(action.amount) || 0
+      const totalAmount = toNumber(action.amount)
       if (state.length === 0 || totalAmount === 0) return state
 
       const currentTotalPercent = state.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
@@ -248,7 +251,7 @@ function rowsReducer(state, action) {
     case 'DIVIDE_EQUAL': {
       const count = state.length
       if (count === 0) return state
-      const totalAmount = parseFloat(String(action?.amount)?.replace(/\s/g, '')) || 0
+      const totalAmount = toNumber(action?.amount)
       const equalValue = parseFloat((totalAmount / count).toFixed(2))
       const equalPercent = Math.floor(100 / count)
       const lastValue = parseFloat((totalAmount - equalValue * (count - 1)).toFixed(2))
@@ -341,6 +344,7 @@ const IncomeForm = observer(({
   const [rows, dispatch] = useReducer(rowsReducer, [emptyRow(preselectedCounterparty), emptyRow()])
   const [selectedSplits, setSelectedSplits] = useState([])
   const [divivedAmounts, setdivivedAmounts] = useState([])
+  const [splitValid, setSplitValid] = useState(true)
   const [title, setTitle] = useState()
   // Initialize splits and rows if editing existing operation
   useEffect(() => {
@@ -515,8 +519,11 @@ const IncomeForm = observer(({
 
   const totalSplitValue = divivedAmounts.reduce((acc, curr) => acc + Number(String(curr.value).replace(/\s/g, '') || 0), 0)
   const amountToNumber = Number(StringtoNumber(watchAmount))
-  const isSplitExceeded = divivedAmounts.length > 0 && amountToNumber > 0 && totalSplitValue > amountToNumber
-  const canSubmit = !isSplitExceeded
+  // Разбиение должно покрывать сумму операции целиком: и перебор, и недобор,
+  // и пустая сумма при заполненных строках блокируют сохранение.
+  // splitValid приходит из SplitAmount — там же считается и подсветка ошибки
+  const isSplitMismatched = divivedAmounts.length > 0 && (amountToNumber <= 0 || Math.abs(totalSplitValue - amountToNumber) >= 0.01)
+  const canSubmit = splitValid && !isSplitMismatched
 
   return (
     <>
@@ -633,6 +640,7 @@ const IncomeForm = observer(({
                       confirmPayment={watchConfirmPayment}
                       selectedSplits={selectedSplits}
                       setSelectedSplits={setSelectedSplits}
+                      onValidityChange={setSplitValid}
                       initiallyOpen={initialData?.operationParts?.length > 0}
                     />
                   </div>

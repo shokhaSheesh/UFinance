@@ -579,6 +579,8 @@
       "addRow": "Qator qo'shish",
       "removeRow": "Qatorni o'chirish",
       "decreaseBy": "Quyidagiga kamaytiring",
+      "increaseBy": "Quyidagiga oshiring",
+      "amountRequired": "Bo'lish uchun operatsiya summasini kiriting",
       "total": "Jami:",
       "cancelDialogText": "Operatsiya summasini bo'lishni bekor qilishni tasdiqlang. Bu avval kiritilgan ma'lumotlarni o'chirishga olib keladi.",
       "back": "Qaytish",
