@@ -80,6 +80,7 @@ const emptyRow = (preselectedCounterparty = '') => ({
   isCalculationCommitted: true,
   contrAgentId: preselectedCounterparty,
   operationCategoryId: '',
+  projectId: '',
   value: '',
   percent: '',
 })
@@ -353,6 +354,7 @@ const PaymentForm = observer(({
       if (parts.some(p => p.data_nachisleniya)) newSplits.push({ value: 'Начисление', label: 'Начисление' })
       if (parts.some(p => p.counterparties_id)) newSplits.push({ value: 'Контрагент', label: 'Контрагент' })
       if (parts.some(p => p.chart_of_accounts_id)) newSplits.push({ value: 'Статья', label: 'Статья' })
+      if (appStore.projectActive && parts.some(p => p.projects_id)) newSplits.push({ value: 'Проект', label: 'Проект' })
       setSelectedSplits(newSplits)
 
       const mappedRows = parts.map(p => ({
@@ -361,6 +363,7 @@ const PaymentForm = observer(({
         isCalculationCommitted: p.payment_accrual ?? true,
         contrAgentId: p.counterparties_id || '',
         operationCategoryId: p.chart_of_accounts_id || '',
+        projectId: p.projects_id || '',
         value: String(Math.abs(p.summa || 0)),
         percent: String(p.percent || '')
       }))
@@ -373,6 +376,8 @@ const PaymentForm = observer(({
   const showDate = has('Начисление')
   const showAgent = has('Контрагент')
   const showStatya = has('Статья')
+  // Проект вынесен в разбиение — общее поле проекта скрываем
+  const showProject = appStore.projectActive && has('Проект')
 
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
@@ -430,7 +435,8 @@ const PaymentForm = observer(({
       chart_of_accounts_id: chart_of_accounts_id || data?.chartOfAccount,
       sales_transactions_id: watchSalesDeal,
       purchase_transactions_id: watchPurchaseDeal || null,
-      ...(appStore.projectActive ? { projects_id: data?.projects_id || null } : {}),
+      // Проект разбит по строкам — на самой операции его не отправляем
+      ...(appStore.projectActive ? { projects_id: showProject ? null : (data?.projects_id || null) } : {}),
       counterparties_id: data?.counterparty,
       comment: watch('purpose'),
       currenies_id: data?.currency,
@@ -446,6 +452,7 @@ const PaymentForm = observer(({
         payment_accrual: watchPurchaseDeal ? false : (showDate && !watchSalesDeal ? item?.isCalculationCommitted : data?.confirmAccrual),
         counterparties_id: showAgent ? (item?.contrAgentId || null) : null,
         chart_of_accounts_id: showStatya ? (item?.operationCategoryId || null) : null,
+        ...(appStore.projectActive ? { projects_id: showProject ? (item?.projectId || null) : null } : {}),
       }))
     }
 
@@ -767,8 +774,8 @@ const PaymentForm = observer(({
               </div>
             )}
 
-            {/* Проект — только если включён модуль проектов */}
-            {appStore.projectActive && (
+            {/* Проект — только если включён модуль проектов и не разбит по строкам */}
+            {appStore.projectActive && !showProject && (
               <div className="flex items-center gap-4">
                 <label className="w-[150px] text-xss">{t('project')}</label>
                 <div className="flex-1 flex flex-col gap-1 max-w-[600px]">

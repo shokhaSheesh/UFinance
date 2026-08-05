@@ -585,7 +585,10 @@
       "confirmAction": "Tasdiqlash",
       "splitAccrual": "Hisoblash",
       "splitCounterparty": "Tomon",
-      "splitStatya": "Modda"
+      "splitStatya": "Modda",
+      "splitProject": "Loyiha",
+      "project": "Loyiha",
+      "projectPlaceholder": "Tanlanmagan"
     },
     "comments": {
       "plugTitle": "Operatsiyalarga fayllar, masalan, dalolatnomalar yoki schyotlarni biriktiring, izohlar qo'shing",
@@ -613,6 +616,7 @@
       "accrualPlaceholder": "[Hisoblash]",
       "counterpartiesCount": "{count} ta [tomon]",
       "statyaCount": "{count} ta [modda]",
+      "projectsCount": "{count} ta [loyiha]",
       "dealsCount": "2 ta [bitim]",
       "transferWriteOff": "[Ko'chirish — yechish]",
       "transferEnrollment": "[Ko'chirish — hisobga olish]",

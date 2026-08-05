@@ -47,12 +47,13 @@ const TableRow = observer(
       (operationPermissions.shipment.edit &&
         (op.operationType === "shipment" || op.operationType === "supply"));
 
+    const projects = useMemo(() => new Set(), []);
+
     op.operationParts?.forEach((part) => {
       children.add(part?.counterparties_id);
       chartofaccounts.add(part?.chart_of_accounts_id);
+      if (part?.projects_id) projects.add(part.projects_id);
     });
-
-    console.log("oop", op);
 
     const titleContragent = useMemo(() => {
       if (op.tip == "Начисление")
@@ -75,6 +76,21 @@ const TableRow = observer(
         return op.chartOfAccounts || "";
       }
     }, [chartofaccounts, op.chartOfAccounts, t]);
+
+    // Проект разбит по строкам: один на все части — показываем его,
+    // несколько — счётчик, как у контрагентов и статей
+    const titleProject = useMemo(() => {
+      if (projects.size === 1) {
+        return (
+          op.operationParts?.find((part) => part?.projects_id)?.projectName ||
+          op.projectName ||
+          ""
+        );
+      } else if (projects.size > 1) {
+        return t("row.projectsCount", { count: projects.size });
+      }
+      return op.projectName || "";
+    }, [projects, op.operationParts, op.projectName, t]);
 
     const titleDeals = useMemo(() => {
       if (
@@ -343,7 +359,7 @@ const TableRow = observer(
               )}
             >
               <p className={cn("text-xs text-neutral-600 truncate w-full", textPrimary)}>
-                {op?.projectName || ""}
+                {titleProject}
               </p>
             </div>
           )}
@@ -513,8 +529,17 @@ const TableRow = observer(
                   </span>
                 </div>
 
+                {/* Project Part — колонка проекта (если включён модуль) */}
+                {appStore.projectActive && (
+                  <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
+                    <span className="text-xs text-gray-600 truncate w-full">
+                      {part?.projectName || "-"}
+                    </span>
+                  </div>
+                )}
+
                 {/* Deal Part */}
-                <div className="flex-1 flex px-2 py-1 items-center justify-center ">
+                <div className="flex-1 flex px-2 py-1 items-center justify-center min-w-20">
                   <span className="text-xs text-gray-500 ">
                     {part?.selling_deal_name || "-"}
                   </span>

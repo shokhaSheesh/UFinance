@@ -1,4 +1,5 @@
 import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
+import SelectProjects from '@/components/ReadyComponents/SelectProjects'
 import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import CustomDialog from '@/components/shared/CustomDialog'
@@ -8,6 +9,7 @@ import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon,
 import { appStore } from '@/store/app.store'
 import { isFuture } from '@/utils/formatDate'
 import { formatAmount, formatAmountInput, formatDateRu, formatNumber } from '@/utils/helpers'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -46,7 +48,7 @@ const DateCell = ({ row, i, dispatch, disabled }) => {
 }
 
 // ── Main component ──────────────────────────────────────────
-const SplitAmount = ({ amount, onChange, rows,
+const SplitAmount = observer(({ amount, onChange, rows,
   dispatch, selectedSplits, setSelectedSplits, confirmPayment, initiallyOpen = false, modalType, salesDeal }) => {
   const t = useTranslations('Operations.splitAmount')
   const [open, setOpen] = useState(initiallyOpen)
@@ -56,7 +58,9 @@ const SplitAmount = ({ amount, onChange, rows,
     { value: 'Начисление', label: t('splitAccrual') },
     { value: 'Контрагент', label: t('splitCounterparty') },
     { value: 'Статья', label: t('splitStatya') },
-  ], [t])
+    // Проект — только если включён модуль проектов
+    ...(appStore.projectActive ? [{ value: 'Проект', label: t('splitProject') }] : []),
+  ], [t, appStore.projectActive])
 
   const [prevInitiallyOpen, setPrevInitiallyOpen] = useState(initiallyOpen)
 
@@ -69,6 +73,7 @@ const SplitAmount = ({ amount, onChange, rows,
   const showDate = has('Начисление')
   const showAgent = has('Контрагент')
   const showStatya = has('Статья')
+  const showProject = appStore.projectActive && has('Проект')
 
   const rawPercentSum = rows.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
   const totalPercent = Number(rawPercentSum.toFixed(2))
@@ -203,6 +208,11 @@ const SplitAmount = ({ amount, onChange, rows,
                         <strong>{t('statya')}</strong>
                       </th>
                     )}
+                    {showProject && (
+                      <th className="split-th col-project">
+                        <strong>{t('project')}</strong>
+                      </th>
+                    )}
                     <th className="split-th col-value">
                       <span className="th-icon" onClick={() => dispatch({ type: 'DIVIDE_EQUAL', amount })} style={{ cursor: 'pointer' }}><MergeArrowsIcon /></span>
                       <strong>{t('amount')} <span className="sort-arrow"><SortArrow /></span></strong>
@@ -278,6 +288,21 @@ const SplitAmount = ({ amount, onChange, rows,
                           </td>
                         )}
 
+                        {/* Проект */}
+                        {showProject && (
+                          <td className="split-td col-project">
+                            <div className="borderless-select" style={{ maxWidth: '180px' }}>
+                              <SelectProjects
+                                value={row.projectId}
+                                onChange={(value) => dispatch({ type: 'UPDATE', index: i, field: 'projectId', value: value || '' })}
+                                placeholder={t('projectPlaceholder')}
+                                className="bg-transparent border-none p-0 py-2"
+                                dropdownClassName="w-64"
+                              />
+                            </div>
+                          </td>
+                        )}
+
                         {/* Сумма */}
                         <td className="split-td col-value">
                           <div className="value-cell-wrapper relative">
@@ -334,7 +359,7 @@ const SplitAmount = ({ amount, onChange, rows,
                   {/* Footer row */}
                   <tr className="split-footer-row border-none">
                     <td
-                      colSpan={(showDate ? 2 : 0) + (showAgent ? 1 : 0) + (showStatya ? 1 : 0)}
+                      colSpan={(showDate ? 2 : 0) + (showAgent ? 1 : 0) + (showStatya ? 1 : 0) + (showProject ? 1 : 0)}
                       className="align-top pt-3 border-none"
                     >
                       <button
@@ -389,6 +414,6 @@ const SplitAmount = ({ amount, onChange, rows,
       </CustomDialog>
     </div>
   )
-}
+})
 
 export default SplitAmount

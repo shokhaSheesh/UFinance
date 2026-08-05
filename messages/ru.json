@@ -586,7 +586,10 @@
       "confirmAction": "Подтвердить",
       "splitAccrual": "Начисление",
       "splitCounterparty": "Контрагент",
-      "splitStatya": "Статья"
+      "splitStatya": "Статья",
+      "splitProject": "Проект",
+      "project": "Проект",
+      "projectPlaceholder": "Не выбран"
     },
     "comments": {
       "plugTitle": "Прикрепляйте к операциям файлы, например, акты или счета, добавляйте комментарии",
@@ -614,6 +617,7 @@
       "accrualPlaceholder": "[Начисление]",
       "counterpartiesCount": "{count} [контрагента]",
       "statyaCount": "{count} [статьи]",
+      "projectsCount": "{count} [проекта]",
       "dealsCount": "2 [сделки]",
       "transferWriteOff": "[Перемещение списание]",
       "transferEnrollment": "[Перемещение зачисление]",

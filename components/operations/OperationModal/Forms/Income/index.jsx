@@ -76,6 +76,7 @@ const emptyRow = (preselectedCounterparty = '') => ({
   isCalculationCommitted: true,
   contrAgentId: preselectedCounterparty,
   operationCategoryId: '',
+  projectId: '',
   value: '',
   percent: '',
 })
@@ -286,9 +287,6 @@ const IncomeForm = observer(({
 
   // Form State
   const isNew = initialData?.isNew
-  // Форма открыта на создание — та же проверка, что и у пустых defaultValues ниже.
-  // Правку и копию не трогаем: там значения приходят из самой операции.
-  const isCreating = !initialData || (isNew && !initialData.isCopy)
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
@@ -353,6 +351,7 @@ const IncomeForm = observer(({
       if (parts.some(p => p.data_nachisleniya)) newSplits.push({ value: 'Начисление', label: 'Начисление' })
       if (parts.some(p => p.counterparties_id)) newSplits.push({ value: 'Контрагент', label: 'Контрагент' })
       if (parts.some(p => p.chart_of_accounts_id)) newSplits.push({ value: 'Статья', label: 'Статья' })
+      if (appStore.projectActive && parts.some(p => p.projects_id)) newSplits.push({ value: 'Проект', label: 'Проект' })
       setSelectedSplits(newSplits)
 
       const mappedRows = parts.map(p => ({
@@ -361,6 +360,7 @@ const IncomeForm = observer(({
         isCalculationCommitted: p.payment_accrual ?? true,
         contrAgentId: p.counterparties_id || '',
         operationCategoryId: p.chart_of_accounts_id || '',
+        projectId: p.projects_id || '',
         value: String(Math.abs(p.summa || 0)),
         percent: String(p.percent || '')
       }))
@@ -373,6 +373,8 @@ const IncomeForm = observer(({
   const showDate = has('Начисление')
   const showAgent = has('Контрагент')
   const showStatya = has('Статья')
+  // Проект вынесен в разбиение — общее поле проекта скрываем
+  const showProject = appStore.projectActive && has('Проект')
 
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
@@ -427,7 +429,8 @@ const IncomeForm = observer(({
       comment: watch('purpose'),
       currenies_id: data?.currency,
       paymentType: data?.paymentType,
-      ...(appStore.projectActive ? { projects_id: data?.projects_id || null } : {}),
+      // Проект разбит по строкам — на самой операции его не отправляем
+      ...(appStore.projectActive ? { projects_id: showProject ? null : (data?.projects_id || null) } : {}),
     }
 
     if (divivedAmounts.length > 0) {
@@ -439,6 +442,7 @@ const IncomeForm = observer(({
         payment_accrual: showDate && !watchSalesDeal ? (item?.isCalculationCommitted ?? false) : false,
         counterparties_id: showAgent ? (item?.contrAgentId || null) : null,
         chart_of_accounts_id: showStatya ? (item?.operationCategoryId || null) : null,
+        ...(appStore.projectActive ? { projects_id: showProject ? (item?.projectId || null) : null } : {}),
       }))
     }
 
@@ -761,8 +765,8 @@ const IncomeForm = observer(({
               </div>
             )}
 
-            {/* Проект — только если включён модуль проектов */}
-            {appStore.projectActive && (
+            {/* Проект — только если включён модуль проектов и не разбит по строкам */}
+            {appStore.projectActive && !showProject && (
               <div className="flex items-center gap-4">
                 <label className="w-[150px] text-xss">{t('project')}</label>
                 <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
@@ -774,7 +778,6 @@ const IncomeForm = observer(({
                         value={field.value}
                         onChange={field.onChange}
                         placeholder={t('projectPlaceholder')}
-                        selectFirst={isCreating}
                         className='bg-white border rounded-md h-[36px]!'
                       />
                     )}
