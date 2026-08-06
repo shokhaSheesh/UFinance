@@ -580,13 +580,18 @@
       "addRow": "Добавить строку",
       "removeRow": "Удалить строку",
       "decreaseBy": "Уменьшите на",
+      "increaseBy": "Увеличьте на",
+      "amountRequired": "Укажите сумму операции, чтобы разбить её",
       "total": "Итого:",
       "cancelDialogText": "Подтвердите, что вы хотите отменить разбиение суммы операции. Это приведет к удалению ранее введенных данных.",
       "back": "Вернуться",
       "confirmAction": "Подтвердить",
       "splitAccrual": "Начисление",
       "splitCounterparty": "Контрагент",
-      "splitStatya": "Статья"
+      "splitStatya": "Статья",
+      "splitProject": "Проект",
+      "project": "Проект",
+      "projectPlaceholder": "Не выбран"
     },
     "comments": {
       "plugTitle": "Прикрепляйте к операциям файлы, например, акты или счета, добавляйте комментарии",
@@ -614,6 +619,7 @@
       "accrualPlaceholder": "[Начисление]",
       "counterpartiesCount": "{count} [контрагента]",
       "statyaCount": "{count} [статьи]",
+      "projectsCount": "{count} [проекта]",
       "dealsCount": "2 [сделки]",
       "transferWriteOff": "[Перемещение списание]",
       "transferEnrollment": "[Перемещение зачисление]",

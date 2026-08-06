@@ -1,4 +1,5 @@
 import SingleCounterParty from '@/components/ReadyComponents/SingleCounterParty'
+import SelectProjects from '@/components/ReadyComponents/SelectProjects'
 import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import CustomDialog from '@/components/shared/CustomDialog'
@@ -8,6 +9,8 @@ import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon,
 import { appStore } from '@/store/app.store'
 import { isFuture } from '@/utils/formatDate'
 import { formatAmount, formatAmountInput, formatDateRu, formatNumber } from '@/utils/helpers'
+import { AlertCircle } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -46,8 +49,9 @@ const DateCell = ({ row, i, dispatch, disabled }) => {
 }
 
 // ── Main component ──────────────────────────────────────────
-const SplitAmount = ({ amount, onChange, rows,
-  dispatch, selectedSplits, setSelectedSplits, confirmPayment, initiallyOpen = false, modalType, salesDeal }) => {
+const SplitAmount = observer(({ amount, onChange, rows,
+  dispatch, selectedSplits, setSelectedSplits, confirmPayment, initiallyOpen = false, modalType, salesDeal,
+  onValidityChange }) => {
   const t = useTranslations('Operations.splitAmount')
   const [open, setOpen] = useState(initiallyOpen)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
@@ -56,7 +60,9 @@ const SplitAmount = ({ amount, onChange, rows,
     { value: 'Начисление', label: t('splitAccrual') },
     { value: 'Контрагент', label: t('splitCounterparty') },
     { value: 'Статья', label: t('splitStatya') },
-  ], [t])
+    // Проект — только если включён модуль проектов
+    ...(appStore.projectActive ? [{ value: 'Проект', label: t('splitProject') }] : []),
+  ], [t, appStore.projectActive])
 
   const [prevInitiallyOpen, setPrevInitiallyOpen] = useState(initiallyOpen)
 
@@ -69,6 +75,7 @@ const SplitAmount = ({ amount, onChange, rows,
   const showDate = has('Начисление')
   const showAgent = has('Контрагент')
   const showStatya = has('Статья')
+  const showProject = appStore.projectActive && has('Проект')
 
   const rawPercentSum = rows.reduce((s, r) => s + (parseFloat(r.percent) || 0), 0)
   const totalPercent = Number(rawPercentSum.toFixed(2))
@@ -78,6 +85,19 @@ const SplitAmount = ({ amount, onChange, rows,
   const difference = rawValueSum - rawAmount
   const isExceeded = difference > 0
   const differencePercent = Number((totalPercent - 100).toFixed(2))
+
+  // Разбиение активно только при открытой панели с выбранными колонками —
+  // в остальных случаях ошибок разбиения быть не может
+  const splitActive = open && selectedSplits?.length > 0
+  // Разбивать нечего, пока не задана сумма операции
+  const isAmountMissing = splitActive && rawAmount <= 0
+  // Сумма строк должна совпадать с суммой операции: и перебор, и недобор — ошибка
+  const isMismatched = splitActive && rawAmount > 0 && rows.length > 0 && Math.abs(difference) >= 0.01
+  const hasError = isAmountMissing || isMismatched
+
+  useEffect(() => {
+    onValidityChange?.(!hasError)
+  }, [hasError, onValidityChange])
 
   // Track the last amount that was applied to the rows and whether the
   // panel was open on the previous run, so we can tell an actual amount
@@ -177,8 +197,8 @@ const SplitAmount = ({ amount, onChange, rows,
             />
           </div>
 
-          {selectedSplits?.length > 0 && <div className="split-table-wrap">
-            <div>
+          {selectedSplits?.length > 0 && <>
+            <div className="split-table-wrap">
               <table className="split-table">
                 <thead className='split-thead'>
                   <tr>
@@ -201,6 +221,11 @@ const SplitAmount = ({ amount, onChange, rows,
                     {showStatya && (
                       <th className="split-th col-statya">
                         <strong>{t('statya')}</strong>
+                      </th>
+                    )}
+                    {showProject && (
+                      <th className="split-th col-project">
+                        <strong>{t('project')}</strong>
                       </th>
                     )}
                     <th className="split-th col-value">
@@ -278,6 +303,21 @@ const SplitAmount = ({ amount, onChange, rows,
                           </td>
                         )}
 
+                        {/* Проект */}
+                        {showProject && (
+                          <td className="split-td col-project">
+                            <div className="borderless-select" style={{ maxWidth: '180px' }}>
+                              <SelectProjects
+                                value={row.projectId}
+                                onChange={(value) => dispatch({ type: 'UPDATE', index: i, field: 'projectId', value: value || '' })}
+                                placeholder={t('projectPlaceholder')}
+                                className="bg-transparent border-none p-0 py-2"
+                                dropdownClassName="w-64"
+                              />
+                            </div>
+                          </td>
+                        )}
+
                         {/* Сумма */}
                         <td className="split-td col-value">
                           <div className="value-cell-wrapper relative">
@@ -288,7 +328,7 @@ const SplitAmount = ({ amount, onChange, rows,
 
                             <input
                               type="text"
-                              className="value-input"
+                              className={`value-input${hasError ? ' is-error' : ''}`}
                               placeholder="0"
                               value={formatAmountInput(row.value)}
                               onChange={e => {
@@ -301,7 +341,7 @@ const SplitAmount = ({ amount, onChange, rows,
 
                         {/* Доля */}
                         <td className="split-td col-percent">
-                          <div className="percent-cell">
+                          <div className={`percent-cell${hasError ? ' is-error' : ''}`}>
                             <input
                               type="text"
                               className="percent-input"
@@ -332,37 +372,51 @@ const SplitAmount = ({ amount, onChange, rows,
                   })}
 
                   {/* Footer row */}
-                  <tr className="split-footer-row border-none">
+                  <tr className="split-footer-row">
                     <td
-                      colSpan={(showDate ? 2 : 0) + (showAgent ? 1 : 0) + (showStatya ? 1 : 0)}
-                      className="align-top pt-3 border-none"
+                      colSpan={(showDate ? 2 : 0) + (showAgent ? 1 : 0) + (showStatya ? 1 : 0) + (showProject ? 1 : 0)}
                     >
                       <button
                         type="button"
-                        className="add-row-btn block"
+                        className="add-row-btn"
                         onClick={() => dispatch({ type: 'ADD', amount })}
                       >
+                        <span className="add-row-plus">+</span>
                         {t('addRow')}
                       </button>
-                      {isExceeded && <div className="text-red-500 text-xs font-semibold text-right mt-3">{t('decreaseBy')}</div>}
                     </td>
-                    <td className="footer-total align-top pt-3 border-none flex flex-col justify-start">
-                      <div>
-                        <span className="total-label text-xss text-gray-800" style={{ fontWeight: 'bold' }}>{t('total')}</span>
-                        <span className="total-value text-xss pl-1 text-gray-800" style={{ fontWeight: 'bold' }}>{formatAmount(String(rawValueSum))}</span>
-                      </div>
-                      {isExceeded && <div className="text-red-500 text-xs font-semibold mt-3 text-right pr-2">{formatAmount(String(difference))}</div>}
+                    <td className="footer-total">
+                      <span className="total-label">{t('total')}</span>
+                      <span className={`total-value${hasError ? ' is-error' : ''}`}>
+                        {formatAmount(String(rawValueSum))}
+                      </span>
                     </td>
-                    <td className="footer-percent align-top pt-3 border-none text-xss" style={{ fontWeight: 'bold' }}>
+                    <td className={`footer-percent${hasError ? ' is-error' : ''}`}>
                       {formatNumber(totalPercent)} %
-                      {isExceeded && <div className="text-red-500 text-xs font-semibold mt-3 text-left">{formatNumber(differencePercent)} %</div>}
                     </td>
-                    <td className="border-none" />
+                    <td />
                   </tr>
                 </tbody>
               </table>
             </div>
-          </div>}
+
+            {hasError && (
+              <div className="split-alert" role="alert">
+                <AlertCircle size={14} className="shrink-0" />
+                {isAmountMissing ? (
+                  <span>{t('amountRequired')}</span>
+                ) : (
+                  <span>
+                    {isExceeded ? t('decreaseBy') : t('increaseBy')}
+                    {' '}
+                    <b>{formatAmount(String(Math.abs(difference)))}</b>
+                    {' '}
+                    ({formatNumber(Math.abs(differencePercent))} %)
+                  </span>
+                )}
+              </div>
+            )}
+          </>}
         </div>
       )}
 
@@ -389,6 +443,6 @@ const SplitAmount = ({ amount, onChange, rows,
       </CustomDialog>
     </div>
   )
-}
+})
 
 export default SplitAmount

@@ -579,13 +579,18 @@
       "addRow": "Qator qo'shish",
       "removeRow": "Qatorni o'chirish",
       "decreaseBy": "Quyidagiga kamaytiring",
+      "increaseBy": "Quyidagiga oshiring",
+      "amountRequired": "Bo'lish uchun operatsiya summasini kiriting",
       "total": "Jami:",
       "cancelDialogText": "Operatsiya summasini bo'lishni bekor qilishni tasdiqlang. Bu avval kiritilgan ma'lumotlarni o'chirishga olib keladi.",
       "back": "Qaytish",
       "confirmAction": "Tasdiqlash",
       "splitAccrual": "Hisoblash",
       "splitCounterparty": "Tomon",
-      "splitStatya": "Modda"
+      "splitStatya": "Modda",
+      "splitProject": "Loyiha",
+      "project": "Loyiha",
+      "projectPlaceholder": "Tanlanmagan"
     },
     "comments": {
       "plugTitle": "Operatsiyalarga fayllar, masalan, dalolatnomalar yoki schyotlarni biriktiring, izohlar qo'shing",
@@ -613,6 +618,7 @@
       "accrualPlaceholder": "[Hisoblash]",
       "counterpartiesCount": "{count} ta [tomon]",
       "statyaCount": "{count} ta [modda]",
+      "projectsCount": "{count} ta [loyiha]",
       "dealsCount": "2 ta [bitim]",
       "transferWriteOff": "[Ko'chirish — yechish]",
       "transferEnrollment": "[Ko'chirish — hisobga olish]",
