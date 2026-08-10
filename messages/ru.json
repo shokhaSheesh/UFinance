@@ -380,8 +380,10 @@
       }
     },
     "plans": {
-      "cash_flow_budget": "Бюджет денежных потоков",
+      "cash_flow_budget": "Бюджет движения денег",
+      "cash_flow_budget_desc": "Планируйте денежные потоки и сравнивайте с фактом",
       "income_expense_budget": "Бюджет доходов и расходов",
+      "income_expense_budget_desc": "Планируйте прибыль и сравнивайте с фактом",
       "payment_calendar": "Платежный календарь"
     },
     "apiModal": {

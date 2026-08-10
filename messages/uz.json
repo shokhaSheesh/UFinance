@@ -253,8 +253,10 @@
       "projects": "Loyihalar"
     },
     "plans": {
-      "cash_flow_budget": "Pul oqimi byudjeti",
-      "income_expense_budget": "Daromad & xarajat byudjeti",
+      "cash_flow_budget": "Pul harakati byudjeti",
+      "cash_flow_budget_desc": "Pul oqimlarini rejalashtiring va fakt bilan solishtiring",
+      "income_expense_budget": "Daromad va xarajat byudjeti",
+      "income_expense_budget_desc": "Foydani rejalashtiring va fakt bilan solishtiring",
       "payment_calendar": "To'lov taqvimi"
     },
     "reports": {
