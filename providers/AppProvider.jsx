@@ -44,6 +44,7 @@ const AppProvider = observer(({ children }) => {
       appStore.setReturnActive(data?.return_active)
       appStore.setProjectActive(data?.project_active)
       appStore.setAiActive(Boolean(data?.ia_active ?? data?.ai_active))
+      appStore.setPlanTotalActive(Boolean(data?.plan_total_active))
       if (currency) {
         appStore.setCurrency({ name: currency.icon, guid: currency.guid, code: currency?.kod })
       }

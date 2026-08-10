@@ -125,12 +125,17 @@ export const buildBudgetRows = (apiRows = [], legend = []) => {
       profitSign,
       values,
       apiTotals,
-      // итоги за весь период — для процентных строк их нельзя пересчитать сложением
+      // Итоги за весь период — берём из `plan` как есть, а не пересчитываем
+      // сложением месяцев: у процентных строк это невозможно, а у остальных
+      // бэк уже отдал roll-up (`plan.total`), факт (`totalValue`) и «Откл.».
       periodTotals: {
         plan: num(node?.plan?.total),
         fact: num(node?.totalValue),
         profit: num(node?.plan?.profit),
       },
+      // собственный план узла за весь период (`plan.by`) — его и правит
+      // ячейка «Итого», как `plan[m].by` правят месячные ячейки
+      periodOwnPlan: num(node?.plan?.by),
       children: children.length ? children : undefined,
     }
   }
