@@ -19,6 +19,18 @@ import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
+// Общее количество по документу. Бэк отдаёт total_quantity; если поля нет
+// (старые ответы), суммируем количества позиций.
+const totalQuantity = (item) => {
+  if (item?.total_quantity !== null && item?.total_quantity !== undefined) {
+    return Number(item.total_quantity) || 0
+  }
+  return (item?.product_and_service_data || []).reduce(
+    (acc, prod) => acc + (Number(prod?.Kol_vo ?? prod?.quantity ?? prod?.kolvo) || 0),
+    0
+  )
+}
+
 const ShipmenTable = observer(({
   dealName = '', dealGuid = '', onAdd, onAddProducts, canAdd, hasProducts,
   listMethod = 'list_sales_operations',
@@ -203,6 +215,7 @@ const ShipmenTable = observer(({
               <th className='px-3 py-2 text-left w-[150px]'>{t('counterparty')}</th>
               <th className='px-3 py-2 text-left w-[150px]'>{t('composition')}</th>
               <th className='px-3 py-2 text-left w-[150px]'>{t('article')}</th>
+              <th className='px-3 py-2 text-right w-[90px]'>{t('totalQuantity')}</th>
               <th className='px-4 py-1 text-right w-[150px]'>{t('amount')}</th>
             </tr>
           </thead>
@@ -244,6 +257,9 @@ const ShipmenTable = observer(({
                   </td>
                   {/* Нераспределенный доход / расход */}
                   <td className="px-4 py-3 text-left w-[200px]">{item?.chartOfAccounts || (isPurchase ? tp('unallocatedExpense') : t('unallocatedIncome'))}</td>
+                  {/* Общее количество позиций документа: берём с бэка, а если его
+                      нет — складываем количества по позициям */}
+                  <td className="px-3 py-3 text-right tabular-nums w-[90px]">{formatAmount(totalQuantity(item))}</td>
                   <td className={`px-4 py-3  w-52 text-right`}>
                     <div className="flex items-center justify-end gap-4 h-6">
                       <p className={`font-base text-neutral-600`}>

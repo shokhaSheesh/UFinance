@@ -1987,6 +1987,7 @@
         "counterparty": "Tomon",
         "composition": "Tarkib",
         "article": "Modda",
+        "totalQuantity": "Miqdori",
         "amount": "Summa",
         "position": "{count, plural, one {pozitsiya} few {pozitsiya} other {pozitsiya}}",
         "noName": "Nomsiz",

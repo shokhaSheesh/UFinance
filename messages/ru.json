@@ -1924,6 +1924,7 @@
         "counterparty": "Контрагент",
         "composition": "Состав",
         "article": "Статья",
+        "totalQuantity": "Кол-во",
         "amount": "Сумма",
         "position": "{count, plural, one {позиция} few {позиции} other {позиций}}",
         "noName": "Без названия",

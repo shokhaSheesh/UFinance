@@ -69,10 +69,17 @@ const SelectProductService = ({
     return map
   }, [productsData])
 
+  // Артикул показываем в скобках рядом с названием; пустой (или из пробелов)
+  // артикул скобок не рисует
+  const withArticle = (name, article) => {
+    const art = String(article || '').trim()
+    return art ? `${name || ''} (${art})` : name
+  }
+
   const mappedData = useMemo(() => {
     const data = (productsData || []).map(item => ({
       value: item.guid,
-      label: item.name
+      label: withArticle(item.name, item.article)
     }))
 
     if (selected) {
