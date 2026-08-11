@@ -1,14 +1,18 @@
 import { cashFlowStore } from '@/components/reports/cashflow/cashflow.store'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import { appStore } from '@/store/app.store'
+import { useMyCurrencies } from '@/hooks/useMyCurrencies'
 import { Loader2 } from 'lucide-react'
 
-const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting }) => (
+const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting }) => {
+  // валюты филиала — только те, что есть на счетах
+  const { options: currencyOptions } = useMyCurrencies()
+
+  return (
   <div className="flex h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
     <div className="flex items-center gap-4">
       <h1 className='text-xl whitespace-nowrap font-semibold'>{t('cashflow.title')}</h1>
       <SingleSelect
-        data={appStore.myCurrencies}
+        data={currencyOptions}
         value={cashFlowStore.currencyCode}
         onChange={(value) => cashFlowStore.setCurrencyCode(value)}
         isClearable={false}
@@ -33,6 +37,7 @@ const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting }) => (
       </button>
     </div>
   </div>
-)
+  )
+}
 
 export default CashFlowHeader

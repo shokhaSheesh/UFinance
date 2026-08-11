@@ -1,18 +1,22 @@
 import { pnlStore } from '@/components/reports/profit-and-loss/pnl.store'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import { appStore } from '@/store/app.store'
+import { useMyCurrencies } from '@/hooks/useMyCurrencies'
 import { Loader2 } from 'lucide-react'
 
 const PnLHeader = ({
   t, accountingMethodOptions, groupingOptions,
   safeSelectedCurrency, safeSelectedGrouping, safeIsCalculation,
   onExport, isExporting
-}) => (
+}) => {
+  // валюты филиала — только те, что есть на счетах
+  const { options: currencyOptions } = useMyCurrencies()
+
+  return (
   <div className="flex h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
     <div className="flex items-center gap-4">
       <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
       <SingleSelect
-        data={appStore.myCurrencies}
+        data={currencyOptions}
         value={safeSelectedCurrency}
         onChange={(value) => pnlStore.setSelectedCurrency(value)}
         isClearable={false}
@@ -46,6 +50,7 @@ const PnLHeader = ({
       </button>
     </div>
   </div>
-)
+  )
+}
 
 export default PnLHeader
