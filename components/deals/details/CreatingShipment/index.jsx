@@ -93,7 +93,8 @@ const CreateShipment = observer(
           shipmentSum: t("shipmentSum"),
           products: t("products"),
         };
-    // A return reuses the same form/methods as a normal shipment or supply —
+    
+      // A return reuses the same form/methods as a normal shipment or supply —
     // only the header title changes to make the negative-amount mode obvious.
     const L = isReturn
       ? {
