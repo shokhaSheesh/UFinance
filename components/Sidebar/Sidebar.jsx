@@ -85,13 +85,13 @@ export const Sidebar = observer(() => {
   const permissions = toJS(appStore.permission);
 
   const navItems = [
-    {
-      icon: ChartLine,
-      label: t("nav.indicators"),
-      href: "/indicators",
-      hasPage: true,
-      canShow: permissions?.indicators?.read,
-    },
+    // {
+    //   icon: ChartLine,
+    //   label: t("nav.indicators"),
+    //   href: "/indicators",
+    //   hasPage: true,
+    //   canShow: permissions?.indicators?.read,
+    // },
     {
       icon: RefreshCw,
       label: t("nav.operations"),
