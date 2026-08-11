@@ -2344,6 +2344,42 @@
         "project": "Loyihalar"
       }
     },
+    "debts": {
+      "title": "Qarzlar",
+      "empty": "Tanlangan davr uchun ma'lumot yo'q",
+      "noName": "Nomsiz",
+      "expired": "Muddati o'tgan",
+      "notExpired": "Muddati o'tmagan",
+      "filters": {
+        "legalEntity": "Yuridik shaxs",
+        "legalEntityPlaceholder": "Barcha yuridik shaxslar"
+      },
+      "sort": {
+        "label": "Saralash",
+        "expired": "Muddati o'tgan",
+        "total": "Umumiy"
+      },
+      "settings": {
+        "button": "Sozlash",
+        "display": "Ko'rsatish",
+        "showValues": "Grafiklarda summalarni ko'rsatish",
+        "rounding": "Xonalilik",
+        "noRounding": "Summalarni yaxlitlamaslik",
+        "customRounding": "Summalarni yaxlitlashni sozlash",
+        "roundTo": "Yaxlitlash",
+        "digits": "xonagacha"
+      },
+      "debitorka": {
+        "title": "Ta'minotchilar bilan debitorlik",
+        "total": "Umumiy debitorlik",
+        "hint": "Ta'minotchilar sizga qancha qarz: to'langan avanslar va yopilmagan boshqa majburiyatlar"
+      },
+      "kreditorka": {
+        "title": "Ta'minotchilar bilan kreditorlik",
+        "total": "Umumiy kreditorlik",
+        "hint": "Siz ta'minotchilarga qancha qarzsiz: olingan, lekin hali to'lanmagan tovar va xizmatlar"
+      }
+    },
     "accountBalance": {
       "title": "Hisoblardagi qoldiq",
       "totalBalance": "Umumiy qoldiq",

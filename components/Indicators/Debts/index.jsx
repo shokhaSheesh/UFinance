@@ -1,0 +1,69 @@
+'use client'
+
+import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import { indicators } from '@/store/indicatos.store'
+import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
+import DebtChart from './DebtChart'
+import SettingsPopover from './SettingsPopover'
+
+// Поле с подписью сверху — как в шапке отчёта «Долги»
+const Field = ({ label, className = '', children }) => (
+  <div className={className}>
+    <span className="block text-sm font-semibold text-neutral-500 mb-1">{label}</span>
+    {children}
+  </div>
+)
+
+/** Блок «Долги»: дебиторка и кредиторка с поставщиками */
+const Debts = observer(() => {
+  const t = useTranslations('Indicators')
+  const { debtsSort, debtsLegalEntities, setState } = indicators
+
+  const sortOptions = [
+    { value: 'total', label: t('debts.sort.total') },
+    { value: 'expired', label: t('debts.sort.expired') },
+  ]
+
+  return (
+    <div className="w-full bg-white rounded-lg p-6 mt-6">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <h2 className="text-[26px] font-bold text-[#111827] py-1">{t('debts.title')}</h2>
+
+        <div className="flex items-end gap-3 flex-wrap">
+          <Field label={t('debts.filters.legalEntity')} className="w-[200px]">
+            <SelectLegelEntitties
+              multi
+              value={debtsLegalEntities}
+              onChange={(value) => setState('debtsLegalEntities', value)}
+              placeholder={t('debts.filters.legalEntityPlaceholder')}
+              className="bg-neutral-50/50"
+            />
+          </Field>
+
+          <Field label={t('debts.sort.label')} className="w-[190px]">
+            <SingleSelect
+              data={sortOptions}
+              // в сторе мог остаться режим из прошлой версии — показываем «Просроченная»
+              value={debtsSort === 'total' ? 'total' : 'expired'}
+              onChange={(value) => setState('debtsSort', value || 'expired')}
+              withSearch={false}
+              isClearable={false}
+              className="bg-neutral-50/50"
+            />
+          </Field>
+
+          <SettingsPopover />
+        </div>
+      </div>
+
+      <div className="space-y-6 mt-4">
+        <DebtChart type="debitorka" />
+        <DebtChart type="kreditorka" />
+      </div>
+    </div>
+  )
+})
+
+export default Debts

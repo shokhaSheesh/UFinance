@@ -1,3 +1,4 @@
+import Debts from '@/components/Indicators/Debts'
 import Students from '@/components/Indicators/Students'
 import AccountBalance from '../../../components/Indicators/AccountBalance'
 import CashFlow from '../../../components/Indicators/CashFlow'
@@ -19,6 +20,7 @@ const IndicatorsPage = () => {
         <AccountBalance />
         <PaymentStructure />
         <ProfitableClients />
+        <Debts />
       </div>
     </div>
   )
