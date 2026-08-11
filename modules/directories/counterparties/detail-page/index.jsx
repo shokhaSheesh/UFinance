@@ -16,6 +16,7 @@ import DetailFooter from '../components/DetailFooter'
 import DetailHeader from '../components/DetailHeader'
 import DetailOperationsSection from '../components/DetailOperationsSection'
 import DetailStatsGrid from '../components/DetailStatsGrid'
+import { useActOfReconciliation } from '../hooks/useActOfReconciliation'
 import { useCounterpartyDetail } from '../hooks/useCounterpartyDetail'
 import { useDetailOperationActions } from '../hooks/useDetailOperationActions'
 import { useDetailShipmentActions } from '../hooks/useDetailShipmentActions'
@@ -30,6 +31,11 @@ const CounterpartyDetailPage = observer(() => {
   const detail = useCounterpartyDetail(counterpartyGuid, tc)
   const ops = useDetailOperationActions(counterpartyGuid)
   const shipment = useDetailShipmentActions()
+  const act = useActOfReconciliation(
+    counterpartyGuid,
+    detail.filters,
+    detail.counterpartyInfo?.name
+  )
 
   const [isEditCounterpartyModalOpen, setIsEditCounterpartyModalOpen] = useState(false)
 
@@ -90,6 +96,8 @@ const CounterpartyDetailPage = observer(() => {
           canEdit={detail.canEdit} canDelete={detail.canDelete}
           onEdit={() => setIsEditCounterpartyModalOpen(true)}
           onDelete={detail.handleDeleteCounterparty}
+          onDownloadPdf={act.downloadPdf}
+          isDownloadingPdf={act.isPending}
         />
 
         <DetailStatsGrid

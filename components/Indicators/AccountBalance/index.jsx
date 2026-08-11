@@ -15,6 +15,7 @@ import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 const ACCOUNT_COLORS = ['#3b82f6', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#eab308', '#535364', '#0404DE', '#0059FF']
 
@@ -43,7 +44,7 @@ const AccountBalance = () => {
 
     const { data: apiAccountBalanceList, isLoading, isFetching, isPending } = useQuery({
         queryKey: ["get_my_accounts_daily_balances", filterData],
-        queryFn: () => apiClient.invokeFunction({ method: "get_my_accounts_daily_balances", data: filterData }),
+        queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: "get_my_accounts_daily_balances", data: filterData })),
         select: (res) => res?.data?.data?.items,
         staleTime: 0,
         cacheTime: 0,

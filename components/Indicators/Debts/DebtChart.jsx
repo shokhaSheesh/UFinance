@@ -13,6 +13,7 @@ import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useCallback, useMemo } from 'react'
 import { formatDebtValue, readDebtsResponse, sortDebts } from './utils'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 // Дебиторка — оранжевая, кредиторка — красная; просроченная часть насыщеннее
 const PALETTE = {
@@ -68,7 +69,7 @@ const DebtChart = observer(({ type }) => {
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [METHODS[type], filterData],
-    queryFn: () => apiClient.invokeFunction({ method: METHODS[type], data: filterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: METHODS[type], data: filterData })),
     select: (res) => readDebtsResponse(res, t('debts.noName')),
     staleTime: 0,
     refetchOnWindowFocus: false,

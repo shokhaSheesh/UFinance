@@ -1665,7 +1665,8 @@
         "actions": {
           "edit": "Tahrirlash",
           "delete": "O'chirish",
-          "deleting": "O'chirilmoqda..."
+          "deleting": "O'chirilmoqda...",
+          "downloadPdf": "PDF yuklab olish"
         }
       }
     },

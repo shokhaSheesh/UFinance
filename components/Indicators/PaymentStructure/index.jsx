@@ -9,6 +9,7 @@ import { indicators } from '../../../store/indicatos.store'
 import Expenses from '../Expenses'
 import Income from '../Income'
 import { STATIC_CASHFLOW_DATA, STATIC_PROFIT_DATA } from "../constants/staticChartData"
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 const PaymentStructure = observer(() => {
   const t = useTranslations('Indicators')
@@ -33,7 +34,7 @@ const PaymentStructure = observer(() => {
 
   const { data: apiProfitData, isLoading: profitAndLossLoading, isPending: profitPending, isFetching: profitFetching } = useQuery({
     queryKey: ['profit_and_loss_income', filterData],
-    queryFn: () => apiClient.invokeFunction({ method: 'profit_and_loss', data: filterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: 'profit_and_loss', data: filterData })),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,
@@ -57,7 +58,7 @@ const PaymentStructure = observer(() => {
 
   const { data: apiCashFlowData, isLoading: isLoadingCashFlow, isPending: cashflowPending, isFetching: cashflowFetching } = useQuery({
     queryKey: ["cash_flow", cashFlowfilterData],
-    queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: cashFlowfilterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: "cash_flow", data: cashFlowfilterData })),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,

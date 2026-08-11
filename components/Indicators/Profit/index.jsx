@@ -18,6 +18,7 @@ import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 import { localizeMonthTitle } from '../utils/localizeMonth'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 
 const findRowById = (rows, id) => (rows || []).find((r) => r?.id === id)
@@ -85,7 +86,7 @@ const Profit = () => {
 
   const { data: apiProfitData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ["profit_indicators", filterData],
-    queryFn: () => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: "profit_and_loss", data: filterData })),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,

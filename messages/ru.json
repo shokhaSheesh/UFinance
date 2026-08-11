@@ -1633,7 +1633,8 @@
         "actions": {
           "edit": "Редактировать",
           "delete": "Удалить",
-          "deleting": "Удаление..."
+          "deleting": "Удаление...",
+          "downloadPdf": "Скачать PDF"
         }
       }
     },

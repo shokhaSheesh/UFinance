@@ -16,6 +16,7 @@ import { formatNumber } from '../../../utils/helpers'
 import { STATIC_CASHFLOW_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 import { localizeMonthTitle } from '../utils/localizeMonth'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 const TAB_TO_POTOK = {
   'total': ['Операционный поток', 'Инвестиционный поток', 'Финансовый поток'],
@@ -69,7 +70,7 @@ const CashFlow = () => {
 
   const { data: apiCashFlowData, isLoading, isPending, isFetching } = useQuery({
     queryKey: ["cash_flow", filterData],
-    queryFn: () => apiClient.invokeFunction({ method: "cash_flow", data: filterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: "cash_flow", data: filterData })),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,
