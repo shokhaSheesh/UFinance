@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/popover";
 import { GlobalCurrency } from '@/constants/globalCurrency';
 import { BoxIcon, ShipmentPlusIcon } from '@/constants/icons';
+import { useActOfReconciliation } from '@/hooks/useActOfReconciliation';
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard';
 import useMounted from '@/hooks/useMounted';
 import FixedContent from '@/layouts/FixedContent';
@@ -30,7 +31,7 @@ import { appStore } from '@/store/app.store';
 import { sealDeal } from '@/store/saleDeal.store';
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { ChevronUp, CirclePlus, Ellipsis, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
+import { ChevronUp, CirclePlus, Ellipsis, FileDown, Loader2, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
@@ -96,6 +97,16 @@ export default observer(function DealDetailPage() {
     nds: summeryCards?.nds,
     commentary: summeryCards?.commentary
   }
+
+  // Акт сверки по сделке продажи — тот же метод, что у контрагента, но по sales_transaction_id.
+  // Акт строится по контрагенту, поэтому без него скачивать нечего — кнопку гасим.
+  const pdfCounterpartyId = summeryCards?.counterparties_id
+  const act = useActOfReconciliation({
+    id: dealId,
+    idField: 'sales_transaction_id',
+    counterpartyId: pdfCounterpartyId,
+    name: summeryCards?.name,
+  })
 
 
   const handleUpdateStatus = async (status) => {
@@ -224,7 +235,7 @@ export default observer(function DealDetailPage() {
         </div>
         <div className='flex items-center gap-2'>
           {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>}
-          {(operations?.shipment?.edit || operations?.shipment?.delete) && <Popover>
+          <Popover>
             <PopoverTrigger asChild>
               <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
                 <Ellipsis size={18} className='text-neutral-800' />
@@ -232,6 +243,16 @@ export default observer(function DealDetailPage() {
             </PopoverTrigger>
             <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
               <div className="flex flex-col">
+                <button
+                  disabled={!pdfCounterpartyId || act.isPending}
+                  className={`flex items-center gap-2 p-2.5 text-sm text-neutral-800 w-full text-left border-none outline-none bg-transparent ${!pdfCounterpartyId ? 'opacity-50 cursor-not-allowed' : act.isPending ? 'opacity-60 cursor-progress hover:bg-neutral-50' : 'cursor-pointer hover:bg-neutral-50'}`}
+                  onClick={() => { if (pdfCounterpartyId && !act.isPending) act.downloadPdf() }}
+                >
+                  {act.isPending
+                    ? <Loader2 size={16} className="text-neutral-600 animate-spin" />
+                    : <FileDown size={16} className="text-neutral-600" />}
+                  <span>{t('actions.downloadPdf')}</span>
+                </button>
                 {operations?.shipment?.edit && <button
                   className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
                   onClick={() => {
@@ -251,7 +272,7 @@ export default observer(function DealDetailPage() {
                 </button>}
               </div>
             </PopoverContent>
-          </Popover>}
+          </Popover>
         </div>
       </div>
 

@@ -830,7 +830,8 @@
       "noName": "Без названия",
       "actions": {
         "edit": "Редактировать",
-        "delete": "Удалить"
+        "delete": "Удалить",
+        "downloadPdf": "Скачать PDF"
       },
       "cards": {
         "type": "Тип",

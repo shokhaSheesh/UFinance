@@ -828,7 +828,8 @@
       "noName": "Nomsiz",
       "actions": {
         "edit": "Tahrirlash",
-        "delete": "O'chirish"
+        "delete": "O'chirish",
+        "downloadPdf": "PDF yuklab olish"
       },
       "cards": {
         "type": "Turi",

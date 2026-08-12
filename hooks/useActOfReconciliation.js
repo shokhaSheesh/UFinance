@@ -93,19 +93,27 @@ const renderInIsolatedFrame = async (safeHtml) => {
 }
 
 /**
- * Акт сверки по контрагенту: запрашивает HTML у `act_of_reconciliation`
- * и сохраняет его как PDF.
+ * Акт сверки: запрашивает HTML у `act_of_reconciliation` и сохраняет как PDF.
  *
- * @param {string} counterpartyGuid
- * @param {{ operationDateStart?: string, operationDateEnd?: string }} filters —
- *        период из шапки страницы; если не выбран, берём год по сегодняшний день
- * @param {string} counterpartyName — попадёт в имя файла
+ * Один и тот же бэкенд-метод обслуживает контрагента, сделку по продаже и
+ * сделку по закупке — различается только идентификатор (`idField`):
+ * `counterparty_id` | `sales_transaction_id` | `purchase_transactions_id`.
+ *
+ * @param {Object} options
+ * @param {string} options.id — идентификатор сущности
+ * @param {string} [options.idField='counterparty_id'] — имя поля идентификатора
+ * @param {string} [options.counterpartyId] — контрагент сделки/закупки; акт строится
+ *        по нему, поэтому передаём отдельно. У контрагента idField уже равен
+ *        counterparty_id, так что дублировать не нужно.
+ * @param {{ operationDateStart?: string, operationDateEnd?: string }} [options.filters] —
+ *        период; если не выбран, берём год по сегодняшний день
+ * @param {string} [options.name] — попадёт в имя файла
  */
-export function useActOfReconciliation(counterpartyGuid, filters, counterpartyName) {
+export function useActOfReconciliation({ id, idField = 'counterparty_id', counterpartyId, filters, name } = {}) {
   const { mutateAsync, isPending } = useUcodeRequestMutation()
 
   const downloadPdf = async () => {
-    if (!counterpartyGuid) return
+    if (!id) return
 
     const fromDate =
       filters?.operationDateStart || moment().startOf('year').format('YYYY-MM-DD')
@@ -118,7 +126,8 @@ export function useActOfReconciliation(counterpartyGuid, filters, counterpartyNa
         data: {
           from_date: fromDate,
           to_date: toDate,
-          counterparty_id: counterpartyGuid,
+          [idField]: id,
+          ...(counterpartyId ? { counterparty_id: counterpartyId } : {}),
         },
       })
 
@@ -145,7 +154,7 @@ export function useActOfReconciliation(counterpartyGuid, filters, counterpartyNa
         windowWidth: A4_WIDTH_PX,
       })
 
-      const fileName = `Акт сверки${counterpartyName ? ` — ${counterpartyName}` : ''} (${fromDate} — ${toDate}).pdf`
+      const fileName = `Акт сверки${name ? ` — ${name}` : ''} (${fromDate} — ${toDate}).pdf`
 
       // Режем длинный снимок на A4-страницы вручную (раньше это делал html2pdf)
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' })
