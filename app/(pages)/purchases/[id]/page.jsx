@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/popover";
 import { GlobalCurrency } from "@/constants/globalCurrency";
 import { BoxIcon, ShipmentPlusIcon, SupplyTruckIcon } from "@/constants/icons";
+import { useActOfReconciliation } from "@/hooks/useActOfReconciliation";
 import {
   useUcodeRequestMutation,
   useUcodeRequestQuery,
@@ -44,6 +45,8 @@ import {
   ChevronUp,
   CirclePlus,
   Ellipsis,
+  FileDown,
+  Loader2,
   Pencil,
   Plus,
   Search,
@@ -113,6 +116,16 @@ export default observer(function PurchaseDetailPage() {
     nds: summeryCards?.nds,
     commentary: summeryCards?.commentary,
   };
+
+  // Акт сверки по сделке закупки — тот же метод, что у контрагента, но по purchase_transactions_id.
+  // Акт строится по контрагенту, поэтому без него скачивать нечего — кнопку гасим.
+  const pdfCounterpartyId = summeryCards?.counterparties_id;
+  const act = useActOfReconciliation({
+    id: dealId,
+    idField: "purchase_transactions_id",
+    counterpartyId: pdfCounterpartyId,
+    name: summeryCards?.name,
+  });
 
   const handleUpdateStatus = async (status) => {
     try {
@@ -257,8 +270,7 @@ export default observer(function PurchaseDetailPage() {
               {tc("pay")}
             </button>
           )}
-          {(operations?.shipment?.edit || operations?.shipment?.delete) && (
-            <Popover>
+          <Popover>
               <PopoverTrigger asChild>
                 <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
                   <Ellipsis size={18} className="text-neutral-800" />
@@ -269,6 +281,16 @@ export default observer(function PurchaseDetailPage() {
                 align="end"
               >
                 <div className="flex flex-col">
+                  <button
+                    disabled={!pdfCounterpartyId || act.isPending}
+                    className={`flex items-center gap-2 p-2.5 text-sm text-neutral-800 w-full text-left border-none outline-none bg-transparent ${!pdfCounterpartyId ? 'opacity-50 cursor-not-allowed' : act.isPending ? 'opacity-60 cursor-progress hover:bg-neutral-50' : 'cursor-pointer hover:bg-neutral-50'}`}
+                    onClick={() => { if (pdfCounterpartyId && !act.isPending) act.downloadPdf() }}
+                  >
+                    {act.isPending
+                      ? <Loader2 size={16} className="text-neutral-600 animate-spin" />
+                      : <FileDown size={16} className="text-neutral-600" />}
+                    <span>{t("actions.downloadPdf")}</span>
+                  </button>
                   {operations?.shipment?.edit && (
                     <button
                       className="flex items-center gap-2 p-2.5 text-sm text-neutral-800 hover:bg-neutral-50 cursor-pointer w-full text-left border-none outline-none bg-transparent"
@@ -293,7 +315,6 @@ export default observer(function PurchaseDetailPage() {
                 </div>
               </PopoverContent>
             </Popover>
-          )}
         </div>
       </div>
 

@@ -6,6 +6,9 @@ import { makeAutoObservable } from "mobx";
  */
 class AiChatStore {
   isOpen = false;
+  // Пользователь что-то отправил в чат → AI мог изменить данные.
+  // Флаг снимается при закрытии панели (после обновления данных страницы).
+  hasUsed = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -21,6 +24,17 @@ class AiChatStore {
 
   close = () => {
     this.isOpen = false;
+  };
+
+  markUsed = () => {
+    this.hasUsed = true;
+  };
+
+  // Забирает флаг «чат использовали» и сразу сбрасывает его
+  consumeUsed = () => {
+    const used = this.hasUsed;
+    this.hasUsed = false;
+    return used;
   };
 }
 

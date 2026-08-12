@@ -1197,7 +1197,12 @@ const CreateShipment = observer(
                                 // product_and_service_id, и пикер, не найдя его
                                 // среди опций, дорисовывал товар вторым пунктом
                                 value={findProduct(row.name)?.guid || row.name}
-                                selectedLabel={row.naimenovanie}
+                                // артикул в скобках — как в списке пикера
+                                selectedLabel={
+                                  String(row.artikul || "").trim()
+                                    ? `${row.naimenovanie} (${row.artikul})`
+                                    : row.naimenovanie
+                                }
                                 onChange={(value, raw) =>
                                   handleSelectProductSerice(row?.id, value, raw)
                                 }

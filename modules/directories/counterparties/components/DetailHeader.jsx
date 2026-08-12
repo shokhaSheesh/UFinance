@@ -3,7 +3,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { ChevronRight, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
+import { ChevronRight, FileDown, Loader2, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { getDetailCalculationOptions } from '../utils/counterpartiesUtils'
 
@@ -11,7 +11,8 @@ const DetailHeader = ({
   t, tc, counterpartyInfo,
   filters, setFilters,
   canEdit, canDelete,
-  onEdit, onDelete
+  onEdit, onDelete,
+  onDownloadPdf, isDownloadingPdf
 }) => (
   <>
     {/* Breadcrumbs */}
@@ -54,15 +55,24 @@ const DetailHeader = ({
             />
           </div>
         </div>
-        {(canEdit || canDelete) && (
-          <Popover>
+        {/* меню доступно всегда: скачать акт сверки может любой, кто видит карточку */}
+        <Popover>
             <PopoverTrigger asChild>
               <span className="flex items-center justify-center w-[38px] h-[38px] rounded-md border border-gray-200 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400">
                 <MoreHorizontal size={20} />
               </span>
             </PopoverTrigger>
-            <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1">
+            <PopoverContent className="w-52 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1">
               <div className="flex flex-col">
+                <span
+                  className={`flex items-center px-4 py-3 text-sm text-slate-900 transition-colors hover:bg-slate-100 ${isDownloadingPdf ? 'opacity-60 cursor-progress' : 'cursor-pointer'}`}
+                  onClick={() => { if (!isDownloadingPdf) onDownloadPdf?.() }}
+                >
+                  {isDownloadingPdf
+                    ? <Loader2 size={18} className="mr-3 text-slate-700 animate-spin" />
+                    : <FileDown size={18} className="mr-3 text-slate-700" />}
+                  {t('actions.downloadPdf')}
+                </span>
                 {canEdit && (
                   <span className="flex items-center px-4 py-3 text-sm text-slate-900 cursor-pointer transition-colors hover:bg-slate-100" onClick={onEdit}>
                     <PenLine size={18} className="mr-3 text-slate-700 cursor-pointer" />
@@ -77,8 +87,7 @@ const DetailHeader = ({
                 )}
               </div>
             </PopoverContent>
-          </Popover>
-        )}
+        </Popover>
       </div>
     </div>
   </>

@@ -1,16 +1,15 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { getPresetRange } from '../../../utils/datePresets'
 
-const currentYear = new Date().getFullYear()
+// По умолчанию отчёт строится за текущий квартал — тот же диапазон, что даёт
+// пресет «Этот квартал» в календаре фильтров
+const DEFAULT_RANGE_TYPE = 'quarter'
 
-const getDefaultStartDate = () => {
-	return new Date(currentYear, 0, 1) // January 1st of current year
-}
+const getDefaultStartDate = () => getPresetRange(DEFAULT_RANGE_TYPE)[0]
 
-const getDefaultEndDate = () => {
-	return new Date() // today
-}
+const getDefaultEndDate = () => getPresetRange(DEFAULT_RANGE_TYPE)[1]
 
 class CashFlowStore {
 	// ── Filter state ────────────────────────────────────────────────────────────
@@ -20,17 +19,17 @@ class CashFlowStore {
 	currencyCode = GlobalCurrency?.code || 'UZS' // Defaulting to RUB as seen in page
 	sellingDealId = [] // these are same values
 	contrAgentId = []
-	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
+	defaultDate = { start: getDefaultStartDate(), end: getDefaultEndDate() }
 	accountId = []
 	dealId = [] // these are same values
 	projectId = []
-	dateRangeType = 'year'
+	dateRangeType = DEFAULT_RANGE_TYPE
 
 	constructor() {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
-				name: 'cashflow_store_v2',
+				name: 'cashflow_store_v3',
 				properties: [
 					'periodStartDate',
 					'periodEndDate',
@@ -52,8 +51,8 @@ class CashFlowStore {
 	// ── Setters ─────────────────────────────────────────────────────────────────
 	setPeriodDateRange(range) {
 		if (!range.start || !range.end) {
-			this.periodStartDate = new Date(currentYear, 0, 1)
-			this.periodEndDate = new Date()
+			this.periodStartDate = getDefaultStartDate()
+			this.periodEndDate = getDefaultEndDate()
 		} else {
 			this.periodStartDate = range.start
 			this.periodEndDate = range.end
@@ -88,8 +87,8 @@ class CashFlowStore {
 	}
 
 	resetFilters() {
-		this.periodStartDate = new Date(currentYear, 0, 1)
-		this.periodEndDate = new Date()
+		this.periodStartDate = getDefaultStartDate()
+		this.periodEndDate = getDefaultEndDate()
 		this.periodType = 'monthly'
 		this.currencyCode = GlobalCurrency?.code
 		this.sellingDealId = []
@@ -97,7 +96,7 @@ class CashFlowStore {
 		this.accountId = []
 		this.dealId = []
 		this.projectId = []
-		this.dateRangeType = 'year'
+		this.dateRangeType = DEFAULT_RANGE_TYPE
 	}
 }
 

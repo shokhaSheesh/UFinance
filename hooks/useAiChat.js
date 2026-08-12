@@ -8,6 +8,7 @@ import {
   buildAiChatContent,
   unwrapAiData,
 } from "@/lib/api/ucode/aiChat";
+import { aiChatStore } from "@/store/aiChat.store";
 import { authStore } from "@/store/auth.store";
 
 const CHAT_WS = "wss://chat-service.u-code.io/socket.io/?EIO=4&transport=websocket";
@@ -323,6 +324,9 @@ export function useAiChat(isOpen) {
       const content = String(text || "").trim();
       const atts = Array.isArray(files) ? files : [];
       if (!content && atts.length === 0) return;
+
+      // чат использовали → при закрытии панели обновим данные текущей страницы
+      aiChatStore.markUsed();
 
       setMessages((prev) => [
         ...prev,

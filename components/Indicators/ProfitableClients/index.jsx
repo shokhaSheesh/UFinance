@@ -10,6 +10,7 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import Loader from '../../shared/Loader'
 import { STATIC_PROFITABLE_CLIENTS_DATA } from '../constants/staticChartData'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 const ProfitableClients = observer(() => {
   const t = useTranslations('Indicators')
@@ -45,7 +46,7 @@ const ProfitableClients = observer(() => {
 
   const { data: apiProfitableClientsData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ['profitable_clients', filterData],
-    queryFn: () => apiClient.invokeFunction({ method: 'report_counterparties_financials', data: filterData }),
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({ method: 'report_counterparties_financials', data: filterData })),
     select: (res) => res?.data?.data,
     staleTime: 0,
     cacheTime: 0,

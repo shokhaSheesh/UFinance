@@ -146,6 +146,8 @@ export function useBudgetPlan(budgetsId, { accountingMethod, profitIndicators } 
 /**
  * Запись плановой суммы (upsert). После успеха перезапрашиваем дерево —
  * бэк пересчитывает roll-up по родителям и производные строки.
+ * Без `month` (правка колонки «Итого») дата не отправляется — сумма
+ * записывается на весь период бюджета.
  */
 export function useSaveBudgetPlan(budgetsId) {
   const queryClient = useQueryClient()
@@ -154,7 +156,7 @@ export function useSaveBudgetPlan(budgetsId) {
       createBudgetPlan({
         budgets_id: budgetsId,
         id: rowId,
-        date: monthStartDate(month),
+        ...(month ? { date: monthStartDate(month) } : {}),
         amount,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['get_budget_plan', budgetsId] }),

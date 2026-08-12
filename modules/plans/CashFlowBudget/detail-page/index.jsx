@@ -124,6 +124,8 @@ const CashFlowBudgetSingle = () => {
         loading={isLoading || !period}
         emptyLabel={t('empty')}
         editable={!!permissions.edit}
+        // план на весь период правится только при plan_total_active в настройках
+        totalEditable={!!permissions.edit && appStore.planTotalActive}
         onPlanChange={savePlan.mutate}
       />
 

@@ -16,6 +16,9 @@ class AppStore {
   returnActive = false;
   projectActive = false;
   isAiActive = false;
+  // plan_total_active из get_general_settings — разрешает править план
+  // в колонке «Итого» бюджета (сумма сразу на весь период)
+  planTotalActive = false;
   currencies = [];
   myCurrencies = [];
   companyCurrencies = [];
@@ -91,6 +94,7 @@ class AppStore {
           "returnActive",
           "projectActive",
           "isAiActive",
+          "planTotalActive",
           "currencies",
           "isDonoSchool",
           "myCurrencies",
@@ -163,6 +167,10 @@ class AppStore {
 
   setAiActive(value) {
     this.isAiActive = value;
+  }
+
+  setPlanTotalActive(value) {
+    this.planTotalActive = value;
   }
 
   setisDonoschool(value) {

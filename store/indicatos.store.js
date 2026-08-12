@@ -24,6 +24,12 @@ class Indicators {
   profitableclientsMethod = 'accrual'
   paymentStructureMethod = 'income_expenses' // receipts_payments | income_expenses
 
+  // Долги (дебиторка/кредиторка с поставщиками)
+  debtsSort = 'expired' // expired | total | name
+  debtsLegalEntities = []
+  debtsShowValues = true // подписи сумм на графиках
+  debtsRounding = 'none' // 'none' | '3' | '6' | '9' — на сколько знаков округлять
+
   constructor() {
     makeAutoObservable(this)
 
@@ -39,7 +45,11 @@ class Indicators {
           "projects",
           "rangeMonth",
           "paymentStructureMethod",
-          "profitableclientsMethod"
+          "profitableclientsMethod",
+          "debtsSort",
+          "debtsLegalEntities",
+          "debtsShowValues",
+          "debtsRounding"
         ],
         storage: window.localStorage,
         debugMode: false,
@@ -59,6 +69,8 @@ class Indicators {
     this.accounts = []
     this.projects = []
     this.rangeMonth = defaultDateRange
+    this.debtsLegalEntities = []
+    this.debtsSort = 'expired'
   }
   resetMonth = () => {
     this.rangeMonth = defaultDateRange

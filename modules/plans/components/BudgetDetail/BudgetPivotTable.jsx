@@ -139,26 +139,67 @@ const avgMonths = (values, months) => {
 };
 
 /**
+ * Сумма локальных правок плана в поддереве узла. Итоги периода приходят из API
+ * уже свёрнутыми, поэтому до перезапроса дерева сдвигаем их на эту дельту.
+ * Правка «Итого» перекрывает месячные правки того же узла — на бэке она их
+ * тоже заменяет.
+ */
+const planDeltaFor = (node, months, planOverrides, totalOverrides) => {
+  let delta = 0;
+  const walk = (n) => {
+    const total = totalOverrides?.[n.id];
+    if (total != null) {
+      delta += total - (n.periodOwnPlan || 0);
+    } else {
+      months.forEach((m) => {
+        const override = planOverrides?.[`${n.id}|${m}`];
+        if (override != null) delta += override - (n.values?.[m]?.plan || 0);
+      });
+    }
+    n.children?.forEach(walk);
+  };
+  walk(node);
+  return delta;
+};
+
+/**
+ * Значения строки за весь период — поля `plan` и `totalValue` из API как есть.
+ * Пока дерево не перезапрошено, план сдвигаем на локальные правки, а «Откл.»
+ * пересчитываем в том же направлении, что и в ответе API.
+ */
+const periodMetrics = (node, months, planOverrides, totalOverrides) => {
+  const base = node.periodTotals;
+  const delta = planDeltaFor(node, months, planOverrides, totalOverrides);
+  if (!delta) return base;
+  const plan = base.plan + delta;
+  return {
+    plan,
+    fact: base.fact,
+    profit: (node.profitSign ?? 1) * (base.fact - plan),
+  };
+};
+
+/**
  * Агрегация значения строки по колонке.
  * Остатки на начало/конец не суммируются: берётся первый / последний месяц —
- * как в ПланФакт. Процентные строки за весь период берутся из итогов API,
- * за свёрнутый период — усредняются.
+ * как в ПланФакт. Итог за весь период берём из полей `plan` строки, а не
+ * складываем по месяцам: у процентных строк сложение бессмысленно, а у
+ * остальных бэк уже отдал готовый roll-up.
  */
-const aggregateNode = (node, byRow, col) => {
+const aggregateNode = (node, byRow, col, planOverrides, totalOverrides) => {
   const months = col.months;
   if (node?.kind === "ratio" && typeof node.aggregate === "function") {
     const resolve = (id) => sumMonths(byRow[id], months);
     return node.aggregate(resolve) || { plan: null, fact: null };
   }
   const values = byRow[node.id];
-  if (months.length === 1) return values?.[months[0]] || emptyCell();
   if (node?.aggregation === "first") return values?.[months[0]] || emptyCell();
   if (node?.aggregation === "last")
     return values?.[months[months.length - 1]] || emptyCell();
-  if (node?.aggregation === "percent") {
-    if (col.kind === "total" && node.periodTotals) return node.periodTotals;
-    return avgMonths(values, months);
-  }
+  if (col.kind === "total" && node?.periodTotals)
+    return periodMetrics(node, months, planOverrides, totalOverrides);
+  if (months.length === 1) return values?.[months[0]] || emptyCell();
+  if (node?.aggregation === "percent") return avgMonths(values, months);
   return sumMonths(values, months);
 };
 
@@ -231,7 +272,9 @@ const CellShell = ({ children, bold, className = "", isLast, onClick }) => (
  * @param {object}   props.visibleCols     { fact, planExec, deviation, deviationPct }
  * @param {Function} props.t               переводчик секции страницы
  * @param {boolean}  props.editable        разрешить правку плановых ячеек
+ * @param {boolean}  props.totalEditable   разрешить правку плана в колонке «Итого»
  * @param {Function} props.onPlanChange    ({ rowId, month, amount }) → запись плана в API
+ *                                         (без `month` — сумма на весь период)
  * @param {boolean}  props.loading         идёт загрузка дерева
  * @param {string}   props.emptyLabel      текст, когда строк нет
  */
@@ -245,6 +288,7 @@ const BudgetPivotTable = ({
   visibleCols,
   t,
   editable = true,
+  totalEditable = false,
   hiddenRowIds = [],
   onPlanChange,
   loading = false,
@@ -261,7 +305,9 @@ const BudgetPivotTable = ({
     return init;
   });
   const [planOverrides, setPlanOverrides] = useState({});
-  const [editing, setEditing] = useState(null); // `${rowId}|${monthKey}`
+  // правки плана в колонке «Итого» — они не привязаны к месяцу: rowId → сумма
+  const [totalOverrides, setTotalOverrides] = useState({});
+  const [editing, setEditing] = useState(null); // `${rowId}|${columnId}`
 
   // Пришло свежее дерево — локальные правки больше не нужны, в нём уже
   // пересчитанные бэкендом значения (сброс во время рендера, а не в эффекте)
@@ -269,6 +315,7 @@ const BudgetPivotTable = ({
   if (renderedRows !== rows) {
     setRenderedRows(rows);
     setPlanOverrides({});
+    setTotalOverrides({});
   }
 
   const labels = useMemo(
@@ -325,20 +372,25 @@ const BudgetPivotTable = ({
   /**
    * Собственная плановая сумма статьи по колонке — `plan.by` из API,
    * без подстатей. Показывается второй строкой под свёрнутым итогом и
-   * подставляется в инпут при редактировании.
+   * подставляется в инпут при редактировании. У «Итого» это `plan.by`
+   * за весь период, а не сумма месяцев.
    */
   const ownPlanFor = useCallback(
     (node, col) => {
       const months = col.months;
       const get = (m) =>
         planOverrides[`${node.id}|${m}`] ?? node.values?.[m]?.plan ?? 0;
-      if (months.length === 1 || node.aggregation === "first")
-        return get(months[0]);
+      if (node.aggregation === "first") return get(months[0]);
       if (node.aggregation === "last") return get(months[months.length - 1]);
-      if (node.aggregation === "percent") return null; // проценты не суммируются
+      if (col.kind === "total" && node.periodTotals) {
+        if (node.aggregation === "percent") return null; // проценты не суммируются
+        return totalOverrides[node.id] ?? node.periodOwnPlan ?? 0;
+      }
+      if (months.length === 1) return get(months[0]);
+      if (node.aggregation === "percent") return null;
       return months.reduce((sum, m) => sum + get(m), 0);
     },
-    [planOverrides]
+    [planOverrides, totalOverrides]
   );
 
   /** Правка плана: локально — сразу, на бэк — через onPlanChange. */
@@ -346,6 +398,19 @@ const BudgetPivotTable = ({
     (rowId, month, amount) => {
       setPlanOverrides((prev) => ({ ...prev, [`${rowId}|${month}`]: amount }));
       onPlanChange?.({ rowId, month, amount });
+    },
+    [onPlanChange]
+  );
+
+  /**
+   * Правка плана в колонке «Итого» — сумма пишется сразу на весь период
+   * бюджета, поэтому месяц не передаём. Локальные месячные правки этой же
+   * строки больше не нужны: бэк заменит их своим распределением.
+   */
+  const setTotalPlanValue = useCallback(
+    (rowId, amount) => {
+      setTotalOverrides((prev) => ({ ...prev, [rowId]: amount }));
+      onPlanChange?.({ rowId, amount });
     },
     [onPlanChange]
   );
@@ -672,7 +737,13 @@ const BudgetPivotTable = ({
           {/* Значения */}
           <div className="flex items-stretch">
             {columns.map((col) => {
-              const metrics = aggregateNode(node, byRow, col);
+              const metrics = aggregateNode(
+                node,
+                byRow,
+                col,
+                planOverrides,
+                totalOverrides
+              );
 
               return (
                 <div
@@ -685,16 +756,19 @@ const BudgetPivotTable = ({
                 >
                   {activeCols.map((c, i) => {
                     const isLastCell = i === activeCols.length - 1;
+                    const isTotalCell = col.kind === "total";
                     const isEditableCell =
-                      rowEditable && c.key === "plan" && col.kind === "month";
-                    const editKey = `${node.id}|${col.months[0]}`;
+                      rowEditable &&
+                      c.key === "plan" &&
+                      (col.kind === "month" || (isTotalCell && totalEditable));
+                    // Ключ колонки, а не месяца: «Итого» и свёрнутые периоды
+                    // начинаются с того же месяца, что и обычная месячная
+                    // колонка, и на общем ключе инпут монтировался бы дважды —
+                    // autoFocus последнего сбрасывал blur предыдущего.
+                    const editKey = `${node.id}|${col.id}`;
                     // Редактируем собственную сумму статьи (`plan.by`), а не
                     // свёрнутую с подстатьями — её и пишет create_budget_plan
                     const ownPlan = ownPlanFor(node, col) ?? 0;
-                    // Ключ месяца совпадает у «Итого» и свёрнутых периодов с их
-                    // первым месяцем, поэтому инпут показываем только в самой
-                    // редактируемой ячейке — иначе их монтируется несколько
-                    // и autoFocus последнего сбрасывает blur предыдущего.
                     const isEditing = isEditableCell && editing === editKey;
 
                     if (isEditing) {
@@ -718,8 +792,12 @@ const BudgetPivotTable = ({
                             onBlur={(e) => {
                               const parsed =
                                 parseInputNumber(e.target.value) ?? 0;
-                              if (parsed !== ownPlan)
-                                setPlanValue(node.id, col.months[0], parsed);
+                              if (parsed !== ownPlan) {
+                                if (isTotalCell)
+                                  setTotalPlanValue(node.id, parsed);
+                                else
+                                  setPlanValue(node.id, col.months[0], parsed);
+                              }
                               setEditing(null);
                             }}
                             onKeyDown={(e) => {

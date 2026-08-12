@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { getPresetRange } from '../../../utils/datePresets'
 
 const formatDate = date => {
 	const d = typeof date === 'string' ? new Date(date) : date
@@ -10,10 +11,13 @@ const formatDate = date => {
 	return `${year}-${month}-${day}`
 }
 
-const currentYear = new Date().getFullYear()
+// По умолчанию отчёт строится за текущий квартал — тот же диапазон, что даёт
+// пресет «Этот квартал» в календаре фильтров
+const DEFAULT_RANGE_TYPE = 'quarter'
 
 const getDefaultDateRange = () => {
-	return { start: new Date(currentYear, 0, 1), end: new Date() }
+	const [start, end] = getPresetRange(DEFAULT_RANGE_TYPE)
+	return { start, end }
 }
 
 class PnLStore {
@@ -30,15 +34,15 @@ class PnLStore {
 	selectedAccounts = []
 	selectedLegalEntities = []
 	selectedCounterparties = []
-	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
+	defaultDate = getDefaultDateRange()
 	selectedCurrency = GlobalCurrency?.code || 'UZS'
-	dateRangeType = 'year'
+	dateRangeType = DEFAULT_RANGE_TYPE
 
 	constructor() {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
-				name: 'pnl_store_v1',
+				name: 'pnl_store_v2',
 				properties: [
 					'profitTypes',
 					'selectedAccounts',
@@ -62,7 +66,7 @@ class PnLStore {
 	// ── Setters ─────────────────────────────────────────────────────────────────
 	setDateRange(val) {
 		if (!val.start || !val.end) {
-			this.dateRange = { start: new Date(currentYear, 0, 1), end: new Date() }
+			this.dateRange = getDefaultDateRange()
 		} else {
 			this.dateRange = { start: val?.start, end: val?.end }
 		}
@@ -126,7 +130,7 @@ class PnLStore {
 		this.selectedLegalEntities = []
 		this.selectedCounterparties = []
 		this.selectedCurrency = GlobalCurrency?.code || 'UZS'
-		this.dateRangeType = 'year'
+		this.dateRangeType = DEFAULT_RANGE_TYPE
 	}
 }
 

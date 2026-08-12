@@ -155,12 +155,14 @@ export const Sidebar = observer(() => {
         // },
         {
           label: t("plans.income_expense_budget"),
+          description: t("plans.income_expense_budget_desc"),
           href: "/income_expense_budget",
           hasPage: true,
           canShow: permissions?.plans?.pnl?.read,
         },
         {
           label: t("plans.cash_flow_budget"),
+          description: t("plans.cash_flow_budget_desc"),
           href: "/cash_flow_budget",
           hasPage: true,
           canShow: permissions?.plans?.cashflow?.read,

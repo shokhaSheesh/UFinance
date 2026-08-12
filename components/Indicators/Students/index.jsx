@@ -17,6 +17,7 @@ import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
 const Students = () => {
   const t = useTranslations('Indicators')
@@ -49,10 +50,10 @@ const Students = () => {
 
   const { data: apiData, isLoading, isFetching, isPending } = useQuery({
     queryKey: ['students_indicators', filterData],
-    queryFn: () => apiClient.invokeFunction({
+    queryFn: () => enqueueIndicatorRequest(() => apiClient.invokeFunction({
       method: 'get_counterparties_data_by_query',
       data: filterData
-    }),
+    })),
     select: (res) => res?.data?.data,
     enabled: appStore.isDonoSchool,
     staleTime: 0,

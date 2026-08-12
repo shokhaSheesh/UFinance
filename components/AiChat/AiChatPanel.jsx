@@ -11,6 +11,7 @@ import {
 import { showErrorNotification } from "@/lib/utils/notifications";
 import { aiChatStore } from "@/store/aiChat.store";
 import { appStore } from "@/store/app.store";
+import { useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -196,6 +197,7 @@ const clampWidth = (w) => {
 const AiChatPanel = observer(() => {
   const t = useTranslations("AiChat");
   const mounted = useMounted();
+  const queryClient = useQueryClient();
   const isOpen = aiChatStore.isOpen;
 
   const {
@@ -223,6 +225,20 @@ const AiChatPanel = observer(() => {
   const prependingRef = useRef(false); // идёт подгрузка старых — сохраняем позицию скролла
   const prevScrollHeightRef = useRef(0);
   const prevScrollTopRef = useRef(0);
+  const wasOpenRef = useRef(false); // панель была открыта — чтобы поймать момент закрытия
+
+  // Закрыли чат после того, как им пользовались → AI мог изменить данные,
+  // поэтому перезапрашиваем все активные запросы текущей страницы.
+  useEffect(() => {
+    if (isOpen) {
+      wasOpenRef.current = true;
+      return;
+    }
+    if (!wasOpenRef.current) return;
+    wasOpenRef.current = false;
+    if (!aiChatStore.consumeUsed()) return;
+    queryClient.invalidateQueries();
+  }, [isOpen, queryClient]);
 
   // восстанавливаем сохранённую ширину
   useEffect(() => {
