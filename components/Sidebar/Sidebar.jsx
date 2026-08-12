@@ -3,6 +3,7 @@
 import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
+import { authStore } from "@/store/auth.store";
 import {
   Briefcase,
   CalendarCheck,
@@ -19,6 +20,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
+
+// Тестовый ОПУ (profit_and_loss_by_query) показываем только этой компании
+const PNL_BY_QUERY_COMPANY_ID = "212f6816-b0ef-42de-802b-c9738f0e8cd1";
 
 export const Sidebar = observer(() => {
   const t = useTranslations("Sidebar");
@@ -197,6 +201,14 @@ export const Sidebar = observer(() => {
           href: "/reports/profit-and-loss",
           hasPage: true,
           canShow: permissions?.reports?.pnl?.read,
+        },
+        {
+          label: t("reports.pnlByQuery"),
+          href: "/reports/profit-and-loss-by-query",
+          hasPage: true,
+          canShow:
+            permissions?.reports?.pnl?.read &&
+            authStore.userData?.company_id === PNL_BY_QUERY_COMPANY_ID,
         },
         {
           label: t("reports.balance"),

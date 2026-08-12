@@ -262,6 +262,7 @@
     "reports": {
       "cashflow": "Mablag'lari harakati (MH)",
       "pnl": "Foyda va zararlar (F&Z)",
+      "pnlByQuery": "Foyda va zararlar (F&Z) (test)",
       "balance": "Balans",
       "students": "Talabalar"
     },
