@@ -203,14 +203,6 @@ export const Sidebar = observer(() => {
           canShow: permissions?.reports?.pnl?.read,
         },
         {
-          label: t("reports.pnlByQuery"),
-          href: "/reports/profit-and-loss-by-query",
-          hasPage: true,
-          canShow:
-            permissions?.reports?.pnl?.read &&
-            authStore.userData?.company_id === PNL_BY_QUERY_COMPANY_ID,
-        },
-        {
           label: t("reports.balance"),
           href: "/reports/balance",
           hasPage: true,
