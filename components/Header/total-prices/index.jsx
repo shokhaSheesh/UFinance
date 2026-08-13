@@ -1,6 +1,6 @@
 "use client"
 
-import { currencyInfo, donoSchool, GlobalCurrency, testDonoSchool } from '@/constants/globalCurrency'
+import { currencyInfo, donoSchool, GlobalCurrency, testDonoSchool, orientalKinderland } from '@/constants/globalCurrency'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
@@ -92,7 +92,7 @@ const TotalPrice = observer(() => {
 
     useEffect(() => {
         appStore.setisDonoschool(
-            (authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool)
+            (authStore.userData?.company_id === donoSchool || authStore.userData?.company_id === testDonoSchool  || authStore.userData?.company_id === orientalKinderland)
                 ? true
                 : false
         )
