@@ -21,8 +21,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
 
-// Тестовый ОПУ (profit_and_loss_by_query) показываем только этой компании
-const PNL_BY_QUERY_COMPANY_ID = "212f6816-b0ef-42de-802b-c9738f0e8cd1";
+// Тестовые отчёты (*_by_query) показываем только этой компании
+const BY_QUERY_TEST_COMPANY_ID = "212f6816-b0ef-42de-802b-c9738f0e8cd1";
 
 export const Sidebar = observer(() => {
   const t = useTranslations("Sidebar");
@@ -195,6 +195,14 @@ export const Sidebar = observer(() => {
           href: "/reports/cashflow",
           hasPage: true,
           canShow: permissions?.reports?.cashflow?.read,
+        },
+        {
+          label: t("reports.cashflowByQuery"),
+          href: "/reports/cashflow-by-query",
+          hasPage: true,
+          canShow:
+            permissions?.reports?.cashflow?.read &&
+            authStore.userData?.company_id === BY_QUERY_TEST_COMPANY_ID,
         },
         {
           label: t("reports.pnl"),
