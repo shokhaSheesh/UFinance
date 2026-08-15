@@ -265,6 +265,7 @@
       "pnl": "Foyda va zararlar (F&Z)",
       "pnlByQuery": "Foyda va zararlar (F&Z) (test)",
       "balance": "Balans",
+      "balanceByQuery": "Balans (test)",
       "students": "Talabalar"
     },
     "directories": {

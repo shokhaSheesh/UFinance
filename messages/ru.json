@@ -260,6 +260,7 @@
       "pnl": "Прибыли и убытки (ОПУ)",
       "pnlByQuery": "Прибыли и убытки (ОПУ) (test)",
       "balance": "Баланс",
+      "balanceByQuery": "Баланс (test)",
       "students": "Студенты"
     },
     "directories": {
