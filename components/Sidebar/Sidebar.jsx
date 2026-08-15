@@ -3,6 +3,7 @@
 import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
+import { authStore } from "@/store/auth.store";
 import {
   Briefcase,
   CalendarCheck,
@@ -19,6 +20,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
+
+// Тестовые отчёты (*_by_query) показываем только этой компании
+const BY_QUERY_TEST_COMPANY_ID = "212f6816-b0ef-42de-802b-c9738f0e8cd1";
 
 export const Sidebar = observer(() => {
   const t = useTranslations("Sidebar");
@@ -193,6 +197,14 @@ export const Sidebar = observer(() => {
           canShow: permissions?.reports?.cashflow?.read,
         },
         {
+          label: t("reports.cashflowByQuery"),
+          href: "/reports/cashflow-by-query",
+          hasPage: true,
+          canShow:
+            permissions?.reports?.cashflow?.read &&
+            authStore.userData?.company_id === BY_QUERY_TEST_COMPANY_ID,
+        },
+        {
           label: t("reports.pnl"),
           href: "/reports/profit-and-loss",
           hasPage: true,
@@ -203,6 +215,14 @@ export const Sidebar = observer(() => {
           href: "/reports/balance",
           hasPage: true,
           canShow: permissions?.reports?.balance?.read,
+        },
+        {
+          label: t("reports.balanceByQuery"),
+          href: "/reports/balance-by-query",
+          hasPage: true,
+          canShow:
+            permissions?.reports?.balance?.read &&
+            authStore.userData?.company_id === BY_QUERY_TEST_COMPANY_ID,
         },
         {
           label: t("reports.students"),

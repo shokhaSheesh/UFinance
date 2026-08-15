@@ -261,8 +261,11 @@
     },
     "reports": {
       "cashflow": "Mablag'lari harakati (MH)",
+      "cashflowByQuery": "Mablag'lari harakati (MH) (test)",
       "pnl": "Foyda va zararlar (F&Z)",
+      "pnlByQuery": "Foyda va zararlar (F&Z) (test)",
       "balance": "Balans",
+      "balanceByQuery": "Balans (test)",
       "students": "Talabalar"
     },
     "directories": {
