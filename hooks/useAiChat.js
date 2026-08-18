@@ -3,6 +3,7 @@
 import createDOMPurify from "dompurify";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  aiChatEditMessage,
   aiChatHistory,
   aiChatSendMessage,
   buildAiChatContent,
@@ -57,12 +58,127 @@ const uid = () => `m_${_idc++}_${Math.round(performance.now())}`;
 const readContent = (c) =>
   typeof c === "string" ? c : c?.text || c?.content || "";
 
-const normalizeMessage = (m) => ({
-  id: uid(),
-  role: m?.role === "assistant" ? "assistant" : "user",
-  content: readContent(m?.content),
-  isHtml: m?.role === "assistant",
-});
+// guid сообщения из истории — нужен для ai_chat_edit_message
+const readMessageId = (m) => m?.id || m?.guid || m?.message_id || "";
+
+const fileNameFromUrl = (url) => {
+  const clean = String(url || "").split("?")[0];
+  return decodeURIComponent(clean.slice(clean.lastIndexOf("/") + 1)) || "file";
+};
+
+// files из истории: массив строк-ссылок либо объектов
+const readFiles = (m) => {
+  const raw = Array.isArray(m?.files) ? m.files : [];
+  return raw
+    .map((f) =>
+      typeof f === "string"
+        ? { name: fileNameFromUrl(f), url: f }
+        : {
+            name: f?.name || f?.file_name || fileNameFromUrl(f?.url || f?.link),
+            url: f?.url || f?.link || "",
+          }
+    )
+    .filter((f) => f.url);
+};
+
+// ─── Быстрые ответы (подсказки), приходящие вместе с ответом AI ──────
+// Бэк может отдать их двумя способами: полем в сообщении истории
+// (suggestions / quick_replies / …) или кнопками <button data-prompt> в HTML.
+const SUGGEST_KEYS = [
+  "suggestions",
+  "quick_replies",
+  "quickReplies",
+  "quick_answers",
+  "quickAnswers",
+  "follow_ups",
+  "followUps",
+  "options",
+  "buttons",
+  "actions",
+];
+
+const toSuggestion = (s) => {
+  if (typeof s === "string") {
+    const label = s.trim();
+    return label ? { label, prompt: label } : null;
+  }
+  const label = s?.label || s?.text || s?.title || s?.name || s?.content || s?.prompt;
+  const prompt = s?.prompt || s?.value || s?.query || s?.text || label;
+  return label ? { label: String(label), prompt: String(prompt) } : null;
+};
+
+const readSuggestList = (m) => {
+  const sources = [m, m?.content, m?.metadata, m?.meta, m?.data, m?.extra];
+  for (const src of sources) {
+    if (!src || typeof src !== "object") continue;
+    for (const key of SUGGEST_KEYS) {
+      const v = src[key];
+      if (Array.isArray(v) && v.length) {
+        const list = v.map(toSuggestion).filter(Boolean);
+        if (list.length) return list;
+      }
+    }
+  }
+  return [];
+};
+
+/**
+ * Достаёт из HTML-ответа AI кнопки-подсказки и убирает их из текста —
+ * показываем их отдельным блоком «Быстрые ответы» над полем ввода.
+ * Парсим через DOMParser: скрипты не выполняются, ресурсы не грузятся.
+ */
+const splitAssistantContent = (html) => {
+  const src = String(html || "");
+  if (typeof window === "undefined" || !src.includes("data-prompt")) {
+    return { html: src, suggestions: [] };
+  }
+  try {
+    const doc = new DOMParser().parseFromString(sanitizeAiHtml(src), "text/html");
+    const nodes = Array.from(doc.querySelectorAll("button[data-prompt]"));
+    if (!nodes.length) return { html: src, suggestions: [] };
+    const suggestions = nodes
+      .map((b) => {
+        const label = (b.textContent || "").trim();
+        const prompt = b.getAttribute("data-prompt") || label;
+        return label ? { label, prompt } : null;
+      })
+      .filter(Boolean);
+    nodes.forEach((b) => b.remove());
+    return { html: doc.body.innerHTML, suggestions };
+  } catch {
+    return { html: src, suggestions: [] };
+  }
+};
+
+const normalizeMessage = (m) => {
+  const role = m?.role === "assistant" ? "assistant" : "user";
+  const raw = readContent(m?.content);
+  const messageId = readMessageId(m);
+  if (role !== "assistant") {
+    return {
+      id: uid(),
+      messageId,
+      role,
+      content: raw,
+      files: readFiles(m),
+      isHtml: false,
+    };
+  }
+  const { html, suggestions } = splitAssistantContent(raw);
+  const fromFields = readSuggestList(m);
+  return {
+    id: uid(),
+    messageId,
+    role,
+    content: html,
+    isHtml: true,
+    suggestions: fromFields.length ? fromFields : suggestions,
+  };
+};
+
+// chat_id текущего чата из ответа ai_chat_history / ai_chat_send_message
+const readChatId = (d) =>
+  d?.chat_id || d?.chatId || d?.chat?.id || d?.chat?.guid || d?.ai_chat_id || "";
 
 /**
  * Управляет AI-чатом: история, WebSocket-стрим, отправка, polling-фоллбек.
@@ -79,6 +195,7 @@ export function useAiChat(isOpen) {
 
   const wsRef = useRef(null);
   const roomIdRef = useRef("");
+  const chatIdRef = useRef(""); // chat_id из ai_chat_history — уходит в send
   const joinedRef = useRef(false);
   const streamRef = useRef("");
   const awaitingReplyRef = useRef(false);
@@ -123,9 +240,16 @@ export function useAiChat(isOpen) {
       setStreamingText(null);
       setIsAwaiting(false);
       stopPolling();
+      const { html: body, suggestions } = splitAssistantContent(html);
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: "assistant", content: html, isHtml: true },
+        {
+          id: uid(),
+          role: "assistant",
+          content: body,
+          isHtml: true,
+          suggestions,
+        },
       ]);
       return true;
     },
@@ -272,6 +396,8 @@ export function useAiChat(isOpen) {
       const res = await aiChatHistory({ page: 1, limit: HISTORY_LIMIT });
       const d = unwrapAiData(res);
       const room = d.live_chat_room_id || "";
+      const chatId = readChatId(d);
+      if (chatId) chatIdRef.current = chatId;
       const raw = Array.isArray(d.messages) ? d.messages : [];
       // API отдаёт новые→старые (DESC); разворачиваем в старые→новые (сверху вниз)
       const ordered = raw.map(normalizeMessage).reverse();
@@ -341,8 +467,13 @@ export function useAiChat(isOpen) {
       const apiContent = buildAiChatContent(content, atts);
 
       try {
-        const res = await aiChatSendMessage({ content: apiContent });
+        const res = await aiChatSendMessage({
+          content: apiContent,
+          chatId: chatIdRef.current,
+        });
         const d = unwrapAiData(res);
+        const chatId = readChatId(d);
+        if (chatId) chatIdRef.current = chatId;
         const room = d.live_chat_room_id || roomIdRef.current;
         if (room) {
           roomIdRef.current = room;
@@ -361,6 +492,60 @@ export function useAiChat(isOpen) {
             isHtml: true,
           },
         ]);
+      }
+    },
+    [connect, startPolling]
+  );
+
+  // ─── Редактирование отправленного сообщения ─────────────────────────
+  // Бэк принимает ai_chat_edit_message и перегенерирует ответ AI —
+  // он приходит по тому же WS/polling, что и обычная отправка.
+  const edit = useCallback(
+    async (messageId, text) => {
+      const content = String(text || "").trim();
+      if (!messageId || !content) return false;
+
+      aiChatStore.markUsed();
+
+      // правим сообщение на месте и убираем ответ AI, который к нему относился
+      setMessages((prev) => {
+        const i = prev.findIndex((m) => m.messageId === messageId);
+        if (i === -1) return prev;
+        const next = prev.slice(0, i + 1);
+        next[i] = { ...next[i], content };
+        return next;
+      });
+
+      setIsAwaiting(true);
+      streamRef.current = "";
+      setStreamingText(null);
+      awaitingReplyRef.current = true;
+
+      try {
+        const res = await aiChatEditMessage({ id: messageId, content });
+        const d = unwrapAiData(res);
+        const chatId = readChatId(d);
+        if (chatId) chatIdRef.current = chatId;
+        const room = d.live_chat_room_id || roomIdRef.current;
+        if (room) {
+          roomIdRef.current = room;
+          if (!joinedRef.current) connect(room);
+        }
+        startPolling();
+        return true;
+      } catch {
+        awaitingReplyRef.current = false;
+        setIsAwaiting(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: uid(),
+            role: "assistant",
+            content: "<p>Не удалось изменить сообщение. Попробуйте ещё раз.</p>",
+            isHtml: true,
+          },
+        ]);
+        return false;
       }
     },
     [connect, startPolling]
@@ -394,6 +579,13 @@ export function useAiChat(isOpen) {
     [stopPolling]
   );
 
+  // быстрые ответы показываем, только пока последнее слово за AI
+  const last = messages[messages.length - 1];
+  const suggestions =
+    last?.role === "assistant" && Array.isArray(last.suggestions)
+      ? last.suggestions
+      : [];
+
   return {
     messages,
     streamingText,
@@ -404,5 +596,7 @@ export function useAiChat(isOpen) {
     loadingMore,
     loadMore,
     send,
+    edit,
+    suggestions,
   };
 }

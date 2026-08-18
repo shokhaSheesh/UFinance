@@ -8,6 +8,7 @@ import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../..
 
 // Helpers
 import { isFuture } from '@/utils/formatDate'
+import { refreshOperationsListAfterSave } from '@/utils/operationsCache'
 import { formatDateParseZone, StringtoNumber } from '@/utils/helpers'
 
 // Components
@@ -186,7 +187,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 				updateOperationsCache(res.data.data)
 			}
 
-			queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+			await refreshOperationsListAfterSave({ guid: operationId, newDate: payload.data_operatsii, isNew })
 			queryClient.invalidateQueries({ queryKey: ['dashboard'] })
 			queryClient.invalidateQueries({ queryKey: ['operationsList'] })
 			queryClient.invalidateQueries({ queryKey: ['operations'] })

@@ -2,7 +2,7 @@
   "AiChat": {
     "buttonLabel": "AI Помощник",
     "title": "UF Assistant",
-    "subtitle": "Ваш финансовый помощник",
+    "subtitle": "Готов помочь с финансами",
     "greeting": "Привет! Я помогу разобраться с операциями, счетами и сделками. Спросите что-нибудь 👇",
     "placeholder": "Спросите о финансах…",
     "footNote": "AI может ошибаться. Проверяйте важные цифры.",
@@ -17,7 +17,17 @@
     "attach": "Прикрепить файл",
     "fileTooBig": "Файл больше 5 МБ",
     "filesMax": "Можно прикрепить не более {max} файлов",
-    "fileUploadError": "Не удалось загрузить файл"
+    "fileUploadError": "Не удалось загрузить файл",
+    "titleFirst": "UF",
+    "titleSecond": "Assistant",
+    "quickTitle": "Быстрые ответы",
+    "edit": "Изменить",
+    "copy": "Копировать",
+    "copied": "Скопировано!",
+    "download": "Скачать",
+    "fileSent": "отправлено",
+    "editingHint": "Изменение сообщения",
+    "cancel": "Отмена"
   },
   "Warehouse": {
     "pageTitle": "Мой склад",

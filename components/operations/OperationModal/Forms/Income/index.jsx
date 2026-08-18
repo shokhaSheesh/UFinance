@@ -9,6 +9,7 @@ import { } from '@/hooks/useDashboard'
 
 // Helpers
 import { formatDate, isFuture } from '@/utils/formatDate'
+import { refreshOperationsListAfterSave } from '@/utils/operationsCache'
 
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
@@ -483,7 +484,7 @@ const IncomeForm = observer(({
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
       }
-      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+      await refreshOperationsListAfterSave({ guid: operationId, newDate: payload.data_operatsii, isNew })
       queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
       queryClient.invalidateQueries({ queryKey: ['get_counterpaties_total'] })
       queryClient.invalidateQueries({ queryKey: ['legal_entities'] })
