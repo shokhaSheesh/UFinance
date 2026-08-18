@@ -93,8 +93,8 @@ const CreateShipment = observer(
           shipmentSum: t("shipmentSum"),
           products: t("products"),
         };
-    
-      // A return reuses the same form/methods as a normal shipment or supply —
+
+    // A return reuses the same form/methods as a normal shipment or supply —
     // only the header title changes to make the negative-amount mode obvious.
     const L = isReturn
       ? {
@@ -230,6 +230,7 @@ const CreateShipment = observer(
               productServiceId: row.product_and_service_id || "",
               naimenovanie: row.Naimenovanie || "",
               artikul: row.Artikul || "",
+              tip: row.Tip || "",
               quantity: row.Kol_vo ?? 0,
               price: row.TSena_za_ed ?? 0,
               discount: String(row.Skidka ?? ""),
@@ -331,7 +332,8 @@ const CreateShipment = observer(
     const { data: productServices } = useUcodeRequestQuery({
       method: "list_products_and_services",
       data: {
-        [isPurchase ? "purchase_transactions_id" : "sales_transactions_id"]: dealGuid,
+        [isPurchase ? "purchase_transactions_id" : "sales_transactions_id"]:
+          dealGuid,
         page: 1,
         limit: 1000,
       },
@@ -366,7 +368,12 @@ const CreateShipment = observer(
       if (open && !initialData?.guid && shipmentDealData?.projects_id) {
         setProject(shipmentDealData.projects_id);
       }
-    }, [open, initialData?.guid, shipmentDealData?.projects_id, isWarehouseSupply]);
+    }, [
+      open,
+      initialData?.guid,
+      shipmentDealData?.projects_id,
+      isWarehouseSupply,
+    ]);
 
     // Значение пикера — guid связки «сделка-товар», но при редактировании и
     // копировании в строку кладётся product_and_service_id. Ищем по обоим
@@ -388,6 +395,9 @@ const CreateShipment = observer(
       const map = new Map();
       rows.forEach((row) => {
         if (!row.name) return;
+        // услуга склад не двигает — тип берём из строки (он приходит вместе с
+        // выбранной позицией), список сделки его может не содержать
+        if (row.tip && row.tip !== "product") return;
         const product = productServicesList.find(
           (p) => p.guid === row.name || p.product_and_service_id === row.name
         );
@@ -763,9 +773,10 @@ const CreateShipment = observer(
       setRows((prev) =>
         prev.map((row) => {
           if (row.id !== rowId) return row;
+          const tip = source?.tip || raw?.tip || product?.tip || "";
           if (!source) {
             // хотя бы регистрируем выбор; цену/кол-во пользователь введёт вручную
-            return { ...row, name: value, productServiceId };
+            return { ...row, name: value, productServiceId, tip };
           }
           // Тот же товар выбран повторно — только фиксируем выбор. Иначе
           // подстановка значений из сделки затирала бы количество и цену,
@@ -775,7 +786,7 @@ const CreateShipment = observer(
             (!!row.productServiceId &&
               row.productServiceId === productServiceId);
           if (isSameProduct) {
-            return { ...row, name: value, productServiceId };
+            return { ...row, name: value, productServiceId, tip };
           }
           const q = Number(source.kolvo) || 0;
           const p = signPrice(Number(source.tsena_za_ed) || 0);
@@ -783,7 +794,9 @@ const CreateShipment = observer(
             ...row,
             name: value,
             productServiceId,
+            tip,
             naimenovanie: source.name || row.naimenovanie,
+            artikul: source.article || row.artikul || "",
             price: p,
             quantity: q,
             discount: String(source.discount || 0),
@@ -1208,7 +1221,11 @@ const CreateShipment = observer(
                                 }
                                 type={productType}
                                 sellingDealId={dealGuid}
-                                dealIdField={isPurchase ? "purchase_transactions_id" : "sales_transactions_id"}
+                                dealIdField={
+                                  isPurchase
+                                    ? "purchase_transactions_id"
+                                    : "sales_transactions_id"
+                                }
                                 placeholder={t("selectPosition")}
                                 className="bg-white border-none"
                               />
