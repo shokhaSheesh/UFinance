@@ -9,6 +9,7 @@ import { } from '@/hooks/useDashboard'
 
 // Helpers
 import { formatDate, isFuture } from '@/utils/formatDate'
+import { refreshOperationsListAfterSave } from '@/utils/operationsCache'
 
 // Components
 import SelectMyAccounts from '../../../../ReadyComponents/SelectMyAccounts'
@@ -492,7 +493,7 @@ const PaymentForm = observer(({
       }
 
 
-      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+      await refreshOperationsListAfterSave({ guid: operationId, newDate: payload.data_operatsii, isNew })
 
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['operationsList'] })

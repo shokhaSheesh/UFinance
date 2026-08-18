@@ -1,11 +1,15 @@
 "use client";
 
 import useMounted from "@/hooks/useMounted";
-import { useAiChat, sanitizeAiHtml } from "@/hooks/useAiChat";
+import {
+  useAiChat,
+  useAiChatList,
+  decorateAiHtml,
+  sanitizeAiHtml,
+} from "@/hooks/useAiChat";
 import {
   AI_CHAT_MAX_FILES,
   AI_CHAT_MAX_FILE_SIZE,
-  splitAiFileTokens,
   uploadAiChatFile,
 } from "@/lib/api/ucode/aiChat";
 import { showErrorNotification } from "@/lib/utils/notifications";
@@ -17,9 +21,10 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import styles from "./aiChat.module.scss";
 
-const SparkIcon = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 100 8 4 4 0 000-8z" />
+// ─── Иконки (из макета uf_ai_chat_13.html) ──────────────────────────────
+const StarIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
   </svg>
 );
 
@@ -29,25 +34,154 @@ const SendIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
+const ClipIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M21 11.5l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a1.5 1.5 0 01-2-2l8-8" />
+  </svg>
+);
+
+const CopyIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5 15V5a2 2 0 012-2h10" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
+
+const DownloadIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M12 3v12M7 11l5 5 5-5M5 21h14" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3" />
+  </svg>
+);
+
+const HistoryIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+
+const NewChatIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M20 12a8 8 0 01-11.5 7.2L4 20.5l1.3-4.4A8 8 0 1120 12z" />
+    <path d="M12 9v6M9 12h6" />
+  </svg>
+);
+
 const PlusIcon = () => (
   <svg viewBox="0 0 24 24">
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
 
-const ClipIcon = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-  </svg>
-);
+// ─── Группировка чатов по давности (как в макете) ───────────────────────
+const startOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
 
-// ссылка на файл: inline — внутри текста (на месте {filename}), иначе — чип-строкой
-const FileChip = ({ file, inline }) => (
+const chatGroupKey = (dateStr) => {
+  const d = dateStr ? new Date(dateStr) : null;
+  if (!d || Number.isNaN(d.getTime())) return "earlier";
+  const days = Math.floor((startOfDay(new Date()) - startOfDay(d)) / 86400000);
+  if (days <= 0) return "today";
+  if (days <= 7) return "week";
+  if (days <= 31) return "month";
+  return "earlier";
+};
+
+const GROUP_ORDER = ["today", "week", "month", "earlier"];
+
+const groupChats = (chats) => {
+  const buckets = new Map(GROUP_ORDER.map((k) => [k, []]));
+  chats.forEach((c) => buckets.get(chatGroupKey(c.date)).push(c));
+  return GROUP_ORDER.filter((k) => buckets.get(k).length).map((k) => ({
+    key: k,
+    items: buckets.get(k),
+  }));
+};
+
+// ─── Файлы ──────────────────────────────────────────────────────────────
+const EXT_CLASS = {
+  xls: "xls",
+  xlsx: "xls",
+  pdf: "pdf",
+  csv: "csv",
+  doc: "doc",
+  docx: "doc",
+  png: "img",
+  jpg: "img",
+  jpeg: "img",
+  webp: "img",
+  gif: "img",
+};
+
+const fileExt = (name) => {
+  const clean = String(name || "").split("?")[0];
+  const dot = clean.lastIndexOf(".");
+  return dot > -1 ? clean.slice(dot + 1).toLowerCase() : "";
+};
+
+// Карточка файла — как в макете: цветная иконка типа, имя, кнопка скачивания
+const FileCard = ({ file, note, downloadLabel }) => {
+  const ext = fileExt(file.name || file.url);
+  const kind = EXT_CLASS[ext] || "";
+  return (
+    <div className={styles.fileCard}>
+      <div className={`${styles.fileIc} ${kind ? styles[kind] : ""}`}>
+        {(ext || "file").slice(0, 4).toUpperCase()}
+      </div>
+      <div className={styles.fileMeta}>
+        <div className={styles.fileName} title={file.name}>
+          {file.name}
+        </div>
+        {note && <div className={styles.fileSub}>{note}</div>}
+      </div>
+      <a
+        className={`${styles.fileDl} ${styles.tip}`}
+        data-tip={downloadLabel}
+        href={file.url}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={downloadLabel}
+      >
+        <DownloadIcon />
+      </a>
+    </div>
+  );
+};
+
+// ссылка на файл внутри текста сообщения
+const InlineFile = ({ file }) => (
   <a
     href={file.url}
     target="_blank"
     rel="noreferrer"
-    className={inline ? styles.inlineFile : styles.msgFile}
+    className={styles.inlineFile}
     title={file.name}
     onClick={(e) => e.stopPropagation()}
   >
@@ -56,15 +190,26 @@ const FileChip = ({ file, inline }) => (
   </a>
 );
 
-// Markdown-ссылка [label](http-url) — так хранятся файлы в истории (после подстановки).
+// Markdown-ссылка [label](http-url) — так хранятся файлы в истории.
 // Разрешаем только http/https, чтобы не отрендерить опасный href.
 const MD_LINK = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+const mdLinkRe = () => new RegExp(MD_LINK.source, "g");
+
+// Все ссылки текста + текст без них (если пусто — сообщение состоит только из файлов)
+const extractLinks = (text) => {
+  const s = String(text || "");
+  const links = [];
+  let m;
+  const re = mdLinkRe();
+  while ((m = re.exec(s)) !== null) links.push({ name: m[1], url: m[2] });
+  return { links, stripped: s.replace(mdLinkRe(), "").trim() };
+};
 
 // Рендерит текст, превращая markdown-ссылки на файлы в кликабельные ссылки.
 const renderTextWithLinks = (text, keyBase) => {
   const s = String(text || "");
   const nodes = [];
-  const re = new RegExp(MD_LINK.source, "g"); // свежий regex (без общего lastIndex)
+  const re = mdLinkRe();
   let last = 0;
   let k = 0;
   let m;
@@ -72,7 +217,7 @@ const renderTextWithLinks = (text, keyBase) => {
     if (m.index > last)
       nodes.push(<span key={`${keyBase}-t${k}`}>{s.slice(last, m.index)}</span>);
     nodes.push(
-      <FileChip key={`${keyBase}-l${k}`} file={{ name: m[1], url: m[2] }} inline />
+      <InlineFile key={`${keyBase}-l${k}`} file={{ name: m[1], url: m[2] }} />
     );
     last = m.index + m[0].length;
     k += 1;
@@ -82,103 +227,68 @@ const renderTextWithLinks = (text, keyBase) => {
   return nodes;
 };
 
-// Сообщение пользователя: {filename} заменяем на ссылку на файл (по порядку),
-// неиспользованные файлы показываем чипами сверху. Для истории (без files)
-// кликабельными становятся markdown-ссылки [name](url) прямо в тексте.
-const UserBubble = ({ content, files }) => {
-  const atts = Array.isArray(files) ? files : [];
-  const parts = splitAiFileTokens(content);
-  const inline = [];
-  let fi = 0;
-  parts.forEach((part, idx) => {
-    if (part) inline.push(...renderTextWithLinks(part, `p${idx}`));
-    if (idx < parts.length - 1) {
-      const file = atts[fi];
-      fi += 1;
-      inline.push(
-        file ? (
-          <FileChip key={`f${idx}`} file={file} inline />
-        ) : (
-          // плейсхолдер без файла — оставляем текст как есть
-          <span key={`f${idx}`}>{"{filename}"}</span>
-        )
-      );
+// Текст сообщения пользователя. Файлы теперь уходят отдельным полем, но в
+// старых сообщениях ссылки лежат прямо в тексте — их оставляем кликабельными.
+const UserText = ({ content }) => <>{renderTextWithLinks(content, "u")}</>;
+
+// ─── Кнопки под сообщением (копировать / изменить) ───────────────────────
+const MsgActions = ({ getText, onEdit, t }) => {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    const text = getText();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        /* noop */
+      }
+      ta.remove();
     }
-  });
-  const rest = atts.slice(fi);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1400);
+  };
+
   return (
-    <div className={styles.bubble}>
-      {rest.length > 0 && (
-        <div className={styles.msgFiles}>
-          {rest.map((file, i) => (
-            <FileChip key={i} file={file} />
-          ))}
-        </div>
+    <div className={styles.acts}>
+      {onEdit && (
+        <button
+          type="button"
+          className={`${styles.act} ${styles.tip}`}
+          data-tip={t("edit")}
+          onClick={onEdit}
+          aria-label={t("edit")}
+        >
+          <EditIcon />
+        </button>
       )}
-      {inline.length > 0 && <span>{inline}</span>}
+      <button
+        type="button"
+        className={`${styles.act} ${styles.tip} ${copied ? styles.done : ""}`}
+        data-tip={copied ? t("copied") : t("copy")}
+        onClick={copy}
+        aria-label={t("copy")}
+      >
+        {copied ? <CheckIcon /> : <CopyIcon />}
+      </button>
     </div>
   );
 };
 
-const TrendDownIcon = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M22 17l-8.5-8.5-5 5L2 7" />
-    <path d="M16 17h6v-6" />
-  </svg>
-);
-const WalletIcon = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M19 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2" />
-    <path d="M18 12a1 1 0 100 2 1 1 0 000-2z" />
-  </svg>
-);
-const TrendUpIcon = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M22 7l-8.5 8.5-5-5L2 17" />
-    <path d="M16 7h6v6" />
-  </svg>
-);
+// html ответа AI → безопасная разметка с оформлением таблиц и чисел
+const renderAiHtml = (html) => decorateAiHtml(sanitizeAiHtml(html));
 
-const SUGGESTIONS = [
-  { key: "suggest1", Icon: TrendDownIcon },
-  { key: "suggest2", Icon: WalletIcon },
-  { key: "suggest3", Icon: TrendUpIcon },
-];
-
-// SVG-иконка скрепки для чипа файла в композере (статическая строка — без XSS)
-const CLIP_SVG =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>';
-
-// Экранируем URL так, чтобы он не ломал markdown-ссылку [имя](url):
-// пробел → %20, ) → %29 (эти символы завершают разбор url). Файл открывается так же.
-const mdSafeUrl = (url) =>
-  String(url || "")
-    .replace(/ /g, "%20")
-    .replace(/\)/g, "%29");
-
-// Сериализация contentEditable-композера: текст как есть, чипы файлов → [имя](url),
-// переводы строк (br / блочные div) → \n.
-const serializeEditor = (root) => {
-  if (!root) return "";
-  let out = "";
-  const walk = (node) => {
-    node.childNodes.forEach((n) => {
-      if (n.nodeType === 3) {
-        out += n.textContent;
-      } else if (n.nodeName === "BR") {
-        out += "\n";
-      } else if (n.nodeType === 1 && n.getAttribute?.("data-file-url")) {
-        const name = n.getAttribute("data-file-name") || n.textContent;
-        out += `[${name}](${mdSafeUrl(n.getAttribute("data-file-url"))})`;
-      } else if (n.nodeType === 1) {
-        // блочные обёртки строк (браузер оборачивает строки в div)
-        if (/^(DIV|P)$/.test(n.nodeName) && out && !out.endsWith("\n")) out += "\n";
-        walk(n);
-      }
-    });
-  };
-  walk(root);
-  return out.replace(/\u00A0/g, " "); // NBSP (вокруг чипов) → обычный пробел
+// html ответа AI → простой текст (для копирования)
+const htmlToText = (html) => {
+  if (typeof window === "undefined") return String(html || "");
+  const doc = new DOMParser().parseFromString(sanitizeAiHtml(html), "text/html");
+  return (doc.body.textContent || "").trim();
 };
 
 // Изменение ширины панели перетаскиванием
@@ -210,16 +320,34 @@ const AiChatPanel = observer(() => {
     loadingMore,
     loadMore,
     send,
+    edit,
+    suggestions,
+    activeChatId,
+    switchingChat,
+    selectChat,
+    newChat,
+    resetChat,
   } = useAiChat(isOpen);
 
-  const [draft, setDraft] = useState(""); // сериализованный текст композера (для disabled)
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const {
+    chats,
+    total: chatsTotal,
+    loading: chatsLoading,
+    hasMore: chatsHasMore,
+    loadMore: loadMoreChats,
+    remove: removeChat,
+  } = useAiChatList(isOpen && historyOpen);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  const [draft, setDraft] = useState(""); // текст в поле ввода
+  const [attachments, setAttachments] = useState([]); // вложения текущего сообщения
+  const [editing, setEditing] = useState(null); // { messageId } — правка отправленного сообщения
   const [panelWidth, setPanelWidth] = useState(DEFAULT_W);
   const [resizing, setResizing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const bodyRef = useRef(null);
-  const editorRef = useRef(null); // contentEditable-композер (текст + чипы файлов)
-  const savedRangeRef = useRef(null); // последняя позиция курсора в композере
+  const editorRef = useRef(null); // textarea композера
   const widthRef = useRef(DEFAULT_W);
   const fileInputRef = useRef(null);
   const prependingRef = useRef(false); // идёт подгрузка старых — сохраняем позицию скролла
@@ -236,6 +364,7 @@ const AiChatPanel = observer(() => {
     }
     if (!wasOpenRef.current) return;
     wasOpenRef.current = false;
+    setHistoryOpen(false);
     if (!aiChatStore.consumeUsed()) return;
     queryClient.invalidateQueries();
   }, [isOpen, queryClient]);
@@ -311,108 +440,61 @@ const AiChatPanel = observer(() => {
     }
   }, [isOpen, mounted]);
 
-  // ─── contentEditable-композер ───────────────────────────────────────
+  // ─── Композер ───────────────────────────────────────────────────────
 
-  // запоминаем позицию курсора (нужна для вставки чипа после клика по скрепке)
-  const saveCaret = () => {
-    const sel = window.getSelection();
-    if (
-      sel &&
-      sel.rangeCount > 0 &&
-      editorRef.current?.contains(sel.anchorNode)
-    ) {
-      savedRangeRef.current = sel.getRangeAt(0).cloneRange();
-    }
+  // textarea растёт под текст до максимума из стилей
+  const autoGrow = (el) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
   };
 
-  const syncDraft = () => setDraft(serializeEditor(editorRef.current));
-
-  const onEditorInput = () => {
-    const el = editorRef.current;
-    // пустой contentEditable оставляет <br> — чистим, чтобы работал placeholder (:empty)
-    if (el && (el.innerHTML === "<br>" || el.innerHTML === "<div><br></div>")) {
-      el.innerHTML = "";
-    }
-    saveCaret();
-    syncDraft();
+  const onDraftChange = (e) => {
+    setDraft(e.target.value);
+    autoGrow(e.target);
   };
 
-  // вставка только плоского текста (без форматирования из буфера)
-  const onEditorPaste = (e) => {
-    e.preventDefault();
-    const text = e.clipboardData?.getData("text/plain") || "";
-    document.execCommand("insertText", false, text);
-  };
-
-  // клик по чипу файла в композере → открыть файл
-  const onEditorClick = (e) => {
-    const chip = e.target.closest?.("a[data-file-url]");
-    if (chip) {
-      e.preventDefault();
-      window.open(chip.getAttribute("data-file-url"), "_blank", "noopener");
-    }
-  };
-
-  const chipCount = () =>
-    editorRef.current?.querySelectorAll("a[data-file-url]").length || 0;
-
-  // Вставляет синие чипы-ссылки файлов на позицию курсора (атомарные, contenteditable=false)
-  const insertChips = (files) => {
-    const editor = editorRef.current;
-    if (!editor || !files.length) return;
-    editor.focus();
-    let range = savedRangeRef.current;
-    if (!range || !editor.contains(range.commonAncestorContainer)) {
-      range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false); // курсор неизвестен — вставляем в конец
-    }
-    range.deleteContents();
-    files.forEach((f) => {
-      const a = document.createElement("a");
-      a.href = f.url;
-      a.target = "_blank";
-      a.rel = "noreferrer";
-      a.contentEditable = "false";
-      a.setAttribute("data-file-url", f.url);
-      a.setAttribute("data-file-name", f.name);
-      a.className = styles.chipLink;
-      a.insertAdjacentHTML("beforeend", CLIP_SVG); // статичный SVG — безопасно
-      const label = document.createElement("span");
-      label.textContent = f.name; // имя как текст — без XSS
-      a.appendChild(label);
-      range.insertNode(a);
-      range.setStartAfter(a);
-      range.collapse(true);
-      const space = document.createTextNode(" "); // пробел, чтобы печатать дальше
-      range.insertNode(space);
-      range.setStartAfter(space);
-      range.collapse(true);
-    });
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    savedRangeRef.current = range.cloneRange();
-    syncDraft();
+  const clearComposer = () => {
+    setDraft("");
+    setAttachments([]);
+    setEditing(null);
+    if (editorRef.current) editorRef.current.style.height = "auto";
   };
 
   const submit = () => {
-    const content = serializeEditor(editorRef.current).trim();
-    if (!content) return;
-    send(content); // чипы уже сериализованы в [имя](url) на своих местах
-    if (editorRef.current) editorRef.current.innerHTML = "";
-    savedRangeRef.current = null;
-    setDraft("");
-    setShowSuggestions(false);
+    const content = draft.trim();
+    if (!content && attachments.length === 0) return;
+    // правка отправленного сообщения → ai_chat_edit_message, иначе обычная отправка
+    if (editing?.messageId) edit(editing.messageId, content, attachments);
+    else send(content, attachments);
+    clearComposer();
   };
 
-  // загрузка файлов → ссылки на CDN
+  // «Изменить» под своим сообщением: текст и файлы возвращаются в композер.
+  // Если у сообщения есть guid из истории — уходит правка, иначе отправим заново.
+  const startEdit = (m) => {
+    setDraft(m.content || "");
+    setAttachments(Array.isArray(m.files) ? m.files : []);
+    setEditing(m.messageId ? { messageId: m.messageId } : null);
+    setTimeout(() => {
+      const el = editorRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+      autoGrow(el);
+    }, 0);
+  };
+
+  const removeAttachment = (url) =>
+    setAttachments((prev) => prev.filter((f) => f.url !== url));
+
+  // загрузка файлов → ссылки на CDN, вложения уходят отдельным полем files
   const handleFilesSelected = async (e) => {
     const picked = Array.from(e.target.files || []);
     e.target.value = ""; // чтобы можно было выбрать тот же файл повторно
     if (!picked.length) return;
 
-    const slots = AI_CHAT_MAX_FILES - chipCount();
+    const slots = AI_CHAT_MAX_FILES - attachments.length;
     if (slots <= 0) {
       showErrorNotification(t("filesMax", { max: AI_CHAT_MAX_FILES }));
       return;
@@ -435,15 +517,40 @@ const AiChatPanel = observer(() => {
           showErrorNotification(t("fileUploadError"));
         }
       }
-      if (done.length) insertChips(done); // чип файла встаёт в текст там, где курсор
+      if (done.length) setAttachments((prev) => [...prev, ...done]);
     } finally {
       setUploading(false);
     }
   };
 
-  const pickSuggestion = (text) => {
-    send(text);
-    setShowSuggestions(false);
+  const focusEditor = () => setTimeout(() => editorRef.current?.focus(), 60);
+
+  const handleNewChat = async () => {
+    setHistoryOpen(false);
+    clearComposer();
+    await newChat();
+    focusEditor();
+  };
+
+  const handleSelectChat = async (chatId) => {
+    setHistoryOpen(false);
+    clearComposer();
+    await selectChat(chatId);
+    focusEditor();
+  };
+
+  const handleDeleteChat = async (chatId) => {
+    setConfirmDeleteId(null);
+    const ok = await removeChat(chatId);
+    // удалили открытый чат — переписку сбрасываем, новый заведётся при отправке
+    if (ok && chatId === activeChatId) resetChat();
+  };
+
+  // подгрузка следующей страницы списка чатов при скролле вниз
+  const onHistoryScroll = (e) => {
+    if (!chatsHasMore || chatsLoading) return;
+    const el = e.currentTarget;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) loadMoreChats();
   };
 
   const onKeyDown = (e) => {
@@ -451,17 +558,46 @@ const AiChatPanel = observer(() => {
       e.preventDefault();
       submit();
     }
+    if (e.key === "Escape" && editing) {
+      e.preventDefault();
+      clearComposer();
+    }
   };
 
   // клики по кнопкам data-prompt внутри ответа AI → новый вопрос
   const onBodyClick = (e) => {
-    if (showSuggestions) setShowSuggestions(false);
     const btn = e.target.closest?.("button[data-prompt]");
     const prompt = btn?.dataset?.prompt;
     if (prompt) send(prompt);
   };
 
-  const showGreeting = !historyLoading && messages.length === 0 && !streamingText && !isAwaiting;
+  useEffect(() => {
+    if (!isOpen) return;
+    const onEsc = (e) => {
+      if (e.key !== "Escape") return;
+      if (historyOpen) {
+        setHistoryOpen(false);
+        return;
+      }
+      // Esc в режиме правки отменяет её — этим занимается сам композер
+      if (editing) return;
+      aiChatStore.close();
+    };
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, [isOpen, historyOpen, editing]);
+
+  const showGreeting =
+    !historyLoading &&
+    !switchingChat &&
+    messages.length === 0 &&
+    !streamingText &&
+    !isAwaiting;
+
+  // Быстрые ответы — только то, что прислал AI с последним сообщением
+  const quickReplies = suggestions;
+  const quickVisible =
+    quickReplies.length > 0 && !isAwaiting && streamingText === null;
 
   // AI-ассистент включается флагом ia_active из get_general_settings
   if (!appStore.isAiActive) return null;
@@ -488,23 +624,130 @@ const AiChatPanel = observer(() => {
 
         {/* Header */}
         <div className={styles.head}>
-          <div className={styles.avatar}>
-            <SparkIcon />
+          <div className={styles.brand}>
+            <StarIcon />
           </div>
-          <div>
+          <div className={styles.headText}>
             <div className={styles.title}>
-              {t("title")}
-              <span className={`${styles.dot} ${connected ? "" : styles.off}`} />
+              {t("titleFirst")}{" "}
+              <span className={styles.titleAccent}>{t("titleSecond")}</span>
             </div>
-            <div className={styles.sub}>{t("subtitle")}</div>
+            <div className={styles.sub}>
+              <span className={`${styles.dot} ${connected ? "" : styles.off}`} />
+              {t("subtitle")}
+            </div>
           </div>
           <button
-            className={styles.close}
+            type="button"
+            className={`${styles.hicon} ${styles.tip}`}
+            data-tip={t("close")}
             onClick={() => aiChatStore.close()}
             aria-label={t("close")}
           >
-            ✕
+            <CloseIcon />
           </button>
+        </div>
+
+        {/* Список чатов — оверлей поверх переписки */}
+        <div className={`${styles.history} ${historyOpen ? styles.open : ""}`}>
+          <div className={styles.histHead}>
+            <h3>
+              {t("historyTitle")}
+              {chatsTotal > 0 && (
+                <span className={styles.histCount}>({chatsTotal})</span>
+              )}
+            </h3>
+            <button
+              type="button"
+              className={`${styles.hicon} ${styles.tip} ${styles.histClose}`}
+              data-tip={t("close")}
+              onClick={() => setHistoryOpen(false)}
+              aria-label={t("close")}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className={styles.histNewBtn}
+            onClick={handleNewChat}
+            disabled={switchingChat}
+          >
+            <PlusIcon />
+            {t("newChat")}
+          </button>
+
+          <div className={styles.histList} onScroll={onHistoryScroll}>
+            {groupChats(chats).map((group) => (
+              <div key={group.key}>
+                <div className={styles.histGroup}>{t(`group_${group.key}`)}</div>
+                {group.items.map((chat) => (
+                  <div
+                    key={chat.id}
+                    className={`${styles.histRow} ${chat.id === activeChatId ? styles.active : ""}`}
+                  >
+                    {confirmDeleteId === chat.id ? (
+                      <div className={styles.histConfirm}>
+                        <span className={styles.histConfirmText}>
+                          {t("deleteChatConfirm")}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.histConfirmBtn}
+                          onClick={() => handleDeleteChat(chat.id)}
+                        >
+                          {t("delete")}
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.histConfirmBtn} ${styles.cancel}`}
+                          onClick={() => setConfirmDeleteId(null)}
+                        >
+                          {t("cancel")}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.histItem}
+                          onClick={() => handleSelectChat(chat.id)}
+                        >
+                          <div className={styles.histTitle}>
+                            {chat.title || t("newChat")}
+                          </div>
+                          {chat.preview && (
+                            <div className={styles.histPreview}>
+                              {chat.preview}
+                            </div>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.histDel}
+                          onClick={() => setConfirmDeleteId(chat.id)}
+                          title={t("deleteChat")}
+                          aria-label={t("deleteChat")}
+                        >
+                          <TrashIcon />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {chatsLoading && (
+              <div className={styles.histLoading}>
+                <span className={styles.spin} />
+              </div>
+            )}
+            {!chatsLoading && chats.length === 0 && (
+              <div className={styles.histEmpty}>{t("chatsEmpty")}</div>
+            )}
+          </div>
         </div>
 
         {/* Body */}
@@ -523,46 +766,110 @@ const AiChatPanel = observer(() => {
 
           <div className={styles.daySep}>{t("today")}</div>
 
-          {showGreeting && (
-            <div className={styles.msg}>
-              <div className={styles.ava}>
-                <SparkIcon />
-              </div>
-              <div className={styles.bubble}>{t("greeting")}</div>
+          {(switchingChat || historyLoading) && messages.length === 0 && (
+            <div className={styles.histLoading}>
+              <span className={styles.spin} />
             </div>
           )}
 
-          {messages.map((m) =>
-            m.role === "user" ? (
-              <div className={`${styles.msg} ${styles.me}`} key={m.id}>
-                <UserBubble content={m.content} files={m.files} />
+          {showGreeting && (
+            <div className={styles.aMsg}>
+              <div className={styles.mono}>
+                <StarIcon />
               </div>
-            ) : (
-              <div className={styles.msg} key={m.id}>
-                <div className={styles.ava}>
-                  <SparkIcon />
-                </div>
-                {m.isHtml ? (
-                  <div
-                    className={styles.bubble}
-                    dangerouslySetInnerHTML={{ __html: sanitizeAiHtml(m.content) }}
-                  />
-                ) : (
-                  <div className={styles.bubble}>{m.content}</div>
-                )}
-              </div>
-            )
+              <div className={styles.aText}>{t("greeting")}</div>
+            </div>
           )}
+
+          {messages.map((m) => {
+            if (m.role === "user") {
+              // Файл всегда показываем карточкой, отдельно от текста: ссылки
+              // из текста вырезаем и объединяем с полем files (дубли по url).
+              const { links, stripped } = extractLinks(m.content);
+              const seen = new Set();
+              const files = [...(m.files || []), ...links].filter((f) => {
+                if (!f?.url || seen.has(f.url)) return false;
+                seen.add(f.url);
+                return true;
+              });
+              const text = stripped;
+              return (
+                <div className={styles.uMsg} key={m.id}>
+                  {files.length > 0 && (
+                    <div className={styles.msgFiles}>
+                      {files.map((file, i) => (
+                        <FileCard
+                          key={file.url || i}
+                          file={file}
+                          note={
+                            <>
+                              <span className={styles.fileOk}>✓</span>
+                              {t("fileSent")}
+                            </>
+                          }
+                          downloadLabel={t("download")}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {text && (
+                    <div className={styles.bubble}>
+                      <UserText content={text} />
+                    </div>
+                  )}
+                  <MsgActions
+                    t={t}
+                    getText={() => m.content}
+                    onEdit={() => startEdit(m)}
+                  />
+                </div>
+              );
+            }
+
+            return (
+              <div className={styles.aMsg} key={m.id}>
+                <div className={styles.mono}>
+                  <StarIcon />
+                </div>
+                <div className={styles.aText}>
+                  {m.isHtml ? (
+                    <div
+                      dangerouslySetInnerHTML={{ __html: renderAiHtml(m.content) }}
+                    />
+                  ) : (
+                    m.content
+                  )}
+                  {m.files?.length > 0 && (
+                    <div className={styles.msgFiles}>
+                      {m.files.map((file, i) => (
+                        <FileCard
+                          key={file.url || i}
+                          file={file}
+                          downloadLabel={t("download")}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <MsgActions
+                    t={t}
+                    getText={() =>
+                      m.isHtml ? htmlToText(m.content) : m.content
+                    }
+                  />
+                </div>
+              </div>
+            );
+          })}
 
           {/* живой стрим — рендерим как HTML (DOMPurify корректно закрывает незавершённые теги) */}
           {streamingText !== null && (
-            <div className={styles.msg}>
-              <div className={styles.ava}>
-                <SparkIcon />
+            <div className={styles.aMsg}>
+              <div className={styles.mono}>
+                <StarIcon />
               </div>
-              <div className={styles.bubble}>
+              <div className={styles.aText}>
                 <span
-                  dangerouslySetInnerHTML={{ __html: sanitizeAiHtml(streamingText) }}
+                  dangerouslySetInnerHTML={{ __html: renderAiHtml(streamingText) }}
                 />
                 <span className={styles.cursor} />
               </div>
@@ -571,11 +878,11 @@ const AiChatPanel = observer(() => {
 
           {/* ждём первый токен */}
           {isAwaiting && streamingText === null && (
-            <div className={styles.msg}>
-              <div className={styles.ava}>
-                <SparkIcon />
+            <div className={styles.aMsg}>
+              <div className={styles.mono}>
+                <StarIcon />
               </div>
-              <div className={styles.bubble} style={{ padding: "4px 6px" }}>
+              <div className={styles.aText}>
                 <div className={styles.typing}>
                   <i />
                   <i />
@@ -586,41 +893,51 @@ const AiChatPanel = observer(() => {
           )}
         </div>
 
+        {/* Быстрые ответы — нумерованные варианты над полем ввода */}
+        <div className={`${styles.suggests} ${quickVisible ? "" : styles.hidden}`}>
+          <div className={styles.sgTitle}>
+            <StarIcon />
+            {t("quickTitle")}
+          </div>
+          {quickReplies.map((s, i) => (
+            <button
+              key={`${s.prompt}-${i}`}
+              type="button"
+              className={styles.opt}
+              onClick={() => send(s.prompt)}
+              tabIndex={quickVisible ? 0 : -1}
+            >
+              <span className={styles.optNum}>{i + 1}</span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+
         {/* Composer */}
         <div className={styles.composer}>
-          {/* всплывающие подсказки — по кнопке «+» */}
-          {showSuggestions && (
-            <div className={styles.suggestPop}>
-              <div className={styles.suggestHead}>{t("suggestTitle")}</div>
-              {SUGGESTIONS.map(({ key, Icon }) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={styles.suggestItem}
-                  onClick={() => pickSuggestion(t(key))}
-                >
-                  <span className={styles.suggestIco}>
-                    <Icon />
-                  </span>
-                  {t(key)}
-                </button>
-              ))}
+          {editing && (
+            <div className={styles.editBar}>
+              <EditIcon />
+              {t("editingHint")}
+              <button
+                type="button"
+                className={styles.editCancel}
+                onClick={clearComposer}
+              >
+                {t("cancel")}
+              </button>
             </div>
           )}
 
-          <div className={styles.inp}>
+          <div className={styles.cbar}>
+            <span className={styles.modelChip}>
+              <StarIcon />
+              {t("modelName")}
+            </span>
             <button
               type="button"
-              className={`${styles.plus} ${showSuggestions ? styles.plusOn : ""}`}
-              onClick={() => setShowSuggestions((v) => !v)}
-              aria-label={t("suggestTitle")}
-              aria-expanded={showSuggestions}
-            >
-              <PlusIcon />
-            </button>
-            <button
-              type="button"
-              className={styles.attach}
+              className={`${styles.tool} ${styles.tip} ${styles.tipUp}`}
+              data-tip={t("attach")}
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
               aria-label={t("attach")}
@@ -634,33 +951,71 @@ const AiChatPanel = observer(() => {
               hidden
               onChange={handleFilesSelected}
             />
-            <div
+            <div className={styles.cbarRight}>
+              <button
+                type="button"
+                className={`${styles.tool} ${styles.tip} ${styles.tipUp}`}
+                data-tip={t("historyBtn")}
+                onClick={() => setHistoryOpen(true)}
+                aria-label={t("historyBtn")}
+              >
+                <HistoryIcon />
+              </button>
+              <button
+                type="button"
+                className={`${styles.newChatBtn} ${styles.tip} ${styles.tipUp}`}
+                data-tip={t("newChat")}
+                onClick={handleNewChat}
+                disabled={switchingChat}
+                aria-label={t("newChat")}
+              >
+                <NewChatIcon />
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.inp}>
+            {/* прикреплённые файлы — отдельно от текста, уходят полем files */}
+            {attachments.length > 0 && (
+              <div className={styles.attachRow}>
+                {attachments.map((file) => (
+                  <span className={styles.attachChip} key={file.url}>
+                    <ClipIcon />
+                    <span className={styles.attachName} title={file.name}>
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.attachRemove}
+                      onClick={() => removeAttachment(file.url)}
+                      aria-label={t("close")}
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <textarea
               ref={editorRef}
               className={styles.editor}
-              contentEditable
-              role="textbox"
-              aria-multiline="true"
+              rows={1}
+              value={draft}
+              placeholder={t("placeholder")}
               aria-label={t("placeholder")}
-              data-placeholder={t("placeholder")}
-              onInput={onEditorInput}
+              onChange={onDraftChange}
               onKeyDown={onKeyDown}
-              onKeyUp={saveCaret}
-              onMouseUp={saveCaret}
-              onPaste={onEditorPaste}
-              onClick={onEditorClick}
-              onFocus={() => {
-                saveCaret();
-                if (showSuggestions) setShowSuggestions(false);
-              }}
             />
-            <button
-              className={styles.send}
-              onClick={submit}
-              disabled={!draft.trim() || uploading}
-              aria-label={t("send")}
-            >
-              <SendIcon />
-            </button>
+            <div className={styles.inpRow}>
+              <button
+                className={styles.send}
+                onClick={submit}
+                disabled={(!draft.trim() && attachments.length === 0) || uploading}
+                aria-label={t("send")}
+              >
+                <SendIcon />
+              </button>
+            </div>
           </div>
           <div className={styles.footNote}>{t("footNote")}</div>
         </div>

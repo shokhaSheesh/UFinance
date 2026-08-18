@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import InventoryModal from '../components/InventoryModal'
 import PlannedDocModal from '../components/PlannedDocModal'
 import PlannedListModal from '../components/PlannedListModal'
 import WarehouseDetailHeader from '../components/WarehouseDetailHeader'
@@ -52,6 +53,7 @@ export default observer(function WarehouseDetailPage() {
   // Плановые документы: 'shipment' (продажа) | 'supply' (закупка)
   const [plannedType, setPlannedType] = useState(null)
   const [selectedDoc, setSelectedDoc] = useState(null)
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false)
 
   const handleDocClosed = () => {
     queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_shipments'] })
@@ -79,6 +81,7 @@ export default observer(function WarehouseDetailPage() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onOpenPlanned={setPlannedType}
+        onOpenInventory={() => setIsInventoryOpen(true)}
       />
 
       <div className="flex-1 min-h-0 overflow-auto px-3">
@@ -133,6 +136,15 @@ export default observer(function WarehouseDetailPage() {
         warehouseId={warehouseId}
         warehouseName={warehouse?.name}
         onClosed={handleDocClosed}
+        t={t}
+      />
+
+      <InventoryModal
+        open={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+        warehouseId={warehouseId}
+        warehouseName={warehouse?.name}
+        onCreated={() => queryClient.invalidateQueries({ queryKey: ['list_stock_balances'] })}
         t={t}
       />
     </FixedContent>

@@ -25,6 +25,7 @@ import { showSuccessNotification } from "@/lib/utils/notifications";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
 import { handleDownload } from "@/utils/helpers";
+import { refetchInfinitePagesAfter } from "@/utils/infiniteQuery";
 
 // Eager (critical for initial render)
 import ScreenLoader from "@/components/shared/ScreenLoader";
@@ -333,6 +334,33 @@ const OperationsListPage = observer(() => {
     keys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
   };
 
+  const operationsQueryKey = useMemo(
+    () => ["list_operations_by_query", requestOperationFilters],
+    [requestOperationFilters]
+  );
+
+  // Вместо invalidateQueries (перезапрашивает все загруженные страницы подряд)
+  // обновляем только страницу с удалённой операцией и следующую за ней.
+  const refetchOperationsAfterDeleted = async (guid) => {
+    try {
+      const patched = await refetchInfinitePagesAfter({
+        queryClient,
+        queryKey: operationsQueryKey,
+        method: "list_operations_by_query",
+        data: requestOperationFilters,
+        isTarget: (item) =>
+          item?.guid === guid ||
+          item?.operationParts?.some((child) => child?.guid === guid),
+        lookahead: 1,
+      });
+      if (patched) return;
+    } catch (err) {
+      console.error("Error refetching operations pages:", err);
+    }
+    // Операция не найдена в кеше (или запрос упал) — обычная инвалидация
+    queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] });
+  };
+
   const handleDeleteConfirm = async () => {
     if (!operationToDelete) return;
     const guid = operationToDelete.rawData?.guid || operationToDelete.guid;
@@ -354,7 +382,8 @@ const OperationsListPage = observer(() => {
       setOperationToDelete(null);
       setIsShipmentDeleting(false);
       invalidateAfterDelete();
-      queryClient.invalidateQueries({ queryKey: ["list_operations_by_query"] });
+      await refetchOperationsAfterDeleted(guid);
+      queryClient.invalidateQueries({ queryKey: ["get_operations_total"] });
       queryClient.invalidateQueries({ queryKey: ["find_operations"] });
     } catch (err) {
       console.error("Error deleting operation:", err);

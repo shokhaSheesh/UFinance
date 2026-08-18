@@ -11,6 +11,7 @@ import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { isFuture, isPastDate } from '@/utils/formatDate'
+import { refreshOperationsListAfterSave } from '@/utils/operationsCache'
 import { formatDateParseZone, formatDecimal, formatAmountInput, getCurrencyIcon, StringtoNumber } from '@/utils/helpers'
 import { Loader2 } from 'lucide-react'
 import { toJS } from 'mobx'
@@ -203,7 +204,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       if (res?.data?.data && !isNew) {
         updateOperationsCache(res.data.data)
       }
-      queryClient.refetchQueries({ queryKey: ['list_operations_by_query'] })
+      await refreshOperationsListAfterSave({ guid: operationId, newDate: requestData.data_operatsii, isNew })
 
       queryClient.invalidateQueries({ queryKey: ['get_counterparty_by_id'] })
       queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })

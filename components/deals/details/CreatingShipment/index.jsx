@@ -386,22 +386,19 @@ const CreateShipment = observer(
     /**
      * Товары строк, по которым нужно проверять остаток:
      *   ключ строки (row.name) → реальный product_and_service_id.
-     * Услуги пропускаем. Товар, которого нет в списке сделки (так бывает у
-     * скопированной отгрузки, пока список не подгрузился, и у позиций,
-     * заведённых вне сделки), считаем складским — лучше проверить остаток,
-     * чем молча пропустить проверку.
+     * Остаток проверяем ТОЛЬКО у позиций с типом "product". Тип берём из
+     * строки (приходит вместе с выбранной позицией), а если его там нет —
+     * из списка сделки. Неизвестный тип складским не считаем.
      */
     const stockTargets = useMemo(() => {
       const map = new Map();
       rows.forEach((row) => {
         if (!row.name) return;
-        // услуга склад не двигает — тип берём из строки (он приходит вместе с
-        // выбранной позицией), список сделки его может не содержать
-        if (row.tip && row.tip !== "product") return;
         const product = productServicesList.find(
           (p) => p.guid === row.name || p.product_and_service_id === row.name
         );
-        if (product?.tip && product.tip !== "product") return;
+        const tip = row.tip || product?.tip || "";
+        if (tip !== "product") return;
         map.set(
           row.name,
           row.productServiceId || product?.product_and_service_id || row.name

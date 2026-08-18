@@ -131,9 +131,18 @@ const PlannedDocModal = ({
     DOC_SHAPE[`${type}:${isReturn ? 'return' : 'normal'}`] ||
     DOC_SHAPE['shipment:normal']
 
-  const products = Array.isArray(doc?.product_and_service_data)
-    ? doc.product_and_service_data
-    : []
+  // В складском документе показываем только товары: услуги остатки не двигают.
+  // Если тип не пришёл ни у одной позиции — показываем все, иначе таблица
+  // опустела бы на документах, где бэк это поле не отдаёт.
+  const products = useMemo(() => {
+    const all = Array.isArray(doc?.product_and_service_data)
+      ? doc.product_and_service_data
+      : []
+    const hasTip = all.some((row) => row?.Tip || row?.tip)
+    return hasTip
+      ? all.filter((row) => (row?.Tip || row?.tip) === 'product')
+      : all
+  }, [doc])
 
   /* ---------------------------------------------------------------- */
   /* Проверка остатков                                                */

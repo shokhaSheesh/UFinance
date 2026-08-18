@@ -3,9 +3,12 @@
 import createDOMPurify from "dompurify";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  aiChatDelete,
+  aiChatEditMessage,
   aiChatHistory,
+  aiChatList,
+  aiChatNew,
   aiChatSendMessage,
-  buildAiChatContent,
   unwrapAiData,
 } from "@/lib/api/ucode/aiChat";
 import { aiChatStore } from "@/store/aiChat.store";
@@ -51,18 +54,372 @@ export const sanitizeAiHtml = (html) => {
   }
 };
 
+// ─── Оформление таблиц и чисел в ответе AI ──────────────────────────
+// Чистым CSS покрасить ячейку по её содержимому нельзя, поэтому после
+// санитизации проходим по ячейкам и проставляем классы: `ai-num` —
+// числовая (выравнивание вправо, табличные цифры), `ai-pos` / `ai-neg` —
+// со знаком. Таблицу заворачиваем в скролл-контейнер со скруглением.
+const NUM_CELL = /^[+\-−–(]?\s*\d[\d\s.,]*\)?\s*(so'm|so‘m|сум|uzs|usd|eur|rub|[$€₽%])?$/i;
+
+// Суммы в обычном тексте: со знаком («+1,22 trln so'm», «-5,06 mlrd»)
+// либо без знака, но с валютой/единицей («1 216 048 355 274 so'm»).
+// Голые числа («5 операций», «2026 yil») не трогаем.
+const MONEY_UNIT = "trln|mlrd|mln|ming|so'm|so‘m|сум|uzs|usd|eur|rub|\\$|€|₽";
+const TEXT_NUM = new RegExp(
+  `([+\\-−–]\\s?)?\\d[\\d\\s.,]*((?:\\s*(?:${MONEY_UNIT}|%))*)`,
+  "gi"
+);
+const HAS_MONEY_UNIT = new RegExp(MONEY_UNIT, "i");
+
+// Отсеиваем не-суммы (телефоны и т.п.): у суммы либо есть единица/валюта,
+// либо она без пробелов, либо разряды разбиты по три цифры
+const looksLikeAmount = (raw) => {
+  const body = String(raw).replace(/^[\s+\-−]+/, "").trim();
+  if (/[a-zа-я%$€₽]/i.test(body)) return true;
+  const groups = body.split(/\s+/);
+  if (groups.length === 1) return true;
+  return groups.slice(1).every((g) => /^\d{3}([.,]\d+)?$/.test(g));
+};
+// внутри этих тегов не красим: в ячейках цвет уже задан, остальное — служебное
+const SKIP_TAGS = new Set(["A", "BUTTON", "CODE", "PRE", "TD", "TH"]);
+
+const isSkipped = (el) => {
+  for (let node = el; node; node = node.parentElement) {
+    if (SKIP_TAGS.has(node.tagName)) return true;
+  }
+  return false;
+};
+
+// Оборачивает числа со знаком в span с классом цвета
+const colorizeSignedNumbers = (doc) => {
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const targets = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.nodeValue || !/\d/.test(node.nodeValue)) continue;
+    if (isSkipped(node.parentElement)) continue;
+    targets.push(node);
+  }
+
+  targets.forEach((node) => {
+    const text = node.nodeValue;
+    const frag = doc.createDocumentFragment();
+    const re = new RegExp(TEXT_NUM.source, "gi");
+    let last = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const sign = m[1] || "";
+      const units = (m[2] || "").trim();
+      // без знака красим только суммы с валютой: доли и голые числа нейтральны
+      if (!sign && !HAS_MONEY_UNIT.test(units)) continue;
+      // «2025-2026» и «id-3» числами со знаком не считаем
+      const prev = text[m.index - 1];
+      if (prev && /[\w\d]/.test(prev)) continue;
+      if (!looksLikeAmount(m[0])) continue;
+      const digits = m[0].replace(/\D/g, "");
+      if (!digits || /^0+$/.test(digits)) continue; // ноль оставляем нейтральным
+      const value = m[0].replace(/\s+$/, ""); // хвостовой пробел оставляем тексту
+      if (m.index > last)
+        frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+      const span = doc.createElement("span");
+      span.className = /^[-−–]/.test(value.trimStart()) ? "ai-neg" : "ai-pos";
+      span.textContent = value;
+      frag.appendChild(span);
+      last = m.index + value.length;
+    }
+    if (!last) return;
+    if (last < text.length)
+      frag.appendChild(doc.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+};
+
+export const decorateAiHtml = (html) => {
+  const src = String(html || "");
+  if (typeof window === "undefined" || !/\d/.test(src)) return src;
+  try {
+    const doc = new DOMParser().parseFromString(src, "text/html");
+
+    doc.querySelectorAll("td, th").forEach((cell) => {
+      const text = (cell.textContent || "").replace(/\u00A0/g, " ").trim();
+      if (!text || !NUM_CELL.test(text)) return;
+      cell.classList.add("ai-num");
+      // цвет по знаку ЗНАЧЕНИЯ, а не по наличию «+»: суммы приходят без знака
+      const compact = text.replace(/\s/g, "");
+      const digits = compact.replace(/\D/g, "");
+      if (!digits || /^0+$/.test(digits)) return; // ноль оставляем нейтральным
+      if (/^[-−–(]/.test(compact)) cell.classList.add("ai-neg");
+      else cell.classList.add("ai-pos");
+    });
+
+    colorizeSignedNumbers(doc);
+
+    doc.querySelectorAll("table").forEach((table) => {
+      if (table.parentElement?.classList?.contains("ai-table")) return;
+      const wrap = doc.createElement("div");
+      wrap.className = "ai-table";
+      table.replaceWith(wrap);
+      wrap.appendChild(table);
+    });
+
+    return doc.body.innerHTML;
+  } catch {
+    return src;
+  }
+};
+
 let _idc = 0;
 const uid = () => `m_${_idc++}_${Math.round(performance.now())}`;
 
 const readContent = (c) =>
   typeof c === "string" ? c : c?.text || c?.content || "";
 
-const normalizeMessage = (m) => ({
-  id: uid(),
-  role: m?.role === "assistant" ? "assistant" : "user",
-  content: readContent(m?.content),
-  isHtml: m?.role === "assistant",
+// guid сообщения из истории — нужен для ai_chat_edit_message
+const readMessageId = (m) => m?.id || m?.guid || m?.message_id || "";
+
+const fileNameFromUrl = (url) => {
+  const clean = String(url || "").split("?")[0];
+  return decodeURIComponent(clean.slice(clean.lastIndexOf("/") + 1)) || "file";
+};
+
+// files из истории: массив строк-ссылок либо объектов
+const readFiles = (m) => {
+  const raw = Array.isArray(m?.files) ? m.files : [];
+  return raw
+    .map((f) =>
+      typeof f === "string"
+        ? { name: fileNameFromUrl(f), url: f }
+        : {
+            name: f?.name || f?.file_name || fileNameFromUrl(f?.url || f?.link),
+            url: f?.url || f?.link || "",
+          }
+    )
+    .filter((f) => f.url);
+};
+
+// ─── Быстрые ответы (подсказки), приходящие вместе с ответом AI ──────
+// Бэк может отдать их двумя способами: полем в сообщении истории
+// (suggestions / quick_replies / …) или кнопками <button data-prompt> в HTML.
+const SUGGEST_KEYS = [
+  "suggestions",
+  "quick_replies",
+  "quickReplies",
+  "quick_answers",
+  "quickAnswers",
+  "follow_ups",
+  "followUps",
+  "options",
+  "buttons",
+  "actions",
+];
+
+const toSuggestion = (s) => {
+  if (typeof s === "string") {
+    const label = s.trim();
+    return label ? { label, prompt: label } : null;
+  }
+  const label = s?.label || s?.text || s?.title || s?.name || s?.content || s?.prompt;
+  const prompt = s?.prompt || s?.value || s?.query || s?.text || label;
+  return label ? { label: String(label), prompt: String(prompt) } : null;
+};
+
+const readSuggestList = (m) => {
+  const sources = [m, m?.content, m?.metadata, m?.meta, m?.data, m?.extra];
+  for (const src of sources) {
+    if (!src || typeof src !== "object") continue;
+    for (const key of SUGGEST_KEYS) {
+      const v = src[key];
+      if (Array.isArray(v) && v.length) {
+        const list = v.map(toSuggestion).filter(Boolean);
+        if (list.length) return list;
+      }
+    }
+  }
+  return [];
+};
+
+/**
+ * Достаёт из HTML-ответа AI кнопки-подсказки и убирает их из текста —
+ * показываем их отдельным блоком «Быстрые ответы» над полем ввода.
+ * Парсим через DOMParser: скрипты не выполняются, ресурсы не грузятся.
+ */
+const splitAssistantContent = (html) => {
+  const src = String(html || "");
+  if (typeof window === "undefined" || !src.includes("data-prompt")) {
+    return { html: src, suggestions: [] };
+  }
+  try {
+    const doc = new DOMParser().parseFromString(sanitizeAiHtml(src), "text/html");
+    const nodes = Array.from(doc.querySelectorAll("button[data-prompt]"));
+    if (!nodes.length) return { html: src, suggestions: [] };
+    const suggestions = nodes
+      .map((b) => {
+        const label = (b.textContent || "").trim();
+        const prompt = b.getAttribute("data-prompt") || label;
+        return label ? { label, prompt } : null;
+      })
+      .filter(Boolean);
+    nodes.forEach((b) => b.remove());
+    return { html: doc.body.innerHTML, suggestions };
+  } catch {
+    return { html: src, suggestions: [] };
+  }
+};
+
+const normalizeMessage = (m) => {
+  const role = m?.role === "assistant" ? "assistant" : "user";
+  const raw = readContent(m?.content);
+  const messageId = readMessageId(m);
+  if (role !== "assistant") {
+    return {
+      id: uid(),
+      messageId,
+      role,
+      content: raw,
+      files: readFiles(m),
+      isHtml: false,
+    };
+  }
+  const { html, suggestions } = splitAssistantContent(raw);
+  const fromFields = readSuggestList(m);
+  return {
+    id: uid(),
+    messageId,
+    role,
+    content: html,
+    files: readFiles(m),
+    isHtml: true,
+    suggestions: fromFields.length ? fromFields : suggestions,
+  };
+};
+
+// chat_id текущего чата из ответа ai_chat_history / ai_chat_send_message
+const readChatId = (d) =>
+  d?.chat_id || d?.chatId || d?.chat?.id || d?.chat?.guid || d?.ai_chat_id || "";
+
+const CHAT_LIST_LIMIT = 20;
+
+// Строка списка чатов рисуется одной строкой с многоточием, поэтому контент
+// приводим к плоскому тексту: markdown-ссылку заменяем её названием, HTML
+// ответа AI разбираем в текст, переносы схлопываем в пробел.
+const CHAT_PREVIEW_MAX = 300;
+const MD_LINK_TEXT = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+
+const toPlainPreview = (raw) => {
+  let text = readContent(raw);
+  if (!text) return "";
+  text = text.replace(MD_LINK_TEXT, "$1");
+  if (typeof window !== "undefined" && /<[a-z][\s\S]*>/i.test(text)) {
+    try {
+      const doc = new DOMParser().parseFromString(
+        sanitizeAiHtml(text),
+        "text/html"
+      );
+      text = doc.body.textContent || "";
+    } catch {
+      /* оставляем как есть */
+    }
+  }
+  return text.replace(/\s+/g, " ").trim().slice(0, CHAT_PREVIEW_MAX);
+};
+
+// Элемент ai_chat_list → карточка в списке чатов:
+// заголовок — первый вопрос пользователя, описание — первый ответ AI
+const normalizeChat = (c) => ({
+  id: c?.chat_id || c?.id || c?.guid || "",
+  title:
+    toPlainPreview(c?.first_user_message?.content ?? c?.first_user_message) ||
+    c?.title ||
+    c?.name ||
+    "",
+  preview:
+    toPlainPreview(c?.first_ai_message?.content ?? c?.first_ai_message) ||
+    toPlainPreview(c?.last_message) ||
+    "",
+  roomId: c?.live_chat_room_id || "",
+  date:
+    c?.updated_at ||
+    c?.last_message_at ||
+    c?.created_at ||
+    c?.date ||
+    "",
 });
+
+/**
+ * Список чатов пользователя (ai_chat_list) с постраничной подгрузкой.
+ * @param {boolean} enabled — грузим только когда панель истории открыта
+ */
+export function useAiChatList(enabled) {
+  const [chats, setChats] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const pageRef = useRef(1);
+  const busyRef = useRef(false);
+
+  const fetchPage = useCallback(async (page) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setLoading(true);
+    try {
+      const res = await aiChatList({ page, limit: CHAT_LIST_LIMIT });
+      const d = unwrapAiData(res);
+      const raw = Array.isArray(d.chats)
+        ? d.chats
+        : Array.isArray(d.data)
+          ? d.data
+          : Array.isArray(d.items)
+            ? d.items
+            : Array.isArray(d.list)
+              ? d.list
+              : [];
+      const list = raw.map(normalizeChat).filter((c) => c.id);
+      const count = Number(d.pagination?.total) || 0;
+      pageRef.current = page;
+      setTotal((prev) => count || (page === 1 ? list.length : prev));
+      setChats((prev) => (page === 1 ? list : [...prev, ...list]));
+      setHasMore(
+        count ? page * CHAT_LIST_LIMIT < count : list.length >= CHAT_LIST_LIMIT
+      );
+    } catch {
+      if (page === 1) setChats([]);
+    } finally {
+      busyRef.current = false;
+      setLoading(false);
+    }
+  }, []);
+
+  const reload = useCallback(() => fetchPage(1), [fetchPage]);
+
+  // Удаление чата: строку убираем сразу, при ошибке возвращаем список с сервера
+  const remove = useCallback(
+    async (chatId) => {
+      if (!chatId) return false;
+      const prev = chats;
+      setChats((list) => list.filter((c) => c.id !== chatId));
+      setTotal((n) => (n > 0 ? n - 1 : 0));
+      try {
+        await aiChatDelete({ chatId });
+        return true;
+      } catch {
+        setChats(prev);
+        setTotal((n) => n + 1);
+        return false;
+      }
+    },
+    [chats]
+  );
+  const loadMore = useCallback(() => {
+    if (!hasMore || busyRef.current) return;
+    fetchPage(pageRef.current + 1);
+  }, [fetchPage, hasMore]);
+
+  useEffect(() => {
+    if (enabled) fetchPage(1);
+  }, [enabled, fetchPage]);
+
+  return { chats, total, loading, hasMore, loadMore, reload, remove };
+}
 
 /**
  * Управляет AI-чатом: история, WebSocket-стрим, отправка, polling-фоллбек.
@@ -76,13 +433,18 @@ export function useAiChat(isOpen) {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false); // есть ли ещё старые страницы истории
   const [loadingMore, setLoadingMore] = useState(false); // идёт подгрузка старых сообщений
+  const [activeChatId, setActiveChatId] = useState(""); // выбранный чат из ai_chat_list
+  const [switchingChat, setSwitchingChat] = useState(false); // переключение / создание чата
 
   const wsRef = useRef(null);
   const roomIdRef = useRef("");
+  const chatIdRef = useRef(""); // chat_id из ai_chat_history — уходит в send
   const joinedRef = useRef(false);
   const streamRef = useRef("");
   const awaitingReplyRef = useRef(false);
   const stopTimerRef = useRef(null);
+  const loadHistoryRef = useRef(null); // loadHistory объявлен ниже — держим ссылку
+  const refreshTimerRef = useRef(null);
   const pollTimerRef = useRef(null);
   const reconnectRef = useRef(null);
   const openRef = useRef(isOpen);
@@ -94,6 +456,14 @@ export function useAiChat(isOpen) {
 
   const userId = () =>
     authStore?.userData?.guid || authStore?.userData?.id || "";
+
+  // chat_id держим и в ref (для мгновенного чтения в запросах), и в состоянии
+  // (для подсветки активного чата в списке)
+  const applyChatId = useCallback((id) => {
+    if (!id || id === chatIdRef.current) return;
+    chatIdRef.current = id;
+    setActiveChatId(id);
+  }, []);
 
   const emit = (ws, event, payload) => {
     if (ws && ws.readyState === 1) {
@@ -123,9 +493,23 @@ export function useAiChat(isOpen) {
       setStreamingText(null);
       setIsAwaiting(false);
       stopPolling();
+      // Ответ дописан — подтягиваем историю: у сообщений появятся guid,
+      // files и quick_answers, которых нет в WS-потоке
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = setTimeout(() => {
+        loadHistoryRef.current?.();
+      }, 600);
+
+      const { html: body, suggestions } = splitAssistantContent(html);
       setMessages((prev) => [
         ...prev,
-        { id: uid(), role: "assistant", content: html, isHtml: true },
+        {
+          id: uid(),
+          role: "assistant",
+          content: body,
+          isHtml: true,
+          suggestions,
+        },
       ]);
       return true;
     },
@@ -265,13 +649,18 @@ export function useAiChat(isOpen) {
   }, [finalizeReply, stopPolling]);
 
   // ─── Загрузка истории (первая страница — при каждом открытии) ────────
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (chatId) => {
     setHistoryLoading(true);
     pageRef.current = 1;
     try {
-      const res = await aiChatHistory({ page: 1, limit: HISTORY_LIMIT });
+      const res = await aiChatHistory({
+        page: 1,
+        limit: HISTORY_LIMIT,
+        chatId: chatId || chatIdRef.current,
+      });
       const d = unwrapAiData(res);
       const room = d.live_chat_room_id || "";
+      applyChatId(readChatId(d) || chatId || "");
       const raw = Array.isArray(d.messages) ? d.messages : [];
       // API отдаёт новые→старые (DESC); разворачиваем в старые→новые (сверху вниз)
       const ordered = raw.map(normalizeMessage).reverse();
@@ -288,7 +677,9 @@ export function useAiChat(isOpen) {
     } finally {
       setHistoryLoading(false);
     }
-  }, [connect]);
+  }, [connect, applyChatId]);
+
+  loadHistoryRef.current = loadHistory;
 
   // ─── Подгрузка старых сообщений (скролл вверх) ───────────────────────
   const loadMore = useCallback(async () => {
@@ -297,7 +688,11 @@ export function useAiChat(isOpen) {
     setLoadingMore(true);
     const nextPage = pageRef.current + 1;
     try {
-      const res = await aiChatHistory({ page: nextPage, limit: HISTORY_LIMIT });
+      const res = await aiChatHistory({
+        page: nextPage,
+        limit: HISTORY_LIMIT,
+        chatId: chatIdRef.current,
+      });
       const d = unwrapAiData(res);
       const raw = Array.isArray(d.messages) ? d.messages : [];
       // страница тоже DESC → разворачиваем; вся страница старше текущих — добавляем сверху
@@ -322,7 +717,7 @@ export function useAiChat(isOpen) {
   const send = useCallback(
     async (text, files = []) => {
       const content = String(text || "").trim();
-      const atts = Array.isArray(files) ? files : [];
+      const atts = (Array.isArray(files) ? files : []).filter((f) => f?.url);
       if (!content && atts.length === 0) return;
 
       // чат использовали → при закрытии панели обновим данные текущей страницы
@@ -337,12 +732,14 @@ export function useAiChat(isOpen) {
       setStreamingText(null);
       awaitingReplyRef.current = true;
 
-      // AI получает текст со ссылками: {filename} → [name](url), остальные — в конец
-      const apiContent = buildAiChatContent(content, atts);
-
       try {
-        const res = await aiChatSendMessage({ content: apiContent });
+        const res = await aiChatSendMessage({
+          content,
+          files: atts,
+          chatId: chatIdRef.current,
+        });
         const d = unwrapAiData(res);
+        applyChatId(readChatId(d));
         const room = d.live_chat_room_id || roomIdRef.current;
         if (room) {
           roomIdRef.current = room;
@@ -363,8 +760,147 @@ export function useAiChat(isOpen) {
         ]);
       }
     },
-    [connect, startPolling]
+    [connect, startPolling, applyChatId]
   );
+
+  // ─── Редактирование отправленного сообщения ─────────────────────────
+  // Бэк принимает ai_chat_edit_message и перегенерирует ответ AI —
+  // он приходит по тому же WS/polling, что и обычная отправка.
+  const edit = useCallback(
+    async (messageId, text, files = []) => {
+      const content = String(text || "").trim();
+      const atts = (Array.isArray(files) ? files : []).filter((f) => f?.url);
+      if (!messageId || (!content && atts.length === 0)) return false;
+
+      aiChatStore.markUsed();
+
+      // правим сообщение на месте и убираем ответ AI, который к нему относился
+      setMessages((prev) => {
+        const i = prev.findIndex((m) => m.messageId === messageId);
+        if (i === -1) return prev;
+        const next = prev.slice(0, i + 1);
+        next[i] = { ...next[i], content, files: atts };
+        return next;
+      });
+
+      setIsAwaiting(true);
+      streamRef.current = "";
+      setStreamingText(null);
+      awaitingReplyRef.current = true;
+
+      try {
+        const res = await aiChatEditMessage({
+          id: messageId,
+          content,
+          files: atts,
+        });
+        const d = unwrapAiData(res);
+        applyChatId(readChatId(d));
+        const room = d.live_chat_room_id || roomIdRef.current;
+        if (room) {
+          roomIdRef.current = room;
+          if (!joinedRef.current) connect(room);
+        }
+        startPolling();
+        return true;
+      } catch {
+        awaitingReplyRef.current = false;
+        setIsAwaiting(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: uid(),
+            role: "assistant",
+            content: "<p>Не удалось изменить сообщение. Попробуйте ещё раз.</p>",
+            isHtml: true,
+          },
+        ]);
+        return false;
+      }
+    },
+    [connect, startPolling, applyChatId]
+  );
+
+  // ─── Переключение и создание чатов ──────────────────────────────────
+  // Комната WS привязана к чату: при переходе отпускаем старую, новую даёт
+  // ответ ai_chat_history. Сбрасываем roomId до close(), иначе onclose
+  // попытается переподключиться к покинутому чату.
+  const leaveRoom = useCallback(() => {
+    stopPolling();
+    awaitingReplyRef.current = false;
+    streamRef.current = "";
+    setStreamingText(null);
+    setIsAwaiting(false);
+    roomIdRef.current = "";
+    joinedRef.current = false;
+    if (reconnectRef.current) clearTimeout(reconnectRef.current);
+    try {
+      wsRef.current?.close();
+    } catch {
+      /* noop */
+    }
+    wsRef.current = null;
+    setConnected(false);
+  }, [stopPolling]);
+
+  // Сброс до пустого чата — например, когда удалили активный.
+  // chat_id не создаём: его вернёт первый ai_chat_send_message.
+  const resetChat = useCallback(() => {
+    leaveRoom();
+    setMessages([]);
+    setHasMore(false);
+    hasMoreRef.current = false;
+    pageRef.current = 1;
+    chatIdRef.current = "";
+    setActiveChatId("");
+  }, [leaveRoom]);
+
+  // Открыть чат из списка
+  const selectChat = useCallback(
+    async (chatId) => {
+      if (!chatId || chatId === chatIdRef.current) return;
+      setSwitchingChat(true);
+      leaveRoom();
+      setMessages([]);
+      setHasMore(false);
+      hasMoreRef.current = false;
+      pageRef.current = 1;
+      applyChatId(chatId);
+      try {
+        await loadHistory(chatId);
+      } finally {
+        setSwitchingChat(false);
+      }
+    },
+    [applyChatId, leaveRoom, loadHistory]
+  );
+
+  // Новый чат: ai_chat_new отдаёт chat_id, дальше он уходит в send
+  const newChat = useCallback(async () => {
+    setSwitchingChat(true);
+    leaveRoom();
+    setMessages([]);
+    setHasMore(false);
+    hasMoreRef.current = false;
+    pageRef.current = 1;
+    chatIdRef.current = "";
+    setActiveChatId("");
+    try {
+      const res = await aiChatNew();
+      const d = unwrapAiData(res);
+      applyChatId(readChatId(d));
+      const room = d.live_chat_room_id || "";
+      if (room) {
+        roomIdRef.current = room;
+        connect(room);
+      }
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setSwitchingChat(false);
+    }
+  }, [applyChatId, connect, leaveRoom]);
 
   // перезагружаем историю при каждом открытии; при закрытии тоже дёргаем history
   useEffect(() => {
@@ -385,6 +921,7 @@ export function useAiChat(isOpen) {
       stopPolling();
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (stopTimerRef.current) clearTimeout(stopTimerRef.current);
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       try {
         wsRef.current?.close();
       } catch {
@@ -393,6 +930,13 @@ export function useAiChat(isOpen) {
     },
     [stopPolling]
   );
+
+  // быстрые ответы показываем, только пока последнее слово за AI
+  const last = messages[messages.length - 1];
+  const suggestions =
+    last?.role === "assistant" && Array.isArray(last.suggestions)
+      ? last.suggestions
+      : [];
 
   return {
     messages,
@@ -404,5 +948,12 @@ export function useAiChat(isOpen) {
     loadingMore,
     loadMore,
     send,
+    edit,
+    suggestions,
+    activeChatId,
+    switchingChat,
+    selectChat,
+    newChat,
+    resetChat,
   };
 }
