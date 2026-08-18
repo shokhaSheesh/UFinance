@@ -9,10 +9,6 @@
     "today": "Сегодня",
     "close": "Закрыть",
     "send": "Отправить",
-    "suggestTitle": "Быстрые вопросы",
-    "suggest1": "Топ расходов месяца",
-    "suggest2": "Баланс по счетам",
-    "suggest3": "Чистая прибыль за месяц",
     "resizeHint": "Изменить ширину панели",
     "attach": "Прикрепить файл",
     "fileTooBig": "Файл больше 5 МБ",
@@ -36,7 +32,10 @@
     "group_week": "На этой неделе",
     "group_month": "В этом месяце",
     "group_earlier": "Ранее",
-    "modelName": "GPT 5.4"
+    "modelName": "GPT 5.4",
+    "delete": "Удалить",
+    "deleteChat": "Удалить чат",
+    "deleteChatConfirm": "Удалить этот чат?"
   },
   "Warehouse": {
     "pageTitle": "Мой склад",

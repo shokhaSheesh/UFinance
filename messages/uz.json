@@ -9,10 +9,6 @@
     "today": "Bugun",
     "close": "Yopish",
     "send": "Yuborish",
-    "suggestTitle": "Tezkor savollar",
-    "suggest1": "Oyning eng katta xarajatlari",
-    "suggest2": "Hisoblar bo'yicha balans",
-    "suggest3": "Oylik sof foyda",
     "resizeHint": "Panel enini o'zgartirish",
     "attach": "Fayl biriktirish",
     "fileTooBig": "Fayl 5 MB dan katta",
@@ -36,7 +32,10 @@
     "group_week": "Shu hafta",
     "group_month": "Shu oyda",
     "group_earlier": "Avvalroq",
-    "modelName": "GPT 5.4"
+    "modelName": "GPT 5.4",
+    "delete": "O'chirish",
+    "deleteChat": "Chatni o'chirish",
+    "deleteChatConfirm": "Bu chat o'chirilsinmi?"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",

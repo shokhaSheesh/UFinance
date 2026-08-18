@@ -1090,21 +1090,101 @@ $red: #e5484d;
   padding: 14px 12px 6px;
   font-weight: 600;
 }
+.histRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+  border-radius: 11px;
+  transition: 0.13s;
+
+  &:hover {
+    background: $cream-2;
+  }
+  &.active {
+    background: $blue-soft;
+  }
+  &:hover .histDel,
+  &:focus-within .histDel {
+    opacity: 1;
+  }
+}
 .histItem {
   display: block;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   text-align: left;
   border: none;
   background: transparent;
   padding: 10px 12px;
   border-radius: 11px;
   cursor: pointer;
-  transition: 0.13s;
-  &:hover {
-    background: $cream-2;
+}
+.histDel {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: $muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.14s;
+  &:hover:not(:disabled) {
+    background: #fdeaea;
+    color: $red;
   }
-  &.active {
-    background: $blue-soft;
+  &:disabled {
+    cursor: default;
+  }
+  svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+  }
+}
+/* подтверждение удаления вместо содержимого строки */
+.histConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  min-width: 0;
+}
+.histConfirmText {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: $ink;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.histConfirmBtn {
+  border: none;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  color: $red;
+  &:hover {
+    background: #fdeaea;
+  }
+  &.cancel {
+    color: $ink-soft;
+    &:hover {
+      background: $cream-2;
+    }
   }
 }
 .histTitle {

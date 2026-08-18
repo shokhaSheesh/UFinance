@@ -67,6 +67,12 @@ const DownloadIcon = () => (
   </svg>
 );
 
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3" />
+  </svg>
+);
+
 const HistoryIcon = () => (
   <svg viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="9" />
@@ -370,6 +376,7 @@ const AiChatPanel = observer(() => {
     switchingChat,
     selectChat,
     newChat,
+    resetChat,
   } = useAiChat(isOpen);
 
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -379,7 +386,9 @@ const AiChatPanel = observer(() => {
     loading: chatsLoading,
     hasMore: chatsHasMore,
     loadMore: loadMoreChats,
+    remove: removeChat,
   } = useAiChatList(isOpen && historyOpen);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const [draft, setDraft] = useState(""); // сериализованный текст композера (для disabled)
   const [editing, setEditing] = useState(null); // { messageId } — правка отправленного сообщения
@@ -652,6 +661,13 @@ const AiChatPanel = observer(() => {
     focusEditor();
   };
 
+  const handleDeleteChat = async (chatId) => {
+    setConfirmDeleteId(null);
+    const ok = await removeChat(chatId);
+    // удалили открытый чат — переписку сбрасываем, новый заведётся при отправке
+    if (ok && chatId === activeChatId) resetChat();
+  };
+
   // подгрузка следующей страницы списка чатов при скролле вниз
   const onHistoryScroll = (e) => {
     if (!chatsHasMore || chatsLoading) return;
@@ -700,17 +716,10 @@ const AiChatPanel = observer(() => {
     !streamingText &&
     !isAwaiting;
 
-  // Быстрые ответы: то, что прислал AI с последним сообщением.
-  // Пока переписки нет — показываем стартовые вопросы из локали.
-  const defaultSuggestions = [t("suggest1"), t("suggest2"), t("suggest3")].map(
-    (label) => ({ label, prompt: label })
-  );
-  const quickReplies = suggestions.length
-    ? suggestions
-    : showGreeting
-      ? defaultSuggestions
-      : [];
-  const quickVisible = quickReplies.length > 0 && !isAwaiting && streamingText === null;
+  // Быстрые ответы — только то, что прислал AI с последним сообщением
+  const quickReplies = suggestions;
+  const quickVisible =
+    quickReplies.length > 0 && !isAwaiting && streamingText === null;
 
   // AI-ассистент включается флагом ia_active из get_general_settings
   if (!appStore.isAiActive) return null;
@@ -796,19 +805,58 @@ const AiChatPanel = observer(() => {
               <div key={group.key}>
                 <div className={styles.histGroup}>{t(`group_${group.key}`)}</div>
                 {group.items.map((chat) => (
-                  <button
-                    type="button"
+                  <div
                     key={chat.id}
-                    className={`${styles.histItem} ${chat.id === activeChatId ? styles.active : ""}`}
-                    onClick={() => handleSelectChat(chat.id)}
+                    className={`${styles.histRow} ${chat.id === activeChatId ? styles.active : ""}`}
                   >
-                    <div className={styles.histTitle}>
-                      {chat.title || t("newChat")}
-                    </div>
-                    {chat.preview && (
-                      <div className={styles.histPreview}>{chat.preview}</div>
+                    {confirmDeleteId === chat.id ? (
+                      <div className={styles.histConfirm}>
+                        <span className={styles.histConfirmText}>
+                          {t("deleteChatConfirm")}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.histConfirmBtn}
+                          onClick={() => handleDeleteChat(chat.id)}
+                        >
+                          {t("delete")}
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.histConfirmBtn} ${styles.cancel}`}
+                          onClick={() => setConfirmDeleteId(null)}
+                        >
+                          {t("cancel")}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.histItem}
+                          onClick={() => handleSelectChat(chat.id)}
+                        >
+                          <div className={styles.histTitle}>
+                            {chat.title || t("newChat")}
+                          </div>
+                          {chat.preview && (
+                            <div className={styles.histPreview}>
+                              {chat.preview}
+                            </div>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.histDel}
+                          onClick={() => setConfirmDeleteId(chat.id)}
+                          title={t("deleteChat")}
+                          aria-label={t("deleteChat")}
+                        >
+                          <TrashIcon />
+                        </button>
+                      </>
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
             ))}

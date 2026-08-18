@@ -3,6 +3,7 @@
 import createDOMPurify from "dompurify";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  aiChatDelete,
   aiChatEditMessage,
   aiChatHistory,
   aiChatList,
@@ -275,6 +276,25 @@ export function useAiChatList(enabled) {
   }, []);
 
   const reload = useCallback(() => fetchPage(1), [fetchPage]);
+
+  // Удаление чата: строку убираем сразу, при ошибке возвращаем список с сервера
+  const remove = useCallback(
+    async (chatId) => {
+      if (!chatId) return false;
+      const prev = chats;
+      setChats((list) => list.filter((c) => c.id !== chatId));
+      setTotal((n) => (n > 0 ? n - 1 : 0));
+      try {
+        await aiChatDelete({ chatId });
+        return true;
+      } catch {
+        setChats(prev);
+        setTotal((n) => n + 1);
+        return false;
+      }
+    },
+    [chats]
+  );
   const loadMore = useCallback(() => {
     if (!hasMore || busyRef.current) return;
     fetchPage(pageRef.current + 1);
@@ -284,7 +304,7 @@ export function useAiChatList(enabled) {
     if (enabled) fetchPage(1);
   }, [enabled, fetchPage]);
 
-  return { chats, total, loading, hasMore, loadMore, reload };
+  return { chats, total, loading, hasMore, loadMore, reload, remove };
 }
 
 /**
@@ -695,6 +715,18 @@ export function useAiChat(isOpen) {
     setConnected(false);
   }, [stopPolling]);
 
+  // Сброс до пустого чата — например, когда удалили активный.
+  // chat_id не создаём: его вернёт первый ai_chat_send_message.
+  const resetChat = useCallback(() => {
+    leaveRoom();
+    setMessages([]);
+    setHasMore(false);
+    hasMoreRef.current = false;
+    pageRef.current = 1;
+    chatIdRef.current = "";
+    setActiveChatId("");
+  }, [leaveRoom]);
+
   // Открыть чат из списка
   const selectChat = useCallback(
     async (chatId) => {
@@ -793,5 +825,6 @@ export function useAiChat(isOpen) {
     switchingChat,
     selectChat,
     newChat,
+    resetChat,
   };
 }
