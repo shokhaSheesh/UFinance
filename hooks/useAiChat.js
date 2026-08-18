@@ -59,11 +59,17 @@ export const sanitizeAiHtml = (html) => {
 // санитизации проходим по ячейкам и проставляем классы: `ai-num` —
 // числовая (выравнивание вправо, табличные цифры), `ai-pos` / `ai-neg` —
 // со знаком. Таблицу заворачиваем в скролл-контейнер со скруглением.
-const NUM_CELL = /^[+\-−(]?\s*\d[\d\s.,]*\)?\s*(so'm|so‘m|сум|uzs|usd|eur|rub|[$€₽%])?$/i;
+const NUM_CELL = /^[+\-−–(]?\s*\d[\d\s.,]*\)?\s*(so'm|so‘m|сум|uzs|usd|eur|rub|[$€₽%])?$/i;
 
-// Числа со знаком в обычном тексте («+1,22 trln so'm», «-5,06 mlrd so'm»)
-const SIGNED_NUM =
-  /[+\-−]\s?\d[\d\s.,]*(?:\s*(?:trln|mlrd|mln|ming|so'm|so‘m|сум|uzs|usd|eur|rub|%|\$|€|₽))*/gi;
+// Суммы в обычном тексте: со знаком («+1,22 trln so'm», «-5,06 mlrd»)
+// либо без знака, но с валютой/единицей («1 216 048 355 274 so'm»).
+// Голые числа («5 операций», «2026 yil») не трогаем.
+const MONEY_UNIT = "trln|mlrd|mln|ming|so'm|so‘m|сум|uzs|usd|eur|rub|\\$|€|₽";
+const TEXT_NUM = new RegExp(
+  `([+\\-−–]\\s?)?\\d[\\d\\s.,]*((?:\\s*(?:${MONEY_UNIT}|%))*)`,
+  "gi"
+);
+const HAS_MONEY_UNIT = new RegExp(MONEY_UNIT, "i");
 
 // Отсеиваем не-суммы (телефоны и т.п.): у суммы либо есть единица/валюта,
 // либо она без пробелов, либо разряды разбиты по три цифры
@@ -90,7 +96,7 @@ const colorizeSignedNumbers = (doc) => {
   const targets = [];
   while (walker.nextNode()) {
     const node = walker.currentNode;
-    if (!node.nodeValue || !/[+\-−]\s?\d/.test(node.nodeValue)) continue;
+    if (!node.nodeValue || !/\d/.test(node.nodeValue)) continue;
     if (isSkipped(node.parentElement)) continue;
     targets.push(node);
   }
@@ -98,19 +104,25 @@ const colorizeSignedNumbers = (doc) => {
   targets.forEach((node) => {
     const text = node.nodeValue;
     const frag = doc.createDocumentFragment();
-    const re = new RegExp(SIGNED_NUM.source, "gi");
+    const re = new RegExp(TEXT_NUM.source, "gi");
     let last = 0;
     let m;
     while ((m = re.exec(text)) !== null) {
+      const sign = m[1] || "";
+      const units = (m[2] || "").trim();
+      // без знака красим только суммы с валютой: доли и голые числа нейтральны
+      if (!sign && !HAS_MONEY_UNIT.test(units)) continue;
       // «2025-2026» и «id-3» числами со знаком не считаем
       const prev = text[m.index - 1];
       if (prev && /[\w\d]/.test(prev)) continue;
       if (!looksLikeAmount(m[0])) continue;
+      const digits = m[0].replace(/\D/g, "");
+      if (!digits || /^0+$/.test(digits)) continue; // ноль оставляем нейтральным
       const value = m[0].replace(/\s+$/, ""); // хвостовой пробел оставляем тексту
       if (m.index > last)
         frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
       const span = doc.createElement("span");
-      span.className = value.trimStart().startsWith("+") ? "ai-pos" : "ai-neg";
+      span.className = /^[-−–]/.test(value.trimStart()) ? "ai-neg" : "ai-pos";
       span.textContent = value;
       frag.appendChild(span);
       last = m.index + value.length;
@@ -136,7 +148,7 @@ export const decorateAiHtml = (html) => {
       const compact = text.replace(/\s/g, "");
       const digits = compact.replace(/\D/g, "");
       if (!digits || /^0+$/.test(digits)) return; // ноль оставляем нейтральным
-      if (/^[-−(]/.test(compact)) cell.classList.add("ai-neg");
+      if (/^[-−–(]/.test(compact)) cell.classList.add("ai-neg");
       else cell.classList.add("ai-pos");
     });
 
@@ -431,6 +443,8 @@ export function useAiChat(isOpen) {
   const streamRef = useRef("");
   const awaitingReplyRef = useRef(false);
   const stopTimerRef = useRef(null);
+  const loadHistoryRef = useRef(null); // loadHistory объявлен ниже — держим ссылку
+  const refreshTimerRef = useRef(null);
   const pollTimerRef = useRef(null);
   const reconnectRef = useRef(null);
   const openRef = useRef(isOpen);
@@ -479,6 +493,13 @@ export function useAiChat(isOpen) {
       setStreamingText(null);
       setIsAwaiting(false);
       stopPolling();
+      // Ответ дописан — подтягиваем историю: у сообщений появятся guid,
+      // files и quick_answers, которых нет в WS-потоке
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = setTimeout(() => {
+        loadHistoryRef.current?.();
+      }, 600);
+
       const { html: body, suggestions } = splitAssistantContent(html);
       setMessages((prev) => [
         ...prev,
@@ -657,6 +678,8 @@ export function useAiChat(isOpen) {
       setHistoryLoading(false);
     }
   }, [connect, applyChatId]);
+
+  loadHistoryRef.current = loadHistory;
 
   // ─── Подгрузка старых сообщений (скролл вверх) ───────────────────────
   const loadMore = useCallback(async () => {
@@ -898,6 +921,7 @@ export function useAiChat(isOpen) {
       stopPolling();
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (stopTimerRef.current) clearTimeout(stopTimerRef.current);
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       try {
         wsRef.current?.close();
       } catch {
