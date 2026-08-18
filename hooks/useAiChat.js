@@ -54,6 +54,108 @@ export const sanitizeAiHtml = (html) => {
   }
 };
 
+// ─── Оформление таблиц и чисел в ответе AI ──────────────────────────
+// Чистым CSS покрасить ячейку по её содержимому нельзя, поэтому после
+// санитизации проходим по ячейкам и проставляем классы: `ai-num` —
+// числовая (выравнивание вправо, табличные цифры), `ai-pos` / `ai-neg` —
+// со знаком. Таблицу заворачиваем в скролл-контейнер со скруглением.
+const NUM_CELL = /^[+\-−(]?\s*\d[\d\s.,]*\)?\s*(so'm|so‘m|сум|uzs|usd|eur|rub|[$€₽%])?$/i;
+
+// Числа со знаком в обычном тексте («+1,22 trln so'm», «-5,06 mlrd so'm»)
+const SIGNED_NUM =
+  /[+\-−]\s?\d[\d\s.,]*(?:\s*(?:trln|mlrd|mln|ming|so'm|so‘m|сум|uzs|usd|eur|rub|%|\$|€|₽))*/gi;
+
+// Отсеиваем не-суммы (телефоны и т.п.): у суммы либо есть единица/валюта,
+// либо она без пробелов, либо разряды разбиты по три цифры
+const looksLikeAmount = (raw) => {
+  const body = String(raw).replace(/^[\s+\-−]+/, "").trim();
+  if (/[a-zа-я%$€₽]/i.test(body)) return true;
+  const groups = body.split(/\s+/);
+  if (groups.length === 1) return true;
+  return groups.slice(1).every((g) => /^\d{3}([.,]\d+)?$/.test(g));
+};
+// внутри этих тегов не красим: в ячейках цвет уже задан, остальное — служебное
+const SKIP_TAGS = new Set(["A", "BUTTON", "CODE", "PRE", "TD", "TH"]);
+
+const isSkipped = (el) => {
+  for (let node = el; node; node = node.parentElement) {
+    if (SKIP_TAGS.has(node.tagName)) return true;
+  }
+  return false;
+};
+
+// Оборачивает числа со знаком в span с классом цвета
+const colorizeSignedNumbers = (doc) => {
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const targets = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.nodeValue || !/[+\-−]\s?\d/.test(node.nodeValue)) continue;
+    if (isSkipped(node.parentElement)) continue;
+    targets.push(node);
+  }
+
+  targets.forEach((node) => {
+    const text = node.nodeValue;
+    const frag = doc.createDocumentFragment();
+    const re = new RegExp(SIGNED_NUM.source, "gi");
+    let last = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      // «2025-2026» и «id-3» числами со знаком не считаем
+      const prev = text[m.index - 1];
+      if (prev && /[\w\d]/.test(prev)) continue;
+      if (!looksLikeAmount(m[0])) continue;
+      const value = m[0].replace(/\s+$/, ""); // хвостовой пробел оставляем тексту
+      if (m.index > last)
+        frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+      const span = doc.createElement("span");
+      span.className = value.trimStart().startsWith("+") ? "ai-pos" : "ai-neg";
+      span.textContent = value;
+      frag.appendChild(span);
+      last = m.index + value.length;
+    }
+    if (!last) return;
+    if (last < text.length)
+      frag.appendChild(doc.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+};
+
+export const decorateAiHtml = (html) => {
+  const src = String(html || "");
+  if (typeof window === "undefined" || !/\d/.test(src)) return src;
+  try {
+    const doc = new DOMParser().parseFromString(src, "text/html");
+
+    doc.querySelectorAll("td, th").forEach((cell) => {
+      const text = (cell.textContent || "").replace(/\u00A0/g, " ").trim();
+      if (!text || !NUM_CELL.test(text)) return;
+      cell.classList.add("ai-num");
+      // цвет по знаку ЗНАЧЕНИЯ, а не по наличию «+»: суммы приходят без знака
+      const compact = text.replace(/\s/g, "");
+      const digits = compact.replace(/\D/g, "");
+      if (!digits || /^0+$/.test(digits)) return; // ноль оставляем нейтральным
+      if (/^[-−(]/.test(compact)) cell.classList.add("ai-neg");
+      else cell.classList.add("ai-pos");
+    });
+
+    colorizeSignedNumbers(doc);
+
+    doc.querySelectorAll("table").forEach((table) => {
+      if (table.parentElement?.classList?.contains("ai-table")) return;
+      const wrap = doc.createElement("div");
+      wrap.className = "ai-table";
+      table.replaceWith(wrap);
+      wrap.appendChild(table);
+    });
+
+    return doc.body.innerHTML;
+  } catch {
+    return src;
+  }
+};
+
 let _idc = 0;
 const uid = () => `m_${_idc++}_${Math.round(performance.now())}`;
 

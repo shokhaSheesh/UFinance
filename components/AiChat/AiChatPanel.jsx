@@ -1,7 +1,12 @@
 "use client";
 
 import useMounted from "@/hooks/useMounted";
-import { useAiChat, useAiChatList, sanitizeAiHtml } from "@/hooks/useAiChat";
+import {
+  useAiChat,
+  useAiChatList,
+  decorateAiHtml,
+  sanitizeAiHtml,
+} from "@/hooks/useAiChat";
 import {
   AI_CHAT_MAX_FILES,
   AI_CHAT_MAX_FILE_SIZE,
@@ -275,6 +280,9 @@ const MsgActions = ({ getText, onEdit, t }) => {
     </div>
   );
 };
+
+// html ответа AI → безопасная разметка с оформлением таблиц и чисел
+const renderAiHtml = (html) => decorateAiHtml(sanitizeAiHtml(html));
 
 // html ответа AI → простой текст (для копирования)
 const htmlToText = (html) => {
@@ -826,9 +834,7 @@ const AiChatPanel = observer(() => {
                 <div className={styles.aText}>
                   {m.isHtml ? (
                     <div
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeAiHtml(m.content),
-                      }}
+                      dangerouslySetInnerHTML={{ __html: renderAiHtml(m.content) }}
                     />
                   ) : (
                     m.content
@@ -863,7 +869,7 @@ const AiChatPanel = observer(() => {
               </div>
               <div className={styles.aText}>
                 <span
-                  dangerouslySetInnerHTML={{ __html: sanitizeAiHtml(streamingText) }}
+                  dangerouslySetInnerHTML={{ __html: renderAiHtml(streamingText) }}
                 />
                 <span className={styles.cursor} />
               </div>

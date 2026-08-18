@@ -270,25 +270,87 @@ $red: #e5484d;
     white-space: pre;
     font-size: 12.5px;
   }
+  /* таблица ответа: скруглённая рамка + горизонтальный скролл внутри неё */
+  :global(.ai-table) {
+    margin: 11px 0;
+    border: 1px solid $hair;
+    border-radius: 12px;
+    background: $paper;
+    overflow-x: auto;
+    max-width: 100%;
+
+    &::-webkit-scrollbar {
+      height: 7px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #d3d8e2;
+      border-radius: 4px;
+    }
+  }
   table {
     width: 100%;
-    max-width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-    font-size: 12.5px;
-    display: block;
-    overflow-x: auto;
+    margin: 11px 0;
+    font-size: 14px;
     background: $paper;
+
     th,
     td {
-      border: 1px solid $hair;
-      padding: 7px 9px;
+      padding: 12px 14px;
       text-align: left;
       white-space: nowrap;
+      border-bottom: 1px solid $hair;
+      color: $ink;
     }
     th {
       background: #fafbfc;
       font-weight: 600;
+      font-size: 13px;
+      color: $ink-soft;
+      letter-spacing: 0.2px;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    tbody tr:hover td {
+      background: #f8fafd;
+    }
+  }
+  :global(.ai-table) table {
+    margin: 0;
+    border-radius: 12px;
+  }
+
+  /* числовые ячейки: вправо, моноширинные цифры, знак — цветом */
+  :global(.ai-num) {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  :global(.ai-pos) {
+    color: $green !important;
+    font-weight: 600;
+  }
+  :global(.ai-neg) {
+    color: $red !important;
+    font-weight: 600;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: $ink;
+    margin: 14px 0 6px;
+    &:first-child {
+      margin-top: 0;
     }
   }
 
