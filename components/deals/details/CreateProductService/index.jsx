@@ -32,6 +32,7 @@ const CreateProductService = ({
     status: Array.isArray(initialData?.status) ? initialData.status[0] : (initialData?.status || ''),
     nds: initialData?.nds != null ? String(initialData.nds) : '',
     artikul: initialData?.artikul || initialData?.article || '',
+    tip: initialData?.tip || '',
     group_product_and_service_id: initialData?.group_product_and_service_id || "",
     naimenovanie: initialData?.name || "",
     unit_name: initialData?.unit_name || "",
@@ -52,11 +53,16 @@ const CreateProductService = ({
   })
 
 
+  // Артикул показываем в скобках рядом с названием; пустой (или из пробелов)
+  // артикул скобок не рисует
   const productServicesList = useMemo(() => {
-    return productServices?.map(item => ({
-      value: item?.guid,
-      label: item?.Naimenovanie,
-    })) || []
+    return productServices?.map(item => {
+      const article = String(item?.Artikul || '').trim()
+      return {
+        value: item?.guid,
+        label: article ? `${item?.Naimenovanie || ''} (${article})` : item?.Naimenovanie,
+      }
+    }) || []
   }, [productServices])
 
   const { mutateAsync: mutateProductServiceCustom, isPending: isProductServiceCustomPending } = useUcodeRequestMutation()
@@ -83,6 +89,7 @@ const CreateProductService = ({
       units_of_measurement_id: item?.units_of_measurement_id,
       status: item.Status,
       artikul: item?.Artikul,
+      tip: item?.Tip || '',
       naimenovanie: item?.Naimenovanie,
       currenies_id: item?.currenies_id,
       group_product_and_service_id: item?.product_and_service_group_id
@@ -124,6 +131,7 @@ const CreateProductService = ({
       status: '',
       nds: '',
       artikul: '',
+      tip: '',
       group_product_and_service_id: "",
       naimenovanie: ""
     })
@@ -149,6 +157,7 @@ const CreateProductService = ({
           status: Array.isArray(initialData.status) ? initialData.status[0] : (initialData.status || ''),
           nds: initialData.nds != null ? String(initialData.nds) : '',
           artikul: initialData.artikul || initialData.article || '',
+          tip: initialData.tip || '',
           group_product_and_service_id: initialData.group_product_and_service_id || '',
           naimenovanie: initialData.name || '',
           currenies_id: initialData.currenies_id || '',
@@ -184,7 +193,9 @@ const CreateProductService = ({
       TSena_za_ed: Number(parseFloat(String(formData?.tsena_za_ed || '0').replace(/\s/g, '') || 0).toFixed(2)),
       Skidka: Number(parseFloat(String(formData?.discount || '0').replace(/\s/g, '') || 0).toFixed(2)),
       Summa: Number(totalSum),
-      Tip: "product",
+      // тип берём у выбранной позиции справочника: услуга, записанная как
+      // "product", потом проверялась на складской остаток в отгрузке
+      Tip: formData?.tip || "product",
       currenies_id: formData?.currenies_id || "",
     };
 
