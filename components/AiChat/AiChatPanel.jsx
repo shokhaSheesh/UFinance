@@ -1,7 +1,7 @@
 "use client";
 
 import useMounted from "@/hooks/useMounted";
-import { useAiChat, sanitizeAiHtml } from "@/hooks/useAiChat";
+import { useAiChat, useAiChatList, sanitizeAiHtml } from "@/hooks/useAiChat";
 import {
   AI_CHAT_MAX_FILES,
   AI_CHAT_MAX_FILE_SIZE,
@@ -66,6 +66,54 @@ const DownloadIcon = () => (
     <path d="M12 3v12M7 11l5 5 5-5M5 21h14" />
   </svg>
 );
+
+const HistoryIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+
+const NewChatIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M20 12a8 8 0 01-11.5 7.2L4 20.5l1.3-4.4A8 8 0 1120 12z" />
+    <path d="M12 9v6M9 12h6" />
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+// ─── Группировка чатов по давности (как в макете) ───────────────────────
+const startOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+const chatGroupKey = (dateStr) => {
+  const d = dateStr ? new Date(dateStr) : null;
+  if (!d || Number.isNaN(d.getTime())) return "earlier";
+  const days = Math.floor((startOfDay(new Date()) - startOfDay(d)) / 86400000);
+  if (days <= 0) return "today";
+  if (days <= 7) return "week";
+  if (days <= 31) return "month";
+  return "earlier";
+};
+
+const GROUP_ORDER = ["today", "week", "month", "earlier"];
+
+const groupChats = (chats) => {
+  const buckets = new Map(GROUP_ORDER.map((k) => [k, []]));
+  chats.forEach((c) => buckets.get(chatGroupKey(c.date)).push(c));
+  return GROUP_ORDER.filter((k) => buckets.get(k).length).map((k) => ({
+    key: k,
+    items: buckets.get(k),
+  }));
+};
 
 // ─── Файлы ──────────────────────────────────────────────────────────────
 const EXT_CLASS = {
@@ -318,7 +366,20 @@ const AiChatPanel = observer(() => {
     send,
     edit,
     suggestions,
+    activeChatId,
+    switchingChat,
+    selectChat,
+    newChat,
   } = useAiChat(isOpen);
+
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const {
+    chats,
+    total: chatsTotal,
+    loading: chatsLoading,
+    hasMore: chatsHasMore,
+    loadMore: loadMoreChats,
+  } = useAiChatList(isOpen && historyOpen);
 
   const [draft, setDraft] = useState(""); // сериализованный текст композера (для disabled)
   const [editing, setEditing] = useState(null); // { messageId } — правка отправленного сообщения
@@ -344,6 +405,7 @@ const AiChatPanel = observer(() => {
     }
     if (!wasOpenRef.current) return;
     wasOpenRef.current = false;
+    setHistoryOpen(false);
     if (!aiChatStore.consumeUsed()) return;
     queryClient.invalidateQueries();
   }, [isOpen, queryClient]);
@@ -574,6 +636,29 @@ const AiChatPanel = observer(() => {
     }
   };
 
+  const focusEditor = () => setTimeout(() => editorRef.current?.focus(), 60);
+
+  const handleNewChat = async () => {
+    setHistoryOpen(false);
+    clearComposer();
+    await newChat();
+    focusEditor();
+  };
+
+  const handleSelectChat = async (chatId) => {
+    setHistoryOpen(false);
+    clearComposer();
+    await selectChat(chatId);
+    focusEditor();
+  };
+
+  // подгрузка следующей страницы списка чатов при скролле вниз
+  const onHistoryScroll = (e) => {
+    if (!chatsHasMore || chatsLoading) return;
+    const el = e.currentTarget;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) loadMoreChats();
+  };
+
   const onKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -592,8 +677,28 @@ const AiChatPanel = observer(() => {
     if (prompt) send(prompt);
   };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onEsc = (e) => {
+      if (e.key !== "Escape") return;
+      if (historyOpen) {
+        setHistoryOpen(false);
+        return;
+      }
+      // Esc в режиме правки отменяет её — этим занимается сам композер
+      if (editing) return;
+      aiChatStore.close();
+    };
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, [isOpen, historyOpen, editing]);
+
   const showGreeting =
-    !historyLoading && messages.length === 0 && !streamingText && !isAwaiting;
+    !historyLoading &&
+    !switchingChat &&
+    messages.length === 0 &&
+    !streamingText &&
+    !isAwaiting;
 
   // Быстрые ответы: то, что прислал AI с последним сообщением.
   // Пока переписки нет — показываем стартовые вопросы из локали.
@@ -647,13 +752,76 @@ const AiChatPanel = observer(() => {
           </div>
           <button
             type="button"
-            className={styles.hicon}
+            className={`${styles.hicon} ${styles.tip}`}
+            data-tip={t("close")}
             onClick={() => aiChatStore.close()}
-            title={t("close")}
             aria-label={t("close")}
           >
             <CloseIcon />
           </button>
+        </div>
+
+        {/* Список чатов — оверлей поверх переписки */}
+        <div className={`${styles.history} ${historyOpen ? styles.open : ""}`}>
+          <div className={styles.histHead}>
+            <h3>
+              {t("historyTitle")}
+              {chatsTotal > 0 && (
+                <span className={styles.histCount}>({chatsTotal})</span>
+              )}
+            </h3>
+            <button
+              type="button"
+              className={`${styles.hicon} ${styles.tip} ${styles.histClose}`}
+              data-tip={t("close")}
+              onClick={() => setHistoryOpen(false)}
+              aria-label={t("close")}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className={styles.histNewBtn}
+            onClick={handleNewChat}
+            disabled={switchingChat}
+          >
+            <PlusIcon />
+            {t("newChat")}
+          </button>
+
+          <div className={styles.histList} onScroll={onHistoryScroll}>
+            {groupChats(chats).map((group) => (
+              <div key={group.key}>
+                <div className={styles.histGroup}>{t(`group_${group.key}`)}</div>
+                {group.items.map((chat) => (
+                  <button
+                    type="button"
+                    key={chat.id}
+                    className={`${styles.histItem} ${chat.id === activeChatId ? styles.active : ""}`}
+                    onClick={() => handleSelectChat(chat.id)}
+                  >
+                    <div className={styles.histTitle}>
+                      {chat.title || t("newChat")}
+                    </div>
+                    {chat.preview && (
+                      <div className={styles.histPreview}>{chat.preview}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ))}
+
+            {chatsLoading && (
+              <div className={styles.histLoading}>
+                <span className={styles.spin} />
+              </div>
+            )}
+            {!chatsLoading && chats.length === 0 && (
+              <div className={styles.histEmpty}>{t("chatsEmpty")}</div>
+            )}
+          </div>
         </div>
 
         {/* Body */}
@@ -671,6 +839,12 @@ const AiChatPanel = observer(() => {
           )}
 
           <div className={styles.daySep}>{t("today")}</div>
+
+          {(switchingChat || historyLoading) && messages.length === 0 && (
+            <div className={styles.histLoading}>
+              <span className={styles.spin} />
+            </div>
+          )}
 
           {showGreeting && (
             <div className={styles.aMsg}>
@@ -811,6 +985,51 @@ const AiChatPanel = observer(() => {
             </div>
           )}
 
+          <div className={styles.cbar}>
+            <span className={styles.modelChip}>
+              <StarIcon />
+              {t("modelName")}
+            </span>
+            <button
+              type="button"
+              className={`${styles.tool} ${styles.tip} ${styles.tipUp}`}
+              data-tip={t("attach")}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              aria-label={t("attach")}
+            >
+              {uploading ? <span className={styles.spin} /> : <ClipIcon />}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              hidden
+              onChange={handleFilesSelected}
+            />
+            <div className={styles.cbarRight}>
+              <button
+                type="button"
+                className={`${styles.tool} ${styles.tip} ${styles.tipUp}`}
+                data-tip={t("historyBtn")}
+                onClick={() => setHistoryOpen(true)}
+                aria-label={t("historyBtn")}
+              >
+                <HistoryIcon />
+              </button>
+              <button
+                type="button"
+                className={`${styles.newChatBtn} ${styles.tip} ${styles.tipUp}`}
+                data-tip={t("newChat")}
+                onClick={handleNewChat}
+                disabled={switchingChat}
+                aria-label={t("newChat")}
+              >
+                <NewChatIcon />
+              </button>
+            </div>
+          </div>
+
           <div className={styles.inp}>
             <div
               ref={editorRef}
@@ -829,27 +1048,6 @@ const AiChatPanel = observer(() => {
               onFocus={saveCaret}
             />
             <div className={styles.inpRow}>
-              <button
-                type="button"
-                className={styles.tool}
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                title={t("attach")}
-                aria-label={t("attach")}
-              >
-                {uploading ? <span className={styles.spin} /> : <ClipIcon />}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                hidden
-                onChange={handleFilesSelected}
-              />
-              <span className={styles.modelTag}>
-                <StarIcon />
-                {t("title")}
-              </span>
               <button
                 className={styles.send}
                 onClick={submit}

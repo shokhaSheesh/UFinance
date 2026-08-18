@@ -27,7 +27,16 @@
     "download": "Скачать",
     "fileSent": "отправлено",
     "editingHint": "Изменение сообщения",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "historyTitle": "История чата",
+    "historyBtn": "История",
+    "newChat": "Новый чат",
+    "chatsEmpty": "Пока нет чатов",
+    "group_today": "Сегодня",
+    "group_week": "На этой неделе",
+    "group_month": "В этом месяце",
+    "group_earlier": "Ранее",
+    "modelName": "GPT 5.4"
   },
   "Warehouse": {
     "pageTitle": "Мой склад",

@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   aiChatEditMessage,
   aiChatHistory,
+  aiChatList,
+  aiChatNew,
   aiChatSendMessage,
   buildAiChatContent,
   unwrapAiData,
@@ -180,6 +182,111 @@ const normalizeMessage = (m) => {
 const readChatId = (d) =>
   d?.chat_id || d?.chatId || d?.chat?.id || d?.chat?.guid || d?.ai_chat_id || "";
 
+const CHAT_LIST_LIMIT = 20;
+
+// Строка списка чатов рисуется одной строкой с многоточием, поэтому контент
+// приводим к плоскому тексту: markdown-ссылку заменяем её названием, HTML
+// ответа AI разбираем в текст, переносы схлопываем в пробел.
+const CHAT_PREVIEW_MAX = 300;
+const MD_LINK_TEXT = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+
+const toPlainPreview = (raw) => {
+  let text = readContent(raw);
+  if (!text) return "";
+  text = text.replace(MD_LINK_TEXT, "$1");
+  if (typeof window !== "undefined" && /<[a-z][\s\S]*>/i.test(text)) {
+    try {
+      const doc = new DOMParser().parseFromString(
+        sanitizeAiHtml(text),
+        "text/html"
+      );
+      text = doc.body.textContent || "";
+    } catch {
+      /* оставляем как есть */
+    }
+  }
+  return text.replace(/\s+/g, " ").trim().slice(0, CHAT_PREVIEW_MAX);
+};
+
+// Элемент ai_chat_list → карточка в списке чатов:
+// заголовок — первый вопрос пользователя, описание — первый ответ AI
+const normalizeChat = (c) => ({
+  id: c?.chat_id || c?.id || c?.guid || "",
+  title:
+    toPlainPreview(c?.first_user_message?.content ?? c?.first_user_message) ||
+    c?.title ||
+    c?.name ||
+    "",
+  preview:
+    toPlainPreview(c?.first_ai_message?.content ?? c?.first_ai_message) ||
+    toPlainPreview(c?.last_message) ||
+    "",
+  roomId: c?.live_chat_room_id || "",
+  date:
+    c?.updated_at ||
+    c?.last_message_at ||
+    c?.created_at ||
+    c?.date ||
+    "",
+});
+
+/**
+ * Список чатов пользователя (ai_chat_list) с постраничной подгрузкой.
+ * @param {boolean} enabled — грузим только когда панель истории открыта
+ */
+export function useAiChatList(enabled) {
+  const [chats, setChats] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const pageRef = useRef(1);
+  const busyRef = useRef(false);
+
+  const fetchPage = useCallback(async (page) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setLoading(true);
+    try {
+      const res = await aiChatList({ page, limit: CHAT_LIST_LIMIT });
+      const d = unwrapAiData(res);
+      const raw = Array.isArray(d.chats)
+        ? d.chats
+        : Array.isArray(d.data)
+          ? d.data
+          : Array.isArray(d.items)
+            ? d.items
+            : Array.isArray(d.list)
+              ? d.list
+              : [];
+      const list = raw.map(normalizeChat).filter((c) => c.id);
+      const count = Number(d.pagination?.total) || 0;
+      pageRef.current = page;
+      setTotal((prev) => count || (page === 1 ? list.length : prev));
+      setChats((prev) => (page === 1 ? list : [...prev, ...list]));
+      setHasMore(
+        count ? page * CHAT_LIST_LIMIT < count : list.length >= CHAT_LIST_LIMIT
+      );
+    } catch {
+      if (page === 1) setChats([]);
+    } finally {
+      busyRef.current = false;
+      setLoading(false);
+    }
+  }, []);
+
+  const reload = useCallback(() => fetchPage(1), [fetchPage]);
+  const loadMore = useCallback(() => {
+    if (!hasMore || busyRef.current) return;
+    fetchPage(pageRef.current + 1);
+  }, [fetchPage, hasMore]);
+
+  useEffect(() => {
+    if (enabled) fetchPage(1);
+  }, [enabled, fetchPage]);
+
+  return { chats, total, loading, hasMore, loadMore, reload };
+}
+
 /**
  * Управляет AI-чатом: история, WebSocket-стрим, отправка, polling-фоллбек.
  * @param {boolean} isOpen — открыта ли панель (инициализация лениво, при первом открытии)
@@ -192,6 +299,8 @@ export function useAiChat(isOpen) {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false); // есть ли ещё старые страницы истории
   const [loadingMore, setLoadingMore] = useState(false); // идёт подгрузка старых сообщений
+  const [activeChatId, setActiveChatId] = useState(""); // выбранный чат из ai_chat_list
+  const [switchingChat, setSwitchingChat] = useState(false); // переключение / создание чата
 
   const wsRef = useRef(null);
   const roomIdRef = useRef("");
@@ -211,6 +320,14 @@ export function useAiChat(isOpen) {
 
   const userId = () =>
     authStore?.userData?.guid || authStore?.userData?.id || "";
+
+  // chat_id держим и в ref (для мгновенного чтения в запросах), и в состоянии
+  // (для подсветки активного чата в списке)
+  const applyChatId = useCallback((id) => {
+    if (!id || id === chatIdRef.current) return;
+    chatIdRef.current = id;
+    setActiveChatId(id);
+  }, []);
 
   const emit = (ws, event, payload) => {
     if (ws && ws.readyState === 1) {
@@ -389,15 +506,18 @@ export function useAiChat(isOpen) {
   }, [finalizeReply, stopPolling]);
 
   // ─── Загрузка истории (первая страница — при каждом открытии) ────────
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (chatId) => {
     setHistoryLoading(true);
     pageRef.current = 1;
     try {
-      const res = await aiChatHistory({ page: 1, limit: HISTORY_LIMIT });
+      const res = await aiChatHistory({
+        page: 1,
+        limit: HISTORY_LIMIT,
+        chatId: chatId || chatIdRef.current,
+      });
       const d = unwrapAiData(res);
       const room = d.live_chat_room_id || "";
-      const chatId = readChatId(d);
-      if (chatId) chatIdRef.current = chatId;
+      applyChatId(readChatId(d) || chatId || "");
       const raw = Array.isArray(d.messages) ? d.messages : [];
       // API отдаёт новые→старые (DESC); разворачиваем в старые→новые (сверху вниз)
       const ordered = raw.map(normalizeMessage).reverse();
@@ -414,7 +534,7 @@ export function useAiChat(isOpen) {
     } finally {
       setHistoryLoading(false);
     }
-  }, [connect]);
+  }, [connect, applyChatId]);
 
   // ─── Подгрузка старых сообщений (скролл вверх) ───────────────────────
   const loadMore = useCallback(async () => {
@@ -423,7 +543,11 @@ export function useAiChat(isOpen) {
     setLoadingMore(true);
     const nextPage = pageRef.current + 1;
     try {
-      const res = await aiChatHistory({ page: nextPage, limit: HISTORY_LIMIT });
+      const res = await aiChatHistory({
+        page: nextPage,
+        limit: HISTORY_LIMIT,
+        chatId: chatIdRef.current,
+      });
       const d = unwrapAiData(res);
       const raw = Array.isArray(d.messages) ? d.messages : [];
       // страница тоже DESC → разворачиваем; вся страница старше текущих — добавляем сверху
@@ -472,8 +596,7 @@ export function useAiChat(isOpen) {
           chatId: chatIdRef.current,
         });
         const d = unwrapAiData(res);
-        const chatId = readChatId(d);
-        if (chatId) chatIdRef.current = chatId;
+        applyChatId(readChatId(d));
         const room = d.live_chat_room_id || roomIdRef.current;
         if (room) {
           roomIdRef.current = room;
@@ -494,7 +617,7 @@ export function useAiChat(isOpen) {
         ]);
       }
     },
-    [connect, startPolling]
+    [connect, startPolling, applyChatId]
   );
 
   // ─── Редактирование отправленного сообщения ─────────────────────────
@@ -524,8 +647,7 @@ export function useAiChat(isOpen) {
       try {
         const res = await aiChatEditMessage({ id: messageId, content });
         const d = unwrapAiData(res);
-        const chatId = readChatId(d);
-        if (chatId) chatIdRef.current = chatId;
+        applyChatId(readChatId(d));
         const room = d.live_chat_room_id || roomIdRef.current;
         if (room) {
           roomIdRef.current = room;
@@ -548,8 +670,77 @@ export function useAiChat(isOpen) {
         return false;
       }
     },
-    [connect, startPolling]
+    [connect, startPolling, applyChatId]
   );
+
+  // ─── Переключение и создание чатов ──────────────────────────────────
+  // Комната WS привязана к чату: при переходе отпускаем старую, новую даёт
+  // ответ ai_chat_history. Сбрасываем roomId до close(), иначе onclose
+  // попытается переподключиться к покинутому чату.
+  const leaveRoom = useCallback(() => {
+    stopPolling();
+    awaitingReplyRef.current = false;
+    streamRef.current = "";
+    setStreamingText(null);
+    setIsAwaiting(false);
+    roomIdRef.current = "";
+    joinedRef.current = false;
+    if (reconnectRef.current) clearTimeout(reconnectRef.current);
+    try {
+      wsRef.current?.close();
+    } catch {
+      /* noop */
+    }
+    wsRef.current = null;
+    setConnected(false);
+  }, [stopPolling]);
+
+  // Открыть чат из списка
+  const selectChat = useCallback(
+    async (chatId) => {
+      if (!chatId || chatId === chatIdRef.current) return;
+      setSwitchingChat(true);
+      leaveRoom();
+      setMessages([]);
+      setHasMore(false);
+      hasMoreRef.current = false;
+      pageRef.current = 1;
+      applyChatId(chatId);
+      try {
+        await loadHistory(chatId);
+      } finally {
+        setSwitchingChat(false);
+      }
+    },
+    [applyChatId, leaveRoom, loadHistory]
+  );
+
+  // Новый чат: ai_chat_new отдаёт chat_id, дальше он уходит в send
+  const newChat = useCallback(async () => {
+    setSwitchingChat(true);
+    leaveRoom();
+    setMessages([]);
+    setHasMore(false);
+    hasMoreRef.current = false;
+    pageRef.current = 1;
+    chatIdRef.current = "";
+    setActiveChatId("");
+    try {
+      const res = await aiChatNew();
+      const d = unwrapAiData(res);
+      applyChatId(readChatId(d));
+      const room = d.live_chat_room_id || "";
+      if (room) {
+        roomIdRef.current = room;
+        connect(room);
+      }
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setSwitchingChat(false);
+    }
+  }, [applyChatId, connect, leaveRoom]);
 
   // перезагружаем историю при каждом открытии; при закрытии тоже дёргаем history
   useEffect(() => {
@@ -598,5 +789,9 @@ export function useAiChat(isOpen) {
     send,
     edit,
     suggestions,
+    activeChatId,
+    switchingChat,
+    selectChat,
+    newChat,
   };
 }

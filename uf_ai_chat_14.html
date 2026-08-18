@@ -70,9 +70,35 @@
   .arrow{color:var(--muted);font-size:15px}
 
   /* ===== AI CHAT PANEL ===== */
-  .chat{width:420px;flex-shrink:0;background:var(--cream);border-left:1px solid var(--hair);display:flex;flex-direction:column;
+  .chat{width:420px;flex-shrink:0;background:var(--cream);border-left:1px solid var(--hair);display:flex;flex-direction:column;position:relative;
         transition:margin-right .32s cubic-bezier(.4,0,.2,1),opacity .25s;box-shadow:-10px 0 40px rgba(38,32,25,.06)}
   .chat.closed{margin-right:-421px;opacity:0;pointer-events:none}
+
+  /* filled new-chat button */
+  .newchat-btn{width:30px;height:30px;border-radius:8px;background:var(--coral);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;flex-shrink:0}
+  .newchat-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .newchat-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+
+  /* ===== chat history list (overlay) ===== */
+  .history{position:absolute;inset:0;background:var(--cream);z-index:60;display:flex;flex-direction:column;
+           transform:translateX(14px);opacity:0;pointer-events:none;transition:transform .24s cubic-bezier(.4,0,.2,1),opacity .2s}
+  .history.open{transform:none;opacity:1;pointer-events:auto}
+  .hist-head{padding:16px 18px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--hair)}
+  .hist-head h3{font-size:15px;font-weight:700;color:var(--ink)}
+  .hist-head .cnt{color:var(--muted-2);font-weight:500;font-size:13px;margin-left:2px}
+  .hist-head .x{margin-left:auto}
+  .hist-newbtn{margin:12px 12px 4px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:12px;
+               background:var(--coral);color:#fff;border:none;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s}
+  .hist-newbtn:hover{filter:brightness(1.06)}
+  .hist-newbtn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.2}
+  .hist-list{flex:1;overflow-y:auto;padding:4px 8px 16px}
+  .hist-list::-webkit-scrollbar{width:7px}
+  .hist-list::-webkit-scrollbar-thumb{background:#d3d8e2;border-radius:4px}
+  .hist-group{font-size:11px;color:var(--muted-2);padding:14px 12px 6px;font-weight:600}
+  .hist-item{padding:10px 12px;border-radius:11px;cursor:pointer;transition:.13s}
+  .hist-item:hover{background:var(--cream-2)}
+  .hist-title{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hist-preview{font-size:12px;color:var(--ink-soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   .chat-head{padding:16px 18px 14px;display:flex;align-items:center;gap:12px;background:transparent}
   .brand{width:32px;height:32px;border-radius:9px;background:var(--coral);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -122,6 +148,10 @@
     border:5px solid transparent;border-bottom-color:#2a2d38;opacity:0;transition:opacity .14s;z-index:30}
   [data-tip]:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
   [data-tip]:hover::before{opacity:1}
+  /* tooltip above (for composer bar buttons) */
+  .tip-up[data-tip]::after{top:auto;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(-4px)}
+  .tip-up[data-tip]::before{top:auto;bottom:calc(100% + 2px);border-bottom-color:transparent;border-top-color:#2a2d38}
+  .tip-up[data-tip]:hover::after{transform:translateX(-50%) translateY(0)}
 
   /* ===== file cards (sent & received) ===== */
   .file-card{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--hair);border-radius:13px;background:var(--paper)}
@@ -181,7 +211,13 @@
   .tool{width:32px;height:32px;flex-shrink:0;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
   .tool svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7}
   .tool:hover{background:var(--cream-2);color:var(--ink)}
-  .model-tag{font-size:11.5px;color:var(--muted-2);margin-left:2px;display:flex;align-items:center;gap:5px}
+
+  /* composer top toolbar — OUTSIDE the input box */
+  .cbar{display:flex;align-items:center;gap:6px;padding:0 2px 9px}
+  .model-chip{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--cream-2);padding:5px 10px;border-radius:9px}
+  .model-chip svg{width:13px;height:13px;fill:var(--coral)}
+  .cbar-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+
   .send{margin-left:auto;width:34px;height:34px;border-radius:10px;background:var(--coral);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:.15s}
   .send:hover{filter:brightness(1.06)}
   .send svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2}
@@ -248,11 +284,48 @@
             <div class="chat-title">UF <span class="n">Assistant</span></div>
             <div class="chat-sub"><span class="dot-online"></span> Готов помочь с финансами</div>
           </div>
-          <div class="hicon" title="Новый чат">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-          <div class="hicon x" onclick="toggleChat()" title="Закрыть">
+          <div class="hicon x" onclick="toggleChat()" data-tip="Закрыть">
             <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+
+        <!-- ===== chat history list overlay ===== -->
+        <div class="history" id="history">
+          <div class="hist-head">
+            <h3>История чата <span class="cnt">(5)</span></h3>
+            <div class="hicon x" data-tip="Закрыть" onclick="closeHistory()">
+              <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </div>
+          </div>
+          <button class="hist-newbtn" onclick="newChat();closeHistory()">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Новый чат
+          </button>
+          <div class="hist-list">
+            <div class="hist-group">На этой неделе</div>
+            <div class="hist-item" onclick="closeHistory()">
+              <div class="hist-title">Долги по контрагентам</div>
+              <div class="hist-preview">Собрал сводку по задолженностям — файл готов…</div>
+            </div>
+            <div class="hist-item" onclick="closeHistory()">
+              <div class="hist-title">Итог по кассе за июль</div>
+              <div class="hist-preview">Сальдо дня: -212 000 so'm, 5 операций…</div>
+            </div>
+
+            <div class="hist-group">В этом месяце</div>
+            <div class="hist-item" onclick="closeHistory()">
+              <div class="hist-title">Бюджет движения денег</div>
+              <div class="hist-preview">Pul oqimlari byudjeti bo'yicha tahlil…</div>
+            </div>
+            <div class="hist-item" onclick="closeHistory()">
+              <div class="hist-title">Топ расходов месяца</div>
+              <div class="hist-preview">Крупнейшие расходы: LAVITA, Zakup…</div>
+            </div>
+
+            <div class="hist-group">Ранее</div>
+            <div class="hist-item" onclick="closeHistory()">
+              <div class="hist-title">Дебиторы и кредиторы</div>
+              <div class="hist-preview">Список должников и кредиторов по счетам…</div>
+            </div>
           </div>
         </div>
 
@@ -347,13 +420,28 @@
         </div>
 
         <div class="composer">
+          <!-- toolbar OUTSIDE the input box -->
+          <div class="cbar">
+            <span class="model-chip">
+              <svg viewBox="0 0 24 24"><path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/></svg>
+              GPT 5.4
+            </span>
+            <button class="tool tip-up" data-tip="Прикрепить файл" onclick="attachDemo()">
+              <svg viewBox="0 0 24 24"><path d="M21 11.5l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a1.5 1.5 0 01-2-2l8-8"/></svg>
+            </button>
+            <div class="cbar-right">
+              <button class="tool tip-up" data-tip="История" onclick="openHistory()">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </button>
+              <button class="newchat-btn tip-up" data-tip="Новый чат" onclick="newChat()">
+                <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 01-11.5 7.2L4 20.5l1.3-4.4A8 8 0 1120 12z"/><path d="M12 9v6M9 12h6"/></svg>
+              </button>
+            </div>
+          </div>
+
           <div class="inp">
             <textarea id="chatInput" rows="1" placeholder="Спросите о финансах…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
             <div class="inp-row">
-              <button class="tool" title="Прикрепить файл" onclick="attachDemo()">
-                <svg viewBox="0 0 24 24"><path d="M21 11.5l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a1.5 1.5 0 01-2-2l8-8"/></svg>
-              </button>
-              <span class="model-tag">✦ UF&nbsp;Assistant</span>
               <button class="send" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
             </div>
           </div>
@@ -397,6 +485,16 @@
     var closed=panel.classList.toggle('closed');
     btn.classList.toggle('on', !closed);
     if(!closed) setTimeout(function(){document.getElementById('chatInput').focus();},280);
+  }
+  function openHistory(){document.getElementById('history').classList.add('open');}
+  function closeHistory(){document.getElementById('history').classList.remove('open');}
+  function newChat(){
+    var b=document.getElementById('chatBody');
+    b.innerHTML='<div class="day-sep">Сегодня</div>'+
+      '<div class="a-msg">'+mono+'<div class="a-text">Здравствуйте! Я помогу разобраться с операциями, счетами и сделками. Спросите что-нибудь.'+botActs+'</div></div>';
+    document.getElementById('suggests').classList.remove('hidden');
+    document.getElementById('chatInput').focus();
+    scrollBottom();
   }
   function scrollBottom(){var b=document.getElementById('chatBody');b.scrollTop=b.scrollHeight;}
   function addUser(t){
@@ -475,7 +573,9 @@
     },2200);
   }
   document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'&&!document.getElementById('chatPanel').classList.contains('closed'))toggleChat();
+    if(e.key!=='Escape')return;
+    if(document.getElementById('history').classList.contains('open')){closeHistory();return;}
+    if(!document.getElementById('chatPanel').classList.contains('closed'))toggleChat();
   });
 </script>
 </body>

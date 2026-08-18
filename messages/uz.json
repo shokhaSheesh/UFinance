@@ -27,7 +27,16 @@
     "download": "Yuklab olish",
     "fileSent": "yuborildi",
     "editingHint": "Xabarni o'zgartirish",
-    "cancel": "Bekor qilish"
+    "cancel": "Bekor qilish",
+    "historyTitle": "Chat tarixi",
+    "historyBtn": "Tarix",
+    "newChat": "Yangi chat",
+    "chatsEmpty": "Hozircha chatlar yo'q",
+    "group_today": "Bugun",
+    "group_week": "Shu hafta",
+    "group_month": "Shu oyda",
+    "group_earlier": "Avvalroq",
+    "modelName": "GPT 5.4"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",
