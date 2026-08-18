@@ -5,7 +5,6 @@ import { useAiChat, useAiChatList, sanitizeAiHtml } from "@/hooks/useAiChat";
 import {
   AI_CHAT_MAX_FILES,
   AI_CHAT_MAX_FILE_SIZE,
-  splitAiFileTokens,
   uploadAiChatFile,
 } from "@/lib/api/ucode/aiChat";
 import { showErrorNotification } from "@/lib/utils/notifications";
@@ -223,30 +222,9 @@ const renderTextWithLinks = (text, keyBase) => {
   return nodes;
 };
 
-// Текст сообщения пользователя: {filename} заменяем на ссылку на файл (по порядку),
-// неиспользованные файлы показываем чипами сверху.
-const UserText = ({ content, files }) => {
-  const atts = Array.isArray(files) ? files : [];
-  const parts = splitAiFileTokens(content);
-  const inline = [];
-  let fi = 0;
-  parts.forEach((part, idx) => {
-    if (part) inline.push(...renderTextWithLinks(part, `p${idx}`));
-    if (idx < parts.length - 1) {
-      const file = atts[fi];
-      fi += 1;
-      inline.push(
-        file ? (
-          <InlineFile key={`f${idx}`} file={file} />
-        ) : (
-          // плейсхолдер без файла — оставляем текст как есть
-          <span key={`f${idx}`}>{"{filename}"}</span>
-        )
-      );
-    }
-  });
-  return <>{inline}</>;
-};
+// Текст сообщения пользователя. Файлы теперь уходят отдельным полем, но в
+// старых сообщениях ссылки лежат прямо в тексте — их оставляем кликабельными.
+const UserText = ({ content }) => <>{renderTextWithLinks(content, "u")}</>;
 
 // ─── Кнопки под сообщением (копировать / изменить) ───────────────────────
 const MsgActions = ({ getText, onEdit, t }) => {
@@ -305,42 +283,6 @@ const htmlToText = (html) => {
   return (doc.body.textContent || "").trim();
 };
 
-// SVG-иконка скрепки для чипа файла в композере (статическая строка — без XSS)
-const CLIP_SVG =
-  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>';
-
-// Экранируем URL так, чтобы он не ломал markdown-ссылку [имя](url):
-// пробел → %20, ) → %29 (эти символы завершают разбор url).
-const mdSafeUrl = (url) =>
-  String(url || "")
-    .replace(/ /g, "%20")
-    .replace(/\)/g, "%29");
-
-// Сериализация contentEditable-композера: текст как есть, чипы файлов → [имя](url),
-// переводы строк (br / блочные div) → \n.
-const serializeEditor = (root) => {
-  if (!root) return "";
-  let out = "";
-  const walk = (node) => {
-    node.childNodes.forEach((n) => {
-      if (n.nodeType === 3) {
-        out += n.textContent;
-      } else if (n.nodeName === "BR") {
-        out += "\n";
-      } else if (n.nodeType === 1 && n.getAttribute?.("data-file-url")) {
-        const name = n.getAttribute("data-file-name") || n.textContent;
-        out += `[${name}](${mdSafeUrl(n.getAttribute("data-file-url"))})`;
-      } else if (n.nodeType === 1) {
-        // блочные обёртки строк (браузер оборачивает строки в div)
-        if (/^(DIV|P)$/.test(n.nodeName) && out && !out.endsWith("\n")) out += "\n";
-        walk(n);
-      }
-    });
-  };
-  walk(root);
-  return out.replace(/ /g, " "); // NBSP (вокруг чипов) → обычный пробел
-};
-
 // Изменение ширины панели перетаскиванием
 const MIN_W = 340;
 const MAX_W = 860;
@@ -390,14 +332,14 @@ const AiChatPanel = observer(() => {
   } = useAiChatList(isOpen && historyOpen);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-  const [draft, setDraft] = useState(""); // сериализованный текст композера (для disabled)
+  const [draft, setDraft] = useState(""); // текст в поле ввода
+  const [attachments, setAttachments] = useState([]); // вложения текущего сообщения
   const [editing, setEditing] = useState(null); // { messageId } — правка отправленного сообщения
   const [panelWidth, setPanelWidth] = useState(DEFAULT_W);
   const [resizing, setResizing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const bodyRef = useRef(null);
-  const editorRef = useRef(null); // contentEditable-композер (текст + чипы файлов)
-  const savedRangeRef = useRef(null); // последняя позиция курсора в композере
+  const editorRef = useRef(null); // textarea композера
   const widthRef = useRef(DEFAULT_W);
   const fileInputRef = useRef(null);
   const prependingRef = useRef(false); // идёт подгрузка старых — сохраняем позицию скролла
@@ -490,133 +432,61 @@ const AiChatPanel = observer(() => {
     }
   }, [isOpen, mounted]);
 
-  // ─── contentEditable-композер ───────────────────────────────────────
+  // ─── Композер ───────────────────────────────────────────────────────
 
-  // запоминаем позицию курсора (нужна для вставки чипа после клика по скрепке)
-  const saveCaret = () => {
-    const sel = window.getSelection();
-    if (
-      sel &&
-      sel.rangeCount > 0 &&
-      editorRef.current?.contains(sel.anchorNode)
-    ) {
-      savedRangeRef.current = sel.getRangeAt(0).cloneRange();
-    }
+  // textarea растёт под текст до максимума из стилей
+  const autoGrow = (el) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
   };
 
-  const syncDraft = () => setDraft(serializeEditor(editorRef.current));
-
-  const onEditorInput = () => {
-    const el = editorRef.current;
-    // пустой contentEditable оставляет <br> — чистим, чтобы работал placeholder (:empty)
-    if (el && (el.innerHTML === "<br>" || el.innerHTML === "<div><br></div>")) {
-      el.innerHTML = "";
-    }
-    saveCaret();
-    syncDraft();
-  };
-
-  // вставка только плоского текста (без форматирования из буфера)
-  const onEditorPaste = (e) => {
-    e.preventDefault();
-    const text = e.clipboardData?.getData("text/plain") || "";
-    document.execCommand("insertText", false, text);
-  };
-
-  // клик по чипу файла в композере → открыть файл
-  const onEditorClick = (e) => {
-    const chip = e.target.closest?.("a[data-file-url]");
-    if (chip) {
-      e.preventDefault();
-      window.open(chip.getAttribute("data-file-url"), "_blank", "noopener");
-    }
-  };
-
-  const chipCount = () =>
-    editorRef.current?.querySelectorAll("a[data-file-url]").length || 0;
-
-  // Вставляет синие чипы-ссылки файлов на позицию курсора (атомарные, contenteditable=false)
-  const insertChips = (files) => {
-    const editor = editorRef.current;
-    if (!editor || !files.length) return;
-    editor.focus();
-    let range = savedRangeRef.current;
-    if (!range || !editor.contains(range.commonAncestorContainer)) {
-      range = document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false); // курсор неизвестен — вставляем в конец
-    }
-    range.deleteContents();
-    files.forEach((f) => {
-      const a = document.createElement("a");
-      a.href = f.url;
-      a.target = "_blank";
-      a.rel = "noreferrer";
-      a.contentEditable = "false";
-      a.setAttribute("data-file-url", f.url);
-      a.setAttribute("data-file-name", f.name);
-      a.className = styles.chipLink;
-      a.insertAdjacentHTML("beforeend", CLIP_SVG); // статичный SVG — безопасно
-      const label = document.createElement("span");
-      label.textContent = f.name; // имя как текст — без XSS
-      a.appendChild(label);
-      range.insertNode(a);
-      range.setStartAfter(a);
-      range.collapse(true);
-      const space = document.createTextNode(" "); // пробел, чтобы печатать дальше
-      range.insertNode(space);
-      range.setStartAfter(space);
-      range.collapse(true);
-    });
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    savedRangeRef.current = range.cloneRange();
-    syncDraft();
+  const onDraftChange = (e) => {
+    setDraft(e.target.value);
+    autoGrow(e.target);
   };
 
   const clearComposer = () => {
-    if (editorRef.current) editorRef.current.innerHTML = "";
-    savedRangeRef.current = null;
     setDraft("");
+    setAttachments([]);
     setEditing(null);
+    if (editorRef.current) editorRef.current.style.height = "auto";
   };
 
   const submit = () => {
-    const content = serializeEditor(editorRef.current).trim();
-    if (!content) return;
+    const content = draft.trim();
+    if (!content && attachments.length === 0) return;
     // правка отправленного сообщения → ai_chat_edit_message, иначе обычная отправка
-    if (editing?.messageId) edit(editing.messageId, content);
-    else send(content); // чипы уже сериализованы в [имя](url) на своих местах
+    if (editing?.messageId) edit(editing.messageId, content, attachments);
+    else send(content, attachments);
     clearComposer();
   };
 
-  // «Изменить» под своим сообщением: текст возвращается в поле ввода.
-  // Если у сообщения есть guid из истории — уходит правка, иначе просто отправим заново.
+  // «Изменить» под своим сообщением: текст и файлы возвращаются в композер.
+  // Если у сообщения есть guid из истории — уходит правка, иначе отправим заново.
   const startEdit = (m) => {
-    const el = editorRef.current;
-    if (!el) return;
-    el.innerHTML = "";
-    el.textContent = m.content;
-    setDraft(m.content);
+    setDraft(m.content || "");
+    setAttachments(Array.isArray(m.files) ? m.files : []);
     setEditing(m.messageId ? { messageId: m.messageId } : null);
-    el.focus();
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    savedRangeRef.current = range.cloneRange();
+    setTimeout(() => {
+      const el = editorRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+      autoGrow(el);
+    }, 0);
   };
 
-  // загрузка файлов → ссылки на CDN
+  const removeAttachment = (url) =>
+    setAttachments((prev) => prev.filter((f) => f.url !== url));
+
+  // загрузка файлов → ссылки на CDN, вложения уходят отдельным полем files
   const handleFilesSelected = async (e) => {
     const picked = Array.from(e.target.files || []);
     e.target.value = ""; // чтобы можно было выбрать тот же файл повторно
     if (!picked.length) return;
 
-    const slots = AI_CHAT_MAX_FILES - chipCount();
+    const slots = AI_CHAT_MAX_FILES - attachments.length;
     if (slots <= 0) {
       showErrorNotification(t("filesMax", { max: AI_CHAT_MAX_FILES }));
       return;
@@ -639,7 +509,7 @@ const AiChatPanel = observer(() => {
           showErrorNotification(t("fileUploadError"));
         }
       }
-      if (done.length) insertChips(done); // чип файла встаёт в текст там, где курсор
+      if (done.length) setAttachments((prev) => [...prev, ...done]);
     } finally {
       setUploading(false);
     }
@@ -905,16 +775,24 @@ const AiChatPanel = observer(() => {
 
           {messages.map((m) => {
             if (m.role === "user") {
+              // Файл всегда показываем карточкой, отдельно от текста: ссылки
+              // из текста вырезаем и объединяем с полем files (дубли по url).
               const { links, stripped } = extractLinks(m.content);
-              const onlyFiles = links.length > 0 && !stripped;
+              const seen = new Set();
+              const files = [...(m.files || []), ...links].filter((f) => {
+                if (!f?.url || seen.has(f.url)) return false;
+                seen.add(f.url);
+                return true;
+              });
+              const text = stripped;
               return (
                 <div className={styles.uMsg} key={m.id}>
-                  {onlyFiles ? (
-                    <div className={styles.uFile}>
-                      {links.map((f, i) => (
+                  {files.length > 0 && (
+                    <div className={styles.msgFiles}>
+                      {files.map((file, i) => (
                         <FileCard
-                          key={i}
-                          file={f}
+                          key={file.url || i}
+                          file={file}
                           note={
                             <>
                               <span className={styles.fileOk}>✓</span>
@@ -925,9 +803,10 @@ const AiChatPanel = observer(() => {
                         />
                       ))}
                     </div>
-                  ) : (
+                  )}
+                  {text && (
                     <div className={styles.bubble}>
-                      <UserText content={m.content} files={m.files} />
+                      <UserText content={text} />
                     </div>
                   )}
                   <MsgActions
@@ -953,6 +832,17 @@ const AiChatPanel = observer(() => {
                     />
                   ) : (
                     m.content
+                  )}
+                  {m.files?.length > 0 && (
+                    <div className={styles.msgFiles}>
+                      {m.files.map((file, i) => (
+                        <FileCard
+                          key={file.url || i}
+                          file={file}
+                          downloadLabel={t("download")}
+                        />
+                      ))}
+                    </div>
                   )}
                   <MsgActions
                     t={t}
@@ -1079,27 +969,42 @@ const AiChatPanel = observer(() => {
           </div>
 
           <div className={styles.inp}>
-            <div
+            {/* прикреплённые файлы — отдельно от текста, уходят полем files */}
+            {attachments.length > 0 && (
+              <div className={styles.attachRow}>
+                {attachments.map((file) => (
+                  <span className={styles.attachChip} key={file.url}>
+                    <ClipIcon />
+                    <span className={styles.attachName} title={file.name}>
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.attachRemove}
+                      onClick={() => removeAttachment(file.url)}
+                      aria-label={t("close")}
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <textarea
               ref={editorRef}
               className={styles.editor}
-              contentEditable
-              role="textbox"
-              aria-multiline="true"
+              rows={1}
+              value={draft}
+              placeholder={t("placeholder")}
               aria-label={t("placeholder")}
-              data-placeholder={t("placeholder")}
-              onInput={onEditorInput}
+              onChange={onDraftChange}
               onKeyDown={onKeyDown}
-              onKeyUp={saveCaret}
-              onMouseUp={saveCaret}
-              onPaste={onEditorPaste}
-              onClick={onEditorClick}
-              onFocus={saveCaret}
             />
             <div className={styles.inpRow}>
               <button
                 className={styles.send}
                 onClick={submit}
-                disabled={!draft.trim() || uploading}
+                disabled={(!draft.trim() && attachments.length === 0) || uploading}
                 aria-label={t("send")}
               >
                 <SendIcon />

@@ -53,9 +53,9 @@ const DebtChart = observer(({ type }) => {
 
   const filterData = useMemo(
     () => ({
-      // бэкенд сортировать не умеет — сортируем на клиенте, поэтому флаг постоянный
-      // и смена сортировки не вызывает новый запрос
-      expired: true,
+      // «Просроченная» — отдельная выборка на бэке, поэтому смена сортировки
+      // меняет queryKey и данные перезапрашиваются
+      expired: debtsSort === 'expired',
       period_from: rangeMonth?.start ? moment(rangeMonth.start).format('YYYY-MM-DD') : null,
       period_to: rangeMonth?.end ? moment(rangeMonth.end).format('YYYY-MM-DD') : null,
       period_type: periodType,
@@ -64,7 +64,7 @@ const DebtChart = observer(({ type }) => {
       sellingDealId: deals,
       currencyCode,
     }),
-    [rangeMonth?.start, rangeMonth?.end, periodType, currencyCode, debtsLegalEntities, projects, deals]
+    [rangeMonth?.start, rangeMonth?.end, periodType, currencyCode, debtsLegalEntities, projects, deals, debtsSort]
   )
 
   const { data, isLoading, isFetching } = useQuery({

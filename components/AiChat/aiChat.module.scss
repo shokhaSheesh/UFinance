@@ -549,18 +549,19 @@ $red: #e5484d;
 .fileCard {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 12px 14px;
   border: 1px solid $hair;
-  border-radius: 13px;
+  border-radius: 14px;
   background: $paper;
   text-decoration: none;
   min-width: 0;
+  width: 100%;
 }
 .fileIc {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -592,7 +593,7 @@ $red: #e5484d;
   flex: 1;
 }
 .fileName {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: $ink;
   white-space: nowrap;
@@ -600,7 +601,7 @@ $red: #e5484d;
   text-overflow: ellipsis;
 }
 .fileSub {
-  font-size: 11px;
+  font-size: 11.5px;
   color: $muted-2;
   margin-top: 2px;
   display: flex;
@@ -611,9 +612,9 @@ $red: #e5484d;
   color: $green;
 }
 .fileDl {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   border: 1px solid $hair;
   background: $paper;
   color: $blue;
@@ -636,21 +637,22 @@ $red: #e5484d;
   }
 }
 
-/* файл, отправленный пользователем — справа */
-.uFile {
-  align-self: flex-end;
-  max-width: 80%;
-  width: 260px;
-  .fileCard {
-    background: $blue-soft;
-    border-color: #d3e0ff;
-  }
-}
+/* файлы сообщения: карточки во всю ширину блока */
 .msgFiles {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin-bottom: 7px;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+/* отправленные пользователем — на синей подложке, как в макете */
+.uMsg .msgFiles .fileCard {
+  background: $blue-soft;
+  border-color: #d3e0ff;
+}
+/* пришедшие от AI — под текстом ответа */
+.aText .msgFiles {
+  margin: 11px 0 0;
 }
 
 /* ссылка на файл внутри текста сообщения */
@@ -816,24 +818,78 @@ $red: #e5484d;
     box-shadow: 0 3px 16px rgba(47, 107, 255, 0.12);
   }
 }
-/* contentEditable-композер: текст + чипы-ссылки файлов */
 .editor {
+  width: 100%;
   min-height: 22px;
   max-height: 110px;
   overflow-y: auto;
+  border: none;
   outline: none;
+  resize: none;
+  background: transparent;
   font: inherit;
   font-size: 14px;
   line-height: 1.5;
   padding: 2px 4px;
   color: $ink;
-  white-space: pre-wrap;
-  word-break: break-word;
-  cursor: text;
-  &:empty::before {
-    content: attr(data-placeholder);
+  &::placeholder {
     color: $muted-2;
-    pointer-events: none;
+  }
+}
+
+/* прикреплённые файлы внутри поля ввода */
+.attachRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 2px 2px;
+}
+.attachChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 5px 6px 5px 9px;
+  border-radius: 9px;
+  background: $blue-soft;
+  color: $blue;
+  font-size: 12.5px;
+  font-weight: 500;
+  svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+  }
+}
+.attachName {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachRemove {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: $blue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.13s;
+  &:hover {
+    background: #d3e0ff;
+  }
+  svg {
+    width: 11px;
+    height: 11px;
+    stroke-width: 2.4;
   }
 }
 .inpRow {
@@ -945,44 +1001,6 @@ $red: #e5484d;
   }
 }
 
-.chipLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  vertical-align: middle;
-  max-width: 240px;
-  margin: 0 1px;
-  padding: 2px 8px 2px 6px;
-  border-radius: 8px;
-  background: $blue-soft;
-  color: $blue;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.35;
-  text-decoration: none;
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-  transition: background 0.14s;
-  &:hover {
-    background: #dce6ff;
-  }
-  svg {
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
 
 .spin {
   width: 16px;

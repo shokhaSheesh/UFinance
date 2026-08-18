@@ -179,7 +179,6 @@ const CreateProductService = ({
     const newErrors = {}
     if (!formData.product_and_service_id) newErrors.product_and_service_id = t('productRequired')
     if (!formData.quantity) newErrors.quantity = t('quantityRequired')
-    if (!formData.tsena_za_ed) newErrors.tsena_za_ed = t('priceRequired')
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -309,9 +308,7 @@ const CreateProductService = ({
 
           {/* Цена за ед. */}
           <div className="mb-2">
-            <label className={styles.label}>
-              {t('price')} <span className={styles.required}>*</span>
-            </label>
+            <label className={styles.label}>{t('price')}</label>
             <Input
               type='text'
               value={formatAmountInput(formData.tsena_za_ed)}

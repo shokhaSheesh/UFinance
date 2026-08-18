@@ -25,7 +25,7 @@ class Indicators {
   paymentStructureMethod = 'income_expenses' // receipts_payments | income_expenses
 
   // Долги (дебиторка/кредиторка с поставщиками)
-  debtsSort = 'expired' // expired | total | name
+  debtsSort = 'total' // total | expired
   debtsLegalEntities = []
   debtsShowValues = true // подписи сумм на графиках
   debtsRounding = 'none' // 'none' | '3' | '6' | '9' — на сколько знаков округлять
@@ -46,7 +46,8 @@ class Indicators {
           "rangeMonth",
           "paymentStructureMethod",
           "profitableclientsMethod",
-          "debtsSort",
+          // debtsSort намеренно не персистим: у тех, кто уже пользовался блоком,
+          // в localStorage лежит прежний дефолт 'expired' и «Общая» бы не включилась
           "debtsLegalEntities",
           "debtsShowValues",
           "debtsRounding"
@@ -70,7 +71,7 @@ class Indicators {
     this.projects = []
     this.rangeMonth = defaultDateRange
     this.debtsLegalEntities = []
-    this.debtsSort = 'expired'
+    this.debtsSort = 'total'
   }
   resetMonth = () => {
     this.rangeMonth = defaultDateRange

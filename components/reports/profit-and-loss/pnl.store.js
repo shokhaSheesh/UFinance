@@ -24,7 +24,7 @@ class PnLStore {
 	dateRange = getDefaultDateRange()
 	selectedPeriod = 'all'
 	selectedGrouping = 'monthly'
-	isCalculation = 'cash'
+	isCalculation = 'accrual'
 	operational = false
 	ebitda = false
 	ebit = false
@@ -53,7 +53,8 @@ class PnLStore {
 					'selectedGrouping',
 					'deals',
 					'selectedProjects',
-					'isCalculation',
+					// isCalculation не персистим: у тех, кто уже открывал отчёт,
+					// в localStorage лежит прежний дефолт 'cash'
 					'dateRange',
 					'dateRangeType'
 				],
@@ -119,7 +120,7 @@ class PnLStore {
 		this.dateRange = getDefaultDateRange()
 		this.selectedPeriod = 'all'
 		this.selectedGrouping = 'monthly'
-		this.isCalculation = 'cash'
+		this.isCalculation = 'accrual'
 		this.operational = false
 		this.ebitda = false
 		this.ebit = false

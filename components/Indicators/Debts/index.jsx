@@ -45,9 +45,9 @@ const Debts = observer(() => {
           <Field label={t('debts.sort.label')} className="w-[190px]">
             <SingleSelect
               data={sortOptions}
-              // в сторе мог остаться режим из прошлой версии — показываем «Просроченная»
-              value={debtsSort === 'total' ? 'total' : 'expired'}
-              onChange={(value) => setState('debtsSort', value || 'expired')}
+              // в сторе мог остаться режим из прошлой версии — показываем «Общая»
+              value={debtsSort === 'expired' ? 'expired' : 'total'}
+              onChange={(value) => setState('debtsSort', value || 'total')}
               withSearch={false}
               isClearable={false}
               className="bg-neutral-50/50"

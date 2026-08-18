@@ -27,7 +27,7 @@ export function usePnLData(t) {
   } = pnlStore
 
   // Hydration-safe values
-  const safeIsCalculation = mounted ? isCalculation : 'cash'
+  const safeIsCalculation = mounted ? isCalculation : 'accrual'
   const safeSelectedGrouping = mounted ? selectedGrouping : 'monthly'
   const safeSelectedCurrency = mounted ? selectedCurrency : null
 

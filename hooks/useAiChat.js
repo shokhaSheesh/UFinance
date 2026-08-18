@@ -9,7 +9,6 @@ import {
   aiChatList,
   aiChatNew,
   aiChatSendMessage,
-  buildAiChatContent,
   unwrapAiData,
 } from "@/lib/api/ucode/aiChat";
 import { aiChatStore } from "@/store/aiChat.store";
@@ -174,6 +173,7 @@ const normalizeMessage = (m) => {
     messageId,
     role,
     content: html,
+    files: readFiles(m),
     isHtml: true,
     suggestions: fromFields.length ? fromFields : suggestions,
   };
@@ -592,7 +592,7 @@ export function useAiChat(isOpen) {
   const send = useCallback(
     async (text, files = []) => {
       const content = String(text || "").trim();
-      const atts = Array.isArray(files) ? files : [];
+      const atts = (Array.isArray(files) ? files : []).filter((f) => f?.url);
       if (!content && atts.length === 0) return;
 
       // чат использовали → при закрытии панели обновим данные текущей страницы
@@ -607,12 +607,10 @@ export function useAiChat(isOpen) {
       setStreamingText(null);
       awaitingReplyRef.current = true;
 
-      // AI получает текст со ссылками: {filename} → [name](url), остальные — в конец
-      const apiContent = buildAiChatContent(content, atts);
-
       try {
         const res = await aiChatSendMessage({
-          content: apiContent,
+          content,
+          files: atts,
           chatId: chatIdRef.current,
         });
         const d = unwrapAiData(res);
@@ -644,9 +642,10 @@ export function useAiChat(isOpen) {
   // Бэк принимает ai_chat_edit_message и перегенерирует ответ AI —
   // он приходит по тому же WS/polling, что и обычная отправка.
   const edit = useCallback(
-    async (messageId, text) => {
+    async (messageId, text, files = []) => {
       const content = String(text || "").trim();
-      if (!messageId || !content) return false;
+      const atts = (Array.isArray(files) ? files : []).filter((f) => f?.url);
+      if (!messageId || (!content && atts.length === 0)) return false;
 
       aiChatStore.markUsed();
 
@@ -655,7 +654,7 @@ export function useAiChat(isOpen) {
         const i = prev.findIndex((m) => m.messageId === messageId);
         if (i === -1) return prev;
         const next = prev.slice(0, i + 1);
-        next[i] = { ...next[i], content };
+        next[i] = { ...next[i], content, files: atts };
         return next;
       });
 
@@ -665,7 +664,11 @@ export function useAiChat(isOpen) {
       awaitingReplyRef.current = true;
 
       try {
-        const res = await aiChatEditMessage({ id: messageId, content });
+        const res = await aiChatEditMessage({
+          id: messageId,
+          content,
+          files: atts,
+        });
         const d = unwrapAiData(res);
         applyChatId(readChatId(d));
         const room = d.live_chat_room_id || roomIdRef.current;
