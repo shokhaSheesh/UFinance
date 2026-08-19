@@ -103,6 +103,8 @@ class AuthStore {
       localStorage.removeItem('authToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userData');
+      // ключ mobx-persist со всем состоянием стора (в т.ч. токенами)
+      localStorage.removeItem('authStore');
       document.cookie = 'isAuthenticated=; path=/; max-age=0';
     }
   }

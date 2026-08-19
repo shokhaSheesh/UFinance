@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const includedPaths = ['auth', 'payment']
+const includedPaths = ['auth', 'payment', 'delete-account']
 
 export function proxy(request) {
   const { pathname } = request.nextUrl

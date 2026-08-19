@@ -2,6 +2,7 @@
   "name": "new-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "dev": "NODE_OPTIONS='--max-old-space-size=8192' next dev",
     "build": "next build",
