@@ -33,6 +33,14 @@ const AppProvider = observer(({ children }) => {
     initAnalytics()
   }, [])
 
+  // Режим школы приходит флагом is_school из get_general_settings.
+  // Раньше он вычислялся сравнением company_id со статичными GUID.
+  useEffect(() => {
+    if (data) {
+      appStore.setisDonoschool(Boolean(data?.is_school))
+    }
+  }, [data])
+
   useEffect(() => {
     if (currencies) {
       appStore.setCurrencies(currencies)
