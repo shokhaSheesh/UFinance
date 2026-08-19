@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { authStore } from '../../../store/auth.store'
-import { clearAllSiteData } from '../../../utils/clearSiteData'
+import { clearAllSiteData, clearWebStorageSync } from '../../../utils/clearSiteData'
 
 export const Profile = observer(() => {
   const t = useTranslations('Header.profile')
@@ -29,13 +29,28 @@ export const Profile = observer(() => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleLogout = async () => {
-    // Сбрасываем состояние стора, затем полностью чистим данные сайта
-    // (localStorage, sessionStorage, cookies, IndexedDB, Cache Storage, кеш React
-    // Query) и жёстко перезагружаемся — чтобы не осталось данных прошлой сессии.
+  const handleLogout = () => {
+    // Сбрасываем стор и синхронно чистим storage с куками — этого достаточно,
+    // чтобы сессии больше не было. Остальное (IndexedDB, Cache Storage, кеш
+    // React Query) чистим в фоне: раньше выход ждал этих операций и, если они
+    // подвисали, кнопка «Выйти» визуально не срабатывала вовсе.
     authStore.logout()
-    await clearAllSiteData()
-    window.location.replace('/auth')
+    clearWebStorageSync()
+
+    let left = false
+    const leave = () => {
+      if (left) return
+      left = true
+      window.location.replace('/auth')
+    }
+    // страховка: уходим, даже если фоновая очистка не ответила
+    const guard = setTimeout(leave, 700)
+    clearAllSiteData()
+      .catch(() => {})
+      .finally(() => {
+        clearTimeout(guard)
+        leave()
+      })
   }
 
   return (

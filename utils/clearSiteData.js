@@ -26,6 +26,31 @@ const deleteIndexedDb = (name) =>
     }
   })
 
+// Синхронная часть очистки: web storage и cookies. Вынесена отдельно, чтобы
+// выход не зависел от асинхронных шагов (IndexedDB/Cache Storage) — они в
+// некоторых браузерах и профилях зависают, и тогда logout «не срабатывал».
+export function clearWebStorageSync() {
+  if (typeof window === 'undefined') return
+  try {
+    document.cookie.split(';').forEach((cookie) => {
+      const name = cookie.split('=')[0].trim()
+      if (!name) return
+      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    })
+  } catch {}
+  try {
+    window.sessionStorage.clear()
+  } catch {}
+  try {
+    window.localStorage.clear()
+  } catch {}
+}
+
+// Ограничивает шаг очистки по времени: подвисший IndexedDB или Cache Storage
+// не должен задерживать выход
+const withTimeout = (promise, ms) =>
+  Promise.race([promise, new Promise((resolve) => setTimeout(resolve, ms))])
+
 export async function clearAllSiteData() {
   if (typeof window === 'undefined') return
 
@@ -39,39 +64,29 @@ export async function clearAllSiteData() {
   try {
     const dbs =
       typeof indexedDB !== 'undefined' && indexedDB.databases
-        ? await indexedDB.databases()
+        ? await withTimeout(indexedDB.databases(), 1500)
         : FIREBASE_IDB_FALLBACK.map((name) => ({ name }))
-    await Promise.all(
-      (dbs || [])
-        .map((db) => db?.name)
-        .filter(Boolean)
-        .map(deleteIndexedDb)
+    await withTimeout(
+      Promise.all(
+        (dbs || [])
+          .map((db) => db?.name)
+          .filter(Boolean)
+          .map(deleteIndexedDb)
+      ),
+      1500
     )
   } catch {}
 
   // 3. Cache Storage (service worker caches)
   try {
     if (window.caches?.keys) {
-      const keys = await caches.keys()
-      await Promise.all(keys.map((key) => caches.delete(key)))
+      const keys = (await withTimeout(caches.keys(), 1500)) || []
+      await withTimeout(Promise.all(keys.map((key) => caches.delete(key))), 1500)
     }
   } catch {}
 
-  // 4. Cookies текущего домена
-  try {
-    document.cookie.split(';').forEach((cookie) => {
-      const name = cookie.split('=')[0].trim()
-      if (!name) return
-      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-    })
-  } catch {}
-
-  // 5. Web Storage — стираем последними, уже после всех await: так вычищаются и те
-  // ключи, которые реакции mobx-persist могли переписать после сброса сторов.
-  try {
-    window.sessionStorage.clear()
-  } catch {}
-  try {
-    window.localStorage.clear()
-  } catch {}
+  // 4. Cookies и web storage — стираем последними, уже после всех await: так
+  // вычищаются и те ключи, которые реакции mobx-persist могли переписать
+  // после сброса сторов.
+  clearWebStorageSync()
 }

@@ -2698,5 +2698,10 @@
       "title": "Operatsiyani tahrirlash",
       "text": "Yakunlangan loyihalarga bog'langan operatsiyalarni o'zgartirib bo'lmaydi. Loyihalar holatini o'zgartiring va amalni takrorlang."
     }
+  },
+  "DeleteAccount": {
+    "title": "Hisobni o'chirish",
+    "description": "Hisobni o'chirish uchun bizga email orqali murojaat qiling:",
+    "note": "Hisobga bog'langan manzildan yozing — shunda shaxsingizni tezroq tasdiqlab, ma'lumotlarni o'chiramiz."
   }
 }

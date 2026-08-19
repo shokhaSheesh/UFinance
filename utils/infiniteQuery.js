@@ -36,6 +36,16 @@ const detectDirection = (values, compare) => {
   return null;
 };
 
+// Ключ вида [method, filters] — контракт useUcodeRequestInfinite. Списки со
+// своими ключами (например ['list_operations_by_query', dealId, 'income'])
+// точечно не патчим: их фильтры лежат не в ключе, а в queryFn.
+const isFilterQueryKey = (key) =>
+  Array.isArray(key) &&
+  key.length === 2 &&
+  !!key[1] &&
+  typeof key[1] === "object" &&
+  !Array.isArray(key[1]);
+
 async function applyFreshPages({
   queryClient,
   queryKey,
@@ -47,6 +57,8 @@ async function applyFreshPages({
   setItems,
   getKey,
 }) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return false;
+
   const pageParamAt = (i) => cached?.pageParams?.[i] ?? i + 1;
 
   await queryClient.cancelQueries({ queryKey, exact: true });
@@ -242,11 +254,22 @@ export async function refetchInfiniteQueriesForUpdate({
   queryKeyPrefix,
   ...options
 }) {
-  const queries = queryClient
+  const all = queryClient
     .getQueryCache()
     .findAll({ queryKey: queryKeyPrefix, type: "active" });
 
-  if (!queries.length) return false;
+  const queries = all.filter((q) => isFilterQueryKey(q.queryKey));
+  // остальные списки с тем же методом (детали сделки, закупки) обновляем
+  // обычной инвалидацией — их queryFn сам знает свои фильтры
+  all
+    .filter((q) => !isFilterQueryKey(q.queryKey))
+    .forEach((q) =>
+      queryClient.invalidateQueries({ queryKey: q.queryKey, exact: true })
+    );
+
+  // если точечно патчить нечего, но «чужие» списки мы инвалидировали —
+  // считаем задачу выполненной, чтобы вызывающий код не делал полный refetch
+  if (!queries.length) return all.length > 0;
 
   const results = await Promise.all(
     queries.map((query) =>
