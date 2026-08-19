@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  currencyInfo,
-  donoSchool,
-  GlobalCurrency,
-  testDonoSchool,
-  orientalKinderland,
-} from "@/constants/globalCurrency";
+import { currencyInfo, GlobalCurrency } from "@/constants/globalCurrency";
 import { useUcodeRequestQuery } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
-import { authStore } from "@/store/auth.store";
 import { formatDateTime } from "@/utils/formatDate";
 import { formatAmount, formatNumber, formatTotalSumma } from "@/utils/helpers";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -111,16 +104,6 @@ const TotalPrice = observer(() => {
   }, [myaccounts]);
 
   const Summary = myaccounts?.summary;
-
-  useEffect(() => {
-    appStore.setisDonoschool(
-      authStore.userData?.company_id === donoSchool ||
-        authStore.userData?.company_id === testDonoSchool ||
-        authStore.userData?.company_id === orientalKinderland
-        ? true
-        : false
-    );
-  }, []);
 
   const Compactlist = useMemo(() => {
     return myaccounts?.data

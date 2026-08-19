@@ -1,5 +1,4 @@
 import { appStore } from "../store/app.store";
-import { authStore } from "../store/auth.store";
 
 export const GlobalCurrency = {
   get name() {
@@ -18,13 +17,6 @@ export const GlobalCurrency = {
     return appStore.currency?.name || "";
   }
 };
-
-export const donoSchool = "0c3930cb-d530-4317-83d9-17092a742b1b"; 
-export const testDonoSchool = '29af6d7a-3fb3-476e-8fce-e0a8cfab975e'
-export const orientalKinderland = '6fcd3e68-7452-4aa9-bf2b-d96609a0889d'
-
-export const isDonoSchool = authStore.userData?.company_id === donoSchool ? true : false;
-
 
 export const currencyInfo = {
   ZAR: 'ZAR (Рэнд)',
