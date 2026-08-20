@@ -21,7 +21,8 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
     { value: 'product', label: t('types.products') },
     { value: 'service', label: t('types.services') }
   ] : [
-      { value: 'service', label: t('types.services') }
+    { value: 'service', label: t('types.services') },
+    { value: 'product', label: t('types.products') }
   ]
 
   const { mutateAsync: mutateProductService, isPending } = useUcodeRequestMutation()
