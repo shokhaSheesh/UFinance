@@ -1556,6 +1556,7 @@
         "bank": "Bank",
         "mfo": "MFO",
         "defaultArticles": "Standart bo'yicha moddalar qo'llash",
+        "notStudent": "Talaba emas",
         "articleIn": "Kirimlar uchun modda",
         "articleOut": "Chiqimlar uchun modda",
         "comment": "Izoh",
