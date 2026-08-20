@@ -15,9 +15,11 @@ import {
   useUpdateCounterparty,
 } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
+import { appStore } from '@/store/app.store'
 import { includeNumber } from '@/utils/helpers'
 import { useQueryClient } from '@tanstack/react-query'
 import { PlusCircle, Trash2 } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -72,7 +74,7 @@ function DynamicFieldList({ fields, onAppend, onRemove, renderInput }) {
 
 // ──i─ Man Component ───────────────────────────────────────────────────────────
 
-export default function CreateCounterpartyModal({
+const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
   isOpen,
   onClose,
   preselectedGroupId = null,
@@ -113,6 +115,7 @@ export default function CreateCounterpartyModal({
         chart_of_accounts_id: '',
         chart_of_accounts_id_2: '',
         komentariy: '',
+        not_student: false,
       }
     }
 
@@ -137,6 +140,7 @@ export default function CreateCounterpartyModal({
       chart_of_accounts_id: counterpartyData.chart_of_accounts_id || '',
       chart_of_accounts_id_2: counterpartyData.chart_of_accounts_id_2 || '',
       komentariy: raw.komentariy || '',
+      not_student: raw.not_student ?? false,
     }
   }, [counterpartyData, preselectedGroupId])
 
@@ -207,6 +211,7 @@ export default function CreateCounterpartyModal({
         chart_of_accounts_id: data.chart_of_accounts_id || null,
         chart_of_accounts_id_2: data.chart_of_accounts_id_2 || null,
         komentariy: data.komentariy || null,
+        ...(appStore.isDonoSchool && { not_student: !!data.not_student }),
         ...(isEdit && { data_obnovleniya: new Date().toISOString() }),
         attributes: {},
       }
@@ -464,6 +469,23 @@ export default function CreateCounterpartyModal({
                   </div>
                 </div>
               </div>
+              {appStore.isDonoSchool && (
+                <div className={styles.formRow}>
+                  <label className={styles.label} />
+                  <Controller
+                    name="not_student"
+                    control={control}
+                    render={({ field }) => (
+                      <OperationCheckbox
+                        checked={field.value}
+                        onChange={field.onChange}
+                        label={t('fields.notStudent')}
+                      />
+                    )}
+                  />
+                </div>
+              )}
+
               <div className={styles.formRow}>
                 <label className={styles.label} />
                 <Controller
@@ -603,4 +625,6 @@ export default function CreateCounterpartyModal({
       />
     </CustomDialog>
   )
-}
+})
+
+export default CreateCounterpartyModal
