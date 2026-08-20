@@ -72,9 +72,6 @@ const CreateDealModal = lazy(() =>
     default: m.CreateDealModal,
   }))
 );
-const CreateStudentModal = lazy(() =>
-  import("@/components/deals/CreateStudentModal")
-);
 const DeleteDealModal = lazy(() =>
   import("@/components/deals/DeleteDealModal/DeleteDealModal").then((m) => ({
     default: m.DeleteDealModal,
@@ -102,11 +99,9 @@ export default observer(function PurchasesPage() {
 
   // ── Modal state ────────────────────────────────────────────────────────────
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
   const [dealToDelete, setDealToDelete] = useState(null);
   const [dealToEdit, setDealToEdit] = useState(null);
   const [dealToCopy, setDealToCopy] = useState(null);
-  const [canUpdateForms, setCanUpdateForms] = useState(false);
 
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000);
 
@@ -270,7 +265,6 @@ export default observer(function PurchasesPage() {
     handleDeleteClick,
     handleEditClick,
     handleCopyClick,
-    handleUpdate,
   } = usePurchasesActions({
     router,
     dealPermission,
@@ -278,8 +272,6 @@ export default observer(function PurchasesPage() {
     setDealToEdit,
     setDealToCopy,
     setIsCreateModalOpen,
-    setShowCreateStudentModal,
-    setCanUpdateForms,
   });
 
   // ── Modal closers ──────────────────────────────────────────────────────────
@@ -287,10 +279,6 @@ export default observer(function PurchasesPage() {
     setIsCreateModalOpen(false);
     setDealToEdit(null);
     setDealToCopy(null);
-  };
-
-  const closeStudentModal = () => {
-    setShowCreateStudentModal(false);
   };
 
   // ── Guard ──────────────────────────────────────────────────────────────────
@@ -329,10 +317,6 @@ export default observer(function PurchasesPage() {
           onSearch={handleSearch}
           onExport={exportDeals}
           onCreateDeal={() => setIsCreateModalOpen(true)}
-          onCreateStudent={() => {
-            setShowCreateStudentModal(true);
-            setDealToEdit(null);
-          }}
           onMethodChange={(v) => setState("dealsMethod", v)}
         />
 
@@ -349,7 +333,6 @@ export default observer(function PurchasesPage() {
           onDeleteClick={handleDeleteClick}
           onEditClick={handleEditClick}
           onCopyClick={handleCopyClick}
-          onUpdate={handleUpdate}
         />
         {/* Loaders */}
         {isLoading && formattedDeals.length === 0 && (
@@ -368,15 +351,6 @@ export default observer(function PurchasesPage() {
       />
 
       {/* ── Lazy Modals ── */}
-      <Suspense fallback={showCreateStudentModal ? <ModalFallback /> : null}>
-        <CreateStudentModal
-          dealGuid={dealToEdit?.guid || null}
-          isOpen={showCreateStudentModal}
-          onClose={closeStudentModal}
-          canUpdateForms={canUpdateForms}
-        />
-      </Suspense>
-
       <Suspense fallback={isCreateModalOpen ? <ModalFallback /> : null}>
         <CreateDealModal
           isOpen={isCreateModalOpen}
