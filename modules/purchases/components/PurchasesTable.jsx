@@ -23,7 +23,6 @@ export default function PurchasesTable({
   onDeleteClick,
   onEditClick,
   onCopyClick,
-  onUpdate,
 }) {
   return (
     <>
@@ -53,7 +52,6 @@ export default function PurchasesTable({
               onDeleteClick={onDeleteClick}
               onEditClick={onEditClick}
               onCopyClick={onCopyClick}
-              onUpdate={onUpdate}
             />
           ))}
         </div>
@@ -72,7 +70,6 @@ function PurchaseRow({
   onDeleteClick,
   onEditClick,
   onCopyClick,
-  onUpdate,
 }) {
   return (
     <div
@@ -104,15 +101,7 @@ function PurchaseRow({
       <div className="w-24 shrink-0 px-2 text-end">{deal.otgruzheno || '0%'}</div>
 
       <div className="w-20 shrink-0 relative px-2 text-end">
-        <div className="hidden group-hover:flex justify-between">
-          <button
-            className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
-            title={t('tooltips.editContract')}
-            onClick={(e) => onUpdate(deal, e)}
-          >
-            &nbsp;
-          </button>
-
+        <div className="hidden group-hover:flex justify-end">
           <div className="flex items-center justify-end">
             {deal.contract_file && (
               <button
