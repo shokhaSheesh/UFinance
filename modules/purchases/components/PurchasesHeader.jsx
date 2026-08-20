@@ -1,6 +1,5 @@
 import Input from "@/components/shared/Input";
 import SingleSelect from "@/components/shared/Selects/SingleSelect";
-import { appStore } from "@/store/app.store";
 import { Download, EllipsisVertical, Loader2, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -21,7 +20,6 @@ export default function PurchasesHeader({
   onSearch,
   onExport,
   onCreateDeal,
-  onCreateStudent,
   onMethodChange,
 }) {
   const tPurchases = useTranslations("Purchases");
@@ -30,25 +28,15 @@ export default function PurchasesHeader({
       <div className="flex items-center gap-2 flex-1">
         <h1 className={styles.title}>{tPurchases("pageTitle")}</h1>
 
+        {/* В закупках всегда обычная сделка: карточка ученика (is_school)
+            относится только к продажам */}
         {dealPermission.add && (
-          <>
-            {!appStore.isDonoSchool && (
-              <button
-                className="primary-btn text-sm rounded-sm!"
-                onClick={onCreateDeal}
-              >
-                {t("createDeal")}
-              </button>
-            )}
-            {appStore.isDonoSchool && (
-              <button
-                className="primary-btn text-sm rounded-sm!"
-                onClick={onCreateStudent}
-              >
-                {t("createStudent")}
-              </button>
-            )}
-          </>
+          <button
+            className="primary-btn text-sm rounded-sm!"
+            onClick={onCreateDeal}
+          >
+            {t("createDeal")}
+          </button>
         )}
       </div>
 
