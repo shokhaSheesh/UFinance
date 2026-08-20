@@ -4,6 +4,7 @@ import useMounted from "@/hooks/useMounted";
 import {
   useAiChat,
   useAiChatList,
+  applyPlainTextBreaks,
   decorateAiHtml,
   sanitizeAiHtml,
 } from "@/hooks/useAiChat";
@@ -282,7 +283,8 @@ const MsgActions = ({ getText, onEdit, t }) => {
 };
 
 // html ответа AI → безопасная разметка с оформлением таблиц и чисел
-const renderAiHtml = (html) => decorateAiHtml(sanitizeAiHtml(html));
+const renderAiHtml = (html) =>
+  decorateAiHtml(applyPlainTextBreaks(sanitizeAiHtml(html)));
 
 // html ответа AI → простой текст (для копирования)
 const htmlToText = (html) => {
