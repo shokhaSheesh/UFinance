@@ -70,9 +70,20 @@ const BudgetFormModal = ({
   )
 }
 
+// У бюджета может не быть дат (start_date/end_date приходят null) —
+// подставляем период по умолчанию, чтобы форма и пикер показывали одно и то же
+const withPeriod = (budget) => ({
+  ...EMPTY,
+  ...budget,
+  period: {
+    start: budget?.period?.start || EMPTY.period.start,
+    end: budget?.period?.end || EMPTY.period.end
+  }
+})
+
 const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, projects, currencies, isSaving }) => {
   const isEdit = !!budget
-  const [form, setForm] = useState(() => (budget ? { ...EMPTY, ...budget } : EMPTY))
+  const [form, setForm] = useState(() => (budget ? withPeriod(budget) : EMPTY))
   const [errors, setErrors] = useState({})
 
   // Валюта обязательна: пока не выбрана — подставляем первую из справочника

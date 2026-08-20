@@ -54,6 +54,44 @@ export const sanitizeAiHtml = (html) => {
   }
 };
 
+// ─── Переводы строк в ответе без разметки ───────────────────────────
+// AI-ответ рендерится как HTML, поэтому «\n» схлопываются в пробел и весь
+// текст встаёт в одну строку. Если модель прислала блочную разметку — она сама
+// расставила абзацы, не трогаем; если это просто текст — переносы делаем <br>.
+const BLOCK_SELECTOR =
+  "p,div,ul,ol,li,table,thead,tbody,tr,th,td,h1,h2,h3,h4,h5,h6,br,pre,blockquote,hr";
+
+export const applyPlainTextBreaks = (html) => {
+  const src = String(html || "");
+  if (typeof window === "undefined" || !/[\r\n]/.test(src)) return src;
+  try {
+    const doc = new DOMParser().parseFromString(src, "text/html");
+    if (doc.body.querySelector(BLOCK_SELECTOR)) return src;
+
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+    const targets = [];
+    while (walker.nextNode()) {
+      if (/[\r\n]/.test(walker.currentNode.nodeValue || ""))
+        targets.push(walker.currentNode);
+    }
+    if (!targets.length) return src;
+
+    targets.forEach((node) => {
+      const parts = node.nodeValue.replace(/\r\n?/g, "\n").split("\n");
+      const frag = doc.createDocumentFragment();
+      parts.forEach((part, i) => {
+        if (i > 0) frag.appendChild(doc.createElement("br"));
+        if (part) frag.appendChild(doc.createTextNode(part));
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+
+    return doc.body.innerHTML;
+  } catch {
+    return src;
+  }
+};
+
 // ─── Оформление таблиц и чисел в ответе AI ──────────────────────────
 // Чистым CSS покрасить ячейку по её содержимому нельзя, поэтому после
 // санитизации проходим по ячейкам и проставляем классы: `ai-num` —
