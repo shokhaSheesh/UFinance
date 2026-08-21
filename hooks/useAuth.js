@@ -8,6 +8,41 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useUcodeRequestMutation } from './useDashboard'
 
+const BRANCHES_REQUEST = { method: 'get_my_branches', data: { page: 1, limit: 200 } }
+
+/**
+ * Филиалы обязательны для работы приложения, а запрос иногда отваливается
+ * (сеть, 500 на стороне бэка) — пробуем несколько раз, прежде чем сдаться.
+ */
+const loadBranches = async (getMyBranches, attempts = 3) => {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await getMyBranches(BRANCHES_REQUEST)
+      return response?.data?.data || []
+    } catch (error) {
+      console.error(`get_my_branches failed (${attempt}/${attempts})`, error)
+      if (attempt === attempts) return []
+      await new Promise((resolve) => setTimeout(resolve, 400 * attempt))
+    }
+  }
+  return []
+}
+
+/**
+ * Переход в приложение после успешного входа. Клиентская навигация изредка не
+ * доезжает (отменённый transition, ошибка RSC-запроса, гонка с proxy.js) —
+ * тогда добиваем жёстким переходом, чтобы не залипнуть на форме входа.
+ */
+const enterApp = (router) => {
+  router.replace('/operations')
+  if (typeof window === 'undefined') return
+  setTimeout(() => {
+    if (window.location.pathname.startsWith('/auth')) {
+      window.location.replace('/operations')
+    }
+  }, 1200)
+}
+
 export function useLogin() {
   const t = useTranslations('Auth')
   const router = useRouter()
@@ -43,16 +78,7 @@ export function useLogin() {
 
       showSuccessNotification(t('notifications.loginSuccess'))
 
-
-
-
-      const branchesResponse = await getMyBranches({
-        method: 'get_my_branches',
-        data: { page: 1, limit: 200 },
-      })
-
-
-      const branches = branchesResponse?.data?.data || []
+      const branches = await loadBranches(getMyBranches)
       const branch = branches?.find(item => item?.is_employee == true)
       if (branches.length > 0) {
         const id = (branch?.guid || branches[0]?.guid)
@@ -60,38 +86,40 @@ export function useLogin() {
         authStore.setBranchId(id)
         appStore.setBranchIsAccrualDate(id)
         authStore.selectBranch = branch || branches[0]
-      }
-
-
-      if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
-        permissions = await getMyPermissions({
-          branches_id: branch?.guid || branches[0]?.guid,
-          role_id: responseData?.role?.id
-        })
       } else {
-        appStore.setEmployerPermission()
+        // Филиалы не доехали — пускаем в приложение (Header перезапросит их сам),
+        // но говорим об этом, иначе вход выглядит «успешно, но ничего не произошло»
+        showErrorNotification(t('notifications.branchesError'))
       }
 
-
-      if (responseData?.role?.name === 'employees') {
-        if (permissions?.data?.message === 'error') {
-          appStore.setPlanfactPermission()
-        } else if (permissions?.data?.data?.role_permissions) {
-          console.log('change permissions', permissions?.data?.data?.role_permissions)
-          appStore.setNewPermission(permissions?.data?.data?.role_permissions)
+      // Права — не критично для входа: любая ошибка не должна мешать переходу
+      try {
+        if (responseData?.role?.name !== 'plan_fakt_admins' && branches.length > 0) {
+          permissions = await getMyPermissions({
+            branches_id: branch?.guid || branches[0]?.guid,
+            role_id: responseData?.role?.id
+          })
         } else {
-          appStore.setPlanfactPermission()
+          appStore.setEmployerPermission()
         }
-      } else if (responseData?.role?.name === 'plan_fakt_admins') {
-        appStore.setEmployerPermission()
+
+        if (responseData?.role?.name === 'employees') {
+          if (permissions?.data?.data?.role_permissions) {
+            appStore.setNewPermission(permissions?.data?.data?.role_permissions)
+          } else {
+            appStore.setPlanfactPermission()
+          }
+        } else if (responseData?.role?.name === 'plan_fakt_admins') {
+          appStore.setEmployerPermission()
+        }
+      } catch (error) {
+        console.error('get_user_role_permissions failed', error)
+        appStore.setPlanfactPermission()
       }
 
       queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
 
-      if (branches.length > 0) {
-        router.push('/operations') // 7445
-      }
-
+      enterApp(router) // 7445
     },
     onError: () => {
       const errorMessage = t('notifications.loginError')
@@ -125,13 +153,7 @@ export function useRegister() {
         console.error('Missing token or user data!')
       }
 
-      const branchesResponse = await getMyBranches({
-        method: 'get_my_branches',
-        data: { page: 1, limit: 200 },
-      })
-
-
-      const branches = branchesResponse?.data?.data || []
+      const branches = await loadBranches(getMyBranches)
       const branch = branches?.find(item => item?.is_employee == true)
       if (branches.length > 0) {
         const id = (branch?.guid || branches[0]?.guid)
@@ -148,12 +170,9 @@ export function useRegister() {
 
       queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })
 
-      if (branches.length > 0) {
-
-        showSuccessNotification(t('notifications.registerSuccess'))
-        router.push('/operations')
-      }
-
+      if (branches.length === 0) showErrorNotification(t('notifications.branchesError'))
+      showSuccessNotification(t('notifications.registerSuccess'))
+      enterApp(router)
     },
     onError: (error) => {
       console.log('Register error:', error)

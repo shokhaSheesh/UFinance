@@ -2,8 +2,11 @@
 
 import CustomDialog from '@/components/shared/CustomDialog'
 import { Loader, Save } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { showErrorNotification } from '@/lib/utils/notifications'
+import ContractEditorToolbar from '@/modules/settings/contract/components/ContractEditorToolbar'
+import ContractVariablesPanel from '@/modules/settings/contract/components/ContractVariablesPanel'
+import { useContractEditor } from '@/modules/settings/contract/hooks/useContractEditor'
 import {
   uploadContractHtml,
   useUpdateContract,
@@ -11,38 +14,16 @@ import {
 
 const ContractEditDialog = ({ contract, onClose, onSuccess, tco, branchId }) => {
   const [isSaving, setIsSaving] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const iframeRef = useRef(null)
-  const fullHtmlRef = useRef('')
 
-  useEffect(() => {
-    if (!contract?.file) {
-      setLoading(false)
-      return
-    }
-    let cancelled = false
-    fetch(contract?.file)
-      .then((r) => r?.text())
-      .then((html) => {
-        if (cancelled) return
-        fullHtmlRef.current = html
-        const iframe = iframeRef?.current
-        if (!iframe) return
-        const doc = iframe?.contentDocument
-        doc?.open()
-        doc?.write(html)
-        doc?.close()
-        if (doc) doc.designMode = 'on'
-        setLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) showErrorNotification(tco?.('editDialog.loading'))
-        setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [contract?.file, tco])
+  const handleLoadError = useCallback(
+    () => showErrorNotification(tco?.('editDialog.loading')),
+    [tco]
+  )
+
+  const { iframeRef, loading, format, exec, insertText, getHtml } = useContractEditor({
+    fileUrl: contract?.file,
+    onLoadError: handleLoadError,
+  })
 
   const { mutate, isPending } = useUpdateContract({
     contractGuid: contract?.guid,
@@ -52,11 +33,10 @@ const ContractEditDialog = ({ contract, onClose, onSuccess, tco, branchId }) => 
   })
 
   const handleSave = async () => {
-    const doc = iframeRef?.current?.contentDocument
-    if (!doc) return
+    const html = getHtml()
+    if (!html) return
     setIsSaving(true)
     try {
-      const html = doc?.documentElement?.outerHTML
       const contractFileLink = await uploadContractHtml({
         html,
         fileName: contract?.branch_name,
@@ -80,7 +60,7 @@ const ContractEditDialog = ({ contract, onClose, onSuccess, tco, branchId }) => 
     <CustomDialog
       open={true}
       onClose={onClose}
-      contentClass="min-w-[1000px] max-w-[95vw] max-h-[90vh] p-0 flex flex-col"
+      contentClass="min-w-[1180px] max-w-[95vw] max-h-[90vh] p-0 flex flex-col"
     >
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <div>
@@ -91,18 +71,24 @@ const ContractEditDialog = ({ contract, onClose, onSuccess, tco, branchId }) => 
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden min-h-[500px] max-h-[75vh] relative">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-            <Loader className="animate-spin text-slate-400" size={24} />
-          </div>
-        )}
-        <iframe
-          ref={iframeRef}
-          title="contract-editor"
-          className="flex-1 w-full border-0"
-          style={{ minHeight: 0 }}
-        />
+      <ContractEditorToolbar format={format} onCommand={exec} disabled={loading} tco={tco} />
+
+      <div className="flex flex-1 overflow-hidden min-h-[500px] max-h-[70vh]">
+        <div className="relative flex flex-1 flex-col overflow-hidden">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+              <Loader className="animate-spin text-slate-400" size={24} />
+            </div>
+          )}
+          <iframe
+            ref={iframeRef}
+            title="contract-editor"
+            className="flex-1 w-full border-0"
+            style={{ minHeight: 0 }}
+          />
+        </div>
+
+        <ContractVariablesPanel onInsert={insertText} tco={tco} disabled={loading} />
       </div>
 
       <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-200">
