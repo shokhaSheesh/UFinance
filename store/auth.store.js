@@ -42,6 +42,13 @@ class AuthStore {
   setAuthentication(data) {
     this.isAuthenticated = true;
 
+    // Новый вход — филиалы прошлой сессии не должны пережить смену аккаунта:
+    // branch_id подставляется во все invoke_function, и чужой филиал ломает
+    // ответ get_my_branches (приходит пустой список → вход «зависает»).
+    this.branches = [];
+    this.branch_id = '';
+    this.selectBranch = null;
+
     // Handle new auth API response structure
     if (data?.token) {
       this.authToken = data.token;

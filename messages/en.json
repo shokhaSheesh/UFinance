@@ -199,6 +199,7 @@
     "notifications": {
       "loginSuccess": "Successfully signed in!",
       "loginError": "Email or password is incorrect, please try again.",
+      "branchesError": "Could not load branches. Refresh the page or sign in again.",
       "registerSuccess": "Successfully registered!",
       "registerError": "Error: token or user data not received",
       "registerGenericError": "Registration error",
@@ -1283,7 +1284,87 @@
         "save": "Save",
         "loading": "Loading contract...",
         "saveError": "Failed to save contract",
-        "uploadError": "Failed to upload contract file"
+        "uploadError": "Failed to upload contract file",
+        "toolbar": {
+          "undo": "Undo",
+          "redo": "Redo",
+          "block": {
+            "label": "Text style",
+            "p": "Normal text",
+            "h1": "Heading 1",
+            "h2": "Heading 2",
+            "h3": "Heading 3"
+          },
+          "size": {
+            "label": "Size",
+            "2": "Small",
+            "3": "Normal",
+            "4": "Medium",
+            "5": "Large",
+            "6": "Extra large"
+          },
+          "bold": "Bold",
+          "italic": "Italic",
+          "underline": "Underline",
+          "strike": "Strikethrough",
+          "textColor": "Text color",
+          "defaultColor": "Default color",
+          "highlight": "Highlight",
+          "noHighlight": "No highlight",
+          "alignLeft": "Align left",
+          "alignCenter": "Align center",
+          "alignRight": "Align right",
+          "alignJustify": "Justify",
+          "bulletList": "Bulleted list",
+          "numberedList": "Numbered list",
+          "indent": "Increase indent",
+          "outdent": "Decrease indent",
+          "clearFormat": "Clear formatting"
+        },
+        "variables": {
+          "title": "Variables",
+          "hint": "Place the caret in the contract text and click a variable — it will be inserted there.",
+          "search": "Search variable",
+          "empty": "Nothing found",
+          "inserted": "Inserted",
+          "noCaret": "Click inside the contract text to choose where to insert",
+          "groups": {
+            "contract": "Contract",
+            "student": "Student",
+            "guardian": "Legal guardian",
+            "payment": "Payment",
+            "org": "Organization"
+          },
+          "items": {
+            "contractNumber": "Contract number",
+            "contractDate": "Contract date",
+            "contractEndDate": "End date",
+            "academicYear": "Academic year",
+            "validFrom": "Valid from",
+            "validTo": "Valid to",
+            "studentName": "Student full name",
+            "studentBirthday": "Student date of birth",
+            "className": "Class (group)",
+            "gender": "Gender",
+            "language": "Language of study",
+            "guardianName": "Guardian full name",
+            "guardianType": "Guardian type",
+            "guardianPassport": "Guardian passport",
+            "guardianPassportIssuedBy": "Passport issued by",
+            "guardianPinfl": "Guardian PINFL",
+            "guardianPhone1": "Phone 1",
+            "guardianPhone2": "Phone 2",
+            "guardianAddress": "Guardian address",
+            "tariffName": "Tariff",
+            "monthlyPayment": "Monthly payment",
+            "yearlyPayment": "Yearly amount",
+            "chartOfAccounts": "Account",
+            "legalEntity": "Legal entity",
+            "branchName": "Branch",
+            "clientType": "Client type",
+            "status": "Status"
+          }
+        }
       }
     },
     "common": {
