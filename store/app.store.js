@@ -24,6 +24,9 @@ class AppStore {
   companyCurrencies = [];
   localApiUrl = "";
   isDonoSchool = false;
+  // is_blocked из get_general_settings — компания заблокирована админом,
+  // показываем экран с просьбой связаться с администратором
+  isBlocked = false;
   permission = {
     indicators: { read: true },
     operations: {
@@ -175,6 +178,10 @@ class AppStore {
 
   setisDonoschool(value) {
     this.isDonoSchool = value;
+  }
+
+  setIsBlocked(value) {
+    this.isBlocked = value;
   }
 
   setIsPayment(value) {

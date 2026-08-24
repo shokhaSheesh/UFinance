@@ -1,5 +1,6 @@
 'use client'
 
+import BlockedOverlay from "@/components/shared/BlockedOverlay"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { initAnalytics } from "@/lib/firebase"
 import { observer } from "mobx-react-lite"
@@ -38,6 +39,7 @@ const AppProvider = observer(({ children }) => {
   useEffect(() => {
     if (data) {
       appStore.setisDonoschool(Boolean(data?.is_school))
+      appStore.setIsBlocked(Boolean(data?.is_blocked))
     }
   }, [data])
 
@@ -63,6 +65,7 @@ const AppProvider = observer(({ children }) => {
   return (
     <TooltipProvider delay={0}>
       <div>{children}</div>
+      {appStore.isBlocked && <BlockedOverlay />}
     </TooltipProvider>
   )
 })
