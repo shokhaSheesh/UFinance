@@ -615,10 +615,16 @@ const CreateStudentModal = observer(
         setIsSaving(false);
       }
 
+      // Номер договора необязателен для всех школ, кроме isTargetSchool —
+      // если поле пустое, на бэкенд уходит Ф.И.О. ученика вместо него
+      // (в самом поле формы это не отображается)
+      const contractNumberValue =
+        data.contractNumber || (!isTargetSchool ? data.studentName : "") || "";
+
       // Поля, доступные для изменения у активного договора
       const contractFields = {
-        name: data.contractNumber || "",
-        number_contract: data.contractNumber || "",
+        name: contractNumberValue,
+        number_contract: contractNumberValue,
         school_year: data.academicYear,
         date_contract: moment(data.contractDate).format("YYYY-MM-DD"),
         deal_date: moment(data.contractDate).format("YYYY-MM-DD"),
@@ -1019,25 +1025,23 @@ const CreateStudentModal = observer(
                       className="grid grid-cols-3 gap-3"
                     >
                       <fieldset className="contents">
-                        {isTargetSchool && (
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              {t("contractNumber")} *
-                            </label>
-                            <Input
-                              placeholder={t("contractNumberPlaceholder")}
-                              error={!!errors.contractNumber}
-                              {...register("contractNumber", {
-                                required:
-                                  !isEditableLocked && isTargetSchool
-                                    ? t("contractNumberRequired")
-                                    : false,
-                              })}
-                              disabled={isEditableLocked}
-                            />
-                            {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
-                          </div>
-                        )}
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-medium text-gray-700">
+                            {t("contractNumber")} {isTargetSchool && "*"}
+                          </label>
+                          <Input
+                            placeholder={t("contractNumberPlaceholder")}
+                            error={!!errors.contractNumber}
+                            {...register("contractNumber", {
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? t("contractNumberRequired")
+                                  : false,
+                            })}
+                            disabled={isEditableLocked}
+                          />
+                          {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
+                        </div>
                         {/* Row 1 */}
                         <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
                           <label className="text-xs font-medium text-gray-700">
