@@ -2865,5 +2865,10 @@
     "title": "Hisobni o'chirish",
     "description": "Hisobni o'chirish uchun bizga email orqali murojaat qiling:",
     "note": "Hisobga bog'langan manzildan yozing — shunda shaxsingizni tezroq tasdiqlab, ma'lumotlarni o'chiramiz."
+  },
+  "AccountBlocked": {
+    "title": "Kirish vaqtincha cheklangan",
+    "description": "UFinance akkauntingizga kirish vaqtincha cheklangan. Kirishni qayta tiklash uchun qo‘llab-quvvatlash xizmatiga quyidagi elektron pochta orqali murojaat qiling:",
+    "note": "Murojaatingizni tezroq ko‘rib chiqishimiz uchun kompaniya nomi va akkauntga biriktirilgan elektron pochta manzilini ko‘rsating."
   }
 }
