@@ -13,12 +13,25 @@ const PANEL_W = 2 * (4 * CELL_W + 16) + 1
 
 const toKey = (year, month) => `${year}-${String(month).padStart(2, '0')}`
 const parse = (key) => {
-  const [y, m] = key.split('-')
-  return { year: parseInt(y, 10), month: parseInt(m, 10) }
+  const [y, m] = String(key ?? '').split('-')
+  const year = parseInt(y, 10)
+  const month = parseInt(m, 10)
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null
+  return { year, month }
 }
 const ord = (key) => {
-  const { year, month } = parse(key)
-  return year * 12 + month
+  const parsed = parse(key)
+  return parsed ? parsed.year * 12 + parsed.month : 0
+}
+
+// У бюджета может не быть дат (start_date/end_date приходят null) — тогда
+// показываем текущий год целиком, вместо падения на разборе пустого ключа.
+const normalizeRange = (value) => {
+  const fallbackYear = new Date().getFullYear()
+  return {
+    start: parse(value?.start) ? value.start : toKey(fallbackYear, 1),
+    end: parse(value?.end) ? value.end : toKey(fallbackYear, 12)
+  }
 }
 
 /** Одна панель: «‹ 2026 ›» + сетка 4×3. */
@@ -89,9 +102,10 @@ const MonthPanel = ({ year, onYearChange, monthLabels, start, end, onPick }) => 
  * @param {{start: string, end: string}} value ключи 'YYYY-MM'
  */
 const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 }) => {
+  const range = normalizeRange(value)
   const [open, setOpen] = useState(false)
-  const [leftYear, setLeftYear] = useState(() => parse(value.start).year)
-  const [rightYear, setRightYear] = useState(() => parse(value.end).year)
+  const [leftYear, setLeftYear] = useState(() => parse(range.start).year)
+  const [rightYear, setRightYear] = useState(() => parse(range.end).year)
   const [portalPos, setPortalPos] = useState({ top: 0, left: 0 })
   const ref = useRef(null)
   const panelRef = useRef(null)
@@ -127,7 +141,7 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
   }, [open])
 
   const pick = (side) => (key) => {
-    const next = side === 'start' ? { start: key, end: value.end } : { start: value.start, end: key }
+    const next = side === 'start' ? { start: key, end: range.end } : { start: range.start, end: key }
     if (ord(next.start) > ord(next.end)) {
       onChange({ start: next.end, end: next.start })
       return
@@ -135,9 +149,11 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
     onChange(next)
   }
 
-  const label = `${monthLabels[parse(value.start).month]} '${String(parse(value.start).year).slice(2)}—${monthLabels[
-    parse(value.end).month
-  ].toLowerCase()} '${String(parse(value.end).year).slice(2)}`
+  const from = parse(range.start)
+  const to = parse(range.end)
+  const label = `${monthLabels[from.month]} '${String(from.year).slice(2)}—${monthLabels[
+    to.month
+  ].toLowerCase()} '${String(to.year).slice(2)}`
 
   return (
     <div className='relative' ref={ref}>
@@ -176,8 +192,8 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
             year={leftYear}
             onYearChange={setLeftYear}
             monthLabels={monthLabels}
-            start={value.start}
-            end={value.end}
+            start={range.start}
+            end={range.end}
             onPick={pick('start')}
           />
           <div style={{ width: 1, background: '#eaecf0' }} />
@@ -185,8 +201,8 @@ const MonthRangePicker = ({ value, onChange, monthLabels, hasError, width = 300 
             year={rightYear}
             onYearChange={setRightYear}
             monthLabels={monthLabels}
-            start={value.start}
-            end={value.end}
+            start={range.start}
+            end={range.end}
             onPick={pick('end')}
           />
         </div>,
