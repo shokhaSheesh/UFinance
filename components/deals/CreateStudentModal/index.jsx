@@ -96,6 +96,11 @@ const CreateStudentModal = observer(
     const [pendingSubmitData, setPendingSubmitData] = useState(null);
     const branch = authStore.selectBranch;
     const isEditMode = !!dealGuid;
+    // Часть полей формы актуальна только для одной конкретной школы —
+    // для всех остальных компаний их нужно скрыть и не требовать
+    const isTargetSchool =
+      authStore.userData?.company_id ===
+      "0c3930cb-d530-4317-83d9-17092a742b1b";
 
     const {
       data: initialData,
@@ -1014,22 +1019,25 @@ const CreateStudentModal = observer(
                       className="grid grid-cols-3 gap-3"
                     >
                       <fieldset className="contents">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("contractNumber")} *
-                          </label>
-                          <Input
-                            placeholder={t("contractNumberPlaceholder")}
-                            error={!!errors.contractNumber}
-                            {...register("contractNumber", {
-                              required: !isEditableLocked
-                                ? t("contractNumberRequired")
-                                : false,
-                            })}
-                            disabled={isEditableLocked}
-                          />
-                          {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("contractNumber")} *
+                            </label>
+                            <Input
+                              placeholder={t("contractNumberPlaceholder")}
+                              error={!!errors.contractNumber}
+                              {...register("contractNumber", {
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? t("contractNumberRequired")
+                                    : false,
+                              })}
+                              disabled={isEditableLocked}
+                            />
+                            {/* {errors.contractNumber && <span className="text-xs text-red-500">{errors.contractNumber.message}</span>} */}
+                          </div>
+                        )}
                         {/* Row 1 */}
                         <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
                           <label className="text-xs font-medium text-gray-700">
@@ -1081,103 +1089,113 @@ const CreateStudentModal = observer(
                           {/* {errors.guardianName && <span className="text-xs text-red-500">{errors.guardianName.message}</span>} */}
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("branchName")}
-                          </label>
-                          <Controller
-                            name="branchName"
-                            control={control}
-                            render={({ field }) => (
-                              <Input
-                                placeholder={t("branchName")}
-                                value={field.value}
-                                disabled
-                              />
-                            )}
-                          />
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("branchName")}
+                            </label>
+                            <Controller
+                              name="branchName"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  placeholder={t("branchName")}
+                                  value={field.value}
+                                  disabled
+                                />
+                              )}
+                            />
+                          </div>
+                        )}
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("guardianType")} *
-                          </label>
-                          <Controller
-                            name="guardianType"
-                            control={control}
-                            rules={{
-                              required: !isEditableLocked ? true : false,
-                            }}
-                            render={({ field }) => (
-                              <SingleSelect
-                                placeholder={t("guardianTypePlaceholder")}
-                                value={field.value}
-                                customButton={
-                                  <div
-                                    onClick={openCreateGuardianModal}
-                                    className="flex cursor-pointer items-center gap-2 px-3 py-2"
-                                  >
-                                    <span className="text-sm text-primary">
-                                      {t("addGuardianType")}
-                                    </span>
-                                  </div>
-                                }
-                                onChange={field.onChange}
-                                elementAfter={(item) => (
-                                  <div className="flex items-center gap-2">
-                                    <Edit2
-                                      size={18}
-                                      className="cursor-pointer hover:text-blue-600"
-                                      onClick={() =>
-                                        openEditGuardianModal(item)
-                                      }
-                                    />
-                                    <Trash2
-                                      size={18}
-                                      className="text-red-500 cursor-pointer hover:text-red-700"
-                                      onClick={() =>
-                                        openDeleteGuardianModal(item)
-                                      }
-                                    />
-                                  </div>
-                                )}
-                                hasError={errors.guardianType}
-                                data={guardianTypeList}
-                                className="bg-white"
-                                isClearable={false}
-                                disabled={isEditableLocked}
-                              />
-                            )}
-                          />
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("guardianType")} *
+                            </label>
+                            <Controller
+                              name="guardianType"
+                              control={control}
+                              rules={{
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? true
+                                    : false,
+                              }}
+                              render={({ field }) => (
+                                <SingleSelect
+                                  placeholder={t("guardianTypePlaceholder")}
+                                  value={field.value}
+                                  customButton={
+                                    <div
+                                      onClick={openCreateGuardianModal}
+                                      className="flex cursor-pointer items-center gap-2 px-3 py-2"
+                                    >
+                                      <span className="text-sm text-primary">
+                                        {t("addGuardianType")}
+                                      </span>
+                                    </div>
+                                  }
+                                  onChange={field.onChange}
+                                  elementAfter={(item) => (
+                                    <div className="flex items-center gap-2">
+                                      <Edit2
+                                        size={18}
+                                        className="cursor-pointer hover:text-blue-600"
+                                        onClick={() =>
+                                          openEditGuardianModal(item)
+                                        }
+                                      />
+                                      <Trash2
+                                        size={18}
+                                        className="text-red-500 cursor-pointer hover:text-red-700"
+                                        onClick={() =>
+                                          openDeleteGuardianModal(item)
+                                        }
+                                      />
+                                    </div>
+                                  )}
+                                  hasError={errors.guardianType}
+                                  data={guardianTypeList}
+                                  className="bg-white"
+                                  isClearable={false}
+                                  disabled={isEditableLocked}
+                                />
+                              )}
+                            />
+                          </div>
+                        )}
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("academicYear")} *
-                          </label>
-                          <Controller
-                            name="academicYear"
-                            control={control}
-                            rules={{
-                              required: !isEditableLocked
-                                ? t("academicYearRequired")
-                                : false,
-                            }}
-                            render={({ field }) => (
-                              <SingleSelect
-                                placeholder={t("academicYearPlaceholder")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={academicYears}
-                                className="bg-white"
-                                hasError={errors.academicYear}
-                                isClearable={false}
-                                disabled={isEditableLocked}
-                              />
-                            )}
-                          />
-                          {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("academicYear")} *
+                            </label>
+                            <Controller
+                              name="academicYear"
+                              control={control}
+                              rules={{
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? t("academicYearRequired")
+                                    : false,
+                              }}
+                              render={({ field }) => (
+                                <SingleSelect
+                                  placeholder={t("academicYearPlaceholder")}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  data={academicYears}
+                                  className="bg-white"
+                                  hasError={errors.academicYear}
+                                  isClearable={false}
+                                  disabled={isEditableLocked}
+                                />
+                              )}
+                            />
+                            {/* {errors.academicYear && <span className="text-xs text-red-500">{errors.academicYear.message}</span>} */}
+                          </div>
+                        )}
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
@@ -1263,62 +1281,71 @@ const CreateStudentModal = observer(
                           />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("passport")} *
-                          </label>
-                          <Input
-                            placeholder={t("passportPlaceholder")}
-                            error={!!errors.passport}
-                            {...register("passport", {
-                              required: !isEditableLocked
-                                ? t("passportRequired")
-                                : false,
-                            })}
-                            disabled={isEditableLocked}
-                          />
-                          {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("passport")} *
+                            </label>
+                            <Input
+                              placeholder={t("passportPlaceholder")}
+                              error={!!errors.passport}
+                              {...register("passport", {
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? t("passportRequired")
+                                    : false,
+                              })}
+                              disabled={isEditableLocked}
+                            />
+                            {/* {errors.passport && <span className="text-xs text-red-500">{errors.passport.message}</span>} */}
+                          </div>
+                        )}
 
                         {/* Row 4 */}
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("pinfl")} *
-                          </label>
-                          <Input
-                            placeholder={t("pinflPlaceholder")}
-                            maxLength={14}
-                            disabled={isEditableLocked}
-                            error={!!errors.pinf}
-                            {...register("pinf", {
-                              required: !isEditableLocked
-                                ? t("pinflRequired")
-                                : false,
-                              pattern: {
-                                value: /^\d{14}$/,
-                                message: t("pinflInvalid"),
-                              },
-                            })}
-                          />
-                          {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("pinfl")} *
+                            </label>
+                            <Input
+                              placeholder={t("pinflPlaceholder")}
+                              maxLength={14}
+                              disabled={isEditableLocked}
+                              error={!!errors.pinf}
+                              {...register("pinf", {
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? t("pinflRequired")
+                                    : false,
+                                pattern: {
+                                  value: /^\d{14}$/,
+                                  message: t("pinflInvalid"),
+                                },
+                              })}
+                            />
+                            {/* {errors.pinf && <span className="text-xs text-red-500">{errors.pinf.message}</span>} */}
+                          </div>
+                        )}
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("issuedBy")} *
-                          </label>
-                          <Input
-                            placeholder={t("issuedByPlaceholder")}
-                            disabled={isEditableLocked}
-                            error={!!errors.issuedBy}
-                            {...register("issuedBy", {
-                              required: !isEditableLocked
-                                ? t("issuedByRequired")
-                                : false,
-                            })}
-                          />
-                          {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("issuedBy")} *
+                            </label>
+                            <Input
+                              placeholder={t("issuedByPlaceholder")}
+                              disabled={isEditableLocked}
+                              error={!!errors.issuedBy}
+                              {...register("issuedBy", {
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? t("issuedByRequired")
+                                    : false,
+                              })}
+                            />
+                            {/* {errors.issuedBy && <span className="text-xs text-red-500">{errors.issuedBy.message}</span>} */}
+                          </div>
+                        )}
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
@@ -1434,34 +1461,42 @@ const CreateStudentModal = observer(
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("gender")} *
-                          </label>
-                          <Controller
-                            name="gender"
-                            control={control}
-                            rules={{
-                              required: !isEditableLocked ? true : false,
-                            }}
-                            render={({ field }) => (
-                              <SingleSelect
-                                placeholder={t("gender")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={[
-                                  { value: "male", label: t("genderMale") },
-                                  { value: "female", label: t("genderFemale") },
-                                ]}
-                                className="bg-white"
-                                isClearable={false}
-                                hasError={errors.gender}
-                                disabled={isEditableLocked}
-                              />
-                            )}
-                          />
-                          {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("gender")} *
+                            </label>
+                            <Controller
+                              name="gender"
+                              control={control}
+                              rules={{
+                                required:
+                                  !isEditableLocked && isTargetSchool
+                                    ? true
+                                    : false,
+                              }}
+                              render={({ field }) => (
+                                <SingleSelect
+                                  placeholder={t("gender")}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  data={[
+                                    { value: "male", label: t("genderMale") },
+                                    {
+                                      value: "female",
+                                      label: t("genderFemale"),
+                                    },
+                                  ]}
+                                  className="bg-white"
+                                  isClearable={false}
+                                  hasError={errors.gender}
+                                  disabled={isEditableLocked}
+                                />
+                              )}
+                            />
+                            {/* {errors.gender && <span className="text-xs text-red-500">{errors.gender.message}</span>} */}
+                          </div>
+                        )}
                         {/* Row 6 */}
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
@@ -1573,26 +1608,28 @@ const CreateStudentModal = observer(
                           />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("clientType")}
-                          </label>
-                          <Controller
-                            name="clientType"
-                            control={control}
-                            render={({ field }) => (
-                              <SingleSelect
-                                placeholder={t("clientTypePlaceholder")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={clientType}
-                                className="bg-white"
-                                isClearable={false}
-                                disabled={isEditableLocked}
-                              />
-                            )}
-                          />
-                        </div>
+                        {isTargetSchool && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("clientType")}
+                            </label>
+                            <Controller
+                              name="clientType"
+                              control={control}
+                              render={({ field }) => (
+                                <SingleSelect
+                                  placeholder={t("clientTypePlaceholder")}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  data={clientType}
+                                  className="bg-white"
+                                  isClearable={false}
+                                  disabled={isEditableLocked}
+                                />
+                              )}
+                            />
+                          </div>
+                        )}
                       </fieldset>
 
                       {/* Row 7 */}
@@ -1631,31 +1668,33 @@ const CreateStudentModal = observer(
                         </div>
                       )}
 
-                      <fieldset
-                        disabled
-                        className="contents pointer-events-none opacity-70"
-                      >
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-medium text-gray-700">
-                            {t("status")}
-                          </label>
-                          <Controller
-                            name="status"
-                            control={control}
-                            render={({ field }) => (
-                              <SingleSelect
-                                placeholder={t("statusPlaceholder")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                data={sostayaniya}
-                                className="bg-white"
-                                isClearable={false}
-                                disabled
-                              />
-                            )}
-                          />
-                        </div>
-                      </fieldset>
+                      {isTargetSchool && (
+                        <fieldset
+                          disabled
+                          className="contents pointer-events-none opacity-70"
+                        >
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-gray-700">
+                              {t("status")}
+                            </label>
+                            <Controller
+                              name="status"
+                              control={control}
+                              render={({ field }) => (
+                                <SingleSelect
+                                  placeholder={t("statusPlaceholder")}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  data={sostayaniya}
+                                  className="bg-white"
+                                  isClearable={false}
+                                  disabled
+                                />
+                              )}
+                            />
+                          </div>
+                        </fieldset>
+                      )}
 
                       <fieldset
                         disabled={isEditableLocked}
