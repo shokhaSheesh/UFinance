@@ -2360,5 +2360,10 @@
       "legalEntity": "Cannot delete this legal entity because it is tied to transactions. Please delete the related transactions first.",
       "productService": "Cannot delete this item as it is used in Sales or Purchases. Please remove it from the corresponding documents first."
     }
+  },
+  "AccountBlocked": {
+    "title": "Access temporarily restricted",
+    "description": "Access to your UFinance account has been temporarily restricted. To restore access, please contact our support team at:",
+    "note": "To help us process your request faster, please include your company name and the email address associated with your account."
   }
 }
