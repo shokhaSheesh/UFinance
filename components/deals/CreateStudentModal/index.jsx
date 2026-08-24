@@ -1047,9 +1047,10 @@ const CreateStudentModal = observer(
                             name="contractDate"
                             control={control}
                             rules={{
-                              required: isEditableLocked
-                                ? false
-                                : "Выберите дату договора",
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? "Выберите дату договора"
+                                  : false,
                             }}
                             render={({ field }) => {
                               return (
@@ -1080,9 +1081,10 @@ const CreateStudentModal = observer(
                             placeholder={t("guardianNamePlaceholder")}
                             error={!!errors.guardianName}
                             {...register("guardianName", {
-                              required: !isEditableLocked
-                                ? t("guardianNameRequired")
-                                : false,
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? t("guardianNameRequired")
+                                  : false,
                             })}
                             disabled={isEditableLocked}
                           />
@@ -1205,9 +1207,10 @@ const CreateStudentModal = observer(
                             name="phone1"
                             control={control}
                             rules={{
-                              required: !isEditableLocked
-                                ? t("phone1Required")
-                                : false,
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? t("phone1Required")
+                                  : false,
                             }}
                             render={({ field }) => (
                               <div className="flex">
@@ -1416,9 +1419,10 @@ const CreateStudentModal = observer(
                             name="validFrom"
                             control={control}
                             rules={{
-                              required: !isFixedLocked
-                                ? t("validFromRequired")
-                                : false,
+                              required:
+                                !isFixedLocked && isTargetSchool
+                                  ? t("validFromRequired")
+                                  : false,
                               validate: (value) => {
                                 if (isFixedLocked) return true;
                                 const to = getValues("validTo");
@@ -1506,9 +1510,10 @@ const CreateStudentModal = observer(
                             name="validTo"
                             control={control}
                             rules={{
-                              required: !isFixedLocked
-                                ? t("validToRequired")
-                                : false,
+                              required:
+                                !isFixedLocked && isTargetSchool
+                                  ? t("validToRequired")
+                                  : false,
                               validate: (value) => {
                                 if (isFixedLocked) return true;
                                 const from = getValues("validFrom");
@@ -1561,7 +1566,10 @@ const CreateStudentModal = observer(
                             name="classes_id"
                             control={control}
                             rules={{
-                              required: !isEditableLocked ? true : false,
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? true
+                                  : false,
                             }}
                             render={({ field }) => (
                               <SingleSelect
@@ -1713,9 +1721,10 @@ const CreateStudentModal = observer(
                             error={!!errors.address}
                             disabled={isEditableLocked}
                             {...register("address", {
-                              required: !isEditableLocked
-                                ? t("addressRequired")
-                                : false,
+                              required:
+                                !isEditableLocked && isTargetSchool
+                                  ? t("addressRequired")
+                                  : false,
                             })}
                           />
                           {/* {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>} */}
