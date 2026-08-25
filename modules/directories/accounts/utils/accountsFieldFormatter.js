@@ -6,6 +6,7 @@ export const ACCOUNT_FIELDS = [
   'current_balance_val',
   'currenies_kod',
   "tip",
+  "is_archived",
   "legal_entity_id",
   "requisites",
 ]
@@ -16,6 +17,7 @@ export const ACCOUNT_TABLE_HEADERS = [
   'tableHeaders.balance',
   'tableHeaders.currency',
   'tableHeaders.type',
+  'tableHeaders.status',
   'tableHeaders.legalEntity',
   'tableHeaders.requisites',
 ]
@@ -36,6 +38,16 @@ export function formatAccountFieldValue(item, field) {
       return value || '–'
     case 'tip':
       return Array.isArray(value) ? value.join(', ') : value
+    case 'is_archived':
+      return value ? (
+        <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-500'>
+          В архиве
+        </span>
+      ) : (
+        <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-600'>
+          Активный
+        </span>
+      )
     case 'data_sozdaniya':
       if (value) {
         const date = new Date(value)

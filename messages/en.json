@@ -1745,6 +1745,7 @@
         "group": "Group",
         "legalEntity": "Legal entity",
         "type": "Select account type",
+        "status": "Status",
         "bik": "Routing number",
         "bank": "Bank",
         "accountNumber": "Account no.",
@@ -1753,6 +1754,10 @@
         "initialBalance": "Opening balance",
         "currency": "Select account currency",
         "comment": "Comment"
+      },
+      "status": {
+        "active": "Active",
+        "archived": "Archived"
       },
       "placeholders": {
         "name": "e.g., Chase Business",
@@ -1795,6 +1800,7 @@
         "initialBalance": "Opening balance",
         "currency": "Currency",
         "type": "Type",
+        "status": "Status",
         "created": "Date created",
         "legalEntity": "Legal entity",
         "requisites": "Bank details"

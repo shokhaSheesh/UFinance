@@ -7,7 +7,7 @@ import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable }) => {
+const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownClassName, multi = true, type, selected, hasError, extraValue, returnValue, isClearable, active }) => {
   const t = useTranslations('Common')
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
@@ -22,7 +22,8 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
   const { data: accountsData, isLoading, isFetching } = useUcodeRequestQuery({
     method: "get_my_accounts",
     data: {
-      search: debouncedSearch
+      search: debouncedSearch,
+      ...(active ? { active: true } : {})
     },
     querySetting: {
       select: (response) => response?.data?.data || [],

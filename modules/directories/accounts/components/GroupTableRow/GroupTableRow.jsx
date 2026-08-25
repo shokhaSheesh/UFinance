@@ -52,6 +52,7 @@ export function GroupTableRow({
         <td className="p-2"></td>
         <td className="p-2"></td>
         <td className="p-2"></td>
+        <td className="p-2"></td>
         <td className="p-2 text-end" onClick={(e) => e.stopPropagation()}>
           <AccountMenu
             onEdit={onEdit}
