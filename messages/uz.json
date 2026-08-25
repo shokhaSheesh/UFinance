@@ -1892,6 +1892,7 @@
         "group": "Guruh",
         "legalEntity": "Yuridik shaxs",
         "type": "Hisob turini tanlang",
+        "status": "Holati",
         "bik": "BIK",
         "bank": "Bank",
         "accountNumber": "Hisob raqami №",
@@ -1900,6 +1901,10 @@
         "initialBalance": "Boshlang'ich qoldiq",
         "currency": "Hisob valyutasini tanlang",
         "comment": "Izoh"
+      },
+      "status": {
+        "active": "Faol",
+        "archived": "Arxivda"
       },
       "placeholders": {
         "name": "Masalan, VTB",
@@ -1942,6 +1947,7 @@
         "initialBalance": "Boshlang'ich qoldiq",
         "currency": "Valyuta",
         "type": "Turi",
+        "status": "Holati",
         "created": "Yaratilgan sana",
         "legalEntity": "Yuridik shaxs",
         "requisites": "Rekvizitlar"

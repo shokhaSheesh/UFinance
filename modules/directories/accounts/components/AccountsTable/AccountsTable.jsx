@@ -78,7 +78,7 @@ export function AccountsTable({
         </thead>
         <tbody>
           <tr>
-            <td colSpan={9} className="p-8  text-neutral-400">
+            <td colSpan={10} className="p-8  text-neutral-400">
               <span className='text-center'> {t('noData')}</span>
             </td>
           </tr>

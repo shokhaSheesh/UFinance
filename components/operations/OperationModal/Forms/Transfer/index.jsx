@@ -303,6 +303,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										}}
 										multi={false}
 										type='show'
+										active
 										extraValue='currenies_id'
 										returnValue={value => handleSelectMyAccount('currency_1', value)}
 										placeholder={t('legalEntityPlaceholder')}
@@ -392,6 +393,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										}}
 										multi={false}
 										type='show'
+										active
 										extraValue='currenies_id'
 										returnValue={value => handleSelectMyAccount('currency_2', value)}
 										placeholder={t('legalEntityPlaceholder')}

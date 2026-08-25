@@ -604,6 +604,7 @@ const PaymentForm = observer(({
                       multi={false}
                       type="show"
                       isClearable={false}
+                      active
                       extraValue="currenies_id"
                       returnValue={handleSelectMyAccount}
                       placeholder={t('legalEntityPlaceholder')}

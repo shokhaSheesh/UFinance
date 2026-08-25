@@ -1860,6 +1860,7 @@
         "group": "Группа",
         "legalEntity": "Юрлицо",
         "type": "Выберите тип счета",
+        "status": "Статус",
         "bik": "Бик",
         "bank": "Банк",
         "accountNumber": "Расч. счет №",
@@ -1868,6 +1869,10 @@
         "initialBalance": "Начальный остаток",
         "currency": "Выберите валюту счета",
         "comment": "Комментарий"
+      },
+      "status": {
+        "active": "Активный",
+        "archived": "В архиве"
       },
       "placeholders": {
         "name": "Например, ВТБ",
@@ -1910,6 +1915,7 @@
         "initialBalance": "Начальный остаток",
         "currency": "Валюта",
         "type": "Тип",
+        "status": "Статус",
         "created": "Дата создания",
         "legalEntity": "Юрлицо",
         "requisites": "Реквизиты"
