@@ -201,6 +201,7 @@
       "selectProduct": "Tovar yoki xizmatni tanlang",
       "selectCurrency": "Valyutani tanlang",
       "selectGroup": "Guruhni tanlang",
+      "selectUser": "Foydalanuvchini tanlang",
       "selectCounterpartyGroup": "Hamkorlar guruhini tanlang",
       "selectPurchaseDeals": "Xarid bitimlari"
     },
@@ -1189,7 +1190,43 @@
       "branches": "Filiallar",
       "currencies": "Valyutalar",
       "roles": "Rollar",
+      "groups": "Guruhlar",
+      "reasons": "Ishtirok etmaslik sabablari",
       "contract": "Shartnoma"
+    },
+    "groups": {
+      "pageTitle": "Guruhlar",
+      "name": "Guruh",
+      "leaders": "Mas'ullar",
+      "count": "Soni",
+      "noData": "Guruhlar yo'q",
+      "empty": {
+        "title": "Hozircha guruhlar yo'q",
+        "description": "Hamkorlar guruhlari «Hamkorlar» ma'lumotnomasida yaratiladi. Bu yerda ularga mas'ullarni tayinlash mumkin."
+      },
+      "searchPlaceholder": "Guruh nomi bo'yicha qidirish",
+      "leadersTitle": "Guruh mas'ullari",
+      "addUser": "Foydalanuvchi qo'shish",
+      "userPlaceholder": "Foydalanuvchini toping",
+      "noLeaders": "Mas'ullar tayinlanmagan",
+      "close": "Yopish"
+    },
+    "reasons": {
+      "pageTitle": "Ishtirok etmaslik sabablari",
+      "add": "Qo'shish",
+      "edit": "Sababni tahrirlash",
+      "description": "Sabab",
+      "descriptionPlaceholder": "Masalan, kasallik",
+      "empty": {
+        "title": "Hozircha sabablar yo'q",
+        "description": "Xodimlar ishtirok etmaslikni belgilashi uchun sabablarni qo'shing."
+      },
+      "errors": {
+        "descriptionRequired": "Sababni kiriting"
+      },
+      "delete": {
+        "confirm": "Sababni o'chirishga ishonchingiz komilmi?"
+      }
     },
     "general": {
       "pageTitle": "Umumiy sozlamalar",

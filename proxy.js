@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 
 const includedPaths = ['auth', 'payment', 'delete-account']
 
+// /:chatId/attendance — webview переклички для телеграм-бота, открывается без логина
+const publicPatterns = [/^\/[^/]+\/attendance(\/|$)/]
+
 export function proxy(request) {
   const { pathname } = request.nextUrl
   const authRoutes = ['/auth']
@@ -18,6 +21,10 @@ export function proxy(request) {
   // Allow paths that don't require auth
   if (includedPaths.some(path => pathname.startsWith(`/${path}`))) {
     return NextResponse.next() // is_group=false/true
+  }
+
+  if (publicPatterns.some(pattern => pattern.test(pathname))) {
+    return NextResponse.next()
   }
 
 
