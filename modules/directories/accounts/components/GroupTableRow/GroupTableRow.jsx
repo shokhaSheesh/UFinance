@@ -13,7 +13,8 @@ export function GroupTableRow({
   onEdit, 
   onDelete,
   onAccountEdit,
-  onAccountDelete 
+  onAccountDelete,
+  onAccountArchive
 }) {
   return (
     <React.Fragment>
@@ -67,6 +68,7 @@ export function GroupTableRow({
           account={account}
           onEdit={() => onAccountEdit(account)}
           onDelete={() => onAccountDelete(account)}
+          onArchive={() => onAccountArchive(account)}
         />
       ))}
     </React.Fragment>

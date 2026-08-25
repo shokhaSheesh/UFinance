@@ -3,7 +3,7 @@ import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { AccountMenu } from '@/components/directories/AccountMenu/AccountMenu'
 import { formatAccountFieldValue, ACCOUNT_FIELDS } from '../../utils/accountsFieldFormatter'
 
-export function AccountTableRow({ account, onEdit, onDelete }) {
+export function AccountTableRow({ account, onEdit, onDelete, onArchive }) {
   return (
     <tr className="hover:bg-neutral-50 border-b border-gray-100 transition-colors h-14">
       <td className="p-2">
@@ -21,8 +21,10 @@ export function AccountTableRow({ account, onEdit, onDelete }) {
       ))}
       <td className="p-2 text-end">
         <AccountMenu
+          account={account}
           onEdit={onEdit}
           onDelete={onDelete}
+          onArchive={onArchive}
         />
       </td>
     </tr>

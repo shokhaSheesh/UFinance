@@ -13,6 +13,7 @@ export function AccountsTable({
   onToggleGroup,
   onAccountEdit,
   onAccountDelete,
+  onAccountArchive,
   onGroupEdit,
   onGroupDelete,
   onExpandAll,
@@ -129,6 +130,7 @@ export function AccountsTable({
                 onDelete={() => onGroupDelete(item)}
                 onAccountEdit={onAccountEdit}
                 onAccountDelete={onAccountDelete}
+                onAccountArchive={onAccountArchive}
               />
             )
           }
@@ -139,6 +141,7 @@ export function AccountsTable({
               account={item}
               onEdit={() => onAccountEdit(item)}
               onDelete={() => onAccountDelete(item)}
+              onArchive={() => onAccountArchive(item)}
             />
           )
         })}

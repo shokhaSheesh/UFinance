@@ -75,6 +75,7 @@ const TotalPrice = observer(() => {
       elektronnye: true,
       kartaFizlica: true,
       nalichnye: true,
+      active: true,
     },
     querySetting: {
       select: (response) => response?.data,

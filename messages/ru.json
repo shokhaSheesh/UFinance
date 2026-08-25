@@ -1874,6 +1874,12 @@
         "active": "Активный",
         "archived": "В архиве"
       },
+      "archiveAction": {
+        "archive": "Убрать в архив",
+        "unarchive": "Вернуть из архива",
+        "archived": "Счет убран в архив",
+        "unarchived": "Счет возвращен из архива"
+      },
       "placeholders": {
         "name": "Например, ВТБ",
         "selectLegalEntity": "Выберите юрлицо или создайте новое",
