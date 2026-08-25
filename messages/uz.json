@@ -1906,6 +1906,12 @@
         "active": "Faol",
         "archived": "Arxivda"
       },
+      "archiveAction": {
+        "archive": "Arxivga o'tkazish",
+        "unarchive": "Arxivdan qaytarish",
+        "archived": "Hisob arxivga o'tkazildi",
+        "unarchived": "Hisob arxivdan qaytarildi"
+      },
       "placeholders": {
         "name": "Masalan, VTB",
         "selectLegalEntity": "Yuridik shaxsni tanlang yoki yangi yarating",

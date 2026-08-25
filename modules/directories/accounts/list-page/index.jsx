@@ -13,7 +13,7 @@ import Input from '@/components/shared/Input'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
+import { useDeleteMyAccounts, useUcodeRequestMutation, useUcodeRequestQuery, useUpdateMyAccount } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
 import { isObjectInUseError } from '@/lib/api/ucode/errors'
@@ -71,9 +71,11 @@ export default observer(function AccountsPageList() {
 
   // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState(new Set())
+  const [isArchiving, setIsArchiving] = useState(false)
 
   // Delete mutations
   const deleteMutation = useDeleteMyAccounts()
+  const updateAccountMutation = useUpdateMyAccount()
   const { mutateAsync: deleteGroupMutate, isPending: isPendingDeleteGroup } = useUcodeRequestMutation({
     mutationSetting: {
       onSuccess: () => {
@@ -163,6 +165,42 @@ export default observer(function AccountsPageList() {
       if (isObjectInUseError(error)) {
         showErrorNotification(tErrors('cannotDelete.account'))
       }
+    }
+  }
+
+  // Архивация счета: отдельного метода нет, поэтому шлем весь счет в update
+  // с перевернутым is_archived. Лоадер держим до конца перезапроса списка,
+  // иначе строка успевает мигнуть со старым статусом
+  const handleToggleArchive = async (account) => {
+    if (!account?.guid || isArchiving) return
+    const nextArchived = !account.is_archived
+
+    setIsArchiving(true)
+    try {
+      await updateAccountMutation.mutateAsync({
+        guid: account.guid,
+        nazvanie: account.nazvanie || '',
+        tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
+        nachalьnyy_ostatok: account.nachalьnyy_ostatok_val ?? null,
+        data_sozdaniya: account.data_sozdaniya || null,
+        currenies_id: account.currenies_id || null,
+        komentariy: account.komentariy || null,
+        legal_entity_id: account.legal_entity_id || null,
+        bik: account.bik || null,
+        bank_name: account.bank_name || account.bank || null,
+        nomer: account.nomer,
+        nomer_scheta: account.nomer_scheta,
+        kor_schet: account.kor_schet || account.korr_schet || null,
+        account_groups_id: account.account_groups_id || account.account_group_id || account.group_id || null,
+        is_archived: nextArchived,
+      })
+
+      await queryClient.invalidateQueries({ queryKey: ['get_my_accounts'] })
+      queryClient.invalidateQueries({ queryKey: ['myAccountsBoard'] })
+    } catch (error) {
+      console.error('Error archiving account:', error)
+    } finally {
+      setIsArchiving(false)
     }
   }
 
@@ -313,6 +351,7 @@ export default observer(function AccountsPageList() {
               onToggleGroup={toggleGroup}
               onAccountEdit={modals.openEditAccountModal}
               onAccountDelete={modals.openDeleteAccountModal}
+              onAccountArchive={handleToggleArchive}
               onGroupEdit={(group) => {
                 if (selectedGrouping === 'legal_entities') {
                   modals.openEditLegalEntityModal(group)
@@ -350,7 +389,7 @@ export default observer(function AccountsPageList() {
             )}
           </div>
         </div>
-        {isLoadingBankAccounts && <ScreenLoader />}
+        {(isLoadingBankAccounts || isArchiving) && <ScreenLoader />}
       </div>
 
       {/* Create Account Modal */}

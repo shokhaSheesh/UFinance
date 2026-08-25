@@ -1045,7 +1045,7 @@ const CreateStudentModal = observer(
                         {/* Row 1 */}
                         <div className="flex flex-col gap-1.5 focus-within:text-blue-600">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("contractDate")} *
+                            {t("contractDate")} {isTargetSchool && "*"}
                           </label>
                           <Controller
                             name="contractDate"
@@ -1079,7 +1079,7 @@ const CreateStudentModal = observer(
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("guardianName")} *
+                            {t("guardianName")} {isTargetSchool && "*"}
                           </label>
                           <Input
                             placeholder={t("guardianNamePlaceholder")}
@@ -1205,7 +1205,7 @@ const CreateStudentModal = observer(
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("phone1")} *
+                            {t("phone1")} {isTargetSchool && "*"}
                           </label>
                           <Controller
                             name="phone1"
@@ -1417,7 +1417,7 @@ const CreateStudentModal = observer(
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("validFrom")} *
+                            {t("validFrom")} {isTargetSchool && "*"}
                           </label>
                           <Controller
                             name="validFrom"
@@ -1508,7 +1508,7 @@ const CreateStudentModal = observer(
                         {/* Row 6 */}
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("validTo")} *
+                            {t("validTo")} {isTargetSchool && "*"}
                           </label>
                           <Controller
                             name="validTo"
@@ -1564,7 +1564,7 @@ const CreateStudentModal = observer(
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("class")} *
+                            {t("class")} {isTargetSchool && "*"}
                           </label>
                           <Controller
                             name="classes_id"
@@ -1718,7 +1718,7 @@ const CreateStudentModal = observer(
                       >
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-medium text-gray-700">
-                            {t("address")} *
+                            {t("address")} {isTargetSchool && "*"}
                           </label>
                           <Input
                             placeholder={t("addressPlaceholder")}

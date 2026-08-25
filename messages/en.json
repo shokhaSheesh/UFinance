@@ -1759,6 +1759,12 @@
         "active": "Active",
         "archived": "Archived"
       },
+      "archiveAction": {
+        "archive": "Move to archive",
+        "unarchive": "Restore from archive",
+        "archived": "Account moved to archive",
+        "unarchived": "Account restored from archive"
+      },
       "placeholders": {
         "name": "e.g., Chase Business",
         "selectLegalEntity": "Select legal entity or create new",

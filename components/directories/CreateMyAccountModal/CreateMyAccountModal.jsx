@@ -34,7 +34,6 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
       return {
         nazvanie: account.nazvanie || '',
         tip: Array.isArray(account.tip) ? account.tip : ['Наличный'],
-        status: account.is_archived ? 'archived' : 'active',
         nachalьnyy_ostatok: account?.nachalьnyy_ostatok_val || '',
         data_sozdaniya: moment.parseZone(account?.data_sozdaniya || Date.now()).format('YYYY-MM-DD'),
         currenies_id: account.currenies_id || '',
@@ -51,7 +50,6 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
     return {
       nazvanie: '',
       tip: ['Наличный'],
-      status: 'active',
       nachalьnyy_ostatok: '',
       data_sozdaniya: moment.parseZone(Date.now()).format('YYYY-MM-DD'),
       currenies_id: appStore?.currency?.guid || '',
@@ -140,7 +138,8 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
 
       if (isEdit && account && account.guid) {
         submitData.guid = account.guid
-        submitData.is_archived = data.status === 'archived'
+        // Архивный статус меняется отдельным пунктом меню, здесь только сохраняем текущий
+        submitData.is_archived = Boolean(account.is_archived)
         await updateMutation.mutateAsync(submitData)
       } else {
         await createMutation.mutateAsync(submitData)
@@ -285,34 +284,6 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
             </div>
 
 
-
-            {/* Статус — доступен только при редактировании, отправляется как is_archived */}
-            {isEdit && (
-              <div className="flex flex-row gap-2">
-                <label className="w-[30%] text-sm text-[#0f172a] flex items-center gap-1">
-                  {t('fields.status')}
-                </label>
-                <div className="flex-1 flex flex-col gap-1">
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <SingleSelect
-                        data={[
-                          { value: 'active', label: t('status.active') },
-                          { value: 'archived', label: t('status.archived') }
-                        ]}
-                        value={field.value}
-                        onChange={field.onChange}
-                        withSearch={false}
-                        isClearable={false}
-                        className="flex-1 bg-white"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            )}
 
             {(selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
               <div className="">
