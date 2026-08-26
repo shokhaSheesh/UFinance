@@ -85,9 +85,38 @@
   text-overflow: ellipsis;
 
   &--back { color: var(--k-link); text-align: left; }
-  &--close { color: var(--k-hint); text-align: right; }
+  &--right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    overflow: visible;
+  }
   &:disabled { opacity: 0; cursor: default; }
 }
+
+/* язык и закрытие живут в правой половине шапки */
+.k-nav__lang,
+.k-nav__close {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:active { opacity: 0.55; }
+}
+.k-nav__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--k-link);
+  font-weight: 600;
+}
+.k-nav__close { color: var(--k-hint); }
 .k-nav__title {
   flex: 0 1 auto;
   font-size: 15px;
@@ -456,6 +485,16 @@
     place-items: center;
     flex: none;
     font-size: 15px;
+
+    &--code {
+      font-size: 11px;
+      font-weight: 700;
+    }
+  }
+  &__check {
+    margin-left: auto;
+    color: var(--k-link);
+    font-weight: 700;
   }
   &__empty {
     padding: 4px 16px 14px;

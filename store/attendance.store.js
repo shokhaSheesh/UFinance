@@ -53,9 +53,17 @@ const timeLabel = () => {
   return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
 }
 
+// Язык мини-аппа переживает перезагрузку webview: телеграм открывает его
+// заново на каждый тап по кнопке бота
+const LANG_STORAGE_KEY = "attendance_lang"
+
 class AttendanceStore {
   // приходит из /:chatId/attendance
   chatId = null
+  // язык интерфейса: приходит из get_attendance_bot_chat, дальше — выбор пользователя
+  language = "ru"
+  // пользователь выбрал язык сам — ответ бота больше его не перебивает
+  languageTouched = false
   // выдаёт get_attendance_bot_chat
   userId = null
   companyId = null
@@ -78,6 +86,36 @@ class AttendanceStore {
 
   setChatId(chatId) {
     this.chatId = chatId || null
+  }
+
+  // Язык из ответа бота — только пока пользователь не выбрал свой
+  setSessionLanguage(code) {
+    if (!code || this.languageTouched) return
+    this.language = code
+  }
+
+  setLanguage(code) {
+    if (!code) return
+    this.language = code
+    this.languageTouched = true
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(LANG_STORAGE_KEY, code)
+      } catch {
+        // приватный режим webview — переживём, язык останется на сессию
+      }
+    }
+  }
+
+  // Читается после монтирования: на сервере localStorage нет, а чтение
+  // языка прямо в рендере разошлось бы с серверной разметкой
+  readSavedLanguage() {
+    if (typeof window === "undefined") return null
+    try {
+      return window.localStorage.getItem(LANG_STORAGE_KEY)
+    } catch {
+      return null
+    }
   }
 
   setSession({ userId, companyId, branchId } = {}) {

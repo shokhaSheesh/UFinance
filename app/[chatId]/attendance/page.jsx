@@ -4,13 +4,7 @@ import MiniAppNav from "@/components/attendance/MiniAppNav"
 import { useMiniApp } from "@/components/attendance/MiniAppProvider"
 import StatusCounters from "@/components/attendance/StatusCounters"
 import { useAttendanceGroups, useAttendanceSession } from "@/hooks/useAttendance"
-import {
-  gardenTotals,
-  groupsWord,
-  groupStats,
-  kidsWord,
-  todayLabel,
-} from "@/store/attendance.store"
+import { gardenTotals, groupStats } from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -31,7 +25,7 @@ const colorOf = (id = "") => {
 // Данные — get_attendance_groups, статистика за день считается на бэкенде.
 export default observer(function AttendancePanel() {
   const router = useRouter()
-  const { chatId, link } = useMiniApp()
+  const { chatId, link, t, kids, groups: groupsWord, today } = useMiniApp()
   const [tab, setTab] = useState("groups")
 
   const session = useAttendanceSession(chatId)
@@ -47,9 +41,9 @@ export default observer(function AttendancePanel() {
   if (session.isLoading) {
     return (
       <>
-        <MiniAppNav title="Перекличка" />
+        <MiniAppNav title={t("nav.attendance")} />
         <div className="k-scroll">
-          <div className="k-empty">Открываем перекличку…</div>
+          <div className="k-empty">{t("panel.opening")}</div>
         </div>
       </>
     )
@@ -58,14 +52,14 @@ export default observer(function AttendancePanel() {
   if (!chatId || session.error || !session.isReady) {
     return (
       <>
-        <MiniAppNav title="Перекличка" />
+        <MiniAppNav title={t("nav.attendance")} />
         <div className="k-scroll">
           <div className="k-empty">
-            Этот чат не привязан к сотруднику.
+            {t("panel.notLinked")}
             <br />
-            Откройте перекличку из бота ещё раз.
+            {t("panel.notLinkedHint")}
           </div>
-          <div className="k-hint">Чат: {chatId || "—"}</div>
+          <div className="k-hint">{t("panel.chat", { id: chatId || "—" })}</div>
         </div>
       </>
     )
@@ -75,14 +69,16 @@ export default observer(function AttendancePanel() {
 
   return (
     <>
-      <MiniAppNav title={`Перекличка · ${todayLabel()}`} />
+      <MiniAppNav title={`${t("nav.attendance")} · ${today()}`} />
 
       <div className="k-scroll k-scroll--with-footer">
         <div className="k-top">
-          <div className="k-title">{kidsWord(stats.here)} в саду</div>
+          <div className="k-title">{t("panel.inGarden", { kids: kids(stats.here) })}</div>
           <div className="k-sub">
-            Отмечено {stats.marked} из {stats.total} ·{" "}
-            {pending.length ? `ждём ${groupsWord(pending.length)}` : "все группы сдали"}
+            {t("panel.marked", { marked: stats.marked, total: stats.total })} ·{" "}
+            {pending.length
+              ? t("panel.waiting", { groups: groupsWord(pending.length) })
+              : t("panel.allSubmitted")}
           </div>
           <StatusCounters stats={stats} />
         </div>
@@ -92,25 +88,27 @@ export default observer(function AttendancePanel() {
             className={`k-tab ${tab === "groups" ? "k-tab--on" : ""}`}
             onClick={() => setTab("groups")}
           >
-            Все группы
+            {t("panel.tabAll")}
           </span>
           <span
             className={`k-tab ${tab === "pending" ? "k-tab--on" : ""}`}
             onClick={() => setTab("pending")}
           >
-            Не сдали · {pending.length}
+            {t("panel.tabPending", { count: pending.length })}
           </span>
         </div>
 
         <div className="k-sec-title">
-          {tab === "pending" ? "Ждём перекличку" : `Группы · ${groups.length}`}
+          {tab === "pending"
+            ? t("panel.sectionPending")
+            : t("panel.sectionGroups", { count: groups.length })}
         </div>
 
         <div className="k-list">
           {visibleGroups.map((group) => {
             const groupId = group.counterparties_group_id
             const rowStats = groupStats(group)
-            const name = group.nazvanie_gruppy || "Без названия"
+            const name = group.nazvanie_gruppy || t("group.fallbackName")
 
             return (
               <button
@@ -127,8 +125,11 @@ export default observer(function AttendancePanel() {
                   <div className="k-kid__n">{name}</div>
                   <div className={`k-kid__s ${rowStats.done ? "" : "k-kid__s--alert"}`}>
                     {rowStats.done
-                      ? `сдано · ${rowStats.here} из ${rowStats.total} в саду`
-                      : `не отмечено ${rowStats.unmarked} из ${rowStats.total}`}
+                      ? t("panel.rowDone", { here: rowStats.here, total: rowStats.total })
+                      : t("panel.rowPending", {
+                          count: rowStats.unmarked,
+                          total: rowStats.total,
+                        })}
                   </div>
                 </div>
 
@@ -140,23 +141,19 @@ export default observer(function AttendancePanel() {
             )
           })}
 
-          {isLoading && <div className="k-empty">Загружаем группы…</div>}
+          {isLoading && <div className="k-empty">{t("panel.loading")}</div>}
 
-          {!isLoading && error && (
-            <div className="k-empty">Не удалось загрузить группы. Потяните позже.</div>
-          )}
+          {!isLoading && error && <div className="k-empty">{t("panel.error")}</div>}
 
           {!isLoading && !error && !visibleGroups.length && (
             <div className="k-empty">
-              {tab === "pending"
-                ? "Все группы сдали перекличку ✓"
-                : "К вам пока не привязана ни одна группа"}
+              {tab === "pending" ? t("panel.emptyPending") : t("panel.emptyGroups")}
             </div>
           )}
         </div>
 
         {/* Подсказка для сверки привязки при подключении бота */}
-        <div className="k-hint">Чат: {chatId}</div>
+        <div className="k-hint">{t("panel.chat", { id: chatId })}</div>
       </div>
 
       <div className="k-footer">
@@ -169,13 +166,11 @@ export default observer(function AttendancePanel() {
           }
         >
           {firstPending
-            ? `Отметить · ${firstPending.nazvanie_gruppy || "группа"}`
-            : "Все группы сдали перекличку"}
-          {firstPending && (
-            <small>
-              осталось {groupsWord(pending.length)}
-            </small>
-          )}
+            ? t("panel.markGroup", {
+                name: firstPending.nazvanie_gruppy || t("panel.groupFallback"),
+              })
+            : t("panel.allDone")}
+          {firstPending && <small>{t("panel.left", { count: pending.length })}</small>}
         </button>
       </div>
     </>

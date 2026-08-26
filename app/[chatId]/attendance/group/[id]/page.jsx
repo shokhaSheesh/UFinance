@@ -12,10 +12,8 @@ import {
 import {
   attendanceStore,
   countMarks,
-  STATUS_LABEL,
   STATUSES,
   todayISO,
-  todayLabel,
 } from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
 import { useParams, useRouter } from "next/navigation"
@@ -64,9 +62,9 @@ const initialsOf = (name = "") =>
     .join("") || "?"
 
 // Подпись под именем: статус черновика и причина, если её указали
-const rowSubtitle = (mark) => {
-  if (!mark) return { color: "var(--k-hint)", text: "Не отмечен" }
-  const label = STATUS_LABEL[mark.status] || "Отмечен"
+const rowSubtitle = (mark, t) => {
+  if (!mark) return { color: "var(--k-hint)", text: t("group.notMarked") }
+  const label = t(`status.${mark.status}`)
   return {
     color: STATUS_DOT[mark.status] || "var(--k-hint)",
     text: mark.description ? `${label} · ${mark.description}` : label,
@@ -78,7 +76,7 @@ const rowSubtitle = (mark) => {
 export default observer(function RollCallPage() {
   const router = useRouter()
   const params = useParams()
-  const { showToast, haptic, link, chatId } = useMiniApp()
+  const { showToast, haptic, link, chatId, t, kids, today } = useMiniApp()
 
   const [search, setSearch] = useState("")
   const [sheetKidId, setSheetKidId] = useState(null)
@@ -134,11 +132,7 @@ export default observer(function RollCallPage() {
     try {
       await save({ groupId, date: day })
       haptic("medium")
-      showToast(
-        stats.done
-          ? "Перекличка сохранена"
-          : `Сохранено: отмечено ${stats.marked} из ${stats.total}`,
-      )
+      showToast(t("group.savedToast"))
       router.push(link())
     } catch (saveError) {
       // текст ошибки метода показывает общий обработчик мутации
@@ -149,11 +143,13 @@ export default observer(function RollCallPage() {
   if (!session.isLoading && !session.isReady) {
     return (
       <>
-        <MiniAppNav title="Перекличка" backLabel="Группы" backHref={link()} />
+        <MiniAppNav
+          title={t("nav.attendance")}
+          backLabel={t("nav.groups")}
+          backHref={link()}
+        />
         <div className="k-scroll">
-          <div className="k-empty">
-            Сессия истекла. Откройте перекличку из бота ещё раз.
-          </div>
+          <div className="k-empty">{t("group.sessionExpired")}</div>
         </div>
       </>
     )
@@ -162,19 +158,19 @@ export default observer(function RollCallPage() {
   return (
     <>
       <MiniAppNav
-        title={groupName || "Перекличка"}
-        backLabel="Группы"
+        title={groupName || t("nav.attendance")}
+        backLabel={t("nav.groups")}
         backHref={link()}
       />
 
       <div className="k-scroll k-scroll--with-footer">
         <div className="k-top">
           <div className="k-title">
-            {groupName || "Группа"} · {todayLabel()}
+            {groupName || t("group.fallbackName")} · {today()}
           </div>
           <div className="k-sub">
-            {stats.total} детей
-            {savedAt ? ` · сохранено в ${savedAt}` : ""}
+            {kids(stats.total)}
+            {savedAt ? ` · ${t("group.savedAt", { time: savedAt })}` : ""}
           </div>
 
           <StatusCounters stats={stats} />
@@ -185,11 +181,11 @@ export default observer(function RollCallPage() {
               className="k-quick__btn"
               onClick={() => {
                 attendanceStore.markAllPresent(groupId, rows)
-                showToast("Все неотмеченные — «пришёл»")
+                showToast(t("group.allPresentToast"))
               }}
               disabled={!stats.unmarked}
             >
-              Все пришли
+              {t("group.allPresent")}
             </button>
             <button
               type="button"
@@ -197,7 +193,7 @@ export default observer(function RollCallPage() {
               onClick={() => attendanceStore.clearGroup(groupId)}
               disabled={!stats.marked}
             >
-              Очистить
+              {t("group.clear")}
             </button>
           </div>
         </div>
@@ -207,20 +203,21 @@ export default observer(function RollCallPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Поиск по имени"
+            placeholder={t("group.search")}
           />
         </div>
 
         <div className="k-sec-title">
-          Список группы
-          {stats.unmarked ? ` · не отмечено ${stats.unmarked}` : " · все отмечены"}
+          {stats.unmarked
+            ? t("group.listUnmarked", { count: stats.unmarked })
+            : t("group.listAllMarked")}
         </div>
 
         <div className="k-list">
           {filteredRows.map((row) => {
             const id = row.counterparties_id
             const mark = marks[id]
-            const subtitle = rowSubtitle(mark)
+            const subtitle = rowSubtitle(mark, t)
 
             return (
               <div key={id} className="k-row">
@@ -241,7 +238,7 @@ export default observer(function RollCallPage() {
                     type="button"
                     className={`k-seg__b ${mark?.status === STATUSES.present ? "k-seg__b--on-ok" : ""}`}
                     onClick={() => handleStatus(row, STATUSES.present)}
-                    aria-label="Пришёл"
+                    aria-label={t("status.present")}
                   >
                     <CheckIcon />
                   </button>
@@ -249,7 +246,7 @@ export default observer(function RollCallPage() {
                     type="button"
                     className={`k-seg__b ${mark?.status === STATUSES.absent ? "k-seg__b--on-absent" : ""}`}
                     onClick={() => handleStatus(row, STATUSES.absent)}
-                    aria-label="Отсутствует"
+                    aria-label={t("status.absent")}
                   >
                     <CrossIcon />
                   </button>
@@ -257,7 +254,7 @@ export default observer(function RollCallPage() {
                     type="button"
                     className={`k-seg__b ${mark?.status === STATUSES.late ? "k-seg__b--on-late" : ""}`}
                     onClick={() => handleStatus(row, STATUSES.late)}
-                    aria-label="Опоздал"
+                    aria-label={t("status.late")}
                   >
                     <ClockIcon />
                   </button>
@@ -266,15 +263,13 @@ export default observer(function RollCallPage() {
             )
           })}
 
-          {isLoading && <div className="k-empty">Загружаем список группы…</div>}
+          {isLoading && <div className="k-empty">{t("group.loading")}</div>}
 
-          {!isLoading && error && (
-            <div className="k-empty">Не удалось загрузить список группы</div>
-          )}
+          {!isLoading && error && <div className="k-empty">{t("group.error")}</div>}
 
           {!isLoading && !error && !filteredRows.length && (
             <div className="k-empty">
-              {search ? "Никого не нашли по запросу" : "В группе пока нет детей"}
+              {search ? t("group.emptySearch") : t("group.empty")}
             </div>
           )}
         </div>
@@ -288,11 +283,11 @@ export default observer(function RollCallPage() {
           disabled={!stats.done || isSaving}
           onClick={handleSave}
         >
-          {isSaving ? "Сохраняем…" : "Сохранить перекличку"}
+          {isSaving ? t("group.saving") : t("group.save")}
           <small>
             {stats.unmarked
-              ? `Отмечено ${stats.marked} из ${stats.total} · отметьте остальных`
-              : `Отмечены все · ${stats.total}`}
+              ? t("group.saveHintPending", { marked: stats.marked, total: stats.total })
+              : t("group.saveHintDone", { total: stats.total })}
           </small>
         </button>
       </div>

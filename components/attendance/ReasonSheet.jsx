@@ -2,12 +2,14 @@
 
 import { useAbsenceReasons } from "@/hooks/useAttendance"
 import { useState } from "react"
+import { useMiniApp } from "./MiniAppProvider"
 
 // Шторка причины отсутствия. Список тянем из справочника компании
 // (Настройки → Причины отсутствия), выбранный или вписанный текст
 // уходит в description строки create_attendance.
 export default function ReasonSheet({ kid, onSelect, onCancel }) {
   const isOpen = Boolean(kid)
+  const { t } = useMiniApp()
   const { reasons, isLoading } = useAbsenceReasons()
   const [custom, setCustom] = useState("")
   const [shownKidId, setShownKidId] = useState(null)
@@ -25,9 +27,11 @@ export default function ReasonSheet({ kid, onSelect, onCancel }) {
 
       <div className={`k-sheet ${isOpen ? "k-sheet--on" : ""}`}>
         <div className="k-sheet__grab" />
-        <div className="k-sheet__h">{kid ? `${kid.nazvanie} · причина` : "Причина"}</div>
+        <div className="k-sheet__h">
+          {kid ? t("reason.titleFor", { name: kid.nazvanie }) : t("reason.title")}
+        </div>
 
-        {isLoading && <div className="k-sheet__empty">Загружаем причины…</div>}
+        {isLoading && <div className="k-sheet__empty">{t("reason.loading")}</div>}
 
         {!isLoading &&
           reasons.map((reason) => (
@@ -46,20 +50,20 @@ export default function ReasonSheet({ kid, onSelect, onCancel }) {
           <input
             value={custom}
             onChange={(event) => setCustom(event.target.value)}
-            placeholder="Своя причина"
+            placeholder={t("reason.custom")}
             onKeyDown={(event) => {
               if (event.key === "Enter" && custom.trim()) onSelect(custom.trim())
             }}
           />
           <button type="button" disabled={!custom.trim()} onClick={() => onSelect(custom.trim())}>
-            Готово
+            {t("reason.done")}
           </button>
         </div>
 
         {/* без причины тоже можно — description останется пустым */}
         <button type="button" className="k-sheet__opt" onClick={() => onSelect("")}>
           <span className="k-sheet__ic k-pill--absent">✕</span>
-          Без указания причины
+          {t("reason.none")}
         </button>
 
         <button
@@ -69,7 +73,7 @@ export default function ReasonSheet({ kid, onSelect, onCancel }) {
           onClick={onCancel}
         >
           <span className="k-sheet__ic k-pill--wait">↩︎</span>
-          Отмена
+          {t("reason.cancel")}
         </button>
       </div>
     </>

@@ -1,6 +1,7 @@
 "use client"
 
 import { attendanceStore } from "@/store/attendance.store"
+import { observer } from "mobx-react-lite"
 import { useParams } from "next/navigation"
 import Script from "next/script"
 import {
@@ -13,6 +14,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react"
+import { createT, dateLabel, groupsWord, kidsWord, normalizeLocale } from "./i18n"
 
 const MiniAppContext = createContext(null)
 
@@ -26,9 +28,9 @@ const getTheme = () => (getWebApp()?.colorScheme === "dark" ? "dark" : "light")
 const getServerTheme = () => "light"
 
 // Оборачивает весь раздел детского сада: подключает telegram-web-app.js,
-// подхватывает тему бота и даёт общий toast. Вне телеграма всё работает
+// подхватывает тему бота, язык и даёт общий toast. Вне телеграма всё работает
 // так же, просто со светлой темой.
-export default function MiniAppProvider({ children }) {
+export default observer(function MiniAppProvider({ children }) {
   // Скрипт телеграма грузится асинхронно — по его onLoad переподписываемся
   const [scriptTick, setScriptTick] = useState(0)
   const [toast, setToast] = useState("")
@@ -42,6 +44,20 @@ export default function MiniAppProvider({ children }) {
   useEffect(() => {
     attendanceStore.setChatId(chatId)
   }, [chatId])
+
+  // Свой выбор языка важнее языка из бота — поднимаем его после монтирования
+  useEffect(() => {
+    const saved = normalizeLocale(attendanceStore.readSavedLanguage())
+    if (saved) attendanceStore.setLanguage(saved)
+  }, [])
+
+  const locale = attendanceStore.language
+  const t = useMemo(() => createT(locale), [locale])
+
+  const setLocale = useCallback((code) => {
+    const next = normalizeLocale(code)
+    if (next) attendanceStore.setLanguage(next)
+  }, [])
 
   const link = useCallback(
     (path = "") => `/${chatId}/attendance${path}`,
@@ -78,8 +94,8 @@ export default function MiniAppProvider({ children }) {
   const close = useCallback(() => {
     const app = getWebApp()
     if (app?.close) app.close()
-    else showToast("Закрыть можно из телеграма")
-  }, [showToast])
+    else showToast(t("app.closeHint"))
+  }, [showToast, t])
 
   const haptic = useCallback(
     (type = "light") => getWebApp()?.HapticFeedback?.impactOccurred?.(type),
@@ -87,8 +103,22 @@ export default function MiniAppProvider({ children }) {
   )
 
   const value = useMemo(
-    () => ({ theme, showToast, close, haptic, chatId, link }),
-    [theme, showToast, close, haptic, chatId, link]
+    () => ({
+      theme,
+      showToast,
+      close,
+      haptic,
+      chatId,
+      link,
+      locale,
+      setLocale,
+      t,
+      // подписи с числительными зависят от языка так же, как и строки
+      kids: (count) => kidsWord(locale, count),
+      groups: (count) => groupsWord(locale, count),
+      today: () => dateLabel(locale),
+    }),
+    [theme, showToast, close, haptic, chatId, link, locale, setLocale, t]
   )
 
   return (
@@ -104,4 +134,4 @@ export default function MiniAppProvider({ children }) {
       </div>
     </MiniAppContext.Provider>
   )
-}
+})

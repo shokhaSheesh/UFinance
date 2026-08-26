@@ -1,5 +1,6 @@
 'use client'
 
+import { normalizeLocale } from '@/components/attendance/i18n'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
 import { attendanceStore, todayISO } from '@/store/attendance.store'
@@ -40,6 +41,10 @@ export function useAttendanceSession(chatId) {
       companyId: session.company_id,
       branchId: session.branch_id,
     })
+    // язык бота — стартовый для мини-аппа, пока сотрудник не выбрал свой
+    attendanceStore.setSessionLanguage(
+      normalizeLocale(session.language || session.data?.language),
+    )
   }, [session])
 
   return {
