@@ -206,18 +206,24 @@
 }
 .k-quick__btn {
   flex: 1;
+  /* заливка, а не прозрачный фон: в тёмной теме кнопка на карточке
+     превращалась в еле заметный контур */
   border: 1px solid var(--k-sep);
-  background: var(--k-bg);
+  background: var(--k-fill);
   color: var(--k-link);
   font-size: 13px;
   font-weight: 550;
   padding: 10px 8px;
   border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.12s ease;
+  transition: transform 0.12s ease, opacity 0.15s ease;
 
   &:active { transform: scale(0.97); }
-  &:disabled { color: var(--k-hint); cursor: not-allowed; }
+  &:disabled {
+    color: var(--k-hint);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 /* ---------- поиск ---------- */
@@ -261,7 +267,7 @@
   font-weight: 550;
   padding: 8px 14px;
   border-radius: 999px;
-  background: var(--k-bg);
+  background: var(--k-fill);
   color: var(--k-hint);
   white-space: nowrap;
   cursor: pointer;
@@ -371,9 +377,16 @@
   &:active { transform: scale(0.9); }
   /* выбранный статус закрашен целиком — раньше в тёмной теме его перебивало
      более специфичное правило .k-app[data-theme="dark"] .k-seg__b */
-  &--on-ok { background: var(--k-ok); color: #fff; }
-  &--on-absent { background: var(--k-absent); color: #fff; }
-  &--on-late { background: var(--k-late); color: #fff; }
+  &--on-ok,
+  &--on-absent,
+  &--on-late {
+    color: #fff;
+    /* на тёмном фоне одной заливки мало — добавляем свечение статуса */
+    box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent);
+  }
+  &--on-ok { background: var(--k-ok); }
+  &--on-absent { background: var(--k-absent); }
+  &--on-late { background: var(--k-late); }
 }
 
 /* ---------- плашки ---------- */
