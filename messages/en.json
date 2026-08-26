@@ -230,15 +230,15 @@
       "cashflow": "Cash Flow Statement",
       "pnl": "Profit & Loss (P&L)",
       "balance": "Balance Sheet",
-      "students": "Students",
-      "attendance": "Attendance"
+      "students": "Students"
     },
     "directories": {
       "counterparties": "Counterparties",
       "transactionCategories": "Chart of Accounts",
       "accounts": "My Accounts",
       "legalEntities": "My Legal Entities",
-      "productsServices": "Products & Services"
+      "productsServices": "Products & Services",
+      "attendance": "Attendance"
     },
     "transactionCategories": {
       "pageTitle": "Chart of Accounts",
@@ -2431,5 +2431,20 @@
     "title": "Access temporarily restricted",
     "description": "Access to your UFinance account has been temporarily restricted. To restore access, please contact our support team at:",
     "note": "To help us process your request faster, please include your company name and the email address associated with your account."
+  },
+  "AiChat": {
+    "statusThinking": "Thinking…",
+    "statusTyping": "Typing…",
+    "thinkingStates": [
+      "Thinking",
+      "Reading data",
+      "Crunching numbers",
+      "Writing up"
+    ],
+    "fileGeneric": "File",
+    "typingStates": [
+      "Typing",
+      "Formatting"
+    ]
   }
 }

@@ -407,11 +407,14 @@ export default observer(function PurchaseDetailPage() {
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">
               Выплаты поставщику
             </span>
-            {incomePermission && (
+            {/* Выплата поставщику — это payout, и вкладка у неё «payments»:
+                вкладки «receipts» на закупке нет, из-за неё список пропадал,
+                а модалка открывалась на форме поступления */}
+            {paymentPermission && (
               <button
                 onClick={() => {
+                  setActiveTab("payments");
                   handleCreateOperation();
-                  setActiveTab("receipts");
                 }}
                 className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0"
               >
@@ -474,9 +477,10 @@ export default observer(function PurchaseDetailPage() {
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">
               Поставки
             </span>
-            {paymentPermission && (
+            {shipmentPermission && (
               <button
                 onClick={() => {
+                  setActiveTab("supplies");
                   setIsReturnMode(false);
                   setShowShipmentModal(true);
                 }}

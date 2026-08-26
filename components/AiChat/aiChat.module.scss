@@ -754,18 +754,44 @@ $red: #e5484d;
   }
 }
 
-.cursor {
-  display: inline-block;
-  width: 6px;
-  height: 14px;
-  margin-left: 1px;
-  background: $blue;
-  vertical-align: text-bottom;
-  animation: blink 1s steps(2, start) infinite;
+/* Статус работы ассистента: фраза с бегущим бликом + те же точки */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
-@keyframes blink {
+.thinkingWord {
+  font-size: 13.5px;
+  font-weight: 600;
+  /* блик пробегает по тексту — цвет берём из градиента через background-clip */
+  background: linear-gradient(
+    90deg,
+    $muted-2 0%,
+    $ink 45%,
+    $muted-2 90%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aiShimmer 1.8s linear infinite, aiPhraseIn 0.35s ease;
+}
+@keyframes aiShimmer {
+  from {
+    background-position: 120% 0;
+  }
   to {
-    visibility: hidden;
+    background-position: -120% 0;
+  }
+}
+@keyframes aiPhraseIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
