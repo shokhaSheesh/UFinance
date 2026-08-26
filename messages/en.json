@@ -127,6 +127,7 @@
       "selectProduct": "Select product or service",
       "selectCurrency": "Select currency",
       "selectGroup": "Select group",
+      "selectUser": "Select user",
       "selectCounterpartyGroup": "Select counterparty group"
     },
     "deleteConfirmTitle": "Confirm deletion",
@@ -229,7 +230,8 @@
       "cashflow": "Cash Flow Statement",
       "pnl": "Profit & Loss (P&L)",
       "balance": "Balance Sheet",
-      "students": "Students"
+      "students": "Students",
+      "attendance": "Attendance"
     },
     "directories": {
       "counterparties": "Counterparties",
@@ -662,6 +664,20 @@
         "active": "Active",
         "passive": "Inactive"
       }
+    },
+    "attendance": {
+      "title": "Attendance report",
+      "student": "Student",
+      "searchPlaceholder": "Search by student...",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "loadMore": "Load more",
+      "empty": "No data",
+      "legend": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent"
+      }
     }
   },
   "NewDateRangeComponent": {
@@ -1082,7 +1098,43 @@
       "branches": "Branches",
       "currencies": "Currencies",
       "roles": "Roles",
+      "groups": "Groups",
+      "reasons": "Absence reasons",
       "contract": "Contracts"
+    },
+    "groups": {
+      "pageTitle": "Groups",
+      "name": "Group",
+      "leaders": "Assignees",
+      "count": "Count",
+      "noData": "No groups",
+      "empty": {
+        "title": "No groups yet",
+        "description": "Counterparty groups are created in the Counterparties directory. Here you can assign people responsible for them."
+      },
+      "searchPlaceholder": "Search by group name",
+      "leadersTitle": "Group assignees",
+      "addUser": "Add user",
+      "userPlaceholder": "Find a user",
+      "noLeaders": "No assignees yet",
+      "close": "Close"
+    },
+    "reasons": {
+      "pageTitle": "Absence reasons",
+      "add": "Add",
+      "edit": "Edit reason",
+      "description": "Reason",
+      "descriptionPlaceholder": "For example, illness",
+      "empty": {
+        "title": "No reasons yet",
+        "description": "Add the reasons your staff can use to mark an absence."
+      },
+      "errors": {
+        "descriptionRequired": "Enter a reason"
+      },
+      "delete": {
+        "confirm": "Are you sure you want to delete this reason?"
+      }
     },
     "general": {
       "pageTitle": "General Settings",
@@ -1102,7 +1154,9 @@
       "modules": {
         "title": "Modules",
         "warehouse": "My warehouse",
-        "returns": "Returns"
+        "returns": "Returns",
+        "projects": "Projects",
+        "attendance": "Attendance"
       },
       "save": "Save",
       "saving": "Saving...",

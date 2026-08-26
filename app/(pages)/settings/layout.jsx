@@ -2,7 +2,7 @@
 
 import FixedContent from '@/layouts/FixedContent'
 import { appStore } from '@/store/app.store'
-import { Banknote, GitBranch, Settings as SettingsIcon, Shield, User } from 'lucide-react'
+import { Banknote, CalendarX, GitBranch, Settings as SettingsIcon, Shield, User, Users } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -15,6 +15,7 @@ export default observer(function SettingLayouts({ children }) {
   const t = useTranslations('Settings')
 
   const settingsPermissions = appStore.permission.settings
+  const isAttendance = appStore.isDonoSchool && appStore.attendanceActive
 
   const sidebarItems = [
     { id: 'general', label: t('nav.general'), icon: SettingsIcon, href: '/settings', show: settingsPermissions?.general?.read },
@@ -22,6 +23,10 @@ export default observer(function SettingLayouts({ children }) {
     { id: 'branches', label: t('nav.branches'), icon: GitBranch, href: '/settings/branches', show: settingsPermissions?.branches?.read },
     { id: 'currencies', label: t('nav.currencies'), icon: Banknote, href: '/settings/currencies', show: settingsPermissions?.exchangerates?.read },
     { id: 'roles', label: t('nav.roles'), icon: Shield, href: '/settings/role', show: settingsPermissions?.users?.read },
+    // Руководители групп и причины отсутствия нужны только давомату —
+    // прячем их вместе с выключенным модулем
+    { id: 'groups', label: t('nav.groups'), icon: Users, href: '/settings/groups', show: settingsPermissions?.users?.read && isAttendance },
+    { id: 'reasons', label: t('nav.reasons'), icon: CalendarX, href: '/settings/reasons', show: settingsPermissions?.general?.read && isAttendance },
     { id: 'contract', label: t('nav.contract'), icon: TbContract, href: '/settings/contract', show: appStore.isDonoSchool },
   ]
   return (

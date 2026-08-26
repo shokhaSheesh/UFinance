@@ -230,6 +230,13 @@ export const Sidebar = observer(() => {
           hasPage: true,
           canShow: appStore.isDonoSchool,
         },
+        {
+          // отчёт живёт вместе с модулем давомата: attendance_active из настроек
+          label: t("reports.attendance"),
+          href: "/reports/attendance",
+          hasPage: true,
+          canShow: appStore.isDonoSchool && appStore.attendanceActive,
+        },
       ],
     },
     {
