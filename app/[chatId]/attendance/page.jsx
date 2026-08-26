@@ -1,58 +1,90 @@
 "use client"
 
-import MiniAppNav from "@/components/kindergarten/MiniAppNav"
-import { useMiniApp } from "@/components/kindergarten/MiniAppProvider"
-import StatusCounters from "@/components/kindergarten/StatusCounters"
-import useMounted from "@/hooks/useMounted"
+import MiniAppNav from "@/components/attendance/MiniAppNav"
+import { useMiniApp } from "@/components/attendance/MiniAppProvider"
+import StatusCounters from "@/components/attendance/StatusCounters"
+import { useAttendanceGroups, useAttendanceSession } from "@/hooks/useAttendance"
 import {
   gardenTotals,
   groupsWord,
   groupStats,
   kidsWord,
-  kindergartenStore,
-} from "@/store/kindergarten.store"
+  todayLabel,
+} from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-const AVATAR_COLORS = ["#f0956a", "#7bc47f", "#6aa9f0", "#c58ae0", "#e0b45c", "#5fc4c0", "#e08a9c", "#8f9bd6"]
+const AVATAR_COLORS = [
+  "#f0956a", "#7bc47f", "#6aa9f0", "#c58ae0",
+  "#e0b45c", "#5fc4c0", "#e08a9c", "#8f9bd6",
+]
 
-const shortTeacher = (fullName) => {
-  const [first, second] = fullName.split(" ")
-  return second ? `${first} ${second[0]}.` : first
+// Цвет аватара по guid — стабильный между рендерами и перезагрузками
+const colorOf = (id = "") => {
+  let sum = 0
+  for (let index = 0; index < id.length; index += 1) sum += id.charCodeAt(index)
+  return AVATAR_COLORS[sum % AVATAR_COLORS.length]
 }
 
-// Панель заведующей: видно, кто уже сдал перекличку, а кого ещё ждём
-export default observer(function KindergartenPanel() {
-  const mounted = useMounted()
+// Панель рахбара: его группы и то, где перекличка ещё не сдана.
+// Данные — get_attendance_groups, статистика за день считается на бэкенде.
+export default observer(function AttendancePanel() {
   const router = useRouter()
-  const { showToast, link } = useMiniApp()
+  const { chatId, link } = useMiniApp()
   const [tab, setTab] = useState("groups")
 
-  if (!mounted) return null
+  const session = useAttendanceSession(chatId)
+  const { groups, totals, isLoading, error } = useAttendanceGroups({
+    enabled: session.isReady,
+  })
 
-  const groups = kindergartenStore.groups
-  const totals = gardenTotals(groups)
-  const pending = kindergartenStore.pendingGroups
+  const stats = gardenTotals(totals || {})
+  const pending = groups.filter((group) => groupStats(group).unmarked > 0)
   const visibleGroups = tab === "pending" ? pending : groups
 
-  const handleRemind = () => {
-    if (!pending.length) return
-    showToast(`Напоминание отправлено · ${pending.length}`)
+  // Пока не знаем, кто перед нами, показывать нечего
+  if (session.isLoading) {
+    return (
+      <>
+        <MiniAppNav title="Перекличка" />
+        <div className="k-scroll">
+          <div className="k-empty">Открываем перекличку…</div>
+        </div>
+      </>
+    )
   }
+
+  if (!chatId || session.error || !session.isReady) {
+    return (
+      <>
+        <MiniAppNav title="Перекличка" />
+        <div className="k-scroll">
+          <div className="k-empty">
+            Этот чат не привязан к сотруднику.
+            <br />
+            Откройте перекличку из бота ещё раз.
+          </div>
+          <div className="k-hint">Чат: {chatId || "—"}</div>
+        </div>
+      </>
+    )
+  }
+
+  const firstPending = pending[0]
 
   return (
     <>
-      <MiniAppNav title={kindergartenStore.name} />
+      <MiniAppNav title={`Перекличка · ${todayLabel()}`} />
 
       <div className="k-scroll k-scroll--with-footer">
         <div className="k-top">
-          <div className="k-title">{kidsWord(totals.here)} в саду</div>
+          <div className="k-title">{kidsWord(stats.here)} в саду</div>
           <div className="k-sub">
-            Отмечено {totals.counted} из {totals.total} ·{" "}
+            Отмечено {stats.marked} из {stats.total} ·{" "}
             {pending.length ? `ждём ${groupsWord(pending.length)}` : "все группы сдали"}
           </div>
-          <StatusCounters stats={totals} />
+          <StatusCounters stats={stats} />
         </div>
 
         <div className="k-tabs">
@@ -68,9 +100,6 @@ export default observer(function KindergartenPanel() {
           >
             Не сдали · {pending.length}
           </span>
-          <span className="k-tab" onClick={() => router.push(link("/reports"))}>
-            Отчёты
-          </span>
         </div>
 
         <div className="k-sec-title">
@@ -79,60 +108,74 @@ export default observer(function KindergartenPanel() {
 
         <div className="k-list">
           {visibleGroups.map((group) => {
-            const stats = groupStats(group)
+            const groupId = group.counterparties_group_id
+            const rowStats = groupStats(group)
+            const name = group.nazvanie_gruppy || "Без названия"
+
             return (
               <button
-                key={group.id}
+                key={groupId}
                 type="button"
                 className="k-row k-row--tap"
-                onClick={() => router.push(link(`/group/${group.id}`))}
+                onClick={() => router.push(link(`/group/${groupId}`))}
               >
-                <div
-                  className="k-ava"
-                  style={{ background: AVATAR_COLORS[group.id % AVATAR_COLORS.length] }}
-                >
-                  {group.name[0]}
+                <div className="k-ava" style={{ background: colorOf(groupId) }}>
+                  {name[0]}
                 </div>
 
                 <div className="k-kid">
-                  <div className="k-kid__n">{group.name}</div>
-                  <div className={`k-kid__s ${group.submitted ? "" : "k-kid__s--alert"}`}>
-                    {shortTeacher(group.teacher)} ·{" "}
-                    {group.submitted ? `сдано ${group.at}` : "не сдано"}
+                  <div className="k-kid__n">{name}</div>
+                  <div className={`k-kid__s ${rowStats.done ? "" : "k-kid__s--alert"}`}>
+                    {rowStats.done
+                      ? `сдано · ${rowStats.here} из ${rowStats.total} в саду`
+                      : `не отмечено ${rowStats.unmarked} из ${rowStats.total}`}
                   </div>
                 </div>
 
-                <span className={`k-pill ${group.submitted ? "k-pill--ok" : "k-pill--wait"}`}>
-                  {group.submitted ? stats.here : "—"}/{stats.total}
+                <span className={`k-pill ${rowStats.done ? "k-pill--ok" : "k-pill--wait"}`}>
+                  {rowStats.marked ? rowStats.here : "—"}/{rowStats.total}
                 </span>
                 <span className="k-chev">›</span>
               </button>
             )
           })}
 
-          {!visibleGroups.length && (
+          {isLoading && <div className="k-empty">Загружаем группы…</div>}
+
+          {!isLoading && error && (
+            <div className="k-empty">Не удалось загрузить группы. Потяните позже.</div>
+          )}
+
+          {!isLoading && !error && !visibleGroups.length && (
             <div className="k-empty">
-              Все группы сдали перекличку ✓
-              <br />
-              Напоминать некому
+              {tab === "pending"
+                ? "Все группы сдали перекличку ✓"
+                : "К вам пока не привязана ни одна группа"}
             </div>
           )}
         </div>
 
         {/* Подсказка для сверки привязки при подключении бота */}
-        <div className="k-hint">Чат: {kindergartenStore.chatId || "—"}</div>
+        <div className="k-hint">Чат: {chatId}</div>
       </div>
 
       <div className="k-footer">
         <button
           type="button"
           className="k-mainbtn"
-          onClick={handleRemind}
-          disabled={!pending.length}
+          disabled={!firstPending}
+          onClick={() =>
+            router.push(link(`/group/${firstPending.counterparties_group_id}`))
+          }
         >
-          {pending.length
-            ? `Напомнить группам, кто не сдал · ${pending.length}`
+          {firstPending
+            ? `Отметить · ${firstPending.nazvanie_gruppy || "группа"}`
             : "Все группы сдали перекличку"}
+          {firstPending && (
+            <small>
+              осталось {groupsWord(pending.length)}
+            </small>
+          )}
         </button>
       </div>
     </>

@@ -313,7 +313,8 @@
       "pnlByQuery": "Прибыли и убытки (ОПУ) (test)",
       "balance": "Баланс",
       "balanceByQuery": "Баланс (test)",
-      "students": "Студенты"
+      "students": "Студенты",
+      "attendance": "Посещаемость"
     },
     "directories": {
       "counterparties": "Контрагенты",
@@ -759,6 +760,20 @@
       "status": {
         "active": "Активный",
         "passive": "Пассивный"
+      }
+    },
+    "attendance": {
+      "title": "Отчет о посещаемости",
+      "student": "Ученик",
+      "searchPlaceholder": "Поиск по ученику...",
+      "prevMonth": "Предыдущий месяц",
+      "nextMonth": "Следующий месяц",
+      "loadMore": "Показать ещё",
+      "empty": "Данных нет",
+      "legend": {
+        "present": "Присутствовал",
+        "late": "Опоздал",
+        "absent": "Отсутствовал"
       }
     }
   },

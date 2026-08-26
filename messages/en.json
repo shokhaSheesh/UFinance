@@ -230,7 +230,8 @@
       "cashflow": "Cash Flow Statement",
       "pnl": "Profit & Loss (P&L)",
       "balance": "Balance Sheet",
-      "students": "Students"
+      "students": "Students",
+      "attendance": "Attendance"
     },
     "directories": {
       "counterparties": "Counterparties",
@@ -662,6 +663,20 @@
       "status": {
         "active": "Active",
         "passive": "Inactive"
+      }
+    },
+    "attendance": {
+      "title": "Attendance report",
+      "student": "Student",
+      "searchPlaceholder": "Search by student...",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "loadMore": "Load more",
+      "empty": "No data",
+      "legend": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent"
       }
     }
   },

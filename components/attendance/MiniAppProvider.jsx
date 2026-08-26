@@ -1,6 +1,6 @@
 "use client"
 
-import { kindergartenStore } from "@/store/kindergarten.store"
+import { attendanceStore } from "@/store/attendance.store"
 import { useParams } from "next/navigation"
 import Script from "next/script"
 import {
@@ -40,7 +40,7 @@ export default function MiniAppProvider({ children }) {
   const chatId = params?.chatId ? String(params.chatId) : null
 
   useEffect(() => {
-    kindergartenStore.setChatId(chatId)
+    attendanceStore.setChatId(chatId)
   }, [chatId])
 
   const link = useCallback(

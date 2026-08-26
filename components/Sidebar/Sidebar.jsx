@@ -230,6 +230,12 @@ export const Sidebar = observer(() => {
           hasPage: true,
           canShow: appStore.isDonoSchool,
         },
+        {
+          label: t("reports.attendance"),
+          href: "/reports/attendance",
+          hasPage: true,
+          canShow: appStore.isDonoSchool,
+        },
       ],
     },
     {

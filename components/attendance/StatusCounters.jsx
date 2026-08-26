@@ -1,12 +1,13 @@
 "use client"
 
-// Четыре счётчика статусов — одинаковые на панели сада и внутри переклички
+// Четыре счётчика статусов — одинаковые на панели групп и внутри переклички.
+// Статусы бэкенда: present / late / absent, плюс «не отмечено».
 export default function StatusCounters({ stats }) {
   const cells = [
     { key: "ok", value: stats.present, label: "пришли" },
     { key: "late", value: stats.late, label: "опозд." },
-    { key: "sick", value: stats.sick, label: "болеют" },
     { key: "absent", value: stats.absent, label: "нет" },
+    { key: "wait", value: stats.unmarked, label: "не отм." },
   ]
 
   return (

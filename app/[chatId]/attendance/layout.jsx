@@ -1,4 +1,4 @@
-import MiniAppProvider from "@/components/kindergarten/MiniAppProvider"
+import MiniAppProvider from "@/components/attendance/MiniAppProvider"
 import "./attendance.scss"
 
 export const metadata = {
@@ -8,6 +8,6 @@ export const metadata = {
 
 // Раздел живёт отдельно от основного кабинета: без сайдбара, без логина —
 // его открывает телеграм-бот как webview
-export default function KindergartenLayout({ children }) {
+export default function AttendanceLayout({ children }) {
   return <MiniAppProvider>{children}</MiniAppProvider>
 }

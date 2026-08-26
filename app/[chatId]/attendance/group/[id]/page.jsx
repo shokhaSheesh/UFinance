@@ -1,11 +1,22 @@
 "use client"
 
-import MiniAppNav from "@/components/kindergarten/MiniAppNav"
-import { useMiniApp } from "@/components/kindergarten/MiniAppProvider"
-import ReasonSheet from "@/components/kindergarten/ReasonSheet"
-import StatusCounters from "@/components/kindergarten/StatusCounters"
-import useMounted from "@/hooks/useMounted"
-import { groupStats, kindergartenStore, REASONS, todayLabel } from "@/store/kindergarten.store"
+import MiniAppNav from "@/components/attendance/MiniAppNav"
+import { useMiniApp } from "@/components/attendance/MiniAppProvider"
+import ReasonSheet from "@/components/attendance/ReasonSheet"
+import StatusCounters from "@/components/attendance/StatusCounters"
+import {
+  useAttendanceSession,
+  useGroupCounterparties,
+  useSaveAttendance,
+} from "@/hooks/useAttendance"
+import {
+  attendanceStore,
+  countMarks,
+  STATUS_LABEL,
+  STATUSES,
+  todayISO,
+  todayLabel,
+} from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
 import { useParams, useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
@@ -30,88 +41,140 @@ const ClockIcon = () => (
 const STATUS_DOT = {
   present: "var(--k-ok)",
   late: "var(--k-late)",
-  sick: "var(--k-sick)",
   absent: "var(--k-absent)",
 }
 
-function kidSubtitle(child) {
-  if (child.status === "present") return { color: STATUS_DOT.present, text: `Пришёл · ${child.time}` }
-  if (child.status === "late") return { color: STATUS_DOT.late, text: `Опоздал · ${child.time}` }
-  if (child.status === "absent") {
-    const color = child.reason === "sick" ? STATUS_DOT.sick : STATUS_DOT.absent
-    const text = REASONS[child.reason || "no_notice"] + (child.note ? ` · ${child.note}` : "")
-    return { color, text }
-  }
-  return { color: "var(--k-hint)", text: child.note || "Не отмечен" }
+const AVATAR_COLORS = [
+  "#f0956a", "#7bc47f", "#6aa9f0", "#c58ae0",
+  "#e0b45c", "#5fc4c0", "#e08a9c", "#8f9bd6",
+]
+
+const colorOf = (id = "") => {
+  let sum = 0
+  for (let index = 0; index < id.length; index += 1) sum += id.charCodeAt(index)
+  return AVATAR_COLORS[sum % AVATAR_COLORS.length]
 }
 
+const initialsOf = (name = "") =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("") || "?"
+
+// Подпись под именем: статус черновика и причина, если её указали
+const rowSubtitle = (mark) => {
+  if (!mark) return { color: "var(--k-hint)", text: "Не отмечен" }
+  const label = STATUS_LABEL[mark.status] || "Отмечен"
+  return {
+    color: STATUS_DOT[mark.status] || "var(--k-hint)",
+    text: mark.description ? `${label} · ${mark.description}` : label,
+  }
+}
+
+// Перекличка группы: статусы правим локально, кнопка внизу отправляет
+// весь список одним create_attendance (upsert — повтор не создаёт дублей).
 export default observer(function RollCallPage() {
-  const mounted = useMounted()
   const router = useRouter()
   const params = useParams()
-  const { showToast, haptic, link } = useMiniApp()
+  const { showToast, haptic, link, chatId } = useMiniApp()
 
   const [search, setSearch] = useState("")
   const [sheetKidId, setSheetKidId] = useState(null)
 
-  const groupId = Number(params?.id)
-  const group = mounted ? kindergartenStore.getGroup(groupId) : null
+  const groupId = params?.id ? String(params.id) : null
+  const day = todayISO()
 
-  const filteredKids = useMemo(() => {
-    if (!group) return []
+  // при перезагрузке webview сессии в сторе ещё нет — поднимаем её по chat_id
+  const session = useAttendanceSession(chatId)
+  const { rows, groupName, isLoading, error } = useGroupCounterparties(groupId, {
+    date: day,
+    enabled: session.isReady,
+  })
+  const { save, isSaving } = useSaveAttendance()
+
+  const marks = attendanceStore.marksOf(groupId)
+  const stats = countMarks(rows, marks)
+  const savedAt = attendanceStore.savedTime(groupId, day)
+
+  const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase()
-    if (!query) return group.kids
-    return group.kids.filter((child) => child.name.toLowerCase().includes(query))
-  }, [group, search])
+    if (!query) return rows
+    return rows.filter((row) =>
+      `${row.nazvanie || ""} ${row.polnoe_imya || ""}`.toLowerCase().includes(query),
+    )
+  }, [rows, search])
 
-  if (!mounted) return null
+  const sheetKid = sheetKidId
+    ? rows.find((row) => row.counterparties_id === sheetKidId)
+    : null
 
-  if (!group) {
+  const handleStatus = (row, status) => {
+    haptic("light")
+    const id = row.counterparties_id
+    attendanceStore.setMark(groupId, id, status, marks[id]?.description || "")
+
+    // «отсутствует» сразу спрашивает причину — она уйдёт в description
+    if (status === STATUSES.absent) setSheetKidId(id)
+  }
+
+  const handleReason = (description) => {
+    attendanceStore.setMark(groupId, sheetKidId, STATUSES.absent, description)
+    setSheetKidId(null)
+  }
+
+  // отмена в шторке снимает и саму отметку отсутствия
+  const handleCancelReason = () => {
+    attendanceStore.clearMark(groupId, sheetKidId)
+    setSheetKidId(null)
+  }
+
+  const handleSave = async () => {
+    try {
+      await save({ groupId, date: day })
+      haptic("medium")
+      showToast(
+        stats.done
+          ? "Перекличка сохранена"
+          : `Сохранено: отмечено ${stats.marked} из ${stats.total}`,
+      )
+      router.push(link())
+    } catch (saveError) {
+      // текст ошибки метода показывает общий обработчик мутации
+      if (saveError?.message) showToast(saveError.message)
+    }
+  }
+
+  if (!session.isLoading && !session.isReady) {
     return (
       <>
         <MiniAppNav title="Перекличка" backLabel="Группы" backHref={link()} />
         <div className="k-scroll">
-          <div className="k-empty">Группа не найдена</div>
+          <div className="k-empty">
+            Сессия истекла. Откройте перекличку из бота ещё раз.
+          </div>
         </div>
       </>
     )
   }
 
-  const stats = groupStats(group)
-  const sheetKid = sheetKidId ? group.kids.find((child) => child.id === sheetKidId) : null
-
-  const handleStatus = (child, status) => {
-    haptic("light")
-    if (status === "absent") {
-      kindergartenStore.setStatus(group.id, child.id, "absent")
-      setSheetKidId(child.id)
-      return
-    }
-    kindergartenStore.setStatus(group.id, child.id, status)
-  }
-
-  const handleReason = (reason) => {
-    kindergartenStore.setReason(group.id, sheetKidId, reason)
-    setSheetKidId(null)
-  }
-
-  const handleCancelReason = () => {
-    kindergartenStore.cancelAbsence(group.id, sheetKidId)
-    setSheetKidId(null)
-  }
-
   return (
     <>
-      <MiniAppNav title="Перекличка" backLabel="Группы" backHref={link()} />
+      <MiniAppNav
+        title={groupName || "Перекличка"}
+        backLabel="Группы"
+        backHref={link()}
+      />
 
       <div className="k-scroll k-scroll--with-footer">
         <div className="k-top">
           <div className="k-title">
-            {group.name} · {todayLabel()}
+            {groupName || "Группа"} · {todayLabel()}
           </div>
           <div className="k-sub">
-            {group.type} · {stats.total} детей
-            {group.submitted ? ` · сдано в ${group.at}` : ""}
+            {stats.total} детей
+            {savedAt ? ` · сохранено в ${savedAt}` : ""}
           </div>
 
           <StatusCounters stats={stats} />
@@ -121,18 +184,18 @@ export default observer(function RollCallPage() {
               type="button"
               className="k-quick__btn"
               onClick={() => {
-                kindergartenStore.markAllPresent(group.id)
+                attendanceStore.markAllPresent(groupId, rows)
                 showToast("Все неотмеченные — «пришёл»")
               }}
-              disabled={stats.unmarked === 0}
+              disabled={!stats.unmarked}
             >
               Все пришли
             </button>
             <button
               type="button"
               className="k-quick__btn"
-              onClick={() => kindergartenStore.clearGroup(group.id)}
-              disabled={stats.marked === 0}
+              onClick={() => attendanceStore.clearGroup(groupId)}
+              disabled={!stats.marked}
             >
               Очистить
             </button>
@@ -154,16 +217,19 @@ export default observer(function RollCallPage() {
         </div>
 
         <div className="k-list">
-          {filteredKids.map((child) => {
-            const subtitle = kidSubtitle(child)
+          {filteredRows.map((row) => {
+            const id = row.counterparties_id
+            const mark = marks[id]
+            const subtitle = rowSubtitle(mark)
+
             return (
-              <div key={child.id} className="k-row">
-                <div className="k-ava" style={{ background: child.color }}>
-                  {child.initials}
+              <div key={id} className="k-row">
+                <div className="k-ava" style={{ background: colorOf(id) }}>
+                  {initialsOf(row.nazvanie)}
                 </div>
 
                 <div className="k-kid">
-                  <div className="k-kid__n">{child.name}</div>
+                  <div className="k-kid__n">{row.nazvanie}</div>
                   <div className="k-kid__s">
                     <span className="k-dot" style={{ background: subtitle.color }} />
                     {subtitle.text}
@@ -173,24 +239,24 @@ export default observer(function RollCallPage() {
                 <div className="k-seg">
                   <button
                     type="button"
-                    className={`k-seg__b ${child.status === "present" ? "k-seg__b--on-ok" : ""}`}
-                    onClick={() => handleStatus(child, "present")}
+                    className={`k-seg__b ${mark?.status === STATUSES.present ? "k-seg__b--on-ok" : ""}`}
+                    onClick={() => handleStatus(row, STATUSES.present)}
                     aria-label="Пришёл"
                   >
                     <CheckIcon />
                   </button>
                   <button
                     type="button"
-                    className={`k-seg__b ${child.status === "absent" ? "k-seg__b--on-absent" : ""}`}
-                    onClick={() => handleStatus(child, "absent")}
+                    className={`k-seg__b ${mark?.status === STATUSES.absent ? "k-seg__b--on-absent" : ""}`}
+                    onClick={() => handleStatus(row, STATUSES.absent)}
                     aria-label="Отсутствует"
                   >
                     <CrossIcon />
                   </button>
                   <button
                     type="button"
-                    className={`k-seg__b ${child.status === "late" ? "k-seg__b--on-late" : ""}`}
-                    onClick={() => handleStatus(child, "late")}
+                    className={`k-seg__b ${mark?.status === STATUSES.late ? "k-seg__b--on-late" : ""}`}
+                    onClick={() => handleStatus(row, STATUSES.late)}
                     aria-label="Опоздал"
                   >
                     <ClockIcon />
@@ -200,7 +266,17 @@ export default observer(function RollCallPage() {
             )
           })}
 
-          {!filteredKids.length && <div className="k-empty">Никого не нашли по запросу</div>}
+          {isLoading && <div className="k-empty">Загружаем список группы…</div>}
+
+          {!isLoading && error && (
+            <div className="k-empty">Не удалось загрузить список группы</div>
+          )}
+
+          {!isLoading && !error && !filteredRows.length && (
+            <div className="k-empty">
+              {search ? "Никого не нашли по запросу" : "В группе пока нет детей"}
+            </div>
+          )}
         </div>
       </div>
 
@@ -208,17 +284,22 @@ export default observer(function RollCallPage() {
         <button
           type="button"
           className="k-mainbtn"
-          disabled={!stats.done}
-          onClick={() => router.push(link(`/group/${group.id}/confirm`))}
+          disabled={!stats.marked || isSaving}
+          onClick={handleSave}
         >
-          {group.submitted ? "Сохранить изменения" : "Сохранить перекличку"}
+          {isSaving ? "Сохраняем…" : "Сохранить перекличку"}
           <small>
             Отмечено {stats.marked} из {stats.total}
+            {stats.unmarked ? " · остальных можно отметить позже" : ""}
           </small>
         </button>
       </div>
 
-      <ReasonSheet kid={sheetKid} onSelect={handleReason} onCancel={handleCancelReason} />
+      <ReasonSheet
+        kid={sheetKid ? { ...sheetKid, description: marks[sheetKidId]?.description } : null}
+        onSelect={handleReason}
+        onCancel={handleCancelReason}
+      />
     </>
   )
 })
