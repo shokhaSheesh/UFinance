@@ -1,6 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Check, Clock, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { buildAttendanceMap } from '../hooks/useAttendanceReport'
@@ -25,20 +26,35 @@ const colorOf = (key) => {
   return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
-function StatusCell({ mark }) {
+function StatusCell({ mark, t }) {
   if (!mark?.status || !CELL[mark.status]) {
     return <span className="size-7 rounded-lg bg-gray-ucode-50" />
   }
 
   const { className, Icon } = CELL[mark.status]
+  const cellClassName = `size-7 rounded-lg grid place-items-center ${className}`
+  const description = mark.description?.trim()
+
+  // У отсутствия причина важнее всего: показываем её подсказкой, а если
+  // причину не указали — хотя бы сам статус. В сетке для текста места нет.
+  const tip =
+    mark.status === 'absent' ? description || t('legend.absent') : description
+
+  if (!tip) {
+    return (
+      <span className={cellClassName}>
+        <Icon size={15} strokeWidth={3} />
+      </span>
+    )
+  }
+
   return (
-    <span
-      // причину показываем подсказкой — в сетке для неё нет места
-      title={mark.description || undefined}
-      className={`size-7 rounded-lg grid place-items-center ${className}`}
-    >
-      <Icon size={15} strokeWidth={3} />
-    </span>
+    <Tooltip>
+      <TooltipTrigger render={<span className={`${cellClassName} cursor-default`} />}>
+        <Icon size={15} strokeWidth={3} />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-[220px] whitespace-pre-line">{tip}</TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -117,7 +133,7 @@ export default function AttendanceGrid({ rows, days, isLoading }) {
                   key={day.iso}
                   className={`w-11 shrink-0 py-2 grid place-items-center ${day.isWeekend ? 'bg-gray-ucode-50/60' : ''}`}
                 >
-                  <StatusCell mark={marks[day.iso]} />
+                  <StatusCell mark={marks[day.iso]} t={t} />
                 </div>
               ))}
             </div>

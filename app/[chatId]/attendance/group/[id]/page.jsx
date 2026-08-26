@@ -284,13 +284,15 @@ export default observer(function RollCallPage() {
         <button
           type="button"
           className="k-mainbtn"
-          disabled={!stats.marked || isSaving}
+          // сохраняем только полную перекличку: пока кто-то не отмечен, кнопка ждёт
+          disabled={!stats.done || isSaving}
           onClick={handleSave}
         >
           {isSaving ? "Сохраняем…" : "Сохранить перекличку"}
           <small>
-            Отмечено {stats.marked} из {stats.total}
-            {stats.unmarked ? " · остальных можно отметить позже" : ""}
+            {stats.unmarked
+              ? `Отмечено ${stats.marked} из ${stats.total} · отметьте остальных`
+              : `Отмечены все · ${stats.total}`}
           </small>
         </button>
       </div>

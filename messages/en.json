@@ -1154,7 +1154,9 @@
       "modules": {
         "title": "Modules",
         "warehouse": "My warehouse",
-        "returns": "Returns"
+        "returns": "Returns",
+        "projects": "Projects",
+        "attendance": "Attendance"
       },
       "save": "Save",
       "saving": "Saving...",

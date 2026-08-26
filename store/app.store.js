@@ -15,6 +15,9 @@ class AppStore {
   warehouseActive = false;
   returnActive = false;
   projectActive = false;
+  // attendance_active из get_general_settings — модуль давомата (перекличка,
+  // руководители групп, причины отсутствия). Включается только у школ/садов
+  attendanceActive = false;
   isAiActive = false;
   // plan_total_active из get_general_settings — разрешает править план
   // в колонке «Итого» бюджета (сумма сразу на весь период)
@@ -96,6 +99,7 @@ class AppStore {
           "warehouseActive",
           "returnActive",
           "projectActive",
+          "attendanceActive",
           "isAiActive",
           "planTotalActive",
           "currencies",
@@ -166,6 +170,10 @@ class AppStore {
 
   setProjectActive(value) {
     this.projectActive = value;
+  }
+
+  setAttendanceActive(value) {
+    this.attendanceActive = value;
   }
 
   setAiActive(value) {

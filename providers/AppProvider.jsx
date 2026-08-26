@@ -53,6 +53,7 @@ const AppProvider = observer(({ children }) => {
       appStore.setWarehouseActive(data?.warehouse_active)
       appStore.setReturnActive(data?.return_active)
       appStore.setProjectActive(data?.project_active)
+      appStore.setAttendanceActive(Boolean(data?.attendance_active))
       appStore.setAiActive(Boolean(data?.ia_active ?? data?.ai_active))
       appStore.setPlanTotalActive(Boolean(data?.plan_total_active))
       if (currency) {

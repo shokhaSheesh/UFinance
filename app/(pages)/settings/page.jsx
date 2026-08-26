@@ -44,6 +44,7 @@ const SettingsPage = observer(() => {
   const [warehouseActive, setWarehouseActive] = useState(appStore.warehouseActive)
   const [returnActive, setReturnActive] = useState(appStore.returnActive)
   const [projectActive, setProjectActive] = useState(appStore.projectActive)
+  const [attendanceActive, setAttendanceActive] = useState(appStore.attendanceActive)
   const [currencyId, setCurrencyId] = useState(appStore?.currency?.guid)
   // const [wlcmHashcode, setWlcmHashcode] = useState('')
 
@@ -56,9 +57,10 @@ const SettingsPage = observer(() => {
     setWarehouseActive(appStore.warehouseActive)
     setReturnActive(appStore.returnActive)
     setProjectActive(appStore.projectActive)
+    setAttendanceActive(appStore.attendanceActive)
     setCurrencyId(appStore?.currency?.guid)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appStore.isPayment, appStore.isAccrualDate, appStore.warehouseActive, appStore.returnActive, appStore.projectActive, appStore?.currency?.guid])
+  }, [appStore.isPayment, appStore.isAccrualDate, appStore.warehouseActive, appStore.returnActive, appStore.projectActive, appStore.attendanceActive, appStore?.currency?.guid])
 
   const currenciesList = appStore.currencies?.map(c => ({
     value: c.guid,
@@ -76,8 +78,10 @@ const SettingsPage = observer(() => {
   const isWarehouseActiveChanged = warehouseActive !== appStore.warehouseActive
   const isReturnActiveChanged = returnActive !== appStore.returnActive
   const isProjectActiveChanged = projectActive !== appStore.projectActive
+  // давомат есть только у школ/садов — у остальных чекбокс не показываем
+  const isAttendanceActiveChanged = appStore.isDonoSchool && attendanceActive !== appStore.attendanceActive
   const isCurrencyChanged = currencyId !== appStore?.currency?.guid
-  const hasChanges = isPaymentChanged || isAccrualDateChanged || isWarehouseActiveChanged || isReturnActiveChanged || isProjectActiveChanged || isCurrencyChanged
+  const hasChanges = isPaymentChanged || isAccrualDateChanged || isWarehouseActiveChanged || isReturnActiveChanged || isProjectActiveChanged || isAttendanceActiveChanged || isCurrencyChanged
 
 
   const handleSaveSettings = async () => {
@@ -90,6 +94,7 @@ const SettingsPage = observer(() => {
     data.warehouse_active = appStore.warehouseActive
     data.return_active = appStore.returnActive
     if (isProjectActiveChanged) data.project_active = projectActive
+    if (isAttendanceActiveChanged) data.attendance_active = attendanceActive
     // if (wlcmHashcode) {
     //   try {
     //     await createWlcmToken({
@@ -126,6 +131,7 @@ const SettingsPage = observer(() => {
       if (isWarehouseActiveChanged) appStore.setWarehouseActive(warehouseActive)
       if (isReturnActiveChanged) appStore.setReturnActive(returnActive)
       if (isProjectActiveChanged) appStore.setProjectActive(projectActive)
+      if (isAttendanceActiveChanged) appStore.setAttendanceActive(attendanceActive)
       if (isCurrencyChanged) {
         const selected = appStore.currencies.find(c => c.guid === currencyId)
         appStore.setCurrency({
@@ -217,6 +223,15 @@ const SettingsPage = observer(() => {
             onChange={() => setProjectActive(!projectActive)}
             label={tg('modules.projects')}
           />
+          {/* Давомат: перекличка в боте, руководители групп, причины отсутствия.
+              Модуль школьный — остальным компаниям чекбокс не нужен */}
+          {appStore.isDonoSchool && (
+            <OperationCheckbox
+              checked={attendanceActive}
+              onChange={() => setAttendanceActive(!attendanceActive)}
+              label={tg('modules.attendance')}
+            />
+          )}
         </section>
       </section>
       {/* <section className="flex p-3 flex-col gap-1.5 mb-7 pb-6 border-b border-gray-200 items-start">
