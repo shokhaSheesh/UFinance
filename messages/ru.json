@@ -35,7 +35,20 @@
     "modelName": "GPT 5.4",
     "delete": "Удалить",
     "deleteChat": "Удалить чат",
-    "deleteChatConfirm": "Удалить этот чат?"
+    "deleteChatConfirm": "Удалить этот чат?",
+    "statusThinking": "Думает…",
+    "statusTyping": "Печатает…",
+    "thinkingStates": [
+      "Думаю",
+      "Читаю данные",
+      "Считаю",
+      "Собираю ответ"
+    ],
+    "fileGeneric": "Файл",
+    "typingStates": [
+      "Печатаю",
+      "Оформляю ответ"
+    ]
   },
   "Warehouse": {
     "pageTitle": "Мой склад",
@@ -313,15 +326,15 @@
       "pnlByQuery": "Прибыли и убытки (ОПУ) (test)",
       "balance": "Баланс",
       "balanceByQuery": "Баланс (test)",
-      "students": "Студенты",
-      "attendance": "Посещаемость"
+      "students": "Студенты"
     },
     "directories": {
       "counterparties": "Контрагенты",
       "transactionCategories": "Учетные статьи",
       "accounts": "Мои счета",
       "legalEntities": "Мои юрлица",
-      "productsServices": "Товары & Услуги"
+      "productsServices": "Товары & Услуги",
+      "attendance": "Посещаемость"
     },
     "transactionCategories": {
       "pageTitle": "Учетные статьи",

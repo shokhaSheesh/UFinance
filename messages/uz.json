@@ -35,7 +35,20 @@
     "modelName": "GPT 5.4",
     "delete": "O'chirish",
     "deleteChat": "Chatni o'chirish",
-    "deleteChatConfirm": "Bu chat o'chirilsinmi?"
+    "deleteChatConfirm": "Bu chat o'chirilsinmi?",
+    "statusThinking": "O‘ylayapti…",
+    "statusTyping": "Yozmoqda…",
+    "thinkingStates": [
+      "O‘ylayapman",
+      "Ma’lumotni o‘qiyapman",
+      "Hisoblayapman",
+      "Javob tayyorlayapman"
+    ],
+    "fileGeneric": "Fayl",
+    "typingStates": [
+      "Yozyapman",
+      "Javobni rasmiylashtiryapman"
+    ]
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",
@@ -318,15 +331,15 @@
       "pnlByQuery": "Foyda va zararlar (F&Z) (test)",
       "balance": "Balans",
       "balanceByQuery": "Balans (test)",
-      "students": "Talabalar",
-      "attendance": "Davomat"
+      "students": "Talabalar"
     },
     "directories": {
       "counterparties": "Hamkorlar",
       "transactionCategories": "Hisob moddalari",
       "accounts": "Mening hisoblarim",
       "legalEntities": "Mening yuridik shaxslarim",
-      "productsServices": "Tovarlar va xizmatlar"
+      "productsServices": "Tovarlar va xizmatlar",
+      "attendance": "Davomat"
     },
     "transactionCategories": {
       "pageTitle": "Hisob moddalari",

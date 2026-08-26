@@ -147,8 +147,50 @@ const fileExt = (name) => {
   return dot > -1 ? clean.slice(dot + 1).toLowerCase() : "";
 };
 
+// Имя файла для показа. Хранилище приклеивает к имени свой идентификатор
+// («6c50c3a7-a49…-…_mapping.xlsx»), а у сгенерированных ассистентом файлов
+// имени нет вовсе — там остаётся голый guid из ссылки. Показываем человеку
+// только осмысленную часть, полное имя живёт в title.
+const FILE_NAME_MAX = 26;
+// guid, 32-символьный хеш или unix-таймстамп в начале имени + разделитель
+const FILE_ID_PREFIX =
+  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24,64}|\d{10,16})(?:[_\-.\s]+|$)/i;
+const fileTitle = (file) => {
+  const raw = String(file?.name || file?.url || "").split("?")[0];
+  const last = raw.split("/").pop() || raw;
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+};
+// Убирает служебный идентификатор: «<guid>_mapping.xlsx» → «mapping.xlsx».
+// Если кроме идентификатора в имени ничего не было, остаётся «Файл.xlsx».
+const cleanFileName = (file, fallback = "file") => {
+  const name = fileTitle(file);
+  const ext = fileExt(name);
+  const dot = name.lastIndexOf(".");
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const stripped = base.replace(FILE_ID_PREFIX, "").trim();
+  const label = stripped || fallback;
+  return ext ? `${label}.${ext}` : label;
+};
+
+const shortFileName = (file, fallback) => {
+  const name = cleanFileName(file, fallback);
+  if (name.length <= FILE_NAME_MAX) return name;
+
+  const dot = name.lastIndexOf(".");
+  const ext = dot > 0 ? name.slice(dot) : "";
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const keep = Math.max(FILE_NAME_MAX - ext.length - 1, 10);
+  const head = Math.ceil(keep * 0.6);
+  const tail = keep - head;
+  return `${base.slice(0, head)}…${tail ? base.slice(-tail) : ""}${ext}`;
+};
+
 // Карточка файла — как в макете: цветная иконка типа, имя, кнопка скачивания
-const FileCard = ({ file, note, downloadLabel }) => {
+const FileCard = ({ file, note, downloadLabel, fallbackName }) => {
   const ext = fileExt(file.name || file.url);
   const kind = EXT_CLASS[ext] || "";
   return (
@@ -157,8 +199,8 @@ const FileCard = ({ file, note, downloadLabel }) => {
         {(ext || "file").slice(0, 4).toUpperCase()}
       </div>
       <div className={styles.fileMeta}>
-        <div className={styles.fileName} title={file.name}>
-          {file.name}
+        <div className={styles.fileName} title={fileTitle(file)}>
+          {shortFileName(file, fallbackName)}
         </div>
         {note && <div className={styles.fileSub}>{note}</div>}
       </div>
@@ -183,11 +225,11 @@ const InlineFile = ({ file }) => (
     target="_blank"
     rel="noreferrer"
     className={styles.inlineFile}
-    title={file.name}
+    title={fileTitle(file)}
     onClick={(e) => e.stopPropagation()}
   >
     <ClipIcon />
-    <span>{file.name}</span>
+    <span>{shortFileName(file)}</span>
   </a>
 );
 
@@ -226,6 +268,36 @@ const renderTextWithLinks = (text, keyBase) => {
   if (last < s.length)
     nodes.push(<span key={`${keyBase}-t${k}`}>{s.slice(last)}</span>);
   return nodes;
+};
+
+// Статус ассистента вместо трёх безликих точек: фраза с бегущим бликом,
+// которая меняется, пока идёт работа («Думаю» → «Читаю данные» → …).
+const ThinkingLine = ({ phrases }) => {
+  const list = Array.isArray(phrases) && phrases.length ? phrases : ["…"];
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (list.length < 2) return undefined;
+    const id = setInterval(
+      () => setIndex((prev) => (prev + 1) % list.length),
+      2400
+    );
+    return () => clearInterval(id);
+  }, [list.length]);
+
+  return (
+    <div className={styles.thinking}>
+      {/* key — чтобы новая фраза каждый раз проигрывала появление */}
+      <span key={index} className={styles.thinkingWord}>
+        {list[index]}
+      </span>
+      <span className={styles.typing}>
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  );
 };
 
 // Текст сообщения пользователя. Файлы теперь уходят отдельным полем, но в
@@ -636,7 +708,12 @@ const AiChatPanel = observer(() => {
             </div>
             <div className={styles.sub}>
               <span className={`${styles.dot} ${connected ? "" : styles.off}`} />
-              {t("subtitle")}
+              {/* пока ассистент занят, подпись работает индикатором состояния */}
+              {isAwaiting && streamingText === null
+                ? t("statusThinking")
+                : streamingText !== null
+                  ? t("statusTyping")
+                  : t("subtitle")}
             </div>
           </div>
           <button
@@ -803,6 +880,7 @@ const AiChatPanel = observer(() => {
                         <FileCard
                           key={file.url || i}
                           file={file}
+                          fallbackName={t("fileGeneric")}
                           note={
                             <>
                               <span className={styles.fileOk}>✓</span>
@@ -847,6 +925,7 @@ const AiChatPanel = observer(() => {
                         <FileCard
                           key={file.url || i}
                           file={file}
+                          fallbackName={t("fileGeneric")}
                           downloadLabel={t("download")}
                         />
                       ))}
@@ -873,7 +952,9 @@ const AiChatPanel = observer(() => {
                 <span
                   dangerouslySetInnerHTML={{ __html: renderAiHtml(streamingText) }}
                 />
-                <span className={styles.cursor} />
+                {/* пока ответ не дописан, вместо мигающего курсора — тот же
+                    текстовый статус, что и на ожидании первого токена */}
+                <ThinkingLine phrases={t.raw("typingStates")} />
               </div>
             </div>
           )}
@@ -885,11 +966,7 @@ const AiChatPanel = observer(() => {
                 <StarIcon />
               </div>
               <div className={styles.aText}>
-                <div className={styles.typing}>
-                  <i />
-                  <i />
-                  <i />
-                </div>
+                <ThinkingLine phrases={t.raw("thinkingStates")} />
               </div>
             </div>
           )}
