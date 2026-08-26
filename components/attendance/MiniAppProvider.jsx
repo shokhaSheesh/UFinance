@@ -83,6 +83,28 @@ export default observer(function MiniAppProvider({ children }) {
     app?.expand?.()
   }, [scriptTick])
 
+  // Высота вебвью из телеграма надёжнее, чем 100dvh: в некоторых клиентах
+  // dvh считается по всему экрану, и футер с кнопкой уезжает под край
+  useEffect(() => {
+    const app = getWebApp()
+    if (!app) return undefined
+
+    const applyHeight = () => {
+      const height = app.viewportStableHeight || app.viewportHeight
+      if (height) {
+        document.documentElement.style.setProperty("--k-vh", `${height}px`)
+      }
+    }
+
+    applyHeight()
+    app.onEvent?.("viewportChanged", applyHeight)
+
+    return () => {
+      app.offEvent?.("viewportChanged", applyHeight)
+      document.documentElement.style.removeProperty("--k-vh")
+    }
+  }, [scriptTick])
+
   useEffect(() => () => clearTimeout(toastTimer.current), [])
 
   const showToast = useCallback((message) => {

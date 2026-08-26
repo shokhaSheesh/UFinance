@@ -27,7 +27,11 @@
   --k-absent: #ef4444;
   --k-absent-bg: #fdeaea;
 
-  min-height: 100dvh;
+  /* Ровно один экран: прокручивается только список внутри .k-scroll, поэтому
+     шапка и кнопка сохранения всегда на месте. --k-vh приходит из телеграма
+     (viewportStableHeight) — он точнее dvh, когда открыта клавиатура */
+  height: var(--k-vh, 100dvh);
+  overflow: hidden;
   background: var(--k-bg-2);
   color: var(--k-text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Arial, sans-serif;
@@ -67,7 +71,7 @@
 .k-frame {
   max-width: 560px;
   margin: 0 auto;
-  min-height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -75,8 +79,6 @@
 
 /* ---------- навигация ---------- */
 .k-nav {
-  position: sticky;
-  top: 0;
   z-index: 15;
   flex: none;
   min-height: 46px;
@@ -146,10 +148,16 @@
 
 /* ---------- прокручиваемое тело ---------- */
 .k-scroll {
-  flex: 1;
+  /* min-height: 0 обязателен: без него flex-элемент не даёт себя сжать
+     и список выталкивает футер за пределы экрана */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 24px;
 }
-.k-scroll--with-footer { padding-bottom: 96px; }
+.k-scroll--with-footer { padding-bottom: 16px; }
 
 .k-top {
   background: var(--k-bg);
@@ -415,8 +423,6 @@
 
 /* ---------- нижняя кнопка ---------- */
 .k-footer {
-  position: sticky;
-  bottom: 0;
   z-index: 15;
   flex: none;
   background: var(--k-bg);
