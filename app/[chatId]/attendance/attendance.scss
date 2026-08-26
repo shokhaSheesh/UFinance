@@ -10,6 +10,13 @@
   --k-link: #3390ec;
   --k-sep: #e7e9ec;
   --k-header: #f7f7f8;
+  /* нейтральная подложка контролов: сегменты статуса, плашки, поля */
+  --k-fill: #f0f3f5;
+  /* фон синих кнопок держим отдельно от цвета текстовых ссылок:
+     в тёмной теме ссылка светлеет, а кнопка обязана остаться контрастной */
+  --k-btn: #3390ec;
+  --k-disabled-bg: #b9c3ce;
+  --k-disabled-fg: #ffffff;
 
   --k-ok: #31b545;
   --k-ok-bg: #e8f7ea;
@@ -33,13 +40,23 @@
     --k-bg-2: #0e1621;
     --k-text: #ffffff;
     --k-hint: #7d8b99;
+    --k-link: #6ab7ff;
     --k-sep: #232e3c;
     --k-header: #17212b;
+    --k-fill: #232e3c;
+    --k-disabled-bg: #2c3946;
+    --k-disabled-fg: #7d8b99;
 
-    --k-ok-bg: #1c3324;
-    --k-late-bg: #3a2f18;
-    --k-sick-bg: #272449;
-    --k-absent-bg: #3a1f22;
+    /* На тёмном фоне светлые акценты читаются лучше, а подложка под них —
+       полупрозрачная: плотные заливки выглядели грязными пятнами */
+    --k-ok: #46c95c;
+    --k-ok-bg: rgba(70, 201, 92, 0.16);
+    --k-late: #ffb340;
+    --k-late-bg: rgba(255, 179, 64, 0.16);
+    --k-sick: #a78bfa;
+    --k-sick-bg: rgba(167, 139, 250, 0.18);
+    --k-absent: #ff6b6b;
+    --k-absent-bg: rgba(255, 107, 107, 0.16);
   }
 
   * { box-sizing: border-box; }
@@ -178,6 +195,7 @@
   &--late { background: var(--k-late-bg); color: var(--k-late); }
   &--sick { background: var(--k-sick-bg); color: var(--k-sick); }
   &--absent { background: var(--k-absent-bg); color: var(--k-absent); }
+  &--wait { background: var(--k-fill); color: var(--k-text); }
 }
 
 /* ---------- быстрые действия ---------- */
@@ -251,9 +269,9 @@
   transition: background 0.15s ease, color 0.15s ease;
 
   &--on {
-    background: var(--k-link);
+    background: var(--k-btn);
     color: #fff;
-    border-color: var(--k-link);
+    border-color: var(--k-btn);
   }
 }
 
@@ -345,17 +363,18 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: var(--k-bg-2);
+  background: var(--k-fill);
   color: var(--k-hint);
   cursor: pointer;
   transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
 
   &:active { transform: scale(0.9); }
+  /* выбранный статус закрашен целиком — раньше в тёмной теме его перебивало
+     более специфичное правило .k-app[data-theme="dark"] .k-seg__b */
   &--on-ok { background: var(--k-ok); color: #fff; }
   &--on-absent { background: var(--k-absent); color: #fff; }
   &--on-late { background: var(--k-late); color: #fff; }
 }
-.k-app[data-theme="dark"] .k-seg__b { background: #232e3c; }
 
 /* ---------- плашки ---------- */
 .k-pill {
@@ -370,9 +389,8 @@
   &--late { background: var(--k-late-bg); color: var(--k-late); }
   &--sick { background: var(--k-sick-bg); color: var(--k-sick); }
   &--absent { background: var(--k-absent-bg); color: var(--k-absent); }
-  &--wait { background: var(--k-bg-2); color: var(--k-hint); }
+  &--wait { background: var(--k-fill); color: var(--k-hint); }
 }
-.k-app[data-theme="dark"] .k-pill--wait { background: #232e3c; }
 
 .k-chev {
   flex: none;
@@ -396,7 +414,7 @@
   width: 100%;
   border: 0;
   border-radius: 12px;
-  background: var(--k-link);
+  background: var(--k-btn);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -406,7 +424,8 @@
 
   &:active { filter: brightness(0.93); }
   &:disabled {
-    background: #b9c3ce;
+    background: var(--k-disabled-bg);
+    color: var(--k-disabled-fg);
     cursor: not-allowed;
   }
 
@@ -418,7 +437,6 @@
     margin-top: 2px;
   }
 }
-.k-app[data-theme="dark"] .k-mainbtn:disabled { background: #2c3946; color: #7d8b99; }
 
 /* ---------- шторка выбора причины ---------- */
 .k-scrim {
@@ -515,7 +533,7 @@
       padding: 0 11px;
       border: 1px solid var(--k-sep);
       border-radius: 10px;
-      background: var(--k-bg-2);
+      background: var(--k-fill);
       color: var(--k-text);
       font-size: 14px;
       outline: none;
