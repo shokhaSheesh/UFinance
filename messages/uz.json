@@ -776,6 +776,7 @@
     "attendance": {
       "title": "Davomat hisoboti",
       "student": "O'quvchi",
+      "noGroup": "Guruhsiz",
       "searchPlaceholder": "O'quvchi bo'yicha qidiruv...",
       "prevMonth": "Oldingi oy",
       "nextMonth": "Keyingi oy",
@@ -785,6 +786,12 @@
         "present": "Qatnashdi",
         "late": "Kechikdi",
         "absent": "Qatnashmadi"
+      },
+      "totals": {
+        "students": "O'quvchilar",
+        "workingDays": "Ish kunlari",
+        "marked": "Belgilangan",
+        "notMarked": "Belgilanmagan"
       }
     }
   },

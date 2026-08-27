@@ -21,6 +21,8 @@ export function useAttendanceReport({ fromDate, toDate, groupIds, search, page =
       select: (response) => ({
         rows: response?.data?.data || [],
         pagination: response?.data?.pagination || null,
+        // totals приходит рядом с pagination, но у части ответов лежит внутри data
+        totals: response?.data?.totals || response?.data?.data?.totals || null,
       }),
     },
   })
@@ -28,6 +30,7 @@ export function useAttendanceReport({ fromDate, toDate, groupIds, search, page =
   return {
     rows: query.data?.rows || [],
     pagination: query.data?.pagination,
+    totals: query.data?.totals,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     error: query.error,

@@ -778,6 +778,7 @@
     "attendance": {
       "title": "Отчет о посещаемости",
       "student": "Ученик",
+      "noGroup": "Без группы",
       "searchPlaceholder": "Поиск по ученику...",
       "prevMonth": "Предыдущий месяц",
       "nextMonth": "Следующий месяц",
@@ -787,6 +788,12 @@
         "present": "Присутствовал",
         "late": "Опоздал",
         "absent": "Отсутствовал"
+      },
+      "totals": {
+        "students": "Учеников",
+        "workingDays": "Рабочих дней",
+        "marked": "Отмечено",
+        "notMarked": "Не отмечено"
       }
     }
   },
