@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
 import AttendanceGrid from './components/AttendanceGrid'
+import AttendanceTotals from './components/AttendanceTotals'
 import { buildDays, useAttendanceReport } from './hooks/useAttendanceReport'
 
 const MONTHS = [
@@ -18,10 +19,16 @@ const LIMIT = 100
 const pad = (value) => String(value).padStart(2, '0')
 
 const LEGEND = [
-  { key: 'present', Icon: Check, className: 'bg-emerald-50 text-emerald-600' },
-  { key: 'late', Icon: Clock, className: 'bg-amber-50 text-amber-600' },
-  { key: 'absent', Icon: X, className: 'bg-red-50 text-red-500' },
+  { key: 'present', Icon: Check, className: 'bg-emerald-50 text-emerald-600', countKey: 'present_count', percentKey: 'present_percent' },
+  { key: 'late', Icon: Clock, className: 'bg-amber-50 text-amber-600', countKey: 'late_count', percentKey: 'late_percent' },
+  { key: 'absent', Icon: X, className: 'bg-red-50 text-red-500', countKey: 'absent_count', percentKey: 'absent_percent' },
 ]
+
+const formatLegendPercent = (value) => {
+  const number = Number(value)
+  if (value === null || value === undefined || Number.isNaN(number)) return null
+  return `${number.toFixed(number % 1 === 0 ? 0 : 2)}%`
+}
 
 // Отчёт «Посещаемость»: месяц по горизонтали, ученики по вертикали
 const AttendanceReportPage = observer(() => {
@@ -37,7 +44,7 @@ const AttendanceReportPage = observer(() => {
   const fromDate = `${cursor.year}-${pad(cursor.month + 1)}-01`
   const toDate = `${cursor.year}-${pad(cursor.month + 1)}-${pad(days.length)}`
 
-  const { rows, pagination, isLoading, isFetching } = useAttendanceReport({
+  const { rows, pagination, totals, isLoading, isFetching } = useAttendanceReport({
     fromDate,
     toDate,
     groupIds,
@@ -99,18 +106,30 @@ const AttendanceReportPage = observer(() => {
         <div className="h-full flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 shrink-0">
             <div className="flex items-center gap-4">
-              {LEGEND.map(({ key, Icon, className }) => (
-                <span key={key} className="flex items-center gap-1.5 text-xs text-gray-ucode-500">
+              {LEGEND.map(({ key, Icon, className, countKey, percentKey }) => (
+                <span key={key} className="flex items-center gap-1.5 text-xs text-gray-ucode-500 whitespace-nowrap">
                   <span className={`size-5 rounded-md grid place-items-center ${className}`}>
                     <Icon size={12} strokeWidth={3} />
                   </span>
                   {t(`legend.${key}`)}
+                  {totals && (
+                    <span className="text-gray-ucode-800 font-semibold">
+                      {Number(totals[countKey] || 0).toLocaleString('ru-RU')}
+                      {formatLegendPercent(totals[percentKey]) && (
+                        <span className="ml-1 font-normal text-gray-ucode-400">
+                          {formatLegendPercent(totals[percentKey])}
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </span>
               ))}
               {isFetching && !isLoading && (
                 <Loader2 size={15} className="animate-spin text-gray-ucode-400" />
               )}
             </div>
+
+            <AttendanceTotals totals={totals} isLoading={isLoading} />
 
             <div className="flex items-center gap-1">
               <button

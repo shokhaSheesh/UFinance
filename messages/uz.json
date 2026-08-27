@@ -786,6 +786,12 @@
         "present": "Qatnashdi",
         "late": "Kechikdi",
         "absent": "Qatnashmadi"
+      },
+      "totals": {
+        "students": "O'quvchilar",
+        "workingDays": "Ish kunlari",
+        "marked": "Belgilangan",
+        "notMarked": "Belgilanmagan"
       }
     }
   },
