@@ -21,8 +21,11 @@ import { useCounterpartyDetail } from '../hooks/useCounterpartyDetail'
 import { useDetailOperationActions } from '../hooks/useDetailOperationActions'
 import { useDetailShipmentActions } from '../hooks/useDetailShipmentActions'
 
-const CounterpartyDetailPage = observer(() => {
+// isStudent: та же карточка обслуживает справочник «Студенты» — меняются
+// только хлебные крошки и признак, с которым сохраняется форма
+const CounterpartyDetailPage = observer(({ isStudent = false }) => {
   const t = useTranslations('Directories.counterparty.detail')
+  const ts = useTranslations('Directories.student')
   const tc = useTranslations('Common')
   const params = useParams()
   const counterpartyGuid = params?.id
@@ -92,6 +95,8 @@ const CounterpartyDetailPage = observer(() => {
       <div className="flex-1 h-full flex flex-col">
         <DetailHeader
           t={t} tc={tc}
+          backHref={isStudent ? '/directories/students' : '/directories/counterparties'}
+          backLabel={isStudent ? ts('title') : t('backToList')}
           counterpartyInfo={detail.counterpartyInfo}
           filters={detail.filters} setFilters={detail.setFilters}
           canEdit={detail.canEdit} canDelete={detail.canDelete}
@@ -208,6 +213,7 @@ const CounterpartyDetailPage = observer(() => {
           queryClient.invalidateQueries({ queryKey: ['counterpartyById', counterpartyGuid] })
         }}
         counterpartyData={detail.counterparty}
+        isStudent={isStudent}
       />
     </FixedContent>
   )

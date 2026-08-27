@@ -9,6 +9,7 @@ import { getDetailCalculationOptions } from '../utils/counterpartiesUtils'
 
 const DetailHeader = ({
   t, tc, counterpartyInfo,
+  backHref = '/directories/counterparties', backLabel,
   filters, setFilters,
   canEdit, canDelete,
   onEdit, onDelete,
@@ -18,8 +19,8 @@ const DetailHeader = ({
     {/* Breadcrumbs */}
     <div className="flex items-center px-3 bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="flex items-center text-xs h-10">
-        <Link href="/directories/counterparties" className="text-gray-500 hover:text-gray-700 transition-colors">
-          {t('backToList')}
+        <Link href={backHref} className="text-gray-500 hover:text-gray-700 transition-colors">
+          {backLabel || t('backToList')}
         </Link>
         <ChevronRight className="w-3 h-3 mx-1 text-gray-400" />
         <span className="text-neutral-900 text-sm font-medium">{counterpartyInfo?.name || tc('noName')}</span>

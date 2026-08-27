@@ -80,7 +80,9 @@ const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
   preselectedGroupId = null,
   counterpartyData = null,
   onSuccess = null,
-  activetab = 'counterparty'
+  activetab = 'counterparty',
+  // Справочник «Студенты»: признак ставится молча, поля в форме нет
+  isStudent = false
 }) {
   const t = useTranslations('Directories.counterparty')
   const queryClient = useQueryClient()
@@ -212,6 +214,7 @@ const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
         chart_of_accounts_id_2: data.chart_of_accounts_id_2 || null,
         komentariy: data.komentariy || null,
         ...(appStore.isDonoSchool && { not_student: !!data.not_student }),
+        ...(isStudent && { is_student: true }),
         ...(isEdit && { data_obnovleniya: new Date().toISOString() }),
         attributes: {},
       }

@@ -398,6 +398,7 @@
     },
     "directories": {
       "counterparties": "Hamkorlar",
+      "students": "Talabalar",
       "transactionCategories": "Hisob moddalari",
       "accounts": "Mening hisoblarim",
       "legalEntities": "Mening yuridik shaxslarim",
@@ -1941,6 +1942,14 @@
           "downloadPdf": "PDF yuklab olish"
         }
       }
+    },
+    "student": {
+      "title": "Talabalar",
+      "empty": "Ma'lumot yo'q",
+      "emptyInGroup": "Talabalar yo'q",
+      "count": "{count} talaba",
+      "countPlural": "{count} talaba",
+      "countPluralMany": "{count} talaba"
     },
     "legalEntity": {
       "createTitle": "Yuridik shaxs yaratish",

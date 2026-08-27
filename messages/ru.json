@@ -393,6 +393,7 @@
     },
     "directories": {
       "counterparties": "Контрагенты",
+      "students": "Студенты",
       "transactionCategories": "Учетные статьи",
       "accounts": "Мои счета",
       "legalEntities": "Мои юрлица",
@@ -1909,6 +1910,14 @@
           "downloadPdf": "Скачать PDF"
         }
       }
+    },
+    "student": {
+      "title": "Студенты",
+      "empty": "Нет данных",
+      "emptyInGroup": "Нет студентов",
+      "count": "{count} студент",
+      "countPlural": "{count} студента",
+      "countPluralMany": "{count} студентов"
     },
     "legalEntity": {
       "createTitle": "Создание юрлица",

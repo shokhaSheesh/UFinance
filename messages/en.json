@@ -297,6 +297,7 @@
     },
     "directories": {
       "counterparties": "Counterparties",
+      "students": "Students",
       "transactionCategories": "Chart of Accounts",
       "accounts": "My Accounts",
       "legalEntities": "My Legal Entities",
@@ -1775,6 +1776,14 @@
           "deleting": "Deleting..."
         }
       }
+    },
+    "student": {
+      "title": "Students",
+      "empty": "No data",
+      "emptyInGroup": "No students",
+      "count": "{count} student",
+      "countPlural": "{count} students",
+      "countPluralMany": "{count} students"
     },
     "legalEntity": {
       "createTitle": "Create legal entity",

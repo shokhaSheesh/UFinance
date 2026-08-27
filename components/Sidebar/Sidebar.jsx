@@ -251,6 +251,15 @@ export const Sidebar = observer(() => {
           canShow: permissions?.directories?.counterparties?.read,
         },
         {
+          // студенты — те же контрагенты, право доступа общее;
+          // справочник только для школ (isDonoSchool)
+          label: t("directories.students"),
+          href: "/directories/students",
+          hasPage: true,
+          canShow:
+            appStore.isDonoSchool && permissions?.directories?.counterparties?.read,
+        },
+        {
           label: t("directories.transactionCategories"),
           href: "/directories/transaction-categories",
           hasPage: true,
