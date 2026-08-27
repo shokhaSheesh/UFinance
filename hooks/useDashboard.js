@@ -2,6 +2,11 @@ import { dashboardAPI } from '@/lib/api/dashboard'
 import { defaultUcodeApiRequest, ucodeRequest } from '@/lib/api/ucode/base'
 import { chartOfAccountsAPI } from '@/lib/api/ucode/chartOfAccounts'
 import { createWarehouse, deleteWarehouse, listWarehouses, updateWarehouse } from '@/lib/api/ucode/warehouse'
+import {
+	createWarehouseTransfer,
+	getWarehouseTransfer,
+	listWarehouseTransfers,
+} from '@/lib/api/ucode/warehouseTransfer'
 import { isObjectInUseError, isProjectCompletedError } from '@/lib/api/ucode/errors'
 import { showErrorAlert, showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import {
@@ -765,6 +770,50 @@ export const useDeleteWarehouse = () => {
 		},
 		onError: error => {
 			showErrorNotification(error.message || 'Ошибка при удалении склада')
+		},
+	})
+}
+
+/**
+ * История перемещений между складами. Ошибки показывает вызывающий —
+ * список открывается в модалке и рисует пустое состояние сам.
+ */
+export const useWarehouseTransfers = (params = {}, { skip = false } = {}) => {
+	return useQuery({
+		queryKey: ['list_warehouse_transfers', params],
+		queryFn: () => listWarehouseTransfers(params),
+		enabled: !skip,
+		select: response => ({
+			rows: Array.isArray(response?.data) ? response.data : [],
+			pagination: response?.pagination || {},
+		}),
+		placeholderData: previous => previous,
+	})
+}
+
+/** Одно перемещение со строками товаров. */
+export const useWarehouseTransfer = (guid, { skip = false } = {}) => {
+	return useQuery({
+		queryKey: ['get_warehouse_transfer', guid],
+		queryFn: () => getWarehouseTransfer(guid),
+		enabled: !skip && !!guid,
+		select: response => response?.data || null,
+	})
+}
+
+/**
+ * Создание перемещения. Двигает остатки обоих складов и создаёт «Начисление»,
+ * поэтому обесцениваем и остатки, и списки операций.
+ */
+export const useCreateWarehouseTransfer = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: createWarehouseTransfer,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['list_warehouse_transfers'] })
+			queryClient.invalidateQueries({ queryKey: ['list_stock_balances'] })
+			queryClient.invalidateQueries({ queryKey: ['operationsList'] })
+			queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
 		},
 	})
 }

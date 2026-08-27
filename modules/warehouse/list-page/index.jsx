@@ -6,8 +6,11 @@ import FixedContent from '@/layouts/FixedContent'
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
+import TransferDocModal from '../components/TransferDocModal'
+import TransferListModal from '../components/TransferListModal'
+import TransferModal from '../components/TransferModal'
 import WarehousesHeader from '../components/WarehousesHeader'
 import WarehousesTable from '../components/WarehousesTable'
 import { useWarehousesData } from './hooks/useWarehousesData'
@@ -20,6 +23,12 @@ export default observer(function WarehousesListPage() {
   const { searchQuery, setSearchQuery, warehouses, isLoading, deleteMutation } = useWarehousesData()
   const modals = useWarehousesModals()
   const warehousePermission = appStore.permission.warehouse
+
+  // Перемещения между складами: история → документ, и отдельная форма создания.
+  // Со списка склад-отправитель не предзаполняем — его выбирают в форме.
+  const [isTransferListOpen, setIsTransferListOpen] = useState(false)
+  const [isTransferFormOpen, setIsTransferFormOpen] = useState(false)
+  const [selectedTransfer, setSelectedTransfer] = useState(null)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -44,6 +53,7 @@ export default observer(function WarehousesListPage() {
         t={t}
         canAdd={!!warehousePermission?.add}
         onCreateClick={() => modals.setIsCreateModalOpen(true)}
+        onOpenTransfers={() => setIsTransferListOpen(true)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
@@ -79,6 +89,28 @@ export default observer(function WarehousesListPage() {
           isDeleting={deleteMutation.isPending}
         />
       )}
+
+      <TransferListModal
+        open={isTransferListOpen && !isTransferFormOpen}
+        onClose={() => setIsTransferListOpen(false)}
+        canAdd={!!warehousePermission?.add}
+        onCreate={() => setIsTransferFormOpen(true)}
+        onSelect={setSelectedTransfer}
+        t={t}
+      />
+
+      <TransferDocModal
+        open={!!selectedTransfer}
+        onClose={() => setSelectedTransfer(null)}
+        item={selectedTransfer}
+        t={t}
+      />
+
+      <TransferModal
+        open={isTransferFormOpen}
+        onClose={() => setIsTransferFormOpen(false)}
+        t={t}
+      />
     </FixedContent>
   )
 })

@@ -25,7 +25,10 @@ const SelectProductService = ({
   disabled = false,
   dropdownHeaderItem,
   type,
-  selectedLabel
+  selectedLabel,
+  // Ограничить список складскими позициями: массив/Set id товаров, которые
+  // есть на нужном складе. null/undefined — без ограничения.
+  allowedProductIds
 }) => {
   const t = useTranslations('Common')
   const [searchQuery, setSearchQuery] = useState('')
@@ -76,8 +79,23 @@ const SelectProductService = ({
     return art ? `${name || ''} (${art})` : name
   }
 
+  // Позиция каталога адресуется двумя id (guid строки и product_and_service_id),
+  // а какой из них лежит в остатках — зависит от метода, поэтому в фильтр
+  // пропускаем позицию по совпадению любого из них
+  const allowedIdSet = useMemo(() => {
+    if (!allowedProductIds) return null
+    const ids = allowedProductIds instanceof Set ? [...allowedProductIds] : allowedProductIds
+    return Array.isArray(ids) ? new Set(ids.filter(Boolean)) : null
+  }, [allowedProductIds])
+
   const mappedData = useMemo(() => {
-    const data = (productsData || []).map(item => ({
+    const source = allowedIdSet
+      ? (productsData || []).filter(
+        item => allowedIdSet.has(item.product_and_service_id) || allowedIdSet.has(item.guid)
+      )
+      : productsData || []
+
+    const data = source.map(item => ({
       value: item.guid,
       label: withArticle(item.name, item.article)
     }))
@@ -88,7 +106,7 @@ const SelectProductService = ({
     }
 
     return data;
-  }, [productsData, selected])
+  }, [productsData, selected, allowedIdSet])
 
   // Выбранное значение может отсутствовать в подгруженном списке (напр. при
   // редактировании value = product_and_service_id, а опции по guid). Чтобы товар

@@ -11,6 +11,7 @@ const WarehouseDetailHeader = ({
   setSearchQuery,
   onOpenPlanned,
   onOpenInventory,
+  onOpenTransfers,
 }) => {
   const router = useRouter()
 
@@ -50,6 +51,13 @@ const WarehouseDetailHeader = ({
             className="primary-btn text-sm rounded-sm! cursor-pointer"
           >
             {t('inventory.button')}
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenTransfers?.()}
+            className="primary-btn text-sm rounded-sm! cursor-pointer"
+          >
+            {t('transfer.button')}
           </button>
         </div>
         <div className="w-72 shrink-0">

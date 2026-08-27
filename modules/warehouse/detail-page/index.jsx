@@ -4,6 +4,7 @@ import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import FixedContent from '@/layouts/FixedContent'
 import { queryClient } from '@/lib/queryClient'
+import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
@@ -12,6 +13,9 @@ import { useEffect, useState } from 'react'
 import InventoryModal from '../components/InventoryModal'
 import PlannedDocModal from '../components/PlannedDocModal'
 import PlannedListModal from '../components/PlannedListModal'
+import TransferDocModal from '../components/TransferDocModal'
+import TransferListModal from '../components/TransferListModal'
+import TransferModal from '../components/TransferModal'
 import WarehouseDetailHeader from '../components/WarehouseDetailHeader'
 import WarehouseFooter from '../components/WarehouseFooter'
 import WarehouseRow from '../components/WarehouseRow'
@@ -55,6 +59,12 @@ export default observer(function WarehouseDetailPage() {
   const [selectedDoc, setSelectedDoc] = useState(null)
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
 
+  // Перемещения между складами: история → документ, и отдельная форма создания
+  const [isTransferListOpen, setIsTransferListOpen] = useState(false)
+  const [isTransferFormOpen, setIsTransferFormOpen] = useState(false)
+  const [selectedTransfer, setSelectedTransfer] = useState(null)
+  const canCreateTransfer = !!appStore.permission.warehouse?.add
+
   const handleDocClosed = () => {
     queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_shipments'] })
     queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_supplies'] })
@@ -82,6 +92,7 @@ export default observer(function WarehouseDetailPage() {
         setSearchQuery={setSearchQuery}
         onOpenPlanned={setPlannedType}
         onOpenInventory={() => setIsInventoryOpen(true)}
+        onOpenTransfers={() => setIsTransferListOpen(true)}
       />
 
       <div className="flex-1 min-h-0 overflow-auto px-3">
@@ -145,6 +156,30 @@ export default observer(function WarehouseDetailPage() {
         warehouseId={warehouseId}
         warehouseName={warehouse?.name}
         onCreated={() => queryClient.invalidateQueries({ queryKey: ['list_stock_balances'] })}
+        t={t}
+      />
+
+      <TransferListModal
+        open={isTransferListOpen && !isTransferFormOpen}
+        onClose={() => setIsTransferListOpen(false)}
+        warehouseId={warehouseId}
+        canAdd={canCreateTransfer}
+        onCreate={() => setIsTransferFormOpen(true)}
+        onSelect={setSelectedTransfer}
+        t={t}
+      />
+
+      <TransferDocModal
+        open={!!selectedTransfer}
+        onClose={() => setSelectedTransfer(null)}
+        item={selectedTransfer}
+        t={t}
+      />
+
+      <TransferModal
+        open={isTransferFormOpen}
+        onClose={() => setIsTransferFormOpen(false)}
+        warehouseId={warehouseId}
         t={t}
       />
     </FixedContent>

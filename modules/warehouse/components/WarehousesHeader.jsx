@@ -1,7 +1,14 @@
 import Input from '@/components/shared/Input'
-import { Plus, Search } from 'lucide-react'
+import { ArrowLeftRight, Plus, Search } from 'lucide-react'
 
-const WarehousesHeader = ({ t, canAdd = true, onCreateClick, searchQuery, setSearchQuery }) => {
+const WarehousesHeader = ({
+  t,
+  canAdd = true,
+  onCreateClick,
+  onOpenTransfers,
+  searchQuery,
+  setSearchQuery,
+}) => {
   return (
     <div className="flex items-center justify-between gap-4 shrink-0 px-6 py-4 bg-white">
       <div className="flex items-center gap-3">
@@ -13,14 +20,24 @@ const WarehousesHeader = ({ t, canAdd = true, onCreateClick, searchQuery, setSea
           </button>
         )}
       </div>
-      <div className="w-72">
-        <Input
-          type="text"
-          placeholder={t('searchWarehousesPlaceholder')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          leftIcon={<Search size={16} />}
-        />
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenTransfers}
+          className="primary-btn flex items-center gap-1.5 shrink-0"
+        >
+          <ArrowLeftRight size={16} />
+          {t('transfer.button')}
+        </button>
+        <div className="w-72">
+          <Input
+            type="text"
+            placeholder={t('searchWarehousesPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            leftIcon={<Search size={16} />}
+          />
+        </div>
       </div>
     </div>
   )
