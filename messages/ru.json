@@ -778,6 +778,7 @@
     "attendance": {
       "title": "Отчет о посещаемости",
       "student": "Ученик",
+      "noGroup": "Без группы",
       "searchPlaceholder": "Поиск по ученику...",
       "prevMonth": "Предыдущий месяц",
       "nextMonth": "Следующий месяц",

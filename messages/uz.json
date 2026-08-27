@@ -776,6 +776,7 @@
     "attendance": {
       "title": "Davomat hisoboti",
       "student": "O'quvchi",
+      "noGroup": "Guruhsiz",
       "searchPlaceholder": "O'quvchi bo'yicha qidiruv...",
       "prevMonth": "Oldingi oy",
       "nextMonth": "Keyingi oy",
