@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { indicators } from '@/store/indicatos.store'
 import ReactECharts from 'echarts-for-react'
-import { HelpCircle } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import { observer } from 'mobx-react-lite'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useRef, useState } from 'react'
@@ -261,7 +261,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
             <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-[14px] font-medium text-[#111827]">{t('expenses.title')}, {mounted ? GlobalCurrency?.name : ''}</h2>
                 <div className="flex items-center justify-center size-4 bg-neutral-100 rounded-full cursor-help">
-                    <HelpCircle className="size-2.5 text-neutral-400" />
+                    <HintQuestion className="size-2.5 text-neutral-400" />
                 </div>
             </div>
             <div className="w-full h-px bg-neutral-100 mb-8" />

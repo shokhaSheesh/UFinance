@@ -11,11 +11,11 @@ import {
   ChevronDown,
   Download,
   EllipsisVertical,
-  HelpCircle,
   LayoutList,
   List,
   Search,
 } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import styles from '../projects.module.scss'
 
 /**
@@ -41,7 +41,7 @@ export default function ProjectsHeader({
       <div className="flex items-center gap-3 flex-1">
         <div className="flex items-center gap-1.5">
           <h1 className={styles.title}>{t('pageTitle')}</h1>
-          <HelpCircle size={16} className="text-neutral-300" />
+          <HintQuestion size={16} className="text-neutral-300" />
         </div>
 
         {canAdd && (

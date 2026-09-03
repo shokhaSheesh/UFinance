@@ -11,7 +11,7 @@ import { formatStudentTableDate } from '@/utils/formatDate'
 import { formatNumber, formatTotalSumma } from '@/utils/helpers'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
-import { HelpCircle } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -206,7 +206,7 @@ const Students = () => {
             {t('students.title')}, {GlobalCurrency?.name || ''}
           </h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
-            <HelpCircle className="size-3 text-neutral-400" />
+            <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
         <div className="items-center rounded-md">

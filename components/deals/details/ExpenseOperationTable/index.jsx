@@ -1,5 +1,6 @@
 'use client'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
+import { applyCopyDates } from '@/utils/operationCopy'
 import { useDeleteOperation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
@@ -165,7 +166,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
   const handleCopyOperation = async (operation) => {
     const fullOperationData = await getOperation({ guid: operation?.guid })
     const operationFullData = operationDto(fullOperationData?.data?.data)
-    const copy = { ...operationFullData }
+    const copy = applyCopyDates({ ...operationFullData })
 
     setSelectedOperation({ ...copy, id: 'new', isNew: true, isCopy: true })
     setModalType('payment')

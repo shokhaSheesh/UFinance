@@ -554,6 +554,8 @@
       "amountPlaceholder": "Amount",
       "amountZero": "0",
       "accrualDate": "Accrual date",
+      "addAccrual": "Add accrual",
+      "hideAccrual": "Close",
       "confirmAccrual": "Confirm accrual",
       "counterparty": "Counterparty",
       "counterpartyPlaceholder": "Not selected.",
@@ -1164,7 +1166,8 @@
       "roles": "Roles",
       "groups": "Groups",
       "reasons": "Absence reasons",
-      "contract": "Contracts"
+      "contract": "Contracts",
+      "dataDeletion": "Data deletion"
     },
     "groups": {
       "pageTitle": "Groups",
@@ -1205,7 +1208,9 @@
       "account": {
         "title": "Account settings",
         "currency": "Base currency",
-        "placeholder": "Select currency"
+        "placeholder": "Select currency",
+        "businessName": "Business name",
+        "businessNamePlaceholder": "My company"
       },
       "accounting": {
         "title": "Accounting settings",
@@ -1213,7 +1218,9 @@
         "paymentType": "Payment type",
         "wlcm_title": "Create a personal account on WLCM.",
         "wlcm": "Enter your WLCM.uz token",
-        "accrualDate": "Enable << Accrual date >> field when selecting a Deal"
+        "accrualDate": "Enable << Accrual date >> field when selecting a Deal",
+        "operationsList": "Transactions list",
+        "display": "Display settings"
       },
       "modules": {
         "title": "Modules",
@@ -1225,7 +1232,18 @@
       "save": "Save",
       "saving": "Saving...",
       "success": "Settings saved successfully.",
-      "error": "Failed to save settings."
+      "error": "Failed to save settings.",
+      "interface": {
+        "setCurrentDateOnCopy": "Use the current date when copying a transaction",
+        "showAccrualDateOnCreate": "Show the “Accrual date” field when adding a transaction",
+        "isPaymentPurposeOptional": "Make the “Payment purpose” field optional",
+        "showAccrualDateFilter": "Show the “Accrual date” filter in the “Transactions” section",
+        "showArticleCategoryInList": "Show the article category (income, expenses, etc.) in the transactions list",
+        "showPaymentOrderNumber": "Show the payment order number under the article",
+        "showCents": "Show cents",
+        "showPastCashGaps": "Show past cash gaps in the top bar",
+        "hideTooltipQuestions": "Hide tooltip questions"
+      }
     },
     "profile": {
       "pageTitle": "My Profile",
@@ -1590,6 +1608,26 @@
       "commentPlaceholder": "Your comment or note about this deal",
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "dataDeletion": {
+      "pageTitle": "Data deletion",
+      "description": "You can completely clear your account by removing all data about financial transactions, articles, counterparties and so on.",
+      "scope": {
+        "operations": "Delete transactions only",
+        "all": "Delete all account data"
+      },
+      "continue": "Continue",
+      "confirm": {
+        "title": "Data deletion",
+        "warning": "This action cannot be undone: deleted data can not be restored. Enter your password to confirm the deletion.",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter password",
+        "passwordRequired": "Enter your password",
+        "submit": "Delete"
+      },
+      "success": "Data deleted.",
+      "error": "Failed to delete the data.",
+      "noAccess": "You do not have permission to delete data."
     }
   },
   "Directories": {

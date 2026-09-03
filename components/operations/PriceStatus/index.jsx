@@ -2,7 +2,7 @@ import { CreditIcon, DebitIcon, WarnIcon } from '@/constants/icons'
 import { cn } from '@/lib/utils'
 import { operationFilterStore } from '@/store/operationFilter.store'
 import { isPastDate } from '@/utils/formatDate'
-import { formatAmount } from '@/utils/helpers'
+import Money from '@/components/shared/Money'
 import { observer } from 'mobx-react-lite'
 import styles from './style.module.scss'
 
@@ -45,20 +45,24 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
       <div className={styles.amountText}>
         {tab == "Перемещение" && <>
           <div className={`${styles.doubleAccount} flex flex-col `}>
-            <span className={`flex items-center gap-0.5 text-sm text-neutral-500 ${isSpinasiya ? 'opacity-50' : ''}`}>-{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
-            <span className={`flex items-center gap-0.5 text-sm text-neutral-500 ${isZachisleniya ? 'opacity-50' : ''}`}>+{formatAmount(toAmount)} <span className=" text-neutral-500">{toCurrency}</span></span>
+            <span className={`flex items-center gap-0.5 text-sm text-neutral-500 ${isSpinasiya ? 'opacity-50' : ''}`}><Money value={amount} sign="-" /> <span className=" text-neutral-500">{currency}</span></span>
+            <span className={`flex items-center gap-0.5 text-sm text-neutral-500 ${isZachisleniya ? 'opacity-50' : ''}`}><Money value={toAmount} sign="+" /> <span className=" text-neutral-500">{toCurrency}</span></span>
           </div>
         </>}
         {(tab === 'Поступление' || tab === 'Выплата' || tab === 'Отгрузка' || tab === 'Поставка') && <>
           <div>
-            <span className='flex items-center text-sm justify-end gap-0.5'>{type == 'Поступление' ? '+' : type == 'Выплата' ? '-' : ''}{formatAmount(amount)} {currency} {percent ? `(${percent})` : ''}
+            <span className='flex items-center text-sm justify-end gap-0.5'>
+              <Money
+                value={amount}
+                sign={type == 'Поступление' ? '+' : type == 'Выплата' ? '-' : ''}
+              /> {currency} {percent ? `(${percent})` : ''}
             </span>
           </div></>
         }
         {tab == "Начисление" && <>
           <div className={` flex flex-1     flex-col `}>
-            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isDebit ? 'opacity-50' : ''}`}>{debit}{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
-            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isCredit ? 'opacity-50' : ''}`}>{kredit}{formatAmount(amount)} <span className=" text-neutral-500">{currency}</span></span>
+            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isDebit ? 'opacity-50' : ''}`}>{debit}<Money value={amount} sign="" /> <span className=" text-neutral-500">{currency}</span></span>
+            <span className={`flex items-center justify-end gap-0.5 text-sm text-neutral-500 ${isCredit ? 'opacity-50' : ''}`}>{kredit}<Money value={amount} sign="" /> <span className=" text-neutral-500">{currency}</span></span>
           </div>
         </>
         }

@@ -30,6 +30,7 @@ import { AccountsTable } from '../components/AccountsTable/AccountsTable'
 import { useAccountsFilter } from '../hooks/useAccountsFilter'
 import { useAccountsModals } from '../hooks/useAccountsModals'
 import styles from './accounts.module.scss'
+import { formatAmount } from '@/utils/helpers'
 
 export default observer(function AccountsPageList() {
   const t = useTranslations('Directories.account')
@@ -382,7 +383,7 @@ export default observer(function AccountsPageList() {
               <div className='flex items-center gap-1 text-xs'>
                 <p>{t('currentBalance')}:</p>
                 <span className={styles.footerTextBold}>
-                  {summary?.current_balance_val.toLocaleString('ru-RU')}
+                  {formatAmount(summary?.current_balance_val)}
                 </span>
                   <span>{GlobalCurrency?.name}</span>
               </div>

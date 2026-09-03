@@ -25,7 +25,7 @@ import { showSuccessNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { formatNumber, handleDownload } from '@/utils/helpers'
+import { formatAmount, formatNumber, handleDownload } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, Download, EllipsisVertical, Loader2 } from 'lucide-react'
 import {
@@ -561,25 +561,25 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                         {item?.operationCount ?? 0}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.debitorka > 0 ? item?.debitorka?.toLocaleString('ru-RU') : '0'}
+                        {item.debitorka > 0 ? formatAmount(item?.debitorka) : '0'}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.kreditorka > 0 ? item?.kreditorka?.toLocaleString('ru-RU') : '0'}
-                      </div>
-                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {filters.calculationMethod === 'Cashflow'
-                          ? (item?.income > 0 ? item?.income?.toLocaleString('ru-RU') : '0')
-                          : (item?.income?.toLocaleString('ru-RU') || '0')}
+                        {item.kreditorka > 0 ? formatAmount(item?.kreditorka) : '0'}
                       </div>
                       <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
                         {filters.calculationMethod === 'Cashflow'
-                          ? (item?.expenses > 0 ? item?.expenses?.toLocaleString('ru-RU') : '0')
-                          : (item?.expenses?.toLocaleString('ru-RU') || '0')}
+                          ? (item?.income > 0 ? formatAmount(item?.income) : '0')
+                          : (formatAmount(item?.income) || '0')}
+                      </div>
+                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
+                        {filters.calculationMethod === 'Cashflow'
+                          ? (item?.expenses > 0 ? formatAmount(item?.expenses) : '0')
+                          : (formatAmount(item?.expenses) || '0')}
                       </div>
                       <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                         {filters.calculationMethod === 'Cashflow'
-                          ? (item?.difference === 0 ? '0' : item.difference?.toLocaleString('ru-RU'))
-                          : (item?.profit === 0 ? '0' : item.profit?.toLocaleString('ru-RU'))}
+                          ? (item?.difference === 0 ? '0' : formatAmount(item.difference))
+                          : (item?.profit === 0 ? '0' : formatAmount(item.profit))}
                       </div>
                       <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                         <GroupMenu
@@ -619,21 +619,21 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                           )}
                           <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{counterparty?.operationCount ?? 0}</div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.debitorka > 0 ? counterparty?.debitorka?.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.debitorka > 0 ? formatAmount(counterparty?.debitorka) : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.kreditorka > 0 ? counterparty?.kreditorka?.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.kreditorka > 0 ? formatAmount(counterparty?.kreditorka) : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.income > 0 ? counterparty?.income?.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.income > 0 ? formatAmount(counterparty?.income) : '0'}
                           </div>
                           <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.expenses > 0 ? counterparty?.expenses?.toLocaleString('ru-RU') : '0'}
+                            {counterparty?.expenses > 0 ? formatAmount(counterparty?.expenses) : '0'}
                           </div>
                           <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                             {filters.calculationMethod === 'Cashflow'
-                              ? (counterparty?.difference === 0 ? '0' : counterparty?.difference?.toLocaleString('ru-RU'))
-                              : (counterparty?.profit === 0 ? '0' : counterparty?.profit?.toLocaleString('ru-RU'))}
+                              ? (counterparty?.difference === 0 ? '0' : formatAmount(counterparty?.difference))
+                              : (counterparty?.profit === 0 ? '0' : formatAmount(counterparty?.profit))}
                           </div>
                           <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                             <CounterpartyMenu
@@ -669,21 +669,21 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                     )}
                     <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{item?.operationCount ?? 0}</div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.debitorka > 0 ? item?.debitorka?.toLocaleString('ru-RU') : '0'}
+                      {item.debitorka > 0 ? formatAmount(item?.debitorka) : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.kreditorka > 0 ? item?.kreditorka?.toLocaleString('ru-RU') : '0'}
+                      {item.kreditorka > 0 ? formatAmount(item?.kreditorka) : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.income > 0 ? item?.income?.toLocaleString('ru-RU') : '0'}
+                      {item.income > 0 ? formatAmount(item?.income) : '0'}
                     </div>
                     <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.expenses > 0 ? item?.expenses?.toLocaleString('ru-RU') : '0'}
+                      {item.expenses > 0 ? formatAmount(item?.expenses) : '0'}
                     </div>
                     <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
                       {filters.calculationMethod === 'Cashflow'
-                        ? (item?.difference === 0 ? '0' : item?.difference?.toLocaleString('ru-RU'))
-                        : (item?.profit === 0 ? '0' : item?.profit?.toLocaleString('ru-RU'))}
+                        ? (item?.difference === 0 ? '0' : formatAmount(item?.difference))
+                        : (item?.profit === 0 ? '0' : formatAmount(item?.profit))}
                     </div>
                     <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                       <CounterpartyMenu

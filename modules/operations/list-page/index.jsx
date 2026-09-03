@@ -25,6 +25,7 @@ import { showSuccessNotification } from "@/lib/utils/notifications";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
 import { handleDownload } from "@/utils/helpers";
+import { applyCopyDates } from "@/utils/operationCopy";
 import { refetchInfinitePagesAfter } from "@/utils/infiniteQuery";
 
 // Eager (critical for initial render)
@@ -298,7 +299,7 @@ const OperationsListPage = observer(() => {
     // Open modal as "new" but with the copied operation's data
 
     const { operationType } = operatoinFullData;
-    const copy = { ...operatoinFullData };
+    const copy = applyCopyDates({ ...operatoinFullData });
 
     openWithAnimation(() => {
       setModalType(resolveModalType(operationType));

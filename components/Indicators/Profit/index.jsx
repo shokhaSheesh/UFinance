@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
-import { HelpCircle } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useLocale, useTranslations } from 'next-intl'
@@ -380,7 +380,7 @@ const Profit = () => {
         <div className="flex items-center gap-2">
           <h2 className="text-[22px] font-bold text-[#111827]">{t('profit.title')}, {GlobalCurrency?.name || ''}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
-            <HelpCircle className="size-3 text-neutral-400" />
+            <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
         <div className="items-center rounded-md">

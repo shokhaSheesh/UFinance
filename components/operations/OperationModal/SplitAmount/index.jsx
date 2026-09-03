@@ -420,25 +420,32 @@ const SplitAmount = observer(({ amount, onChange, rows,
         </div>
       )}
 
-      <CustomDialog open={isCancelModalOpen} contentClass={'w-[200px]!'} onClose={() => setIsCancelModalOpen(false)} >
-        <div className="p-2">
-          <div className='flex items-center justify-between px-4 py-5'>
-            <h3 className='text-base font-medium text-gray-900 '>{t('cancelDialogText')}</h3>
-          </div>
-          <div className='flex items-center justify-end gap-4'>
-            <button
-              className={'secondary-btn'}
-              onClick={() => setIsCancelModalOpen(false)}
-            >
-              {t('back')}
-            </button>
-            <button
-              className={'primary-btn'}
-              onClick={handleConfirmCancel}
-            >
-              {t('confirmAction')}
-            </button>
-          </div>
+      <CustomDialog
+        open={isCancelModalOpen}
+        contentClass="w-[440px] max-w-[95vw] p-0 overflow-hidden"
+        onClose={() => setIsCancelModalOpen(false)}
+      >
+        <div className="px-6 py-5 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">{t('cancelSplit')}</h3>
+        </div>
+
+        <div className="px-6 py-5">
+          <p className="text-sm text-gray-600 leading-relaxed">{t('cancelDialogText')}</p>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-200">
+          <button
+            className={'secondary-btn'}
+            onClick={() => setIsCancelModalOpen(false)}
+          >
+            {t('back')}
+          </button>
+          <button
+            className={'primary-btn'}
+            onClick={handleConfirmCancel}
+          >
+            {t('confirmAction')}
+          </button>
         </div>
       </CustomDialog>
     </div>

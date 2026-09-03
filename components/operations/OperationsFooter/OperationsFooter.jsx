@@ -4,12 +4,12 @@ import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import useMounted from '../../../hooks/useMounted'
-import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
+import Money from '../../shared/Money'
 import styles from './OperationsFooter.module.scss'
 
-// formatTotalSumma отдаёт пустую строку при нуле и отсутствии значения —
-// в футере вместо пустого места должен стоять 0
-const sum = value => formatNumber(formatTotalSumma(value)) || '0'
+// Суммы в футере — тем же форматом, что и в строках таблицы:
+// копейки печатаются мелким шрифтом и только при включённой настройке
+const sum = value => <Money value={value ?? 0} />
 const count = value => value ?? 0
 
 export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }) => {
@@ -82,6 +82,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
           </div>
           <div className={cn("flex items-center gap-2", totalSummary?.net_cash_flow >= 0 ? "text-green-600" : "text-red-600")}>
             <strong>
+              {totalSummary?.net_cash_flow > 0 ? '+' : ''}
               {sum(totalSummary?.net_cash_flow)}
             </strong>
             <span>{GlobalCurrency?.name}</span>

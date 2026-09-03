@@ -44,10 +44,17 @@ export function useOperationsFilters() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
+  // Фильтр «Дата начисления» скрыт, пока выключена настройка
+  // show_accrual_date_filter. Скрытый фильтр не должен молча сужать выборку,
+  // поэтому сохранённые значения в запрос не уходят.
+  const accrualFilterVisible = Boolean(appStore.interfaceSettings?.showAccrualDateFilter)
+
   const paymentStartDate = safeFormatDate(selectedDatePaymentRange?.start)
   const paymentEndDate   = safeFormatDate(selectedDatePaymentRange?.end)
-  const accrualStartDate = safeFormatDate(selectedDateStartRange?.start)
-  const accrualEndDate   = safeFormatDate(selectedDateStartRange?.end)
+  const accrualStartDate = accrualFilterVisible ? safeFormatDate(selectedDateStartRange?.start) : null
+  const accrualEndDate   = accrualFilterVisible ? safeFormatDate(selectedDateStartRange?.end) : null
+  const accrualConfirmValue    = accrualFilterVisible ? accrualConfirm : true
+  const accrualNotConfirmValue = accrualFilterVisible ? accrualNotConfirm : true
 
   const immediateFilters = useMemo(() => ({
     limit:                LIMIT,
@@ -67,8 +74,8 @@ export function useOperationsFilters() {
     payment_type:         appStore.isPayment ? paymentType : null,
     paymentConfirm,
     paymentNotConfirm,
-    accrualConfirm,
-    accrualNotConfirm,
+    accrualConfirm:       accrualConfirmValue,
+    accrualNotConfirm:    accrualNotConfirmValue,
     sellingDealId:        deals,
     purchaseDealId:       purchaseDeals,
     currency_guid:        appStore.currency?.guid,
@@ -77,7 +84,7 @@ export function useOperationsFilters() {
     accrualStartDate, accrualEndDate, selectedCounterAgents,
     selectedLegalEntities, selectedProjects, selectedFilters, amountRange,
     selectedChartOfAccounts, paymentType,
-    paymentConfirm, paymentNotConfirm, accrualConfirm, accrualNotConfirm, deals, purchaseDeals,
+    paymentConfirm, paymentNotConfirm, accrualConfirmValue, accrualNotConfirmValue, deals, purchaseDeals,
     appStore.currency?.guid,
   ])
 

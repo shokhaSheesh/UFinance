@@ -83,7 +83,13 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
     // Date ranges
     if (selectedDatePaymentRange?.start || selectedDatePaymentRange?.end)
       count++;
-    if (selectedDateStartRange?.start || selectedDateStartRange?.end) count++;
+    // Скрытый фильтр «Дата начисления» в счётчик не попадает: в запрос
+    // его значения тоже не уходят (см. useOperationsFilters)
+    if (
+      appStore.interfaceSettings?.showAccrualDateFilter &&
+      (selectedDateStartRange?.start || selectedDateStartRange?.end)
+    )
+      count++;
 
     // Multi-selects
     if (selectedCounterAgents?.length) count++;
@@ -369,6 +375,9 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
           />
         </FilterSection>
 
+        {/* Фильтр «Дата начисления» показывается только при включённой
+            настройке show_accrual_date_filter — как в ПланФакте */}
+        {appStore.interfaceSettings?.showAccrualDateFilter && (
         <FilterSection title={t("filters.accrualDate")} className="mb-5">
           <div className="space-y-3 flex items-start flex-col">
             <OperationCheckbox
@@ -410,6 +419,7 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
             }
           />
         </FilterSection>
+        )}
 
         {/* Параметры */}
         <FilterSection title={t("filters.parameters")} className="mb-5">

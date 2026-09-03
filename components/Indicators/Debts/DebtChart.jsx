@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/api/ucode/base'
 import { indicators } from '@/store/indicatos.store'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
-import { HelpCircle } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -230,7 +230,7 @@ const DebtChart = observer(({ type }) => {
           className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help"
           title={t(`debts.${type}.hint`)}
         >
-          <HelpCircle className="size-3 text-neutral-400" />
+          <HintQuestion className="size-3 text-neutral-400" />
         </span>
       </div>
 

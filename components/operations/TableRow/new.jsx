@@ -9,6 +9,7 @@ import {
   TypeIncomeIcon,
   TypeTransferIcon,
 } from "@/constants/icons";
+import { useChartOfAccountsCategories } from "@/hooks/useChartOfAccountsCategories";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
@@ -28,6 +29,17 @@ const TableRow = observer(
   }) => {
     const t = useTranslations("Operations");
     const [open, setOpen] = useState(false);
+    // Интерфейсные настройки из «Общих настроек» (get_general_settings)
+    const { showArticleCategoryInList, showPaymentOrderNumber } =
+      appStore.interfaceSettings || {};
+    const categoryByAccountId = useChartOfAccountsCategories();
+    // «Нераспределенный расход [Расходы]» — категория берётся из корня
+    // плана счетов и дописывается к названию статьи, как в ПланФакте
+    const withCategory = (name, accountId) => {
+      if (!showArticleCategoryInList || !name) return name;
+      const category = categoryByAccountId.get(accountId);
+      return category ? `${name} [${category}]` : name;
+    };
     const children = useMemo(() => new Set(), []);
     const chartofaccounts = useMemo(() => new Set(), []);
     // const deals = useMemo(() => new Set(), [])
@@ -68,14 +80,31 @@ const TableRow = observer(
     }, [children, counterpartyGuid, op.counterparty, op.tip, t]);
 
     const titleChartOfAccounts = useMemo(() => {
-      if (chartofaccounts.size === 1) {
-        return op.chartOfAccounts || "";
-      } else if (chartofaccounts.size > 1) {
+      if (chartofaccounts.size > 1) {
         return t("row.statyaCount", { count: chartofaccounts.size || 2 });
-      } else {
-        return op.chartOfAccounts || "";
       }
-    }, [chartofaccounts, op.chartOfAccounts, t]);
+      return withCategory(op.chartOfAccounts || "", op.chart_of_accounts_id);
+      // withCategory зависит только от настройки и карты категорий
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+      chartofaccounts,
+      op.chartOfAccounts,
+      op.chart_of_accounts_id,
+      showArticleCategoryInList,
+      categoryByAccountId,
+      t,
+    ]);
+
+    // Серая строка под статьёй: номер платёжного поручения (если включён
+    // в настройках и пришёл с бэка) и назначение платежа
+    const articleSubtitle = useMemo(() => {
+      const parts = [];
+      if (showPaymentOrderNumber && op.paymentOrderNumber) {
+        parts.push(`№ ${op.paymentOrderNumber}`);
+      }
+      if (op.opisanie) parts.push(op.opisanie);
+      return parts.join(" · ");
+    }, [showPaymentOrderNumber, op.paymentOrderNumber, op.opisanie]);
 
     // Проект разбит по строкам: один на все части — показываем его,
     // несколько — счётчик, как у контрагентов и статей
@@ -315,9 +344,9 @@ const TableRow = observer(
                   <span className="text-sm  truncate w-full">
                     {titleChartOfAccounts}
                   </span>
-                  {op.opisanie && (
+                  {articleSubtitle && (
                     <span className="text-sm text-neutral-400 line-clamp-1 w-full">
-                      {op.opisanie}
+                      {articleSubtitle}
                     </span>
                   )}
                 </>
@@ -329,7 +358,8 @@ const TableRow = observer(
                       isDebit && "opacity-50"
                     )}
                   >
-                    {op.chartOfAccounts} {t("row.byDebit")}
+                    {withCategory(op.chartOfAccounts, op.chart_of_accounts_id)}{" "}
+                    {t("row.byDebit")}
                   </span>
                   <span
                     className={cn(
@@ -337,13 +367,14 @@ const TableRow = observer(
                       isCredit && "opacity-50"
                     )}
                   >
-                    {op.chartOfAccounts2} {t("row.byCredit")}
+                    {withCategory(op.chartOfAccounts2, op.chart_of_accounts_id_2)}{" "}
+                    {t("row.byCredit")}
                   </span>
                 </>
               ) : (
                 (op?.tip === "Отгрузка" || op?.tip === "Поставка") && (
                   <span className="text-sm line-clamp-1  w-full">
-                    {op.chartOfAccounts}
+                    {withCategory(op.chartOfAccounts, op.chart_of_accounts_id)}
                   </span>
                 )
               )}
@@ -525,7 +556,7 @@ const TableRow = observer(
                 {/* Statya Part */}
                 <div className="flex-1 flex px-2 py-1 items-center justify-start ">
                   <span className="text-xs text-gray-600 line-clamp-1">
-                    {part.chartOfAccounts}
+                    {withCategory(part.chartOfAccounts, part.chart_of_accounts_id)}
                   </span>
                 </div>
 

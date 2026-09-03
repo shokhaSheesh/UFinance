@@ -66,6 +66,10 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 	// Form State
 	const isNew = initialData?.isNew
+	// «Сделать поле «Назначение платежа» необязательным»
+	// (is_payment_purpose_optional из get_general_settings): снимает
+	// обязательность поля и звёздочку с подписи
+	const isPurposeRequired = !appStore.interfaceSettings?.isPaymentPurposeOptional
 	const defaultValues = useMemo(() => {
 		if (initialData && (!isNew || initialData.isCopy)) {
 			const raw = initialData
@@ -442,13 +446,14 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 
 					<div className='flex items-start gap-4'>
 						<label className='w-[150px] text-xss pt-2'>
-							{t('purpose')} <span className='text-red-500 ml-0.5'>*</span>
+							{t('purpose')}
+							{isPurposeRequired && <span className='text-red-500 ml-0.5'>*</span>}
 						</label>
 						<div className='flex-1 flex flex-col gap-1 max-w-[600px]'>
 							<Controller
 								name='purpose'
 								control={control}
-								rules={{ required: t('purposeRequired') }}
+								rules={isPurposeRequired ? { required: t('purposeRequired') } : undefined}
 								render={({ field }) => (
 									<TextArea
 										value={field.value}

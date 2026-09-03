@@ -5,6 +5,7 @@ import { useUcodeRequestQuery } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { formatDateTime } from "@/utils/formatDate";
+import Money from "@/components/shared/Money";
 import { formatAmount, formatNumber, formatTotalSumma } from "@/utils/helpers";
 import { keepPreviousData } from "@tanstack/react-query";
 import { ChevronDown, Maximize2, MoreVertical } from "lucide-react";
@@ -42,9 +43,9 @@ const AccountRow = ({ acc }) => (
     </div>
     {acc?.balance && (
       <span className="text-[13px] font-semibold text-slate-800 whitespace-nowrap ml-4">
-        {formatAmount(acc?.balance)}{" "}
+        <Money value={acc?.balance} />{" "}
         <span className="text-gray-400 font-normal">
-          {acc?.currency?.toLocaleString("ru-RU")}
+          {acc?.currency}
         </span>
       </span>
     )}
@@ -249,11 +250,15 @@ const TotalPrice = observer(() => {
           <div className="flex items-center gap-2">
             <p className="text-white">
               {t("label")}{" "}
-              {mounted
-                ? `${formatNumber(Summary?.current_balance)} ${
-                    GlobalCurrency?.name
-                  }`
-                : "0"}
+              {mounted ? (
+                <Money
+                  value={Summary?.current_balance}
+                  currency={GlobalCurrency?.name}
+                  decimalClassName="opacity-50"
+                />
+              ) : (
+                "0"
+              )}
             </p>
           </div>
           <ChevronDown
@@ -273,10 +278,14 @@ const TotalPrice = observer(() => {
             <ModalHeader
               title={
                 <h2 className="text-black text-xl font-semibold">
-                  {mounted
-                    ? formatNumber(formatTotalSumma(Summary?.current_balance))
-                    : "0"}{" "}
-                  {mounted ? GlobalCurrency?.name : ""}
+                  {mounted ? (
+                    <Money
+                      value={Summary?.current_balance}
+                      currency={GlobalCurrency?.name}
+                    />
+                  ) : (
+                    "0"
+                  )}
                 </h2>
               }
             />
@@ -300,7 +309,7 @@ const TotalPrice = observer(() => {
               <ModalHeader
                 title={
                   <h2 className="text-[22px] font-bold text-slate-800 leading-none">
-                    {totalBalance.toLocaleString("ru-RU")}{" "}
+                    {formatAmount(totalBalance)}{" "}
                     {GlobalCurrency?.name}
                   </h2>
                 }
@@ -321,7 +330,7 @@ const TotalPrice = observer(() => {
                           </span>
                           <div className="flex items-center gap-3">
                             <span className="text-[13px] font-bold">
-                              {formatAmount(group?.balance)}{" "}
+                              <Money value={group?.balance} />{" "}
                               <span className="text-gray-400 font-normal">
                                 {GlobalCurrency?.name}
                               </span>

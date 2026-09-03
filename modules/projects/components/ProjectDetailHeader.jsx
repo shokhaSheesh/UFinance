@@ -9,7 +9,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
-import { Check, ChevronDown, ChevronRight, EllipsisVertical, HelpCircle } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, EllipsisVertical } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import Link from 'next/link'
 import moment from 'moment'
 import styles from '../projects.module.scss'
@@ -128,7 +129,7 @@ export default function ProjectDetailHeader({
             <span>
               {fmt(project?.startDate)}—{fmt(project?.endDate)}
             </span>
-            <HelpCircle size={13} className="text-neutral-300" />
+            <HintQuestion size={13} className="text-neutral-300" />
           </div>
         </div>
 

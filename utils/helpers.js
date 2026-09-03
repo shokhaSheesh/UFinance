@@ -48,12 +48,47 @@ export const formatPeriod = (startDate, endDate) => {
   }
 }
 
-export const formatAmount = (v) => {
-  if (v === null || v === undefined || v === '') return '0'
-  const raw = String(v).replace(/\s/g, '').replace(/[^0-9.-]/g, '');
-  const num = parseFloat(raw);
-  if (isNaN(num)) return '0'
-  return num.toLocaleString('ru-RU')
+// ── Деньги ───────────────────────────────────────────────────────────────────
+// «Отображать копейки» (show_cents из get_general_settings). Выключено —
+// суммы округляются до целого, включено — всегда две цифры после разделителя.
+// Разделитель разрядов — неразрывный пробел, дробной части — точка (как в ПланФакте).
+const NBSP = '\u00A0'
+
+export const isShowCents = () => Boolean(appStore?.interfaceSettings?.showCents)
+
+// Приводит к числу и строку с пробелами/запятой («11 734,5»), и готовое число
+export const toAmountNumber = (v) => {
+  if (v === null || v === undefined || v === '') return null
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null
+  const raw = String(v)
+    .replace(/[\s\u00A0]/g, '')
+    .replace(',', '.')
+    .replace(/[^0-9.-]/g, '')
+  const num = parseFloat(raw)
+  return Number.isNaN(num) ? null : num
+}
+
+const groupDigits = (intPart) => String(intPart).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP)
+
+/**
+ * Разбивает сумму на целую и дробную часть: ПланФакт печатает копейки более
+ * мелким шрифтом, поэтому части нужны по отдельности (см. components/shared/Money).
+ * `cents` перекрывает настройку — для мест, где формат задан жёстко.
+ */
+export const splitAmount = (v, { cents } = {}) => {
+  const num = toAmountNumber(v)
+  if (num === null) return { sign: '', int: '0', dec: '' }
+  const withCents = cents === undefined ? isShowCents() : Boolean(cents)
+  const sign = num < 0 ? '-' : ''
+  const abs = Math.abs(num)
+  if (!withCents) return { sign, int: groupDigits(Math.round(abs)), dec: '' }
+  const [int, dec] = abs.toFixed(2).split('.')
+  return { sign, int: groupDigits(int), dec }
+}
+
+export const formatAmount = (v, options) => {
+  const { sign, int, dec } = splitAmount(v, options)
+  return dec ? `${sign}${int}.${dec}` : `${sign}${int}`
 }
 
 
@@ -115,10 +150,12 @@ export const getCurrencyIcon = (currency) => {
   return toJS(appStore.currencies.find(c => c.guid === currency))
 }
 
-export const formatTotalSumma = (summa, fixed = 2) => {
+// Число знаков после точки задаёт «Отображать копейки», а не аргумент:
+// параметр `fixed` оставлен ради совместимости со старыми вызовами.
+export const formatTotalSumma = (summa, fixed) => {
   if (isNaN(summa) || summa == 0) return ''
-  const num = Number(summa).toFixed(fixed)
-  return num.toLocaleString('ru-RU')
+  const decimals = isShowCents() ? 2 : 0
+  return Number(summa).toFixed(decimals)
 }
 
 

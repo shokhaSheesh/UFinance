@@ -18,11 +18,7 @@ import { readStockCount } from "../../../../lib/api/ucode/stock";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
-import {
-  formatAmountInput,
-  formatDecimal,
-  StringtoNumber,
-} from "../../../../utils/helpers";
+import { StringtoNumber, formatAmount, formatAmountInput, formatDecimal } from "../../../../utils/helpers"
 import { showErrorNotification } from "../../../../utils/notifications";
 import SentMessages from "../../../operations/OperationModal/SentMessages";
 import MyAccountCurrensies from "../../../ReadyComponents/MyAccountCurrensies";
@@ -1328,7 +1324,7 @@ const CreateShipment = observer(
                   </button>
                   <p className={styles.totalSum}>
                     {L.shipmentSum}:{" "}
-                    <strong>{totalSum.toLocaleString("ru-RU")}</strong>
+                    <strong>{formatAmount(totalSum)}</strong>
                     <span className="text-neutral-600 ml-1">{code}</span>
                   </p>
                 </div>

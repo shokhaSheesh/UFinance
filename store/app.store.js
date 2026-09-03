@@ -1,6 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
 import { authStore } from "./auth.store";
+import {
+  DEFAULT_INTERFACE_SETTINGS,
+  mapInterfaceSettingsFromApi,
+} from "@/constants/generalSettings";
 
 class AppStore {
   isPayment = false;
@@ -30,6 +34,13 @@ class AppStore {
   // is_blocked из get_general_settings — компания заблокирована админом,
   // показываем экран с просьбой связаться с администратором
   isBlocked = false;
+  // company_name из get_general_settings — название бизнеса, показываем
+  // в «Общих настройках» и правим через update_general_settings
+  companyName = "";
+  // Интерфейсные настройки из get_general_settings (раздел 2.3 API):
+  // поведение форм операций, состав списка операций и формат отображения.
+  // Список полей — в constants/generalSettings.js
+  interfaceSettings = { ...DEFAULT_INTERFACE_SETTINGS };
   permission = {
     indicators: { read: true },
     operations: {
@@ -104,6 +115,8 @@ class AppStore {
           "planTotalActive",
           "currencies",
           "isDonoSchool",
+          "companyName",
+          "interfaceSettings",
           "myCurrencies",
           "companyCurrencies",
           "localApiUrl",
@@ -190,6 +203,16 @@ class AppStore {
 
   setIsBlocked(value) {
     this.isBlocked = value;
+  }
+
+  setCompanyName(value) {
+    this.companyName = value ?? "";
+  }
+
+  // Принимает сырой ответ get_general_settings / update_general_settings.
+  // Оба метода возвращают одинаковую структуру, поэтому маппинг один.
+  setInterfaceSettingsFromApi(data) {
+    this.interfaceSettings = mapInterfaceSettingsFromApi(data);
   }
 
   setIsPayment(value) {

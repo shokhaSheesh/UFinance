@@ -654,6 +654,8 @@
       "amountPlaceholder": "Summa",
       "amountZero": "0",
       "accrualDate": "Hisoblanish sanasi",
+      "addAccrual": "Hisoblash qo‘shish",
+      "hideAccrual": "Yopish",
       "confirmAccrual": "Hisoblanishni tasdiqlash",
       "counterparty": "Tomon",
       "counterpartyPlaceholder": "Tanlanmagan.",
@@ -1291,7 +1293,8 @@
       "roles": "Rollar",
       "groups": "Guruhlar",
       "reasons": "Ishtirok etmaslik sabablari",
-      "contract": "Shartnoma"
+      "contract": "Shartnoma",
+      "dataDeletion": "Ma'lumotlarni o'chirish"
     },
     "groups": {
       "pageTitle": "Guruhlar",
@@ -1332,7 +1335,9 @@
       "account": {
         "title": "Hisob sozlamalari",
         "currency": "Asosiy valyuta",
-        "placeholder": "Valyutani tanlang"
+        "placeholder": "Valyutani tanlang",
+        "businessName": "Biznes nomi",
+        "businessNamePlaceholder": "Mening kompaniyam"
       },
       "accounting": {
         "title": "Hisob sozlamalari",
@@ -1340,7 +1345,9 @@
         "paymentType": "To'lov turi",
         "wlcm_title": "WLCM dagi shaxsiy kabinetingiz joylash",
         "wlcm": "WLCM.uz tokeningizni joylang",
-        "accrualDate": "Sotuvni tanlashda << Hisoblanish sanasi >> maydonini yoqish"
+        "accrualDate": "Sotuvni tanlashda << Hisoblanish sanasi >> maydonini yoqish",
+        "operationsList": "Operatsiyalar ro‘yxati",
+        "display": "Ko‘rsatish sozlamalari"
       },
       "modules": {
         "title": "Modullar",
@@ -1352,7 +1359,18 @@
       "save": "Saqlash",
       "saving": "Saqlanmoqda...",
       "success": "Sozlamalar muvaffaqiyatli saqlandi.",
-      "error": "Sozlamalarni saqlab bo'lmadi."
+      "error": "Sozlamalarni saqlab bo'lmadi.",
+      "interface": {
+        "setCurrentDateOnCopy": "Operatsiyani nusxalashda joriy sanani qo‘yish",
+        "showAccrualDateOnCreate": "Operatsiya qo‘shishda «Hisoblanish sanasi» maydonini ko‘rsatish",
+        "isPaymentPurposeOptional": "«To‘lov maqsadi» maydonini majburiy bo‘lmagan qilish",
+        "showAccrualDateFilter": "«Operatsiyalar» bo‘limida «Hisoblanish sanasi» filtrini ko‘rsatish",
+        "showArticleCategoryInList": "Operatsiyalar ro‘yxatida moddalar toifasini (daromad, xarajat va b.) ko‘rsatish",
+        "showPaymentOrderNumber": "Modda ostida to‘lov topshiriqnomasi raqamini ko‘rsatish",
+        "showCents": "Tiyinlarni ko‘rsatish",
+        "showPastCashGaps": "O‘tgan kassa uzilishlarini yuqori panelda ko‘rsatish",
+        "hideTooltipQuestions": "Savol-maslahatlarni yashirish"
+      }
     },
     "profile": {
       "pageTitle": "Mening profilim",
@@ -1649,6 +1667,26 @@
         "exchange_rates": "Valyuta kurslari",
         "users": "Rollar"
       }
+    },
+    "dataDeletion": {
+      "pageTitle": "Ma'lumotlarni o'chirish",
+      "description": "Hisobingizni to'liq tozalashingiz mumkin: moliyaviy operatsiyalar, moddalar, kontragentlar va boshqa barcha ma'lumotlar o'chiriladi.",
+      "scope": {
+        "operations": "Faqat operatsiyalarni o'chirish",
+        "all": "Hisobning barcha ma'lumotlarini o'chirish"
+      },
+      "continue": "Davom etish",
+      "confirm": {
+        "title": "Ma'lumotlarni o'chirish",
+        "warning": "Amalni ortga qaytarib bo'lmaydi: o'chirilgan ma'lumotlarni tiklash imkonsiz. O'chirishni tasdiqlash uchun parolni kiriting.",
+        "passwordLabel": "Parol",
+        "passwordPlaceholder": "Parolni kiriting",
+        "passwordRequired": "Parolni kiriting",
+        "submit": "O'chirish"
+      },
+      "success": "Ma'lumotlar o'chirildi.",
+      "error": "Ma'lumotlarni o'chirib bo'lmadi.",
+      "noAccess": "Sizda ma'lumotlarni o'chirish huquqi yo'q."
     }
   },
   "TransactionCategories": {

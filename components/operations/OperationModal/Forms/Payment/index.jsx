@@ -294,6 +294,24 @@ const PaymentForm = observer(({
 
   // Form State
   const isNew = initialData?.isNew
+  // «Сделать поле «Назначение платежа» необязательным»
+  // (is_payment_purpose_optional из get_general_settings): снимает
+  // обязательность поля и звёздочку с подписи
+  const isPurposeRequired = !appStore.interfaceSettings?.isPaymentPurposeOptional
+
+  // «Показывать поле «Дата начисления» при добавлении операции»
+  // (show_accrual_date_on_create). Выключено — блок начисления свёрнут в ссылку
+  // «Добавить начисление», как в ПланФакте. У существующей операции блок
+  // показываем всегда: иначе уже введённое начисление стало бы недоступно.
+  const [accrualExpanded, setAccrualExpanded] = useState(false)
+  const isAccrualBlockVisible =
+    !isNew ||
+    Boolean(appStore.interfaceSettings?.showAccrualDateOnCreate) ||
+    accrualExpanded
+  // Свернуть блок обратно можно, только если его раскрыли вручную: у существующей
+  // операции и при включённой настройке он обязателен и ссылку «Закрыть» не показываем
+  const canCollapseAccrual =
+    isNew && accrualExpanded && !appStore.interfaceSettings?.showAccrualDateOnCreate
   const defaultValues = useMemo(() => {
     if (initialData && (!isNew || initialData.isCopy)) {
       const raw = initialData
@@ -405,6 +423,14 @@ const PaymentForm = observer(({
   const isExpenseArticle = articleAncestors.includes(EXPENSE_ROOT)
   const salesDealDisabled = articleAncestors.length > 0 && !isExpenseArticle
   const accrualDisabled = !!watchPurchaseDeal || isAccrualLocked
+
+  // «Закрыть» сворачивает блок и возвращает начисление к состоянию «не заполняли»,
+  // чтобы скрытые значения не ушли в запрос
+  const handleCollapseAccrual = () => {
+    setAccrualExpanded(false)
+    setValue('accrualDate', watchPaymentDate)
+    setValue('confirmAccrual', true)
+  }
 
   useEffect(() => {
     if (isAccrualLocked) setValue('confirmAccrual', watchConfirmPayment)
@@ -671,45 +697,73 @@ const PaymentForm = observer(({
           {/* SECTION: ДЕТАЛИ */}
           <div className="flex flex-col gap-5 mt-4">
 
-            {!showDate && (
-              <div className={cn("flex items-center gap-4", accrualDisabled && "opacity-50")}>
-                <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
-                <div className="flex-1 flex gap-2 items-center max-w-[600px]">
-                  <Controller
-                    name="accrualDate"
-                    control={control}
-                    render={({ field }) => (
-                      <FormDatepicker
-                        value={watchPurchaseDeal ? watchPaymentDate : field.value}
-                        disabled={accrualDisabled}
-                        onChange={(val) => {
-                          if (accrualDisabled) return
-                          field.onChange(val)
-                          setValue('confirmAccrual', !isFuture(val))
-                        }}
-                        placeholder={t('selectDate')}
-                        format='YYYY-MM-DD'
-                        inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
-                      />
-                    )}
-                  />
-                  <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && !watchPurchaseDeal && <WarnIcon />}</span>
-                  <Controller
-                    name="confirmAccrual"
-                    control={control}
-                    render={({ field }) => (
-                      <OperationCheckbox
-                        checked={watchPurchaseDeal ? false : isAccrualLocked ? watchConfirmPayment : field.value}
-                        disabled={accrualDisabled}
-                        label={t('confirmAccrual')}
-                        onChange={(e) => {
-                          if (accrualDisabled || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
-                          field.onChange(e.target.checked)
-                        }}
-                      />
-                    )}
-                  />
+            {/* Ссылка выровнена по колонке полей — как «Разбить сумму» под суммой */}
+            {!showDate && !isAccrualBlockVisible && (
+              <div className="flex items-center gap-4">
+                <span className="w-[150px] shrink-0" />
+                <button
+                  type="button"
+                  onClick={() => setAccrualExpanded(true)}
+                  className="text-xss text-primary hover:underline cursor-pointer w-fit"
+                >
+                  {t('addAccrual')}
+                </button>
+              </div>
+            )}
+
+            {!showDate && isAccrualBlockVisible && (
+              <div className="flex flex-col gap-2">
+                <div className={cn("flex items-center gap-4", accrualDisabled && "opacity-50")}>
+                  <label className="w-[150px] text-xss!">{t('accrualDate')}</label>
+                  <div className="flex-1 flex gap-2 items-center max-w-[600px]">
+                    <Controller
+                      name="accrualDate"
+                      control={control}
+                      render={({ field }) => (
+                        <FormDatepicker
+                          value={watchPurchaseDeal ? watchPaymentDate : field.value}
+                          disabled={accrualDisabled}
+                          onChange={(val) => {
+                            if (accrualDisabled) return
+                            field.onChange(val)
+                            setValue('confirmAccrual', !isFuture(val))
+                          }}
+                          placeholder={t('selectDate')}
+                          format='YYYY-MM-DD'
+                          inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
+                        />
+                      )}
+                    />
+                    <span className="flex items-center w-5">{isPastDate(watchAccrualDate) && !watchConfirmAccrual && !watchPurchaseDeal && <WarnIcon />}</span>
+                    <Controller
+                      name="confirmAccrual"
+                      control={control}
+                      render={({ field }) => (
+                        <OperationCheckbox
+                          checked={watchPurchaseDeal ? false : isAccrualLocked ? watchConfirmPayment : field.value}
+                          disabled={accrualDisabled}
+                          label={t('confirmAccrual')}
+                          onChange={(e) => {
+                            if (accrualDisabled || (isFuture(watchAccrualDate) && !appStore.isDonoSchool)) return
+                            field.onChange(e.target.checked)
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
+              {canCollapseAccrual && (
+                <div className="flex items-center gap-4">
+                  <span className="w-[150px] shrink-0" />
+                  <button
+                    type="button"
+                    onClick={handleCollapseAccrual}
+                    className="text-xss text-primary hover:underline cursor-pointer w-fit"
+                  >
+                    {t('hideAccrual')}
+                  </button>
+                </div>
+              )}
               </div>
             )}
 
@@ -851,12 +905,15 @@ const PaymentForm = observer(({
           {/* SECTION: ОПИСАНИЕ */}
           <div className="flex flex-col gap-5 mt-4">
             <div className="flex items-start gap-4">
-              <label className="w-[150px] text-xss pt-2">{t('purpose')} <span className="text-red-500 ml-0.5">*</span></label>
+              <label className="w-[150px] text-xss pt-2">
+                {t('purpose')}
+                {isPurposeRequired && <span className="text-red-500 ml-0.5">*</span>}
+              </label>
               <div className="flex-1 flex flex-col gap-1 max-w-[600px]">
                 <Controller
                   name="purpose"
                   control={control}
-                  rules={{ required: t('purposeRequired') }}
+                  rules={isPurposeRequired ? { required: t('purposeRequired') } : undefined}
                   render={({ field }) => (
                     <TextArea
                       value={field.value}

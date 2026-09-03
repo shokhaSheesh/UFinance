@@ -4,7 +4,7 @@ import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
-import { HelpCircle } from 'lucide-react'
+import HintQuestion from '@/components/shared/HintQuestion'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useLocale, useTranslations } from 'next-intl'
@@ -12,7 +12,7 @@ import { useMemo, useRef, useState } from 'react'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
 import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
-import { formatNumber } from '../../../utils/helpers'
+import { formatAmount, formatNumber } from '../../../utils/helpers'
 import { STATIC_CASHFLOW_DATA } from '../constants/staticChartData'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
 import { localizeMonthTitle } from '../utils/localizeMonth'
@@ -221,9 +221,9 @@ const CashFlow = () => {
   }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval, receiptsLabel, paymentsLabel, differenceLabel, formatValue])
 
   const stats = [
-    { label: receiptsLabel, value: formatNumber(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
-    { label: paymentsLabel, value: formatNumber(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
-    { label: differenceLabel, value: formatNumber(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: receiptsLabel, value: formatAmount(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: paymentsLabel, value: formatAmount(paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
+    { label: differenceLabel, value: formatAmount(receiptTotal - paymentTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },
   ]
 
   if (!mounted) return null
@@ -242,7 +242,7 @@ const CashFlow = () => {
         <div className="flex items-center gap-2">
           <h2 className="text-[22px] font-bold text-[#111827]">{t('cashFlow.title')}, {GlobalCurrency?.name}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
-            <HelpCircle className="size-3 text-neutral-400" />
+            <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
         <div className="flex flex-wrap bg-[#f3f4f624]  rounded-md p-1">

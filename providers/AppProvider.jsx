@@ -40,6 +40,9 @@ const AppProvider = observer(({ children }) => {
     if (data) {
       appStore.setisDonoschool(Boolean(data?.is_school))
       appStore.setIsBlocked(Boolean(data?.is_blocked))
+      appStore.setCompanyName(data?.company_name)
+      // Интерфейсные настройки приходят тем же ответом и всегда полным набором
+      appStore.setInterfaceSettingsFromApi(data)
     }
   }, [data])
 
