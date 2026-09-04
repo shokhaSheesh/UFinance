@@ -1,6 +1,7 @@
 'use client'
 
-import { ACTION_STYLES, splitDetails, splitEvent } from '@/modules/settings/action-history/utils/constants'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ACTION_STYLES, splitEvent } from '@/modules/settings/action-history/utils/constants'
 import { Loader } from 'lucide-react'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -41,10 +42,10 @@ const ActionHistoryTable = ({ rows, isFetching }) => {
       <tbody>
         {rows.map(row => {
           const { title, details } = splitEvent(row?.event)
-          const detailItems = splitDetails(details)
+          // Без тире весь текст события — это и есть комментарий
+          const comment = details || title
           return (
           <tr key={row?.guid} className="hover:bg-gray-50 transition-colors">
-            {/* event_time приходит в UTC — moment сам переводит в местное время */}
             <td className="px-4 py-3 border-b text-xss text-gray-ucode-600 align-top whitespace-nowrap tabular-nums">
               {row?.event_time ? moment(row.event_time).format('DD.MM.YYYY HH:mm') : '—'}
             </td>
@@ -52,7 +53,7 @@ const ActionHistoryTable = ({ rows, isFetching }) => {
               {row?.user_name || '—'}
             </td>
             <td className="px-4 py-3 border-b text-xss text-gray-ucode-800 align-top">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center">
                 <span
                   className={`text-[11px] leading-none px-2 py-1 rounded-full border shrink-0 whitespace-nowrap ${
                     ACTION_STYLES[row?.action] || 'bg-gray-50 text-gray-600 border-gray-200'
@@ -60,22 +61,22 @@ const ActionHistoryTable = ({ rows, isFetching }) => {
                 >
                   {row?.action ? th(`actions.${row.action}`) : '—'}
                 </span>
-                <span className="font-medium leading-relaxed">{title || '—'}</span>
               </div>
             </td>
-            {/* Перечень полей записи — отдельной колонкой, каждое поле своей строкой */}
             <td className="px-4 py-3 border-b text-xss align-top">
-              {detailItems.length ? (
-                <div className="flex flex-col gap-1">
-                  {detailItems.map((item, index) => (
-                    <div key={`${item.label}-${index}`} className="flex gap-1.5 leading-relaxed">
-                      {item.label && (
-                        <span className="text-gray-ucode-500 shrink-0">{item.label}:</span>
-                      )}
-                      <span className="text-gray-ucode-800 break-words">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
+              {comment ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <p className="line-clamp-2 leading-relaxed text-gray-ucode-800 break-words cursor-default" />
+                    }
+                  >
+                    {comment}
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[520px] max-h-[50vh] overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                    {comment}
+                  </TooltipContent>
+                </Tooltip>
               ) : (
                 <span className="text-gray-ucode-500">—</span>
               )}

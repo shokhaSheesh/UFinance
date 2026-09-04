@@ -35,8 +35,8 @@ export const ACTION_STYLES = {
 export const PAGE_LIMIT = 20
 
 // Бэк отдаёт событие одной строкой: «Добавлено юрлицо — название: …, ИНН: …».
-// До тире — что произошло, после — перечень полей записи. Разводим их по
-// разным строкам, иначе длинный список полей забивает саму суть события
+// До тире — что произошло (колонка «Событие»), после — перечень полей записи,
+// он уходит в колонку «Комментарий» сплошным текстом
 export const splitEvent = event => {
   const text = String(event || '').trim()
   const dashIndex = text.indexOf('\u2014')
@@ -45,21 +45,4 @@ export const splitEvent = event => {
     title: text.slice(0, dashIndex).trim(),
     details: text.slice(dashIndex + 1).trim(),
   }
-}
-
-// Детали — это перечень «поле: значение» через запятую. Режем только перед
-// началом следующей пары, иначе запятая внутри самого значения (например
-// в названии контрагента) разорвала бы его пополам
-export const splitDetails = details => {
-  const text = String(details || '').trim()
-  if (!text) return []
-  return text
-    .split(/,\s+(?=[^,:]+:\s)/)
-    .map(part => part.trim())
-    .filter(Boolean)
-    .map(part => {
-      const match = part.match(/^([^:]+):\s*([\s\S]*)$/)
-      if (!match) return { label: '', value: part }
-      return { label: match[1].trim(), value: match[2].trim() || '-' }
-    })
 }
