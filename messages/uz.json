@@ -1294,7 +1294,8 @@
       "groups": "Guruhlar",
       "reasons": "Ishtirok etmaslik sabablari",
       "contract": "Shartnoma",
-      "dataDeletion": "Ma'lumotlarni o'chirish"
+      "dataDeletion": "Ma'lumotlarni o'chirish",
+      "actionHistory": "Amallar tarixi"
     },
     "groups": {
       "pageTitle": "Guruhlar",
@@ -1687,6 +1688,61 @@
       "success": "Ma'lumotlar o'chirildi.",
       "error": "Ma'lumotlarni o'chirib bo'lmadi.",
       "noAccess": "Sizda ma'lumotlarni o'chirish huquqi yo'q."
+    },
+    "actionHistory": {
+      "pageTitle": "Amallar tarixi",
+      "columns": {
+        "dateTime": "Sana va vaqt",
+        "user": "Foydalanuvchi",
+        "event": "Hodisa",
+        "details": "Izoh"
+      },
+      "filters": {
+        "search": "Hodisalar bo‘yicha qidiruv",
+        "searchPlaceholder": "Hodisa yoki foydalanuvchi",
+        "user": "Foydalanuvchi",
+        "allUsers": "Barcha foydalanuvchilar",
+        "section": "Bo‘lim",
+        "allSections": "Barcha bo‘limlar",
+        "action": "Amal",
+        "allActions": "Barcha amallar",
+        "reset": "Tozalash",
+        "date": "Hodisa sanasi"
+      },
+      "actions": {
+        "create": "Yaratish",
+        "update": "O'zgartirish",
+        "delete": "O'chirish"
+      },
+      "tables": {
+        "account_groups": "Hisoblar guruhlari",
+        "budget_plans": "Byudjet rejalari",
+        "budgets": "Byudjetlar",
+        "chart_of_accounts": "Hisob moddalari",
+        "counterparties": "Kontragentlar",
+        "counterparties_group": "Kontragentlar guruhlari",
+        "group_product_and_service": "Tovar va xizmatlar guruhlari",
+        "legal_entity": "Yuridik shaxslar",
+        "my_accounts": "Mening hisoblarim",
+        "operations": "Operatsiyalar",
+        "product_and_service": "Tovarlar va xizmatlar",
+        "project_groups": "Loyiha guruhlari",
+        "projects": "Loyihalar",
+        "purchase_transactions": "Xarid bitimlari",
+        "sales_status": "Bitim statuslari",
+        "sales_transactions": "Sotuv bitimlari",
+        "stock_balance_histories": "Qoldiqlar tarixi",
+        "stock_balances": "Ombor qoldiqlari",
+        "stock_movements": "Ombor harakatlari",
+        "warehouse": "Omborlar",
+        "warehouse_transfers": "Omborlar o'rtasidagi ko'chirishlar"
+      },
+      "empty": "Yozuvlar topilmadi",
+      "total": "Jami yozuvlar: {total}",
+      "pageOf": "{page} / {totalPages}",
+      "prev": "Orqaga",
+      "next": "Oldinga",
+      "noAccess": "Sizda amallar tarixiga kirish huquqi yo'q."
     }
   },
   "TransactionCategories": {

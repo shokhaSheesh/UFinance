@@ -1167,7 +1167,8 @@
       "groups": "Groups",
       "reasons": "Absence reasons",
       "contract": "Contracts",
-      "dataDeletion": "Data deletion"
+      "dataDeletion": "Data deletion",
+      "actionHistory": "Action history"
     },
     "groups": {
       "pageTitle": "Groups",
@@ -1628,6 +1629,61 @@
       "success": "Data deleted.",
       "error": "Failed to delete the data.",
       "noAccess": "You do not have permission to delete data."
+    },
+    "actionHistory": {
+      "pageTitle": "Action history",
+      "columns": {
+        "dateTime": "Date and time",
+        "user": "User",
+        "event": "Event",
+        "details": "Details"
+      },
+      "filters": {
+        "search": "Search events",
+        "searchPlaceholder": "Event or user",
+        "user": "User",
+        "allUsers": "All users",
+        "section": "Section",
+        "allSections": "All sections",
+        "action": "Action",
+        "allActions": "All actions",
+        "reset": "Reset",
+        "date": "Event date"
+      },
+      "actions": {
+        "create": "Created",
+        "update": "Updated",
+        "delete": "Deleted"
+      },
+      "tables": {
+        "account_groups": "Account groups",
+        "budget_plans": "Budget plans",
+        "budgets": "Budgets",
+        "chart_of_accounts": "Chart of accounts",
+        "counterparties": "Counterparties",
+        "counterparties_group": "Counterparty groups",
+        "group_product_and_service": "Product and service groups",
+        "legal_entity": "Legal entities",
+        "my_accounts": "My accounts",
+        "operations": "Transactions",
+        "product_and_service": "Products and services",
+        "project_groups": "Project groups",
+        "projects": "Projects",
+        "purchase_transactions": "Purchase deals",
+        "sales_status": "Deal statuses",
+        "sales_transactions": "Sales deals",
+        "stock_balance_histories": "Stock balance history",
+        "stock_balances": "Stock balances",
+        "stock_movements": "Stock movements",
+        "warehouse": "Warehouses",
+        "warehouse_transfers": "Warehouse transfers"
+      },
+      "empty": "No records found",
+      "total": "Total records: {total}",
+      "pageOf": "{page} of {totalPages}",
+      "prev": "Back",
+      "next": "Next",
+      "noAccess": "You do not have access to the action history."
     }
   },
   "Directories": {

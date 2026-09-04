@@ -1296,7 +1296,8 @@
       "groups": "Группы",
       "reasons": "Причины отсутствия",
       "contract": "Договор",
-      "dataDeletion": "Удаление данных"
+      "dataDeletion": "Удаление данных",
+      "actionHistory": "История действий"
     },
     "groups": {
       "pageTitle": "Группы",
@@ -1760,6 +1761,61 @@
       "success": "Данные удалены.",
       "error": "Не удалось удалить данные.",
       "noAccess": "У вас нет прав на удаление данных."
+    },
+    "actionHistory": {
+      "pageTitle": "История действий",
+      "columns": {
+        "dateTime": "Дата и время",
+        "user": "Пользователь",
+        "event": "Событие",
+        "details": "Комментарий"
+      },
+      "filters": {
+        "search": "Поиск по событиям",
+        "searchPlaceholder": "Событие или пользователь",
+        "user": "Пользователь",
+        "allUsers": "Все пользователи",
+        "section": "Раздел",
+        "allSections": "Все разделы",
+        "action": "Действие",
+        "allActions": "Все действия",
+        "reset": "Сбросить",
+        "date": "Дата события"
+      },
+      "actions": {
+        "create": "Создание",
+        "update": "Изменение",
+        "delete": "Удаление"
+      },
+      "tables": {
+        "account_groups": "Группы счетов",
+        "budget_plans": "Планы бюджета",
+        "budgets": "Бюджеты",
+        "chart_of_accounts": "Учётные статьи",
+        "counterparties": "Контрагенты",
+        "counterparties_group": "Группы контрагентов",
+        "group_product_and_service": "Группы товаров и услуг",
+        "legal_entity": "Юрлица",
+        "my_accounts": "Мои счета",
+        "operations": "Операции",
+        "product_and_service": "Товары и услуги",
+        "project_groups": "Группы проектов",
+        "projects": "Проекты",
+        "purchase_transactions": "Сделки по закупкам",
+        "sales_status": "Статусы сделок",
+        "sales_transactions": "Сделки по продажам",
+        "stock_balance_histories": "История остатков",
+        "stock_balances": "Остатки на складе",
+        "stock_movements": "Движения по складу",
+        "warehouse": "Склады",
+        "warehouse_transfers": "Перемещения между складами"
+      },
+      "empty": "Записей не найдено",
+      "total": "Всего записей: {total}",
+      "pageOf": "{page} из {totalPages}",
+      "prev": "Назад",
+      "next": "Вперёд",
+      "noAccess": "У вас нет доступа к истории действий."
     }
   },
   "Directories": {
