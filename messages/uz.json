@@ -305,7 +305,9 @@
     "createDeals": "Bitimlar yaratish",
     "archive": "Arxivlash",
     "unarchive": "Arxivdan chiqarish",
-    "clear": "Tozalash"
+    "clear": "Tozalash",
+    "creating": "Yaratilmoqda...",
+    "saving": "Saqlanmoqda..."
   },
   "Auth": {
     "title": {
@@ -394,7 +396,8 @@
       "pnlByQuery": "Foyda va zararlar (F&Z) (test)",
       "balance": "Balans",
       "balanceByQuery": "Balans (test)",
-      "students": "Talabalar"
+      "students": "Talabalar",
+      "balanceTest": "Balans (Test)"
     },
     "directories": {
       "counterparties": "Hamkorlar",
@@ -815,7 +818,15 @@
       "formula": "Aktivlar = Majburiyatlar + Kapital",
       "accountHeader": "HISOB",
       "errorLoading": "Ma'lumotlarni yuklashda xatolik:",
-      "retry": "Qayta urinish"
+      "retry": "Qayta urinish",
+      "grouping": {
+        "monthly": "Oylar bo'yicha",
+        "quarterly": "Choraklar bo'yicha",
+        "yearly": "Yillar bo'yicha",
+        "total": "Davr oxiriga"
+      },
+      "display": "Ko'rinish",
+      "titleTest": "Balans (Test)"
     },
     "students": {
       "title": "Talabalar bo'yicha oylik hisobot",
@@ -837,7 +848,8 @@
       "status": {
         "active": "Faol",
         "passive": "Passiv"
-      }
+      },
+      "statusTile": "Holati"
     },
     "attendance": {
       "title": "Davomat hisoboti",
@@ -1628,7 +1640,8 @@
             "status": "Holati"
           }
         }
-      }
+      },
+      "name": "Nomi"
     },
     "common": {
       "save": "Saqlash",
@@ -1667,7 +1680,9 @@
         "branches": "Filiallar",
         "exchange_rates": "Valyuta kurslari",
         "users": "Rollar"
-      }
+      },
+      "creating": "Yaratilmoqda...",
+      "edit": "Tahrirlash"
     },
     "dataDeletion": {
       "pageTitle": "Ma'lumotlarni o'chirish",
@@ -1743,6 +1758,101 @@
       "prev": "Orqaga",
       "next": "Oldinga",
       "noAccess": "Sizda amallar tarixiga kirish huquqi yo'q."
+    },
+    "details": {
+      "emptyState": {
+        "addButton": "Qo'shish"
+      },
+      "status": {
+        "defaultStatus": "Yangi",
+        "statusNamePlaceholder": "Status nomi",
+        "addStatus": "Status qo'shish",
+        "edit": "Tahrirlash",
+        "delete": "O'chirish",
+        "cancel": "Bekor qilish",
+        "save": "Saqlash"
+      },
+      "productServiceTable": {
+        "title": "Nomi",
+        "quantity": "Miqdor",
+        "unit": "O'lchov birligi",
+        "pricePerUnit": "Birlik narxi",
+        "discount": "Chegirma",
+        "vat": "QQS",
+        "sum": "Summa",
+        "selected": "tanlandi",
+        "delete": "O'chirish",
+        "deletePositionsTitle": "Pozitsiyalarni bitimdan o'chirish",
+        "deletePositionsConfirm": "Siz haqiqatan ham {count} ta pozitsiyani bitimdan o'chirmoqchimisiz?",
+        "cancel": "Bekor qilish",
+        "emptyTitle": "Bitimga tovar yoki xizmatlar qo'shing",
+        "emptySubtitle": "Mijozlaringizga sotib olish yoki sotish uchun tovarlar/xizmatlar bilan bitimni to'ldiring"
+      },
+      "incomeOperationsTable": {
+        "date": "Sana",
+        "account": "Hisob",
+        "counterparty": "Tomon",
+        "article": "Modda",
+        "amount": "Summa",
+        "total": "Jami:",
+        "deleteOperationTitle": "Operatsiyani o'chirish",
+        "cancel": "Bekor qilish",
+        "delete": "O'chirish",
+        "emptyTitle": "Bitim bo'yicha kirimlarni qo'shing",
+        "emptySubtitle": "Mijozning majburiyatlarini bajarishini nazorat qilish uchun mijozning kirimlarini hisobga oling",
+        "deleteOperationConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi."
+      },
+      "expenseOperationsTable": {
+        "date": "Sana",
+        "account": "Hisob",
+        "counterparty": "Tomon",
+        "article": "Modda",
+        "amount": "Summa",
+        "total": "Jami:",
+        "accrual": "[Hisoblash]",
+        "deleteOperationTitle": "Operatsiyani o'chirish",
+        "cancel": "Bekor qilish",
+        "delete": "O'chirish",
+        "emptyTitle": "Bitim bo'yicha xarajatlarni qo'shing",
+        "emptySubtitle": "Moliyaviy natijani nazorat qilish uchun bitim bo'yicha xarajatlarni hisobga oling",
+        "deleteOperationConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi."
+      },
+      "shipmentTable": {
+        "date": "Sana",
+        "legalEntity": "Yuridik shaxs",
+        "counterparty": "Tomon",
+        "composition": "Tarkib",
+        "article": "Modda",
+        "amount": "Summa",
+        "position": "{count, plural, one {pozitsiya} few {pozitsiya} other {pozitsiya}}",
+        "noName": "Nomsiz",
+        "goodsServices": "Tovarlar/xizmatlar",
+        "unallocatedIncome": "Taqsimlanmagan daromad",
+        "deleteShipmentTitle": "Yukni o'chirish",
+        "cancel": "Bekor qilish",
+        "delete": "O'chirish",
+        "emptyTitle": "Bitimga yetkazib berishni qo'shing",
+        "emptySubtitle": "Bitim bo'yicha majburiyatlarni bajarishni nazorat qilish uchun tovarlar/xizmatlarni yetkazib berishni hisobga oling",
+        "emptyProductsTitle": "Yetkazib berishni yarating",
+        "emptyProductsSubtitle": "Yetkazib berishlarni kuzatishni boshlash uchun bitimni tovar yoki xizmatlar bilan to'ldiring",
+        "goToProducts": "Tovar va xizmatlarga o'tish",
+        "deleteShipmentConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali jo'natmani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi."
+      }
+    },
+    "editDealModal": {
+      "dealName": "Bitim nomi",
+      "dealNamePlaceholder": "Masalan, sayt yaratish",
+      "dealDate": "Bitim sanasi",
+      "client": "Mijoz",
+      "vat": "QQS",
+      "vatWith": "QQS bilan",
+      "comment": "Izoh",
+      "cancel": "Bekor qilish",
+      "save": "Saqlash",
+      "title": "Sotuvni tahrirlash",
+      "dealDatePlaceholder": "11.02.2024",
+      "clientPlaceholder": "Tovar yoki xizmatni kimga sotayotganingizni ko'rsating",
+      "commentPlaceholder": "Ushbu bitim bo'yicha izohingiz yoki tushuntirishingiz"
     }
   },
   "TransactionCategories": {
@@ -2426,7 +2536,7 @@
         "amount": "Summa",
         "total": "Jami:",
         "deleteOperationTitle": "Operatsiyani o'chirish",
-        "deleteOperationConfirm": "Siz haqiqatan ham summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+        "deleteOperationConfirm": "Siz haqiqatan ham ushbu operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
         "cancel": "Bekor qilish",
         "delete": "O'chirish",
         "emptyTitle": "Bitim bo'yicha kirimlarni qo'shing",
@@ -2441,7 +2551,7 @@
         "total": "Jami:",
         "accrual": "[Hisobga olish]",
         "deleteOperationTitle": "Operatsiyani o'chirish",
-        "deleteOperationConfirm": "Siz haqiqatan ham <strong>{amount}</strong> summali operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
+        "deleteOperationConfirm": "Siz haqiqatan ham ushbu operatsiyani o'chirmoqchimisiz? <br />Uni tiklab bo'lmaydi.",
         "cancel": "Bekor qilish",
         "delete": "O'chirish",
         "emptyTitle": "Bitim bo'yicha xarajatlarni qo'shing",

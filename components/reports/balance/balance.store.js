@@ -19,6 +19,8 @@ class BalanceStore {
 	selectedAccount = []
 	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
 	dateRangeType = 'year'
+	// Как разбивать период на срезы: 'monthly' | 'quarterly' | 'yearly' | 'total'
+	periodType = 'monthly'
 
 	constructor() {
 		makeAutoObservable(this)
@@ -31,7 +33,8 @@ class BalanceStore {
 					'selectedCurrency',
 					'selectedCounterparties',
 					'selectedAccount',
-					'dateRangeType'
+					'dateRangeType',
+					'periodType'
 				],
 				storage: window.localStorage,
 				debugMode: false,
@@ -49,6 +52,10 @@ class BalanceStore {
 	}
 	setDateRangeType(type) {
 		this.dateRangeType = type
+	}
+
+	setPeriodType(type) {
+		this.periodType = type
 	}
 
 	setSelectedEntity(entity) {
@@ -74,6 +81,7 @@ class BalanceStore {
 		this.selectedCounterparties = []
 		this.selectedAccount = []
 		this.dateRangeType = 'year'
+		this.periodType = 'monthly'
 	}
 }
 

@@ -41,7 +41,8 @@
       "cost": "Cost",
       "totalCost": "Total cost",
       "salePrice": "Sale price",
-      "saleTotal": "Sale total"
+      "saleTotal": "Sale total",
+      "number": "No."
     },
     "footer": {
       "positions": "Positions",
@@ -85,7 +86,11 @@
       "closing": "Closing...",
       "closeSuccess": "Document closed",
       "closeError": "Failed to close the document",
-      "noProducts": "No products"
+      "noProducts": "No products",
+      "stockChecking": "Checking stock balances...",
+      "stockCheckFailed": "Failed to check stock balances",
+      "stockShortTitle": "Not enough goods in stock:",
+      "stockShortRow": "“{name}”: {available} available, {requested} required"
     },
     "transfer": {
       "button": "Transfer",
@@ -149,6 +154,38 @@
       "totalQuantity": "Total quantity",
       "totalAmount": "Transfer amount",
       "readOnlyHint": "A transfer cannot be edited — create a reverse one"
+    },
+    "inventory": {
+      "button": "Stocktaking",
+      "title": "Stocktaking",
+      "type": "Type",
+      "typeIn": "Surplus (stock in)",
+      "typeOut": "Shortage (write-off)",
+      "date": "Date",
+      "dateRequired": "Select a date",
+      "legalEntity": "Legal entity",
+      "legalEntityPlaceholder": "Select a legal entity",
+      "incomeArticle": "Income category",
+      "expenseArticle": "Expense category",
+      "unallocatedIncome": "Unallocated revenue",
+      "unallocatedExpense": "Unallocated expense",
+      "comment": "Comment",
+      "commentPlaceholder": "For example, stocktaking for August",
+      "products": "Products",
+      "productName": "Name",
+      "quantity": "Qty",
+      "unit": "Unit",
+      "available": "Balance",
+      "selectProduct": "Select a product",
+      "addRow": "Add row",
+      "productsRequired": "Add at least one product",
+      "quantityRequired": "Enter a quantity for every product",
+      "stockExceeded": "“{name}”: {available} available, {requested} requested",
+      "created": "Stocktaking created",
+      "createFailed": "Failed to create the stocktaking",
+      "requiredFields": "required fields",
+      "cancel": "Cancel",
+      "create": "Create"
     }
   },
   "filter": "Filters",
@@ -191,7 +228,8 @@
       "selectCurrency": "Select currency",
       "selectGroup": "Select group",
       "selectUser": "Select user",
-      "selectCounterpartyGroup": "Select counterparty group"
+      "selectCounterpartyGroup": "Select counterparty group",
+      "selectPurchaseDeals": "Purchase deals"
     },
     "deleteConfirmTitle": "Confirm deletion",
     "tooltips": {
@@ -215,7 +253,10 @@
     "createCounterparty": "Create counterparty",
     "createCounterparties": "Create counterparties",
     "createDeal": "Create Deal",
-    "createDeals": "Create Deals"
+    "createDeals": "Create Deals",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "clear": "Clear"
   },
   "Auth": {
     "title": {
@@ -287,13 +328,18 @@
       "directories": "Directories",
       "settings": "Settings",
       "plans": "Budgets",
-      "warehouse": "My warehouse"
+      "warehouse": "My warehouse",
+      "projects": "Projects"
     },
     "reports": {
       "cashflow": "Cash Flow Statement",
       "pnl": "Profit & Loss (P&L)",
       "balance": "Balance Sheet",
-      "students": "Students"
+      "students": "Students",
+      "cashflowByQuery": "Cash flow (CF) (test)",
+      "pnlByQuery": "Profit and loss (P&L) (test)",
+      "balanceByQuery": "Balance (test)",
+      "balanceTest": "Balance (Test)"
     },
     "directories": {
       "counterparties": "Counterparties",
@@ -419,7 +465,9 @@
     "plans": {
       "cash_flow_budget": "Cash Flow Budget",
       "income_expense_budget": "Income & Expense Budget",
-      "payment_calendar": "Payment Calendar"
+      "payment_calendar": "Payment Calendar",
+      "cash_flow_budget_desc": "Plan cash flows and compare them with actuals",
+      "income_expense_budget_desc": "Plan profit and compare it with actuals"
     },
     "apiModal": {
       "title": "Local API Configuration",
@@ -476,7 +524,8 @@
       "counterparty": "Counterparty",
       "statya": "Category",
       "deal": "Deal",
-      "amount": "Amount"
+      "amount": "Amount",
+      "project": "Project"
     },
     "filters": {
       "operationType": "Transaction type",
@@ -502,7 +551,9 @@
       "purchaseDealsPlaceholder": "Purchase deals",
       "paymentTypePlaceholder": "Payment type",
       "amountFrom": "Amount from",
-      "amountTo": "to"
+      "amountTo": "to",
+      "projectsPlaceholder": "Projects",
+      "project": "Project"
     },
     "paymentTypes": {
       "cash": "Cash",
@@ -598,7 +649,9 @@
       "canAllowOpiu": "Include in P&L using cash method",
       "create": "Create",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "project": "Project",
+      "projectPlaceholder": "Select a project"
     },
     "splitAmount": {
       "cancelSplit": "Cancel split",
@@ -620,7 +673,12 @@
       "confirmAction": "Confirm",
       "splitAccrual": "Accrual",
       "splitCounterparty": "Counterparty",
-      "splitStatya": "Category"
+      "splitStatya": "Category",
+      "increaseBy": "Increase by",
+      "amountRequired": "Enter the operation amount to split it",
+      "splitProject": "Project",
+      "project": "Project",
+      "projectPlaceholder": "Not selected"
     },
     "comments": {
       "plugTitle": "Attach files to transactions, such as invoices or bills, and add comments",
@@ -652,7 +710,8 @@
       "transferWriteOff": "[Transfer write-off]",
       "transferEnrollment": "[Transfer deposit]",
       "byDebit": "[by debit]",
-      "byCredit": "[by credit]"
+      "byCredit": "[by credit]",
+      "projectsCount": "{count} [projects]"
     }
   },
   "Reports": {
@@ -669,7 +728,8 @@
       "date": "Date",
       "counterparty": "Counterparty",
       "counterpartyGroup": "Counterparty group",
-      "deals": "Deals"
+      "deals": "Deals",
+      "projects": "Projects"
     },
     "cashflow": {
       "title": "Cash Flow Statement",
@@ -706,7 +766,15 @@
       "formula": "Assets = Liabilities + Equity",
       "accountHeader": "ACCOUNT",
       "errorLoading": "Error loading data:",
-      "retry": "Retry"
+      "retry": "Retry",
+      "grouping": {
+        "monthly": "By months",
+        "quarterly": "By quarters",
+        "yearly": "By years",
+        "total": "As of period end"
+      },
+      "display": "Display",
+      "titleTest": "Balance (Test)"
     },
     "students": {
       "title": "Monthly Student Report",
@@ -743,6 +811,13 @@
         "present": "Present",
         "late": "Late",
         "absent": "Absent"
+      },
+      "noGroup": "No group",
+      "totals": {
+        "students": "Students",
+        "workingDays": "Working days",
+        "marked": "Marked",
+        "notMarked": "Not marked"
       }
     }
   },
@@ -818,7 +893,10 @@
       "deleteSupplyTitle": "Delete supply",
       "deleteSupplyConfirm": "Are you sure you want to delete the supply for <strong>{amount}</strong>? <br />This cannot be undone.",
       "deleteBlockedClosedWarehouse": "Deletion unavailable: the \"Planned\" flag doesn't match the current warehouse module setting",
-      "unallocatedExpense": "Unallocated expense"
+      "unallocatedExpense": "Unallocated expense",
+      "emptyProductsTitle": "Create a supply",
+      "emptyProductsSubtitle": "Add products or services to the deal to start tracking supplies",
+      "goToProducts": "Go to products and services"
     },
     "createDealModal": {
       "titleNew": "New purchase",
@@ -866,7 +944,8 @@
       "noName": "Untitled",
       "actions": {
         "edit": "Edit",
-        "delete": "Delete"
+        "delete": "Delete",
+        "downloadPdf": "Download PDF"
       },
       "cards": {
         "type": "Type",
@@ -886,7 +965,8 @@
         "weOwe": "We owe:",
         "profitability": "Profitability",
         "income": "Revenue",
-        "expenses": "Expenses"
+        "expenses": "Expenses",
+        "supplierOwes": "Supplier owes:"
       },
       "accountingMethods": {
         "accrual": "Accrual method",
@@ -934,7 +1014,8 @@
       "dealAmount": "Deal amount",
       "dealProfit": "Deal profit",
       "from": "From",
-      "to": "To"
+      "to": "To",
+      "selectProjects": "Projects"
     },
     "createDealModal": {
       "titleNew": "New sale",
@@ -953,7 +1034,9 @@
       "comment": "Comment",
       "cancel": "Cancel",
       "create": "Create",
-      "save": "Save"
+      "save": "Save",
+      "project": "Project",
+      "projectPlaceholder": "Select a project"
     },
     "createStudentModal": {
       "titleNew": "New sale",
@@ -1076,7 +1159,8 @@
       "createGuardianType": "Create guardian type",
       "editGuardianType": "Edit guardian type",
       "guardianTypeName": "Guardian type name",
-      "guardianTypeNamePlaceholder": "Enter guardian type name"
+      "guardianTypeNamePlaceholder": "Enter guardian type name",
+      "validRangeInvalid": "The contract start date must not be later than the end date"
     },
     "deleteDealModal": {
       "title": "Confirm deletion",
@@ -1153,7 +1237,10 @@
       "requiredFields": "Required fields",
       "cancel": "Cancel",
       "create": "Create",
-      "save": "Save"
+      "save": "Save",
+      "unit": "Unit",
+      "project": "Project",
+      "projectPlaceholder": "Select a project"
     }
   },
   "Settings": {
@@ -1592,7 +1679,10 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "emptyTitle": "Add shipments to the deal",
-        "emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment"
+        "emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment",
+        "emptyProductsTitle": "Create a shipment",
+        "emptyProductsSubtitle": "Add products or services to the deal to start tracking shipments",
+        "goToProducts": "Go to products and services"
       }
     },
     "editDealModal": {
@@ -1708,7 +1798,8 @@
         "articleOut": "Payment category",
         "comment": "Comment",
         "groupName": "Name",
-        "groupComment": "Comment"
+        "groupComment": "Comment",
+        "notStudent": "Not a student"
       },
       "placeholders": {
         "name": "e.g., Acme Corp",
@@ -1867,7 +1958,8 @@
         "actions": {
           "edit": "Edit",
           "delete": "Delete",
-          "deleting": "Deleting..."
+          "deleting": "Deleting...",
+          "downloadPdf": "Download PDF"
         }
       }
     },
@@ -2132,7 +2224,14 @@
         "deletePositionsConfirm": "Are you sure you want to delete {count} {count, plural, one {item} other {items}} from the deal?",
         "cancel": "Cancel",
         "emptyTitle": "Add products or services to the deal",
-        "emptySubtitle": "Add the goods or services you are buying or selling to your clients"
+        "emptySubtitle": "Add the goods or services you are buying or selling to your clients",
+        "linkedOpsTitleSale": "Could not delete items from the deal",
+        "linkedOpsTitlePurchase": "Could not delete items from the purchase",
+        "linkedOpsTextSale": "{count} {count, plural, one {item} other {items}} in the deal {count, plural, one {has} other {have}} linked shipments.",
+        "linkedOpsTextPurchase": "{count} {count, plural, one {item} other {items}} in the purchase {count, plural, one {has} other {have}} linked supplies.",
+        "linkedOpsHint": "Delete those operations and try again.",
+        "linkedOpsShow": "View operations",
+        "linkedOpsClose": "Close"
       },
       "incomeOperationsTable": {
         "date": "Date",
@@ -2161,7 +2260,9 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "emptyTitle": "Add expenses for this deal",
-        "emptySubtitle": "Track deal expenses to monitor the financial result"
+        "emptySubtitle": "Track deal expenses to monitor the financial result",
+        "byDebit": "[by debit]",
+        "byCredit": "[by credit]"
       },
       "shipmentTable": {
         "date": "Date",
@@ -2180,7 +2281,11 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "emptyTitle": "Add shipments to the deal",
-        "emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment"
+        "emptySubtitle": "Track shipments of goods and services to monitor deal fulfillment",
+        "totalQuantity": "Qty",
+        "emptyProductsTitle": "Create a shipment",
+        "emptyProductsSubtitle": "Add products or services to the deal to start tracking shipments",
+        "goToProducts": "Go to products and services"
       }
     }
   },
@@ -2377,13 +2482,81 @@
         "financing": "Financing cash flow",
         "financingOps": "Financing transactions",
         "totalFlow": "Total cash flow",
-        "closingBalance": "Closing cash balance"
+        "closingBalance": "Closing cash balance",
+        "undistributedIncome": "Unallocated revenue",
+        "goodsSale": "Sale of finished goods",
+        "semiFinished": "Sale of semi-finished goods",
+        "scrapSale": "Sale of scrap and defects",
+        "supportServices": "Support services provided",
+        "loansReturned": "Loans repaid to us",
+        "creditReceived": "Loan received",
+        "staffCosts": "Staff costs",
+        "rentCosts": "Rent and utilities",
+        "materialCosts": "Materials and raw materials",
+        "loansIssued": "Loans issued",
+        "creditRepaid": "Loan repayment",
+        "equipmentPurchase": "Equipment purchase"
       },
       "na": "N/A",
       "actions": {
         "expand": "Expand",
-        "collapse": "Collapse"
-      }
+        "collapse": "Collapse",
+        "import": "Import",
+        "edit": "Edit",
+        "delete": "Delete",
+        "clearColumn": "Clear column",
+        "columnMenu": "Column menu"
+      },
+      "hints": {
+        "fact": "Actual values for the period",
+        "planExec": "Actual to plan ratio, in percent",
+        "deviation": "Difference between plan and actual",
+        "deviationPct": "Difference between plan and actual, in percent"
+      },
+      "quarter": "Q{q}",
+      "quarterShort": "Q",
+      "monthsShort": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      },
+      "form": {
+        "createTitle": "Create budget",
+        "editTitle": "Edit budget",
+        "close": "Close",
+        "name": "Budget name",
+        "namePlaceholder": "For example, Budget for 2027",
+        "period": "Period",
+        "legalEntity": "Legal entity",
+        "legalEntityPlaceholder": "Select a legal entity",
+        "project": "Project or group",
+        "projectPlaceholder": "Select a project or a project group",
+        "currency": "Currency",
+        "comment": "Comment",
+        "commentPlaceholder": "Your comment or a note about this budget",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save",
+        "errors": {
+          "name": "Enter a name",
+          "legalEntity": "Select a legal entity",
+          "currency": "Select a currency"
+        },
+        "projectGroup": "group",
+        "currencyPlaceholder": "Select a currency"
+      },
+      "typeLabel": "CF budget",
+      "allLegalEntities": "All legal entities",
+      "empty": "This budget has no items yet"
     },
     "IncomeExpenseBudgetSingle": {
       "breadcrumb": {
@@ -2442,13 +2615,99 @@
         "rentCosts": "Rent & utilities",
         "otherCosts": "Other expenses",
         "netProfit": "Net profit / loss",
-        "profitability": "Profitability, %"
+        "profitability": "Profitability, %",
+        "revenue": "Revenue",
+        "goodsSale": "Sale of finished goods",
+        "semiFinished": "Sale of semi-finished goods",
+        "scrapSale": "Sale of scrap and defects",
+        "supportServices": "Support services provided",
+        "mainExpenses": "Core expenses",
+        "materialCosts": "Materials and raw materials",
+        "operatingProfit": "Operating profit",
+        "operatingMargin": "Operating margin",
+        "grants": "Subsidies and grants",
+        "otherExpenses": "Other expenses",
+        "fines": "Fines and penalties",
+        "ebitda": "EBITDA",
+        "ebitdaMargin": "EBITDA margin",
+        "depreciation": "Depreciation",
+        "ebit": "Earnings before interest and taxes (EBIT)",
+        "ebitMargin": "EBIT margin",
+        "interest": "Interest on loans and credits",
+        "ebt": "Earnings before taxes (EBT)",
+        "ebtMargin": "EBT margin",
+        "profitTax": "Income tax",
+        "netMargin": "Net profit margin",
+        "dividends": "Dividends",
+        "retainedProfit": "Retained earnings"
       },
       "na": "N/A",
       "actions": {
         "expand": "Expand",
-        "collapse": "Collapse"
-      }
+        "collapse": "Collapse",
+        "import": "Import",
+        "edit": "Edit",
+        "delete": "Delete",
+        "clearColumn": "Clear column",
+        "columnMenu": "Column menu"
+      },
+      "hints": {
+        "fact": "Actual values for the period",
+        "planExec": "Actual to plan ratio, in percent",
+        "deviation": "Difference between plan and actual",
+        "deviationPct": "Difference between plan and actual, in percent"
+      },
+      "quarter": "Q{q}",
+      "quarterShort": "Q",
+      "monthsShort": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      },
+      "profitIndicators": {
+        "gross": "Gross profit",
+        "operating": "Operating profit",
+        "ebitda": "EBITDA",
+        "ebit": "EBIT",
+        "ebt": "EBT"
+      },
+      "form": {
+        "createTitle": "Create budget",
+        "editTitle": "Edit budget",
+        "close": "Close",
+        "name": "Budget name",
+        "namePlaceholder": "For example, Budget for 2027",
+        "period": "Period",
+        "legalEntity": "Legal entity",
+        "legalEntityPlaceholder": "Select a legal entity",
+        "project": "Project or group",
+        "projectPlaceholder": "Select a project or a project group",
+        "currency": "Currency",
+        "comment": "Comment",
+        "commentPlaceholder": "Your comment or a note about this budget",
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save",
+        "errors": {
+          "name": "Enter a name",
+          "legalEntity": "Select a legal entity",
+          "currency": "Select a currency"
+        },
+        "projectGroup": "group",
+        "currencyPlaceholder": "Select a currency"
+      },
+      "typeLabel": "P&L budget",
+      "allLegalEntities": "All legal entities",
+      "empty": "This budget has no items yet"
     }
   },
   "Indicators": {
@@ -2473,7 +2732,8 @@
       "placeholders": {
         "display": "Display",
         "account": "Account",
-        "deal": "Deal"
+        "deal": "Deal",
+        "project": "Projects"
       }
     },
     "accountBalance": {
@@ -2538,6 +2798,59 @@
         "incomeShare": "Cumulative revenue share, %",
         "clients20": "Clients generating under 20% of revenue"
       }
+    },
+    "debts": {
+      "title": "Debts",
+      "empty": "No data for the selected period",
+      "noName": "No name",
+      "expired": "Overdue",
+      "notExpired": "Not overdue",
+      "filters": {
+        "legalEntity": "Legal entity",
+        "legalEntityPlaceholder": "All legal entities"
+      },
+      "sort": {
+        "label": "Sorting",
+        "expired": "Overdue",
+        "total": "Total"
+      },
+      "settings": {
+        "button": "Configure",
+        "display": "Display",
+        "showValues": "Show amounts on charts",
+        "rounding": "Precision",
+        "noRounding": "Do not round amounts",
+        "customRounding": "Customize amount rounding",
+        "roundTo": "Round to",
+        "digits": "digits"
+      },
+      "debitorka": {
+        "title": "Receivables from suppliers",
+        "total": "Total receivables",
+        "hint": "How much suppliers owe you: prepayments made and other open obligations"
+      },
+      "kreditorka": {
+        "title": "Payables to suppliers",
+        "total": "Total payables",
+        "hint": "How much you owe suppliers: goods and services received but not yet paid for"
+      }
+    },
+    "students": {
+      "title": "Students",
+      "accrualMethod": "Accrual method",
+      "cashMethod": "Cash method",
+      "series": {
+        "plan": "Plan",
+        "fact": "Actual",
+        "difference": "Difference (plan − actual)"
+      },
+      "stats": {
+        "totalPlan": "Total plan",
+        "totalFact": "Total actual",
+        "difference": "Difference",
+        "activeStudents": "Active students",
+        "passiveStudents": "Passive students"
+      }
     }
   },
   "Payment": {
@@ -2591,6 +2904,11 @@
       "account": "Cannot delete this account as it has associated transactions. Please delete the transactions related to this account or archive it.",
       "legalEntity": "Cannot delete this legal entity because it is tied to transactions. Please delete the related transactions first.",
       "productService": "Cannot delete this item as it is used in Sales or Purchases. Please remove it from the corresponding documents first."
+    },
+    "requestFailed": "The request failed",
+    "projectCompleted": {
+      "title": "Editing an operation",
+      "text": "Operations linked to completed projects cannot be changed. Change the project status and try again."
     }
   },
   "AccountBlocked": {
@@ -2611,6 +2929,172 @@
     "typingStates": [
       "Typing",
       "Formatting"
-    ]
+    ],
+    "buttonLabel": "AI Assistant",
+    "title": "UF Assistant",
+    "subtitle": "Ready to help with your finances",
+    "greeting": "Hi! I can help you with operations, accounts and deals. Ask me anything 👇",
+    "placeholder": "Ask about finances…",
+    "footNote": "AI can make mistakes. Double-check important figures.",
+    "today": "Today",
+    "close": "Close",
+    "send": "Send",
+    "resizeHint": "Resize the panel",
+    "attach": "Attach a file",
+    "fileTooBig": "File is larger than 5 MB",
+    "filesMax": "You can attach up to {max} files",
+    "fileUploadError": "Failed to upload the file",
+    "titleFirst": "UF",
+    "titleSecond": "Assistant",
+    "quickTitle": "Quick replies",
+    "edit": "Edit",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "download": "Download",
+    "fileSent": "sent",
+    "editingHint": "Editing message",
+    "cancel": "Cancel",
+    "historyTitle": "Chat history",
+    "historyBtn": "History",
+    "newChat": "New chat",
+    "chatsEmpty": "No chats yet",
+    "group_today": "Today",
+    "group_week": "This week",
+    "group_month": "This month",
+    "group_earlier": "Earlier",
+    "modelName": "GPT 5.4",
+    "delete": "Delete",
+    "deleteChat": "Delete chat",
+    "deleteChatConfirm": "Delete this chat?"
+  },
+  "Projects": {
+    "pageTitle": "Projects",
+    "searchPlaceholder": "Search by name or comment",
+    "create": "Create",
+    "createProject": "Create project",
+    "createGroup": "Create project group",
+    "analysisIndicator": "Metric to analyze",
+    "empty": "No projects found",
+    "downloadExcel": "Download as Excel",
+    "methods": {
+      "cash": "Profit, cash method",
+      "accrual": "Profit, accrual method"
+    },
+    "status": {
+      "planned": "Planned",
+      "in_progress": "In progress",
+      "completed": "Completed"
+    },
+    "table": {
+      "name": "Project name",
+      "group": "Group",
+      "period": "Start / End",
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "income": "Revenue",
+      "expenses": "Expenses",
+      "profit": "Profit",
+      "profitability": "Profitability"
+    },
+    "footer": {
+      "count": "{count, plural, one {# project} other {# projects}}",
+      "income": "Revenue:",
+      "expenses": "Expenses:",
+      "profit": "Profit:",
+      "profitability": "Profitability:"
+    },
+    "filters": {
+      "projectStatus": "Project status",
+      "parameters": "Parameters",
+      "startDate": "Project start",
+      "endDate": "Project end",
+      "projects": "Projects",
+      "archive": "Archive",
+      "showActive": "Show active",
+      "showArchived": "Show archived",
+      "period": "Project period"
+    },
+    "createModal": {
+      "title": "Create project",
+      "name": "Name",
+      "namePlaceholder": "For example, Zhukova, 1",
+      "nameRequired": "Enter a name",
+      "group": "Project group",
+      "groupPlaceholder": "Select or create a new one",
+      "createNewGroup": "Create a new group",
+      "comment": "Comment",
+      "commentPlaceholder": "Project description"
+    },
+    "createGroupModal": {
+      "title": "Create project group",
+      "name": "Name",
+      "namePlaceholder": "For example, key orders",
+      "nameRequired": "Enter a name",
+      "comment": "Comment",
+      "commentPlaceholder": "Project group description"
+    },
+    "detail": {
+      "allProjects": "All projects",
+      "period": "Period",
+      "analysisIndicator": "Metric to analyze",
+      "planSource": "Plan source",
+      "planSourceOperations": "Operations",
+      "profit": "Profit",
+      "profitability": "Profitability",
+      "income": "Revenue",
+      "expenses": "Expenses",
+      "planBudget": "Plan a budget",
+      "pnlReport": "Profit and loss report",
+      "byWeeks": "By weeks",
+      "operationsTitle": "Project operations",
+      "noOperationsToday": "No operations today",
+      "earlier": "Yesterday and earlier",
+      "opCount": "{count, plural, one {# operation} other {# operations}}",
+      "opIncome": "receipts:",
+      "opExpense": "payments:",
+      "opTotal": "Total:",
+      "filters": "Filters",
+      "toggleStatus": "Change status",
+      "createOperation": "Create",
+      "sections": {
+        "future": "Later",
+        "today": "Today",
+        "before": "Yesterday and earlier"
+      },
+      "emptyOps": {
+        "title": "Create operations for the project",
+        "description": "Add receipts and payments — they will show up here."
+      },
+      "opFooter": {
+        "operations": "operation",
+        "operationsPlural": "operations",
+        "operationsPluralMany": "operations",
+        "receipts": "receipt",
+        "receiptsPlural": "receipts",
+        "receiptsPluralMany": "receipts",
+        "payments": "payment",
+        "paymentsPlural": "payments",
+        "paymentsPluralMany": "payments",
+        "total": "Total"
+      },
+      "byMonths": "By months",
+      "noChartData": "No data for the period"
+    },
+    "operationsTable": {
+      "date": "Date",
+      "account": "Account",
+      "type": "Type",
+      "counterparty": "Counterparty",
+      "article": "Category",
+      "project": "Project",
+      "deal": "Deal",
+      "amount": "Amount"
+    }
+  },
+  "DeleteAccount": {
+    "title": "Account deletion",
+    "description": "To delete your account, contact us by email:",
+    "note": "Write from the address registered in the account — that way we can verify your identity faster and delete your data."
   }
 }

@@ -217,6 +217,12 @@ export const Sidebar = observer(() => {
           canShow: permissions?.reports?.balance?.read,
         },
         {
+          label: t("reports.balanceTest"),
+          href: "/reports/balance-test",
+          hasPage: true,
+          canShow: permissions?.reports?.balance?.read,
+        },
+        {
           label: t("reports.balanceByQuery"),
           href: "/reports/balance-by-query",
           hasPage: true,
