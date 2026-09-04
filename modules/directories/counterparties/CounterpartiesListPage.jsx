@@ -179,7 +179,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   })
 
   const { data } = useQuery({
-    queryKey: ['get_counterpaties_total', isStudent],
+    queryKey: ['get_counterpaties_total', isStudent, requestFilterData],
     queryFn: () => apiClient.invokeFunction({ method: 'get_counterparties_summary', data: requestFilterData }),
     placeholderData: keepPreviousData,
     select: data => data?.data?.data

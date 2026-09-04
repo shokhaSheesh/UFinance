@@ -29,7 +29,7 @@ export function useCounterpartiesData(requestFilterData, viewMode) {
   })
 
   const { data: summaryData } = useQuery({
-    queryKey: ['get_counterpaties_total'],
+    queryKey: ['get_counterpaties_total', requestFilterData],
     queryFn: () => apiClient.invokeFunction({ method: 'get_counterparties_summary', data: requestFilterData }),
     placeholderData: keepPreviousData,
     select: data => data?.data?.data
