@@ -1543,6 +1543,19 @@
       },
       "delete": {
         "confirm": "Haqiqatdan ham ushbu rolni o'chirib tashlamoqchimisiz?"
+      },
+      "restriction": {
+        "title": "Kiritilgan ma'lumotlarni o'zgartirishni cheklash",
+        "hint": "Foydalanuvchi ko'rsatilgan davrda operatsiyalarni yarata, o'zgartira va o'chira olmaydi",
+        "typePlaceholder": "Variantni tanlang",
+        "typeUntilDate": "Aniq sanagacha",
+        "typeByDays": "Ruxsat etilgan kunlar soni bo'yicha",
+        "datePlaceholder": "Sanani tanlang",
+        "daysPlaceholder": "Kun",
+        "descriptionUntilDate": "Foydalanuvchi faqat to'lov yoki hisoblash sanasi shu yerda tanlangan sanadan keyingi operatsiyalarni tahrirlay oladi",
+        "descriptionByDays": "Foydalanuvchi faqat to'lov yoki hisoblash sanasi ruxsat etilgan davrga kiradigan operatsiyalarni tahrirlay oladi",
+        "dateRequired": "Cheklov sanasini tanlang",
+        "blocked": "Sana ruxsat etilgan davrdan tashqarida. Kiritilgan ma'lumotlarni o'zgartirish rol sozlamalari bilan cheklangan"
       }
     },
     "contract": {

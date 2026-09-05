@@ -51,7 +51,7 @@ const BalanceRow = ({ row, columns, level = 0, expandedRows, onToggle }) => {
         }`}
       >
         <td
-          className={`sticky left-0 z-1 min-w-[250px] px-2 py-1.5 text-xs text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word ${
+          className={`sticky left-0 z-1 min-w-[200px] w-[200px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word ${
             isActiveOrPassive && "bg-primary! text-white!"
           }`}
           style={{
@@ -291,7 +291,7 @@ export default observer(function BalanceTestPage() {
             <table className="w-full">
               <thead className="bg-neutral-100 sticky top-0 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium sticky left-0 z-20 bg-neutral-100 min-w-[250px]">
+                  <th className="text-left px-4 py-2 text-[11px] font-medium sticky left-0 z-20 bg-neutral-100 min-w-[200px] w-[200px]">
                     {t("balance.accountHeader")}
                   </th>
                   {columns.map((column) => (

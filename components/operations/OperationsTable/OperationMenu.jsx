@@ -12,6 +12,7 @@ import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";
 import { appStore } from "../../../store/app.store";
+import { areDatesAllowed } from "../../../utils/dataEditingRestriction";
 import { toJS } from "mobx";
 
 export const OperationMenu = observer(
@@ -32,7 +33,14 @@ export const OperationMenu = observer(
       (operationPermissions.shipment.add &&
         operation.operationType === "shipment") ||
       (operationPermissions.supply.add && operation.operationType === "supply");
-    const canEdit =
+    // Закрытый период роли: операции вне разрешённого периода
+    // нельзя ни менять, ни удалять. См. utils/dataEditingRestriction.js
+    const isDateAllowed = areDatesAllowed(
+      [operation.data_operatsii, operation.data_nachisleniya],
+      appStore.dataEditingRestriction
+    );
+
+    const hasEditPermission =
       (operationPermissions.income.edit &&
         operation.operationType === "income") ||
       (operationPermissions.payout.edit &&
@@ -45,7 +53,7 @@ export const OperationMenu = observer(
         operation.operationType === "shipment") ||
       (operationPermissions.supply.edit &&
         operation.operationType === "supply");
-    const canDelete =
+    const hasDeletePermission =
       (operationPermissions.income.delete &&
         operation.operationType === "income") ||
       (operationPermissions.payout.delete &&
@@ -58,6 +66,11 @@ export const OperationMenu = observer(
         operation.operationType === "shipment") ||
       (operationPermissions.supply.delete &&
         operation.operationType === "supply");
+
+    // Копию можно завести и в закрытом периоде — дату в модалке всё равно
+    // придётся сдвинуть в разрешённый диапазон
+    const canEdit = hasEditPermission && isDateAllowed;
+    const canDelete = hasDeletePermission && isDateAllowed;
 
     const handleEdit = () => {
       onEdit(operation);

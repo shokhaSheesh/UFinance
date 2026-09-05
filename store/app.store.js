@@ -5,6 +5,12 @@ import {
   DEFAULT_INTERFACE_SETTINGS,
   mapInterfaceSettingsFromApi,
 } from "@/constants/generalSettings";
+import {
+  DEFAULT_DATA_EDITING_RESTRICTION,
+  areDatesAllowed,
+  getEditableFromDate as resolveEditableFromDate,
+  mapRestrictionFromApi,
+} from "@/utils/dataEditingRestriction";
 
 class AppStore {
   isPayment = false;
@@ -41,6 +47,10 @@ class AppStore {
   // поведение форм операций, состав списка операций и формат отображения.
   // Список полей — в constants/generalSettings.js
   interfaceSettings = { ...DEFAULT_INTERFACE_SETTINGS };
+  // Ограничение изменения внесённых данных — настройка роли из
+  // get_user_role_permissions. Закрывает создание/изменение/удаление операций,
+  // отгрузок и поставок вне разрешённого периода. См. utils/dataEditingRestriction.js
+  dataEditingRestriction = { ...DEFAULT_DATA_EDITING_RESTRICTION };
   permission = {
     indicators: { read: true },
     operations: {
@@ -117,6 +127,7 @@ class AppStore {
           "isDonoSchool",
           "companyName",
           "interfaceSettings",
+          "dataEditingRestriction",
           "myCurrencies",
           "companyCurrencies",
           "localApiUrl",
@@ -270,6 +281,27 @@ class AppStore {
     }
   }
 
+  // Принимает сырой `data` из get_user_role_permissions / get_role_permissions
+  setDataEditingRestriction(data) {
+    this.dataEditingRestriction = mapRestrictionFromApi(data);
+  }
+
+  resetDataEditingRestriction() {
+    this.dataEditingRestriction = { ...DEFAULT_DATA_EDITING_RESTRICTION };
+  }
+
+  // Самая ранняя дата, доступная для правки. null — ограничения нет.
+  // Метод, а не геттер: при типе by_days_count граница зависит от «сегодня»,
+  // а computed закэшировал бы её до следующего изменения настройки.
+  getEditableFromDate() {
+    return resolveEditableFromDate(this.dataEditingRestriction);
+  }
+
+  // Можно ли трогать операцию с такими датами (оплаты и/или начисления)
+  canEditDates(dates) {
+    return areDatesAllowed(dates, this.dataEditingRestriction);
+  }
+
   setPlanfactPermission() {
     this.permission = {
       indicators: { read: true },
@@ -389,6 +421,8 @@ class AppStore {
     if (this.isViewOnlyBranch()) {
       this.stripWriteAccess(this.permission);
     }
+    // Полный доступ — закрытого периода нет
+    this.resetDataEditingRestriction();
   }
 
   setNewPermission(permission) {

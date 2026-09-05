@@ -12,6 +12,7 @@ import {
   useUcodeRequestQuery,
   useWarehousesList,
 } from "../../../../hooks/useDashboard";
+import { useDataEditingRestriction } from "../../../../hooks/useDataEditingRestriction";
 import { useOperationComments } from "../../../../hooks/useOperationComments";
 import { apiClient } from "../../../../lib/api/ucode/base";
 import { readStockCount } from "../../../../lib/api/ucode/stock";
@@ -106,6 +107,9 @@ const CreateShipment = observer(
       return isReturn ? -Math.abs(num) : num;
     };
     const today = useMemo(() => new Date(), []);
+
+    // Закрытый период роли: даты раньше minDate недоступны для выбора
+    const { minDate, ensureAllowed } = useDataEditingRestriction();
 
     const [shipmentDate, setShipmentDate] = useState(
       today.toISOString().split("T")[0]
@@ -561,6 +565,9 @@ const CreateShipment = observer(
     }, [rows]);
 
     const handleCreate = async () => {
+      // Закрытый период роли — см. hooks/useDataEditingRestriction.js
+      if (shipmentDate && !ensureAllowed(shipmentDate)) return;
+
       const newErrors = {};
       if (!shipmentDate) newErrors.shipmentDate = t("shipmentDateRequired");
       if (!legalEntity) newErrors.legalEntity = t("legalEntityRequired");
@@ -924,6 +931,7 @@ const CreateShipment = observer(
                           }
                         }}
                         format="YYYY-MM-DD"
+                        minDate={minDate}
                         inputClass={"w-44!"}
                         placeholder={t("dealDatePlaceholder")}
                       />

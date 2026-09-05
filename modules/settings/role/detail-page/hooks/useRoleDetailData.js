@@ -11,7 +11,9 @@ export const useRolePermissions = (guid) => {
         data: { role_id: guid },
         type: 'role',
       }),
-    select: (role) => role?.data?.data?.role_permissions,
+    // Кроме role_permissions ответ несёт настройку закрытого периода
+    // (is_data_editing_restricted и т.д.), поэтому берём весь `data`
+    select: (role) => role?.data?.data,
     enabled: !!guid,
     staleTime: 1000 * 60,
     cacheTime: 1000 * 60,

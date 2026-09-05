@@ -6,6 +6,7 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm, } from 'react-hook-form'
 
 import { WarnIcon } from '@/constants/icons'
+import { useDataEditingRestriction } from '@/hooks/useDataEditingRestriction'
 import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
@@ -153,11 +154,19 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
     return selected ? `${selected?.kod} ${selected.nazvanie}` : (legalEntityGuid ? title : '')
   }, [currency, initialData, isNew, legalEntityGuid, title])
 
+  // Закрытый период роли: даты раньше minDate недоступны для выбора
+  const { minDate, ensureAllowed } = useDataEditingRestriction()
+
   const onSubmit = async (data) => {
+    const dataNachisleniya = formatDateParseZone(data?.accuralDate)
+
+    // Закрытый период роли — см. hooks/useDataEditingRestriction.js
+    if (!ensureAllowed(dataNachisleniya)) return
+
     try {
       const requestData = {
         tip: ['Начисление'],
-        data_operatsii: formatDateParseZone(data?.accuralDate),
+        data_operatsii: dataNachisleniya,
         payment_accural: data.confirmAccrual,
         legal_entity_id: data.legalEntity,
         chart_of_accounts_id: data.chartOfAccountWriteOff,
@@ -260,6 +269,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
                     }}
                     placeholder={t('selectDate')}
                     format='YYYY-MM-DD'
+                    minDate={minDate}
                     inputClass={cn("bg-white border", errors.accuralDate && "border-red-500")}
                   />
                 )}

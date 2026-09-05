@@ -109,12 +109,15 @@ export function useLogin() {
           } else {
             appStore.setPlanfactPermission()
           }
+          // Закрытый период приходит рядом с role_permissions — см. utils/dataEditingRestriction.js
+          appStore.setDataEditingRestriction(permissions?.data?.data)
         } else if (responseData?.role?.name === 'plan_fakt_admins') {
           appStore.setEmployerPermission()
         }
       } catch (error) {
         console.error('get_user_role_permissions failed', error)
         appStore.setPlanfactPermission()
+        appStore.resetDataEditingRestriction()
       }
 
       queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })

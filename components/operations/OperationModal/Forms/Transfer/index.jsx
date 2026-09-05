@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 // Hooks
 import { useBankAccountsPlanFact, useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
+import { useDataEditingRestriction } from '../../../../../hooks/useDataEditingRestriction'
 
 // Helpers
 import { isFuture } from '@/utils/formatDate'
@@ -143,12 +144,21 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 		return watchCurrency1 && watchCurrency2 && watchCurrency1 === watchCurrency2
 	}, [watchFromAccount, watchToAccount, watchCurrency1, watchCurrency2])
 
+	// Закрытый период роли: даты раньше minDate недоступны для выбора
+	const { minDate, ensureAllowed } = useDataEditingRestriction()
+
 	const onSubmit = async data => {
+		const dataOplata = formatDateParseZone(data?.fromDate)
+		const dataZachisleniya = formatDateParseZone(data?.toDate)
+
+		// Закрытый период роли — см. hooks/useDataEditingRestriction.js
+		if (!ensureAllowed([dataOplata, dataZachisleniya])) return
+
 		const payload = {
 			tip: ['Перемещение'],
 			summa: formatDecimal(StringtoNumber(data.fromAmount)),
-			data_operatsii: formatDateParseZone(data?.fromDate),
-			data_nachisleniya: formatDateParseZone(data?.toDate),
+			data_operatsii: dataOplata,
+			data_nachisleniya: dataZachisleniya,
 			payment_confirmed: data.confirmPayment,
 			payment_accrual: false,
 			my_accounts_id: data.fromAccount,
@@ -266,6 +276,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										}}
 										placeholder={t('selectDate')}
 										format='YYYY-MM-DD'
+										minDate={minDate}
 										inputClass={cn('bg-white border', errors.fromDate && 'border-red-500')}
 									/>
 								)}
@@ -371,6 +382,7 @@ const TransferForm = observer(({ initialData, onClose, onSuccess }) => {
 										onChange={field.onChange}
 										placeholder={t('selectDate')}
 										format='YYYY-MM-DD'
+										minDate={minDate}
 										inputClass={cn('bg-white w-52! border', errors.toDate && 'border-red-500')}
 									/>
 								)}

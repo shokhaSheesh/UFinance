@@ -112,7 +112,7 @@ export default observer(function BalancePage() {
       <React.Fragment key={item.id}>
         <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
           <td
-            className={`sticky left-0  z-1 min-w-[250px] px-2 py-1.5 text-xs text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+            className={`sticky left-0  z-1 min-w-[200px] w-[200px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
             style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#007bff' : '#fff' }}
           >
             <div
@@ -211,7 +211,7 @@ export default observer(function BalancePage() {
             <table className="w-full">
               <thead className=" bg-neutral-100 sticky top-16 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium">{t('balance.accountHeader')}</th>
+                  <th className="text-left px-4 py-2 text-[11px] font-medium min-w-[200px] w-[200px]">{t('balance.accountHeader')}</th>
                   <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
                 </tr>
               </thead>

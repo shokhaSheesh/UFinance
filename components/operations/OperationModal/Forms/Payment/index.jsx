@@ -33,6 +33,7 @@ import { isProjectCompletedError } from '@/lib/api/ucode/errors'
 import { showErrorAlert } from '@/lib/utils/notifications'
 import { useTranslations } from 'next-intl'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
+import { useDataEditingRestriction } from '../../../../../hooks/useDataEditingRestriction'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { queryClient } from '../../../../../lib/queryClient'
 import { authStore } from '../../../../../store/auth.store'
@@ -448,16 +449,25 @@ const PaymentForm = observer(({
     return selected ? `${selected?.kod} ${selected.nazvanie}` : ''
   }, [watchCurrency, initialData, isNew, appStore.currencies])
 
+  // Закрытый период роли: даты раньше minDate недоступны для выбора
+  const { minDate, ensureAllowed } = useDataEditingRestriction()
+
   // Derived flags
   const isDebit = (!showDate && watchConfirmPayment && !watchConfirmAccrual)
   const isCredit = (!showDate && !watchConfirmPayment && watchConfirmAccrual)
 
   const onSubmit = async (data) => {
+    const dataOplata = formatDateParseZone(data?.paymentDate)
+    const dataNachisleniya = watchPurchaseDeal ? dataOplata : formatDateParseZone(data?.accrualDate)
+
+    // Закрытый период роли — см. hooks/useDataEditingRestriction.js
+    if (!ensureAllowed([dataOplata, dataNachisleniya])) return
+
     const payload = {
       tip: ['Выплата'],
       summa: formatDecimal(StringtoNumber(data?.amount)),
-      data_operatsii: formatDateParseZone(data?.paymentDate),
-      data_nachisleniya: watchPurchaseDeal ? formatDateParseZone(data?.paymentDate) : formatDateParseZone(data?.accrualDate),
+      data_operatsii: dataOplata,
+      data_nachisleniya: dataNachisleniya,
       payment_confirmed: data?.confirmPayment,
       payment_accrual: watchPurchaseDeal ? false : data?.confirmAccrual,
       currenies_id: appStore?.currency?.guid,
@@ -591,6 +601,7 @@ const PaymentForm = observer(({
                       }}
                       placeholder={t('selectDate')}
                       format='YYYY-MM-DD'
+                      minDate={minDate}
                       inputClass={cn("bg-white border", errors.paymentDate && "border-red-500")}
                     />
                   )}
@@ -730,6 +741,7 @@ const PaymentForm = observer(({
                           }}
                           placeholder={t('selectDate')}
                           format='YYYY-MM-DD'
+                          minDate={minDate}
                           inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
                         />
                       )}

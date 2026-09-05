@@ -33,6 +33,7 @@ import { isProjectCompletedError } from '@/lib/api/ucode/errors'
 import { showErrorAlert } from '@/lib/utils/notifications'
 import { useTranslations } from 'next-intl'
 import { CreditIcon, DebitIcon, WarnIcon } from '../../../../../constants/icons'
+import { useDataEditingRestriction } from '../../../../../hooks/useDataEditingRestriction'
 import { useUcodeRequestMutation } from '../../../../../hooks/useDashboard'
 import { authStore } from '../../../../../store/auth.store'
 import { isPastDate } from '../../../../../utils/formatDate'
@@ -399,6 +400,9 @@ const IncomeForm = observer(({
   // Проект вынесен в разбиение — общее поле проекта скрываем
   const showProject = appStore.projectActive && has('Проект')
 
+  // Закрытый период роли: даты раньше minDate недоступны для выбора
+  const { minDate, ensureAllowed } = useDataEditingRestriction()
+
   // Watch values
   const watchAccount = watch('accountAndLegalEntity')
   const watchAmount = watch('amount')
@@ -443,6 +447,9 @@ const IncomeForm = observer(({
 
     const dataOplata = moment(data?.paymentDate).format('YYYY-MM-DD')
     const dataNachisleniya = watchSalesDeal ? dataOplata : moment(data?.accrualDate).format('YYYY-MM-DD')
+
+    // Закрытый период роли — см. hooks/useDataEditingRestriction.js
+    if (!ensureAllowed([dataOplata, dataNachisleniya])) return
 
     const payload = {
       tip: ['Поступление'],
@@ -576,6 +583,7 @@ const IncomeForm = observer(({
                       }}
                       placeholder={t('selectDate')}
                       format='YYYY-MM-DD'
+                      minDate={minDate}
                       inputClass={cn("bg-white border", errors.paymentDate && "border-red-500")}
                     />
                   )}
@@ -720,6 +728,7 @@ const IncomeForm = observer(({
                           }}
                           placeholder={t('selectDate')}
                           format='YYYY-MM-DD'
+                          minDate={minDate}
                           inputClass={cn("bg-white border", errors.accrualDate && "border-red-500")}
                         />
                       )}
