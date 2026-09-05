@@ -326,7 +326,8 @@
       "pnlByQuery": "Прибыли и убытки (ОПУ) (test)",
       "balance": "Баланс",
       "balanceByQuery": "Баланс (test)",
-      "students": "Студенты"
+      "students": "Студенты",
+      "balanceTest": "Баланс (Тест)"
     },
     "directories": {
       "counterparties": "Контрагенты",
@@ -750,7 +751,15 @@
       "formula": "Активы = Обязательства + Капитал",
       "accountHeader": "СЧЕТ",
       "errorLoading": "Ошибка загрузки данных:",
-      "retry": "Повторить"
+      "retry": "Повторить",
+      "grouping": {
+        "monthly": "По месяцам",
+        "quarterly": "По кварталам",
+        "yearly": "По годам",
+        "total": "На конец периода"
+      },
+      "display": "Отображение",
+      "titleTest": "Баланс (Тест)"
     },
     "students": {
       "title": "Ежемесячный отчет по студентам",
