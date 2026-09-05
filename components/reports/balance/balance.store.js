@@ -1,13 +1,15 @@
 import { makeAutoObservable } from 'mobx'
 import { makePersistable } from 'mobx-persist-store'
 import { GlobalCurrency } from '../../../constants/globalCurrency'
+import { getPresetRange } from '../../../utils/datePresets'
 
-const currentYear = new Date().getFullYear()
+// По умолчанию баланс строится за текущий квартал — тот же диапазон, что даёт
+// пресет «Этот квартал» в календаре фильтров
+const DEFAULT_RANGE_TYPE = 'quarter'
+
 const defaultDateRange = () => {
-	return {
-		start: new Date(currentYear, 0, 1), // january 1st of current year
-		end: new Date(), // today
-	}
+	const [start, end] = getPresetRange(DEFAULT_RANGE_TYPE)
+	return { start, end }
 }
 
 class BalanceStore {
@@ -17,21 +19,24 @@ class BalanceStore {
 	selectedCurrency = GlobalCurrency?.code || 'UZS'
 	selectedCounterparties = []
 	selectedAccount = []
-	defaultDate = { start: new Date(currentYear, 0, 1), end: new Date() }
-	dateRangeType = 'year'
+	defaultDate = defaultDateRange()
+	dateRangeType = DEFAULT_RANGE_TYPE
+	// Как разбивать период на срезы: 'monthly' | 'quarterly' | 'yearly' | 'total'
+	periodType = 'monthly'
 
 	constructor() {
 		makeAutoObservable(this)
 		if (typeof window !== 'undefined') {
 			makePersistable(this, {
-				name: 'balance_store',
+				name: 'balance_store_v2',
 				properties: [
 					'dateRange',
 					'selectedEntity',
 					'selectedCurrency',
 					'selectedCounterparties',
 					'selectedAccount',
-					'dateRangeType'
+					'dateRangeType',
+					'periodType'
 				],
 				storage: window.localStorage,
 				debugMode: false,
@@ -49,6 +54,10 @@ class BalanceStore {
 	}
 	setDateRangeType(type) {
 		this.dateRangeType = type
+	}
+
+	setPeriodType(type) {
+		this.periodType = type
 	}
 
 	setSelectedEntity(entity) {
@@ -73,7 +82,8 @@ class BalanceStore {
 		this.selectedCurrency = GlobalCurrency?.code || 'UZS'
 		this.selectedCounterparties = []
 		this.selectedAccount = []
-		this.dateRangeType = 'year'
+		this.dateRangeType = DEFAULT_RANGE_TYPE
+		this.periodType = 'monthly'
 	}
 }
 
