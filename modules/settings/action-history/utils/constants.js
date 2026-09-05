@@ -33,16 +33,3 @@ export const ACTION_STYLES = {
 }
 
 export const PAGE_LIMIT = 20
-
-// Бэк отдаёт событие одной строкой: «Добавлено юрлицо — название: …, ИНН: …».
-// До тире — что произошло (колонка «Событие»), после — перечень полей записи,
-// он уходит в колонку «Комментарий» сплошным текстом
-export const splitEvent = event => {
-  const text = String(event || '').trim()
-  const dashIndex = text.indexOf('\u2014')
-  if (dashIndex === -1) return { title: text, details: '' }
-  return {
-    title: text.slice(0, dashIndex).trim(),
-    details: text.slice(dashIndex + 1).trim(),
-  }
-}

@@ -168,8 +168,8 @@ export default observer(function BalanceTestPage() {
 
       {(isLoading || isFetching) && <ScreenLoader />}
 
-      <div className={"w-full relative bg-white overflow-auto pb-10"}>
-        <div className="flex px-4 h-16 items-center sticky top-0 z-20 bg-white justify-between">
+      <div className="w-full relative bg-white flex flex-col overflow-hidden">
+        <div className="flex px-4 h-16 shrink-0 items-center z-20 bg-white justify-between">
           <div className="flex items-center gap-4">
             <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.titleTest')}</h1>
             <SingleSelect
@@ -217,41 +217,41 @@ export default observer(function BalanceTestPage() {
           </div>
         </div>
 
-        <div className="px-4 text-center mb-4 text-sm font-medium ">
+        <div className="px-4 text-center mb-4 text-sm font-medium shrink-0">
           {t('balance.formula')}
         </div>
 
-        <div className='px-4'>
+        {/* Единственный скролл-контейнер таблицы: шапка с месяцами липнет к его верху,
+            а не сдвигается на высоту заголовка страницы, как было при sticky top-16 */}
+        <div className='px-4 flex-1 min-h-0 overflow-auto pb-10'>
           {error && !isLoading && !isFetching ? (
             <div className="flex flex-col items-center justify-center h-[300px] gap-4 bg-white rounded-lg [&>p]:text-base [&>p]:text-red-600 [&>p]:m-0 [&>p]:text-center">
               <p>{t('balance.errorLoading')} {error.message}</p>
             </div>
           ) : (
-            <div className='overflow-x-auto'>
-              <table className="w-full">
-                <thead className=" bg-neutral-100 sticky top-16 z-10">
-                  <tr>
-                    <th className="text-left px-4 py-2 text-xs font-medium sticky left-0 z-20 bg-neutral-100 min-w-[250px]">{t('balance.accountHeader')}</th>
-                    {columns.map(column => (
-                      <th key={column.key} className="text-right px-4 py-2 text-xs font-medium whitespace-nowrap min-w-[120px]">
-                        {column.title}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {rows.map(row => (
-                    <BalanceRow
-                      key={row.uniquePath}
-                      row={row}
-                      columns={columns}
-                      expandedRows={expandedRows}
-                      onToggle={toggleRow}
-                    />
+            <table className="w-full">
+              <thead className="bg-neutral-100 sticky top-0 z-10">
+                <tr>
+                  <th className="text-left px-4 py-2 text-xs font-medium sticky left-0 z-20 bg-neutral-100 min-w-[250px]">{t('balance.accountHeader')}</th>
+                  {columns.map(column => (
+                    <th key={column.key} className="text-right px-4 py-2 text-xs font-medium whitespace-nowrap min-w-[120px]">
+                      {column.title}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody className="bg-white">
+                {rows.map(row => (
+                  <BalanceRow
+                    key={row.uniquePath}
+                    row={row}
+                    columns={columns}
+                    expandedRows={expandedRows}
+                    onToggle={toggleRow}
+                  />
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       </div>

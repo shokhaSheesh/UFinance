@@ -1,7 +1,7 @@
 'use client'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ACTION_STYLES, splitEvent } from '@/modules/settings/action-history/utils/constants'
+import { ACTION_STYLES } from '@/modules/settings/action-history/utils/constants'
 import { Loader } from 'lucide-react'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -41,9 +41,9 @@ const ActionHistoryTable = ({ rows, isFetching }) => {
       </thead>
       <tbody>
         {rows.map(row => {
-          const { title, details } = splitEvent(row?.event)
-          // Без тире весь текст события — это и есть комментарий
-          const comment = details || title
+          // Показываем событие целиком, как прислал бэк: часть до тире («Добавлена
+          // операция») тоже нужна, без неё непонятно, к чему относятся поля
+          const comment = String(row?.event || '').trim()
           return (
           <tr key={row?.guid} className="hover:bg-gray-50 transition-colors">
             <td className="px-4 py-3 border-b text-xss text-gray-ucode-600 align-top whitespace-nowrap tabular-nums">
