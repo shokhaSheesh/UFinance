@@ -48,6 +48,12 @@
     border-color: $primary;
 }
 
+.customCheckbox.indeterminate {
+  border: 1px solid $primary;
+  background-color: $primary;
+  border-color: $primary;
+}
+
 .hiddenInput:checked:disabled+.customCheckbox {
   background-color: #9ca3af;
   border-color: #9ca3af;

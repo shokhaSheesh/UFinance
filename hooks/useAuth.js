@@ -109,8 +109,10 @@ export function useLogin() {
           } else {
             appStore.setPlanfactPermission()
           }
-          // Закрытый период приходит рядом с role_permissions — см. utils/dataEditingRestriction.js
+          // Закрытый период и доступ к счетам приходят рядом с role_permissions —
+          // см. utils/dataEditingRestriction.js и utils/accountPermissions.js
           appStore.setDataEditingRestriction(permissions?.data?.data)
+          appStore.setAccountPermissions(permissions?.data?.data)
         } else if (responseData?.role?.name === 'plan_fakt_admins') {
           appStore.setEmployerPermission()
         }
@@ -118,6 +120,7 @@ export function useLogin() {
         console.error('get_user_role_permissions failed', error)
         appStore.setPlanfactPermission()
         appStore.resetDataEditingRestriction()
+        appStore.resetAccountPermissions()
       }
 
       queryClient.invalidateQueries({ queryKey: ['get_general_settings'] })

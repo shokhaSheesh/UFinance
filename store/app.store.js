@@ -11,6 +11,14 @@ import {
   getEditableFromDate as resolveEditableFromDate,
   mapRestrictionFromApi,
 } from "@/utils/dataEditingRestriction";
+import {
+  DEFAULT_ACCOUNT_PERMISSIONS,
+  filterAllowedAccountGroups,
+  filterAllowedAccounts,
+  isAccountAllowed,
+  isLegalEntityAllowed,
+  mapAccountPermissionsFromApi,
+} from "@/utils/accountPermissions";
 
 class AppStore {
   isPayment = false;
@@ -51,6 +59,9 @@ class AppStore {
   // get_user_role_permissions. Закрывает создание/изменение/удаление операций,
   // отгрузок и поставок вне разрешённого периода. См. utils/dataEditingRestriction.js
   dataEditingRestriction = { ...DEFAULT_DATA_EDITING_RESTRICTION };
+  // Доступ роли к юрлицам и счетам — тоже из get_user_role_permissions.
+  // См. utils/accountPermissions.js
+  accountPermissions = { ...DEFAULT_ACCOUNT_PERMISSIONS };
   permission = {
     indicators: { read: true },
     operations: {
@@ -128,6 +139,7 @@ class AppStore {
           "companyName",
           "interfaceSettings",
           "dataEditingRestriction",
+          "accountPermissions",
           "myCurrencies",
           "companyCurrencies",
           "localApiUrl",
@@ -290,6 +302,34 @@ class AppStore {
     this.dataEditingRestriction = { ...DEFAULT_DATA_EDITING_RESTRICTION };
   }
 
+  // Принимает сырой `data` из get_user_role_permissions / get_role_permissions
+  setAccountPermissions(data) {
+    this.accountPermissions = mapAccountPermissionsFromApi(data);
+  }
+
+  resetAccountPermissions() {
+    this.accountPermissions = { ...DEFAULT_ACCOUNT_PERMISSIONS };
+  }
+
+  // Доступен ли счёт / юрлицо роли. Без загруженных прав — доступно всё
+  isAccountAllowed(guid) {
+    return isAccountAllowed(guid, this.accountPermissions);
+  }
+
+  isLegalEntityAllowed(guid) {
+    return isLegalEntityAllowed(guid, this.accountPermissions);
+  }
+
+  // Плоский список счетов из get_my_accounts
+  filterAllowedAccounts(list, guidKey = "guid") {
+    return filterAllowedAccounts(list, this.accountPermissions, guidKey);
+  }
+
+  // Сгруппированный ответ get_my_accounts (groupBy: legal_entities)
+  filterAllowedAccountGroups(groups, childrenKey = "children") {
+    return filterAllowedAccountGroups(groups, this.accountPermissions, childrenKey);
+  }
+
   // Самая ранняя дата, доступная для правки. null — ограничения нет.
   // Метод, а не геттер: при типе by_days_count граница зависит от «сегодня»,
   // а computed закэшировал бы её до следующего изменения настройки.
@@ -421,8 +461,9 @@ class AppStore {
     if (this.isViewOnlyBranch()) {
       this.stripWriteAccess(this.permission);
     }
-    // Полный доступ — закрытого периода нет
+    // Полный доступ — ни закрытого периода, ни ограничений по счетам
     this.resetDataEditingRestriction();
+    this.resetAccountPermissions();
   }
 
   setNewPermission(permission) {

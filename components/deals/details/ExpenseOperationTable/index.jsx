@@ -18,13 +18,16 @@ import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useChartOfAccountsIds } from '@/hooks/useChartOfAccountsIds'
+import { appStore } from '@/store/app.store'
+import { areDatesAllowed } from '@/utils/dataEditingRestriction'
+import { observer } from 'mobx-react-lite'
 import EmptyState from '../EmptyState'
 
 // Затраты по сделке: показываем только статьи расходов
 const EXPENSE_ROOTS = ['Расходы']
 
 /* ─── Main table component ────────────────────────────────── */
-const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Дебет", "Кредит", "Начисление", "Выплата"], isPurchase = false }) => {
+const ExpenseOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit, canDelete, dealIdField = 'sellingDealId', invalidateKeys = ['get_sales_transaction_by_guid'], tipTypes = ["Дебет", "Кредит", "Начисление", "Выплата"], isPurchase = false }) => {
   const t = useTranslations('Directories.details.expenseOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -221,6 +224,14 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
                 // Начисление показываем как на странице «Операции»: юрлицо вместо
                 // счёта, две статьи (по дебету / по кредиту) и две суммы
                 const isAccrual = item?.tip === 'Начисление'
+                // Закрытый период роли: операцию вне разрешённого периода
+                // нельзя ни менять, ни удалять. См. utils/dataEditingRestriction.js
+                const isDateAllowed = areDatesAllowed(
+                  [item?.data_operatsii, item?.data_nachisleniya],
+                  appStore.dataEditingRestriction,
+                )
+                const rowCanEdit = canEdit && isDateAllowed
+                const rowCanDelete = canDelete && isDateAllowed
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>{item.operationDate}</td>
@@ -253,7 +264,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
                           </div>
                         )}
                         <div className=' items-center  hidden group-hover:flex '>
-                          {canEdit && (
+                          {rowCanEdit && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
                               className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
@@ -266,7 +277,7 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
                               <IoCopyOutline size={16} className='text-gray-400' />
                             </button>
                           )}
-                          {canDelete && (
+                          {rowCanDelete && (
                             <button onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                               <IoCloseOutline size={16} className='text-gray-400' />
                             </button>
@@ -349,6 +360,6 @@ const ExpenseOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDele
 
     </>
   )
-}
+})
 
 export default ExpenseOperationsTable

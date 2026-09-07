@@ -3,6 +3,7 @@ import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { appStore } from '../../../store/app.store'
 import GroupSelect from '../../shared/Selects/GroupSelect'
 
 const GroupMyAccounts = ({
@@ -47,8 +48,9 @@ const GroupMyAccounts = ({
   })
 
   const mappedData = useMemo(() => {
-    // Flatten hierarchical data into the format expected by the select components
-    return (accountsData || []).flatMap(group =>
+    // Flatten hierarchical data into the format expected by the select components.
+    // Счета, закрытые для роли, отсеиваем — см. utils/accountPermissions.js
+    return appStore.filterAllowedAccountGroups(accountsData || []).flatMap(group =>
       (group.children || []).map(account => ({
         value: account.guid,
         label: account.nazvanie,

@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { appStore } from '../../../store/app.store'
 import GroupSelect from '../../shared/Selects/GroupSelect'
 
 const SelectMyAccoutGroup = ({
@@ -49,7 +50,8 @@ const SelectMyAccoutGroup = ({
   // Transform accounts data to group by legal_entity_name
   // GroupSelect expects: { value, label, groupName }
   const mappedData = useMemo(() => {
-    return (accountsData || []).map(item => ({
+    // Счета, закрытые для роли — см. utils/accountPermissions.js
+    return appStore.filterAllowedAccounts(accountsData || []).map(item => ({
       value: item.guid,
       label: item.nazvanie,
       groupId: item.legal_entity_id,

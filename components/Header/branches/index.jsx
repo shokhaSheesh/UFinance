@@ -34,7 +34,7 @@ const Branches = observer(() => {
     queryFn: async () => getMyPermissions({
       branches_id: authStore.branch_id,
     }),
-    // Кроме прав, ответ несёт настройку закрытого периода — берём весь `data`
+    // Кроме прав, ответ несёт закрытый период и доступ к счетам — берём весь `data`
     select: (data) => data?.data?.data,
     enabled: userData?.role === 'employees' && authStore.branches?.length > 0,
     staleTime: 1000 * 60 * 60,
@@ -55,6 +55,7 @@ const Branches = observer(() => {
   if (isSuccess) {
     appStore.setNewPermission(permission?.role_permissions)
     appStore.setDataEditingRestriction(permission)
+    appStore.setAccountPermissions(permission)
   }
 
 
@@ -87,6 +88,7 @@ const Branches = observer(() => {
       })
       appStore.setNewPermission(permission?.data?.data?.role_permissions)
       appStore.setDataEditingRestriction(permission?.data?.data)
+      appStore.setAccountPermissions(permission?.data?.data)
     } else if (userData?.role === 'plan_fakt_admins' && !branch?.is_employee) {
       appStore.setPlanfactPermission()
     }

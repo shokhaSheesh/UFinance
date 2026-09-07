@@ -7,6 +7,7 @@ import { useUcodeRequestMutation } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
 import { shipmentsDto } from '@/lib/dtos/shipmentsDto'
 import { appStore } from '@/store/app.store'
+import { areDatesAllowed } from '@/utils/dataEditingRestriction'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, Truck } from 'lucide-react'
@@ -47,6 +48,14 @@ const ShipmenTable = observer(({
 }) => {
   const t = useTranslations('Directories.details.shipmentTable')
   const tp = useTranslations('Purchases.supplyTable')
+
+  // Права роли на отгрузки/поставки: таблица одна на оба типа документа
+  const documentPermission = isPurchase
+    ? appStore.permission?.operations?.supply
+    : appStore.permission?.operations?.shipment
+  const canEdit = !!documentPermission?.edit
+  const canCopy = !!documentPermission?.add
+  const canDelete = !!documentPermission?.delete
 
   const [showModal, setShowModal] = useState(false)
   const [selectedShipment, setSelectedShipment] = useState(null)
@@ -223,6 +232,13 @@ const ShipmenTable = observer(({
             {shipmentsList?.map((item) => {
               const isRowPlanned = isPurchase ? item?.planned_supply : item?.planned_shipment
               const deleteBlocked = Boolean(appStore.warehouseActive) && !Boolean(isRowPlanned)
+              // Закрытый период роли — см. utils/dataEditingRestriction.js
+              const isDateAllowed = areDatesAllowed(
+                [item?.data_operatsii, item?.data_nachisleniya],
+                appStore.dataEditingRestriction,
+              )
+              const rowCanEdit = canEdit && isDateAllowed
+              const rowCanDelete = canDelete && isDateAllowed && !deleteBlocked
               return (
                 <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${isRowPlanned ? 'text-primary' : 'text-neutral-900'}`}>
                   <td className="px-4 py-3 text-left">{item.operationDate}</td>
@@ -266,20 +282,26 @@ const ShipmenTable = observer(({
                         {formatAmount(item.summa)} {item?.currency}
                       </p>
                       <div className=' items-center  hidden group-hover:flex '>
-                        <button onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                          <MdOutlineModeEdit size={16} className='text-gray-400' />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                          <IoCopyOutline size={16} className='text-gray-400' />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); if (!deleteBlocked) handleDeleteShipment(item); }}
-                          disabled={deleteBlocked}
-                          title={deleteBlocked ? (isPurchase ? tp('deleteBlockedClosedWarehouse') : t('deleteBlockedClosedWarehouse')) : undefined}
-                          className={`text-neutral-600 size-6 flex items-center justify-center rounded-full ${deleteBlocked ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200 cursor-pointer hover:text-neutral-900'}`}
-                        >
-                          <IoCloseOutline size={16} className='text-gray-400' />
-                        </button>
+                        {rowCanEdit && (
+                          <button onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
+                            <MdOutlineModeEdit size={16} className='text-gray-400' />
+                          </button>
+                        )}
+                        {canCopy && (
+                          <button onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
+                            <IoCopyOutline size={16} className='text-gray-400' />
+                          </button>
+                        )}
+                        {canDelete && isDateAllowed && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); if (rowCanDelete) handleDeleteShipment(item); }}
+                            disabled={!rowCanDelete}
+                            title={deleteBlocked ? (isPurchase ? tp('deleteBlockedClosedWarehouse') : t('deleteBlockedClosedWarehouse')) : undefined}
+                            className={`text-neutral-600 size-6 flex items-center justify-center rounded-full ${!rowCanDelete ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200 cursor-pointer hover:text-neutral-900'}`}
+                          >
+                            <IoCloseOutline size={16} className='text-gray-400' />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </td>

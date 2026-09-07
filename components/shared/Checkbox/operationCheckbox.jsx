@@ -1,9 +1,18 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { LuCheck } from 'react-icons/lu'
+import { LuCheck, LuMinus } from 'react-icons/lu'
 import styles from './operationCheckbox.module.scss'
 
-const OperationCheckbox = ({ checked = false, onChange, className, ...props }) => {
+const OperationCheckbox = ({
+  checked = false,
+  indeterminate = false,
+  onChange,
+  className,
+  ...props
+}) => {
+  // Частично выбранное состояние (часть детей отмечена) рисуем минусом
+  const isIndeterminate = !checked && indeterminate
+
   return (
     <label className={cn(styles.checkboxContainer, className)}>
       <input
@@ -13,8 +22,9 @@ const OperationCheckbox = ({ checked = false, onChange, className, ...props }) =
         onChange={onChange}
         {...props}
       />
-      <div className={styles.customCheckbox}>
+      <div className={cn(styles.customCheckbox, isIndeterminate && styles.indeterminate)}>
         {checked && <LuCheck className={styles.checkmark} strokeWidth={2} />}
+        {isIndeterminate && <LuMinus className={styles.checkmark} strokeWidth={2} />}
       </div>
       {props.label && <span className={`line-clamp-1 ${styles.label}`}>{props.label}</span>}
     </label>

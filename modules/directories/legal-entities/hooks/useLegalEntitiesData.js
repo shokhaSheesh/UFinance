@@ -1,4 +1,5 @@
 import { useDeleteLegalEntities, useLegalEntitiesPlanFact } from '@/hooks/useDashboard'
+import { appStore } from '@/store/app.store'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -22,7 +23,9 @@ export function useLegalEntitiesData(tc) {
 
   const legalEntitiesItems = useMemo(() => {
     const items = legalEntitiesData?.data?.data || []
-    return Array.isArray(items) ? items : []
+    if (!Array.isArray(items)) return []
+    // Юрлица, закрытые для роли — см. utils/accountPermissions.js
+    return items.filter((item) => appStore.isLegalEntityAllowed(item?.guid))
   }, [legalEntitiesData])
 
   const entities = useMemo(() => {

@@ -1556,6 +1556,18 @@
         "descriptionByDays": "Foydalanuvchi faqat to'lov yoki hisoblash sanasi ruxsat etilgan davrga kiradigan operatsiyalarni tahrirlay oladi",
         "dateRequired": "Cheklov sanasini tanlang",
         "blocked": "Sana ruxsat etilgan davrdan tashqarida. Kiritilgan ma'lumotlarni o'zgartirish rol sozlamalari bilan cheklangan"
+      },
+      "tabs": {
+        "sections": "Bo'limlar",
+        "accounts": "Yuridik shaxslar va hisoblar"
+      },
+      "accounts": {
+        "accessNew": "Yangi yuridik shaxs va hisoblarga ruxsat berilsin",
+        "accessNewHint": "Rol sozlamalar saqlangandan keyin qo'shilgan yuridik shaxs va hisoblarga avtomatik ruxsat oladi",
+        "empty": "Yuridik shaxs va hisob raqamlar yoʻq",
+        "legalEntity": "Yuridik shaxs",
+        "account": "Hisob raqamlari",
+        "access": "Ruxsat"
       }
     },
     "contract": {

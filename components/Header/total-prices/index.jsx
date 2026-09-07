@@ -84,9 +84,16 @@ const TotalPrice = observer(() => {
     },
   });
 
+  // Счета, закрытые для роли, не показываем и не учитываем в валютах —
+  // см. utils/accountPermissions.js
+  const accountGroups = useMemo(
+    () => appStore.filterAllowedAccountGroups(myaccounts?.data || []),
+    [myaccounts],
+  );
+
   useEffect(() => {
     const result = new Map();
-    myaccounts?.data
+    accountGroups
       ?.map((item) => item?.children)
       .flat()
       ?.forEach((item) => {
@@ -103,12 +110,12 @@ const TotalPrice = observer(() => {
         return { value, label: title };
       })
     );
-  }, [myaccounts]);
+  }, [accountGroups]);
 
   const Summary = myaccounts?.summary;
 
   const Compactlist = useMemo(() => {
-    return myaccounts?.data
+    return accountGroups
       ?.map((item) =>
         [...item.children]?.map((child) => ({
           name: child?.nazvanie,
@@ -118,7 +125,7 @@ const TotalPrice = observer(() => {
         }))
       )
       .flat();
-  }, [myaccounts]);
+  }, [accountGroups]);
 
   useEffect(() => {
     setToday(formatDateTime(new Date()));
@@ -150,7 +157,7 @@ const TotalPrice = observer(() => {
   }, [isBalanceOpen]);
 
   const legalEntitiesData = useMemo(() => {
-    return myaccounts?.data?.map((item) => ({
+    return accountGroups?.map((item) => ({
       id: item?.legal_entity_id,
       name: item?.legal_entity_name,
       balance: item?.current_balance,
@@ -163,7 +170,7 @@ const TotalPrice = observer(() => {
         color: child?.balans_val > 0 ? "green" : "red",
       })),
     }));
-  }, [myaccounts]);
+  }, [accountGroups]);
 
   const totalBalance = useMemo(() => {
     return (

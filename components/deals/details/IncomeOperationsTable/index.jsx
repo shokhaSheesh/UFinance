@@ -17,10 +17,13 @@ import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import { GlobalCurrency } from '@/constants/globalCurrency'
+import { appStore } from '@/store/app.store'
+import { areDatesAllowed } from '@/utils/dataEditingRestriction'
+import { observer } from 'mobx-react-lite'
 import EmptyState from '../EmptyState'
 
 /* ─── Main table component ────────────────────────────────── */
-const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
+const IncomeOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
   const t = useTranslations('Directories.details.incomeOperationsTable')
 
   const [showModal, setShowModal] = useState(false)
@@ -203,6 +206,14 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
               {dealOperations?.map((item) => {
                 const isActive = !item?.payment_confirmed && !item?.payment_accrual
                 const isDifferentDate = item?.accrualDate !== item?.operationDate
+                // Закрытый период роли: операцию вне разрешённого периода
+                // нельзя ни менять, ни удалять. См. utils/dataEditingRestriction.js
+                const isDateAllowed = areDatesAllowed(
+                  [item?.data_operatsii, item?.data_nachisleniya],
+                  appStore.dataEditingRestriction,
+                )
+                const rowCanEdit = canEdit && isDateAllowed
+                const rowCanDelete = canDelete && isDateAllowed
                 return (
                   <tr key={item?.guid} className="bg-white hover:bg-gray-50 text-xs font-normal group text-neutral-900 cursor-pointer border-b group border-gray-200">
                     <td className={`p-3 text-left ${isActive ? 'active-row' : ''}`}>
@@ -225,7 +236,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
                           {'+'}{formatAmount(item.summa)} {item.currency}
                         </p>
                         <div className=' items-center  hidden group-hover:flex '>
-                          {canEdit && (
+                          {rowCanEdit && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
                               className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
@@ -238,7 +249,7 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
                               <IoCopyOutline size={16} className='text-gray-400' />
                             </button>
                           )}
-                          {canDelete && (
+                          {rowCanDelete && (
                             <button onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                               <IoCloseOutline size={16} className='text-gray-400' />
                             </button>
@@ -318,6 +329,6 @@ const IncomeOperationsTable = ({ sellingDealId, onAdd, canAdd, canEdit, canDelet
 
     </>
   )
-}
+})
 
 export default IncomeOperationsTable

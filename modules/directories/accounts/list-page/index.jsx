@@ -103,9 +103,17 @@ export default observer(function AccountsPageList() {
   // Get dataArray for table rendering
   const dataArray = useMemo(() => {
     const rawData = bankAccountsData?.data
-    if (Array.isArray(rawData)) return rawData
-    if (Array.isArray(rawData?.data)) return rawData.data
-    return []
+    let list = []
+    if (Array.isArray(rawData)) list = rawData
+    else if (Array.isArray(rawData?.data)) list = rawData.data
+    else return []
+
+    // Счета, закрытые для роли, не показываем — см. utils/accountPermissions.js.
+    // При группировке элемент списка — юрлицо со счетами в children
+    const hasGroups = list.some((item) => Array.isArray(item?.children))
+    return hasGroups
+      ? appStore.filterAllowedAccountGroups(list)
+      : appStore.filterAllowedAccounts(list)
   }, [bankAccountsData])
 
   // Group toggle handlers

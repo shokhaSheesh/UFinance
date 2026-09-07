@@ -3,6 +3,7 @@ import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { appStore } from '../../../store/app.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
@@ -33,7 +34,8 @@ const SelectMyAccounts = ({ value, onChange, placeholder, className, dropdownCla
   })
 
   const mappedData = useMemo(() => {
-    const data = (accountsData || []).map(item => ({
+    // Счета, закрытые для роли — см. utils/accountPermissions.js
+    const data = appStore.filterAllowedAccounts(accountsData || []).map(item => ({
       value: item.guid,
       label: type === "show" ? `${item?.nazvanie} [${item?.legal_entity_name}] ${formatNumber(formatTotalSumma(item?.balans))} ${item?.currenies_kod}` : item.nazvanie
     }))
