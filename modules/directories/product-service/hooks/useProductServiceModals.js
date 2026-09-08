@@ -63,7 +63,8 @@ export function useProductServiceModals(t) {
     try {
       const isGroup = itemToDelete.isGroup
       const result = await deleteProductServiceFn({
-        method: 'delete_product_and_service',
+        // У группы свой метод удаления, товар/услуга удаляется другим
+        method: isGroup ? 'delete_product_and_service_group' : 'delete_product_and_service',
         data: {
           guid: itemToDelete.guid,
           branch_id: authStore.branch_id,
