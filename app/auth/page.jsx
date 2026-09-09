@@ -11,13 +11,14 @@ import { showSuccessNotification } from '@/lib/utils/notifications'
 import { formatPhoneNumber, getCleanPhoneNumber } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
 import { Eye, EyeOff } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import styles from './styles.module.scss'
 
 export default function LoginPage() {
   const t = useTranslations('Auth') 
+  const locale = useLocale()
   const [formType, setFormType] = useState('login')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -44,7 +45,7 @@ export default function LoginPage() {
   const { mutateAsync: registerAsync, isPending: isRegistering } = useRegister()
   const { mutateAsync: forgotPasswordMutation, isPending: isForgotPasswordLoading } = useMutation({
     mutationKey: ['auth_forgot_password'],
-    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data }),
+    mutationFn: (data) => apiClient.invokeFunction({ method: 'auth_forgot_password', data: { lang: locale, ...data } }),
     onSuccess: () => {
 
     }

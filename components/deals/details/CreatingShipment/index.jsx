@@ -34,6 +34,11 @@ import Loader from "../../../shared/Loader";
 import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
 
+// Разделы плана счетов, из которых выбирается статья отгрузки и поставки.
+// «Капитал» в этот список не входит: по его статьям отгрузки/поставки не проводятся
+const SHIPMENT_ARTICLE_TYPES = ["Доходы", "Актив", "Обязательства"];
+const SUPPLY_ARTICLE_TYPES = ["Расходы", "Актив", "Обязательства"];
+
 const CreateShipment = observer(
   ({
     open,
@@ -100,6 +105,18 @@ const CreateShipment = observer(
           titleEdit: t("titleEditReturn"),
         }
       : baseL;
+    // Статьи капитала к отгрузке/поставке не относятся — по умолчанию
+    // оставляем в выборе только разделы, по которым такие операции проводятся
+    const articleTypes = useMemo(
+      () =>
+        allowedTypes?.length
+          ? allowedTypes
+          : isPurchase
+            ? SUPPLY_ARTICLE_TYPES
+            : SHIPMENT_ARTICLE_TYPES,
+      [allowedTypes, isPurchase]
+    );
+
     // Returns force every price/sum entry negative so the transaction reads
     // as money/stock flowing back out; the user is never allowed to flip it positive.
     const signPrice = (value) => {
@@ -1061,7 +1078,7 @@ const CreateShipment = observer(
                       setSelectedValue={handleArticleChange}
                       placeholder={L.undistributedIncome}
                       className="w-80! bg-white"
-                      allowedTypes={allowedTypes}
+                      allowedTypes={articleTypes}
                     />
                   </div>
                 </div>

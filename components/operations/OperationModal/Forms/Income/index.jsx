@@ -42,7 +42,7 @@ import FormDatepicker from '../../../../shared/DatePicker/form-datepicker'
 
 // Разделы плана счетов, по статьям которых начисление отдельно не ведётся:
 // дата начисления и его подтверждение блокируются и следуют за оплатой
-const ACCRUAL_LOCK_PARENTS = ['Долгосрочные обязательства']
+const ACCRUAL_LOCK_PARENTS = ['Долгосрочные обязательства', 'Капитал']
 
 // Helper to update find_operations infinite query cache
 const updateOperationsCache = (updatedOperation) => {
@@ -414,8 +414,8 @@ const IncomeForm = observer(({
   const watchConfirmAccrual = watch('confirmAccrual')
   const saleDeal = watch('salesDeal')
 
-  // Статья из «Долгосрочных обязательств»: начисление приравнивается к оплате —
-  // поля начисления блокируются, подтверждение повторяет «Подтвердить оплату»
+  // Статья из «Долгосрочных обязательств» или «Капитала»: начисление приравнивается
+  // к оплате — поля начисления блокируются, подтверждение повторяет «Подтвердить оплату»
   const [isAccrualLocked, setIsAccrualLocked] = useState(false)
   const accrualDisabled = !!watchSalesDeal || isAccrualLocked
 
