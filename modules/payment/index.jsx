@@ -225,8 +225,10 @@ const Payment = ({ payment }) => {
   // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-white flex items-start justify-center">
-      <div className="rounded-2xl px-8 py-10 w-full max-w-2xl">
+    // html/body в globals.css заданы с overflow:hidden — без собственного
+    // контейнера прокрутки страница на мобильных не скроллится вообще
+    <div className="h-dvh overflow-y-auto overscroll-contain bg-white flex items-start justify-center">
+      <div className="rounded-2xl px-8 py-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] w-full max-w-2xl">
 
         {/* Header */}
         <div className="text-center mb-8">
