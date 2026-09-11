@@ -1,30 +1,35 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { debounce } from 'lodash'
-import { useEffect, useMemo, useState } from 'react'
-import { apiClient } from '@/lib/api/ucode/base'
-import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { debounce } from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import { useRefreshPermissions } from "@/hooks/useRefreshPermissions";
+import { apiClient } from "@/lib/api/ucode/base";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/lib/utils/notifications";
 
 export const useBranchDetailData = ({ branchId, tb }) => {
-  const queryClient = useQueryClient()
-  const [roleSearch, setRoleSearch] = useState('')
+  const queryClient = useQueryClient();
+  const refreshPermissions = useRefreshPermissions();
+  const [roleSearch, setRoleSearch] = useState("");
 
   const debouncedRoleSearch = useMemo(
     () => debounce((value) => setRoleSearch(value), 400),
     []
-  )
+  );
 
   useEffect(() => {
-    debouncedRoleSearch(roleSearch)
-    return () => debouncedRoleSearch.cancel()
-  }, [roleSearch, debouncedRoleSearch])
+    debouncedRoleSearch(roleSearch);
+    return () => debouncedRoleSearch.cancel();
+  }, [roleSearch, debouncedRoleSearch]);
 
   const { data: rolesData, isLoading: rolesLoading } = useQuery({
-    queryKey: ['get_roles_list'],
+    queryKey: ["get_roles_list"],
     queryFn: () =>
       apiClient.invokeFunction({
-        method: 'get_roles',
+        method: "get_roles",
         data: { page: 1, limit: 150, search: roleSearch },
-        type: 'role',
+        type: "role",
       }),
     select: (data) =>
       data?.data?.data?.items?.map((item) => ({
@@ -32,64 +37,85 @@ export const useBranchDetailData = ({ branchId, tb }) => {
         label: item?.name,
       })) || [],
     refetchOnMount: true,
-  })
+  });
 
   const createUserMutation = useMutation({
     mutationFn: (data) =>
       apiClient.invokeFunction({
-        method: 'create_branch_user',
+        method: "create_branch_user",
         data: {
           branch_id: branchId,
           ...data,
         },
-        type: 'role',
+        type: "role",
       }),
     onSuccess: () => {
-      showSuccessNotification(tb?.('userAdded') || 'Пользователь успешно добавлен')
-      queryClient.invalidateQueries({ queryKey: ['get_branch_users', branchId] })
+      showSuccessNotification(
+        tb?.("userAdded") || "Пользователь успешно добавлен"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["get_branch_users", branchId],
+      });
+      refreshPermissions();
     },
     onError: (error) => {
       showErrorNotification(
-        error?.message || tb?.('userAddError') || 'Ошибка при добавлении пользователя'
-      )
+        error?.message ||
+          tb?.("userAddError") ||
+          "Ошибка при добавлении пользователя"
+      );
     },
-  })
+  });
 
   const updateUserMutation = useMutation({
     mutationFn: (data) =>
       apiClient.invokeFunction({
-        method: 'update_branch_user',
+        method: "update_branch_user",
         data,
-        type: 'role',
+        type: "role",
       }),
     onSuccess: () => {
-      showSuccessNotification(tb?.('userUpdated') || 'Пользователь успешно обновлен')
-      queryClient.invalidateQueries({ queryKey: ['get_branch_users', branchId] })
+      showSuccessNotification(
+        tb?.("userUpdated") || "Пользователь успешно обновлен"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["get_branch_users", branchId],
+      });
+      refreshPermissions();
     },
     onError: (error) => {
       showErrorNotification(
-        error?.message || tb?.('userUpdateError') || 'Ошибка при обновлении пользователя'
-      )
+        error?.message ||
+          tb?.("userUpdateError") ||
+          "Ошибка при обновлении пользователя"
+      );
     },
-  })
+  });
 
   const deleteUserMutation = useMutation({
     mutationFn: (guid) =>
       apiClient.invokeFunction({
-        method: 'delete_branch_user',
+        method: "delete_branch_user",
         data: { guid },
-        type: 'role',
+        type: "role",
       }),
     onSuccess: () => {
-      showSuccessNotification(tb?.('userDeleted') || 'Пользователь успешно удален')
-      queryClient.invalidateQueries({ queryKey: ['get_branch_users', branchId] })
+      showSuccessNotification(
+        tb?.("userDeleted") || "Пользователь успешно удален"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["get_branch_users", branchId],
+      });
+      refreshPermissions();
     },
     onError: (error) => {
       showErrorNotification(
-        error?.message || tb?.('userDeleteError') || 'Ошибка при удалении пользователя'
-      )
+        error?.message ||
+          tb?.("userDeleteError") ||
+          "Ошибка при удалении пользователя"
+      );
     },
-  })
+  });
 
   return {
     rolesData,
@@ -98,5 +124,5 @@ export const useBranchDetailData = ({ branchId, tb }) => {
     createUserMutation,
     updateUserMutation,
     deleteUserMutation,
-  }
-}
+  };
+};
