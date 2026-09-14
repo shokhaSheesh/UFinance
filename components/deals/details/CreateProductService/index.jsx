@@ -1,9 +1,10 @@
 'use client'
 import CustomDialog from '@/components/shared/CustomDialog';
 import { keepPreviousData } from '@tanstack/react-query';
+import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard';
+import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard';
 import { queryClient } from '../../../../lib/queryClient';
 import { formatAmount, formatAmountInput } from '../../../../utils/helpers';
 import Input from '../../../shared/Input';
@@ -53,17 +54,30 @@ const CreateProductService = ({
   })
 
 
+  const { data: groups } = useUcodeDefaultApiQuery({
+    queryKey: 'product_services_groups',
+    urlMethod: 'GET',
+    urlParams: '/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A100%7D',
+    querySetting: {
+      select: data => data?.data?.data?.response
+    }
+  })
+
   // Артикул показываем в скобках рядом с названием; пустой (или из пробелов)
-  // артикул скобок не рисует
+  // артикул скобок не рисует. Под названием — «группа • цена»
   const productServicesList = useMemo(() => {
     return productServices?.map(item => {
       const article = String(item?.Artikul || '').trim()
+      const group = groups?.find(g => g?.guid === item?.product_and_service_group_id)
+      const groupName = group?.name || group?.nazvanie_gruppy || ''
+      const price = formatAmount(Number(item?.TSena_za_ed) || 0)
       return {
         value: item?.guid,
         label: article ? `${item?.Naimenovanie || ''} (${article})` : item?.Naimenovanie,
+        description: groupName ? `${groupName} • ${price}` : price,
       }
     }) || []
-  }, [productServices])
+  }, [productServices, groups])
 
   const { mutateAsync: mutateProductServiceCustom, isPending: isProductServiceCustomPending } = useUcodeRequestMutation()
 
@@ -273,6 +287,15 @@ const CreateProductService = ({
               onChange={handleProductServiceChange}
               placeholder={t('productPlaceholder')}
               className={'h-[38]! bg-white'}
+              customRenderItem={(node, isSelected) => (
+                <div className="flex items-center justify-between gap-2 px-4 py-2">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xss!">{node.label}</span>
+                    <span className="text-xs text-neutral-400">{node.description}</span>
+                  </div>
+                  {isSelected && <Check size={16} className="text-primary shrink-0" />}
+                </div>
+              )}
             />
             {errors.product_and_service_id && (
               <span className={styles.errorText}>{errors.product_and_service_id}</span>
