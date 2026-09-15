@@ -1,11 +1,11 @@
-'use client'
-import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
-import { debounce } from 'lodash'
-import { Plus } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
-import TreeSelect from '../../shared/Selects/TreeSelect'
+"use client";
+import CreateCounterpartyModal from "@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal";
+import { debounce } from "lodash";
+import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useUcodeRequestQuery } from "../../../hooks/useDashboard";
+import TreeSelect from "../../shared/Selects/TreeSelect";
 
 const SingleCounterParty = ({
   value,
@@ -14,94 +14,113 @@ const SingleCounterParty = ({
   className,
   disabled,
   dropdownClassName,
-  name = '',
+  name = "",
   returnChartOfAccount,
   isClearable = true,
   hasError,
-  dropdownHeaderItem
+  dropdownHeaderItem,
 }) => {
-  const t = useTranslations('Common')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const t = useTranslations("Common");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSearch = useMemo(() =>
-    debounce((val) => setDebouncedSearch(val), 500),
-    [])
+  const handleSearch = useMemo(
+    () => debounce((val) => setDebouncedSearch(val), 500),
+    []
+  );
 
   useEffect(() => {
-    return () => handleSearch.cancel()
-  }, [handleSearch])
+    return () => handleSearch.cancel();
+  }, [handleSearch]);
 
-  const { data: counterpartiesGroupsData, isLoading, isFetching } = useUcodeRequestQuery({
-    method: 'get_counterparties_group',
+  const {
+    data: counterpartiesGroupsData,
+    isLoading,
+    isFetching,
+  } = useUcodeRequestQuery({
+    method: "get_counterparties_group",
     data: {
       page: 1,
       limit: 1000,
-      search: debouncedSearch
-    }
-  })
+      search: debouncedSearch,
+    },
+  });
 
   const result = useMemo(() => {
-    const groups = counterpartiesGroupsData?.data?.data || []
-    if (groups.length === 0) return []
+    const groups = counterpartiesGroupsData?.data?.data || [];
+    if (groups.length === 0) return [];
 
-    const buildTree = item => {
+    const buildTree = (item) => {
       // Check if this is a group with children
-      if (item.children && Array.isArray(item.children) && item.children.length > 0) {
+      if (
+        item.children &&
+        Array.isArray(item.children) &&
+        item.children.length > 0
+      ) {
         return {
           value: item.guid,
-          label: item.nazvanie_gruppy || t('noName'),
+          label: item.nazvanie_gruppy || t("noName"),
           bold: true,
           isSelectable: false, // Groups are not selectable
-          children: item.children.map(child => ({
+          children: item.children.map((child) => ({
             value: child.guid,
-            label: child.nazvanie || t('noName'),
+            label: child.nazvanie || t("noName"),
             isSelectable: true,
-            rawData: child // Store raw data for lookup
-          }))
-        }
+            rawData: child, // Store raw data for lookup
+          })),
+        };
       }
 
       // This is a standalone item (no children)
       return {
         value: item.guid,
-        label: item.nazvanie_gruppy || item.nazvanie || t('noName'),
+        label: item.nazvanie_gruppy || item.nazvanie || t("noName"),
         isSelectable: true,
-        rawData: item // Store raw data for lookup
-      }
-    }
+        rawData: item, // Store raw data for lookup
+      };
+    };
 
-    return groups.filter(item => item.children && item.children.length > 0).map(buildTree)
-  }, [counterpartiesGroupsData, t])
+    return groups
+      .filter((item) => item.children && item.children.length > 0)
+      .map(buildTree);
+  }, [counterpartiesGroupsData, t]);
 
   const autoSelectChartOfAccount = (name, val) => {
     // Find the item in the tree to get its rawData
     const findItem = (nodes) => {
       for (const node of nodes) {
-        if (node.value === val) return node
+        if (node.value === val) return node;
         if (node.children) {
-          const found = findItem(node.children)
-          if (found) return found
+          const found = findItem(node.children);
+          if (found) return found;
         }
       }
-      return null
-    }
+      return null;
+    };
 
-    const node = findItem(result)
+    const node = findItem(result);
     if (node && node.rawData) {
       // Return the chart_of_accounts_id (or id_2) based on the 'name' prop
-      const accountId = node.rawData[name]
-      returnChartOfAccount?.(accountId || null)
+      const accountId = node.rawData[name];
+      returnChartOfAccount?.(accountId || null);
     }
-  }
+  };
 
   const handleSelect = (val) => {
-    onChange(val)
+    onChange(val);
     if (name && val) {
       // Find the item in the tree to get its rawData
-      autoSelectChartOfAccount(name, val)
+      autoSelectChartOfAccount(name, val);
     }
-  }
+  };
+
+  const handleCreated = (created) => {
+    if (!created?.guid) return;
+    handleSearch.cancel();
+    setDebouncedSearch("");
+    onChange(created.guid);
+    if (name) returnChartOfAccount?.(created[name] || null);
+  };
 
   const createCounterpartyHeader = (
     <button
@@ -110,23 +129,27 @@ const SingleCounterParty = ({
       className="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer border-b border-gray-100"
     >
       <Plus size={16} />
-      {t('createCounterparties')}
+      {t("createCounterparties")}
     </button>
-  )
+  );
 
   const combinedHeaderItem = (
     <>
       {createCounterpartyHeader}
       {dropdownHeaderItem}
     </>
-  )
+  );
 
   return (
     <>
       <TreeSelect
         data={result}
         multi={false}
-        placeholder={isLoading ? t('loading') : (placeholder || t('placeholders.selectCounterparty'))}
+        placeholder={
+          isLoading
+            ? t("loading")
+            : placeholder || t("placeholders.selectCounterparty")
+        }
         value={value}
         onChange={handleSelect}
         onSearch={handleSearch}
@@ -141,9 +164,10 @@ const SingleCounterParty = ({
       <CreateCounterpartyModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={handleCreated}
       />
     </>
-  )
-}
+  );
+};
 
 export default SingleCounterParty;
