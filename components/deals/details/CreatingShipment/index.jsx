@@ -19,7 +19,12 @@ import { readStockCount } from "../../../../lib/api/ucode/stock";
 import { productServiceDto } from "../../../../lib/dtos/productServiceDto";
 import { queryClient } from "../../../../lib/queryClient";
 import { appStore } from "../../../../store/app.store";
-import { StringtoNumber, formatAmount, formatAmountInput, formatDecimal } from "../../../../utils/helpers"
+import {
+  StringtoNumber,
+  formatAmount,
+  formatAmountInput,
+  formatDecimal,
+} from "../../../../utils/helpers";
 import { showErrorNotification } from "../../../../utils/notifications";
 import SentMessages from "../../../operations/OperationModal/SentMessages";
 import MyAccountCurrensies from "../../../ReadyComponents/MyAccountCurrensies";
@@ -38,6 +43,13 @@ import styles from "./style.module.scss";
 // «Капитал» в этот список не входит: по его статьям отгрузки/поставки не проводятся
 const SHIPMENT_ARTICLE_TYPES = ["Доходы", "Актив", "Обязательства"];
 const SUPPLY_ARTICLE_TYPES = ["Расходы", "Актив", "Обязательства"];
+const toNumber = (value) => Number(value?.toString().replace(/\s/g, "")) || 0;
+
+const calcRowSum = ({ quantity, price, discount, nds }) =>
+  toNumber(quantity) *
+  toNumber(price) *
+  (1 - toNumber(discount) / 100) *
+  (1 + toNumber(nds) / 100);
 
 const CreateShipment = observer(
   ({
@@ -112,8 +124,8 @@ const CreateShipment = observer(
         allowedTypes?.length
           ? allowedTypes
           : isPurchase
-            ? SUPPLY_ARTICLE_TYPES
-            : SHIPMENT_ARTICLE_TYPES,
+          ? SUPPLY_ARTICLE_TYPES
+          : SHIPMENT_ARTICLE_TYPES,
       [allowedTypes, isPurchase]
     );
 
@@ -531,33 +543,17 @@ const CreateShipment = observer(
           const updated = { ...row, [field]: value };
 
           if (["quantity", "price", "discount", "nds"].includes(field)) {
-            // sum = qty * price * (1 - discount/100) * (1 + nds/100)
-            const q =
-              Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
-            let p = Number(updated.price?.toString().replace(/\s/g, "")) || 0;
-            if (isReturn) {
-              p = signPrice(p);
-              updated.price = p;
-            }
-            const d =
-              Number(updated.discount?.toString().replace(/\s/g, "")) || 0;
-            const n = Number(updated.nds?.toString().replace(/\s/g, "")) || 0;
-            const subtotal = q * p;
-            const afterDiscount = subtotal * (1 - d / 100);
-            updated.sum = signPrice(afterDiscount * (1 + n / 100));
+            if (isReturn) updated.price = signPrice(toNumber(updated.price));
+            updated.sum = signPrice(calcRowSum(updated));
           }
 
           if (field === "sum") {
             // Back-calculate price from sum: price = sum / qty / (1 - d/100) / (1 + n/100)
-            const rawSum = signPrice(
-              Number(value?.toString().replace(/\s/g, "")) || 0
-            );
+            const rawSum = signPrice(toNumber(value));
             updated.sum = rawSum;
-            const q =
-              Number(updated.quantity?.toString().replace(/\s/g, "")) || 0;
-            const d =
-              Number(updated.discount?.toString().replace(/\s/g, "")) || 0;
-            const n = Number(updated.nds?.toString().replace(/\s/g, "")) || 0;
+            const q = toNumber(updated.quantity);
+            const d = toNumber(updated.discount);
+            const n = toNumber(updated.nds);
             if (q > 0) {
               const discountFactor = 1 - d / 100;
               const ndsFactor = 1 + n / 100;
@@ -805,20 +801,21 @@ const CreateShipment = observer(
           if (isSameProduct) {
             return { ...row, name: value, productServiceId, tip };
           }
-          const q = Number(source.kolvo) || 0;
-          const p = signPrice(Number(source.tsena_za_ed) || 0);
+          const values = {
+            quantity: Number(source.kolvo) || 0,
+            price: signPrice(Number(source.tsena_za_ed) || 0),
+            discount: String(source.discount || 0),
+            nds: String(source.nds || 0),
+          };
           return {
             ...row,
+            ...values,
             name: value,
             productServiceId,
             tip,
             naimenovanie: source.name || row.naimenovanie,
             artikul: source.article || row.artikul || "",
-            price: p,
-            quantity: q,
-            discount: String(source.discount || 0),
-            nds: String(source.nds || 0),
-            sum: signPrice(q * p),
+            sum: signPrice(calcRowSum(values)),
             unitName: source.unit_name || row.unitName || "",
           };
         })
@@ -1348,8 +1345,7 @@ const CreateShipment = observer(
                     {t("addRow")}
                   </button>
                   <p className={styles.totalSum}>
-                    {L.shipmentSum}:{" "}
-                    <strong>{formatAmount(totalSum)}</strong>
+                    {L.shipmentSum}: <strong>{formatAmount(totalSum)}</strong>
                     <span className="text-neutral-600 ml-1">{code}</span>
                   </p>
                 </div>
