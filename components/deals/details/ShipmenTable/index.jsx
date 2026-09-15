@@ -94,8 +94,10 @@ const ShipmenTable = observer(({
     getNextPageParam: (lastPage) => {
       const pagination = lastPage?.data?.data?.pagination || lastPage?.data?.pagination
       if (!pagination) return undefined
-      const { page, totalPages } = pagination
-      return page < totalPages ? page + 1 : undefined
+      // бэк отдаёт количество страниц в `pages`; `totalPages` — старый формат
+      const page = Number(pagination.page) || 1
+      const pages = Number(pagination.pages ?? pagination.totalPages) || 0
+      return page < pages ? page + 1 : undefined
     },
     initialPageParam: 1,
     placeholderData: keepPreviousData,
@@ -123,7 +125,11 @@ const ShipmenTable = observer(({
     onIntersectRef.current = hasNextPage && !isFetchingNextPage ? fetchNextPage : null
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  // IntersectionObserver created once — no stale closures, no duplicate fetches
+  // Таблица (а с ней контейнер и sentinel) появляется только после загрузки
+  // первой страницы, поэтому observer подключаем, когда список отрисован
+  const isListRendered = !isLoading && shipmentsList.length > 0
+
+  // IntersectionObserver reads the fetch callback from a ref — no stale closures, no duplicate fetches
   useEffect(() => {
     const container = scrollContainerRef.current
     const sentinel = sentinelRef.current
@@ -136,7 +142,7 @@ const ShipmenTable = observer(({
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [])
+  }, [isListRendered])
 
   const handleEditShipment = (shipment) => {
     setSelectedShipment(shipment)
