@@ -228,7 +228,11 @@ const ShipmenTable = observer(({
           <tbody className='w-full'>
             {shipmentsList?.map((item) => {
               const isRowPlanned = isPurchase ? item?.planned_supply : item?.planned_shipment
-              const deleteBlocked = Boolean(appStore.warehouseActive) && !Boolean(isRowPlanned)
+              // Склад: удалять нельзя ни закрытый плановый документ,
+              // ни документ, привязанный к складу — остатки уже учтены
+              const deleteBlocked =
+                Boolean(appStore.warehouseActive) &&
+                (!Boolean(isRowPlanned) || Boolean(item?.warehouse_id))
               return (
                 <tr key={item?.guid} className={`bg-white  hover:bg-gray-50 text-xs font-normal group  cursor-pointer border-b group border-gray-200 ${isRowPlanned ? 'text-primary' : 'text-neutral-900'}`}>
                   <td className="px-4 py-3 text-left">{item.operationDate}</td>

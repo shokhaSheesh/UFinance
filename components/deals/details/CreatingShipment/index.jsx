@@ -142,11 +142,14 @@ const CreateShipment = observer(
     // The "planned" flag toggles stock commitment, so only a user with warehouse
     // read access may change it; without access the checkbox stays locked.
     const hasWarehouseAccess = Boolean(appStore.permission.warehouse?.read);
-    const isPlannedLocked = isFutureDate || !hasWarehouseAccess;
+    // При включённом складе новый документ можно создать только плановым:
+    // остатки двигает закрытие планового документа, а не его создание.
+    const isPlannedForced = isFutureDate || (isWarehouseModuleOn && !isEditing);
+    const isPlannedLocked = isPlannedForced || !hasWarehouseAccess;
     // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
     // so their quantities are validated against available stock.
     const isOutflow = (isPurchase && isReturn) || (!isPurchase && !isReturn);
-    const effectivePlanned = isFutureDate ? true : isPlanned;
+    const effectivePlanned = isPlannedForced ? true : isPlanned;
     const { data: warehousesData } = useWarehousesList();
     const warehouseOptions = useMemo(
       () =>
@@ -549,6 +552,10 @@ const CreateShipment = observer(
       );
     };
 
+    // Склад выбирают под конкретные позиции, поэтому поле показываем
+    // только когда в таблице есть хотя бы один выбранный товар/услуга
+    const hasSelectedProduct = rows.some((row) => !!row.name);
+
     const totalSum = useMemo(() => {
       return rows.reduce((acc, row) => {
         const sumVal = Number(row.sum?.toString().replace(/\s/g, "")) || 0;
@@ -644,9 +651,7 @@ const CreateShipment = observer(
           partners_id: client,
           // поле скрыто у складской поставки — значение не отправляем
           ...(showProjectField ? { projects_id: project || null } : {}),
-          [isPurchase ? "planned_supply" : "planned_shipment"]: isFutureDate
-            ? true
-            : isPlanned,
+          [isPurchase ? "planned_supply" : "planned_shipment"]: effectivePlanned,
           status_nachislenie: ["confirmed"],
           type: operationType,
           summa: signPrice(totalSum),
@@ -807,8 +812,13 @@ const CreateShipment = observer(
     const savedPlanned = isPurchase
       ? SingleShipment?.planned_supply
       : SingleShipment?.planned_shipment;
+    // Документ со складом правке не подлежит так же, как закрытый плановый:
+    // он уже связан со складским остатком.
     const isSaveBlockedByClosedWarehouse =
-      isEditing && isWarehouseModuleOn && !!SingleShipment && !savedPlanned;
+      isEditing &&
+      isWarehouseModuleOn &&
+      !!SingleShipment &&
+      (!savedPlanned || !!SingleShipment.warehouse_id);
 
     // Поставка: warehouse ↔ article are linked. Picking a warehouse autofills its
     // article and lists goods; clearing it resets the article. (Sale keeps plain behaviour.)
@@ -932,7 +942,7 @@ const CreateShipment = observer(
                         }}
                       >
                         <OperationCheckbox
-                          checked={isFutureDate ? true : isPlanned}
+                          checked={effectivePlanned}
                           onChange={(e) => {
                             if (!isPlannedLocked) {
                               setIsPlanned(e.target.checked);
@@ -1018,8 +1028,8 @@ const CreateShipment = observer(
                 </div>
               )}
 
-              {/* Warehouse — above the article; shown once the module is on */}
-              {isWarehouseModuleOn && (
+              {/* Warehouse — above the article; появляется после выбора позиции */}
+              {isWarehouseModuleOn && hasSelectedProduct && (
                 <div className="w-full flex items-center gap-2 pb-2">
                   <label className="w-40! text-xss!">{t("warehouse")}</label>
                   <div className="flex-1">
