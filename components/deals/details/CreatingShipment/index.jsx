@@ -288,36 +288,6 @@ const CreateShipment = observer(
       hasWarehouseAccess,
     ]);
 
-    // Default to the first warehouse on create (sale/Отгрузка only) — the list may
-    // still be loading when the modal opens, so this re-fires once it arrives.
-    // A Поставка requires the warehouse to be picked manually, so it is NOT
-    // auto-selected there (also avoids re-selecting it right after the user clears it).
-    useEffect(() => {
-      if (
-        isWarehouseModuleOn &&
-        !isPurchase &&
-        open &&
-        !initialData?.guid &&
-        !warehouse &&
-        !isServiceSupply &&
-        warehouseOptions.length > 0
-      ) {
-        setWarehouse(warehouseOptions[0].value);
-      }
-    }, [
-      isWarehouseModuleOn,
-      isPurchase,
-      open,
-      initialData?.guid,
-      warehouseOptions,
-      warehouse,
-      isServiceSupply,
-    ]);
-
-    // Поставка: in warehouse mode the article follows the selected warehouse
-    // (autofilled) and clears when the warehouse is cleared; service mode keeps
-    // the user-picked article. Runs on every warehouse / warehouse-list change so
-    // the article is filled even for the default warehouse picked above.
     useEffect(() => {
       if (!isPurchase || isServiceSupply) return;
       const wh = warehouse
@@ -552,9 +522,16 @@ const CreateShipment = observer(
       );
     };
 
-    // Склад выбирают под конкретные позиции, поэтому поле показываем
-    // только когда в таблице есть хотя бы один выбранный товар/услуга
-    const hasSelectedProduct = rows.some((row) => !!row.name);
+    // Склад выбирают под конкретные позиции, поэтому поле показываем только
+    // когда выбран хотя бы один товар. Услуги склад не двигают — для них поля нет.
+    const hasSelectedProduct = rows.some(
+      (row) => !!row.name && row.tip !== "service"
+    );
+
+    // Поле скрылось (остались одни услуги) — выбранный склад не должен уехать в payload
+    useEffect(() => {
+      if (!hasSelectedProduct && warehouse && !isEditing) setWarehouse("");
+    }, [hasSelectedProduct, warehouse, isEditing]);
 
     const totalSum = useMemo(() => {
       return rows.reduce((acc, row) => {
@@ -651,7 +628,8 @@ const CreateShipment = observer(
           partners_id: client,
           // поле скрыто у складской поставки — значение не отправляем
           ...(showProjectField ? { projects_id: project || null } : {}),
-          [isPurchase ? "planned_supply" : "planned_shipment"]: effectivePlanned,
+          [isPurchase ? "planned_supply" : "planned_shipment"]:
+            effectivePlanned,
           status_nachislenie: ["confirmed"],
           type: operationType,
           summa: signPrice(totalSum),
