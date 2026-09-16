@@ -197,8 +197,12 @@ export default observer(function PurchaseDetailPage() {
   const paymentCanEdit = operations.payout.edit;
   const paymentCanDelete = operations.payout.delete;
   const shipmentPermission = operations.shipment.add;
+  // Товары и услуги внутри закупки может добавлять и тот, кому разрешено создавать
+  // закупки: без позиций закупка бессмысленна, отдельного права на справочник не ждём
+  const dealPermission =
+    appStore.permission.deals.purchases || appStore.permission.deals;
   const productsPermission =
-    appStore.permission.directories.productsServices.add;
+    appStore.permission.directories.productsServices.add || dealPermission.add;
 
   const dealAmount = Number(summeryCards?.deal_sum) || 0;
   const received = Number(summeryCards?.paid_amount) || 0;
