@@ -47,7 +47,6 @@ export const useBranchDetailData = ({ branchId, tb }) => {
           branch_id: branchId,
           ...data,
         },
-        type: "role",
       }),
     onSuccess: () => {
       showSuccessNotification(
