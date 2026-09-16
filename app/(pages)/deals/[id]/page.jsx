@@ -174,7 +174,11 @@ export default observer(function DealDetailPage() {
   const paymentCanEdit = operations.payout.edit
   const paymentCanDelete = operations.payout.delete
   const shipmentPermission = operations.shipment.add
-  const productsPermission = appStore.permission.directories.productsServices.add
+  // Товары и услуги внутри сделки может добавлять и тот, кому разрешено создавать
+  // сделки: без позиций сделка бессмысленна, отдельного права на справочник не ждём
+  const dealPermission = appStore.permission.deals.sales || appStore.permission.deals
+  const productsPermission =
+    appStore.permission.directories.productsServices.add || dealPermission.add
 
 
 
