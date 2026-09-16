@@ -160,13 +160,15 @@ const CreateShipment = observer(
     // against an expense article (services, Tip=service). Picking one drives the other.
     const [isServiceSupply, setIsServiceSupply] = useState(false);
     const isWarehouseModuleOn = appStore.warehouseActive;
-    // The "planned" flag toggles stock commitment, so only a user with warehouse
-    // read access may change it; without access the checkbox stays locked.
-    const hasWarehouseAccess = Boolean(appStore.permission.warehouse?.read);
-    // При включённом складе новый документ можно создать только плановым:
-    // остатки двигает закрытие планового документа, а не его создание.
-    const isPlannedForced = isFutureDate || (isWarehouseModuleOn && !isEditing);
-    const isPlannedLocked = isPlannedForced || !hasWarehouseAccess;
+    // Снятая галка «Плановая» двигает складские остатки, поэтому переключать её
+    // может только тот, кому разрешено создавать складские документы.
+    const canMoveWarehouseStock = Boolean(appStore.permission.warehouse?.add);
+    // Без этого права галка неактивна, но включённой принудительно она становится
+    // только у нового документа — у существующего показываем то, что сохранено
+    // (planned_shipment / planned_supply).
+    const isPlannedReadOnly = isWarehouseModuleOn && !canMoveWarehouseStock;
+    const isPlannedForced = isFutureDate || (isPlannedReadOnly && !isEditing);
+    const isPlannedLocked = isPlannedForced || isPlannedReadOnly;
     // Outflow ops (sale shipment / supply return) draw goods FROM the warehouse,
     // so their quantities are validated against available stock.
     const isOutflow = (isPurchase && isReturn) || (!isPurchase && !isReturn);
@@ -274,9 +276,9 @@ const CreateShipment = observer(
         }
       } else if (open && !initialData?.guid) {
         setShipmentDate(today.toISOString().split("T")[0]);
-        // Default the "planned" flag to on only when the user can toggle it
-        // (has warehouse access); without access it defaults to off.
-        setIsPlanned(hasWarehouseAccess);
+        // Новый документ по умолчанию плановый: остатки двигает только
+        // снятие галки, и сделать это может не каждая роль.
+        setIsPlanned(true);
         setLegalEntity("");
         setClient(kontragentId || "");
         setProject("");
@@ -306,7 +308,6 @@ const CreateShipment = observer(
       kontragentId,
       today,
       initialData?.guid || null,
-      hasWarehouseAccess,
     ]);
 
     useEffect(() => {
@@ -814,13 +815,14 @@ const CreateShipment = observer(
     const savedPlanned = isPurchase
       ? SingleShipment?.planned_supply
       : SingleShipment?.planned_shipment;
-    // Документ со складом правке не подлежит так же, как закрытый плановый:
-    // он уже связан со складским остатком.
+    // Правке не подлежит только закрытый (неплановый) документ со складом:
+    // он уже сдвинул остатки. Плановый и документ без склада правятся свободно.
     const isSaveBlockedByClosedWarehouse =
       isEditing &&
       isWarehouseModuleOn &&
       !!SingleShipment &&
-      (!savedPlanned || !!SingleShipment.warehouse_id);
+      !savedPlanned &&
+      !!SingleShipment.warehouse_id;
 
     // Поставка: warehouse ↔ article are linked. Picking a warehouse autofills its
     // article and lists goods; clearing it resets the article. (Sale keeps plain behaviour.)

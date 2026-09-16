@@ -237,11 +237,12 @@ const ShipmenTable = observer(({
           <tbody className='w-full'>
             {shipmentsList?.map((item) => {
               const isRowPlanned = isPurchase ? item?.planned_supply : item?.planned_shipment
-              // Склад: удалять нельзя ни закрытый плановый документ,
-              // ни документ, привязанный к складу — остатки уже учтены
+              // Удалять нельзя только закрытый (неплановый) документ со складом —
+              // остатки по нему уже сдвинуты
               const deleteBlocked =
                 Boolean(appStore.warehouseActive) &&
-                (!Boolean(isRowPlanned) || Boolean(item?.warehouse_id))
+                !Boolean(isRowPlanned) &&
+                Boolean(item?.warehouse_id)
               // Закрытый период роли — см. utils/dataEditingRestriction.js
               const isDateAllowed = areDatesAllowed(
                 [item?.data_operatsii, item?.data_nachisleniya],
