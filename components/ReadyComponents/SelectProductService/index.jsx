@@ -2,8 +2,10 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
-import { useUcodeRequestQuery } from '../../../hooks/useDashboard'
+import { Check } from 'lucide-react'
+import { useUcodeDefaultApiQuery, useUcodeRequestQuery } from '../../../hooks/useDashboard'
 import { productServiceDto } from '../../../lib/dtos/productServiceDto'
+import { formatAmount } from '../../../utils/helpers'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
@@ -60,6 +62,15 @@ const SelectProductService = ({
 
 
 
+  const { data: groups } = useUcodeDefaultApiQuery({
+    queryKey: 'product_services_groups',
+    urlMethod: 'GET',
+    urlParams: '/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A1000%7D',
+    querySetting: {
+      select: data => data?.data?.data?.response
+    }
+  })
+
   // Create lookup map for raw data by guid
   const rawDataMap = useMemo(() => {
     const map = new Map()
@@ -77,9 +88,20 @@ const SelectProductService = ({
   }
 
   const mappedData = useMemo(() => {
+    // Под названием показываем «группа • цена» — как в справочнике товаров и услуг
+    const describe = (item) => {
+      const group = (groups || []).find(
+        g => g?.guid === item?.product_and_service_group_id
+      )
+      const groupName = group?.name || group?.nazvanie_gruppy || ''
+      const price = formatAmount(Number(item?.tsena_za_ed) || 0)
+      return groupName ? `${groupName} • ${price}` : price
+    }
+
     const data = (productsData || []).map(item => ({
       value: item.guid,
-      label: withArticle(item.name, item.article)
+      label: withArticle(item.name, item.article),
+      description: describe(item)
     }))
 
     if (selected) {
@@ -88,7 +110,7 @@ const SelectProductService = ({
     }
 
     return data;
-  }, [productsData, selected])
+  }, [productsData, selected, groups])
 
   // Выбранное значение может отсутствовать в подгруженном списке (напр. при
   // редактировании value = product_and_service_id, а опции по guid). Чтобы товар
@@ -143,6 +165,21 @@ const SelectProductService = ({
       isClearable={isClearable}
       disabled={disabled}
       dropdownHeaderItem={dropdownHeaderItem}
+      {...(multi
+        ? {}
+        : {
+          customRenderItem: (node, isSelected) => (
+            <div className="flex items-center justify-between gap-2 px-4 py-2">
+              <div className="flex flex-col min-w-0">
+                <span className="text-xss!">{node.label}</span>
+                {node.description && (
+                  <span className="text-xs text-neutral-400">{node.description}</span>
+                )}
+              </div>
+              {isSelected && <Check size={16} className="text-primary shrink-0" />}
+            </div>
+          )
+        })}
     />
   )
 }
