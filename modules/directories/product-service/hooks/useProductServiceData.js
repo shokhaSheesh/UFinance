@@ -73,7 +73,7 @@ export function useProductServiceData(t, tc) {
     queryKey: "product-services-grouped",
     urlMethod: "GET",
     urlParams:
-      "/items/group_product_and_service?from-ofs=true&offset=0&limit=10",
+      "/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A1000%7D",
     querySetting: { select: (data) => data?.data?.data?.response },
   });
 
