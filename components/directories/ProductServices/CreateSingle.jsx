@@ -58,7 +58,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
   const { data: groups } = useUcodeDefaultApiQuery({
     queryKey: "product_services_groups",
     urlMethod: "GET",
-    urlParams: "/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A100%7D",
+    urlParams: "/items/group_product_and_service?from-ofs=true&data=%7B%22offset%22%3A0%2C%22limit%22%3A1000%7D",
     querySetting: {
       select: data => data?.data?.data?.response
     }
