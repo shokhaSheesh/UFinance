@@ -1,4 +1,5 @@
 "use client"
+import TableCard from '@/components/shared/Table/TableCard'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { useCashFlowFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
@@ -420,7 +421,7 @@ export default observer(function CashFlowReportPage() {
               }}
               isClearable={false}
               withSearch={false}
-              className={'bg-white w-28'}
+              className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
               dropdownClassName={'w-28'}
             />
             <SingleSelect
@@ -432,14 +433,15 @@ export default observer(function CashFlowReportPage() {
               placeholder={t('common.buildingMethod')}
               withSearch={false}
               isClearable={false}
-              className="bg-white w-44"
+              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
               dropdownClassName="bg-white"
             />
             <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
             <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />
           </div>
 
-          <div className='flex flex-1 overflow-hidden'>
+          <TableCard className="mb-4">
+            <div className='flex flex-1 overflow-hidden'>
             <div className="overflow-x-auto">
               <table className="w-full  mb-10">
                 <thead className=" bg-neutral-100 sticky top-0 z-50">
@@ -479,6 +481,7 @@ export default observer(function CashFlowReportPage() {
               </table>
             </div>
           </div>
+            </TableCard>
         </div>
       </div>
 

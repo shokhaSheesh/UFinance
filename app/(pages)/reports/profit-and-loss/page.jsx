@@ -1,5 +1,6 @@
 "use client"
 
+import TableCard from '@/components/shared/Table/TableCard'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
@@ -414,7 +415,7 @@ const ProfitAndLossPage = observer(() => {
               onChange={(value) => pnlStore.setSelectedCurrency(value)}
               isClearable={false}
               withSearch={false}
-              className={'bg-white w-28'}
+              className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
               dropdownClassName={'w-28'}
             />
             <SingleSelect
@@ -426,7 +427,7 @@ const ProfitAndLossPage = observer(() => {
               isClearable={false}
               withSearch={false}
               placeholder={t('common.buildingMethod')}
-              className="bg-white w-44"
+              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
             />
             <SingleSelect
               data={accountingMethodOptions}
@@ -437,7 +438,7 @@ const ProfitAndLossPage = observer(() => {
               isClearable={false}
               withSearch={false}
               placeholder={t('common.accountingMethod')}
-              className="bg-white w-44"
+              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
               autoHeight={true}
             />
             <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
@@ -454,6 +455,7 @@ const ProfitAndLossPage = observer(() => {
               <p style={{ fontSize: '14px', color: '#98A2B3' }}>Используйте фильтры слева для настройки параметров отчета</p>
             </div>
           ) : (
+            <TableCard className="mb-4">
             <div className='flex flex-1 overflow-hidden'>
               <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
@@ -481,6 +483,7 @@ const ProfitAndLossPage = observer(() => {
                 </table>
               </div>
             </div>
+            </TableCard>
           )}
         </div>
       </div>

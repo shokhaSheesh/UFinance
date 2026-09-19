@@ -1,5 +1,6 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
@@ -160,7 +161,7 @@ export default observer(function BalancePage() {
             }}
             isClearable={false}
             withSearch={false}
-            className={'bg-white w-28'}
+            className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
             dropdownClassName={'w-28'}
           />
           <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
@@ -172,7 +173,8 @@ export default observer(function BalancePage() {
         </div>
 
         {/* Table with loading overlay */}
-        <div className='px-4'>
+        <div className='px-4 pb-4'>
+          <TableCard>
           {/* Spinner overlay on filter change (data already present) */}
 
           {error && !isLoading && !isFetching ? (
@@ -197,6 +199,7 @@ export default observer(function BalancePage() {
               </tbody>
             </table>
           )}
+          </TableCard>
         </div>
       </div>
     </div>
