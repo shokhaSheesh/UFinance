@@ -1,18 +1,21 @@
 'use client'
 
+import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import { Plus } from 'lucide-react'
 
+/** Шапка карточки филиала: заголовок слева, добавление сотрудника — справа. */
 const BranchDetailHeader = ({ branchName, onCreate, tb, tc }) => {
   return (
-    <div className="flex p-4 sticky bg-white top-0 h-16 justify-start gap-2 items-center">
-      <h1 className="text-xl font-bold text-slate-900">
-        {branchName} {tb?.('branchStaff') || 'Сотрудники филиала'}
-      </h1>
-      <button onClick={onCreate} className="flex items-center primary-btn">
-        <Plus size={18} />
-        {tc?.('add')}
-      </button>
-    </div>
+    <PageHeader
+      className="sticky top-0 z-20 px-4"
+      title={`${branchName} ${tb?.('branchStaff') || 'Сотрудники филиала'}`}
+      actions={
+        <button onClick={onCreate} className="primary-btn gap-1.5">
+          <Plus size={16} />
+          {tc?.('add')}
+        </button>
+      }
+    />
   )
 }
 

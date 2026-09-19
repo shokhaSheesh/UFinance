@@ -1,18 +1,14 @@
 "use client"
 
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -48,7 +44,7 @@ const ProfitAndLossByQueryPage = observer(() => {
 
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -400,7 +396,7 @@ const ProfitAndLossByQueryPage = observer(() => {
       {/* P&L-specific Filter Sidebar */}
       <PnLFilterSidebar
         isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(!isFilterOpen)}
+        onClose={() => setIsFilterOpen(false)}
       />
 
       {loading && <ScreenLoader />}
@@ -411,6 +407,7 @@ const ProfitAndLossByQueryPage = observer(() => {
           <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
             <div className="flex items-center gap-4" >
               <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
+              <FilterButton onClick={() => setIsFilterOpen(true)} />
               <SingleSelect
                 data={appStore.myCurrencies}
                 value={pnlStore.selectedCurrency}
@@ -445,27 +442,7 @@ const ProfitAndLossByQueryPage = observer(() => {
                 className="bg-white w-44"
                 autoHeight={true}
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className="primary-btn" disabled={isProfitAndLossLoading}>
-                    {isProfitAndLossLoading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <EllipsisVertical size={18} />
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-44 p-2" align="end">
-                  <DropdownMenuItem
-                    onClick={exportProfitAndLoss}
-                    disabled={isProfitAndLossLoading}
-                    className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-                  >
-                    <Download size={16} />
-                    <span>{t('common.downloadExcel')}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
             </div>
           </div>
 

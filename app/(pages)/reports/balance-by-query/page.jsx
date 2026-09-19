@@ -1,15 +1,11 @@
 'use client'
 
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -26,7 +22,7 @@ export default observer(function BalanceByQueryPage() {
   const t = useTranslations('Reports')
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount } = balanceStore
 
@@ -166,29 +162,10 @@ export default observer(function BalanceByQueryPage() {
               className={'bg-white w-28'}
               dropdownClassName={'w-28'}
             />
+            <FilterButton onClick={() => setIsFilterOpen(true)} />
           </div>
           <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className="primary-btn" disabled={isExportBalanceReportLoading}>
-                  {isExportBalanceReportLoading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <EllipsisVertical size={18} />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-44 p-2" align="end">
-                <DropdownMenuItem
-                  onClick={exportBalanceReport}
-                  disabled={isExportBalanceReportLoading}
-                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-                >
-                  <Download size={16} />
-                  <span>{t('common.downloadExcel')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
           </div>
         </div>
 

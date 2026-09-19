@@ -1,5 +1,7 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import Input from '@/components/shared/Input'
 import BudgetRowMenu from '@/modules/plans/components/BudgetRowMenu'
@@ -80,44 +82,43 @@ const CashFlowBudget = () => {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 ">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold text-slate-900">
-            {t('title')}
-          </h1>
-          {permissions.add && (
-            <button
-              onClick={openCreate}
-              className="primary-btn flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              {tc('create')}
-            </button>
-          )}
-        </div>
-
-        {/* Right side filters */}
-        <div className="flex items-center gap-3">
-          <SelectLegelEntitties
-            value={legalEntityFilter}
-            onChange={setLegalEntityFilter}
-            placeholder={t('columns.legalEntity')}
-            className="w-[220px] bg-white"
-            isClearable
-          />
-          <Input
-            type="text"
-            leftIcon={<Search className="w-4 h-4" />}
-            placeholder={t('searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-[280px]"
-          />
-        </div>
+      <div className="flex items-center justify-between px-4 h-16 shrink-0">
+        <h1 className="text-xl font-semibold text-slate-900">{t('title')}</h1>
+        {permissions.add && (
+          <button onClick={openCreate} className="primary-btn gap-1.5">
+            <Plus className="w-4 h-4" />
+            {tc('create')}
+          </button>
+        )}
       </div>
 
+      <TableCard className="mx-4 mb-4">
+        {/* Поиск и фильтр юрлица — в панели над таблицей */}
+        <TableToolbar
+          search={
+            <div className="w-full max-w-[420px]">
+              <Input
+                type="text"
+                leftIcon={<Search className="w-4 h-4" />}
+                placeholder={t('searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          }
+          actions={
+            <SelectLegelEntitties
+              value={legalEntityFilter}
+              onChange={setLegalEntityFilter}
+              placeholder={t('columns.legalEntity')}
+              className="w-[220px] bg-white"
+              isClearable
+            />
+          }
+        />
+
       {/* Table Header */}
-      <div className="flex mx-4 items-center bg-neutral-100 border-b border-neutral-50 text-xs font-medium text-neutral-500 sticky top-0 z-10">
+      <div className="flex items-center bg-neutral-50 border-b border-neutral-200 text-sm font-medium text-neutral-500 sticky top-0 z-10">
         <div
           className="group flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-100 transition-colors  w-[300px] line-clamp-1"
           onClick={() => handleSort('name')}
@@ -169,7 +170,7 @@ const CashFlowBudget = () => {
       </div>
 
       {/* Table Body */}
-      <div className="flex-1 mx-4 overflow-auto">
+      <div className="flex-1 overflow-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -253,6 +254,8 @@ const CashFlowBudget = () => {
         currencies={currencies}
         isSaving={createBudget.isPending || updateBudget.isPending}
       />
+      </TableCard>
+
     </div>
   )
 }

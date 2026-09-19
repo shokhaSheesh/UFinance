@@ -1,17 +1,13 @@
 "use client"
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Download, EllipsisVertical, Loader2 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -137,7 +133,7 @@ export default observer(function CashFlowByQueryReportPage() {
   ], [t])
 
   const [expandedMap, setExpandedMap] = useState({})
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -406,7 +402,7 @@ export default observer(function CashFlowByQueryReportPage() {
 
   return (
     <div className="fixed left-[80px] w-[calc(100%-80px)]  flex top-[60px] h-[calc(100%-60px)]">
-      <CashFlowFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)} />
+      <CashFlowFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
       {(isLoadingCashFlow || isFetchingCashFlow) && <ScreenLoader />}
 
@@ -440,28 +436,9 @@ export default observer(function CashFlowByQueryReportPage() {
                 className="bg-white w-44"
                 dropdownClassName="bg-white"
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className="primary-btn" disabled={isCashFlowLoading}>
-                    {isCashFlowLoading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <EllipsisVertical size={18} />
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-44 p-2" align="end">
-                  <DropdownMenuItem
-                    onClick={handleExportCashFlow}
-                    disabled={isCashFlowLoading}
-                    className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-                  >
-                    <Download size={16} />
-                    <span>{t('common.downloadExcel')}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />
             </div>
+            <FilterButton onClick={() => setIsFilterOpen(true)} />
           </div>
 
           <div className='flex flex-1 overflow-hidden'>

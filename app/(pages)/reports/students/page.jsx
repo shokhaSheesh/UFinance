@@ -1,4 +1,6 @@
 'use client'
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import IconButton from '@/components/shared/Buttons/IconButton'
 import { FilterSection, FilterSidebar } from "@/components/directories/FilterSidebar/FilterSidebar"
 import SelectCounterParties from "@/components/ReadyComponents/SelectCounterParties"
 import SelectCounterPartyGroup from "@/components/ReadyComponents/SelectCounterPartyGroup"
@@ -14,13 +16,7 @@ import { defaultRangeMonth, student } from "@/store/student.store"
 import { formatStudentTableDate } from "@/utils/formatDate"
 import { formatNumber, handleDownload } from "@/utils/helpers"
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
-import { Download, EllipsisVertical, Loader2 } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Download } from "lucide-react"
 import { observer } from "mobx-react-lite"
 import { useTranslations } from "next-intl"
 import { useCallback, useMemo, useState } from "react"
@@ -35,7 +31,7 @@ const Students = observer(() => {
     { value: 'cash', label: t('students.accounting.cash') }
   ], [t])
 
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const mounted = useMounted()
   const { isScrolling, handleScroll: onScrollActivity, scrollRef } = useScrollDetector(2000)
 
@@ -205,7 +201,7 @@ const Students = observer(() => {
         isOpen={open}
         clearCount={clearCount}
         onClear={handleClearFilters}
-        onClose={() => setOpen(prev => !prev)}
+        onClose={() => setOpen(false)}
       >
         <FilterSection title={t('common.date')}>
           <CustomRangeMonthPicker
@@ -247,6 +243,7 @@ const Students = observer(() => {
         <div className="flex items-center top-0 sticky z-100  py-4 bg-white justify-between">
           <div className="flex gap-2 flex-1">
             <h1 className="text-xl font-semibold text-gray-900 text-nowrap">{t('students.title')}</h1>
+            <FilterButton onClick={() => setOpen(true)} />
 
           </div>
           <div className="flex items-center gap-2">
@@ -263,27 +260,7 @@ const Students = observer(() => {
                 className="bg-white w-44"
               />
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className="primary-btn" disabled={isStudentsExportLoading}>
-                  {isStudentsExportLoading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <EllipsisVertical size={18} />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-44 p-2" align="end">
-                <DropdownMenuItem
-                  onClick={exportStudents}
-                  disabled={isStudentsExportLoading}
-                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-                >
-                  <Download size={16} />
-                  <span>{t('common.downloadExcel')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportStudents} loading={isStudentsExportLoading} />
           </div>
         </div>
 
