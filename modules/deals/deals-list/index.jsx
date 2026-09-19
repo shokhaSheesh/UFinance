@@ -1,5 +1,11 @@
 'use client'
 
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import Input from '@/components/shared/Input'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
+import { Search } from 'lucide-react'
 import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
@@ -234,25 +240,50 @@ export default observer(function DealsPage() {
       </Suspense>
 
       {/* ── Main content ── */}
-      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
+      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-y-auto scroll-smooth bg-white px-4 pb-4">
 
         <DealsHeader
           t={t}
           dealPermission={dealPermission}
-          searchValue={searchValue}
-          dealsMethod={dealsMethod}
-          methodOptions={methodOptions}
           isDealsExportLoading={isDealsExportLoading}
-          onSearch={handleSearch}
           onExport={exportDeals}
           onCreateDeal={() => setIsCreateModalOpen(true)}
           onCreateStudent={() => {
             setShowCreateStudentModal(true)
             setDealToEdit(null)
           }}
-          onMethodChange={(v) => setState('dealsMethod', v)}
-          onOpenFilters={() => setIsFilterOpen(true)}
         />
+
+        <TableCard>
+          {/* Поиск, метод учёта и фильтры — в панели над таблицей */}
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <Input
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={searchValue}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  leftIcon={<Search size={18} />}
+                />
+              </div>
+            }
+            actions={
+              <>
+                <div className="w-44">
+                  <SingleSelect
+                    data={methodOptions}
+                    withSearch={false}
+                    value={dealsMethod}
+                    isClearable={false}
+                    onChange={(v) => setState('dealsMethod', v)}
+                    className="bg-white"
+                  />
+                </div>
+                <FilterButton onClick={() => setIsFilterOpen(true)} />
+              </>
+            }
+          />
 
         <DealsTable
           t={t}
@@ -270,6 +301,7 @@ export default observer(function DealsPage() {
           onCopyClick={handleCopyClick}
           onUpdate={handleUpdate}
         />
+        </TableCard>
         {/* Loaders */}
         {isLoading && formattedDeals.length === 0 && <ScreenLoader className="left-0!" />}
         {(isFetchingNextPage || isFetching) && !isScrolling && <ScreenLoader className="left-0!" />}

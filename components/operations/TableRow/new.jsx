@@ -172,7 +172,7 @@ const TableRow = observer(
         <div
           key={op.guid}
           className={cn(
-            "flex text-mini items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11"
+            "flex text-sm items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11"
           )}
           onClick={(e) => {
             if (canEdit) {
@@ -188,7 +188,7 @@ const TableRow = observer(
               className="min-w-10 flex items-center justify-center px-1"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-xs text-gray-500">{showIndex}</span>
+              <span className="text-sm text-gray-500">{showIndex}</span>
             </div>
           )}
 
@@ -303,7 +303,7 @@ const TableRow = observer(
             )}
           >
             <p
-              className={cn("text-xs line-clamp-2", textPrimary)}
+              className={cn("text-sm line-clamp-2", textPrimary)}
               title={titleContragent}
             >
               {titleContragent}
@@ -389,7 +389,7 @@ const TableRow = observer(
                 isActive && styles.activeRow
               )}
             >
-              <p className={cn("text-xs text-neutral-600 truncate w-full", textPrimary)}>
+              <p className={cn("text-sm text-neutral-600 truncate w-full", textPrimary)}>
                 {titleProject}
               </p>
             </div>
@@ -398,7 +398,7 @@ const TableRow = observer(
           {/* Deal */}
           <div
             className={cn(
-              "flex-1 flex px-2 py-1 items-center justify-center  min-w-20",
+              "flex-1 flex px-2 py-1 items-center justify-start min-w-20",
               isActive && styles.activeRow
             )}
           >
@@ -407,11 +407,11 @@ const TableRow = observer(
               op.tip === "Отгрузка" ||
               op.tip === "Поставка") &&
               (op?.sales_transaction_name || op?.purchase_transaction_name ? (
-                <div className="flex flex-col items-center justify-center w-full">
+                <div className="flex flex-col items-start justify-center w-full">
                   {op?.sales_transaction_name && (
                     <p
                       className={cn(
-                        "text-xs text-neutral-600 truncate w-full text-center",
+                        "text-sm text-neutral-600 truncate w-full",
                         textPrimary
                       )}
                     >
@@ -421,7 +421,7 @@ const TableRow = observer(
                   {op?.purchase_transaction_name && (
                     <p
                       className={cn(
-                        "text-xs text-neutral-600 truncate w-full text-center",
+                        "text-sm text-neutral-600 truncate w-full",
                         textPrimary
                       )}
                     >
@@ -432,7 +432,7 @@ const TableRow = observer(
               ) : (
                 <p
                   className={cn(
-                    "text-xs text-neutral-600 truncate w-full text-center",
+                    "text-sm text-neutral-600 truncate w-full",
                     textPrimary
                   )}
                 >
@@ -440,11 +440,11 @@ const TableRow = observer(
                 </p>
               ))}
             {op.tip === "Начисление" && (
-              <div className="flex flex-col items-center justify-center relative group w-full">
+              <div className="flex flex-col items-start justify-center relative group w-full">
                 {titleDeals?.children?.length === 0 ? (
                   <p
                     className={cn(
-                      "text-xs truncate w-full text-center",
+                      "text-sm truncate w-full",
                       !op.payment_accrual && "text-primary"
                     )}
                   >
@@ -452,14 +452,14 @@ const TableRow = observer(
                   </p>
                 ) : (
                   <>
-                    <span className="text-xs text-center truncate w-full font-medium">
+                    <span className="text-sm truncate w-full font-medium">
                       {titleDeals?.title}
                     </span>
                     <div className="absolute hidden group-hover:block space-y-1 w-48 z-50 bg-white shadow-xl rounded-md p-2 top-full ring-1 ring-black/5">
                       {titleDeals?.children?.map((child, idx) => (
                         <p
                           key={idx}
-                          className="text-[11px] text-gray-600  pb-1 last:border-0"
+                          className="text-sm text-gray-600  pb-1 last:border-0"
                         >
                           {child}
                         </p>
@@ -514,7 +514,7 @@ const TableRow = observer(
               <div
                 key={part.id}
                 className={cn(
-                  "flex text-mini gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50",
+                  "flex text-sm gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50",
                   counterpartyGuid &&
                     counterpartyGuid !== part?.counterparties_id &&
                     "opacity-40 grayscale-[0.5] pointer-events-none"
@@ -525,7 +525,7 @@ const TableRow = observer(
 
                 {/* Date Part */}
                 <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">
-                  <span className="text-[11px] text-gray-500 font-medium">
+                  <span className="text-sm text-gray-500 font-medium">
                     ↳ {part?.accrualDate}
                   </span>
                 </div>
@@ -548,14 +548,14 @@ const TableRow = observer(
 
                 {/* Counterparty Part */}
                 <div className="w-52 flex-1 flex px-2 py-1 items-center justify-start ">
-                  <span className="text-xs text-gray-600  ">
+                  <span className="text-sm text-gray-600  ">
                     {part.counterparty || ""}
                   </span>
                 </div>
 
                 {/* Statya Part */}
                 <div className="flex-1 flex px-2 py-1 items-center justify-start ">
-                  <span className="text-xs text-gray-600 line-clamp-1">
+                  <span className="text-sm text-gray-600 line-clamp-1">
                     {withCategory(part.chartOfAccounts, part.chart_of_accounts_id)}
                   </span>
                 </div>
@@ -563,15 +563,15 @@ const TableRow = observer(
                 {/* Project Part — колонка проекта (если включён модуль) */}
                 {appStore.projectActive && (
                   <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
-                    <span className="text-xs text-gray-600 truncate w-full">
+                    <span className="text-sm text-gray-600 truncate w-full">
                       {part?.projectName || "-"}
                     </span>
                   </div>
                 )}
 
                 {/* Deal Part */}
-                <div className="flex-1 flex px-2 py-1 items-center justify-center min-w-20">
-                  <span className="text-xs text-gray-500 ">
+                <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
+                  <span className="text-sm text-gray-500 ">
                     {part?.selling_deal_name || "-"}
                   </span>
                 </div>

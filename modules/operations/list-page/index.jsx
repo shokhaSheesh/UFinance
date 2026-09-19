@@ -35,7 +35,12 @@ import ScreenLoader from "@/components/shared/ScreenLoader";
 import FixedContent from "@/layouts/FixedContent";
 import operationDto from "@/lib/dtos/operationDto";
 import ImportErrorModal from "../components/ImportErrorModal";
+import { Search } from "lucide-react";
+import FilterButton from "@/components/shared/Filters/FilterButton";
 import FilterChips from "@/components/shared/Filters/FilterChips";
+import Input from "@/components/shared/Input";
+import TableCard from "@/components/shared/Table/TableCard";
+import TableToolbar from "@/components/shared/Table/TableToolbar";
 import OperationsHeader from "../components/OperationsHeader";
 import OperationsTableHeader from "../components/OperationsTableHeader";
 import { useImportOperations } from "../hooks/useImportOperations";
@@ -449,30 +454,42 @@ const OperationsListPage = observer(() => {
       </Suspense>
 
       {/* Main */}
-      <div className="w-full flex flex-col pb-3">
+      <div className="w-full flex flex-col min-h-0 px-4 pb-3">
         <OperationsHeader
           t={t}
           isMounted={isMounted}
           canAdd={canAdd}
           isImporting={isImporting}
           isExporting={isExporting}
-          searchQuery={operationFilterStore.searchQuery}
-          onSearch={(e) => operationFilterStore.setSearchQuery(e.target.value)}
           onCreate={handleCreate}
           onImport={handleImportOperations}
           onExport={() => exportOperations()}
-          onOpenFilters={() => setIsFilterOpen(true)}
-          filterCount={filterCount}
         />
 
-        {/* Что сейчас отфильтровано — видно всегда, даже когда панель закрыта */}
-        <FilterChips chips={filterChips} onClearAll={handleClearFilters} />
+        <TableCard className="mb-12">
+          {/* Поиск и фильтры — внутри рамки таблицы, над её шапкой */}
+          <TableToolbar
+            search={
+              <Input
+                type="text"
+                leftIcon={<Search size={18} />}
+                placeholder={t("page.searchPlaceholder")}
+                value={operationFilterStore.searchQuery}
+                className="w-full max-w-[420px]"
+                onChange={(e) => operationFilterStore.setSearchQuery(e.target.value)}
+              />
+            }
+            actions={<FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />}
+          />
+
+          {/* Что сейчас отфильтровано — видно всегда, даже когда панель закрыта */}
+          <FilterChips chips={filterChips} onClearAll={handleClearFilters} />
 
         <div
           id="scrollableDiv"
           ref={scrollRef}
           onScroll={handleScroll}
-          className="overflow-auto h-full w-full px-2 bg-white pb-10"
+          className="overflow-auto flex-1 min-h-0 w-full bg-white"
         >
           <OperationsTableHeader t={t} />
 
@@ -539,10 +556,12 @@ const OperationsListPage = observer(() => {
             </div>
           </InfiniteScroll>
 
-          <Suspense fallback={null}>
-            <OperationsFooter totalSummary={totalSummary} />
-          </Suspense>
         </div>
+        </TableCard>
+
+        <Suspense fallback={null}>
+          <OperationsFooter totalSummary={totalSummary} />
+        </Suspense>
       </div>
 
       {/* Loaders */}

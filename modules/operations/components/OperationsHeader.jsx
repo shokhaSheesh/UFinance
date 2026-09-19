@@ -1,7 +1,5 @@
 // components/OperationsHeader.jsx
 import IconButton from '@/components/shared/Buttons/IconButton'
-import FilterButton from '@/components/shared/Filters/FilterButton'
-import Input from '@/components/shared/Input'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import {
   DropdownMenu,
@@ -9,15 +7,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, Download, Loader2, PenLine, Search, Upload } from 'lucide-react'
+import { ChevronDown, Download, Loader2, PenLine, Upload } from 'lucide-react'
 
 /**
- * Шапка страницы операций: поиск и фильтры слева, создание и выгрузка справа.
+ * Шапка страницы операций: заголовок и действия.
  *
- * Импорт живёт внутри кнопки «Создать»: и ручной ввод, и загрузка из Excel —
- * два способа сделать одно и то же, поэтому они стоят рядом, а не прячутся
- * в отдельном меню «три точки». Выгрузка — отдельная кнопка с иконкой:
- * это одно действие, меню ему ни к чему.
+ * Поиск и фильтры живут не здесь, а в панели над самой таблицей
+ * (TableToolbar) — они относятся к таблице, а не к разделу.
+ *
+ * Импорт лежит внутри кнопки «Создать»: ручной ввод и загрузка из Excel —
+ * два способа сделать одно и то же. Выгрузка — отдельная кнопка с иконкой.
  */
 export default function OperationsHeader({
   t,
@@ -25,28 +24,14 @@ export default function OperationsHeader({
   canAdd,
   isImporting,
   isExporting,
-  searchQuery,
-  onSearch,
   onCreate,
   onImport,
   onExport,
-  onOpenFilters,
-  filterCount = 0,
 }) {
   return (
     <PageHeader
+      className="px-0"
       title={t('page.title')}
-      search={
-        <Input
-          type="text"
-          leftIcon={<Search size={20} />}
-          placeholder={t('page.searchPlaceholder')}
-          value={searchQuery}
-          className="w-[300px]"
-          onChange={onSearch}
-        />
-      }
-      filters={<FilterButton onClick={onOpenFilters} count={filterCount} />}
       actions={
         <>
           {isMounted && canAdd && (

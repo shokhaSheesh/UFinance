@@ -1,5 +1,10 @@
 "use client";
 
+import FilterButton from "@/components/shared/Filters/FilterButton";
+import Input from "@/components/shared/Input";
+import TableCard from "@/components/shared/Table/TableCard";
+import TableToolbar from "@/components/shared/Table/TableToolbar";
+import { Search } from "lucide-react";
 import { useScrollDetector } from "@/hooks/useScrollDetector";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
@@ -305,21 +310,32 @@ export default observer(function PurchasesPage() {
         id="scrollableDiv"
         ref={scrollRef}
         onScroll={handleScroll}
-        className="w-full relative overflow-y-auto scroll-smooth bg-white px-2"
+        className="w-full relative overflow-y-auto scroll-smooth bg-white px-4 pb-4"
       >
         <PurchasesHeader
           t={t}
           dealPermission={dealPermission}
-          searchValue={searchValue}
-          dealsMethod={dealsMethod}
-          methodOptions={methodOptions}
           isDealsExportLoading={isDealsExportLoading}
-          onSearch={handleSearch}
           onExport={exportDeals}
           onCreateDeal={() => setIsCreateModalOpen(true)}
-          onMethodChange={(v) => setState("dealsMethod", v)}
-          onOpenFilters={() => setIsFilterOpen(true)}
         />
+
+        <TableCard>
+          {/* Поиск и фильтры — в панели над таблицей */}
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <Input
+                  type="text"
+                  placeholder={t("searchPlaceholder")}
+                  value={searchValue}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  leftIcon={<Search size={18} />}
+                />
+              </div>
+            }
+            actions={<FilterButton onClick={() => setIsFilterOpen(true)} />}
+          />
 
         <PurchasesTable
           t={t}
@@ -335,6 +351,7 @@ export default observer(function PurchasesPage() {
           onEditClick={handleEditClick}
           onCopyClick={handleCopyClick}
         />
+        </TableCard>
         {/* Loaders */}
         {isLoading && formattedDeals.length === 0 && (
           <ScreenLoader className="left-0!" />

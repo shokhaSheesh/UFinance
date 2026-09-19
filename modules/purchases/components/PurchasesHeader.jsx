@@ -1,41 +1,25 @@
-import IconButton from '@/components/shared/Buttons/IconButton'
-import FilterButton from "@/components/shared/Filters/FilterButton";
-import Input from "@/components/shared/Input";
+import IconButton from "@/components/shared/Buttons/IconButton";
 import PageHeader from "@/components/shared/PageHeader/PageHeader";
-import { Download, Search } from "lucide-react";
+import { Download } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 /**
- * Шапка страницы закупок: поиск и фильтры слева, создание и меню — справа.
+ * Шапка страницы закупок: заголовок и действия.
+ * Поиск и фильтры живут в панели над таблицей (TableToolbar).
  */
 export default function PurchasesHeader({
   t,
   dealPermission,
-  searchValue,
   isDealsExportLoading,
-  onSearch,
   onExport,
   onCreateDeal,
-  onOpenFilters,
-  filterCount = 0,
 }) {
   const tPurchases = useTranslations("Purchases");
 
   return (
     <PageHeader
+      className="px-0"
       title={tPurchases("pageTitle")}
-      search={
-        <div className="w-72">
-          <Input
-            type="text"
-            placeholder={t("searchPlaceholder")}
-            value={searchValue}
-            onChange={(e) => onSearch(e.target.value)}
-            leftIcon={<Search size={18} />}
-          />
-        </div>
-      }
-      filters={<FilterButton onClick={onOpenFilters} count={filterCount} />}
       actions={
         <>
           {/* В закупках всегда обычная сделка: карточка ученика (is_school)
@@ -45,8 +29,12 @@ export default function PurchasesHeader({
               {t("createDeal")}
             </button>
           )}
-
-          <IconButton icon={Download} label={t("downloadExcel")} onClick={onExport} loading={isDealsExportLoading} />
+          <IconButton
+            icon={Download}
+            label={t("downloadExcel")}
+            onClick={onExport}
+            loading={isDealsExportLoading}
+          />
         </>
       }
     />

@@ -1,4 +1,6 @@
 "use client"
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
@@ -421,46 +423,8 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
 
       <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
-          <div className='flex min-w-0 items-center gap-2'>
-            <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <div className='w-[250px]'>
-              <SingleSelect
-                data={getCalculationOptions(t)}
-                value={filters.calculationMethod}
-                onChange={(selected) => setFilters(prev => ({
-                  ...prev,
-                  calculationMethod: selected
-                }))}
-                className={'bg-white'}
-                placeholder={tc('placeholders.select')}
-                withSearch={false}
-                isClearable={false}
-              />
-            </div>
-            <div className="flex items-center">
-              <button
-                className={cn("border-l border-t border-b border-neutral-200 cursor-pointer rounded-l-md py-2 px-2", viewMode === 'list' && 'border-primary border-r')}
-                onClick={() => setViewMode('list')}
-                title={t('list.viewModes.list')}
-              >
-                <BsList size={18} strokeWidth={.5} />
-              </button>
-              <button
-                className={cn(" border-neutral-200 border-r border-t border-b cursor-pointer rounded-r-md py-2 px-2", viewMode === 'nested' && 'border-primary border-l')}
-                onClick={() => setViewMode('nested')}
-                title={t('list.viewModes.nested')}
-              >
-                <LuListTree size={18} />
-              </button>
-            </div>
-            <FilterButton
-              onClick={() => setIsFilterOpen(true)}
-              count={counterpartiesStore.activeFilterCount}
-            />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
+          <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
+<div className="flex shrink-0 items-center gap-2">
             {isMounted && canAdd && (
               <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn">
                 {t('list.createButton')}
@@ -470,8 +434,56 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
           </div>
         </div>
 
+        <TableCard className="mb-2">
+          {/* Поиск, метод расчёта, вид списка и фильтры — над таблицей */}
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+              </div>
+            }
+            actions={
+              <>
+                <div className='w-[250px]'>
+                  <SingleSelect
+                    data={getCalculationOptions(t)}
+                    value={filters.calculationMethod}
+                    onChange={(selected) => setFilters(prev => ({
+                      ...prev,
+                      calculationMethod: selected
+                    }))}
+                    className={'bg-white'}
+                    placeholder={tc('placeholders.select')}
+                    withSearch={false}
+                    isClearable={false}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <button
+                    className={cn("border-l border-t border-b border-neutral-200 cursor-pointer rounded-l-md py-2 px-2", viewMode === 'list' && 'border-primary border-r')}
+                    onClick={() => setViewMode('list')}
+                    title={t('list.viewModes.list')}
+                  >
+                    <BsList size={18} strokeWidth={.5} />
+                  </button>
+                  <button
+                    className={cn(" border-neutral-200 border-r border-t border-b cursor-pointer rounded-r-md py-2 px-2", viewMode === 'nested' && 'border-primary border-l')}
+                    onClick={() => setViewMode('nested')}
+                    title={t('list.viewModes.nested')}
+                  >
+                    <LuListTree size={18} />
+                  </button>
+                </div>
+                <FilterButton
+                  onClick={() => setIsFilterOpen(true)}
+                  count={counterpartiesStore.activeFilterCount}
+                />
+              </>
+            }
+          />
+
         {/* Column Headers */}
-        <div className='flex h-12 sticky top-16 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+        <div className='flex h-12 sticky top-0 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-50 border-b border-neutral-200'>
           <>
             <div className='flex-1 min-w-[200px] flex px-3 items-center justify-start cursor-pointer hover:text-neutral-700'>
               {viewMode === 'nested' ? t('list.tableHeaders.group') : t('list.tableHeaders.counterparty')}
@@ -678,6 +690,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             })}
           </div>
         </InfiniteScroll>
+        </TableCard>
 
         {/* Footer */}
         <div className={cn(
