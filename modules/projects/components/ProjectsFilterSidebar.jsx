@@ -7,15 +7,14 @@ import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import { projectsStore } from '@/store/projects.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useProjectOptions } from '../hooks/useProjectsData'
 
 const STATUS_KEYS = ['planned', 'in_progress', 'completed']
 
-const ProjectsFilterSidebar = observer(({ onOpenChange }) => {
+const ProjectsFilterSidebar = observer(({ isOpen = false, onClose }) => {
   const t = useTranslations('Projects.filters')
   const ts = useTranslations('Projects.status')
-  const [isOpen, setIsOpen] = useState(true)
 
   const {
     statuses,
@@ -30,11 +29,6 @@ const ProjectsFilterSidebar = observer(({ onOpenChange }) => {
 
   const { options: projectOptions } = useProjectOptions()
 
-  const toggleOpen = (val) => {
-    setIsOpen(val)
-    onOpenChange?.(val)
-  }
-
   // Количество активных (не дефолтных) фильтров — для кнопки очистки
   const clearCount = useMemo(() => {
     let count = 0
@@ -48,7 +42,7 @@ const ProjectsFilterSidebar = observer(({ onOpenChange }) => {
   return (
     <FilterSidebar
       isOpen={isOpen}
-      onClose={() => toggleOpen(!isOpen)}
+      onClose={onClose}
       clearCount={clearCount}
       onClear={() => projectsStore.resetFilters()}
     >

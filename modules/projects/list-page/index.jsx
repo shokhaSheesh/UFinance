@@ -1,5 +1,13 @@
 'use client'
 
+import { cn } from '@/lib/utils'
+import styles from '../projects.module.scss'
+import FilterButton from '@/components/shared/Filters/FilterButton'
+import Input from '@/components/shared/Input'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
+import { LayoutList, List, Search } from 'lucide-react'
 import CreateProjectGroupModal from '@/components/projects/CreateProjectGroupModal'
 import CreateProjectModal from '@/components/projects/CreateProjectModal'
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -154,24 +162,65 @@ export default observer(function ProjectsListPage() {
 
   return (
     <FixedContent>
-      <ProjectsFilterSidebar onOpenChange={setIsFilterOpen} />
+      <ProjectsFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
-      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-white px-2">
+      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-white px-4 pb-4">
         <ProjectsHeader
           t={t}
-          searchValue={search}
-          analysisMethod={analysisMethod}
-          methodOptions={methodOptions}
-          viewMode={viewMode}
-          onSearch={(v) => setState('search', v)}
           canAdd={permissions.add}
           onCreateProject={() => setProjectModal({ open: true, project: null })}
           onCreateGroup={() => setGroupModalOpen(true)}
-          onMethodChange={(v) => setState('analysisMethod', v)}
-          onViewModeChange={(v) => setState('viewMode', v)}
           onExport={() => {}}
-          onOpenFilters={() => setIsFilterOpen(true)}
         />
+
+        <TableCard>
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <Input
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={search}
+                  onChange={(e) => setState('search', e.target.value)}
+                  leftIcon={<Search size={18} />}
+                />
+              </div>
+            }
+            actions={
+              <>
+                <div className="w-60">
+                  <SingleSelect
+                    data={methodOptions}
+                    withSearch={false}
+                    value={analysisMethod}
+                    isClearable={false}
+                    onChange={(v) => setState('analysisMethod', v)}
+                    className="bg-white"
+                  />
+                </div>
+                {/* Переключатель вида списка */}
+                <div className={styles.viewToggle}>
+                  <button
+                    type="button"
+                    className={cn(styles.viewToggleBtn, viewMode === 'list' && styles.active)}
+                    onClick={() => setState('viewMode', 'list')}
+                    aria-label="list view"
+                  >
+                    <List size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(styles.viewToggleBtn, viewMode === 'compact' && styles.active)}
+                    onClick={() => setState('viewMode', 'compact')}
+                    aria-label="compact view"
+                  >
+                    <LayoutList size={18} />
+                  </button>
+                </div>
+                <FilterButton onClick={() => setIsFilterOpen(true)} />
+              </>
+            }
+          />
 
         <ProjectsTable
           t={t}
@@ -185,6 +234,7 @@ export default observer(function ProjectsListPage() {
           onEdit={permissions.edit ? (project) => setProjectModal({ open: true, project }) : undefined}
           onDelete={permissions.delete ? (project) => deleteProjectMut.mutate(project.id) : undefined}
         />
+        </TableCard>
 
         {showInitialLoader && <ScreenLoader className="left-0!" />}
         {(isFetchingNextPage || isFetching) && !showInitialLoader && <ScreenLoader className="left-0!" />}

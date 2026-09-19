@@ -1,5 +1,6 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
 import { balanceStore } from '@/components/reports/balance/balance.store'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -32,6 +33,7 @@ const BalanceReportPage = observer(() => {
         </div>
 
         <div className='px-4'>
+          <TableCard>
           {error && !isLoading && !isFetching ? (
             <div className="flex flex-col items-center justify-center h-[300px] gap-4 bg-white rounded-lg [&>p]:text-base [&>p]:text-red-600 [&>p]:m-0 [&>p]:text-center">
               <p>{t('balance.errorLoading')} {error?.message}</p>
@@ -41,10 +43,10 @@ const BalanceReportPage = observer(() => {
             </div>
           ) : (
             <table className="w-full">
-              <thead className="bg-neutral-100 sticky top-16 z-10">
+              <thead className="bg-neutral-50 sticky top-0 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium">{t('balance.accountHeader')}</th>
-                  <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
+                  <th className="text-left px-4 py-2 text-sm font-medium">{t('balance.accountHeader')}</th>
+                  <th className="text-right px-4 py-2 text-sm font-medium">{t('common.total')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white">
@@ -59,6 +61,7 @@ const BalanceReportPage = observer(() => {
               </tbody>
             </table>
           )}
+          </TableCard>
         </div>
       </div>
     </FixedContent>

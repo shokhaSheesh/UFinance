@@ -1,5 +1,6 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
@@ -60,12 +61,14 @@ const StudentsPage = observer(() => {
           filterCount={clearCount}
         />
 
-        <div ref={scrollRef} onScroll={handleContainerScroll} id="scrollableDiv" className="overflow-auto mb-5 relative">
-          <div className="bg-white min-w-max">
-            <StudentsTableHeader columns={columns} />
-            <StudentsBody studentList={studentList} columns={columns} />
+        <TableCard className="mb-5">
+          <div ref={scrollRef} onScroll={handleContainerScroll} id="scrollableDiv" className="overflow-auto relative">
+            <div className="bg-white min-w-max">
+              <StudentsTableHeader columns={columns} />
+              <StudentsBody studentList={studentList} columns={columns} />
+            </div>
           </div>
-        </div>
+        </TableCard>
       </div>
     </FixedContent>
   )

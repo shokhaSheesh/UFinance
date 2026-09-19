@@ -91,25 +91,8 @@ const AiChatButton = observer(() => {
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6bff]"
         )}
       >
-        {/* Робот, а не звёздочка: звезда читается как «избранное» */}
-        <svg
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.9"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <rect x="4" y="8" width="16" height="12" rx="3" />
-          <path d="M12 8V4" />
-          <circle cx="12" cy="3" r="1.4" />
-          <path d="M2 13v3M22 13v3" />
-          <circle cx="9" cy="13.5" r="1.1" />
-          <circle cx="15" cy="13.5" r="1.1" />
-          <path d="M9.5 17h5" />
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
         </svg>
       </button>
     </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -47,6 +48,7 @@ const CashFlowReportPage = observer(() => {
             isExporting={isExporting}
             onOpenFilters={() => setIsFilterOpen(true)}
           />
+          <TableCard>
           <CashFlowTable
             t={t}
             data={data}
@@ -56,6 +58,7 @@ const CashFlowReportPage = observer(() => {
             onToggle={handleToggle}
             onCellClick={handleCellClick}
           />
+          </TableCard>
         </div>
       </div>
 

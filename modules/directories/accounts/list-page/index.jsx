@@ -1,5 +1,6 @@
 "use client"
 
+import TableCard from '@/components/shared/Table/TableCard'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
 import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
@@ -352,7 +353,8 @@ export default observer(function AccountsPageList() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 relative bg-white pb-20">
+        <div className="flex-1 overflow-y-auto px-4 relative bg-white pb-20">
+          <TableCard>
           <div className="z-50">
             <AccountsTable
               dataArray={dataArray}
@@ -376,6 +378,7 @@ export default observer(function AccountsPageList() {
               tc={tc}
             />
           </div>
+          </TableCard>
         </div>
 
         {/* Footer - Always visible at bottom */}

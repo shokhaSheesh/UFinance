@@ -1,5 +1,6 @@
 'use client'
 
+import TableCard from '@/components/shared/Table/TableCard'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -59,6 +60,7 @@ const ProfitAndLossPage = observer(() => {
           {!profitAndLossDataList && !loading ? (
             <PnLEmptyState />
           ) : (
+            <TableCard>
             <PnLTable
               t={t}
               rows={rows}
@@ -67,6 +69,7 @@ const ProfitAndLossPage = observer(() => {
               onToggle={toggleRow}
               onCellClick={handleCellClick}
             />
+            </TableCard>
           )}
         </div>
       </div>

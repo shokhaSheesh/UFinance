@@ -23,16 +23,9 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./aiChat.module.scss";
 
 // ─── Иконки (из макета uf_ai_chat_13.html) ──────────────────────────────
-const BotIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"
-    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="4" y="8" width="16" height="12" rx="3" />
-    <path d="M12 8V4" />
-    <circle cx="12" cy="3" r="1.4" />
-    <path d="M2 13v3M22 13v3" />
-    <circle cx="9" cy="13.5" r="1.1" />
-    <circle cx="15" cy="13.5" r="1.1" />
-    <path d="M9.5 17h5" />
+const StarIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
   </svg>
 );
 
@@ -706,7 +699,7 @@ const AiChatPanel = observer(() => {
         {/* Header */}
         <div className={styles.head}>
           <div className={styles.brand}>
-            <BotIcon />
+            <StarIcon />
           </div>
           <div className={styles.headText}>
             <div className={styles.title}>
@@ -774,16 +767,6 @@ const AiChatPanel = observer(() => {
               <CloseIcon />
             </button>
           </div>
-
-          <button
-            type="button"
-            className={styles.histNewBtn}
-            onClick={handleNewChat}
-            disabled={switchingChat}
-          >
-            <PlusIcon />
-            {t("newChat")}
-          </button>
 
           <div className={styles.histList} onScroll={onHistoryScroll}>
             {groupChats(chats).map((group) => (
@@ -882,7 +865,7 @@ const AiChatPanel = observer(() => {
           {showGreeting && (
             <div className={styles.aMsg}>
               <div className={styles.mono}>
-                <BotIcon />
+                <StarIcon />
               </div>
               <div className={styles.aText}>{t("greeting")}</div>
             </div>
@@ -937,7 +920,7 @@ const AiChatPanel = observer(() => {
             return (
               <div className={styles.aMsg} key={m.id}>
                 <div className={styles.mono}>
-                  <BotIcon />
+                  <StarIcon />
                 </div>
                 <div className={styles.aText}>
                   {m.isHtml ? (
@@ -974,7 +957,7 @@ const AiChatPanel = observer(() => {
           {streamingText !== null && (
             <div className={styles.aMsg}>
               <div className={styles.mono}>
-                <BotIcon />
+                <StarIcon />
               </div>
               <div className={styles.aText}>
                 <span
@@ -991,7 +974,7 @@ const AiChatPanel = observer(() => {
           {isAwaiting && streamingText === null && (
             <div className={styles.aMsg}>
               <div className={styles.mono}>
-                <BotIcon />
+                <StarIcon />
               </div>
               <div className={styles.aText}>
                 <ThinkingLine phrases={t.raw("thinkingStates")} />
@@ -1003,7 +986,7 @@ const AiChatPanel = observer(() => {
         {/* Быстрые ответы — нумерованные варианты над полем ввода */}
         <div className={`${styles.suggests} ${quickVisible ? "" : styles.hidden}`}>
           <div className={styles.sgTitle}>
-            <BotIcon />
+            <StarIcon />
             {t("quickTitle")}
           </div>
           {quickReplies.map((s, i) => (
@@ -1087,6 +1070,7 @@ const AiChatPanel = observer(() => {
               >
                 {uploading ? <span className={styles.spin} /> : <ClipIcon />}
               </button>
+              <span className={styles.modelChip}>{t("modelName")}</span>
               <button
                 className={styles.send}
                 onClick={submit}
@@ -1097,13 +1081,7 @@ const AiChatPanel = observer(() => {
               </button>
             </div>
           </div>
-          <div className={styles.footNote}>
-            <span className={styles.modelChip}>
-              <BotIcon />
-              {t("modelName")}
-            </span>
-            <span>{t("footNote")}</span>
-          </div>
+          <div className={styles.footNote}>{t("footNote")}</div>
         </div>
       </aside>
     </>

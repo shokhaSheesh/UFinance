@@ -1,5 +1,9 @@
 'use client'
 
+import Input from '@/components/shared/Input'
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
+import { Search } from 'lucide-react'
 import CreateWarehouseModal from '@/components/warehouse/CreateWarehouseModal/CreateWarehouseModal'
 import DeleteWarehouseConfirmModal from '@/components/warehouse/DeleteWarehouseConfirmModal/DeleteWarehouseConfirmModal'
 import FixedContent from '@/layouts/FixedContent'
@@ -49,14 +53,28 @@ export default observer(function WarehousesListPage() {
 
   return (
     <FixedContent className="flex-col bg-white">
+      <div className="flex min-h-0 flex-1 flex-col px-4 pb-4">
       <WarehousesHeader
         t={t}
         canAdd={!!warehousePermission?.add}
         onCreateClick={() => modals.setIsCreateModalOpen(true)}
         onOpenTransfers={() => setIsTransferListOpen(true)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
       />
+
+      <TableCard>
+        <TableToolbar
+          search={
+            <div className="w-full max-w-[420px]">
+              <Input
+                type="text"
+                placeholder={t('searchWarehousesPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                leftIcon={<Search size={18} />}
+              />
+            </div>
+          }
+        />
 
       <WarehousesTable
         t={t}
@@ -68,6 +86,8 @@ export default observer(function WarehousesListPage() {
         onEdit={modals.handleEdit}
         onDelete={modals.handleDelete}
       />
+      </TableCard>
+      </div>
 
       {(modals.isCreateModalOpen || modals.editingWarehouse) && (
         <CreateWarehouseModal
