@@ -10,7 +10,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Suspense, lazy, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import {
@@ -35,12 +35,14 @@ import ScreenLoader from "@/components/shared/ScreenLoader";
 import FixedContent from "@/layouts/FixedContent";
 import operationDto from "@/lib/dtos/operationDto";
 import ImportErrorModal from "../components/ImportErrorModal";
+import FilterChips from "@/components/shared/Filters/FilterChips";
 import OperationsHeader from "../components/OperationsHeader";
 import OperationsTableHeader from "../components/OperationsTableHeader";
 import { useImportOperations } from "../hooks/useImportOperations";
 import { useOperationsFilters } from "../hooks/useOperationsFilters";
 import { useShipmentActions } from "../hooks/useShipmentActions";
 import { buildFlatItems } from "../utils/operationsUtils";
+import { useOperationFilterChips } from "./useOperationFilterChips";
 
 // ── Lazy modals / heavy components ──────────────────────────────────────────
 const CreateShipment = lazy(() =>
@@ -86,7 +88,7 @@ const OperationsListPage = observer(() => {
   const queryClient = useQueryClient();
 
   // ── UI state ───────────────────────────────────────────────────────────────
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openModal, setOpenModal] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [isModalClosing, setIsModalClosing] = useState(false);
@@ -421,6 +423,14 @@ const OperationsListPage = observer(() => {
     overscan: 10,
   });
 
+  // Активные фильтры: счётчик для кнопки и чипсы над таблицей
+  const { chips: filterChips, count: filterCount } = useOperationFilterChips();
+
+  const handleClearFilters = useCallback(() => {
+    operationFilterStore.resetFilters();
+    queryClient.invalidateQueries({ queryKey: ["find_operations"] });
+  }, [queryClient]);
+
   const virtualItems = rowVirtualizer.getVirtualItems();
   const totalSize = rowVirtualizer.getTotalSize();
 
@@ -434,7 +444,7 @@ const OperationsListPage = observer(() => {
       >
         <OperationsFiltersSidebar
           isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen((v) => !v)}
+          onClose={() => setIsFilterOpen(false)}
         />
       </Suspense>
 
@@ -451,7 +461,12 @@ const OperationsListPage = observer(() => {
           onCreate={handleCreate}
           onImport={handleImportOperations}
           onExport={() => exportOperations()}
+          onOpenFilters={() => setIsFilterOpen(true)}
+          filterCount={filterCount}
         />
+
+        {/* Что сейчас отфильтровано — видно всегда, даже когда панель закрыта */}
+        <FilterChips chips={filterChips} onClearAll={handleClearFilters} />
 
         <div
           id="scrollableDiv"
@@ -525,10 +540,7 @@ const OperationsListPage = observer(() => {
           </InfiniteScroll>
 
           <Suspense fallback={null}>
-            <OperationsFooter
-              totalSummary={totalSummary}
-              isFilterOpen={isFilterOpen}
-            />
+            <OperationsFooter totalSummary={totalSummary} />
           </Suspense>
         </div>
       </div>

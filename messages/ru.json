@@ -536,7 +536,9 @@
     },
     "profile": {
       "fallbackName": "Пользователь",
-      "logout": "Выйти из аккаунта"
+      "logout": "Выйти из аккаунта",
+      "menuLabel": "Меню профиля",
+      "signedInAs": "Вы вошли как"
     },
     "balance": {
       "label": "На счетах",
@@ -3102,5 +3104,29 @@
     "title": "Доступ временно ограничен",
     "description": "Доступ к вашему аккаунту UFinance временно ограничен. Для восстановления доступа обратитесь в службу поддержки по электронной почте:",
     "note": "Чтобы мы могли быстрее рассмотреть ваше обращение, укажите название компании и адрес электронной почты, привязанный к аккаунту."
+  },
+  "filters": {
+    "reset": "Сбросить",
+    "close": "Закрыть фильтры",
+    "active": "Фильтры:",
+    "clearAll": "Сбросить всё",
+    "removeFilter": "Убрать фильтр {name}",
+    "types": "Типы операций",
+    "counterparties": "Контрагенты",
+    "chartOfAccounts": "Статьи",
+    "legalEntities": "Юр. лица",
+    "projects": "Проекты",
+    "deals": "Сделки",
+    "purchaseDeals": "Закупки",
+    "amount": "Сумма",
+    "paymentDate": "Дата оплаты",
+    "accrualDate": "Дата начисления",
+    "paymentStatus": "Статус оплаты",
+    "accrualStatus": "Статус начисления",
+    "paymentType": "Способ оплаты",
+    "selectedCount": "{count} выбрано",
+    "amountFrom": "от {min}",
+    "amountTo": "до {max}",
+    "amountBetween": "{min} — {max}"
   }
 }

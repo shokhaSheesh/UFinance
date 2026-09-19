@@ -12,7 +12,10 @@ import styles from './OperationsFooter.module.scss'
 const sum = value => <Money value={value ?? 0} />
 const count = value => value ?? 0
 
-export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }) => {
+// left-20 — ширина бокового меню (Sidebar, w-[80px]). Панель фильтров
+// стала оверлеем и ширину контента больше не меняет, так что смещение
+// под неё больше не нужно.
+export const OperationsFooter = observer(({ totalSummary }) => {
 
 
   const t = useTranslations('Operations')
@@ -21,7 +24,7 @@ export const OperationsFooter = observer(({ isFilterOpen = false, totalSummary }
   if (!mounted) return null
 
   return (
-    <div className={cn('fixed bg-neutral-100 p-2  border-neutral-200 border-t items-center justify-center bottom-0 left-0 right-0 py-1 z-30 transition-all duration-300', isFilterOpen ? 'left-[320px]' : 'left-[110px]')}>
+    <div className={cn('fixed bg-neutral-100 p-2  border-neutral-200 border-t items-center justify-center bottom-0 left-0 right-0 py-1 z-30 transition-all duration-300', 'left-20')}>
       <div className="flex items-center">
         <div className="flex items-center text-sm">
           <div className='flex flex-col border-r border-neutral-400 px-4'>

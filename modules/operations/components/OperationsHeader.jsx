@@ -1,4 +1,5 @@
 // components/OperationsHeader.jsx
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import Input from '@/components/shared/Input'
 import {
   DropdownMenu,
@@ -22,6 +23,8 @@ export default function OperationsHeader({
   onCreate,
   onImport,
   onExport,
+  onOpenFilters,
+  filterCount = 0,
 }) {
   return (
     <div className="h-16 px-4 flex items-center justify-between bg-white">
@@ -43,6 +46,7 @@ export default function OperationsHeader({
           className="w-[300px]"
           onChange={onSearch}
         />
+        <FilterButton onClick={onOpenFilters} count={filterCount} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

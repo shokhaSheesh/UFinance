@@ -47,3 +47,7 @@ next-env.d.ts
 
 # React port (temporary, not for production)
 /react-port
+
+# Python bytecode from the bundled ui-ux-pro-max skill scripts
+__pycache__/
+*.pyc

@@ -1,33 +1,58 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { appStore } from '@/store/app.store'
+import {
+  Banknote,
+  GitBranch,
+  History,
+  LogOut,
+  Settings as SettingsIcon,
+  Shield,
+  User,
+} from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { authStore } from '../../../store/auth.store'
 import { clearAllSiteData, clearWebStorageSync } from '../../../utils/clearSiteData'
 
 export const Profile = observer(() => {
   const t = useTranslations('Header.profile')
+  const tSettings = useTranslations('Settings')
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const menuRef = useRef(null)
+  const triggerRef = useRef(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   useEffect(() => {
-    // Click outside to close
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Esc закрывает меню и возвращает фокус на кнопку — иначе с клавиатуры
+  // из открытого меню было не выйти
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        triggerRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
 
   const handleLogout = () => {
     // Сбрасываем стор и синхронно чистим storage с куками — этого достаточно,
@@ -53,42 +78,120 @@ export const Profile = observer(() => {
       })
   }
 
+  const settingsPermissions = appStore.permission.settings
+
+  // Те же пункты и те же права, что и в боковом меню настроек
+  // (app/(pages)/settings/layout.jsx) — список здесь сокращён до тех,
+  // за которыми пользователь чаще всего идёт из шапки
+  const settingsItems = [
+    {
+      id: 'general',
+      label: tSettings('nav.general'),
+      icon: SettingsIcon,
+      href: '/settings',
+      show: settingsPermissions?.general?.read,
+    },
+    {
+      id: 'profile',
+      label: tSettings('nav.profile'),
+      icon: User,
+      href: '/settings/profile',
+      show: settingsPermissions?.profile?.read,
+    },
+    {
+      id: 'branches',
+      label: tSettings('nav.branches'),
+      icon: GitBranch,
+      href: '/settings/branches',
+      show: settingsPermissions?.branches?.read,
+    },
+    {
+      id: 'currencies',
+      label: tSettings('nav.currencies'),
+      icon: Banknote,
+      href: '/settings/currencies',
+      show: settingsPermissions?.exchangerates?.read,
+    },
+    {
+      id: 'roles',
+      label: tSettings('nav.roles'),
+      icon: Shield,
+      href: '/settings/role',
+      show: settingsPermissions?.users?.read,
+    },
+    {
+      id: 'action-history',
+      label: tSettings('nav.actionHistory'),
+      icon: History,
+      href: '/settings/action-history',
+      show: settingsPermissions?.general?.read,
+    },
+  ].filter((item) => item.show)
+
+  const email = mounted ? authStore.userEmail || t('fallbackName') : t('fallbackName')
+
   return (
     <div className="relative flex items-center" ref={menuRef}>
       <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label={t('menuLabel')}
+        title={email}
         className={cn(
-          'flex items-center gap-2 px-2.5 py-5 border border-transparent  cursor-pointer text-white transition-all duration-200 text-left hover:bg-slate-900/50',
-          (isOpen) && 'bg-black/30'
+          'flex h-9 w-9 shrink-0 items-center justify-center rounded-full cursor-pointer',
+          'bg-white/10 text-white transition-colors hover:bg-white/20',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+          isOpen && 'bg-white/20'
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold leading-[1.2]">
-              {mounted ? (authStore.userEmail || t('fallbackName')) : t('fallbackName')}
-            </span>
-            <ChevronDown
-              size={14}
-              className={cn(
-                'transition-transform duration-200 opacity-80',
-                isOpen && 'rotate-180'
-              )}
-            />
-          </div>
-        </div>
+        <User size={18} strokeWidth={2} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+8px)] right-0 w-80 bg-white rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-200 py-2 z-100 animate-[slideDown_0.2s_ease-out_forwards]">
+        <div
+          role="menu"
+          className="absolute top-[calc(100%+8px)] right-0 w-72 bg-white rounded-lg shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-200 py-1.5 z-100 animate-[slideDown_0.2s_ease-out_forwards]"
+        >
+          {/* Кто вошёл — почта больше не занимает место в шапке,
+              но остаётся видимой здесь */}
+          <div className="px-4 py-2.5 border-b border-gray-200">
+            <p className="text-xs text-gray-500">{t('signedInAs')}</p>
+            <p className="text-sm font-medium text-slate-900 truncate" title={email}>
+              {email}
+            </p>
+          </div>
+
+          {settingsItems.length > 0 && (
+            <div className="flex flex-col py-1 border-b border-gray-200">
+              {settingsItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.id}
+                    role="menuitem"
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-none"
+                  >
+                    <Icon size={16} className="shrink-0 text-gray-500" />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+
           <div className="flex flex-col py-1">
             <button
-              className={cn(
-                'flex items-center gap-3 w-full px-5 py-2.5 bg-transparent border-0 cursor-pointer text-left text-sm text-gray-700 transition-colors duration-150 hover:bg-gray-100',
-                'text-red-500 hover:bg-red-50'
-              )}
+              type="button"
+              role="menuitem"
+              className="flex items-center gap-3 w-full px-4 py-2 bg-transparent border-0 cursor-pointer text-left text-sm text-red-600 transition-colors hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none"
               onClick={handleLogout}
             >
-              <LogOut size={18} className="text-red-500 shrink-0" />
+              <LogOut size={16} className="shrink-0" />
               <span>{t('logout')}</span>
             </button>
           </div>

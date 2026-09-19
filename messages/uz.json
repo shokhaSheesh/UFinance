@@ -536,7 +536,9 @@
     },
     "profile": {
       "fallbackName": "Foydalanuvchi",
-      "logout": "Hisobdan chiqish"
+      "logout": "Hisobdan chiqish",
+      "menuLabel": "Profil menyusi",
+      "signedInAs": "Tizimga kirgansiz"
     },
     "balance": {
       "label": "Hisoblarda",
@@ -3256,5 +3258,29 @@
     "title": "Kirish vaqtincha cheklangan",
     "description": "UFinance akkauntingizga kirish vaqtincha cheklangan. Kirishni qayta tiklash uchun qo‘llab-quvvatlash xizmatiga quyidagi elektron pochta orqali murojaat qiling:",
     "note": "Murojaatingizni tezroq ko‘rib chiqishimiz uchun kompaniya nomi va akkauntga biriktirilgan elektron pochta manzilini ko‘rsating."
+  },
+  "filters": {
+    "reset": "Tozalash",
+    "close": "Filtrlarni yopish",
+    "active": "Filtrlar:",
+    "clearAll": "Hammasini tozalash",
+    "removeFilter": "{name} filtrini olib tashlash",
+    "types": "Amaliyot turlari",
+    "counterparties": "Kontragentlar",
+    "chartOfAccounts": "Moddalar",
+    "legalEntities": "Yur. shaxslar",
+    "projects": "Loyihalar",
+    "deals": "Bitimlar",
+    "purchaseDeals": "Xaridlar",
+    "amount": "Summa",
+    "paymentDate": "To'lov sanasi",
+    "accrualDate": "Hisoblash sanasi",
+    "paymentStatus": "To'lov holati",
+    "accrualStatus": "Hisoblash holati",
+    "paymentType": "To'lov usuli",
+    "selectedCount": "{count} ta tanlandi",
+    "amountFrom": "{min} dan",
+    "amountTo": "{max} gacha",
+    "amountBetween": "{min} — {max}"
   }
 }

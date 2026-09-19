@@ -9,8 +9,8 @@ import { appStore } from "../../../store/app.store";
 import {
   allowedTip,
   operationFilterStore,
-  tips,
 } from "../../../store/operationFilter.store";
+import { useOperationFilterChips } from "../../../modules/operations/list-page/useOperationFilterChips";
 import { formatAmountInput } from "../../../utils/helpers";
 import MultiSelectStatiya from "../../ReadyComponents/MultiSelectStatiya";
 import MultiSelectZdelka from "../../ReadyComponents/MultiZdelka";
@@ -19,9 +19,9 @@ import SelectCounterParties from "../../ReadyComponents/SelectCounterParties";
 import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts";
 import SelectProjects from "../../ReadyComponents/SelectProjects";
 import {
+  FilterDrawer,
   FilterSection,
-  FilterSidebar,
-} from "../../directories/FilterSidebar/FilterSidebar";
+} from "../../shared/Filters/FilterDrawer";
 import NewDateRangeComponent from "../../directories/NewDateRangeComponent";
 import OperationCheckbox from "../../shared/Checkbox/operationCheckbox";
 import Input from "../../shared/Input";
@@ -66,72 +66,9 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
   });
   const amountDebounceRef = useRef(null);
 
-  // Calculate count of active filters
-  const clearCount = useMemo(() => {
-    let count = 0;
-
-    // Count non-default filters (excluding default tips)
-    const defaultTips = new Set(tips);
-    const hasNonDefaultFilters = safeSelectedFilters.some(
-      (f) => !defaultTips.has(f)
-    );
-    const hasMissingDefaultFilters = tips.some(
-      (t) => !safeSelectedFilters.includes(t)
-    );
-    if (hasNonDefaultFilters || hasMissingDefaultFilters) count++;
-
-    // Date ranges
-    if (selectedDatePaymentRange?.start || selectedDatePaymentRange?.end)
-      count++;
-    // Скрытый фильтр «Дата начисления» в счётчик не попадает: в запрос
-    // его значения тоже не уходят (см. useOperationsFilters)
-    if (
-      appStore.interfaceSettings?.showAccrualDateFilter &&
-      (selectedDateStartRange?.start || selectedDateStartRange?.end)
-    )
-      count++;
-
-    // Multi-selects
-    if (selectedCounterAgents?.length) count++;
-    if (selectedLegalEntities?.length) count++;
-    if (selectedChartOfAccounts?.length) count++;
-    if (selectedProjects?.length) count++;
-    if (deals?.length) count++;
-    if (purchaseDeals?.length) count++;
-
-    // Payment type
-    if (paymentType) count++;
-
-    // Amount range
-    if (amountRange?.min || amountRange?.max) count++;
-
-    // Checkboxes (if different from default all-true state)
-    if (
-      !paymentConfirm ||
-      !paymentNotConfirm ||
-      !accrualConfirm ||
-      !accrualNotConfirm
-    )
-      count++;
-
-    return count;
-  }, [
-    safeSelectedFilters,
-    selectedDatePaymentRange,
-    selectedDateStartRange,
-    selectedCounterAgents,
-    selectedLegalEntities,
-    selectedChartOfAccounts,
-    selectedProjects,
-    deals,
-    purchaseDeals,
-    paymentType,
-    amountRange,
-    paymentConfirm,
-    paymentNotConfirm,
-    accrualConfirm,
-    accrualNotConfirm,
-  ]);
+  // Счётчик берём из общего хука — тот же источник, что у кнопки фильтров
+  // и чипсов над таблицей, иначе числа разъезжаются
+  const { count: clearCount } = useOperationFilterChips();
 
   // Clear all filters
   const onClear = useCallback(() => {
@@ -156,7 +93,7 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
 
   return (
     <>
-      <FilterSidebar
+      <FilterDrawer
         isOpen={isOpen}
         onClose={onClose}
         clearCount={clearCount}
@@ -528,7 +465,7 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
             </div>
           </div>
         </FilterSection>
-      </FilterSidebar>
+      </FilterDrawer>
     </>
   );
 });

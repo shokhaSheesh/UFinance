@@ -1,3 +1,4 @@
+import AiChatButton from "@/components/AiChat/AiChatButton"
 import AiChatPanel from "@/components/AiChat/AiChatPanel"
 import { Header } from "@/components/Header/Header"
 import { Sidebar } from "@/components/Sidebar/Sidebar"
@@ -12,6 +13,7 @@ const PagesLayout = ({ children }) => {
           {children}
         </main>
       </div>
+      <AiChatButton />
       <AiChatPanel />
     </div>
   )
