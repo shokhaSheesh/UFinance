@@ -150,8 +150,9 @@ export default observer(function BalancePage() {
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
       <div className={"w-full relative bg-white overflow-auto pb-10"}>
-        <div className="flex px-4 h-16 items-center gap-3 sticky top-0 z-20 bg-white">
+        <div className="flex px-4 h-16 items-center justify-between sticky top-0 z-20 bg-white">
           <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
+            <div className="flex items-center gap-3">
           <SingleSelect
             data={appStore.myCurrencies}
             value={balanceStore.selectedCurrency}
@@ -166,6 +167,7 @@ export default observer(function BalancePage() {
           />
           <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
+            </div>
         </div>
 
         <div className="px-4 text-center mb-4 text-sm font-medium ">
@@ -174,7 +176,7 @@ export default observer(function BalancePage() {
 
         {/* Table with loading overlay */}
         <div className='px-4 pb-4'>
-          <TableCard>
+          <TableCard className="flex-none w-fit max-w-full self-start">
           {/* Spinner overlay on filter change (data already present) */}
 
           {error && !isLoading && !isFetching ? (

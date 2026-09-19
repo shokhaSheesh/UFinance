@@ -407,8 +407,9 @@ const ProfitAndLossPage = observer(() => {
       {/* Main Content */}
       <div className={"w-full bg-white overflow-auto px-4"}>
         <div className='h-full flex flex-col'>
-          <div className="flex h-16 items-center gap-3 sticky z-50 top-0 bg-white shrink-0">
+          <div className="flex h-16 items-center justify-between sticky z-50 top-0 bg-white shrink-0">
             <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
+            <div className="flex items-center gap-3">
             <SingleSelect
               data={appStore.myCurrencies}
               value={pnlStore.selectedCurrency}
@@ -443,6 +444,7 @@ const ProfitAndLossPage = observer(() => {
             />
             <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
             <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
+            </div>
           </div>
 
           {!profitAndLossDataList && !loading ? (
@@ -455,7 +457,7 @@ const ProfitAndLossPage = observer(() => {
               <p style={{ fontSize: '14px', color: '#98A2B3' }}>Используйте фильтры слева для настройки параметров отчета</p>
             </div>
           ) : (
-            <TableCard className="mb-4">
+            <TableCard className="mb-4 flex-none w-fit max-w-full self-start">
             <div className='flex flex-1 overflow-hidden'>
               <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
