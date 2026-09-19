@@ -1,5 +1,6 @@
 'use client'
 
+import useModalPresence from '@/hooks/useModalPresence'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { RotateCcw, X } from 'lucide-react'
@@ -18,6 +19,8 @@ import { useEffect, useRef } from 'react'
  * панелью, а счётчик на кнопке и чипсы над таблицей показывают, что включено.
  */
 export function FilterDrawer({ isOpen, onClose, children, clearCount = 0, onClear, title }) {
+  useModalPresence(isOpen)
+
   const t = useTranslations()
   const mounted = useMounted()
   const panelRef = useRef(null)

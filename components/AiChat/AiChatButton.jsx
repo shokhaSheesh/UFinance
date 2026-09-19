@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { aiChatStore } from "@/store/aiChat.store";
 import { appStore } from "@/store/app.store";
+import { uiStore } from "@/store/ui.store";
 import { X } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -59,6 +60,8 @@ const AiChatButton = observer(() => {
   // Показываем кнопку только если AI-ассистент включён в настройках (get_general_settings)
   if (!appStore.isAiActive) return null;
   if (aiChatStore.isOpen) return null;
+  // Пока открыта модалка или выезжающая панель, кнопка перекрывала бы форму
+  if (uiStore.isModalOpen) return null;
 
   return (
     <div className="fixed bottom-[72px] right-6 z-50 flex items-center gap-2">

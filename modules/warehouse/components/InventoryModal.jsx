@@ -1,5 +1,6 @@
 'use client'
 
+import useModalPresence from '@/hooks/useModalPresence'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '@/components/ReadyComponents/SelectProductService'
 import SinglSelectStatiya from '@/components/ReadyComponents/SingleSelectStatiya'
@@ -36,6 +37,8 @@ const emptyRow = (id) => ({
 })
 
 const InventoryModal = observer(({ open, onClose, warehouseId, warehouseName, onCreated, t }) => {
+  useModalPresence()
+
   const [type, setType] = useState('out') // 'in' — излишки, 'out' — недостача
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
   const [legalEntity, setLegalEntity] = useState('')

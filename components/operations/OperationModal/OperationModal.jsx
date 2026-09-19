@@ -1,5 +1,6 @@
 'use client'
 
+import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from '@/lib/utils'
 import { Clock, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -30,6 +31,8 @@ const OperationModal = observer(({
 	chart_of_accounts_id = null,
 	chart_of_accounts_id_2 = null
 }) => {
+  useModalPresence()
+
 	const t = useTranslations('Operations')
 	const mounted = useMounted()
 	const isNew = operation?.isNew || false

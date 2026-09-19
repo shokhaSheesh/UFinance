@@ -1,3 +1,4 @@
+import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from "@/lib/utils";
 import { keepPreviousData } from "@tanstack/react-query";
 import { TrashIcon, X } from "lucide-react";
@@ -76,6 +77,7 @@ const CreateShipment = observer(
     isPurchase = false,
     isReturn = false,
   }) => {
+    useModalPresence()
     const t = useTranslations("Deals.createShipment");
     const tp = useTranslations("Purchases.createSupply");
     // Same modal is reused for a sale's "Отгрузка" and a purchase's "Поставка" —

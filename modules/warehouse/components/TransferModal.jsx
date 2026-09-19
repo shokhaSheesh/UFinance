@@ -1,5 +1,6 @@
 'use client'
 
+import useModalPresence from '@/hooks/useModalPresence'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '@/components/ReadyComponents/SelectProductService'
 import SelectProjects from '@/components/ReadyComponents/SelectProjects'
@@ -36,6 +37,8 @@ const emptyRow = (id) => ({
 })
 
 const TransferModal = observer(({ open, onClose, warehouseId, onCreated, t }) => {
+  useModalPresence()
+
   const [fromWarehouse, setFromWarehouse] = useState('')
   const [toWarehouse, setToWarehouse] = useState('')
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
