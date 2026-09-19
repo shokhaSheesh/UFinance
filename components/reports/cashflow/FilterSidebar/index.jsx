@@ -1,5 +1,6 @@
 'use client'
 
+import { useCashFlowFilterCount } from '@/hooks/useReportFilterCount'
 import SalesTransactions from '@/components/ReadyComponents/SalesTransactions'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
@@ -23,13 +24,7 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
   const datesEqual = (a, b) =>
     a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
 
-  const clearCount =
-    (!datesEqual(periodStartDate, defaultDate.start) ||
-      !datesEqual(periodEndDate, defaultDate.end) ? 1 : 0) +
-    accountId.length +
-    contrAgentId.length +
-    (projectId?.length || 0) +
-    sellingDealId.length
+  const clearCount = useCashFlowFilterCount()
 
   const handleClear = () => {
     cashFlowStore.resetFilters()

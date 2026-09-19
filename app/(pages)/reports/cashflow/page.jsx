@@ -1,5 +1,6 @@
 "use client"
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { useCashFlowFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
@@ -134,6 +135,7 @@ export default observer(function CashFlowReportPage() {
 
   const [expandedMap, setExpandedMap] = useState({})
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const filterCount = useCashFlowFilterCount()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -408,37 +410,33 @@ export default observer(function CashFlowReportPage() {
 
       <div className={"w-full bg-white overflow-auto px-4"}>
         <div className="h-full flex flex-col">
-          <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
-            <div className="flex items-center gap-4">
-              <h1 className='text-xl whitespace-nowrap font-semibold'>{t('cashflow.title')}</h1>
-              <SingleSelect
-                data={appStore.myCurrencies}
-                value={currencyCode}
-                onChange={(value) => {
-                  cashFlowStore.setCurrencyCode(value)
-                }}
-                isClearable={false}
-                withSearch={false}
-                className={'bg-white w-28'}
-                dropdownClassName={'w-28'}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <SingleSelect
-                data={groupingOptions}
-                value={periodType}
-                onChange={(value) => {
-                  cashFlowStore.setPeriodType(value)
-                }}
-                placeholder={t('common.buildingMethod')}
-                withSearch={false}
-                isClearable={false}
-                className="bg-white w-44"
-                dropdownClassName="bg-white"
-              />
-              <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />
-            </div>
-            <FilterButton onClick={() => setIsFilterOpen(true)} />
+          <div className="flex h-16 items-center gap-3 sticky z-50 top-0 bg-white shrink-0">
+            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('cashflow.title')}</h1>
+            <SingleSelect
+              data={appStore.myCurrencies}
+              value={currencyCode}
+              onChange={(value) => {
+                cashFlowStore.setCurrencyCode(value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              className={'bg-white w-28'}
+              dropdownClassName={'w-28'}
+            />
+            <SingleSelect
+              data={groupingOptions}
+              value={periodType}
+              onChange={(value) => {
+                cashFlowStore.setPeriodType(value)
+              }}
+              placeholder={t('common.buildingMethod')}
+              withSearch={false}
+              isClearable={false}
+              className="bg-white w-44"
+              dropdownClassName="bg-white"
+            />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />
           </div>
 
           <div className='flex flex-1 overflow-hidden'>

@@ -1,6 +1,7 @@
 "use client"
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
@@ -45,6 +46,7 @@ const ProfitAndLossPage = observer(() => {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const filterCount = usePnLFilterCount()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -404,46 +406,42 @@ const ProfitAndLossPage = observer(() => {
       {/* Main Content */}
       <div className={"w-full bg-white overflow-auto px-4"}>
         <div className='h-full flex flex-col'>
-          <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
-            <div className="flex items-center gap-4" >
-              <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
-              <FilterButton onClick={() => setIsFilterOpen(true)} />
-              <SingleSelect
-                data={appStore.myCurrencies}
-                value={pnlStore.selectedCurrency}
-                onChange={(value) => pnlStore.setSelectedCurrency(value)}
-                isClearable={false}
-                withSearch={false}
-                className={'bg-white w-28'}
-                dropdownClassName={'w-28'}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <SingleSelect
-                data={groupingOptions}
-                value={pnlStore.selectedGrouping}
-                onChange={(value) => {
-                  pnlStore.setSelectedGrouping(value)
-                }}
-                isClearable={false}
-                withSearch={false}
-                placeholder={t('common.buildingMethod')}
-                className="bg-white w-44"
-              />
-              <SingleSelect
-                data={accountingMethodOptions}
-                value={pnlStore.isCalculation}
-                onChange={(value) => {
-                  pnlStore.setIsCalculation(value)
-                }}
-                isClearable={false}
-                withSearch={false}
-                placeholder={t('common.accountingMethod')}
-                className="bg-white w-44"
-                autoHeight={true}
-              />
-              <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
-            </div>
+          <div className="flex h-16 items-center gap-3 sticky z-50 top-0 bg-white shrink-0">
+            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
+            <SingleSelect
+              data={appStore.myCurrencies}
+              value={pnlStore.selectedCurrency}
+              onChange={(value) => pnlStore.setSelectedCurrency(value)}
+              isClearable={false}
+              withSearch={false}
+              className={'bg-white w-28'}
+              dropdownClassName={'w-28'}
+            />
+            <SingleSelect
+              data={groupingOptions}
+              value={pnlStore.selectedGrouping}
+              onChange={(value) => {
+                pnlStore.setSelectedGrouping(value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              placeholder={t('common.buildingMethod')}
+              className="bg-white w-44"
+            />
+            <SingleSelect
+              data={accountingMethodOptions}
+              value={pnlStore.isCalculation}
+              onChange={(value) => {
+                pnlStore.setIsCalculation(value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              placeholder={t('common.accountingMethod')}
+              className="bg-white w-44"
+              autoHeight={true}
+            />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
           </div>
 
           {!profitAndLossDataList && !loading ? (

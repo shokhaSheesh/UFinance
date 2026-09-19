@@ -1,6 +1,7 @@
 "use client"
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
@@ -45,6 +46,7 @@ const ProfitAndLossByQueryPage = observer(() => {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const filterCount = usePnLFilterCount()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -407,7 +409,7 @@ const ProfitAndLossByQueryPage = observer(() => {
           <div className="flex  h-16 items-center sticky z-50 top-0 bg-white justify-between shrink-0">
             <div className="flex items-center gap-4" >
               <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
-              <FilterButton onClick={() => setIsFilterOpen(true)} />
+              <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
               <SingleSelect
                 data={appStore.myCurrencies}
                 value={pnlStore.selectedCurrency}

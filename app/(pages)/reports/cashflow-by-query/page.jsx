@@ -1,5 +1,6 @@
 "use client"
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { useCashFlowFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import CashFlowFilterSidebar from '@/components/reports/cashflow/FilterSidebar'
@@ -134,6 +135,7 @@ export default observer(function CashFlowByQueryReportPage() {
 
   const [expandedMap, setExpandedMap] = useState({})
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const filterCount = useCashFlowFilterCount()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -438,7 +440,7 @@ export default observer(function CashFlowByQueryReportPage() {
               />
               <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />
             </div>
-            <FilterButton onClick={() => setIsFilterOpen(true)} />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           </div>
 
           <div className='flex flex-1 overflow-hidden'>

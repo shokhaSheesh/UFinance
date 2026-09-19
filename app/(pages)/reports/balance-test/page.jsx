@@ -1,6 +1,7 @@
 "use client";
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from "@/components/reports/balance/FilterSidebar";
 import { ExpendClose, ExpendOpen } from "@/constants/icons";
@@ -110,6 +111,7 @@ export default observer(function BalanceTestPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  const filterCount = useBalanceFilterCount()
   const {
     dateRange,
     selectedEntity,
@@ -230,7 +232,7 @@ export default observer(function BalanceTestPage() {
               className={"bg-white w-28"}
               dropdownClassName={"w-28"}
             />
-            <FilterButton onClick={() => setIsFilterOpen(true)} />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           </div>
           <div className="flex items-center gap-3">
             <SingleSelect

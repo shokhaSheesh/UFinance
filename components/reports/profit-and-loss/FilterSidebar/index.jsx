@@ -1,5 +1,6 @@
 'use client'
 
+import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
@@ -25,15 +26,7 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
   const datesEqual = (a, b) =>
     a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
 
-  const clearCount =
-    (!datesEqual(dateRange.start, defaultDate.start) ||
-      !datesEqual(dateRange.end, defaultDate.end) ? 1 : 0) +
-    selectedAccounts.length +
-    selectedCounterparties.length +
-    (selectedProjects?.length || 0) +
-    deals.length +
-    selectedLegalEntities.length +
-    (operational || ebitda || ebit || ebt ? 1 : 0)
+  const clearCount = usePnLFilterCount()
 
   const handleClear = () => {
     pnlStore.resetFilters()

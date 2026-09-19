@@ -1,5 +1,6 @@
 'use client'
 
+import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
@@ -20,11 +21,7 @@ const BalanceFilterSidebar = observer(({ isOpen, onClose }) => {
   const datesEqual = (a, b) =>
     a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
 
-  const clearCount =
-    (!datesEqual(dateRange.start, defaultDate.start) ||
-      !datesEqual(dateRange.end, defaultDate.end) ? 1 : 0) +
-    selectedAccount.length +
-    selectedCounterparties.length
+  const clearCount = useBalanceFilterCount()
 
   const handleClear = () => {
     balanceStore.resetFilters()

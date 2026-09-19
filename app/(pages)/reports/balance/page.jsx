@@ -1,6 +1,7 @@
 'use client'
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
@@ -24,6 +25,7 @@ export default observer(function BalancePage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+  const filterCount = useBalanceFilterCount()
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount } = balanceStore
 
   const filterData = {
@@ -147,26 +149,22 @@ export default observer(function BalancePage() {
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
       <div className={"w-full relative bg-white overflow-auto pb-10"}>
-        <div className="flex px-4 h-16 items-center sticky top-0 z-20 bg-white justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
-            <SingleSelect
-              data={appStore.myCurrencies}
-              value={balanceStore.selectedCurrency}
-              onChange={(value) => {
-                balanceStore.setSelectedCurrency(value)
-                balanceStore.fetchBalance()
-              }}
-              isClearable={false}
-              withSearch={false}
-              className={'bg-white w-28'}
-              dropdownClassName={'w-28'}
-            />
-            <FilterButton onClick={() => setIsFilterOpen(true)} />
-          </div>
-          <div>
-            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
-          </div>
+        <div className="flex px-4 h-16 items-center gap-3 sticky top-0 z-20 bg-white">
+          <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
+          <SingleSelect
+            data={appStore.myCurrencies}
+            value={balanceStore.selectedCurrency}
+            onChange={(value) => {
+              balanceStore.setSelectedCurrency(value)
+              balanceStore.fetchBalance()
+            }}
+            isClearable={false}
+            withSearch={false}
+            className={'bg-white w-28'}
+            dropdownClassName={'w-28'}
+          />
+          <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+          <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
         </div>
 
         <div className="px-4 text-center mb-4 text-sm font-medium ">

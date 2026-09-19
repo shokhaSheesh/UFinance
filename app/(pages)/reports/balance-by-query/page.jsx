@@ -1,6 +1,7 @@
 'use client'
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
@@ -24,6 +25,7 @@ export default observer(function BalanceByQueryPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+  const filterCount = useBalanceFilterCount()
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount } = balanceStore
 
   const filterData = {
@@ -162,7 +164,7 @@ export default observer(function BalanceByQueryPage() {
               className={'bg-white w-28'}
               dropdownClassName={'w-28'}
             />
-            <FilterButton onClick={() => setIsFilterOpen(true)} />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           </div>
           <div>
             <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
