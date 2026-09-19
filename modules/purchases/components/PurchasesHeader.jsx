@@ -1,6 +1,6 @@
 import IconButton from "@/components/shared/Buttons/IconButton";
 import PageHeader from "@/components/shared/PageHeader/PageHeader";
-import { Download } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 /**
@@ -22,19 +22,21 @@ export default function PurchasesHeader({
       title={tPurchases("pageTitle")}
       actions={
         <>
-          {/* В закупках всегда обычная сделка: карточка ученика (is_school)
-              относится только к продажам */}
-          {dealPermission.add && (
-            <button className="primary-btn text-sm rounded-sm!" onClick={onCreateDeal}>
-              {t("createDeal")}
-            </button>
-          )}
           <IconButton
             icon={Download}
             label={t("downloadExcel")}
             onClick={onExport}
             loading={isDealsExportLoading}
           />
+
+          {/* В закупках всегда обычная сделка: карточка ученика (is_school)
+              относится только к продажам */}
+          {dealPermission.add && (
+            <button className="primary-btn text-sm rounded-sm! gap-1.5" onClick={onCreateDeal}>
+              <Plus size={16} />
+              {t("createDeal")}
+            </button>
+          )}
         </>
       }
     />

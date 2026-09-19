@@ -893,7 +893,7 @@ const CreateShipment = observer(
         {/* Overlay */}
         <div
           className={cn(
-            "fixed top-[60px] left-[80px] w-[calc(100%-80px)] h-[calc(100%-60px)] right-0 bottom-0 flex bg-black/50  z-1000 transition-opacity duration-300"
+            "fixed top-[60px] left-[80px] w-[calc(100%-80px)] h-[calc(100%-60px)] right-0 bottom-0 flex justify-end bg-black/50  z-1000 transition-opacity duration-300"
           )}
         >
           {/* Panel */}

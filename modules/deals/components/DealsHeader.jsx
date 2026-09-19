@@ -2,7 +2,7 @@
 import IconButton from '@/components/shared/Buttons/IconButton'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import { appStore } from '@/store/app.store'
-import { Download } from 'lucide-react'
+import { Download, Plus } from 'lucide-react'
 
 /**
  * Шапка страницы сделок: заголовок и действия.
@@ -22,26 +22,29 @@ export default function DealsHeader({
       title={t('pageTitle')}
       actions={
         <>
-          {dealPermission.add && (
-            <>
-              {!appStore.isDonoSchool && (
-                <button className="primary-btn text-sm rounded-sm!" onClick={onCreateDeal}>
-                  {t('createDeal')}
-                </button>
-              )}
-              {appStore.isDonoSchool && (
-                <button className="primary-btn text-sm rounded-sm!" onClick={onCreateStudent}>
-                  {t('createStudent')}
-                </button>
-              )}
-            </>
-          )}
           <IconButton
             icon={Download}
             label={t('downloadExcel')}
             onClick={onExport}
             loading={isDealsExportLoading}
           />
+
+          {dealPermission.add && (
+            <>
+              {!appStore.isDonoSchool && (
+                <button className="primary-btn text-sm rounded-sm! gap-1.5" onClick={onCreateDeal}>
+                  <Plus size={16} />
+                  {t('createDeal')}
+                </button>
+              )}
+              {appStore.isDonoSchool && (
+                <button className="primary-btn text-sm rounded-sm! gap-1.5" onClick={onCreateStudent}>
+                  <Plus size={16} />
+                  {t('createStudent')}
+                </button>
+              )}
+            </>
+          )}
         </>
       }
     />

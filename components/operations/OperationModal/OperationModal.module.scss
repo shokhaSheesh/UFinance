@@ -34,19 +34,19 @@
   flex-direction: column;
   pointer-events: auto;
   transition: all 0.3s ease-out;
-  transform-origin: left;
+  transform-origin: right;
   overflow: visible;
 
   &.opening {
     width: 0;
     opacity: 0;
-    clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 0 0 100%);
   }
 
   &.closing {
     width: 0;
     opacity: 0;
-    clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 0 0 100%);
   }
 
     &.open {

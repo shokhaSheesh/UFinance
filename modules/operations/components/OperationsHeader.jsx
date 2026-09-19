@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, Download, Loader2, PenLine, Upload } from 'lucide-react'
+import { ChevronDown, Download, Loader2, PenLine, Plus, Upload } from 'lucide-react'
 
 /**
  * Шапка страницы операций: заголовок и действия.
@@ -34,10 +34,18 @@ export default function OperationsHeader({
       title={t('page.title')}
       actions={
         <>
+          <IconButton
+            icon={Download}
+            label={t('page.export')}
+            onClick={onExport}
+            loading={isExporting}
+          />
+
           {isMounted && canAdd && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className="primary-btn gap-1.5" disabled={isImporting}>
+                  <Plus size={16} />
                   {t('page.create')}
                   {isImporting ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -66,13 +74,6 @@ export default function OperationsHeader({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-
-          <IconButton
-            icon={Download}
-            label={t('page.export')}
-            onClick={onExport}
-            loading={isExporting}
-          />
         </>
       }
     />

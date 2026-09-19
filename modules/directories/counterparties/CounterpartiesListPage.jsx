@@ -31,7 +31,7 @@ import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
 import { formatAmount, formatNumber, handleDownload } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Download } from 'lucide-react'
+import { ChevronDown, Download, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -425,12 +425,13 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
 <div className="flex shrink-0 items-center gap-2">
+            <IconButton icon={Download} label={t('list.downloadExcel')} onClick={exportCounterparties} loading={isCounterpartiesExportLoading} />
             {isMounted && canAdd && (
-              <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn">
+              <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn gap-1.5">
+                <Plus size={16} />
                 {t('list.createButton')}
               </button>
             )}
-            <IconButton icon={Download} label={t('list.downloadExcel')} onClick={exportCounterparties} loading={isCounterpartiesExportLoading} />
           </div>
         </div>
 

@@ -15,6 +15,7 @@ import {
   Download,
   LayoutList,
   List,
+  Plus,
   Search,
 } from 'lucide-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -98,10 +99,13 @@ export default function ProjectsHeader({
       }
       actions={
         <>
+          <IconButton icon={Download} label={t('downloadExcel')} onClick={onExport} />
+
           {canAdd && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className="primary-btn text-sm rounded-sm! gap-1.5">
+                  <Plus size={16} />
                   {t('create')}
                   <ChevronDown size={16} />
                 </button>
@@ -122,8 +126,6 @@ export default function ProjectsHeader({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-
-          <IconButton icon={Download} label={t('downloadExcel')} onClick={onExport} />
         </>
       }
     />
