@@ -6,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
@@ -27,10 +28,8 @@ export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="bg-transparent shadow-none cursor-pointer w-full h-full flex items-center justify-center">
-          <EllipsisVertical className='text-neutral-600' />
-        </div>
-      </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 p-2" align="end">
         <DropdownMenuItem asChild>
           <button

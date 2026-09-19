@@ -1,5 +1,6 @@
 "use client"
 
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
 import CreateLegalEntityModal from '@/components/directories/CreateLegalEntityModal/CreateLegalEntityModal'
 import CreateMyAccountModal from '@/components/directories/CreateMyAccountModal/CreateMyAccountModal'
@@ -244,7 +245,7 @@ export default observer(function AccountsPageList() {
     <FixedContent>
       <FilterSidebar
         isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(!isFilterOpen)}
+        onClose={() => setIsFilterOpen(false)}
         clearCount={clearCount}
         onClear={handleClearFilters}
       >
@@ -297,35 +298,6 @@ export default observer(function AccountsPageList() {
           <div className={styles.headerContent}>
             <div className={styles.titleRow}>
               <h1 className={styles.title}>{t('pageTitle')}</h1>
-              <div ref={menuRef} className="flex items-center gap-2 relative">
-                {accountPermissions.add && (
-                  <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
-                    {tc('create')}
-                    {isMenuOpen ? (
-                      <ChevronUp size={16} />
-                    ) : (
-                      <ChevronDown size={16} />
-                    )}
-                  </button>
-                )}
-                {isMenuOpen && (
-                  <div className="absolute top-full w-40 p-2 flex flex-col justify-start items-start left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <button
-                      className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
-                      onClick={handleCreateSingle}
-                    >
-                      {tc('create')}
-                    </button>
-                    <button
-                      className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
-                      onClick={handleCreateGroup}
-                    >
-                      {t('createGroup')}
-                    </button>
-                  </div>
-                )}
-              </div>
-
               <div className={styles.headerActionsRight}>
                 <SingleSelect
                   data={[
@@ -346,6 +318,35 @@ export default observer(function AccountsPageList() {
                   placeholder={t('searchPlaceholder')}
                   className="bg-white w-56"
                 />
+                <FilterButton onClick={() => setIsFilterOpen(true)} count={clearCount} />
+                <div ref={menuRef} className="flex items-center gap-2 relative">
+                  {accountPermissions.add && (
+                    <button onClick={handleMenuClick} className={cn('primary-btn', "flex items-center gap-2")}>
+                      {tc('create')}
+                      {isMenuOpen ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </button>
+                  )}
+                  {isMenuOpen && (
+                    <div className="absolute top-full w-40 p-2 flex flex-col justify-start items-start left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                      <button
+                        className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
+                        onClick={handleCreateSingle}
+                      >
+                        {tc('create')}
+                      </button>
+                      <button
+                        className="text-neutral-700 font-normal hover:bg-neutral-100 w-full text-start text-sm p-1 cursor-pointer rounded-sm"
+                        onClick={handleCreateGroup}
+                      >
+                        {t('createGroup')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

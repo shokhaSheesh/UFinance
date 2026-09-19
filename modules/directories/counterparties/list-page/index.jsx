@@ -38,7 +38,7 @@ const CounterpartiesListPage = observer(() => {
   const router = useRouter()
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState(new Set())
 
   const {
@@ -133,6 +133,8 @@ const CounterpartiesListPage = observer(() => {
           viewMode={viewMode} setViewMode={setViewMode}
           searchQuery={searchQuery} setSearchQuery={setSearchQuery}
           exportCounterparties={exportCounterparties} isExporting={isExporting}
+          onOpenFilters={() => setIsFilterOpen(true)}
+          filterCount={counterpartiesStore.activeFilterCount}
         />
 
         <CounterpartiesTableHeader

@@ -4,9 +4,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/utils/helpers";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { IoCopyOutline } from "react-icons/io5";
 
 const ProductServiceRow = ({
@@ -44,10 +45,8 @@ const ProductServiceRow = ({
       {(permissions.edit || permissions.delete || permissions.add) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="p-1 hover:bg-neutral-200 cursor-pointer rounded-full inline-flex items-center justify-center">
-              <MoreVertical size={16} />
-            </div>
-          </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 p-2" align="end">
             {permissions.edit && (
               <DropdownMenuItem asChild>

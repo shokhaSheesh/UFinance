@@ -14,7 +14,7 @@ import { useBalanceData } from '../hooks/useBalanceData'
 
 const BalanceReportPage = observer(() => {
   const t = useTranslations('Reports')
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const { data, isLoading, isFetching, error, expandedRows, toggleRow, exportBalanceReport, isExporting } = useBalanceData(t)
 
@@ -25,7 +25,7 @@ const BalanceReportPage = observer(() => {
       {(isLoading || isFetching) && <ScreenLoader />}
 
       <div className={"w-full relative bg-white overflow-auto pb-10"}>
-        <BalanceHeader t={t} onExport={exportBalanceReport} isExporting={isExporting} />
+        <BalanceHeader t={t} onExport={exportBalanceReport} isExporting={isExporting} onOpenFilters={() => setIsFilterOpen(true)} />
 
         <div className="px-4 text-center mb-4 text-sm font-medium">
           {t('balance.formula')}

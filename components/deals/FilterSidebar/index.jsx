@@ -3,7 +3,7 @@ import NewDateRangeComponent from '@/components/directories/NewDateRangeComponen
 import { keepPreviousData } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { academicYears } from '../../../constants/academicYears'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { appStore } from '../../../store/app.store'
@@ -15,17 +15,10 @@ import Input from '../../shared/Input'
 import MultiSelect from '../../shared/Selects/MultiSelect'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 
-const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
+const FilterSidebar = observer(({ isOpen = false, onClose, isPurchase = false }) => {
 	const t = useTranslations('Deals.filters')
 	const tc = useTranslations('Common')
 	const tp = useTranslations('Purchases.filters')
-	const [isOpen, setIsOpen] = useState(true)
-
-	const toggleOpen = val => {
-		setIsOpen(val)
-		onOpenChange?.(val)
-	}
-
 	const {
 		selectedCounterparties,
 		selectedProjects,
@@ -104,7 +97,7 @@ const FilterSidebar = observer(({ onOpenChange, isPurchase = false }) => {
 	return (
 		<FilterSidebarComponent
 			isOpen={isOpen}
-			onClose={() => toggleOpen(!isOpen)}
+			onClose={onClose}
 			clearCount={activeFilterCount}
 			onClear={() => sealDeal.resetFilters()}
 		>

@@ -235,7 +235,7 @@ const IncomeOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit,
                         <p className={`font-base text-green-600`}>
                           {'+'}{formatAmount(item.summa)} {item.currency}
                         </p>
-                        <div className=' items-center  hidden group-hover:flex '>
+                        <div className='flex items-center'>
                           {rowCanEdit && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}

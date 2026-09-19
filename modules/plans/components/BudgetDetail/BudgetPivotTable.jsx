@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Loader2, MoreVertical, Trash2 } from "lucide-react";
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { Loader2, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import {
   deviation,
@@ -596,15 +597,8 @@ const BudgetPivotTable = ({
                   {c.key === "plan" && editable && col.kind === "month" && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center transition-colors hover:text-slate-700"
-                          style={{ marginRight: -5, color: T.iconStroke }}
-                          aria-label={t("actions.columnMenu")}
-                        >
-                          <MoreVertical style={{ width: 14, height: 14 }} />
-                        </button>
-                      </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-48 p-1" align="end">
                         <DropdownMenuItem asChild>
                           <button

@@ -1,9 +1,10 @@
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import { cashFlowStore } from '@/components/reports/cashflow/cashflow.store'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { useMyCurrencies } from '@/hooks/useMyCurrencies'
 import { Loader2 } from 'lucide-react'
 
-const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting }) => {
+const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting, onOpenFilters, filterCount = 0 }) => {
   // валюты филиала — только те, что есть на счетах
   const { options: currencyOptions } = useMyCurrencies()
 
@@ -20,6 +21,7 @@ const CashFlowHeader = ({ t, groupingOptions, onExport, isExporting }) => {
         className={'bg-white w-28'}
         dropdownClassName={'w-28'}
       />
+      <FilterButton onClick={onOpenFilters} count={filterCount} />
     </div>
     <div className="flex items-center gap-3">
       <SingleSelect

@@ -263,7 +263,7 @@ const ExpenseOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit
                             </p>
                           </div>
                         )}
-                        <div className=' items-center  hidden group-hover:flex '>
+                        <div className='flex items-center'>
                           {rowCanEdit && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}

@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { appStore } from "../../../store/app.store"
@@ -52,10 +53,8 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className='p-2 cursor-pointer hover:bg-neutral-50 rounded-full transition-colors'>
-          <EllipsisVertical size={16} />
-        </div>
-      </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48" align="end">
         {isStatic ? (
           <DropdownMenuItem asChild>

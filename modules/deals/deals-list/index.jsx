@@ -67,7 +67,7 @@ export default observer(function DealsPage() {
   const mounted = useMounted()
   const queryClient = useQueryClient()
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   // ── Modal state ────────────────────────────────────────────────────────────
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -230,7 +230,7 @@ export default observer(function DealsPage() {
     <FixedContent>
       {/* ── Filter Sidebar (lazy) ── */}
       <Suspense fallback={<div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />}>
-        <FilterSidebar onOpenChange={setIsFilterOpen} />
+        <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       </Suspense>
 
       {/* ── Main content ── */}
@@ -251,6 +251,7 @@ export default observer(function DealsPage() {
             setDealToEdit(null)
           }}
           onMethodChange={(v) => setState('dealsMethod', v)}
+          onOpenFilters={() => setIsFilterOpen(true)}
         />
 
         <DealsTable

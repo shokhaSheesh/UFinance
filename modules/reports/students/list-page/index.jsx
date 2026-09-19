@@ -39,7 +39,7 @@ const StudentsPage = observer(() => {
       <StudentsFilterSidebar
         t={t}
         isOpen={open}
-        onClose={() => setOpen(prev => !prev)}
+        onClose={() => setOpen(false)}
         clearCount={clearCount}
         onClear={handleClearFilters}
         onSubmit={() => refetch()}
@@ -56,6 +56,8 @@ const StudentsPage = observer(() => {
             student.setState('accounting', value)
             refetch()
           }}
+          onOpenFilters={() => setOpen(true)}
+          filterCount={clearCount}
         />
 
         <div ref={scrollRef} onScroll={handleContainerScroll} id="scrollableDiv" className="overflow-auto mb-5 relative">

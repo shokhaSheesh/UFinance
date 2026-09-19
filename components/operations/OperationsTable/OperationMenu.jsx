@@ -6,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from "@/lib/utils";
-import { Copy, EllipsisVertical, Pencil, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";
@@ -90,10 +91,8 @@ export const OperationMenu = observer(
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <div className="bg-transparent w-5 shadow-none cursor-pointer h-full flex items-center justify-center">
-            <EllipsisVertical className="text-neutral-600" />
-          </div>
+        <DropdownMenuTrigger asChild>
+          <RowActionsTrigger />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40 p-2" align="end">
           {canEdit && (

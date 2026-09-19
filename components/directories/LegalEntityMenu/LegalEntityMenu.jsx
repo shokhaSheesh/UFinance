@@ -6,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'
@@ -31,10 +32,8 @@ export default observer(function LegalEntityMenu({ legalEntity, onEdit, onDelete
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="bg-transparent w-full shadow-none cursor-pointer h-full flex items-center justify-center">
-          <EllipsisVertical size={18} className='text-neutral-600' />
-        </div>
-      </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40 p-2" align="end">
         {legalEntityPermissions.edit && <DropdownMenuItem asChild>
           <button

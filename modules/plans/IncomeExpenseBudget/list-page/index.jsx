@@ -14,7 +14,7 @@ import {
 } from '@/modules/plans/hooks/useBudgets'
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
-import { ChevronDown, Loader2, MoreHorizontal, Plus, Search } from 'lucide-react'
+import { ChevronDown, EllipsisVertical, Loader2, Plus, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -164,7 +164,7 @@ const IncomeExpenseBudget = () => {
           {renderSortIcon('modifiedDate')}
         </div>
         <div className="w-[50px] flex justify-center px-3 py-2">
-          <MoreHorizontal className="w-4 h-4 text-gray-400" />
+          <EllipsisVertical className="w-4 h-4 text-gray-400" />
         </div>
       </div>
 

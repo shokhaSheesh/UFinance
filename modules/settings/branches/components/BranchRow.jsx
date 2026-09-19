@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -40,9 +40,9 @@ function RowDropdown({ onEdit, onDelete }) {
       <button
         ref={btnRef}
         onClick={handleToggle}
-        className="bg-transparent border-none cursor-pointer p-1 rounded-md text-slate-400 flex items-center hover:text-slate-700 hover:bg-slate-100 transition-colors"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-transparent border-none text-neutral-600 cursor-pointer transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]"
       >
-        <MoreVertical size={18} />
+        <EllipsisVertical size={18} />
       </button>
       {open &&
         typeof document !== 'undefined' &&

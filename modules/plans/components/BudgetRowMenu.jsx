@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { Pencil, Trash2 } from 'lucide-react'
 
 /** Меню строки списка бюджетов: «Редактировать» / «Удалить». */
 const BudgetRowMenu = ({ onEdit, onDelete, editLabel, deleteLabel, canEdit = true, canDelete = true }) => {
@@ -22,13 +23,8 @@ const BudgetRowMenu = ({ onEdit, onDelete, editLabel, deleteLabel, canEdit = tru
     <div onClick={(e) => e.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            onClick={(e) => e.stopPropagation()}
-            className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
+          <RowActionsTrigger
+            onClick={(e) => e.stopPropagation()} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[162px] p-1" align="end">
           {canEdit && (

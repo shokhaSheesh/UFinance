@@ -48,7 +48,9 @@
     "typingStates": [
       "Yozyapman",
       "Javobni rasmiylashtiryapman"
-    ]
+    ],
+    "hint": "Yordam kerakmi? AI Yordamchidan so'rang — amaliyotni topadi, hisobotni tushuntiradi yoki qanday qilishni aytadi.",
+    "hintDismiss": "Maslahatni yashirish"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",
@@ -307,7 +309,8 @@
     "unarchive": "Arxivdan chiqarish",
     "clear": "Tozalash",
     "creating": "Yaratilmoqda...",
-    "saving": "Saqlanmoqda..."
+    "saving": "Saqlanmoqda...",
+    "actions": "Amallar"
   },
   "Auth": {
     "title": {

@@ -16,7 +16,7 @@ import { usePnLData } from '../hooks/usePnLData'
 
 const ProfitAndLossPage = observer(() => {
   const t = useTranslations('Reports')
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const accountingMethodOptions = useMemo(() => [
     { value: 'accrual', label: t('pnl.accounting.accrual') },
@@ -38,7 +38,7 @@ const ProfitAndLossPage = observer(() => {
 
   return (
     <FixedContent>
-      <PnLFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)} />
+      <PnLFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
       {loading && <ScreenLoader />}
 
@@ -53,6 +53,7 @@ const ProfitAndLossPage = observer(() => {
             safeIsCalculation={safeIsCalculation}
             onExport={exportProfitAndLoss}
             isExporting={isExporting}
+            onOpenFilters={() => setIsFilterOpen(true)}
           />
 
           {!profitAndLossDataList && !loading ? (

@@ -15,7 +15,7 @@ import { useCashFlowData } from '../hooks/useCashFlowData'
 
 const CashFlowReportPage = observer(() => {
   const t = useTranslations('Reports')
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const groupingOptions = useMemo(() => [
     { value: 'daily', label: t('cashflow.grouping.daily') },
@@ -34,7 +34,7 @@ const CashFlowReportPage = observer(() => {
 
   return (
     <FixedContent>
-      <CashFlowFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)} />
+      <CashFlowFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
       {(isLoading || isFetching) && <ScreenLoader />}
 
@@ -45,6 +45,7 @@ const CashFlowReportPage = observer(() => {
             groupingOptions={groupingOptions}
             onExport={exportCashFlow}
             isExporting={isExporting}
+            onOpenFilters={() => setIsFilterOpen(true)}
           />
           <CashFlowTable
             t={t}

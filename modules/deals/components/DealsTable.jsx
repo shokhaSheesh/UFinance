@@ -133,7 +133,7 @@ function DealRow({
         </div>
 
         {/* Hover: show action buttons */}
-        <div className="hidden group-hover:flex justify-between">
+        <div className="flex justify-between">
           <button
             className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
             title={t('tooltips.editContract')}

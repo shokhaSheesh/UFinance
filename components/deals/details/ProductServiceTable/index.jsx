@@ -237,7 +237,7 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, onSho
                       <p className={`text-sm text-neutral-600`}>
                         {formatAmount(item?.summa)} {item?.currency}
                       </p>
-                      <div className=' items-center  hidden group-hover:flex '>
+                      <div className='flex items-center'>
                         <button onClick={(event) => {
                           event.stopPropagation()
                           handleSelect(item, 'edit')

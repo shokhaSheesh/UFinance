@@ -292,7 +292,7 @@ const ShipmenTable = observer(({
                       <p className={`font-base text-neutral-600`}>
                         {formatAmount(item.summa)} {item?.currency}
                       </p>
-                      <div className=' items-center  hidden group-hover:flex '>
+                      <div className='flex items-center'>
                         {rowCanEdit && (
                           <button onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
                             <MdOutlineModeEdit size={16} className='text-gray-400' />

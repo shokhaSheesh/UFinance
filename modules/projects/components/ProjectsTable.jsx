@@ -4,11 +4,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
 import { cn } from '@/lib/utils'
 import { formatDateFormat } from '@/utils/formatDate'
 import { formatAmount } from '@/utils/helpers'
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import styles from '../projects.module.scss'
 import ProjectsTableHeader from './ProjectsTableHeader'
@@ -127,13 +128,8 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
         {(onEdit || onDelete) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="opacity-0 group-hover:opacity-100 hover:bg-neutral-100 rounded-full p-1.5 cursor-pointer transition-opacity"
-            >
-              <EllipsisVertical size={16} className="text-neutral-500" />
-            </button>
-          </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 p-1.5" align="end">
             {onEdit && (
               <DropdownMenuItem

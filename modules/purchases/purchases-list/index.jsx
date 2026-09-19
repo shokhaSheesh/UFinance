@@ -95,7 +95,7 @@ export default observer(function PurchasesPage() {
   const mounted = useMounted();
   const queryClient = useQueryClient();
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // ── Modal state ────────────────────────────────────────────────────────────
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -297,7 +297,7 @@ export default observer(function PurchasesPage() {
           <div className="w-[240px] bg-neutral-50 border-r border-neutral-200 animate-pulse" />
         }
       >
-        <FilterSidebar onOpenChange={setIsFilterOpen} isPurchase />
+        <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} isPurchase />
       </Suspense>
 
       {/* ── Main content ── */}
@@ -318,6 +318,7 @@ export default observer(function PurchasesPage() {
           onExport={exportDeals}
           onCreateDeal={() => setIsCreateModalOpen(true)}
           onMethodChange={(v) => setState("dealsMethod", v)}
+          onOpenFilters={() => setIsFilterOpen(true)}
         />
 
         <PurchasesTable

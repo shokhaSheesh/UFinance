@@ -30,7 +30,7 @@ export default function RoleRow({ role, index, canEdit, canDelete, onEdit, onDel
       <td className="px-3 py-2 w-24">
         {(canEdit || canDelete) && (
           <div
-            className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="flex items-center gap-2"
             onClick={(e) => e.stopPropagation()}
           >
             {canEdit && (

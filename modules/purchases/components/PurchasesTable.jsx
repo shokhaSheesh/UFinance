@@ -101,7 +101,7 @@ function PurchaseRow({
       <div className="w-24 shrink-0 px-2 text-end">{deal.otgruzheno || '0%'}</div>
 
       <div className="w-20 shrink-0 relative px-2 text-end">
-        <div className="hidden group-hover:flex justify-end">
+        <div className="flex justify-end">
           <div className="flex items-center justify-end">
             {deal.contract_file && (
               <button

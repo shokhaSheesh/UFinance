@@ -35,7 +35,7 @@ export default observer(function ProjectsListPage() {
   const mounted = useMounted()
   const router = useRouter()
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   // Права раздела «Проекты»
   const permissions = appStore.permission.projects || {}
@@ -170,6 +170,7 @@ export default observer(function ProjectsListPage() {
           onMethodChange={(v) => setState('analysisMethod', v)}
           onViewModeChange={(v) => setState('viewMode', v)}
           onExport={() => {}}
+          onOpenFilters={() => setIsFilterOpen(true)}
         />
 
         <ProjectsTable

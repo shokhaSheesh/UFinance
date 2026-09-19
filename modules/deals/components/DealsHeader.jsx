@@ -1,18 +1,21 @@
 // components/DealsHeader.jsx
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import Input from '@/components/shared/Input'
+import PageHeader from '@/components/shared/PageHeader/PageHeader'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import { appStore } from '@/store/app.store'
-import { Download, EllipsisVertical, Loader2, Search } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import styles from '../deals-list/deals.module.scss'
+import { appStore } from '@/store/app.store'
+import { Download, Search } from 'lucide-react'
 
 /**
- * Sticky page header: title, create buttons, method selector, search, export.
+ * Шапка страницы сделок: поиск, метод учёта и фильтры слева,
+ * создание и меню — справа.
  */
 export default function DealsHeader({
   t,
@@ -26,46 +29,13 @@ export default function DealsHeader({
   onCreateDeal,
   onCreateStudent,
   onMethodChange,
+  onOpenFilters,
+  filterCount = 0,
 }) {
   return (
-    <header className="flex items-center justify-between px-3 h-[60px] sticky top-0 bg-white z-20">
-      <div className="flex items-center gap-2 flex-1">
-        <h1 className={styles.title}>{t('pageTitle')}</h1>
-
-        {dealPermission.add && (
-          <>
-            {!appStore.isDonoSchool && (
-              <button
-                className="primary-btn text-sm rounded-sm!"
-                onClick={onCreateDeal}
-              >
-                {t('createDeal')}
-              </button>
-            )}
-            {appStore.isDonoSchool && (
-              <button
-                className="primary-btn text-sm rounded-sm!"
-                onClick={onCreateStudent}
-              >
-                {t('createStudent')}
-              </button>
-            )}
-          </>
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="w-44">
-          <SingleSelect
-            data={methodOptions}
-            withSearch={false}
-            value={dealsMethod}
-            isClearable={false}
-            onChange={onMethodChange}
-            className="bg-white"
-          />
-        </div>
-
+    <PageHeader
+      title={t('pageTitle')}
+      search={
         <div className="w-72">
           <Input
             type="text"
@@ -75,29 +45,57 @@ export default function DealsHeader({
             leftIcon={<Search size={18} />}
           />
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button type="button" className="primary-btn" disabled={isDealsExportLoading}>
-              {isDealsExportLoading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <EllipsisVertical size={18} />
+      }
+      filters={
+        <>
+          {/* Метод учёта тоже сужает выборку — держим его рядом с фильтрами */}
+          <div className="w-44">
+            <SingleSelect
+              data={methodOptions}
+              withSearch={false}
+              value={dealsMethod}
+              isClearable={false}
+              onChange={onMethodChange}
+              className="bg-white"
+            />
+          </div>
+          <FilterButton onClick={onOpenFilters} count={filterCount} />
+        </>
+      }
+      actions={
+        <>
+          {dealPermission.add && (
+            <>
+              {!appStore.isDonoSchool && (
+                <button className="primary-btn text-sm rounded-sm!" onClick={onCreateDeal}>
+                  {t('createDeal')}
+                </button>
               )}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-44 p-2" align="end">
-            <DropdownMenuItem
-              onClick={onExport}
-              disabled={isDealsExportLoading}
-              className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-            >
-              <Download size={16} />
-              <span>{t('downloadExcel')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </header>
+              {appStore.isDonoSchool && (
+                <button className="primary-btn text-sm rounded-sm!" onClick={onCreateStudent}>
+                  {t('createStudent')}
+                </button>
+              )}
+            </>
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <RowActionsTrigger loading={isDealsExportLoading} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44 p-2" align="end">
+              <DropdownMenuItem
+                onClick={onExport}
+                disabled={isDealsExportLoading}
+                className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
+              >
+                <Download size={16} />
+                <span>{t('downloadExcel')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      }
+    />
   )
 }

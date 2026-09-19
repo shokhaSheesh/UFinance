@@ -1,4 +1,6 @@
 "use client"
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import { DeleteCounterpartyConfirmModal } from '@/components/directories/DeleteCounterpartyConfirmModal/DeleteCounterpartyConfirmModal'
@@ -61,7 +63,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   const queryClient = useQueryClient()
   const { isScrolling, handleScroll, scrollRef } = useScrollDetector(2000)
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -425,16 +427,8 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
 
       <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
-          <div className='flex items-center gap-4 '>
-            <h1 className="text-xl font-semibold">{labels.title}</h1>
-            {isMounted && canAdd && <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="primary-btn"
-            >
-              {t('list.createButton')}
-            </button>}
-          </div>
-          <div className=" flex items-center justify-self-center gap-2">
+          <div className='flex min-w-0 items-center gap-2'>
+            <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
             <div className='w-[250px]'>
               <SingleSelect
                 data={getCalculationOptions(t)}
@@ -466,15 +460,21 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
               </button>
             </div>
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
+            <FilterButton
+              onClick={() => setIsFilterOpen(true)}
+              count={counterpartiesStore.activeFilterCount}
+            />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            {isMounted && canAdd && (
+              <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn">
+                {t('list.createButton')}
+              </button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className="primary-btn" disabled={isCounterpartiesExportLoading}>
-                  {isCounterpartiesExportLoading ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <EllipsisVertical size={18} />
-                  )}
-                </button>
+                <RowActionsTrigger loading={isCounterpartiesExportLoading} />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-44 p-2" align="end">
                 <DropdownMenuItem
@@ -701,8 +701,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
 
         {/* Footer */}
         <div className={cn(
-          'fixed bottom-0 right-0 bg-neutral-100 p-2 border-t border-neutral-200   flex items-center gap-8 shrink-0 z-10  transition-[left] duration-300',
-          isFilterOpen ? 'left-[320px]' : 'left-[110px]'
+          'fixed bottom-0 right-0 left-20 bg-neutral-100 p-2 border-t border-neutral-200 flex items-center gap-8 shrink-0 z-10'
         )}>
           <div className="text-sm text-slate-900">
             <span className="font-semibold text-slate-900 whitespace-nowrap">

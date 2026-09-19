@@ -1,5 +1,6 @@
 'use client'
 
+import FilterButton from '@/components/shared/Filters/FilterButton'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -42,7 +43,7 @@ const PaymentCalendar = observer(() => {
 
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [isFilterOpen, setIsFilterOpen] = useState(true)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({
     filterData: null,
@@ -384,7 +385,7 @@ const PaymentCalendar = observer(() => {
 
   return (
     <div className="flex h-full w-full">
-      <PaymentCalendarFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(!isFilterOpen)} />
+      <PaymentCalendarFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
       {loading && <ScreenLoader />}
 
@@ -421,6 +422,7 @@ const PaymentCalendar = observer(() => {
                 className="bg-white w-44"
                 autoHeight={true}
               />
+              <FilterButton onClick={() => setIsFilterOpen(true)} />
               {/* <button onClick={exportProfitAndLoss} type='button' className="primary-btn">
                 {t('common.downloadExcel')} {isProfitAndLossLoading && <Loader2 size={16} className="animate-spin" />}
               </button> */}

@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { Download, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const Pill = ({ children }) => (
@@ -63,13 +64,8 @@ const BudgetDetailHeader = ({ t, title, pills = [], onExport, onEdit, onDelete, 
           {(onEdit || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex h-9 w-11 items-center justify-center rounded-md border border-gray-200 text-slate-700 transition-colors hover:bg-gray-50"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[162px] p-1" align="end">
               {onEdit && (
                 <DropdownMenuItem asChild>

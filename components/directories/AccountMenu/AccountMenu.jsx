@@ -6,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { Archive, ArchiveRestore, EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, Pencil, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'
@@ -37,10 +38,8 @@ export const AccountMenu = observer(({ account, onEdit, onDelete, onArchive }) =
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="bg-transparent w-full shadow-none cursor-pointer h-full flex items-center justify-center">
-          <EllipsisVertical size={18} className='text-neutral-600' />
-        </div>
-      </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 p-2" align="end">
         {accountPermissions.edit && <DropdownMenuItem asChild>
           <button

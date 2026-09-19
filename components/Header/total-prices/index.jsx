@@ -8,7 +8,7 @@ import { formatDateTime } from "@/utils/formatDate";
 import Money from "@/components/shared/Money";
 import { formatAmount, formatNumber, formatTotalSumma } from "@/utils/helpers";
 import { keepPreviousData } from "@tanstack/react-query";
-import { ChevronDown, Maximize2, MoreVertical } from "lucide-react";
+import { ChevronDown, EllipsisVertical, Maximize2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -351,7 +351,7 @@ const TotalPrice = observer(() => {
                               }}
                               className="transition-colors duration-200 hover:text-slate-600 bg-transparent border-0 cursor-pointer text-[#94a3b8] flex items-center"
                             >
-                              <MoreVertical size={16} />
+                              <EllipsisVertical size={18} />
                             </button>
                           </div>
                         </div>

@@ -1,9 +1,10 @@
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { ChevronRight, FileDown, Loader2, MoreHorizontal, PenLine, Trash2 } from 'lucide-react'
+import { ChevronRight, FileDown, Loader2, PenLine, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { getDetailCalculationOptions } from '../utils/counterpartiesUtils'
 
@@ -59,10 +60,8 @@ const DetailHeader = ({
         {/* меню доступно всегда: скачать акт сверки может любой, кто видит карточку */}
         <Popover>
             <PopoverTrigger asChild>
-              <span className="flex items-center justify-center w-[38px] h-[38px] rounded-md border border-gray-200 bg-white text-slate-500 cursor-pointer transition-all hover:bg-slate-100 hover:border-gray-400">
-                <MoreHorizontal size={20} />
-              </span>
-            </PopoverTrigger>
+          <RowActionsTrigger />
+        </PopoverTrigger>
             <PopoverContent className="w-52 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1">
               <div className="flex flex-col">
                 <span

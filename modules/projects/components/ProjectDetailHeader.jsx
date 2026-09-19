@@ -8,8 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
-import { Check, ChevronDown, ChevronRight, EllipsisVertical } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight } from 'lucide-react'
 import HintQuestion from '@/components/shared/HintQuestion'
 import Link from 'next/link'
 import moment from 'moment'
@@ -137,10 +138,8 @@ export default function ProjectDetailHeader({
         {(onEdit || onToggleStatus || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button type="button" className="outline-btn h-9 px-2.5">
-                <EllipsisVertical size={18} className="text-neutral-500" />
-              </button>
-            </DropdownMenuTrigger>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40 p-1.5" align="end">
               {onEdit && (
                 <DropdownMenuItem onClick={onEdit} className="cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none">
