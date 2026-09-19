@@ -1,13 +1,7 @@
+import IconButton from '@/components/shared/Buttons/IconButton'
 import FilterButton from "@/components/shared/Filters/FilterButton";
 import Input from "@/components/shared/Input";
 import PageHeader from "@/components/shared/PageHeader/PageHeader";
-import RowActionsTrigger from "@/components/shared/RowActions/RowActionsTrigger";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Download, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -52,21 +46,7 @@ export default function PurchasesHeader({
             </button>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <RowActionsTrigger loading={isDealsExportLoading} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 p-2" align="end">
-              <DropdownMenuItem
-                onClick={onExport}
-                disabled={isDealsExportLoading}
-                className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-              >
-                <Download size={16} />
-                <span>{t("downloadExcel")}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <IconButton icon={Download} label={t("downloadExcel")} onClick={onExport} loading={isDealsExportLoading} />
         </>
       }
     />

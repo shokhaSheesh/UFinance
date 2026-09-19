@@ -570,7 +570,9 @@
       "importErrorTitle": "Проблемы с импортом",
       "importErrorDescription": "В вашем xlsx файле обнаружены ошибки. Пожалуйста, скачайте файл с ошибками, чтобы увидеть детали.",
       "downloadErrorFile": "Скачать файл с ошибками",
-      "cancel": "Отмена"
+      "cancel": "Отмена",
+      "createManual": "Ввести вручную",
+      "createImport": "Импортировать из Excel"
     },
     "columns": {
       "date": "Дата",

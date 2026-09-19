@@ -1,3 +1,10 @@
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Popover,
   PopoverContent,
@@ -14,7 +21,7 @@ import { Loader2, Truck } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
+import { IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
@@ -47,6 +54,7 @@ const ShipmenTable = observer(({
   allowedTypes,
 }) => {
   const t = useTranslations('Directories.details.shipmentTable')
+  const tc = useTranslations('Common')
   const tp = useTranslations('Purchases.supplyTable')
 
   // Права роли на отгрузки/поставки: таблица одна на оба типа документа
@@ -292,29 +300,33 @@ const ShipmenTable = observer(({
                       <p className={`font-base text-neutral-600`}>
                         {formatAmount(item.summa)} {item?.currency}
                       </p>
-                      <div className='flex items-center'>
-                        {rowCanEdit && (
-                          <button onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                            <MdOutlineModeEdit size={16} className='text-gray-400' />
-                          </button>
-                        )}
-                        {canCopy && (
-                          <button onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                            <IoCopyOutline size={16} className='text-gray-400' />
-                          </button>
-                        )}
-                        {canDelete && isDateAllowed && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); if (rowCanDelete) handleDeleteShipment(item); }}
-                            disabled={!rowCanDelete}
-                            title={deleteBlocked ? (isPurchase ? tp('deleteBlockedClosedWarehouse') : t('deleteBlockedClosedWarehouse')) : undefined}
-                            className={`text-neutral-600 size-6 flex items-center justify-center rounded-full ${!rowCanDelete ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-200 cursor-pointer hover:text-neutral-900'}`}
-                          >
-                            <IoCloseOutline size={16} className='text-gray-400' />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
+                          {canCopy || rowCanEdit && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <RowActionsTrigger />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-44 p-1.5" align="end">
+              {rowCanEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <MdOutlineModeEdit size={15} /> <span>{tc('edit')}</span>
+                </DropdownMenuItem>
+              )}
+              {canCopy && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <IoCopyOutline size={15} /> <span>{tc('copy')}</span>
+                </DropdownMenuItem>
+              )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div></div>
                   </td>
                 </tr>
               )

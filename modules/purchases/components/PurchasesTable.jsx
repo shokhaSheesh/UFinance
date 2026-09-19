@@ -1,5 +1,12 @@
-import { Download } from 'lucide-react'
-import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Download, Trash2 } from 'lucide-react'
+import { IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
@@ -100,47 +107,49 @@ function PurchaseRow({
 
       <div className="w-24 shrink-0 px-2 text-end">{deal.otgruzheno || '0%'}</div>
 
-      <div className="w-20 shrink-0 relative px-2 text-end">
-        <div className="flex justify-end">
-          <div className="flex items-center justify-end">
-            {deal.contract_file && (
-              <button
-                className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
-                title={t('tooltips.downloadContract')}
-                onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}
-              >
-                <Download size={14} color="#686868" />
-              </button>
-            )}
-            {dealPermission.edit && (
-              <button
-                className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
-                title={t('tooltips.edit')}
-                onClick={(e) => onEditClick(deal, e)}
-              >
-                <MdOutlineModeEdit size={14} color="#686868" />
-              </button>
-            )}
-            {dealPermission.add && (
-              <button
-                className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
-                title={t('tooltips.copy')}
-                onClick={(e) => onCopyClick(deal, e)}
-              >
-                <IoCopyOutline size={14} color="#686868" />
-              </button>
-            )}
-            {dealPermission.delete && (
-              <button
-                className="hover:bg-neutral-100 rounded-full p-2 cursor-pointer"
-                title={t('tooltips.delete')}
-                onClick={(e) => onDeleteClick(deal, e)}
-              >
-                <IoCloseOutline size={14} color="#686868" />
-              </button>
-            )}
-          </div>
-        </div>
+      {/* Действия — одним меню вместо россыпи иконок в строке */}
+      <div className="w-20 shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+        {(dealPermission.edit || dealPermission.add || dealPermission.delete || deal.contract_file) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <RowActionsTrigger />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-52 p-1.5" align="end">
+              {dealPermission.edit && (
+                <DropdownMenuItem
+                  onClick={(e) => onEditClick(deal, e)}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <MdOutlineModeEdit size={15} /> <span>{t('tooltips.edit')}</span>
+                </DropdownMenuItem>
+              )}
+              {dealPermission.add && (
+                <DropdownMenuItem
+                  onClick={(e) => onCopyClick(deal, e)}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <IoCopyOutline size={15} /> <span>{t('tooltips.copy')}</span>
+                </DropdownMenuItem>
+              )}
+              {deal.contract_file && (
+                <DropdownMenuItem
+                  onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <Download size={15} /> <span>{t('tooltips.downloadContract')}</span>
+                </DropdownMenuItem>
+              )}
+              {dealPermission.delete && (
+                <DropdownMenuItem
+                  onClick={(e) => onDeleteClick(deal, e)}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
+                >
+                  <Trash2 size={15} /> <span>{t('tooltips.delete')}</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   )

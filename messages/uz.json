@@ -571,7 +571,9 @@
       "importErrorTitle": "Import muammolari",
       "importErrorDescription": "Sizning xlsx faylingizda xatoliklar aniqlandi. Iltimos, tafsilotlarni ko'rish uchun xatoliklar faylini yuklab oling.",
       "downloadErrorFile": "Xatoliklar faylini yuklab olish",
-      "cancel": "Bekor qilish"
+      "cancel": "Bekor qilish",
+      "createManual": "Qo'lda kiritish",
+      "createImport": "Excel dan import qilish"
     },
     "columns": {
       "date": "Sana",

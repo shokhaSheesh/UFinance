@@ -1,3 +1,4 @@
+import IconButton from '@/components/shared/Buttons/IconButton'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import Input from '@/components/shared/Input'
@@ -8,7 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
 import {
   ChevronDown,
@@ -123,20 +123,7 @@ export default function ProjectsHeader({
             </DropdownMenu>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <RowActionsTrigger />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-44 p-2" align="end">
-              <DropdownMenuItem
-                onClick={onExport}
-                className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-              >
-                <Download size={16} />
-                <span>{t('downloadExcel')}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <IconButton icon={Download} label={t('downloadExcel')} onClick={onExport} />
         </>
       }
     />

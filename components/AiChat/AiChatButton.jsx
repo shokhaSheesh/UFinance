@@ -18,9 +18,10 @@ const HINT_DISMISSED_KEY = "aiChatHintDismissed";
  * кнопка прячется: у панели есть собственная кнопка закрытия, а сама
  * кнопка осталась бы висеть поверх затемнения.
  *
- * Рядом один раз показывается подсказка: иконка сама по себе не объясняет,
- * что за ней. Пользователь закрывает её крестиком или открывает чат — после
- * этого подсказка больше не появляется (флаг в localStorage).
+ * Рядом показывается подсказка: иконка сама по себе не объясняет, что за
+ * ней. Насовсем её убирает только крестик (флаг в localStorage) — открытие
+ * чата подсказку лишь прячет. Иначе первый же клик по кнопке, ещё до того
+ * как подсказку прочитали, убирал бы её навсегда.
  */
 const AiChatButton = observer(() => {
   const t = useTranslations("AiChat");
@@ -35,10 +36,11 @@ const AiChatButton = observer(() => {
     }
     // Небольшая задержка: подсказка не должна выпрыгивать одновременно
     // с загрузкой страницы
-    const timer = setTimeout(() => setShowHint(true), 1500);
+    const timer = setTimeout(() => setShowHint(true), 600);
     return () => clearTimeout(timer);
   }, []);
 
+  // Крестик — «больше не показывать»
   const dismissHint = () => {
     setShowHint(false);
     try {
@@ -48,8 +50,9 @@ const AiChatButton = observer(() => {
     }
   };
 
+  // Открытие чата подсказку только убирает с экрана
   const handleOpen = () => {
-    dismissHint();
+    setShowHint(false);
     aiChatStore.open();
   };
 

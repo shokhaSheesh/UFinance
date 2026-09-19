@@ -1,5 +1,5 @@
 "use client"
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import IconButton from '@/components/shared/Buttons/IconButton'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
@@ -29,13 +29,7 @@ import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
 import { formatAmount, formatNumber, handleDownload } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Download, EllipsisVertical, Loader2 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { ChevronDown, Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
@@ -429,6 +423,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
           <div className='flex min-w-0 items-center gap-2'>
             <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
             <div className='w-[250px]'>
               <SingleSelect
                 data={getCalculationOptions(t)}
@@ -459,7 +454,6 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                 <LuListTree size={18} />
               </button>
             </div>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
             <FilterButton
               onClick={() => setIsFilterOpen(true)}
               count={counterpartiesStore.activeFilterCount}
@@ -472,21 +466,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                 {t('list.createButton')}
               </button>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <RowActionsTrigger loading={isCounterpartiesExportLoading} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-44 p-2" align="end">
-                <DropdownMenuItem
-                  onClick={exportCounterparties}
-                  disabled={isCounterpartiesExportLoading}
-                  className="w-full flex items-center cursor-pointer text-sm gap-2 justify-start outline-none"
-                >
-                  <Download size={16} />
-                  <span>{t('list.downloadExcel')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <IconButton icon={Download} label={t('list.downloadExcel')} onClick={exportCounterparties} loading={isCounterpartiesExportLoading} />
           </div>
         </div>
 

@@ -1,4 +1,11 @@
 'use client'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { applyCopyDates } from '@/utils/operationCopy'
 import { useDeleteOperation } from '@/hooks/useDashboard'
@@ -7,10 +14,10 @@ import operationDto from '@/lib/dtos/operationDto'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { IoCloseOutline, IoCopyOutline } from 'react-icons/io5'
+import { IoCopyOutline } from 'react-icons/io5'
 import { MdOutlineModeEdit } from 'react-icons/md'
 
 
@@ -26,6 +33,7 @@ import EmptyState from '../EmptyState'
 const IncomeOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit, canDelete }) => {
   const t = useTranslations('Directories.details.incomeOperationsTable')
 
+  const tc = useTranslations('Common')
   const [showModal, setShowModal] = useState(false)
   const [selectedOperation, setSelectedOperation] = useState(null)
   const [modalType, setModalType] = useState('income')
@@ -235,27 +243,41 @@ const IncomeOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit,
                         <p className={`font-base text-green-600`}>
                           {'+'}{formatAmount(item.summa)} {item.currency}
                         </p>
-                        <div className='flex items-center'>
-                          {rowCanEdit && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
-                              className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'
-                            >
-                              <MdOutlineModeEdit size={16} className='text-gray-400' />
-                            </button>
+                        <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
+                          {canEdit || rowCanDelete || rowCanEdit && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <RowActionsTrigger />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-44 p-1.5" align="end">
+              {rowCanEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <MdOutlineModeEdit size={15} /> <span>{tc('edit')}</span>
+                </DropdownMenuItem>
+              )}
+              {canEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <IoCopyOutline size={15} /> <span>{tc('copy')}</span>
+                </DropdownMenuItem>
+              )}
+              {rowCanDelete && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
+                >
+                  <Trash2 size={15} /> <span>{tc('delete')}</span>
+                </DropdownMenuItem>
+              )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           )}
-                          {canEdit && (
-                            <button onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                              <IoCopyOutline size={16} className='text-gray-400' />
-                            </button>
-                          )}
-                          {rowCanDelete && (
-                            <button onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }} className='text-neutral-600 size-6 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-full hover:text-neutral-900'>
-                              <IoCloseOutline size={16} className='text-gray-400' />
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                        </div></div>
                     </td>
                   </tr>
                 )
