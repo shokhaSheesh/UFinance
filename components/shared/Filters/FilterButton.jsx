@@ -21,11 +21,11 @@ export default function FilterButton({ onClick, count = 0, className }) {
       onClick={onClick}
       aria-haspopup="dialog"
       className={cn(
-        'flex items-center gap-2 h-9 px-3 rounded-md border text-sm font-medium cursor-pointer transition-colors',
+        'flex items-center gap-2 h-9 px-3 rounded-lg border text-sm font-medium cursor-pointer transition-colors',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
         hasActive
           ? 'border-[#0e73f6] bg-[#e3eeff] text-[#0e73f6] hover:bg-[#d5e5ff]'
-          : 'border-gray-300 bg-white text-slate-700 hover:bg-gray-50',
+          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300',
         className
       )}
     >

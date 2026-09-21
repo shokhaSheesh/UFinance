@@ -52,8 +52,8 @@ export default observer(function WarehousesListPage() {
   }
 
   return (
-    <FixedContent className="flex-col bg-white">
-      <div className="flex min-h-0 flex-1 flex-col px-4 pb-4">
+    <FixedContent className="flex-col">
+      <div className="flex min-h-0 flex-1 flex-col px-6 pb-6">
       <WarehousesHeader
         t={t}
         canAdd={!!warehousePermission?.add}

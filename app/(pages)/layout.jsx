@@ -9,7 +9,7 @@ const PagesLayout = ({ children }) => {
       <Sidebar />
       <div className="flex flex-col flex-1 max-h-screen overflow-hidden">
         <Header />
-        <main className={"flex-1 overflow-hidden bg-white"}>
+        <main className={"flex-1 overflow-hidden bg-canvas"}>
           {children}
         </main>
       </div>

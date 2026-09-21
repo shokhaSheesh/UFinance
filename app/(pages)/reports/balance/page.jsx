@@ -149,8 +149,8 @@ export default observer(function BalancePage() {
 
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
-      <div className={"w-full relative bg-white overflow-auto pb-10"}>
-        <div className="flex px-4 h-16 items-center justify-between sticky top-0 z-20 bg-white">
+      <div className={"w-full relative bg-canvas overflow-auto pb-10"}>
+        <div className="flex px-6 h-16 items-center justify-between sticky top-0 z-20 bg-canvas">
           <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
             <div className="flex items-center gap-3">
           <SingleSelect

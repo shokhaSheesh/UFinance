@@ -409,9 +409,9 @@ export default observer(function CashFlowReportPage() {
 
       {(isLoadingCashFlow || isFetchingCashFlow) && <ScreenLoader />}
 
-      <div className={"w-full bg-white overflow-auto px-4"}>
+      <div className={"w-full bg-canvas overflow-auto px-6"}>
         <div className="h-full flex flex-col">
-          <div className="flex h-16 items-center justify-between sticky z-50 top-0 bg-white shrink-0">
+          <div className="flex h-16 items-center justify-between sticky z-50 top-0 bg-canvas shrink-0">
             <h1 className='text-xl whitespace-nowrap font-semibold'>{t('cashflow.title')}</h1>
             <div className="flex items-center gap-3">
             <SingleSelect

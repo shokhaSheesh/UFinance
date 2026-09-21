@@ -9,7 +9,7 @@ import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 const IndicatorsPage = () => {
   return (
-    <div className='fixed left-[var(--sidebar-w)] bg-white w-[calc(100%_-_var(--sidebar-w))] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible'>
+    <div className='fixed left-[var(--sidebar-w)] bg-canvas w-[calc(100%_-_var(--sidebar-w))] top-[60px] h-[calc(100%-60px)] overflow-y-auto overflow-x-visible'>
       <div className='w-full sticky top-0 z-1000'>
         <IndicatorsNavbar />
       </div>

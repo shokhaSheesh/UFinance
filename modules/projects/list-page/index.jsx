@@ -164,7 +164,7 @@ export default observer(function ProjectsListPage() {
     <FixedContent>
       <ProjectsFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
-      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-white px-4 pb-4">
+      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-canvas px-6 pb-6">
         <ProjectsHeader
           t={t}
           canAdd={permissions.add}

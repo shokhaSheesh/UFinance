@@ -3,16 +3,13 @@ import PriceStatus from "@/components/operations/PriceStatus";
 import {
   ExpendClose,
   ExpendOpen,
-  ShipmentIcon,
-  SupplyIcon,
-  TypeExpenseIcon,
-  TypeIncomeIcon,
 } from "@/constants/icons";
 import { useChartOfAccountsCategories } from "@/hooks/useChartOfAccountsCategories";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight } from "lucide-react";
+import { CornerDownRight } from "lucide-react";
+import OperationTypeIcon from "@/components/operations/OperationTypeIcon/OperationTypeIcon";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { memo, useMemo, useState } from "react";
@@ -275,31 +272,7 @@ const TableRow = observer(
 
           {/* Type Icon */}
           <div className="min-w-14 flex px-1 items-center justify-center">
-            {op.tip ? (
-              <span
-                title={op.tip}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full",
-                  op.tip === "Поступление"
-                    ? "bg-green-50 text-green-600"
-                    : op.tip === "Выплата"
-                      ? "bg-red-50 text-red-600"
-                      : "bg-slate-100 text-slate-600"
-                )}
-              >
-                {op.tip === "Поступление" ? (
-                  <ArrowDownLeft size={15} aria-hidden="true" />
-                ) : op.tip === "Выплата" ? (
-                  <ArrowUpRight size={15} aria-hidden="true" />
-                ) : op.tip === "Перемещение" || op.tip === "Начисление" ? (
-                  <ArrowLeftRight size={15} aria-hidden="true" />
-                ) : op.tip === "Отгрузка" ? (
-                  <span className="scale-[0.65]"><ShipmentIcon /></span>
-                ) : (
-                  op.tip === "Поставка" && <span className="scale-[0.65]"><SupplyIcon /></span>
-                )}
-              </span>
-            ) : null}
+            <OperationTypeIcon tip={op.tip} />
           </div>
 
           {/* Counterparty */}
@@ -504,76 +477,68 @@ const TableRow = observer(
         </div>
 
         {/* Child Rows (Operation Parts) */}
+        {/* Колонки повторяют классы основной строки один в один. Раньше у
+            частей были свои фиксированные ширины (w-32, w-40, w-15, w-52) и
+            gap-1, а у основной строки — min-w + flex-1: при любой ширине окна
+            даты, контрагенты и суммы частей съезжали из-под своих колонок. */}
         {open &&
           op.operationParts?.map((part) => {
             return (
               <div
                 key={part.id}
                 className={cn(
-                  "flex text-sm gap-1 items-stretch bg-neutral-50/50 border-b border-neutral-100 min-h-10 transition-colors hover:bg-neutral-50",
+                  "flex text-sm items-stretch bg-slate-50/70 border-b border-slate-100 min-h-10 transition-colors hover:bg-slate-50",
                   counterpartyGuid &&
                     counterpartyGuid !== part?.counterparties_id &&
                     "opacity-40 grayscale-[0.5] pointer-events-none"
                 )}
               >
-                {/* Empty Space for index padding */}
-                <div className="w-32" />
+                {showIndex && <div className="min-w-10 px-1" />}
 
-                {/* Date Part */}
-                <div className="w-40 flex px-2 py-1 items-center justify-start  pl-4">
-                  <span className="text-sm text-gray-500 font-medium">
-                    ↳ {part?.accrualDate}
+                {/* Дата части — в колонке даты, со стрелкой вложенности */}
+                <div className="min-w-36 flex py-1 items-center justify-start">
+                  <span className="flex items-center gap-1.5 pl-5 px-3 text-sm text-slate-500">
+                    <CornerDownRight size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
+                    {part?.accrualDate}
                   </span>
                 </div>
 
-                {/* Empty Account (Part inherits parent account) */}
-                <div className="w-15 " />
+                {/* Счёт у части общий с основной строкой */}
+                <div className="min-w-18 max-w-52 flex-1 px-2 py-1" />
 
-                {/* Type Icon Part */}
-                <div className="w-14 flex px-1 items-center justify-center ">
-                  {part.tip && (
-                    <div className="scale-[0.7] opacity-60">
-                      {part.tip === "Поступление" ? (
-                        <TypeIncomeIcon />
-                      ) : (
-                        <TypeExpenseIcon />
-                      )}
-                    </div>
-                  )}
+                {op?.paymentType && appStore.isPayment && <div className="min-w-14 px-1" />}
+
+                <div className="min-w-14 flex px-1 items-center justify-center">
+                  <OperationTypeIcon tip={part.tip} size="sm" />
                 </div>
 
-                {/* Counterparty Part */}
-                <div className="w-52 flex-1 flex px-2 py-1 items-center justify-start ">
-                  <span className="text-sm text-gray-600  ">
+                <div className="min-w-20 flex flex-1 px-2 py-1 items-center justify-start">
+                  <span className="text-sm text-slate-700 line-clamp-2">
                     {part.counterparty || ""}
                   </span>
                 </div>
 
-                {/* Statya Part */}
-                <div className="flex-1 flex px-2 py-1 items-center justify-start ">
-                  <span className="text-sm text-gray-600 line-clamp-1">
+                <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
+                  <span className="text-sm text-slate-700 line-clamp-1">
                     {withCategory(part.chartOfAccounts, part.chart_of_accounts_id)}
                   </span>
                 </div>
 
-                {/* Project Part — колонка проекта (если включён модуль) */}
                 {appStore.projectActive && (
                   <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
-                    <span className="text-sm text-gray-600 truncate w-full">
+                    <span className="text-sm text-slate-500 truncate w-full">
                       {part?.projectName || "-"}
                     </span>
                   </div>
                 )}
 
-                {/* Deal Part */}
                 <div className="flex-1 flex px-2 py-1 items-center justify-start min-w-20">
-                  <span className="text-sm text-gray-500 ">
+                  <span className="text-sm text-slate-500 truncate w-full">
                     {part?.selling_deal_name || "-"}
                   </span>
                 </div>
 
-                {/* Price Part */}
-                <div className="w-40 flex px-2 py-1 items-center justify-end ">
+                <div className="min-w-48 flex px-2 py-1 items-center justify-end">
                   <PriceStatus
                     amount={part.summa}
                     tab={part?.tip}
@@ -588,8 +553,8 @@ const TableRow = observer(
                   />
                 </div>
 
-                {/* Empty Menu Space for children */}
-                {/* <div className="w-8" /> */}
+                {/* место под меню действий, как у основной строки */}
+                <div className="w-5 px-1" />
               </div>
             );
           })}

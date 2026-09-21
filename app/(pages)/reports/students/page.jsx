@@ -238,7 +238,7 @@ const Students = observer(() => {
           />
         </FilterSection>
       </FilterSidebar>
-      <div className="flex-1 flex flex-col overflow-hidden relative bg-white px-4">
+      <div className="flex-1 flex flex-col overflow-hidden relative bg-canvas px-6">
         {/* Header */}
         <div className="flex items-center top-0 sticky z-100  py-4 bg-white justify-between">
           <div className="flex gap-2 flex-1">

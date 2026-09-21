@@ -1,5 +1,6 @@
+import OperationTypeIcon from '@/components/operations/OperationTypeIcon/OperationTypeIcon'
 import PriceStatus from '@/components/operations/PriceStatus'
-import { ExpendClose, ExpendOpen, ShipmentIcon, TypeExpenseIcon, TypeIncomeIcon, TypeTransferIcon } from '@/constants/icons'
+import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { cn } from '@/lib/utils'
 import { operationFilterStore } from '@/store/operationFilter.store'
 import { observer } from 'mobx-react-lite'
@@ -113,17 +114,7 @@ const IncomePaymentTableRow = observer(({
 
         {/* Type Icon */}
         <div className="min-w-14 flex px-1 items-center justify-center">
-          {op.tip ? (
-            <div className={cn('flex items-center justify-center w-[28px] h-[28px]', 'scale-75')}>
-              {op.tip === 'Поступление' ? (
-                <TypeIncomeIcon />
-              ) : op.tip === 'Выплата' ? (
-                  <TypeExpenseIcon />
-                ) : (op.tip === 'Перемещение' || op.tip === 'Начисление') ? (
-                  <TypeTransferIcon />
-              ) : op.tip === 'Отгрузка' && <ShipmentIcon />}
-            </div>
-          ) : null}
+          <OperationTypeIcon tip={op.tip} />
         </div>
 
         {/* Counterparty */}
@@ -196,11 +187,7 @@ const IncomePaymentTableRow = observer(({
 
           {/* Type Icon Part */}
           <div className="w-14 flex px-1 items-center justify-center ">
-            {part.tip && (
-              <div className="scale-[0.7] opacity-60">
-                {part.tip === 'Поступление' ? <TypeIncomeIcon /> : <TypeExpenseIcon />}
-              </div>
-            )}
+            <OperationTypeIcon tip={part.tip} size="sm" />
           </div>
 
           {/* Counterparty Part */}

@@ -72,14 +72,14 @@ export function FilterDrawer({ isOpen, onClose, children, clearCount = 0, onClea
         aria-label={title || t('filter')}
         aria-hidden={!isOpen}
         className={cn(
-          'fixed right-0 top-0 z-[1001] flex h-screen w-[360px] max-w-[92vw] flex-col bg-white shadow-[-8px_0_24px_rgba(0,0,0,0.1)]',
+          'fixed right-0 top-0 z-[1001] flex h-screen w-[380px] max-w-[92vw] flex-col bg-white shadow-[-12px_0_32px_rgba(15,23,42,0.12)]',
           'transition-transform duration-200 ease-out',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-5">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-slate-900">{title || t('filter')}</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{title || t('filter')}</h2>
             {clearCount > 0 && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0e73f6] px-1.5 text-xs font-semibold text-white tabular-nums">
                 {clearCount}
@@ -110,7 +110,7 @@ export function FilterDrawer({ isOpen, onClose, children, clearCount = 0, onClea
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-visible! px-4 py-3">{children}</div>
+        <div className="flex-1 overflow-y-auto overflow-x-visible! px-5 py-1">{children}</div>
       </aside>
     </>
   )
@@ -118,8 +118,8 @@ export function FilterDrawer({ isOpen, onClose, children, clearCount = 0, onClea
 
 export function FilterSection({ title, children, className }) {
   return (
-    <div className={cn('my-2 flex flex-col gap-2', className)}>
-      <h3 className="text-sm font-medium text-slate-600">{title}</h3>
+    <div className={cn('flex flex-col gap-2.5 border-b border-slate-100 py-4 last:border-b-0', className)}>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</h3>
       {children}
     </div>
   )

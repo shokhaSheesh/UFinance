@@ -80,7 +80,7 @@ const CashFlowBudget = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-canvas">
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-16 shrink-0">
         <h1 className="text-xl font-semibold text-slate-900">{t('title')}</h1>

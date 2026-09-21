@@ -310,7 +310,7 @@ export default observer(function PurchasesPage() {
         id="scrollableDiv"
         ref={scrollRef}
         onScroll={handleScroll}
-        className="w-full relative overflow-y-auto scroll-smooth bg-white px-4 pb-4"
+        className="w-full relative overflow-y-auto scroll-smooth bg-canvas px-6 pb-6"
       >
         <PurchasesHeader
           t={t}

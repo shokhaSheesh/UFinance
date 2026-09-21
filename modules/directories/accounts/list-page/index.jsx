@@ -294,7 +294,7 @@ export default observer(function AccountsPageList() {
         </FilterSection>
       </FilterSidebar>
 
-      <div className={cn(`pb-40 w-full h-dvh overflow-y-auto flex-1 bg-white`)}>
+      <div className={cn(`pb-40 w-full h-dvh overflow-y-auto flex-1 bg-canvas`)}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.titleRow}>
@@ -353,7 +353,7 @@ export default observer(function AccountsPageList() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 relative bg-white pb-20">
+        <div className="flex-1 overflow-y-auto px-6 relative bg-canvas pb-20">
           <TableCard>
           <div className="z-50">
             <AccountsTable

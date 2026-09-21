@@ -28,9 +28,9 @@ const IconButton = forwardRef(function IconButton(
       title={label}
       disabled={disabled || loading}
       className={cn(
-        'flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-gray-300 bg-white',
+        'flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white',
         iconOnly ? 'w-9' : 'px-3 text-sm font-medium',
-        'text-slate-700 cursor-pointer transition-colors hover:bg-gray-50 hover:text-slate-900',
+        'text-slate-700 cursor-pointer transition-colors hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className

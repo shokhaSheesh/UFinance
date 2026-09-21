@@ -437,7 +437,7 @@ const OperationsListPage = observer(() => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <FixedContent className="bg-[#f5f6f8]">
+    <FixedContent>
       {isPendingGetOperation && <ScreenLoader />}
       {/* Sidebar */}
       <Suspense

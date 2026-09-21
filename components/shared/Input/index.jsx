@@ -22,9 +22,9 @@ const Input = forwardRef(({
         ref={ref}
         type={type}
         className={cn(
-          "w-full px-3 py-1.5 text-xss! text-slate-900 border border-gray-200 rounded-md bg-white h-9 transition-all cursor-text",
+          "w-full px-3 py-1.5 text-sm text-slate-900 border border-slate-200 rounded-lg bg-white h-9 transition-all cursor-text placeholder:text-slate-400 hover:border-slate-300",
           "placeholder:text-gray-400 placeholder:opacity-100",
-          "focus:outline-none focus:border-gray-400",
+          "focus:outline-none focus:border-[#0e73f6] focus:ring-3 focus:ring-[#0e73f6]/15",
           "disabled:text-gray-500 disabled:cursor-not-allowed",
           (error || hasError) && "border-red-ucode! border",
           action === 'filter' && "bg-slate-50",

@@ -274,6 +274,14 @@
 	--text-active: #0e73f6;
 }
 
+/* Фон рабочей области: карточки и таблицы белые, холст под ними — серый.
+   Объявлен явным @utility, а не токеном --color-canvas в @theme: токен не
+   порождал класс bg-canvas (canvas — ещё и системное имя цвета в CSS), и
+   страницы остались бы без фона. */
+@utility bg-canvas {
+	background-color: #f5f6f8;
+}
+
 .duration-250 {
 	transition-duration: 250ms;
 }

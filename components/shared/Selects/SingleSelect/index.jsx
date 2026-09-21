@@ -117,10 +117,10 @@ const SingleSelect = ({
         type="button"
         disabled={disabled}
         className={cn(
-          'flex items-center bg-gray-ucode-25 h-[36px]! transition-all duration-200 justify-between w-full rounded-md px-3 py-2 outline-none',
+          'flex items-center bg-white h-[36px]! transition-all duration-200 justify-between w-full rounded-lg px-3 py-2 outline-none hover:border-slate-300 focus-visible:border-[#0e73f6] focus-visible:ring-3 focus-visible:ring-[#0e73f6]/15',
           disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer focus:border-primary/80',
           className,
-          hasError ? 'border-red-ucode! border!' : "border border-neutral-200"
+          hasError ? 'border-red-ucode! border!' : "border border-slate-200"
         )}
         onClick={() => {
           if (disabled) return;

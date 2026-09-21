@@ -56,17 +56,19 @@ export const ExclamationIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="14" height="14" rx="3" fill="#F88600"></rect><path fillRule="evenodd" clipRule="evenodd" d="M7.75 3.21289C7.75 2.79868 7.41421 2.46289 7 2.46289C6.58579 2.46289 6.25 2.79868 6.25 3.21289L6.25 7.99043C6.25 8.40465 6.58579 8.74043 7 8.74043C7.41421 8.74043 7.75 8.40465 7.75 7.99043L7.75 3.21289ZM7.00004 11.5367C7.50272 11.5367 7.91023 11.1292 7.91023 10.6265C7.91023 10.1238 7.50272 9.71631 7.00004 9.71631C6.49735 9.71631 6.08984 10.1238 6.08984 10.6265C6.08984 11.1292 6.49735 11.5367 7.00004 11.5367Z" fill="white"></path></svg>
 )
 
-export const ExpendClose = ({ color = '#667085' }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1.6665 7.99996C1.6665 5.0144 1.6665 3.52162 2.594 2.59412C3.52149 1.66663 5.01428 1.66663 7.99984 1.66663C10.9854 1.66663 12.4782 1.66663 13.4057 2.59412C14.3332 3.52162 14.3332 5.0144 14.3332 7.99996C14.3332 10.9855 14.3332 12.4783 13.4057 13.4058C12.4782 14.3333 10.9854 14.3333 7.99984 14.3333C5.01428 14.3333 3.52149 14.3333 2.594 13.4058C1.6665 12.4783 1.6665 10.9855 1.6665 7.99996Z" stroke={color} strokeLinejoin="round" />
-    <path d="M5.3335 8H10.6668" stroke={color} strokeLinecap="round" strokeLinejoin="round" />
+// Раскрытие строки дерева (операции, отчёты, планы). Раньше — квадрат с
+// «плюсом»/«минусом», теперь шеврон: вправо — свёрнуто, вниз — раскрыто,
+// как в большинстве таблиц. Пропсы прежние, поэтому все 18 мест
+// использования обновляются без правок.
+export const ExpendClose = ({ color = '#64748b' }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="m6 9 6 6 6-6" />
   </svg>
 )
 
-export const ExpendOpen = ({ color = '#667085' }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1.6665 7.99996C1.6665 5.0144 1.6665 3.52162 2.594 2.59412C3.52149 1.66663 5.01428 1.66663 7.99984 1.66663C10.9854 1.66663 12.4782 1.66663 13.4057 2.59412C14.3332 3.52162 14.3332 5.0144 14.3332 7.99996C14.3332 10.9855 14.3332 12.4783 13.4057 13.4058C12.4782 14.3333 10.9854 14.3333 7.99984 14.3333C5.01428 14.3333 3.52149 14.3333 2.594 13.4058C1.6665 12.4783 1.6665 10.9855 1.6665 7.99996Z" stroke={color} strokeLinejoin="round" />
-    <path d="M8 5.33337V10.6667M5.3335 8H10.6668" stroke={color} strokeLinecap="round" strokeLinejoin="round" />
+export const ExpendOpen = ({ color = '#64748b' }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="m9 18 6-6-6-6" />
   </svg>
 )
 

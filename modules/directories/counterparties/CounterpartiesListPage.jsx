@@ -421,8 +421,8 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
       </FilterSidebar>
 
 
-      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={` px-3 pb-40 w-full h-full overflow-auto flex-1 bg-white `}>
-        <div className="sticky top-0 z-40 bg-white flex items-center justify-between h-16">
+      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={`px-6 pb-40 w-full h-full overflow-auto flex-1 bg-canvas`}>
+        <div className="sticky top-0 z-40 bg-canvas flex items-center justify-between h-16">
           <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
 <div className="flex shrink-0 items-center gap-2">
             <IconButton icon={Download} label={t('list.downloadExcel')} onClick={exportCounterparties} loading={isCounterpartiesExportLoading} />
