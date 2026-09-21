@@ -72,7 +72,7 @@ const CounterpartyDetailPage = observer(({ isStudent = false }) => {
   }
 
   return (
-    <FixedContent className="right-0 bottom-0 overflow-y-auto">
+    <FixedContent className="overflow-y-auto">
       {detail.isLoading && <ScreenLoader />}
 
       {!detail.counterparty && !detail.isLoading && (
@@ -92,7 +92,7 @@ const CounterpartyDetailPage = observer(({ isStudent = false }) => {
         </div>
       )}
 
-      <div className="flex-1 h-full flex flex-col">
+      <div className="flex min-h-full flex-1 flex-col bg-canvas">
         <DetailHeader
           t={t} tc={tc}
           backHref={isStudent ? '/directories/students' : '/directories/counterparties'}
@@ -126,9 +126,8 @@ const CounterpartyDetailPage = observer(({ isStudent = false }) => {
           onEditOperation={handleEditOperation}
           onDeleteOperation={handleDeleteOperation}
           onCopyOperation={handleCopyOperation}
+          footer={<DetailFooter t={t} summary={detail.summary} stats={detail.stats} />}
         />
-
-        <DetailFooter t={t} summary={detail.summary} stats={detail.stats} />
       </div>
 
       {/* Modals */}

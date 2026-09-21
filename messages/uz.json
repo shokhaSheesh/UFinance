@@ -2039,7 +2039,8 @@
         "articleOut": "Chiqimlar uchun modda",
         "comment": "Izoh",
         "groupName": "Nomi",
-        "groupComment": "Izoh"
+        "groupComment": "Izoh",
+        "groupDescription": "Izoh"
       },
       "placeholders": {
         "name": "Masalan, Vasiliev",
@@ -2053,7 +2054,8 @@
         "mfo": "MFO ni kiriting",
         "comment": "Tomonga izoh",
         "groupComment": "Hamkorlar guruhiga izoh",
-        "groupName": "Masalan, yetkazib beruvchilarim"
+        "groupName": "Masalan, yetkazib beruvchilarim",
+        "groupDescription": "Guruh tavsifi"
       },
       "errors": {
         "nameRequired": "Nomini kiriting",
@@ -2218,7 +2220,8 @@
           "deleting": "O'chirilmoqda...",
           "downloadPdf": "PDF yuklab olish"
         }
-      }
+      },
+      "editGroupTitle": "Guruhni tahrirlash"
     },
     "student": {
       "title": "Talabalar",

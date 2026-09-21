@@ -2,9 +2,14 @@ import { GlobalCurrency } from '@/constants/globalCurrency'
 import { cn } from '@/lib/utils'
 import { formatAmount } from '@/utils/helpers'
 
+/**
+ * Итоги по операциям контрагента — подвал таблицы операций. Прилипает к низу
+ * области прокрутки, а не к окну: раньше полоса была фиксированной поверх
+ * страницы и накрывала последние строки таблицы.
+ */
 const DetailFooter = ({ t, summary, stats }) => (
-  <div className="fixed bottom-0 left-[var(--sidebar-w)] right-[var(--ai-w,0px)] h-10 bg-neutral-100 border-t border-gray-200 flex items-center justify-start px-6">
-    <div className="flex items-center gap-4 text-xss">
+  <div className="sticky bottom-0 z-20 flex h-11 items-center justify-start rounded-b-xl border-t border-slate-200 bg-slate-50 px-5">
+    <div className="flex items-center gap-5 text-xss">
       <span className="text-xs text-gray-600">
         <span className="font-semibold text-slate-900">{summary?.total}</span>{' '}
         {summary?.total === 1 ? t('footer.operations') : summary?.total < 5 ? t('footer.operationsPlural') : t('footer.operationsPluralMany')}

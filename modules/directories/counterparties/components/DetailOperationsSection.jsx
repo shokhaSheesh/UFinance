@@ -3,14 +3,16 @@ import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import OperationTableRow from '@/components/operations/TableRow/new'
-import { ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ChevronDown, Plus, ReceiptText, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
 
 const DetailOperationsSection = ({
   t, tc,
   operationsList, operations, isLoading,
   counterpartyInfo, filters, setFilters,
-  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation
+  onCreateOperation, onEditOperation, onDeleteOperation, onCopyOperation,
+  footer
 }) => {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
@@ -27,25 +29,40 @@ const DetailOperationsSection = ({
     setFilters((prev) => ({ ...prev, legalEntities: [], chartOfAccounts: [], deals: [], purchaseDeals: [] }))
 
   return (
-    <div className="flex-1 bg-white">
-      <div className="p-4">
-        <div id='operation_filter_section' className="mb-3 sticky min-h-14 max-h-28 top-10 z-20 bg-white">
-          <div className="flex py-3 items-center gap-3">
-            <h2 className="text-xl font-medium">{t('operationsTitle')}</h2>
-            <button className="primary-btn" onClick={onCreateOperation}>{t('createOperation')}</button>
-            <button className="secondary-btn flex items-center gap-2 text-primary!" onClick={() => setIsFiltersOpen(!isFiltersOpen)}>
-              {t('filters')}
-              {activeCount > 0 && (
-                <span className='flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-white'>
-                  {activeCount}
-                </span>
-              )}
-              <ChevronDown className='w-4 h-4' />
-            </button>
+    <div className="px-6 pb-6">
+      {/* Операции — в карточке с рамкой: заголовок и действия, фильтры, таблица, итоги */}
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div id='operation_filter_section' className="sticky top-0 z-20 rounded-t-xl bg-white">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3">
+            <div className="flex items-baseline gap-2">
+              <h2 className="text-base font-semibold text-slate-900">{t('operationsTitle')}</h2>
+              {operations?.length > 0 && <span className="text-sm tabular-nums text-slate-500">{operations.length}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className={cn('secondary-btn h-9 gap-2', (isFiltersOpen || activeCount > 0) && 'border-[#0e73f6] text-[#0e73f6]')}
+                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                aria-expanded={isFiltersOpen}
+              >
+                <SlidersHorizontal size={16} aria-hidden="true" />
+                {t('filters')}
+                {activeCount > 0 && (
+                  <span className='flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0e73f6] px-1.5 text-xs text-white'>
+                    {activeCount}
+                  </span>
+                )}
+                <ChevronDown className={cn('h-4 w-4 transition-transform', isFiltersOpen && 'rotate-180')} />
+              </button>
+              <button className="primary-btn gap-1.5" onClick={onCreateOperation}>
+                <Plus size={16} aria-hidden="true" />
+                {t('createOperation')}
+              </button>
+            </div>
           </div>
 
           {isFiltersOpen && (
-            <div className='flex flex-wrap items-center gap-3 mb-3 pb-2'>
+            <div className='flex flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50/60 px-5 py-3'>
               <div className="w-48">
                 <SelectLegelEntitties
                   multi
@@ -90,7 +107,7 @@ const DetailOperationsSection = ({
           )}
 
           {/* Table header */}
-          <div className='flex z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-100 border-b border-neutral-200'>
+          <div className='flex z-30 text-xs font-medium uppercase tracking-wide text-slate-500 items-center bg-slate-50 border-b border-slate-200'>
             <div className='min-w-36 pl-5 flex p-3 items-center justify-start'>{t('table.date')}</div>
             <div className='min-w-18 max-w-52 flex-1 flex p-3 items-center justify-start'>{t('table.account')}</div>
             <div className='min-w-14 flex p-3 items-center justify-center'>{t('table.type')}</div>
@@ -103,18 +120,21 @@ const DetailOperationsSection = ({
         </div>
 
         {!isLoading && operations.length === 0 ? (
-          <div className="text-center">
-            <div className="text-2xl font-medium">{t('empty.title')}</div>
-            <div className="text-lg text-gray-500">{t('empty.description')}</div>
+          <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+              <ReceiptText size={22} aria-hidden="true" />
+            </span>
+            <div className="text-base font-medium text-slate-900">{t('empty.title')}</div>
+            <div className="text-sm text-slate-500">{t('empty.description')}</div>
           </div>
         ) : (
-          <div className="pb-56">
-            <div className="pb-4">
+          <div>
+            <div>
               {['future', 'today', 'before'].map(section => (
                 operationsList?.[section]?.length > 0 && (
                   <div key={section}>
-                    <div className="border-y border-y-gray-100 bg-white py-2 text-sm px-4">
-                      <h3 className="font-medium">{t(`sections.${section}`)}</h3>
+                    <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-2">
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t(`sections.${section}`)}</h3>
                     </div>
                     {operationsList[section].map((op) => (
                       <OperationTableRow
@@ -133,6 +153,7 @@ const DetailOperationsSection = ({
             </div>
           </div>
         )}
+        {footer}
       </div>
     </div>
   )

@@ -1906,7 +1906,8 @@
         "articleOut": "Статья для выплат",
         "comment": "Комментарий",
         "groupName": "Название",
-        "groupComment": "Комментарий"
+        "groupComment": "Комментарий",
+        "groupDescription": "Комментарий"
       },
       "placeholders": {
         "name": "Например, Васильев",
@@ -1920,7 +1921,8 @@
         "mfo": "Укажите МФО",
         "comment": "Пояснение к контрагенту",
         "groupComment": "Пояснение к группе контрагентов",
-        "groupName": "Например, мои поставщики"
+        "groupName": "Например, мои поставщики",
+        "groupDescription": "Описание группы"
       },
       "errors": {
         "nameRequired": "Укажите название",
@@ -2085,7 +2087,8 @@
           "deleting": "Удаление...",
           "downloadPdf": "Скачать PDF"
         }
-      }
+      },
+      "editGroupTitle": "Редактировать группу"
     },
     "student": {
       "title": "Студенты",

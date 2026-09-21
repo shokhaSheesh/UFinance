@@ -1,7 +1,7 @@
+import KpiCard from '@/components/shared/KpiCard/KpiCard'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { cn } from '@/lib/utils'
-import { formatAmount, formatNumber, formatTotalSumma } from '@/utils/helpers'
-import { PenLine } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, PenLine, Plus, Scale, TrendingDown, TrendingUp } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 const RenderMultiValue = ({ values, type, t }) => {
@@ -42,100 +42,100 @@ const RenderMultiValue = ({ values, type, t }) => {
   )
 }
 
-const DetailStatsGrid = ({ t, tc, counterpartyInfo, stats, filters, onEdit }) => {
+const DetailStatsGrid = ({ t, tc, counterpartyInfo, filters, onEdit }) => {
+  const tl = useTranslations('Directories.counterparty.list')
   const hasInfo = counterpartyInfo?.inn === null && counterpartyInfo?.kpp?.length === 0 && counterpartyInfo?.accountNumber?.length === 0 && counterpartyInfo?.bank === null && counterpartyInfo?.mfo === null && counterpartyInfo?.address === null && counterpartyInfo?.receiptArticle === null && counterpartyInfo?.paymentArticle === null && counterpartyInfo?.comment === null
+  const isCashflow = filters.calculationMethod === 'Cashflow'
+  const currency = GlobalCurrency?.name
+
+  // Те же пять показателей, что были в трёх карточках разного размера
+  const kpis = [
+    {
+      key: 'income',
+      label: isCashflow ? t('stats.receipts') : t('stats.income'),
+      value: counterpartyInfo?.income,
+      hint: isCashflow ? tl('kpi.receiptsHint') : tl('kpi.incomeHint'),
+      icon: TrendingUp,
+    },
+    {
+      key: 'expense',
+      label: isCashflow ? t('stats.payments') : t('stats.expenses'),
+      value: counterpartyInfo?.expense,
+      hint: isCashflow ? tl('kpi.paymentsHint') : tl('kpi.expenseHint'),
+      icon: TrendingDown,
+    },
+    {
+      key: 'difference',
+      label: isCashflow ? t('stats.difference') : t('stats.profit'),
+      value: counterpartyInfo?.difference,
+      hint: isCashflow ? tl('kpi.differenceHint') : tl('kpi.profitHint'),
+      icon: Scale,
+      tone: 'signed',
+    },
+    {
+      key: 'receivables',
+      label: t('stats.receivables'),
+      value: counterpartyInfo?.debitorka,
+      hint: counterpartyInfo?.debitorka ? tl('kpi.receivablesHint') : t('stats.noDebt'),
+      icon: ArrowDownLeft,
+    },
+    {
+      key: 'payables',
+      label: t('stats.payables'),
+      value: counterpartyInfo?.kreditorka,
+      hint: counterpartyInfo?.kreditorka ? tl('kpi.payablesHint') : t('stats.noDebt'),
+      icon: ArrowUpRight,
+    },
+  ]
+
+  const requisites = [
+    { label: t('info.inn'), value: counterpartyInfo?.inn || '–' },
+    { label: t('info.kpp'), value: <RenderMultiValue values={counterpartyInfo?.kpp} type="kpp" t={t} /> },
+    { label: t('info.accountNumber'), value: <RenderMultiValue values={counterpartyInfo?.accountNumber} type="accountNumber" t={t} /> },
+    { label: t('info.bank'), value: counterpartyInfo?.bank || '–' },
+    { label: t('info.mfo'), value: counterpartyInfo?.mfo || '–' },
+    { label: t('info.address'), value: counterpartyInfo?.address || '–' },
+    { label: t('info.receiptArticle'), value: counterpartyInfo?.receiptArticle || '–' },
+    { label: t('info.paymentArticle'), value: counterpartyInfo?.paymentArticle || '–' },
+    { label: t('info.comment'), value: counterpartyInfo?.comment || '–' },
+  ]
 
   return (
-    <div className="flex gap-4 px-6 pb-5">
-      {/* Financial stats */}
-      <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 min-w-[200px]">
-        <div className="flex flex-col gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
-              <span className="text-xs text-slate-700 font-medium">{filters.calculationMethod === 'Cashflow' ? t('stats.receipts') : t('stats.income')}</span>
-            </div>
-            <div className="text-xl font-bold text-slate-900">
-              {formatAmount(counterpartyInfo?.income)}
-              <span className="text-base ml-2 text-slate-500">{GlobalCurrency?.name}</span>
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
-              <span className="text-xs text-slate-700 font-medium">{filters.calculationMethod === 'Cashflow' ? t('stats.payments') : t('stats.expenses')}</span>
-            </div>
-            <div className="text-xl font-bold text-slate-900">
-              {formatAmount(counterpartyInfo?.expense)}
-              <span className="text-base ml-2 text-slate-500">{GlobalCurrency?.name}</span>
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className={cn("w-1.5 h-1.5 rounded-full", stats.difference >= 0 ? 'bg-emerald-500' : 'bg-red-500')}></div>
-              <span className="text-xs text-slate-700 font-medium">{filters.calculationMethod === 'Cashflow' ? t('stats.difference') : t('stats.profit')}</span>
-            </div>
-            <div className="text-xl font-bold text-slate-900">
-              {formatAmount(counterpartyInfo?.difference)}
-              <span className="text-base ml-2 text-slate-500">{GlobalCurrency?.name}</span>
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col gap-3 px-6 pb-5">
+      <div className="grid grid-cols-5 gap-3">
+        {kpis.map(({ key, ...kpi }) => (
+          <KpiCard key={key} currency={currency} {...kpi} />
+        ))}
       </div>
 
-      {/* Debt cards */}
-      <div className="flex flex-col gap-4 min-w-[180px]">
-        <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 flex-1">
-          <div className="text-sm text-slate-700 font-medium mb-1.5">{t('stats.receivables')}</div>
-          <div className="text-xs text-slate-500">
-            {counterpartyInfo?.debitorka ? formatNumber(formatTotalSumma(counterpartyInfo.debitorka)) : t('stats.noDebt')}
-          </div>
+      {/* Реквизиты */}
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+          <h2 className="text-sm font-semibold text-slate-900">{t('info.title')}</h2>
+          {onEdit && !hasInfo && (
+            <button type="button" onClick={onEdit} className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-slate-600 cursor-pointer hover:bg-slate-100 hover:text-slate-900">
+              <PenLine size={14} aria-hidden="true" />
+              {tc('edit')}
+            </button>
+          )}
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-4 flex-1">
-          <div className="text-sm text-slate-700 font-medium mb-1.5">{t('stats.payables')}</div>
-          <div className="text-xs text-slate-500">
-            {counterpartyInfo?.kreditorka ? formatNumber(formatTotalSumma(counterpartyInfo.kreditorka)) : t('stats.noDebt')}
-          </div>
-        </div>
-      </div>
-
-      {/* Info card */}
-      <div className="bg-white rounded-lg border border-gray-200 drop-shadow-xl transition-shadow p-5 flex-1 flex flex-col">
-        <div className="flex items-center gap-2 mb-3">
-          <h1 className="text-base font-semibold text-slate-900">{counterpartyInfo?.name || tc('noName')}</h1>
-          <PenLine size={12} className="text-slate-700 cursor-pointer hover:text-slate-900 transition-colors" onClick={onEdit} />
-        </div>
-        <div className="h-px bg-gray-200 mb-4"></div>
         {hasInfo ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-            <span className="text-xs text-slate-400 text-center">{t('info.noRequisites')}</span>
-            <button className="flex items-center gap-2 px-5 py-2 text-xs text-slate-600 bg-white border border-gray-300 rounded-lg cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-400 hover:shadow-sm" onClick={onEdit}>
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="9" cy="9" r="8" stroke="#6b7280" strokeWidth="1.2" />
-                <path d="M9 5.5V12.5M5.5 9H12.5" stroke="#6b7280" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
+          <div className="flex items-center justify-between gap-4 px-5 py-4">
+            <span className="text-sm text-slate-500">{t('info.noRequisites')}</span>
+            <button type="button" className="secondary-btn h-9 gap-2" onClick={onEdit}>
+              <Plus size={16} aria-hidden="true" />
               {t('info.addRequisites')}
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-y-3 gap-x-6">
-            {[
-              { label: t('info.inn'), value: counterpartyInfo?.inn || '–' },
-              { label: t('info.address'), value: counterpartyInfo?.address || '–' },
-              { label: t('info.kpp'), value: <RenderMultiValue values={counterpartyInfo?.kpp} type="kpp" t={t} /> },
-              { label: t('info.accountNumber'), value: <RenderMultiValue values={counterpartyInfo?.accountNumber} type="accountNumber" t={t} /> },
-              { label: t('info.bank'), value: counterpartyInfo?.bank || '–' },
-              { label: t('info.mfo'), value: counterpartyInfo?.mfo || '–' },
-              { label: t('info.receiptArticle'), value: counterpartyInfo?.receiptArticle || '–' },
-              { label: t('info.paymentArticle'), value: counterpartyInfo?.paymentArticle || '–' },
-              { label: t('info.comment'), value: counterpartyInfo?.comment || '–' },
-            ].map(({ label, value }, i) => (
-              <div key={i} className="flex items-center gap-4">
-                <span className="text-xs text-slate-500 font-normal shrink-0">{label}</span>
-                <span className="text-sm text-slate-900 font-normal flex items-center">{value}</span>
+          <dl className="grid grid-cols-3 gap-x-8 gap-y-3 px-5 py-4">
+            {requisites.map(({ label, value }, i) => (
+              <div key={i} className="flex min-w-0 flex-col gap-0.5">
+                <dt className="text-xs text-slate-500">{label}</dt>
+                <dd className="flex min-w-0 items-center truncate text-sm text-slate-900">{value}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         )}
       </div>
     </div>
