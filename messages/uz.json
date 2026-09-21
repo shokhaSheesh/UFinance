@@ -2993,6 +2993,7 @@
       "showAll": "Hammasini ko'rsatish"
     },
     "budgetDetail": {
+      "view": "Ko'rinish",
       "grouping": "Guruhlash",
       "method": "Hisob usuli",
       "profit": "Foyda ko'rsatkichlari",

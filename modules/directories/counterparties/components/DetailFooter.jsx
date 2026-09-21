@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { formatAmount } from '@/utils/helpers'
 
 const DetailFooter = ({ t, summary, stats }) => (
-  <div className="fixed bottom-0 w-full h-10 bg-neutral-100 border-t border-gray-200 flex items-center justify-start px-6">
+  <div className="fixed bottom-0 left-[var(--sidebar-w)] right-[var(--ai-w,0px)] h-10 bg-neutral-100 border-t border-gray-200 flex items-center justify-start px-6">
     <div className="flex items-center gap-4 text-xss">
       <span className="text-xs text-gray-600">
         <span className="font-semibold text-slate-900">{summary?.total}</span>{' '}

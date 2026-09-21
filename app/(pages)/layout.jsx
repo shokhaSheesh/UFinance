@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/Sidebar/Sidebar"
 
 const PagesLayout = ({ children }) => {
   return (
-    <div className="flex h-screen max-w-full">
+    <div className="flex h-screen max-w-full pr-[var(--ai-w,0px)]">
       <Sidebar />
       <div className="flex flex-col flex-1 max-h-screen overflow-hidden">
         <Header />

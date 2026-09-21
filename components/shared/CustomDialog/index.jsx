@@ -49,7 +49,7 @@ const CustomDialog = ({
   return createPortal(
     <div
       className={cn(
-        'fixed inset-0 flex items-center justify-center p-4',
+        'fixed inset-y-0 left-0 right-[var(--ai-w,0px)] flex items-center justify-center p-4',
         // 1050 — над окнами фильтров и операции (1000); вложенное окно — 1080.
         // Оба ниже выпадающих слоёв (1100), иначе списки внутри окна
         // открывались бы под ним.

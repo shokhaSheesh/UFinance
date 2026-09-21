@@ -10,7 +10,7 @@
 .header {
   position: fixed;
   top: 0;
-  right: 0;
+  right: var(--ai-w,0px);
   left: var(--sidebar-w);
   height: 57px;
   background: #022565;

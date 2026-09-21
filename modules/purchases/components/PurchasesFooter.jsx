@@ -6,7 +6,7 @@ export default function PurchasesFooter({ t, summary, totalProfit, isFilterOpen 
   return (
     <footer
       className={cn(
-        'fixed bottom-0 right-0 bg-neutral-100 p-2 py-3 border-t border-neutral-200',
+        'fixed bottom-0 right-[var(--ai-w,0px)] bg-neutral-100 p-2 py-3 border-t border-neutral-200',
         'flex items-center gap-6 z-10 transition-[left] duration-300',
         isFilterOpen ? 'left-[320px]' : 'left-[110px]'
       )}

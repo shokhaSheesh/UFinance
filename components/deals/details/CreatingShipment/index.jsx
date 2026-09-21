@@ -877,7 +877,7 @@ const CreateShipment = observer(
           {/* Overlay */}
           <div
             className={cn(
-              "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w))] h-full right-0 bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300"
+              "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-full right-[var(--ai-w,0px)] bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300"
             )}
             onClick={onClose}
           />
@@ -895,7 +895,7 @@ const CreateShipment = observer(
         {/* Overlay */}
         <div
           className={cn(
-            "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w))] h-[calc(100%-60px)] right-0 bottom-0 flex justify-end bg-black/50  z-1000 transition-opacity duration-300"
+            "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-[calc(100%-60px)] right-[var(--ai-w,0px)] bottom-0 flex justify-end bg-black/50  z-1000 transition-opacity duration-300"
           )}
         >
           {/* Panel */}

@@ -394,7 +394,7 @@ const ProfitAndLossByQueryPage = observer(() => {
 
 
   return (
-    <div className="fixed left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w))] flex top-[60px] h-[calc(100%-60px)]">
+    <div className="fixed left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] flex top-[60px] h-[calc(100%-60px)]">
       {/* P&L-specific Filter Sidebar */}
       <PnLFilterSidebar
         isOpen={isFilterOpen}

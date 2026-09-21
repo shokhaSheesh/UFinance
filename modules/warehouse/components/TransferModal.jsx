@@ -243,7 +243,7 @@ const TransferModal = observer(({ open, onClose, warehouseId, onCreated, t }) =>
   if (!open) return null
 
   return (
-    <div className="fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w))] h-[calc(100%-60px)] right-0 bottom-0 flex justify-end bg-black/50 z-1000 transition-opacity duration-300">
+    <div className="fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-[calc(100%-60px)] right-[var(--ai-w,0px)] bottom-0 flex justify-end bg-black/50 z-1000 transition-opacity duration-300">
       <div className="h-full bg-white flex flex-col w-[860px] max-w-full shadow-xl">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 relative">

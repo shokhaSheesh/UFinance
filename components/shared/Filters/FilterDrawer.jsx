@@ -60,7 +60,7 @@ export function FilterDrawer({ isOpen, onClose, children, clearCount = 0, onClea
   return createPortal(
     <div
       className={cn(
-        'fixed inset-0 z-[1000] flex items-center justify-center p-4 transition-opacity duration-200',
+        'fixed inset-y-0 left-0 right-[var(--ai-w,0px)] z-[1000] flex items-center justify-center p-4 transition-opacity duration-200',
         isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
       )}
       aria-hidden={!isOpen}

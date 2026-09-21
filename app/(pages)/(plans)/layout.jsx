@@ -1,7 +1,7 @@
 
 const PlansLayout = ({ children }) => {
   return (
-    <div className="fixed bg-canvas overflow-y-auto left-[var(--sidebar-w)] top-[60px] w-[calc(100%_-_var(--sidebar-w))] h-[calc(100%-60px)] gap-4">
+    <div className="fixed bg-canvas overflow-y-auto left-[var(--sidebar-w)] top-[60px] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-[calc(100%-60px)] gap-4">
       {children}
     </div>
   )

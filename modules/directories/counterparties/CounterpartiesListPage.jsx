@@ -436,7 +436,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   ]
 
   return (
-    <div className="w-[calc(100%_-_var(--sidebar-w))] flex h-[calc(100%-60px)]  fixed left-[var(--sidebar-w)] top-[60px]">
+    <div className="w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] flex h-[calc(100%-60px)]  fixed left-[var(--sidebar-w)] top-[60px]">
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

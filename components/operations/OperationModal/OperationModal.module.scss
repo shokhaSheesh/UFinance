@@ -2,7 +2,7 @@
   position: fixed;
   left: var(--sidebar-w);
   top: 60px;
-  right: 0;
+  right: var(--ai-w,0px);
   bottom: 0;
   z-index: 1000;
   cursor: pointer;

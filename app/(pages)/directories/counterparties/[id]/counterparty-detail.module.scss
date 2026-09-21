@@ -5,7 +5,7 @@
   position: fixed;
     top: 60px;
     left: var(--sidebar-w);
-    right: 0;
+    right: var(--ai-w,0px);
     bottom: 0;
 }
 

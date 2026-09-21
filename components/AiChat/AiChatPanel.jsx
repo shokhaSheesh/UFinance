@@ -367,15 +367,20 @@ const htmlToText = (html) => {
 
 // Изменение ширины панели перетаскиванием
 const MIN_W = 340;
-const MAX_W = 860;
+const MAX_W = 1100;
 const DEFAULT_W = 424;
 const WIDTH_KEY = "aiChatWidth";
+// С этой ширины окна панель встаёт рядом со страницей (сдвигает её), а не поверх
+const DOCK_MIN_VW = 1024;
+// Сколько места всегда оставляем странице рядом с панелью (плюс меню слева)
+const SIDEBAR_W = 80;
+const MIN_PAGE_W = 560;
+const isDockedViewport = () => typeof window !== "undefined" && window.innerWidth >= DOCK_MIN_VW;
 const clampWidth = (w) => {
   if (typeof window === "undefined") return w;
-  return Math.max(
-    Math.min(MIN_W, window.innerWidth),
-    Math.min(w, Math.min(MAX_W, window.innerWidth))
-  );
+  const vw = window.innerWidth;
+  const max = isDockedViewport() ? Math.min(MAX_W, vw - SIDEBAR_W - MIN_PAGE_W) : Math.min(MAX_W, vw);
+  return Math.max(Math.min(MIN_W, max), Math.min(w, max));
 };
 
 const AiChatPanel = observer(() => {
@@ -442,6 +447,33 @@ const AiChatPanel = observer(() => {
     if (!aiChatStore.consumeUsed()) return;
     queryClient.invalidateQueries();
   }, [isOpen, queryClient]);
+
+  // Панель встаёт справа рядом со страницей, как боковая панель ИИ в браузере:
+  // ширина открытой панели уходит в CSS-переменную --ai-w, и все раскладки,
+  // растянутые до правого края, отступают на неё. На узких экранах места
+  // рядом нет — там панель по-прежнему поверх страницы, с затемнением.
+  const [docked, setDocked] = useState(false);
+  useEffect(() => {
+    const update = () => {
+      setDocked(isDockedViewport());
+      const w = clampWidth(widthRef.current);
+      widthRef.current = w;
+      setPanelWidth(w);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--ai-w",
+      isOpen && docked && appStore.isAiActive ? `${panelWidth}px` : "0px"
+    );
+  }, [isOpen, docked, panelWidth]);
+
+  // уходим со страниц с чатом — страница снова во всю ширину
+  useEffect(() => () => document.documentElement.style.setProperty("--ai-w", "0px"), []);
 
   // восстанавливаем сохранённую ширину
   useEffect(() => {
@@ -678,12 +710,15 @@ const AiChatPanel = observer(() => {
 
   return (
     <>
-      <div
-        className={`${styles.backdrop} ${isOpen ? styles.open : ""}`}
-        onClick={() => aiChatStore.close()}
-      />
+      {/* Затемнение — только когда панель поверх страницы (узкий экран) */}
+      {!docked && (
+        <div
+          className={`${styles.backdrop} ${isOpen ? styles.open : ""}`}
+          onClick={() => aiChatStore.close()}
+        />
+      )}
       <aside
-        className={`${styles.panel} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
+        className={`${styles.panel} ${docked ? styles.docked : ""} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
         style={{ width: panelWidth }}
         aria-hidden={!isOpen}
       >

@@ -194,7 +194,7 @@ export default observer(function ProductServiceListPage() {
         </div>
       </FixedContent>
 
-      <div className="fixed bottom-0 left-[var(--sidebar-w)] py-4 px-3 right-0 bg-white border-t border-gray-200">
+      <div className="fixed bottom-0 left-[var(--sidebar-w)] py-4 px-3 right-[var(--ai-w,0px)] bg-white border-t border-gray-200">
         <span className={"lowercase"}>{t("footer.total", { count: 3 })}</span>
       </div>
 
