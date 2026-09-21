@@ -1,5 +1,7 @@
 "use client"
 
+// z-[1100]: выше окон фильтров и форм (z-1000), ниже панели ИИ-чата (1200).
+// С z-50 выпадающие слои открывались за окном и казались неработающими.
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import * as React from "react"
 
@@ -38,7 +40,7 @@ function PopoverContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className="isolate z-50"
+        className="isolate z-[1100]"
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"

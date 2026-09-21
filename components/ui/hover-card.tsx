@@ -1,5 +1,7 @@
 "use client"
 
+// z-[1100]: выше окон фильтров и форм (z-1000), ниже панели ИИ-чата (1200).
+// С z-50 выпадающие слои открывались за окном и казались неработающими.
 import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card"
 
 import { cn } from "@/lib/utils"
@@ -33,7 +35,7 @@ function HoverCardContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className="isolate z-50"
+        className="isolate z-[1100]"
       >
         <PreviewCardPrimitive.Popup
           data-slot="hover-card-content"

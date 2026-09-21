@@ -777,13 +777,6 @@
     },
     "summary": {
       "opsCount": "{count} ta amaliyot"
-    },
-    "createHints": {
-      "income": "Pul hisobga tushdi",
-      "payment": "Pul hisobdan chiqdi",
-      "transfer": "O'z hisoblaringiz o'rtasida o'tkazma",
-      "accrual": "Pul harakatisiz debet va kredit",
-      "importHint": "Fayldan ko'plab amaliyotlarni yuklash"
     }
   },
   "Reports": {
@@ -913,7 +906,9 @@
       "quarter": "Shu chorak",
       "prevYear": "O'tgan yil",
       "year": "Shu yil"
-    }
+    },
+    "from": "Dan",
+    "to": "Gacha"
   },
   "OperationCashFlowModal": {
     "title": "Operatsiyalar",

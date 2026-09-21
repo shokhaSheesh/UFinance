@@ -1,5 +1,7 @@
 "use client"
 
+// z-[1100]: выше окон фильтров и форм (z-1000), ниже панели ИИ-чата (1200).
+// С z-50 выпадающие слои открывались за окном и казались неработающими.
 import * as React from "react"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 
@@ -36,7 +38,7 @@ function TooltipContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        className="isolate z-50 rounded-lg"
+        className="isolate z-[1100] rounded-lg"
       >
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"

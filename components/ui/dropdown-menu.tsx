@@ -1,5 +1,7 @@
 "use client"
 
+// z-[1100]: выше окон фильтров и форм (z-1000), ниже панели ИИ-чата (1200).
+// С z-50 выпадающие слои открывались за окном и казались неработающими.
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
 import * as React from "react"
 
@@ -52,7 +54,7 @@ function DropdownMenuContent({
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
-        className="isolate z-50 outline-none"
+        className="isolate z-[1100] outline-none"
         align={align}
         alignOffset={alignOffset}
         side={side}

@@ -23,8 +23,8 @@ const CREATE_TYPES = [
 /**
  * Шапка страницы операций: заголовок и действия.
  *
- * «Создать» открывает выбор типа операции: четыре типа со значком и одной
- * строкой пояснения, ниже — импорт из Excel. Раньше кнопка сразу открывала
+ * «Создать» открывает выбор типа операции: четыре типа со значком, ниже —
+ * импорт из Excel. Раньше кнопка сразу открывала
  * форму поступления, а тип меняли вкладками уже внутри неё — первое действие
  * почти каждой новой операции было исправлением типа. Типы, которые роль не
  * может создавать, в меню не показываются.
@@ -68,18 +68,15 @@ export default function OperationsHeader({
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 rounded-xl p-1.5" align="end" sideOffset={6}>
+              <DropdownMenuContent className="w-64 rounded-xl p-1.5" align="end" sideOffset={6}>
                 {types.map((type) => (
                   <DropdownMenuItem
                     key={type.id}
                     onClick={() => onCreate(type.id)}
-                    className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 cursor-pointer outline-none"
+                    className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 cursor-pointer outline-none"
                   >
                     <OperationTypeIcon tip={type.tip} />
-                    <span className="flex min-w-0 flex-col">
-                      <span className="text-sm font-medium text-slate-900">{t(type.label)}</span>
-                      <span className="text-xs text-slate-500">{t(`createHints.${type.id}`)}</span>
-                    </span>
+                    <span className="text-sm font-medium text-slate-900">{t(type.label)}</span>
                   </DropdownMenuItem>
                 ))}
 
@@ -88,15 +85,12 @@ export default function OperationsHeader({
                 <DropdownMenuItem
                   onClick={onImport}
                   disabled={isImporting}
-                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 cursor-pointer outline-none"
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 cursor-pointer outline-none"
                 >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
                     <FileSpreadsheet size={15} aria-hidden="true" />
                   </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="text-sm font-medium text-slate-900">{t('page.createImport')}</span>
-                    <span className="text-xs text-slate-500">{t('createHints.importHint')}</span>
-                  </span>
+                  <span className="text-sm font-medium text-slate-900">{t('page.createImport')}</span>
                   {isImporting && <Loader2 size={14} className="ml-auto animate-spin" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>

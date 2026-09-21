@@ -776,13 +776,6 @@
     },
     "summary": {
       "opsCount": "{count, plural, one {# операция} few {# операции} many {# операций} other {# операции}}"
-    },
-    "createHints": {
-      "income": "Деньги пришли на счёт",
-      "payment": "Деньги ушли со счёта",
-      "transfer": "Перевод между своими счетами",
-      "accrual": "Дебет и кредит без движения денег",
-      "importHint": "Загрузить много операций из файла"
     }
   },
   "Reports": {
@@ -912,7 +905,9 @@
       "quarter": "Этот квартал",
       "prevYear": "Прошлый год",
       "year": "Этот год"
-    }
+    },
+    "from": "С",
+    "to": "По"
   },
   "OperationCashFlowModal": {
     "title": "Операции",
