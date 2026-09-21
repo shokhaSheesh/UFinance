@@ -795,7 +795,8 @@
       "counterparty": "Hamkor",
       "counterpartyGroup": "Hamkorlar guruhi",
       "deals": "Bitimlar",
-      "projects": "Loyihalar"
+      "projects": "Loyihalar",
+      "currency": "Valyuta"
     },
     "cashflow": {
       "title": "Pul mablag'larining harakati to'g'risida hisobot",
@@ -823,7 +824,7 @@
       },
       "article": "Modda",
       "emptyPeriod": "Hisobotni ko'rish uchun davrni tanlang",
-      "emptyHint": "Hisobot parametrlarini sozlash uchun chap tarafdagi filtrlardan foydalaning",
+      "emptyHint": "Davr va parametrlarni «Filtrlar» oynasida belgilang",
       "profitTypes": "Foyda turlari",
       "operational": "Operatsion"
     },
@@ -840,7 +841,9 @@
         "total": "Davr oxiriga"
       },
       "display": "Ko'rinish",
-      "titleTest": "Balans (Test)"
+      "titleTest": "Balans (Test)",
+      "balanced": "Balans mos keladi",
+      "difference": "Farq"
     },
     "students": {
       "title": "Talabalar bo'yicha oylik hisobot",
