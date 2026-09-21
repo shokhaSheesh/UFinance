@@ -2991,6 +2991,17 @@
       },
       "updated": "Yangilandi {date}",
       "showAll": "Hammasini ko'rsatish"
+    },
+    "budgetDetail": {
+      "grouping": "Guruhlash",
+      "method": "Hisob usuli",
+      "profit": "Foyda ko'rsatkichlari",
+      "columns": "Ustunlar",
+      "plan": "Reja",
+      "fact": "Fakt",
+      "execution": "Reja bajarilishi",
+      "deviation": "Farq",
+      "noPlan": "Reja kiritilmagan"
     }
   },
   "Indicators": {

@@ -910,15 +910,14 @@ const BudgetPivotTable = ({
     );
   }
 
-  // overflow-hidden/border-radius на обёртке ломает sticky-шапку и первую
-  // колонку, поэтому таблица остаётся во всю ширину без «карточки».
+  // Таблица — собственный контейнер прокрутки, поэтому sticky-шапка и первая
+  // колонка работают и внутри карточки с рамкой, которую рисует страница.
   // Горизонтальная прокрутка — наше отличие от ПланФакт: там ширина периодов
   // просто обрезается, здесь колонки доступны скроллом при закреплённой
   // первой колонке и шапке.
   return (
     <div
-      className="flex-1 overflow-auto bg-white"
-      style={{ borderTop: `1px solid ${T.border}` }}
+      className="min-h-0 flex-1 overflow-auto bg-white"
     >
       <div className="min-w-max">
         {renderHead()}

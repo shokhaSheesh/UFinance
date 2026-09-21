@@ -2837,6 +2837,17 @@
       },
       "updated": "Обновлено {date}",
       "showAll": "Показать все"
+    },
+    "budgetDetail": {
+      "grouping": "Группировка",
+      "method": "Метод учёта",
+      "profit": "Показатели прибыли",
+      "columns": "Колонки",
+      "plan": "План",
+      "fact": "Факт",
+      "execution": "Выполнение плана",
+      "deviation": "Откл.",
+      "noPlan": "План не задан"
     }
   },
   "Indicators": {

@@ -3,6 +3,7 @@
 import BudgetDetailHeader from '@/modules/plans/components/BudgetDetail/BudgetDetailHeader'
 import BudgetFormModal from '@/modules/plans/components/BudgetDetail/BudgetFormModal'
 import BudgetPivotTable from '@/modules/plans/components/BudgetDetail/BudgetPivotTable'
+import BudgetPlanFactCards from '@/modules/plans/components/BudgetDetail/BudgetPlanFactCards'
 import BudgetToolbar from '@/modules/plans/components/BudgetDetail/BudgetToolbar'
 import { useBudgetDictionaries } from '@/modules/plans/hooks/useBudgetDictionaries'
 import { formatPeriodLabel } from '@/modules/plans/hooks/useBudgetList'
@@ -30,6 +31,7 @@ const LIST_HREF = '/cash_flow_budget'
  */
 const CashFlowBudgetSingle = () => {
   const t = useTranslations('Plans.CashFlowBudgetSingle')
+  const tl = useTranslations('Plans.cashFlowBudget')
   const router = useRouter()
   const { id } = useParams()
 
@@ -94,14 +96,21 @@ const CashFlowBudgetSingle = () => {
     : null
 
   return (
-    <div className='flex h-full flex-col bg-white'>
+    <div className='flex h-full flex-col bg-canvas'>
       <BudgetDetailHeader
         t={t}
         title={budget?.name || ''}
         pills={pills}
         backHref={LIST_HREF}
+        backLabel={tl('title')}
+        period={period}
         onEdit={permissions.edit ? () => setModalOpen(true) : undefined}
         onDelete={permissions.delete ? handleDelete : undefined}
+      />
+
+      <BudgetPlanFactCards
+        rows={rows}
+        currency={data?.currency_code || budget?.currency}
       />
 
       <BudgetToolbar
@@ -112,6 +121,8 @@ const CashFlowBudgetSingle = () => {
         onToggleCol={toggleCol}
       />
 
+      {/* Таблица плана — в карточке с рамкой */}
+      <div className='mx-6 mb-6 flex min-h-[320px] flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white'>
       <BudgetPivotTable
         t={t}
         rows={rows}
@@ -128,6 +139,7 @@ const CashFlowBudgetSingle = () => {
         totalEditable={!!permissions.edit && appStore.planTotalActive}
         onPlanChange={savePlan.mutate}
       />
+      </div>
 
       <BudgetFormModal
         isOpen={modalOpen}

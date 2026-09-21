@@ -83,7 +83,7 @@ const MonthPanel = ({ year, onYearChange, monthLabels, start, end, onPick }) => 
               fontSize: 12,
               borderRadius: radius,
               color: selected ? '#fff' : T.textHeading,
-              background: selected ? T.accent : inRange ? 'rgba(30,152,173,.10)' : 'transparent'
+              background: selected ? T.accent : inRange ? 'rgba(14,115,246,.10)' : 'transparent'
             }}
           >
             {monthLabels[month]}

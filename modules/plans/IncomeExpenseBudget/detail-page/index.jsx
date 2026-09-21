@@ -3,6 +3,7 @@
 import BudgetDetailHeader from '@/modules/plans/components/BudgetDetail/BudgetDetailHeader'
 import BudgetFormModal from '@/modules/plans/components/BudgetDetail/BudgetFormModal'
 import BudgetPivotTable from '@/modules/plans/components/BudgetDetail/BudgetPivotTable'
+import BudgetPlanFactCards from '@/modules/plans/components/BudgetDetail/BudgetPlanFactCards'
 import BudgetToolbar from '@/modules/plans/components/BudgetDetail/BudgetToolbar'
 import { useBudgetDictionaries } from '@/modules/plans/hooks/useBudgetDictionaries'
 import { formatPeriodLabel } from '@/modules/plans/hooks/useBudgetList'
@@ -33,6 +34,8 @@ const PROFIT_OPTIONS = ['operating', 'ebitda', 'ebit', 'ebt']
  */
 const IncomeExpenseBudgetSingle = () => {
   const t = useTranslations('Plans.IncomeExpenseBudgetSingle')
+  const tl = useTranslations('Plans.incomeExpenseBudget')
+  const td = useTranslations('Plans.budgetDetail')
   const router = useRouter()
   const { id } = useParams()
 
@@ -86,6 +89,7 @@ const IncomeExpenseBudgetSingle = () => {
         value: method,
         onChange: setMethod,
         placeholder: t('method.accrual'),
+        label: td('method'),
         options: [
           { value: 'accrual', label: t('method.accrual') },
           { value: 'cash', label: t('method.cash') }
@@ -97,10 +101,11 @@ const IncomeExpenseBudgetSingle = () => {
         value: profitIndicators,
         onChange: setProfitIndicators,
         placeholder: t('indicators.profit'),
+        label: td('profit'),
         options: PROFIT_OPTIONS.map((key) => ({ value: key, label: t(`profitIndicators.${key}`) }))
       }
     ],
-    [method, profitIndicators, t]
+    [method, profitIndicators, t, td]
   )
 
   const toggleCol = (key) => {
@@ -133,14 +138,22 @@ const IncomeExpenseBudgetSingle = () => {
     : null
 
   return (
-    <div className='flex h-full flex-col bg-white'>
+    <div className='flex h-full flex-col bg-canvas'>
       <BudgetDetailHeader
         t={t}
         title={budget?.name || ''}
         pills={pills}
         backHref={LIST_HREF}
+        backLabel={tl('title')}
+        period={period}
         onEdit={permissions.edit ? () => setModalOpen(true) : undefined}
         onDelete={permissions.delete ? handleDelete : undefined}
+      />
+
+      <BudgetPlanFactCards
+        rows={rows}
+        hiddenRowIds={hiddenRowIds}
+        currency={data?.currency_code || budget?.currency}
       />
 
       <BudgetToolbar
@@ -152,6 +165,8 @@ const IncomeExpenseBudgetSingle = () => {
         extraSelects={extraSelects}
       />
 
+      {/* Таблица плана — в карточке с рамкой */}
+      <div className='mx-6 mb-6 flex min-h-[320px] flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white'>
       <BudgetPivotTable
         t={t}
         rows={rows}
@@ -169,6 +184,7 @@ const IncomeExpenseBudgetSingle = () => {
         totalEditable={!!permissions.edit && appStore.planTotalActive}
         onPlanChange={savePlan.mutate}
       />
+      </div>
 
       <BudgetFormModal
         isOpen={modalOpen}
