@@ -7,14 +7,14 @@ import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
 import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Download, TriangleAlert } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { balanceStore } from '../../../../components/reports/balance/balance.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
-import { BalanceStructureCard, ChoiceControl, ReportControl, cellTone } from '@/components/reports/shared/ReportParts'
+import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
 import { apiClient } from '../../../../lib/api/ucode/base'
 import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
@@ -89,22 +89,6 @@ export default observer(function BalancePage() {
     setIsInitialLoad(false)
   }, [data, isInitialLoad])
 
-  // Разделы баланса (активы, пассивы) и их состав — для карточек над таблицей
-  const sections = useMemo(() => (data?.data || []).map((item, index) => ({
-    key: String(item.id ?? index),
-    name: item.name,
-    total: item.value || 0,
-    parts: (item.children || item.details || []).map((child, childIndex) => ({
-      key: String(child.id ?? childIndex),
-      name: child.name,
-      value: child.value || 0,
-    })),
-  })), [data])
-
-  // Сходится ли баланс: активы против пассивов
-  const difference = sections.length === 2 ? (Number(sections[0].total) || 0) - (Number(sections[1].total) || 0) : null
-  const isBalanced = difference != null && Math.abs(difference) < 0.01
-
   const toggleRow = (id) => {
     setExpandedRows(prev => {
       const next = new Set(prev)
@@ -125,10 +109,10 @@ export default observer(function BalancePage() {
 
     return (
       <React.Fragment key={item.id}>
-        <tr className={`border-b border-slate-100 transition-colors duration-200 hover:bg-slate-50 ${isTotalRow ? 'font-semibold' : ''}`}>
+        <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
           <td
-            className={`sticky left-0 z-1 min-w-[260px] w-[260px] px-2 py-2 text-xs text-slate-900 border-b border-r border-slate-200 whitespace-normal wrap-break-word ${isActiveOrPassive ? 'font-semibold text-sm' : ''}`}
-            style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#f5f8ff' : '#fff' }}
+            className={`sticky left-0  z-1 min-w-[200px] w-[200px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+            style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#007bff' : '#fff' }}
           >
             <div
               className={`flex  items-center gap-2 ${hasChildren ? 'cursor-pointer select-none hover:opacity-80' : ''}`}
@@ -136,13 +120,13 @@ export default observer(function BalancePage() {
             >
               {hasChildren && (
                 <button className="bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center text-gray-ucode-500 rounded transition-colors duration-200 hover:bg-gray-100 [&_svg]:w-5 [&_svg]:h-5">
-                  {isExpanded ? <ExpendClose color="#667085" /> : <ExpendOpen color="#667085" />}
+                  {isExpanded ? <ExpendClose color={isActiveOrPassive ? '#fff' : '#667085'} /> : <ExpendOpen color={isActiveOrPassive ? '#fff' : '#667085'} />}
                 </button>
               )}
               <span className={isTotalRow ? 'font-semibold' : ''}>{item.name}</span>
             </div>
           </td>
-          <td className={`px-4 py-2 text-xs text-slate-900 border-b border-slate-200 text-right tabular-nums whitespace-nowrap ${isTotalRow ? 'font-semibold' : ''} ${isActiveOrPassive ? 'bg-[#f5f8ff] text-sm' : ''} ${cellTone(item.value)}`}>
+          <td className={`px-2 py-1.5  text-xs text-slate-900 border-b border-gray-200 text-right font-semibold whitespace-nowrap ${isActiveOrPassive && 'bg-primary! text-white!'}`}>
             <span className={isTotalRow ? 'text-xs font-semibold' : ''}>
               {(item.value === 0 || item.value == null)
                 ? '–'
@@ -166,70 +150,32 @@ export default observer(function BalancePage() {
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
       <div className={"w-full relative bg-canvas overflow-auto pb-10"}>
-        {/* Шапка: заголовок и дата слева, фильтры и выгрузка справа */}
         <div className="flex px-6 h-16 items-center justify-between sticky top-0 z-20 bg-canvas">
-          <div className="flex min-w-0 items-baseline gap-3">
-            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
-            {dateRange?.end && (
-              <span className="truncate text-sm text-slate-500">{moment(dateRange.end).format('DD.MM.YYYY')}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
-            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
-          </div>
+          <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
+            <div className="flex items-center gap-3">
+          <SingleSelect
+            data={appStore.myCurrencies}
+            value={balanceStore.selectedCurrency}
+            onChange={(value) => {
+              balanceStore.setSelectedCurrency(value)
+              balanceStore.fetchBalance()
+            }}
+            isClearable={false}
+            withSearch={false}
+            className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
+            dropdownClassName={'w-28'}
+          />
+          <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+          <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
+            </div>
         </div>
 
-        <div className="px-6">
-          {/* Валюта и проверка формулы баланса */}
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <ReportControl label={t('common.currency')}>
-              <ChoiceControl
-                ariaLabel={t('common.currency')}
-                options={appStore.myCurrencies}
-                value={balanceStore.selectedCurrency}
-                onChange={(value) => {
-                  balanceStore.setSelectedCurrency(value)
-                  balanceStore.fetchBalance()
-                }}
-                selectWidth="w-28"
-              />
-            </ReportControl>
-            <div
-              className={
-                'flex items-center gap-2 rounded-full px-3 py-1 text-sm ' +
-                (difference == null ? 'bg-slate-100 text-slate-600' : isBalanced ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800')
-              }
-            >
-              {difference != null && (isBalanced ? <CheckCircle2 size={15} aria-hidden="true" /> : <TriangleAlert size={15} aria-hidden="true" />)}
-              <span>{t('balance.formula')}</span>
-              {difference != null && (
-                <span className="font-medium">
-                  · {isBalanced ? t('balance.balanced') : `${t('balance.difference')}: ${formatNumber(formatTotalSumma(difference))}`}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Структура активов и пассивов */}
-          {sections.length > 0 && (
-            <div className="mb-4 grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] gap-3">
-              {sections.map((section, index) => (
-                <BalanceStructureCard
-                  key={section.key}
-                  title={section.name}
-                  total={section.total}
-                  parts={section.parts}
-                  currency={balanceStore.selectedCurrency}
-                  accent={index === 0 ? '#0e73f6' : '#475569'}
-                />
-              ))}
-            </div>
-          )}
+        <div className="px-4 text-center mb-4 text-sm font-medium ">
+          {t('balance.formula')}
         </div>
 
         {/* Table with loading overlay */}
-        <div className='px-6 pb-4'>
+        <div className='px-4 pb-4'>
           <TableCard className="flex-none w-fit max-w-full self-start">
           {/* Spinner overlay on filter change (data already present) */}
 
@@ -242,10 +188,10 @@ export default observer(function BalancePage() {
             </div>
           ) : (
             <table className="w-full">
-              <thead className="bg-slate-50 sticky top-16 z-10">
+              <thead className=" bg-neutral-100 sticky top-16 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-500 min-w-[260px] w-[260px]">{t('balance.accountHeader')}</th>
-                  <th className="text-right px-4 py-2 text-xs font-medium uppercase tracking-wide text-slate-500 min-w-[180px]">{t('common.total')}</th>
+                  <th className="text-left px-4 py-2 text-[11px] font-medium min-w-[200px] w-[200px]">{t('balance.accountHeader')}</th>
+                  <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white">

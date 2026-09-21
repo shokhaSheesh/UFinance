@@ -824,7 +824,7 @@
       },
       "article": "Modda",
       "emptyPeriod": "Hisobotni ko'rish uchun davrni tanlang",
-      "emptyHint": "Davr va parametrlarni «Filtrlar» oynasida belgilang",
+      "emptyHint": "Hisobot parametrlarini sozlash uchun chap tarafdagi filtrlardan foydalaning",
       "profitTypes": "Foyda turlari",
       "operational": "Operatsion"
     },

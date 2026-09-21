@@ -6,11 +6,11 @@ import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import OperationCashFlowModal from '@/components/directories/OperationCashFlowModal'
 import PnLFilterSidebar from '@/components/reports/profit-and-loss/FilterSidebar'
-import { ChoiceControl, ReportControl, ReportSummaryStrip, cellTone } from '@/components/reports/shared/ReportParts'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
 import '@/styles/report-filters.css'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Download, FileBarChart } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -220,16 +220,6 @@ const ProfitAndLossPage = observer(() => {
     }
   }, [profitAndLossDataList, isInitialLoad, rows])
 
-  // Карточки главных строк: итог за период и столбики по периодам
-  const summaryItems = useMemo(() => (rows || []).map(item => ({
-    key: String(item.id),
-    name: item.name,
-    total: item.totalValue || 0,
-    values: legend.map(period => item.values?.[period.key] || 0),
-    percent: item.type === 'percent',
-    emphasis: item.type === 'result' || item.type === 'total',
-  })), [rows, legend])
-
   const toggleRow = (id) => {
     setExpandedRows(prev => {
       const next = new Set(prev)
@@ -253,17 +243,15 @@ const ProfitAndLossPage = observer(() => {
     return (
       <React.Fragment key={item.id}>
         <tr
-          className={`border-b box-content border-slate-200 transition-colors ${isResultRow || isTotalRow
-            ? 'bg-[#f5f8ff] font-semibold'
-            : depth === 0
-              ? 'bg-slate-50 font-semibold'
-              : 'hover:bg-slate-50'
+          className={`border-b box-content border-neutral-200 transition-colors ${depth === 0 || isResultRow || isTotalRow
+            ? 'bg-neutral-50 font-semibold'
+            : 'hover:bg-neutral-50'
             }`}
         >
           {/* Name cell — sticky left */}
           <td
-            className={`sticky left-0 z-10 p-0! box-border transition-shadow duration-300 ${isResultRow || isTotalRow ? 'bg-[#f5f8ff]' : depth === 0 ? 'bg-slate-50' : 'bg-white'
-              } hover:bg-slate-100 transition-colors`}
+            className={`sticky left-0 z-10 p-0! box-border transition-shadow duration-300 ${depth === 0 || isResultRow || isTotalRow ? 'bg-neutral-50' : 'bg-white'
+              } hover:bg-neutral-100 transition-colors`}
           >
             <div
               className={`flex items-center cursor-pointer! w-full border-r px-4 py-2 text-xss! gap-2 ${hasChildren ? '' : 'cursor-default'
@@ -301,7 +289,7 @@ const ProfitAndLossPage = observer(() => {
             return (
               <td
                 key={period.key}
-                className={`px-2 text-xs text-end tabular-nums border-r min-w-[150px] max-w-[150px] ${cellTone(value)} ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
+                className={`px-2 text-xs text-end border-r min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
                   }`}
               >
                 <span
@@ -322,7 +310,7 @@ const ProfitAndLossPage = observer(() => {
 
           {/* Total cell */}
           <td
-            className={`px-2 text-right tabular-nums border-l min-w-[150px] max-w-[150px] ${cellTone(item.totalValue)} ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
+            className={`px-2 text-right border-l min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
               }`}
           >
             <span
@@ -419,85 +407,74 @@ const ProfitAndLossPage = observer(() => {
       {/* Main Content */}
       <div className={"w-full bg-canvas overflow-auto px-6"}>
         <div className='h-full flex flex-col'>
-          {/* Шапка: заголовок и период слева, фильтры и выгрузка справа */}
           <div className="flex h-16 items-center justify-between sticky z-50 top-0 bg-canvas shrink-0">
-            <div className="flex min-w-0 items-baseline gap-3">
-              <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
-              {legend.length > 0 && (
-                <span className="truncate text-sm text-slate-500">
-                  {legend[0]?.title}{legend.length > 1 ? ` – ${legend[legend.length - 1]?.title}` : ''}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
-              <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
+            <h1 className='text-xl whitespace-nowrap font-semibold'>{t('pnl.title')}</h1>
+            <div className="flex items-center gap-3">
+            <SingleSelect
+              data={appStore.myCurrencies}
+              value={pnlStore.selectedCurrency}
+              onChange={(value) => pnlStore.setSelectedCurrency(value)}
+              isClearable={false}
+              withSearch={false}
+              className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
+              dropdownClassName={'w-28'}
+            />
+            <SingleSelect
+              data={groupingOptions}
+              value={pnlStore.selectedGrouping}
+              onChange={(value) => {
+                pnlStore.setSelectedGrouping(value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              placeholder={t('common.buildingMethod')}
+              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
+            />
+            <SingleSelect
+              data={accountingMethodOptions}
+              value={pnlStore.isCalculation}
+              onChange={(value) => {
+                pnlStore.setIsCalculation(value)
+              }}
+              isClearable={false}
+              withSearch={false}
+              placeholder={t('common.accountingMethod')}
+              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
+              autoHeight={true}
+            />
+            <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+            <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportProfitAndLoss} loading={isProfitAndLossLoading} />
             </div>
           </div>
-
-          {/* Параметры отчёта — видимыми переключателями */}
-          <div className="mb-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <ReportControl label={t('common.currency')}>
-              <ChoiceControl
-                ariaLabel={t('common.currency')}
-                options={appStore.myCurrencies}
-                value={pnlStore.selectedCurrency}
-                onChange={(value) => pnlStore.setSelectedCurrency(value)}
-                selectWidth="w-28"
-              />
-            </ReportControl>
-            <ReportControl label={t('common.buildingMethod')}>
-              <ChoiceControl
-                ariaLabel={t('common.buildingMethod')}
-                options={groupingOptions}
-                value={pnlStore.selectedGrouping}
-                onChange={(value) => pnlStore.setSelectedGrouping(value)}
-              />
-            </ReportControl>
-            <ReportControl label={t('common.accountingMethod')}>
-              <ChoiceControl
-                ariaLabel={t('common.accountingMethod')}
-                options={accountingMethodOptions}
-                value={pnlStore.isCalculation}
-                onChange={(value) => pnlStore.setIsCalculation(value)}
-              />
-            </ReportControl>
-          </div>
-
-          <ReportSummaryStrip
-            items={summaryItems}
-            currency={selectedCurrency}
-            firstLabel={legend[0]?.title}
-            lastLabel={legend.length > 1 ? legend[legend.length - 1]?.title : null}
-          />
 
           {!profitAndLossDataList && !loading ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-20 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                <FileBarChart size={22} aria-hidden="true" />
-              </span>
-              <p className="text-base text-slate-600">{t('pnl.emptyPeriod')}</p>
-              <p className="text-sm text-slate-400">{t('pnl.emptyHint')}</p>
+            <div className="flex mx-auto flex-1 flex-col  h-full justify-center items-center py-20 text-center">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" style={{ marginBottom: '16px', opacity: 0.3 }}>
+                <path d="M8 16C8 11.5817 11.5817 8 16 8H48C52.4183 8 56 11.5817 56 16V48C56 52.4183 52.4183 56 48 56H16C11.5817 56 8 52.4183 8 48V16Z" stroke="currentColor" strokeWidth="2" />
+                <path d="M16 24H48M16 32H48M16 40H32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <p style={{ fontSize: '16px', color: '#667085', marginBottom: '8px' }}>Выберите период для отображения отчета</p>
+              <p style={{ fontSize: '14px', color: '#98A2B3' }}>Используйте фильтры слева для настройки параметров отчета</p>
             </div>
           ) : (
             <TableCard className="mb-4 flex-none w-fit max-w-full self-start">
             <div className='flex flex-1 overflow-hidden'>
               <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
-                  <thead className={"bg-slate-50 sticky top-0 z-50 "}>
+                  <thead className={"bg-neutral-100 sticky top-0 z-50 "}>
                     <tr>
                       <th
-                        className="text-left text-xs font-medium sticky left-0 z-40 bg-slate-50"
+                        className="text-left text-xs font-medium sticky left-0 z-40 bg-neutral-100"
                         style={{ minWidth: 420 }}
                       >
                         <p className='px-4 w-full border-r py-2'>{t('pnl.article')}</p>
                       </th>
                       {legend.map(period => (
-                        <th key={period.key} className="text-right bg-slate-50 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] text-xs text-xss! font-medium">
+                        <th key={period.key} className="text-right bg-neutral-100 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] text-xs text-xss! font-medium">
                           <span className='line-clamp-1 border-l px-4 py-2'>{period.title}</span>
                         </th>
                       ))}
-                      <th className="text-right bg-slate-50 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium">
+                      <th className="text-right bg-neutral-100 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium">
                         {t('common.total')}
                       </th>
                     </tr>
