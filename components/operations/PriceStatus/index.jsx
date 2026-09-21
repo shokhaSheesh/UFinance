@@ -4,9 +4,11 @@ import { operationFilterStore } from '@/store/operationFilter.store'
 import { isPastDate } from '@/utils/formatDate'
 import Money from '@/components/shared/Money'
 import { observer } from 'mobx-react-lite'
+import { useTranslations } from 'next-intl'
 import styles from './style.module.scss'
 
-const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, op, percent, toCurrency, toAmount, debit, kredit }) => {
+const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency, dealId, op, percent, toCurrency, toAmount, debit, kredit, unconfirmed = false }) => {
+  const t = useTranslations('Operations')
   const isSpinasiya = !operationFilterStore.selectedFilters?.includes('Списание')
   const isZachisleniya = !operationFilterStore.selectedFilters?.includes('Зачисление')
   const isDebit = !operationFilterStore.selectedFilters?.includes('Дебет')
@@ -40,6 +42,16 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
 
       {showWarning && (
         <WarnIcon />
+      )}
+
+      {/* Неподтверждённая операция: раньше это обозначал синий цвет всей строки */}
+      {unconfirmed && (
+        <span
+          title={t('filters.notConfirmed')}
+          className="shrink-0 rounded px-1.5 py-0.5 text-xs font-medium leading-none text-slate-600 bg-slate-100 whitespace-nowrap"
+        >
+          {t('row.unconfirmedBadge')}
+        </span>
       )}
 
       <div className={styles.amountText}>

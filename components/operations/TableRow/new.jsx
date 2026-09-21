@@ -146,24 +146,25 @@ const TableRow = observer(
 
     const isDifferentDate = op?.accrualDate !== op?.operationDate;
 
-    const isActive = !op?.payment_confirmed && !op?.payment_accrual;
-
-    const textPrimary = useMemo(() => {
+    // Неподтверждённая операция. Раньше весь текст строки красился в синий —
+    // это трудно читать, и синий уже означает «ссылка» и «кнопка». Теперь то
+    // же условие показывает небольшой бейдж рядом с суммой.
+    // Для отгрузки/поставки условие обратное (синим было payment_shipment ===
+    // true) — сохранено как было, смысл поля фронт не задаёт.
+    const isUnconfirmed = useMemo(() => {
       switch (op.tip) {
         case "Поступление":
-          return !op.payment_confirmed && !op.payment_accrual && "text-primary";
         case "Выплата":
-          return !op.payment_confirmed && !op.payment_accrual && "text-primary";
+          return !op.payment_confirmed && !op.payment_accrual;
         case "Начисление":
-          return !op.payment_accrual && "text-primary";
+          return !op.payment_accrual;
         case "Отгрузка":
-          return op.payment_shipment && "text-primary";
         case "Поставка":
-          return op.payment_shipment && "text-primary";
+          return Boolean(op.payment_shipment);
         case "Перемещение":
-          return !op.payment_confirmed && "text-primary";
+          return !op.payment_confirmed;
         default:
-          return "";
+          return false;
       }
     }, [op]);
 
@@ -195,11 +196,10 @@ const TableRow = observer(
           {/* Date */}
           <div
             className={cn(
-              "min-w-36 flex py-1 items-center justify-start ",
-              isActive && styles.activeRow
+              "min-w-36 flex py-1 items-center justify-start "
             )}
           >
-            <div className={cn(textPrimary, "w-full")}>
+            <div className={"w-full"}>
               {op.operationParts?.length > 0 ? (
                 <div
                   className={"flex items-center gap-1 pl-5 px-3 relative"}
@@ -230,14 +230,12 @@ const TableRow = observer(
           {/* Account/Shot */}
           <div
             className={cn(
-              "min-w-18 line-clamp-1 max-w-52 flex-1 flex px-2 py-1 items-center justify-start",
-              isActive && styles.activeRow
+              "min-w-18 line-clamp-1 max-w-52 flex-1 flex px-2 py-1 items-center justify-start"
             )}
           >
             <div
               className={cn(
-                "flex flex-col items-start leading-tight truncate",
-                textPrimary
+                "flex flex-col items-start leading-tight truncate"
               )}
             >
               {op?.tip === "Перемещение" ? (
@@ -258,8 +256,7 @@ const TableRow = observer(
                 op?.tip === "Поставка" ? (
                 <span
                   className={cn(
-                    "truncate w-full text-sm text-neutral-500 font-normal",
-                    textPrimary
+                    "truncate w-full text-sm text-neutral-500 font-normal"
                   )}
                 >
                   [{op.legal_entity_name}]
@@ -298,12 +295,11 @@ const TableRow = observer(
           {/* Counterparty */}
           <div
             className={cn(
-              "min-w-20 flex  flex-1 px-2 py-1 items-center justify-start ",
-              isActive && styles.activeRow
+              "min-w-20 flex  flex-1 px-2 py-1 items-center justify-start "
             )}
           >
             <p
-              className={cn("text-sm line-clamp-2", textPrimary)}
+              className="text-sm line-clamp-2"
               title={titleContragent}
             >
               {titleContragent}
@@ -313,12 +309,11 @@ const TableRow = observer(
           {/* Statya (Statya - Chart of Accounts) */}
           <div
             className={cn(
-              "flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20",
-              isActive && styles.activeRow
+              "flex-1 flex flex-col px-2 py-1 items-start justify-center  min-w-20"
             )}
           >
             <div
-              className={cn("flex flex-col items-start  w-full", textPrimary)}
+              className="flex flex-col items-start w-full"
             >
               {op?.tip === "Перемещение" ? (
                 <>
@@ -385,11 +380,10 @@ const TableRow = observer(
           {appStore.projectActive && (
             <div
               className={cn(
-                "flex-1 flex px-2 py-1 items-center justify-start min-w-20",
-                isActive && styles.activeRow
+                "flex-1 flex px-2 py-1 items-center justify-start min-w-20"
               )}
             >
-              <p className={cn("text-sm text-neutral-600 truncate w-full", textPrimary)}>
+              <p className="text-sm text-neutral-600 truncate w-full">
                 {titleProject}
               </p>
             </div>
@@ -398,8 +392,7 @@ const TableRow = observer(
           {/* Deal */}
           <div
             className={cn(
-              "flex-1 flex px-2 py-1 items-center justify-start min-w-20",
-              isActive && styles.activeRow
+              "flex-1 flex px-2 py-1 items-center justify-start min-w-20"
             )}
           >
             {(op.tip === "Поступление" ||
@@ -411,8 +404,7 @@ const TableRow = observer(
                   {op?.sales_transaction_name && (
                     <p
                       className={cn(
-                        "text-sm text-neutral-600 truncate w-full",
-                        textPrimary
+                        "text-sm text-neutral-600 truncate w-full"
                       )}
                     >
                       {op.sales_transaction_name}
@@ -421,8 +413,7 @@ const TableRow = observer(
                   {op?.purchase_transaction_name && (
                     <p
                       className={cn(
-                        "text-sm text-neutral-600 truncate w-full",
-                        textPrimary
+                        "text-sm text-neutral-600 truncate w-full"
                       )}
                     >
                       {op.purchase_transaction_name}
@@ -432,8 +423,7 @@ const TableRow = observer(
               ) : (
                 <p
                   className={cn(
-                    "text-sm text-neutral-600 truncate w-full",
-                    textPrimary
+                    "text-sm text-neutral-600 truncate w-full"
                   )}
                 >
                   -
@@ -442,12 +432,7 @@ const TableRow = observer(
             {op.tip === "Начисление" && (
               <div className="flex flex-col items-start justify-center relative group w-full">
                 {titleDeals?.children?.length === 0 ? (
-                  <p
-                    className={cn(
-                      "text-sm truncate w-full",
-                      !op.payment_accrual && "text-primary"
-                    )}
-                  >
+                  <p className="text-sm truncate w-full">
                     {titleDeals?.title || "-"}
                   </p>
                 ) : (
@@ -473,7 +458,7 @@ const TableRow = observer(
 
           {/* Price/Amount */}
           <div
-            className="min-w-36 flex px-2 py-1 items-center justify-end "
+            className="min-w-48 flex px-2 py-1 items-center justify-end"
             onClick={(e) => e.stopPropagation()}
           >
             <PriceStatus
@@ -490,6 +475,7 @@ const TableRow = observer(
               currency={op.currency}
               dealId={op?.sales_transactions_id || op?.purchase_transactions_id}
               toCurrency={op?.to_currenies_kod}
+              unconfirmed={isUnconfirmed}
             />
           </div>
 

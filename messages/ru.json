@@ -769,7 +769,8 @@
       "transferWriteOff": "[Перемещение списание]",
       "transferEnrollment": "[Перемещение зачисление]",
       "byDebit": "[по дебету]",
-      "byCredit": "[по кредиту]"
+      "byCredit": "[по кредиту]",
+      "unconfirmedBadge": "Не подтв."
     }
   },
   "Reports": {

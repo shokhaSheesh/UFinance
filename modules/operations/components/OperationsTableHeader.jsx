@@ -35,7 +35,7 @@ export default function OperationsTableHeader({ t }) {
       <div className="min-w-20 flex-1 flex p-3 items-center justify-start">
         {t('columns.deal')}
       </div>
-      <div className="min-w-36 flex p-3 items-center justify-end">
+      <div className="min-w-48 flex p-3 items-center justify-end">
         {t('columns.amount')}
       </div>
       <div className="min-w-5 flex p-3 items-center justify-center">&nbsp;</div>

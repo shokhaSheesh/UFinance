@@ -770,7 +770,8 @@
       "transferWriteOff": "[Ko'chirish — yechish]",
       "transferEnrollment": "[Ko'chirish — hisobga olish]",
       "byDebit": "[debet bo'yicha]",
-      "byCredit": "[kredit bo'yicha]"
+      "byCredit": "[kredit bo'yicha]",
+      "unconfirmedBadge": "Tasdiqlanmagan"
     }
   },
   "Reports": {

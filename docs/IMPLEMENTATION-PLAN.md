@@ -16,9 +16,9 @@
 These apply to every phase. Each comes from something that has already gone
 wrong once in this redesign.
 
-1. **Edit the live file.** Several pages exist twice. Before touching a page,
-   find which file its route in `app/(pages)/…/page.jsx` actually imports.
-   Reports and counterparties have dead copies (see Phase 0).
+1. **Edit the live file.** Before touching a page, find which file its route in
+   `app/(pages)/…/page.jsx` actually imports. The known dead copies (reports,
+   counterparties) were deleted in Phase 0, but check anyway.
 2. **Every page in one pass.** A change meant for all list pages goes to all
    of them in the same phase, not a pilot subset.
 3. **Check the rendered output, not just the source.** Load each route with
@@ -28,13 +28,13 @@ wrong once in this redesign.
 4. **Change the shared component, not the page.** `PageHeader`, `TableCard`,
    `TableToolbar`, `FilterButton`, `FilterDrawer`, `FilterChips`,
    `RowActionsTrigger` and `IconButton` exist so each change is made once.
-5. **Lint stays at baseline.** 5 pre-existing errors (the `set-state-in-effect`
-   ones in the report data hooks, `AddUserModal`, and the purchases and
-   counterparties hooks). A phase ends with the same 5, not more.
+5. **Lint stays at baseline: 2 errors** (`set-state-in-effect`, both
+   pre-existing). It was 5 until Phase 0 deleted the dead report hooks that
+   held three of them. A phase ends with 2, not more.
 
 ---
 
-## Phase 0 — Clear the ground
+## Phase 0 — Clear the ground ✅ done (`d483335`)
 
 Small, and it removes the two things most likely to derail later phases.
 
@@ -50,8 +50,10 @@ Small, and it removes the two things most likely to derail later phases.
 - `app/(pages)/directories/accounts/page.backup.jsx` → delete.
 
 **0.2 One sidebar-width value.** Needed before Phase 4, and harmless on its
-own. 12 files hardcode the 80px rail (`left-[80px]`, `left-20`,
-`w-[calc(100%-80px)]`):
+own. **28 files** hardcode the 80px rail (`left-[80px]`, `left-20`,
+`w-[calc(100%-80px)]`, `left: 80px` in SCSS). The list below was the first 12;
+the search behind it had been cut off by a result limit. All 28 are migrated.
+Table column widths that happen to be 80px are unrelated and were left as they are:
 
 `components/Sidebar/Sidebar.jsx`, `components/Header/Header.jsx`,
 `components/operations/OperationModal/OperationModal.jsx`,
@@ -240,7 +242,7 @@ Phase 5 last
 ```
 
 - **Phase 1 before 3:** Phase 3 copies what Phase 1 proves out on Operations.
-- **0.2 before 4:** without the shared width, expanding the sidebar breaks 12
+- **0.2 before 4:** without the shared width, expanding the sidebar breaks 28
   layouts.
 - **1.6 (sorting)** can land any time once the backend confirms sort support.
 
