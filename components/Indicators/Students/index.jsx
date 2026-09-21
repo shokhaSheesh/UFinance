@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
 import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import useMounted from '@/hooks/useMounted'
@@ -107,7 +108,6 @@ const Students = () => {
     ]
   }, [studentList, fullTotal, t])
 
-  const interval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {
@@ -148,15 +148,15 @@ const Students = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#0F0F0F', fontSize: 12, interval, rotate: 0 }
+      axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 }
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: '#f3f4f6' } },
+      splitLine: SPLIT_LINE,
       axisLabel: {
-        color: '#9ca3af',
+        ...AXIS_LABEL,
         fontSize: 11,
         formatter: (value) => {
           if (value === 0) return '0'
@@ -174,14 +174,14 @@ const Students = () => {
         type: 'bar',
         data: planData,
         barWidth: 20,
-        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#38bdf8' }
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: CHART_COLORS.plan }
       },
       {
         name: factLabel,
         type: 'bar',
         data: factData,
         barWidth: 20,
-        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#fbab7e' }
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: CHART_COLORS.income }
       },
       {
         name: diffLabel,
@@ -190,11 +190,11 @@ const Students = () => {
         smooth: true,
         showSymbol: true,
         symbolSize: 8,
-        lineStyle: { width: 3, color: '#10b981', type: 'dashed' },
-        itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' }
+        lineStyle: { width: 3, color: CHART_COLORS.result, type: 'dashed' },
+        itemStyle: { color: CHART_COLORS.result, borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange, months, planData, factData, diffData, interval, planLabel, factLabel, diffLabel, billion, million, thousand])
+  }), [zoomRange, months, planData, factData, diffData, planLabel, factLabel, diffLabel, billion, million, thousand])
 
   if (!mounted) return null
   if (!appStore.isDonoSchool) return null

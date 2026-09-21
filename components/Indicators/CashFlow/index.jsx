@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -139,11 +140,11 @@ const CashFlow = () => {
   }, [receiptsData, paymentsData, differenceData])
 
 
-  const inteval = months?.length > 50 ? 20 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e5e7eb',
       borderWidth: 1,
@@ -180,16 +181,16 @@ const CashFlow = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#0F0F0F', fontSize: 12, interval: inteval, rotate: 0 }
+      axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 }
     },
     yAxis: {
       type: 'value',
       max: yAxisMax,
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: '#f3f4f6' } },
+      splitLine: SPLIT_LINE,
       axisLabel: {
-        color: '#9ca3af',
+        ...AXIS_LABEL,
         fontSize: 11,
         formatter: (value) => value === 0 ? '0' : formatValue(value)
       }
@@ -200,14 +201,14 @@ const CashFlow = () => {
         type: 'bar',
         data: receiptsData,
         barWidth: 20,
-        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#3b82f6' },
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: CHART_COLORS.income },
       },
       {
         name: paymentsLabel,
         type: 'bar',
         data: paymentsData,
         barWidth: 20,
-        itemStyle: { borderRadius: [4, 4, 0, 0], color: '#fb923c' },
+        itemStyle: { borderRadius: [4, 4, 0, 0], color: CHART_COLORS.expense },
       },
       {
         name: differenceLabel,
@@ -216,11 +217,11 @@ const CashFlow = () => {
         smooth: true,
         showSymbol: true,
         symbolSize: 8,
-        lineStyle: { width: 3, color: '#10b981', type: 'dashed' },
-        itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' },
+        lineStyle: { width: 3, color: CHART_COLORS.result, type: 'dashed' },
+        itemStyle: { color: CHART_COLORS.result, borderWidth: 2, borderColor: '#fff' },
       }
     ]
-  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, inteval, receiptsLabel, paymentsLabel, differenceLabel, formatValue])
+  }), [zoomRange, months, receiptsData, paymentsData, differenceData, yAxisMax, receiptsLabel, paymentsLabel, differenceLabel, formatValue])
 
   const stats = [
     { label: receiptsLabel, value: formatAmount(receiptTotal), color: 'text-slate-900', symbol: GlobalCurrency?.name || '' },

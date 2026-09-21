@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -255,11 +256,11 @@ const Profit = () => {
       { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress, t,])
-  const inteval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0
 
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
+      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e5e7eb',
       borderWidth: 1,
@@ -307,16 +308,15 @@ const Profit = () => {
       data: months,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#0F0F0F', fontSize: 12, interval: inteval, rotate: 0 }
+      axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 }
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      splitLine: { lineStyle: { color: '#f3f4f6' } },
+      splitLine: SPLIT_LINE,
       axisLabel: {
-        color: '#9ca3af',
-        fontSize: 11,
+        ...AXIS_LABEL,
         formatter: (value) => {
           if (value === 0) return '0'
           const abs = Math.abs(value)
@@ -335,7 +335,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#38bdf8'
+          color: CHART_COLORS.income
         }
       },
       {
@@ -345,7 +345,7 @@ const Profit = () => {
         barWidth: 20,
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
-          color: '#fbab7e'
+          color: CHART_COLORS.expense
         }
       },
       {
@@ -355,8 +355,8 @@ const Profit = () => {
         smooth: true,
         showSymbol: true,
         symbolSize: 8,
-        lineStyle: { width: 3, color: '#10b981', type: 'dashed' },
-        itemStyle: { color: '#10b981', borderWidth: 2, borderColor: '#fff' }
+        lineStyle: { width: 3, color: CHART_COLORS.result, type: 'dashed' },
+        itemStyle: { color: CHART_COLORS.result, borderWidth: 2, borderColor: '#fff' }
       },
       {
         name: dividendsLabel,
@@ -365,11 +365,11 @@ const Profit = () => {
         smooth: true,
         showSymbol: true,
         symbolSize: 6,
-        lineStyle: { width: 2, color: '#c084fc' },
-        itemStyle: { color: '#920DF8', borderWidth: 2, borderColor: '#fff' }
+        lineStyle: { width: 2, color: CHART_COLORS.dividends },
+        itemStyle: { color: CHART_COLORS.dividends, borderWidth: 2, borderColor: '#fff' }
       }
     ]
-  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, inteval, incomeLabel, expensesLabel, netProfitLabel, dividendsLabel, billion, million, thousand])
+  }), [zoomRange, months, incomeData, expenseData, netProfitData, dividendData, incomeLabel, expensesLabel, netProfitLabel, dividendsLabel, billion, million, thousand])
 
 
 

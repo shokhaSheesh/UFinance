@@ -1,5 +1,6 @@
 'use client'
 
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
 import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useQuery } from '@tanstack/react-query'
@@ -79,7 +80,6 @@ const ProfitableClients = observer(() => {
   }, [profitableClientsData, t])
 
   // option — ikkita alohida series, har biri o'z joyida
-  const inteval = chartData?.names?.length > 100 ? 30 : chartData?.names?.length > 50 ? 10 : chartData?.names?.length > 20 ? 4 : 0
   const option = useMemo(() => {
     if (!chartData) return {}
 
@@ -91,7 +91,7 @@ const ProfitableClients = observer(() => {
     const blueSeriesData = counterparties80Data.map((c, idx) => ({
       value: barData[idx],
       percent: c.percent,
-      itemStyle: { color: '#22c5fd' },
+      itemStyle: { color: CHART_COLORS.income },
     }))
     if (hasOthers) {
       blueSeriesData.push(null) // oxirgi joy bo'sh
@@ -105,7 +105,7 @@ const ProfitableClients = observer(() => {
       purpleSeriesData.push({
         value: chartData.counterparties20.summa,
         percent: chartData.counterparties20.percent,
-        itemStyle: { color: '#a855f7' },
+        itemStyle: { color: CHART_COLORS.secondary },
       })
     }
 
@@ -142,9 +142,9 @@ const ProfitableClients = observer(() => {
       },
       legend: {
         data: [
-          { name: clients80Label, icon: 'roundRect', itemStyle: { color: '#22c5fd' } },
-          { name: incomeShareLabel, icon: 'circle', itemStyle: { color: '#6366f1' } },
-          { name: clients20Label, icon: 'roundRect', itemStyle: { color: '#a855f7' } },
+          { name: clients80Label, icon: 'roundRect', itemStyle: { color: CHART_COLORS.income } },
+          { name: incomeShareLabel, icon: 'circle', itemStyle: { color: CHART_COLORS.accent } },
+          { name: clients20Label, icon: 'roundRect', itemStyle: { color: CHART_COLORS.secondary } },
         ],
         bottom: 0,
         itemWidth: 12,
@@ -155,22 +155,22 @@ const ProfitableClients = observer(() => {
       xAxis: {
         type: 'category',
         data: names,
-        axisLabel: { interval: inteval, rotate: 30, fontSize: 16, color: '#64748b' },
+        axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 30 },
         axisLine: { lineStyle: { color: '#e2e8f0' } },
       },
       yAxis: [
         {
           type: 'value',
           position: 'left',
-          axisLabel: { formatter: (val) => formatValue(val), color: '#64748b', fontSize: 16 },
-          splitLine: { lineStyle: { color: '#f1f5f9' } },
+          axisLabel: { ...AXIS_LABEL, formatter: (val) => formatValue(val) },
+          splitLine: SPLIT_LINE,
         },
         {
           type: 'value',
           position: 'right',
           min: 0,
           max: 100,
-          axisLabel: { formatter: '{value}%', color: '#64748b', fontSize: 18 },
+          axisLabel: { ...AXIS_LABEL, formatter: '{value}%' },
           splitLine: { show: false },
         },
       ],
@@ -197,12 +197,12 @@ const ProfitableClients = observer(() => {
           smooth: true,
           symbol: 'circle',
           symbolSize: 6,
-          lineStyle: { color: '#6366f1', width: 2 },
-          itemStyle: { color: '#6366f1' },
+          lineStyle: { color: CHART_COLORS.accent, width: 2 },
+          itemStyle: { color: CHART_COLORS.accent },
         },
       ],
     }
-  }, [chartData, clients80Label, incomeShareLabel, clients20Label, inteval])
+  }, [chartData, clients80Label, incomeShareLabel, clients20Label])
 
   return (
     <div className=" flex flex-col relative">

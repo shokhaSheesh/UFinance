@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
 import { STATIC_ACCOUNT_BALANCE_DATA } from '@/components/Indicators/constants/staticChartData'
 import CustomMonthSlider from '@/components/Indicators/shared/CustomMonthSlider'
 import Loader from '@/components/shared/Loader'
@@ -69,6 +70,17 @@ const AccountBalance = () => {
         })
     }, [accountBalanceList, MONTH_NAMES])
 
+    // Полная дата для подсказки: «12 января 2026, понедельник»
+    const monthsFull = t('common.monthNamesFull').split(',')
+    const weekdayNames = t('common.weekdayNames').split(',')
+    const fullDates = useMemo(() => {
+        if (!accountBalanceList?.length) return []
+        return (accountBalanceList[0].totalValuesByDays || []).map(d => {
+            const dt = new Date(d.date)
+            return `${dt.getDate()} ${monthsFull[dt.getMonth()]} ${dt.getFullYear()}, ${weekdayNames[dt.getDay()]}`
+        })
+    }, [accountBalanceList, monthsFull, weekdayNames])
+
     // Compute total balance (sum of all accounts per day) and per-account data
     const { totalBalanceData, accountSeries, legendData } = useMemo(() => {
         if (!accountBalanceList?.length) {
@@ -110,19 +122,20 @@ const AccountBalance = () => {
         return days.findIndex(d => moment(d.date).isSame(today, 'day'))
     }, [accountBalanceList])
 
-    const inteval = dates?.length > 5000 ? 400 : dates?.length > 1500 ? 300 : dates?.length > 1000 ? 100 : dates?.length > 500 ? 50 : 10
-
     const options = useMemo(() => { 
 
         return {
             tooltip: {
                 trigger: 'axis',
+                // вертикальная линия под курсором — видно, какой день показан
+                axisPointer: { type: 'line', lineStyle: { color: '#94a3b8', type: 'dashed' } },
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 borderColor: '#e5e7eb',
                 borderWidth: 1,
                 textStyle: { color: '#111827', fontSize: 12 },
                 formatter: (params) => {
-                    let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${params[0].name}</div>`
+                    const title = fullDates[params[0]?.dataIndex] || params[0].name
+                    let res = `<div class="p-1 font-semibold border-b border-gray-100 mb-1">${title}</div>`
                     params.forEach(item => {
                         res += `<div class="flex items-center justify-between gap-4 py-0.5">
             <div class="flex items-center gap-2 text-gray-500">
@@ -142,7 +155,7 @@ const AccountBalance = () => {
                 icon: 'roundRect',
                 itemWidth: 14,
                 itemHeight: 14,
-                textStyle: { color: '#0457FE', fontSize: 14, marginTop: 10 },
+                textStyle: { color: '#334155', fontSize: 13 },
                 itemStyle: { marginTop: '20px' },
                 data: legendData,
                 selected: legendData.slice(1).reduce((acc, name) => ({ ...acc, [name]: false }), {}),
@@ -154,18 +167,22 @@ const AccountBalance = () => {
                 axisLine: { show: false },
 
                 axisTick: { show: false },
+                // Подписей столько, сколько помещается без наложения (раньше — каждый
+                // 10-й день с наклоном, и за год даты налезали друг на друга);
+                // конкретный день — в подсказке при наведении
                 axisLabel: {
-                    color: '#0F0E0E', fontSize: 12,
-                    interval: inteval, 
-                    rotate: 10,
+                    ...AXIS_LABEL,
+                    interval: 'auto',
+                    rotate: 0,
+                    formatter: (value) => String(value).replace(/\s\d{2}$/, ''),
                 },
             },
             yAxis: {
                 type: 'value',
                 axisLine: { show: false },
                 axisTick: { show: false },
-                splitLine: { lineStyle: { color: '#f3f4f6' } },
-                axisLabel: { color: '#9ca3af', fontSize: 12, formatter: (v) => v === 0 ? '0' : formatValueLength(v, billion, million, thousand) },
+                splitLine: SPLIT_LINE,
+                axisLabel: { ...AXIS_LABEL, formatter: (v) => v === 0 ? '0' : formatValueLength(v, billion, million, thousand) },
             },
             series: [
                 {
@@ -176,24 +193,24 @@ const AccountBalance = () => {
                     symbol: 'circle',
                     symbolSize: 0,
                     showSymbol: true,
-                    lineStyle: { width: 2, color: '#22c55e' },
+                    lineStyle: { width: 2, color: CHART_COLORS.balance },
                     areaStyle: {
                         color: {
                             type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
                             colorStops: [
-                                { offset: 0, color: 'rgba(34, 197, 94, 0.2)' },
-                                { offset: 1, color: 'rgba(34, 197, 94, 0.02)' },
+                                { offset: 0, color: 'rgba(14, 115, 246, 0.16)' },
+                                { offset: 1, color: 'rgba(14, 115, 246, 0.02)' },
                             ],
                         },
                     },
-                    itemStyle: { color: '#22c55e' },
+                    itemStyle: { color: CHART_COLORS.balance },
                     ...(todayIndex >= 0 ? {
                         markLine: {
                             symbol: 'none',
                             data: [{
                                 xAxis: dates[todayIndex],
                                 lineStyle: { color: '#3b82f6', type: 'dashed', width: 1 },
-                                label: { show: true, formatter: todayLabel, position: 'start', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
+                                label: { show: true, formatter: todayLabel, position: 'insideEndTop', color: '#3b82f6', fontSize: 12, fontWeight: 'bold' },
                             }],
                         },
                         markPoint: {
@@ -202,7 +219,7 @@ const AccountBalance = () => {
                                 yAxis: totalBalanceData[todayIndex],
                                 symbol: 'circle',
                                 symbolSize: 8,
-                                itemStyle: { color: '#fff', borderColor: '#22c55e', borderWidth: 2, fontSize: 18 },
+                                itemStyle: { color: '#fff', borderColor: CHART_COLORS.balance, borderWidth: 2 },
                             }],
                             label: { show: false },
                         },
@@ -211,7 +228,7 @@ const AccountBalance = () => {
                 ...accountSeries,
             ],
         }
-    }, [zoomRange, dates, totalBalanceData, accountSeries, legendData, todayIndex, inteval, totalBalanceLabel, todayLabel, billion, million, thousand])
+    }, [zoomRange, dates, fullDates, totalBalanceData, accountSeries, legendData, todayIndex, totalBalanceLabel, todayLabel, billion, million, thousand])
 
     // if (!mounted) return null
 
