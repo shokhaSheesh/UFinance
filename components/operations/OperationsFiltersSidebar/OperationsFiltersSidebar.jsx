@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FaSortDown } from "react-icons/fa";
 import { appStore } from "../../../store/app.store";
 import {
   allowedTip,
@@ -20,15 +19,63 @@ import SelectMyAccounts from "../../ReadyComponents/SelectMyAccounts";
 import SelectProjects from "../../ReadyComponents/SelectProjects";
 import {
   FilterDrawer,
+  FilterField,
   FilterSection,
 } from "../../shared/Filters/FilterDrawer";
+import ToggleChip from "../../shared/Filters/ToggleChip";
+import OperationTypeIcon from "../OperationTypeIcon/OperationTypeIcon";
+import { cn } from "@/lib/utils";
 import NewDateRangeComponent from "../../directories/NewDateRangeComponent";
-import OperationCheckbox from "../../shared/Checkbox/operationCheckbox";
 import Input from "../../shared/Input";
 import SingleSelect from "../../shared/Selects/SingleSelect";
 
+
+/**
+ * Плитка типа операции в окне фильтров: значок типа, название и отметка.
+ * Подтипы (списание/зачисление, дебет/кредит) — чипы внутри плитки.
+ */
+const TypeTile = ({ tip, label, checked, onToggle, children }) => (
+  <div
+    role="checkbox"
+    aria-checked={checked}
+    tabIndex={0}
+    onClick={onToggle}
+    onKeyDown={(e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        onToggle();
+      }
+    }}
+    className={cn(
+      "flex flex-col gap-2 rounded-xl border p-3 cursor-pointer transition-colors",
+      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]",
+      checked
+        ? "border-[#0e73f6] bg-[#f5f9ff]"
+        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+    )}
+  >
+    <div className="flex items-center gap-2.5">
+      <OperationTypeIcon tip={tip} />
+      <span className="flex-1 text-sm font-medium text-slate-800">{label}</span>
+      <span
+        className={cn(
+          "flex h-5 w-5 items-center justify-center rounded-md border",
+          checked ? "border-[#0e73f6] bg-[#0e73f6] text-white" : "border-slate-300 bg-white"
+        )}
+        aria-hidden="true"
+      >
+        {checked && (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        )}
+      </span>
+    </div>
+    {children && <div className="flex flex-wrap gap-1.5 pl-9">{children}</div>}
+  </div>
+);
+
 export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations("Operations");
+  const tf = useTranslations("filters");
   const queryClient = useQueryClient();
   const {
     selectedFilters,
@@ -54,10 +101,6 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
     [selectedFilters]
   );
 
-  const [expandedFilters, setExpandedFilters] = useState({
-    peremescheniye: false,
-    nachisleniye: false,
-  });
   // const [activeTab, setActiveTab] = useState('general')
   // сохранённые в сторе суммы тоже показываем в общем формате
   const [localAmount, setLocalAmount] = useState({
@@ -99,305 +142,167 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
         clearCount={clearCount}
         onClear={onClear}
       >
-        {/* Тип операции */}
-        <FilterSection title={t("filters.operationType")} className="mb-5">
-          {/* Поступление */}
-          <div className="flex flex-col gap-3 justify-start items-start">
-            {allowedTip.allowIncome && (
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes("Поступление")}
-                onChange={() =>
-                  operationFilterStore.toggleFilter("Поступление")
-                }
-                label={t("filters.income")}
-              />
-            )}
-
-            {/* Выплата */}
-            {allowedTip.allowPayout && (
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes("Выплата")}
-                onChange={() => operationFilterStore.toggleFilter("Выплата")}
-                label={t("filters.payout")}
-              />
-            )}
-
-            {/* Перемещение */}
-            {allowedTip.allowTransfer && (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: "4px",
-                  }}
-                >
-                  <OperationCheckbox
-                    checked={safeSelectedFilters.includes("Перемещение")}
-                    onChange={() =>
-                      operationFilterStore.toggleComplexFilter("Перемещение")
-                    }
-                    label={t("filters.transfer")}
-                  />
-                  <FaSortDown
-                    style={{
-                      cursor: "pointer",
-                      transition: "transform 0.2s",
-                      transform: expandedFilters.peremescheniye
-                        ? "rotate(0deg)"
-                        : "rotate(-180deg)",
-                      marginBottom: expandedFilters.peremescheniye
-                        ? "10px"
-                        : "0",
-                      color: "#6b7280",
-                      fontSize: "12px",
-                    }}
-                    onClick={() =>
-                      setExpandedFilters((prev) => ({
-                        ...prev,
-                        peremescheniye: !prev.peremescheniye,
-                      }))
-                    }
-                  />
-                </div>
-                {expandedFilters.peremescheniye && (
-                  <div
-                    style={{
-                      paddingLeft: "1.25rem",
-                      display: "flex",
-                      alignItems: "flex-start",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    <OperationCheckbox
-                      checked={safeSelectedFilters.includes("Списание")}
-                      onChange={() =>
-                        operationFilterStore.toggleFilter("Списание")
-                      }
-                      label={t("filters.writeOff")}
-                    />
-                    <OperationCheckbox
-                      checked={safeSelectedFilters.includes("Зачисление")}
-                      onChange={() =>
-                        operationFilterStore.toggleFilter("Зачисление")
-                      }
-                      label={t("filters.enrollment")}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Начисление */}
-            {allowedTip.allowAccrual && (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: "4px",
-                  }}
-                >
-                  <OperationCheckbox
-                    checked={safeSelectedFilters.includes("Начисление")}
-                    onChange={() =>
-                      operationFilterStore.toggleComplexFilter("Начисление")
-                    }
-                    label={t("filters.accrual")}
-                  />
-                  <FaSortDown
-                    style={{
-                      cursor: "pointer",
-                      transition: "transform 0.2s",
-                      transform: expandedFilters.nachisleniye
-                        ? "rotate(0deg)"
-                        : "rotate(-180deg)",
-                      marginBottom: expandedFilters.nachisleniye ? "10px" : "0",
-                      color: "#6b7280",
-                      fontSize: "12px",
-                    }}
-                    onClick={() =>
-                      setExpandedFilters((prev) => ({
-                        ...prev,
-                        nachisleniye: !prev.nachisleniye,
-                      }))
-                    }
-                  />
-                </div>
-                {expandedFilters.nachisleniye && (
-                  <div
-                    style={{
-                      paddingLeft: "1.25rem",
-                      display: "flex",
-                      alignItems: "flex-start",
-                      flexDirection: "column",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    <OperationCheckbox
-                      checked={safeSelectedFilters.includes("Дебет")}
-                      onChange={() =>
-                        operationFilterStore.toggleFilter("Дебет")
-                      }
-                      label={t("filters.debit")}
-                    />
-                    <OperationCheckbox
-                      checked={safeSelectedFilters.includes("Кредит")}
-                      onChange={() =>
-                        operationFilterStore.toggleFilter("Кредит")
-                      }
-                      label={t("filters.credit")}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-            {/* Отгрузка */}
-            {allowedTip.allowShipment && (
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes("Отгрузка")}
-                onChange={() => operationFilterStore.toggleFilter("Отгрузка")}
-                label={t("filters.shipment")}
-              />
-            )}
-            {/* Поставка */}
-            {allowedTip.allowShipment && (
-              <OperationCheckbox
-                checked={safeSelectedFilters.includes("Поставка")}
-                onChange={() => operationFilterStore.toggleFilter("Поставка")}
-                label={t("filters.supply")}
-              />
-            )}
-          </div>
+        {/* Тип операции — плитки со значками типа. Подтипы перемещения и
+            начисления видны сразу внутри плитки, без раскрывающих стрелок. */}
+        <FilterSection title={t("filters.operationType")}>
+          {allowedTip.allowIncome && (
+            <TypeTile tip="Поступление" label={t("filters.income")}
+              checked={safeSelectedFilters.includes("Поступление")}
+              onToggle={() => operationFilterStore.toggleFilter("Поступление")} />
+          )}
+          {allowedTip.allowPayout && (
+            <TypeTile tip="Выплата" label={t("filters.payout")}
+              checked={safeSelectedFilters.includes("Выплата")}
+              onToggle={() => operationFilterStore.toggleFilter("Выплата")} />
+          )}
+          {allowedTip.allowTransfer && (
+            <TypeTile tip="Перемещение" label={t("filters.transfer")}
+              checked={safeSelectedFilters.includes("Перемещение")}
+              onToggle={() => operationFilterStore.toggleComplexFilter("Перемещение")}>
+              <ToggleChip size="sm" checked={safeSelectedFilters.includes("Списание")}
+                onChange={() => operationFilterStore.toggleFilter("Списание")}>
+                {t("filters.writeOff")}
+              </ToggleChip>
+              <ToggleChip size="sm" checked={safeSelectedFilters.includes("Зачисление")}
+                onChange={() => operationFilterStore.toggleFilter("Зачисление")}>
+                {t("filters.enrollment")}
+              </ToggleChip>
+            </TypeTile>
+          )}
+          {allowedTip.allowAccrual && (
+            <TypeTile tip="Начисление" label={t("filters.accrual")}
+              checked={safeSelectedFilters.includes("Начисление")}
+              onToggle={() => operationFilterStore.toggleComplexFilter("Начисление")}>
+              <ToggleChip size="sm" checked={safeSelectedFilters.includes("Дебет")}
+                onChange={() => operationFilterStore.toggleFilter("Дебет")}>
+                {t("filters.debit")}
+              </ToggleChip>
+              <ToggleChip size="sm" checked={safeSelectedFilters.includes("Кредит")}
+                onChange={() => operationFilterStore.toggleFilter("Кредит")}>
+                {t("filters.credit")}
+              </ToggleChip>
+            </TypeTile>
+          )}
+          {allowedTip.allowShipment && (
+            <TypeTile tip="Отгрузка" label={t("filters.shipment")}
+              checked={safeSelectedFilters.includes("Отгрузка")}
+              onToggle={() => operationFilterStore.toggleFilter("Отгрузка")} />
+          )}
+          {allowedTip.allowShipment && (
+            <TypeTile tip="Поставка" label={t("filters.supply")}
+              checked={safeSelectedFilters.includes("Поставка")}
+              onToggle={() => operationFilterStore.toggleFilter("Поставка")} />
+          )}
         </FilterSection>
 
-        {/* Дата оплаты - упрощенная версия, полная версия будет в отдельном компоненте */}
-        <FilterSection title={t("filters.paymentDate")} className="mb-5">
-          <div className="space-y-3 flex items-start flex-col">
-            <OperationCheckbox
-              checked={paymentConfirm}
-              onChange={(event) =>
-                operationFilterStore.setState(
-                  "paymentConfirm",
-                  event.target?.checked
-                )
-              }
-              label={t("filters.confirmed")}
+        {/* Дата оплаты: период и статус подтверждения */}
+        <FilterSection title={t("filters.paymentDate")}>
+          <FilterField label={tf("period")}>
+            <NewDateRangeComponent
+              value={selectedDatePaymentRange}
+              onChange={(val) => operationFilterStore.setSelectedDatePaymentRange(val)}
+              present={operationFilterStore.dateRangeTypeOplata}
+              onSetPresent={(present) => operationFilterStore.setState("dateRangeTypeOplata", present)}
+              onClear={() => operationFilterStore.setState("dateRangeTypeOplata", "")}
             />
-            <OperationCheckbox
-              checked={paymentNotConfirm}
-              onChange={(event) =>
-                operationFilterStore.setState(
-                  "paymentNotConfirm",
-                  event.target?.checked
-                )
-              }
-              label={t("filters.notConfirmed")}
-            />
-          </div>
-          {/* CustomDatePicker for date payment range */}
-          <NewDateRangeComponent
-            value={selectedDatePaymentRange}
-            onChange={(val) =>
-              operationFilterStore.setSelectedDatePaymentRange(val)
-            }
-            present={operationFilterStore.dateRangeTypeOplata}
-            onSetPresent={(present) =>
-              operationFilterStore.setState("dateRangeTypeOplata", present)
-            }
-            onClear={() =>
-              operationFilterStore.setState("dateRangeTypeOplata", "")
-            }
-          />
+          </FilterField>
+          <FilterField label={tf("status")}>
+            <div className="flex flex-wrap gap-2">
+              <ToggleChip checked={paymentConfirm}
+                onChange={(v) => operationFilterStore.setState("paymentConfirm", v)}>
+                {t("filters.confirmed")}
+              </ToggleChip>
+              <ToggleChip checked={paymentNotConfirm}
+                onChange={(v) => operationFilterStore.setState("paymentNotConfirm", v)}>
+                {t("filters.notConfirmed")}
+              </ToggleChip>
+            </div>
+          </FilterField>
         </FilterSection>
 
-        {/* Фильтр «Дата начисления» показывается только при включённой
-            настройке show_accrual_date_filter — как в ПланФакте */}
+        {/* «Дата начисления» — только при включённой настройке
+            show_accrual_date_filter, как в ПланФакте */}
         {appStore.interfaceSettings?.showAccrualDateFilter && (
-        <FilterSection title={t("filters.accrualDate")} className="mb-5">
-          <div className="space-y-3 flex items-start flex-col">
-            <OperationCheckbox
-              checked={accrualConfirm}
-              onChange={(event) =>
-                operationFilterStore.setState(
-                  "accrualConfirm",
-                  event.target?.checked
-                )
-              }
-              label={t("filters.confirmed")}
-            />
-            <OperationCheckbox
-              checked={accrualNotConfirm}
-              onChange={(event) =>
-                operationFilterStore.setState(
-                  "accrualNotConfirm",
-                  event.target?.checked
-                )
-              }
-              label={t("filters.notConfirmed")}
-            />
-          </div>
-          {/* CustomDatePicker for date start range */}
-          <NewDateRangeComponent
-            value={selectedDateStartRange}
-            onChange={(val) =>
-              operationFilterStore.setSelectedDateStartRange(val)
-            }
-            present={operationFilterStore.dateRangeTypeNachisleniya}
-            onSetPresent={(present) => {
-              operationFilterStore.setState(
-                "dateRangeTypeNachisleniya",
-                present
-              );
-            }}
-            onClear={() =>
-              operationFilterStore.setState("dateRangeTypeNachisleniya", "")
-            }
-          />
-        </FilterSection>
+          <FilterSection title={t("filters.accrualDate")}>
+            <FilterField label={tf("period")}>
+              <NewDateRangeComponent
+                value={selectedDateStartRange}
+                onChange={(val) => operationFilterStore.setSelectedDateStartRange(val)}
+                present={operationFilterStore.dateRangeTypeNachisleniya}
+                onSetPresent={(present) => operationFilterStore.setState("dateRangeTypeNachisleniya", present)}
+                onClear={() => operationFilterStore.setState("dateRangeTypeNachisleniya", "")}
+              />
+            </FilterField>
+            <FilterField label={tf("status")}>
+              <div className="flex flex-wrap gap-2">
+                <ToggleChip checked={accrualConfirm}
+                  onChange={(v) => operationFilterStore.setState("accrualConfirm", v)}>
+                  {t("filters.confirmed")}
+                </ToggleChip>
+                <ToggleChip checked={accrualNotConfirm}
+                  onChange={(v) => operationFilterStore.setState("accrualNotConfirm", v)}>
+                  {t("filters.notConfirmed")}
+                </ToggleChip>
+              </div>
+            </FilterField>
+          </FilterSection>
         )}
 
-        {/* Параметры */}
-        <FilterSection title={t("filters.parameters")} className="mb-5">
-          <div className="flex flex-col gap-2">
-            {/* Юрлица */}
+        {/* Параметры — у каждого поля видимая подпись, две колонки */}
+        <FilterSection title={t("filters.parameters")}>
+          <FilterField label={t("filters.legalEntitiesPlaceholder")}>
             <SelectMyAccounts
               value={selectedLegalEntities}
-              onChange={(val) =>
-                operationFilterStore.setSelectedLegalEntities(val)
-              }
-              placeholder={t("filters.legalEntitiesPlaceholder")}
-              className={"bg-gray-ucode-25"}
+              onChange={(val) => operationFilterStore.setSelectedLegalEntities(val)}
+              placeholder={tf("all")}
               multi={true}
             />
-
-            {/* Контрагенты */}
+          </FilterField>
+          <FilterField label={t("filters.counterpartiesPlaceholder")}>
             <SelectCounterParties
               value={selectedCounterAgents}
-              onChange={(val) =>
-                operationFilterStore.setSelectedCounterAgents(val)
-              }
-              placeholder={t("filters.counterpartiesPlaceholder")}
-              className={"bg-gray-ucode-25"}
+              onChange={(val) => operationFilterStore.setSelectedCounterAgents(val)}
+              placeholder={tf("all")}
             />
-
-            {/* Проекты — только если включён модуль проектов */}
-            {appStore.projectActive && (
+          </FilterField>
+          <FilterField label={t("filters.chartOfAccountsPlaceholder")}>
+            <MultiSelectStatiya
+              value={selectedChartOfAccounts}
+              onChange={(val) => operationFilterStore.setSelectedChartOfAccounts(val)}
+              placeholder={tf("all")}
+              type=""
+              dropdownClassName={"w-64"}
+            />
+          </FilterField>
+          {appStore.projectActive && (
+            <FilterField label={t("filters.projectsPlaceholder")}>
               <SelectProjects
                 multi
                 value={selectedProjects}
-                onChange={(val) =>
-                  operationFilterStore.setSelectedProjects(val)
-                }
-                placeholder={t("filters.projectsPlaceholder")}
-                className={"bg-gray-ucode-25"}
+                onChange={(val) => operationFilterStore.setSelectedProjects(val)}
+                placeholder={tf("all")}
                 dropdownClassName={"w-64"}
               />
-            )}
-
-            {/* Payment filter  */}
-            {appStore.isPayment && (
+            </FilterField>
+          )}
+          <FilterField label={t("filters.dealsPlaceholder")}>
+            <MultiSelectZdelka
+              value={deals}
+              onChange={(val) => operationFilterStore.setSelectedDeals(val)}
+              placeholder={tf("all")}
+              className={"w-full"}
+            />
+          </FilterField>
+          <FilterField label={t("filters.purchaseDealsPlaceholder")}>
+            <MultiSelectPurchaseZdelka
+              value={purchaseDeals}
+              onChange={(val) => operationFilterStore.setSelectedPurchaseDeals(val)}
+              placeholder={tf("all")}
+              className={"w-full"}
+            />
+          </FilterField>
+          {appStore.isPayment && (
+            <FilterField label={t("filters.paymentTypePlaceholder")}>
               <SingleSelect
                 data={[
                   { label: t("paymentTypes.cash"), value: "cash" },
@@ -407,63 +312,29 @@ export const OperationsFiltersSidebar = observer(({ isOpen, onClose }) => {
                 value={paymentType}
                 onChange={(val) => operationFilterStore.setPaymentType(val)}
                 isClearable={false}
-                placeholder={t("filters.paymentTypePlaceholder")}
-                className={"bg-gray-ucode-25"}
+                placeholder={tf("all")}
               />
-            )}
-
-            {/* Статьи учета */}
-            <MultiSelectStatiya
-              value={selectedChartOfAccounts}
-              onChange={(val) =>
-                operationFilterStore.setSelectedChartOfAccounts(val)
-              }
-              placeholder={t("filters.chartOfAccountsPlaceholder")}
-              type=""
-              dropdownClassName={"w-64"}
-              className={"bg-gray-ucode-25"}
-            />
-
-            <div className="flex flex-col gap-2">
-              <MultiSelectZdelka
-                value={deals}
-                onChange={(val) => operationFilterStore.setSelectedDeals(val)}
-                placeholder={t("filters.dealsPlaceholder")}
-                className={"bg-gray-ucode-25 w-full"}
-              />
-              <MultiSelectPurchaseZdelka
-                value={purchaseDeals}
-                onChange={(val) =>
-                  operationFilterStore.setSelectedPurchaseDeals(val)
-                }
-                placeholder={t("filters.purchaseDealsPlaceholder")}
-                className={"bg-gray-ucode-25 w-full"}
-              />
-            </div>
-
-            {/* Price */}
+            </FilterField>
+          )}
+          <FilterField label={tf("amount")} full>
             <div className="flex items-center gap-2">
               <Input
                 type="text"
                 inputMode="numeric"
-                action="filter"
                 placeholder={t("filters.amountFrom")}
                 value={localAmount.min}
                 onChange={(e) => handleAmountChange("min", e.target.value)}
-                className="h-[34px]! bg-gray-ucode-25"
               />
-              <span style={{ color: "#9ca3af", fontSize: "13px" }}>–</span>
+              <span className="text-slate-400">—</span>
               <Input
                 type="text"
                 inputMode="numeric"
-                action="filter"
                 placeholder={t("filters.amountTo")}
                 value={localAmount.max}
                 onChange={(e) => handleAmountChange("max", e.target.value)}
-                className="h-[34px]! bg-gray-ucode-25"
               />
             </div>
-          </div>
+          </FilterField>
         </FilterSection>
       </FilterDrawer>
     </>

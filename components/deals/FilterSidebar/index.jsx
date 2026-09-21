@@ -1,4 +1,5 @@
 import { FilterSidebar as FilterSidebarComponent } from '@/components/directories/FilterSidebar/FilterSidebar'
+import { FilterField, FilterSection } from '@/components/shared/Filters/FilterDrawer'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { keepPreviousData } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
@@ -19,6 +20,7 @@ const FilterSidebar = observer(({ isOpen = false, onClose, isPurchase = false })
 	const t = useTranslations('Deals.filters')
 	const tc = useTranslations('Common')
 	const tp = useTranslations('Purchases.filters')
+	const tf = useTranslations('filters')
 	const {
 		selectedCounterparties,
 		selectedProjects,
@@ -101,56 +103,49 @@ const FilterSidebar = observer(({ isOpen = false, onClose, isPurchase = false })
 			clearCount={activeFilterCount}
 			onClear={() => sealDeal.resetFilters()}
 		>
-			<div className='flex flex-col gap-4'>
-				{isPurchase && (
-					<p className='text-neutral-500 text-xs font-medium'>{tp('sectionTitle')}</p>
-				)}
-
-				{/* Учебный год — только для школ */}
-				{showSchoolYear && (
-					<div className='flex flex-col gap-1.5 mt-2'>
-						<SingleSelect
-							data={academicYears}
-							value={schoolYear || ''}
-							onChange={val => handleFilterChange('schoolYear', val)}
-							placeholder={t('academicYear')}
-						/>
-					</div>
-				)}
-
-				{/* status filter with singleSelect component */}
-				<div className='flex flex-col gap-1.5 mt-2'>
+			{/* Параметры сделки */}
+			<FilterSection title={isPurchase ? tp('sectionTitle') : tf('parameters')}>
+				<FilterField label={t('dealStatus')}>
 					<MultiSelect
 						data={statuses}
 						value={status || []}
 						onChange={val => handleFilterChange('status', val)}
-						placeholder={t('dealStatus')}
+						placeholder={tf('all')}
 					/>
-				</div>
-
-				{/* Counterparty Selection */}
-				<div className='flex flex-col gap-1.5'>
+				</FilterField>
+				<FilterField label={isPurchase ? tp('selectSuppliers') : tf('counterparties')}>
 					<SelectCounterParties
 						onChange={values => handleFilterChange('selectedCounterparties', values)}
-						placeholder={isPurchase ? tp('selectSuppliers') : t('selectCounterparties')}
+						placeholder={tf('all')}
 						value={selectedCounterparties}
 					/>
-				</div>
-
-				{/* Проекты — только если включён модуль проектов */}
+				</FilterField>
 				{appStore.projectActive && (
-					<div className='flex flex-col gap-1.5'>
+					<FilterField label={t('selectProjects')}>
 						<SelectProjects
 							multi
 							value={selectedProjects}
 							onChange={values => handleFilterChange('selectedProjects', values)}
-							placeholder={t('selectProjects')}
+							placeholder={tf('all')}
 						/>
-					</div>
+					</FilterField>
 				)}
+				{/* Учебный год — только для школ */}
+				{showSchoolYear && (
+					<FilterField label={t('academicYear')}>
+						<SingleSelect
+							data={academicYears}
+							value={schoolYear || ''}
+							onChange={val => handleFilterChange('schoolYear', val)}
+							placeholder={tf('all')}
+						/>
+					</FilterField>
+				)}
+			</FilterSection>
 
-				{/* Date Range Selector */}
-				<div className='flex flex-col gap-1.5'>
+			{/* Период */}
+			<FilterSection title={tf('period')}>
+				<FilterField full>
 					<NewDateRangeComponent
 						value={dateRange}
 						onChange={range =>
@@ -160,54 +155,32 @@ const FilterSidebar = observer(({ isOpen = false, onClose, isPurchase = false })
 						onSetPresent={(present) => setState('dateRangeType', present)}
 						onClear={() => setState('dateRangeType', '')}
 					/>
-				</div>
+				</FilterField>
+			</FilterSection>
 
-				{/* Amount Borders Selectors */}
-				<div className='flex flex-col gap-1.5'>
-					<p className='text-neutral-600 text-xs font-medium'>{t('dealAmount')}</p>
-					<div className='flex items-center gap-1.5'>
-						<Input
-							type='text'
-							placeholder={t('from')}
-							value={formatAmountInput(amountFrom)}
-							onChange={e => handlePriceDebouce('amountFrom', e.target.value)}
-							className='h-8!'
-						/>
-						<span className='text-neutral-400 font-light'>-</span>
-						<Input
-							type='text'
-							placeholder={t('to')}
-							value={formatAmountInput(amountTo)}
-							onChange={e => handlePriceDebouce('amountTo', e.target.value)}
-							className='h-8!'
-						/>
+			{/* Суммы: сделки и прибыли (прибыль — только у продаж) */}
+			<FilterSection title={tf('amounts')}>
+				<FilterField label={t('dealAmount')}>
+					<div className='flex items-center gap-2'>
+						<Input type='text' placeholder={t('from')} value={formatAmountInput(amountFrom)}
+							onChange={e => handlePriceDebouce('amountFrom', e.target.value)} />
+						<span className='text-slate-400'>—</span>
+						<Input type='text' placeholder={t('to')} value={formatAmountInput(amountTo)}
+							onChange={e => handlePriceDebouce('amountTo', e.target.value)} />
 					</div>
-				</div>
-
-				{/* Profit Borders Selectors — not shown for purchases */}
+				</FilterField>
 				{!isPurchase && (
-					<div className='flex flex-col gap-1.5'>
-						<p className='text-neutral-600 text-xs font-medium'>{t('dealProfit')}</p>
-						<div className='flex items-center gap-1.5'>
-							<Input
-								type='text'
-								placeholder={t('from')}
-								value={formatAmountInput(profitFrom)}
-								onChange={e => handlePriceDebouce('profitFrom', e.target.value)}
-								className='h-8!'
-							/>
-							<span className='text-neutral-400 font-light'>-</span>
-							<Input
-								type='text'
-								placeholder={t('to')}
-								value={formatAmountInput(profitTo)}
-								onChange={e => handlePriceDebouce('profitTo', e.target.value)}
-								className='h-8!'
-							/>
+					<FilterField label={t('dealProfit')}>
+						<div className='flex items-center gap-2'>
+							<Input type='text' placeholder={t('from')} value={formatAmountInput(profitFrom)}
+								onChange={e => handlePriceDebouce('profitFrom', e.target.value)} />
+							<span className='text-slate-400'>—</span>
+							<Input type='text' placeholder={t('to')} value={formatAmountInput(profitTo)}
+								onChange={e => handlePriceDebouce('profitTo', e.target.value)} />
 						</div>
-					</div>
+					</FilterField>
 				)}
-			</div>
+			</FilterSection>
 		</FilterSidebarComponent>
 	)
 })

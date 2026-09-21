@@ -1,8 +1,9 @@
 'use client'
 
+import { FilterField } from '@/components/shared/Filters/FilterDrawer'
+import ToggleChip from '@/components/shared/Filters/ToggleChip'
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import MultiSelect from '@/components/shared/Selects/MultiSelect'
 import { projectsStore } from '@/store/projects.store'
 import { observer } from 'mobx-react-lite'
@@ -14,6 +15,7 @@ const STATUS_KEYS = ['planned', 'in_progress', 'completed']
 
 const ProjectsFilterSidebar = observer(({ isOpen = false, onClose }) => {
   const t = useTranslations('Projects.filters')
+  const tf = useTranslations('filters')
   const ts = useTranslations('Projects.status')
 
   const {
@@ -47,57 +49,47 @@ const ProjectsFilterSidebar = observer(({ isOpen = false, onClose }) => {
       onClear={() => projectsStore.resetFilters()}
     >
       {/* Статус проекта */}
-      <FilterSection title={t('projectStatus')} className="mb-5">
-        <div className="flex flex-col gap-3 justify-start items-start">
-          {STATUS_KEYS.map((key) => (
-            <OperationCheckbox
-              key={key}
-              checked={statuses.includes(key)}
-              onChange={() => toggleStatus(key)}
-              label={ts(key)}
-            />
-          ))}
-        </div>
+      <FilterSection title={t('projectStatus')}>
+        <FilterField full>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_KEYS.map((key) => (
+              <ToggleChip key={key} checked={statuses.includes(key)} onChange={() => toggleStatus(key)}>
+                {ts(key)}
+              </ToggleChip>
+            ))}
+          </div>
+        </FilterField>
       </FilterSection>
 
       {/* Период проекта */}
-      <FilterSection title={t('period')} className="mb-5">
-        <NewDateRangeComponent
-          value={dateRange}
-          onChange={(range) => setState('dateRange', { start: range.start, end: range.end })}
-          present={dateRangeType}
-          onSetPresent={(present) => setState('dateRangeType', present)}
-          onClear={() => setState('dateRangeType', '')}
-        />
+      <FilterSection title={t('period')}>
+        <FilterField full>
+          <NewDateRangeComponent
+            value={dateRange}
+            onChange={(range) => setState('dateRange', { start: range.start, end: range.end })}
+            present={dateRangeType}
+            onSetPresent={(present) => setState('dateRangeType', present)}
+            onClear={() => setState('dateRangeType', '')}
+          />
+        </FilterField>
       </FilterSection>
 
-      {/* Параметры */}
-      <FilterSection title={t('parameters')} className="mb-5">
-        <div className="flex flex-col gap-2">
+      {/* Параметры и архив */}
+      <FilterSection title={t('parameters')}>
+        <FilterField label={t('projects')}>
           <MultiSelect
             data={projectOptions}
             value={selectedProjects || []}
             onChange={(val) => setState('selectedProjects', val)}
-            placeholder={t('projects')}
-            className="bg-gray-ucode-25"
+            placeholder={tf('all')}
           />
-        </div>
-      </FilterSection>
-
-      {/* Архив */}
-      <FilterSection title={t('archive')} className="mb-5">
-        <div className="space-y-3 flex items-start flex-col">
-          <OperationCheckbox
-            checked={showActive}
-            onChange={(e) => setState('showActive', e.target?.checked)}
-            label={t('showActive')}
-          />
-          <OperationCheckbox
-            checked={showArchived}
-            onChange={(e) => setState('showArchived', e.target?.checked)}
-            label={t('showArchived')}
-          />
-        </div>
+        </FilterField>
+        <FilterField label={t('archive')}>
+          <div className="flex flex-wrap gap-2">
+            <ToggleChip checked={showActive} onChange={(v) => setState('showActive', v)}>{t('showActive')}</ToggleChip>
+            <ToggleChip checked={showArchived} onChange={(v) => setState('showArchived', v)}>{t('showArchived')}</ToggleChip>
+          </div>
+        </FilterField>
       </FilterSection>
     </FilterSidebar>
   )

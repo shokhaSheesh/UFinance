@@ -3290,6 +3290,14 @@
     "selectedCount": "{count} ta tanlandi",
     "amountFrom": "{min} dan",
     "amountTo": "{max} gacha",
-    "amountBetween": "{min} — {max}"
+    "amountBetween": "{min} — {max}",
+    "done": "Tayyor",
+    "doneWithCount": "Tayyor · {count}",
+    "noneActive": "Filtrlar tanlanmagan",
+    "all": "Barchasi",
+    "status": "Holati",
+    "period": "Davr",
+    "parameters": "Parametrlar",
+    "amounts": "Summalar"
   }
 }

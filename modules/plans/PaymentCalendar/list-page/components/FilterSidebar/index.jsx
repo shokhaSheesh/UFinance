@@ -1,5 +1,6 @@
 'use client'
 
+import { FilterField } from '@/components/shared/Filters/FilterDrawer'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectMyAccoutGroup from '@/components/ReadyComponents/SelectMyAccoutGroup'
@@ -12,47 +13,47 @@ import { paymentCalendarStore } from '@/modules/plans/PaymentCalendar/store'
 const PaymentCalendarFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')
 
+  const tf = useTranslations('filters')
   const handleDateRangeChange = (range) => {
     paymentCalendarStore.setDateRange(range)
   }
 
   return (
     <FilterSidebar isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col gap-4 pt-4">
-        <FilterSection title={t('common.period')}>
+      <FilterSection title={t('common.period')}>
+        <FilterField full>
           <NewDateRangeComponent
             value={paymentCalendarStore.dateRange}
             onChange={handleDateRangeChange}
             clearable={false}
             defaultValue={paymentCalendarStore.defaultDate}
           />
-        </FilterSection>
-
-        <div>
+        </FilterField>
+      </FilterSection>
+      <FilterSection title={tf('parameters')}>
+        <FilterField label={tf('legalEntities')}>
           <SelectMyAccoutGroup
             value={paymentCalendarStore.selectedAccounts}
             onChange={(val) => paymentCalendarStore.setSelectedAccounts(val)}
             returnParentId={true}
             onReturnParentId={(parentIds) => paymentCalendarStore.setSelectedLegalEntities(parentIds)}
           />
-        </div>
-
-        <div>
+        </FilterField>
+        <FilterField label={tf('counterparties')}>
           <SelectCounterParties
             value={paymentCalendarStore.selectedCounterparties}
             onChange={(val) => paymentCalendarStore.setSelectedCounterparties(val)}
+            placeholder={tf('all')}
           />
-        </div>
-
-        <div>
+        </FilterField>
+        <FilterField label={t('common.deals')}>
           <MultiSelectZdelka
             value={paymentCalendarStore.deals}
             onChange={(val) => paymentCalendarStore.setDeals(val)}
-            placeholder={t('common.deals')}
+            placeholder={tf('all')}
           />
-        </div>
-
-      </div>
+        </FilterField>
+      </FilterSection>
     </FilterSidebar>
   )
 })

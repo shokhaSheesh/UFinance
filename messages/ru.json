@@ -3136,6 +3136,14 @@
     "selectedCount": "{count} выбрано",
     "amountFrom": "от {min}",
     "amountTo": "до {max}",
-    "amountBetween": "{min} — {max}"
+    "amountBetween": "{min} — {max}",
+    "done": "Готово",
+    "doneWithCount": "Готово · {count}",
+    "noneActive": "Фильтры не выбраны",
+    "all": "Все",
+    "status": "Статус",
+    "period": "Период",
+    "parameters": "Параметры",
+    "amounts": "Суммы"
   }
 }

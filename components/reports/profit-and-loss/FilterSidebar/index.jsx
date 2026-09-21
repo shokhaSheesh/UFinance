@@ -1,13 +1,13 @@
 'use client'
 
+import { FilterField, FilterSection as FilterGroup } from '@/components/shared/Filters/FilterDrawer'
+import ToggleChip from '@/components/shared/Filters/ToggleChip'
 import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { FilterSection } from '../../../directories/FilterSidebar/FilterSidebar'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import SelectProjects from '../../../ReadyComponents/SelectProjects'
@@ -17,14 +17,13 @@ import { pnlStore } from '../pnl.store'
 const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')
 
+  const tf = useTranslations('filters')
   const handleDateRangeChange = (range) => {
     pnlStore.setDateRange(range)
   }
 
-  const { dateRange, selectedAccounts, selectedCounterparties, selectedProjects, deals, selectedLegalEntities, operational, ebitda, ebit, ebt, defaultDate, dateRangeType } = pnlStore
+  const { dateRangeType } = pnlStore
 
-  const datesEqual = (a, b) =>
-    a && b ? new Date(a).toDateString() === new Date(b).toDateString() : a === b
 
   const clearCount = usePnLFilterCount()
 
@@ -39,9 +38,8 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
       clearCount={clearCount}
       onClear={handleClear}
     >
-      <div className="flex flex-col gap-4 pt-4">
-        {/* Date range */}
-        <FilterSection title={t('common.period')}>
+      <FilterGroup title={t('common.period')}>
+        <FilterField full>
           <NewDateRangeComponent
             value={pnlStore.dateRange}
             onChange={handleDateRangeChange}
@@ -51,72 +49,39 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             onClear={() => pnlStore.setDateRangeType('')}
             defaultValue={pnlStore.defaultDate}
           />
-        </FilterSection>
-
-        {/* Accounts */}
-        <div>
+        </FilterField>
+      </FilterGroup>
+      <FilterGroup title={tf('parameters')}>
+        <FilterField label={tf('legalEntities')}>
           <SelectMyAccoutGroup
             value={pnlStore.selectedAccounts}
             onChange={(val) => pnlStore.setSelectedAccounts(val)}
             returnParentId={true}
             onReturnParentId={(parentIds) => pnlStore.setSelectedLegalEntities(parentIds)}
           />
-        </div>
-
-        {/* Counterparties */}
-        <div>
-          <SelectCounterParties
-            value={pnlStore.selectedCounterparties}
-            onChange={(val) => pnlStore.setSelectedCounterparties(val)}
-          />
-        </div>
-        {/* Проекты — только если включён модуль проектов */}
+        </FilterField>
+        <FilterField label={tf('counterparties')}>
+          <SelectCounterParties value={pnlStore.selectedCounterparties} onChange={(val) => pnlStore.setSelectedCounterparties(val)} placeholder={tf('all')} />
+        </FilterField>
         {appStore.projectActive && (
-          <div>
-            <SelectProjects
-              multi
-              value={pnlStore.selectedProjects}
-              onChange={(val) => pnlStore.setSelectedProjects(val)}
-              placeholder={t('common.projects')}
-            />
-          </div>
+          <FilterField label={t('common.projects')}>
+            <SelectProjects multi value={pnlStore.selectedProjects} onChange={(val) => pnlStore.setSelectedProjects(val)} placeholder={tf('all')} />
+          </FilterField>
         )}
-
-        {/* deals */}
-        <div>
-          <MultiSelectZdelka
-            value={pnlStore.deals}
-            onChange={(val) => pnlStore.setDeals(val)}
-            placeholder={t('common.deals')}
-          />
-        </div>
-
-        {/* Profit types */}
-        <FilterSection title={t('pnl.profitTypes')}>
-          <div className="space-y-2 flex flex-col gap-2 justify-start items-start">
-            <OperationCheckbox
-              checked={pnlStore.operational}
-              onChange={(value) => pnlStore.setOperational(value.target.checked)}
-              label={t('pnl.operational')}
-            />
-            <OperationCheckbox
-              checked={pnlStore.ebitda}
-              onChange={(value) => pnlStore.setEbitDa(value.target.checked)}
-              label={"EBITDA"}
-            />
-            <OperationCheckbox
-              checked={pnlStore.ebit}
-              onChange={(value) => pnlStore.setEbit(value.target.checked)}
-              label={"EBIT"}
-            />
-            <OperationCheckbox
-              checked={pnlStore.ebt}
-              onChange={(value) => pnlStore.setEbt(value.target.checked)}
-              label={"EBT"}
-            />
+        <FilterField label={t('common.deals')}>
+          <MultiSelectZdelka value={pnlStore.deals} onChange={(val) => pnlStore.setDeals(val)} placeholder={tf('all')} />
+        </FilterField>
+      </FilterGroup>
+      <FilterGroup title={t('pnl.profitTypes')}>
+        <FilterField full>
+          <div className="flex flex-wrap gap-2">
+            <ToggleChip checked={pnlStore.operational} onChange={(v) => pnlStore.setOperational(v)}>{t('pnl.operational')}</ToggleChip>
+            <ToggleChip checked={pnlStore.ebitda} onChange={(v) => pnlStore.setEbitDa(v)}>EBITDA</ToggleChip>
+            <ToggleChip checked={pnlStore.ebit} onChange={(v) => pnlStore.setEbit(v)}>EBIT</ToggleChip>
+            <ToggleChip checked={pnlStore.ebt} onChange={(v) => pnlStore.setEbt(v)}>EBT</ToggleChip>
           </div>
-        </FilterSection>
-      </div>
+        </FilterField>
+      </FilterGroup>
     </FilterSidebar>
   )
 })

@@ -1,5 +1,7 @@
 "use client"
 
+import { FilterField } from '@/components/shared/Filters/FilterDrawer'
+import ToggleChip from '@/components/shared/Filters/ToggleChip'
 import TableCard from '@/components/shared/Table/TableCard'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import CreateAccountGroupModal from '@/components/directories/CreateAccountGroupModal/CreateAccountGroupModal'
@@ -10,7 +12,6 @@ import DeleteAccountGroupModal from '@/components/directories/DeleteAccountGroup
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import GroupMyAccounts from '@/components/ReadyComponents/GroupMyAccouts'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
-import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
@@ -36,6 +37,7 @@ import { formatAmount } from '@/utils/helpers'
 
 export default observer(function AccountsPageList() {
   const t = useTranslations('Directories.account')
+  const tf = useTranslations('filters')
   const tc = useTranslations('Common')
   const tErrors = useTranslations('Errors')
   const mounted = useMounted()
@@ -251,46 +253,23 @@ export default observer(function AccountsPageList() {
         onClear={handleClearFilters}
       >
         <FilterSection title={t('types.type')}>
-          <div className="space-y-2.5 flex flex-col items-start">
-            <OperationCheckbox
-              checked={accountsStore.isCash}
-              onChange={() => toggleType('Наличный')}
-              label={t('types.cash')}
-            />
-            <OperationCheckbox
-              checked={accountsStore.isNonCash}
-              onChange={() => toggleType('Безналичный')}
-              label={t('types.nonCash')}
-            />
-            <OperationCheckbox
-              checked={accountsStore.isCard}
-              onChange={() => toggleType('Карта физлица')}
-              label={t('types.card')}
-            />
-            <OperationCheckbox
-              checked={accountsStore.isElectronic}
-              onChange={() => toggleType('Электронный')}
-              label={t('types.electronic')}
-            />
-          </div>
+          <FilterField full>
+            <div className="flex flex-wrap gap-2">
+              <ToggleChip checked={accountsStore.isCash} onChange={() => toggleType('Наличный')}>{t('types.cash')}</ToggleChip>
+              <ToggleChip checked={accountsStore.isNonCash} onChange={() => toggleType('Безналичный')}>{t('types.nonCash')}</ToggleChip>
+              <ToggleChip checked={accountsStore.isCard} onChange={() => toggleType('Карта физлица')}>{t('types.card')}</ToggleChip>
+              <ToggleChip checked={accountsStore.isElectronic} onChange={() => toggleType('Электронный')}>{t('types.electronic')}</ToggleChip>
+            </div>
+          </FilterField>
         </FilterSection>
 
         <FilterSection title={tc('parameters')}>
-          <div className="space-y-3">
-            <GroupMyAccounts
-              value={selectedAccounts}
-              onChange={setSelectedAccounts}
-              placeholder={t('selectAccounts')}
-              multi={true}
-            />
-
-            <SelectLegelEntitties
-              value={selectedEntity}
-              onChange={setSelectedEntity}
-              placeholder={t('selectLegalEntity')}
-              multi={true}
-            />
-          </div>
+          <FilterField label={t('selectAccounts')}>
+            <GroupMyAccounts value={selectedAccounts} onChange={setSelectedAccounts} placeholder={tf('all')} multi={true} />
+          </FilterField>
+          <FilterField label={t('selectLegalEntity')}>
+            <SelectLegelEntitties value={selectedEntity} onChange={setSelectedEntity} placeholder={tf('all')} multi={true} />
+          </FilterField>
         </FilterSection>
       </FilterSidebar>
 

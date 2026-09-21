@@ -1,4 +1,5 @@
 "use client"
+import { FilterField } from '@/components/shared/Filters/FilterDrawer'
 import TableCard from '@/components/shared/Table/TableCard'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
 import IconButton from '@/components/shared/Buttons/IconButton'
@@ -53,6 +54,7 @@ const getCalculationOptions = (t) => [
  */
 const CounterpartiesListPage = observer(({ isStudent = false }) => {
   const t = useTranslations('Directories.counterparty')
+  const tf = useTranslations('filters')
   const ts = useTranslations('Directories.student')
   const tc = useTranslations('Common')
   const router = useRouter()
@@ -326,51 +328,61 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
     <div className="w-[calc(100%_-_var(--sidebar-w))] flex h-[calc(100%-60px)]  fixed left-[var(--sidebar-w)] top-[60px]">
       <FilterSidebar
         isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(prev => !prev)}
+        onClose={() => setIsFilterOpen(false)}
         clearCount={counterpartiesStore.activeFilterCount}
         onClear={counterpartiesStore.resetFilters}
       >
+        <FilterSection title={t('list.filters.period')}>
+          <FilterField full>
+            <NewDateRangeComponent
+              value={filters.dateRange}
+              onChange={(range) => {
+                const startDate = range?.start ? formatDate(new Date(range.start)) : ''
+                const endDate = range?.end ? formatDate(new Date(range.end)) : ''
+                setFilters(prev => ({
+                  ...prev,
+                  dateRange: range,
+                  operationDateStart: startDate,
+                  operationDateEnd: endDate,
+                }))
+              }}
+            />
+          </FilterField>
+        </FilterSection>
+
         <FilterSection title={t('list.filters.parameters')}>
-          <div className="space-y-2.5">
+          <FilterField label={tf('counterparties')}>
             <SelectCounterParties
               value={filters.selectedCounterparties}
               onChange={(values) => setFilters(prev => ({ ...prev, selectedCounterparties: values }))}
+              placeholder={tf('all')}
               dropdownClassName="w-56"
             />
+          </FilterField>
+          <FilterField label={t('list.filters.selectChartOfAccounts')}>
             <MultiSelectStatiya
               value={filters.selectedChartOfAccounts}
               onChange={(values) => setFilters(prev => ({ ...prev, selectedChartOfAccounts: values }))}
-              placeholder={t('list.filters.selectChartOfAccounts')}
+              placeholder={tf('all')}
               dropdownClassName="w-64"
             />
+          </FilterField>
+          <FilterField label={tf('deals')}>
             <MultiSelectZdelka
               value={filters.deals}
               onChange={(values) => setFilters(prev => ({ ...prev, deals: values }))}
+              placeholder={tf('all')}
               dropdownClassName="w-64"
             />
+          </FilterField>
+          <FilterField label={t('list.filters.selectLegalEntities')}>
             <SelectLegelEntitties
               value={filters.selectedLegalEntities}
               onChange={(values) => setFilters(prev => ({ ...prev, selectedLegalEntities: values }))}
-              placeholder={t('list.filters.selectLegalEntities')}
+              placeholder={tf('all')}
               multi={true}
             />
-          </div>
-        </FilterSection>
-
-        <FilterSection title={t('list.filters.period')}>
-          <NewDateRangeComponent
-            value={filters.dateRange}
-            onChange={(range) => {
-              const startDate = range?.start ? formatDate(new Date(range.start)) : ''
-              const endDate = range?.end ? formatDate(new Date(range.end)) : ''
-              setFilters(prev => ({
-                ...prev,
-                dateRange: range,
-                operationDateStart: startDate,
-                operationDateEnd: endDate,
-              }))
-            }}
-          />
+          </FilterField>
         </FilterSection>
 
         {/* Дебиторка / Кредиторка фильтры временно скрыты

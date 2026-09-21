@@ -1,4 +1,5 @@
 'use client'
+import { FilterField } from '@/components/shared/Filters/FilterDrawer'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import { FilterSection, FilterSidebar } from "@/components/directories/FilterSidebar/FilterSidebar"
@@ -26,6 +27,7 @@ const LIMIT = 50
 
 const Students = observer(() => {
   const t = useTranslations('Reports')
+  const tf = useTranslations('filters')
   const accountingMethodOptions = useMemo(() => [
     { value: 'accrual', label: t('students.accounting.accrual') },
     { value: 'cash', label: t('students.accounting.cash') }
@@ -204,38 +206,44 @@ const Students = observer(() => {
         onClose={() => setOpen(false)}
       >
         <FilterSection title={t('common.date')}>
-          <CustomRangeMonthPicker
-            value={rangeMonth}
-            handleSubmit={() => {
-              refetch()
-            }}
-            onChange={(months) => setState('rangeMonth', months)}
-            range
-          />
+          <FilterField full>
+            <CustomRangeMonthPicker
+              value={rangeMonth}
+              handleSubmit={() => {
+                refetch()
+              }}
+              onChange={(months) => setState('rangeMonth', months)}
+              range
+            />
+          </FilterField>
         </FilterSection>
-        <FilterSection title={t('common.counterparty')}>
-          <SelectCounterParties
-            value={student.selectedCounterParties}
-            onChange={(value) => student.setState('selectedCounterParties', value)}
-          />
-        </FilterSection>
-        <FilterSection title={t('common.counterpartyGroup')}>
-          <SelectCounterPartyGroup
-            multi={true}
-            value={student.selectedCounterPartiesGroups}
-            onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
-          />
-        </FilterSection>
-        <FilterSection title={t('students.statusTile')}>
-          <SingleSelect
-            data={[{
-              value: 'active', label: t('students.status.active'),
-            }, {
-              value: 'passive', label: t('students.status.passive')
-            }]}
-            value={student.status}
-            onChange={(value) => student.setState('status', value)}
-          />
+        <FilterSection title={tf('parameters')}>
+          <FilterField label={t('common.counterparty')}>
+            <SelectCounterParties
+              value={student.selectedCounterParties}
+              onChange={(value) => student.setState('selectedCounterParties', value)}
+              placeholder={tf('all')}
+            />
+          </FilterField>
+          <FilterField label={t('common.counterpartyGroup')}>
+            <SelectCounterPartyGroup
+              multi={true}
+              value={student.selectedCounterPartiesGroups}
+              onChange={(value) => student.setState('selectedCounterPartiesGroups', value)}
+            />
+          </FilterField>
+          <FilterField label={t('students.statusTile')}>
+            <SingleSelect
+              data={[{
+                value: 'active', label: t('students.status.active'),
+              }, {
+                value: 'passive', label: t('students.status.passive')
+              }]}
+              value={student.status}
+              onChange={(value) => student.setState('status', value)}
+              placeholder={tf('all')}
+            />
+          </FilterField>
         </FilterSection>
       </FilterSidebar>
       <div className="flex-1 flex flex-col overflow-hidden relative bg-canvas px-6">
