@@ -4,7 +4,7 @@ import CustomDatePicker from '@/components/shared/DatePicker';
 import Input from '@/components/shared/Input';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/hooks/useAppRouter';
 import { useEffect, useState } from 'react';
 import { useUcodeRequestMutation } from '../../../hooks/useDashboard';
 import { appStore } from '../../../store/app.store';

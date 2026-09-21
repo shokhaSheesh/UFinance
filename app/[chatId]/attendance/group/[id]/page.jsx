@@ -16,7 +16,8 @@ import {
   todayISO,
 } from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
+import { useRouter } from "@/hooks/useAppRouter"
 import { useMemo, useState } from "react"
 
 const CheckIcon = () => (

@@ -4,7 +4,7 @@ import { showErrorNotification } from '@/lib/utils/notifications'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { appStore } from '@/store/app.store'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useMemo, useState } from 'react'
 import { buildCounterpartyInfo, calculateOperationStats } from '../utils/counterpartiesUtils'
 

@@ -2,7 +2,7 @@
 
 import { EngFlag, RusFlag, UzbFlag } from '@/constants/icons'
 import { useLocale } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useEffect, useRef, useState, useTransition } from 'react'
 
 const COOKIE_NAME = 'NEXT_LOCALE'

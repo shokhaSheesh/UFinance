@@ -2,7 +2,7 @@
 
 import Input from '@/components/shared/Input'
 import { Search } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 
 const WarehouseDetailHeader = ({
   t,

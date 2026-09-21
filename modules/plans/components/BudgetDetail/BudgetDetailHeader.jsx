@@ -10,7 +10,7 @@ import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, Download, FileSpreadsheet, Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 
 // 'YYYY-MM' → номер месяца от нуля
 const monthIndex = (key) => {

@@ -2,7 +2,8 @@
 
 import { Loader } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useMemo, useState } from 'react'
 import AccessNewAccounts from './components/AccessNewAccounts'
 import AccountPermissions from './components/AccountPermissions'

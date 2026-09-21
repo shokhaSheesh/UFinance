@@ -122,7 +122,7 @@ const CounterpartyDetailPage = observer(({ isStudent = false }) => {
           counterpartyInfo={detail.counterpartyInfo}
           filters={detail.filters}
           setFilters={detail.setFilters}
-          onCreateOperation={() => ops.openCreate('income')}
+          onCreateOperation={(type) => ops.openCreate(type)}
           onEditOperation={handleEditOperation}
           onDeleteOperation={handleDeleteOperation}
           onCopyOperation={handleCopyOperation}

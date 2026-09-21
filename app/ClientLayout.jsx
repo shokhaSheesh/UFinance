@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from "sonner"
 import AppProvider from "../providers/AppProvider"
+import NavigationProgress from '@/components/shared/NavigationProgress/NavigationProgress'
 
 
 export default function ClientLayout({ children }) {
@@ -41,6 +42,7 @@ export default function ClientLayout({ children }) {
       <QueryClientProvider client={queryClient}>
         <AppProvider>
           <Toaster position="top-right" />
+          <NavigationProgress />
           <main>
             {children}
           </main>

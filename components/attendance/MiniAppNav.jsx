@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/hooks/useAppRouter"
 import { useState } from "react"
 import { LOCALES } from "./i18n"
 import { useMiniApp } from "./MiniAppProvider"

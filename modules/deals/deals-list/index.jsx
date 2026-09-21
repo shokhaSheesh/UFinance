@@ -11,7 +11,7 @@ import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { keepPreviousData, useMutation, useQueryClient } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { useUcodeDefaultApiQuery, useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'

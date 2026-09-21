@@ -8,7 +8,7 @@ import { appStore } from "@/store/app.store";
 import { authStore } from "@/store/auth.store";
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/hooks/useAppRouter";
 import { useUcodeRequestMutation } from "./useDashboard";
 
 const BRANCHES_REQUEST = {

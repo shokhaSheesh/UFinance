@@ -1,7 +1,7 @@
 'use client'
 
 import { Pencil, Trash2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { formatRoleDate } from '../utils/formatDate'
 
 export default function RoleRow({ role, index, canEdit, canDelete, onEdit, onDelete }) {

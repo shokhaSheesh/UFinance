@@ -34,7 +34,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { ArrowDownLeft, ArrowUpRight, ChevronRight, Download, Folder, FolderOpen, FolderTree, List, Plus, Scale, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import React, { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 

@@ -55,7 +55,8 @@ import {
 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation"
+import { useRouter } from "@/hooks/useAppRouter";
 import { useMemo, useState } from "react";
 import { HiOutlineDatabase } from "react-icons/hi";
 import { HiOutlineCreditCard } from "react-icons/hi2";

@@ -18,7 +18,8 @@ import { buildBudgetPeriod, buildBudgetRows } from '@/modules/plans/utils/budget
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useMemo, useState } from 'react'
 
 const BUDGET_TYPE = 'cashflow'

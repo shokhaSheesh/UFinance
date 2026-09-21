@@ -2,7 +2,7 @@
 
 import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 

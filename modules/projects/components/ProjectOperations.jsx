@@ -1,5 +1,6 @@
 'use client'
 
+import CreateOperationMenu from '@/components/operations/CreateOperationMenu/CreateOperationMenu'
 import MultiSelectPurchaseZdelka from '@/components/ReadyComponents/MultiPurchaseZdelka'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
@@ -46,9 +47,8 @@ export default function ProjectOperations({
       <div className="mb-3 bg-white">
         <div className="flex py-3 items-center gap-3">
           <h2 className="text-xl font-medium">{td('operationsTitle')}</h2>
-          <button className="primary-btn" onClick={onCreateOperation}>
-            {td('createOperation')}
-          </button>
+          {/* Выбор типа операции — как на странице «Операции» */}
+          <CreateOperationMenu onCreate={onCreateOperation} label={td('createOperation')} />
           <button
             className="secondary-btn flex items-center gap-2 text-primary!"
             onClick={() => setIsFiltersOpen((v) => !v)}

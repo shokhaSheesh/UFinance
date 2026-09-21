@@ -6,7 +6,7 @@ import StatusCounters from "@/components/attendance/StatusCounters"
 import { useAttendanceGroups, useAttendanceSession } from "@/hooks/useAttendance"
 import { gardenTotals, groupStats } from "@/store/attendance.store"
 import { observer } from "mobx-react-lite"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/hooks/useAppRouter"
 import { useState } from "react"
 
 const AVATAR_COLORS = [

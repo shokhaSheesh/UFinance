@@ -21,7 +21,7 @@ import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useEffect, useMemo, useState } from 'react'
 
 import ProjectsFilterSidebar from '../components/ProjectsFilterSidebar'

@@ -13,7 +13,8 @@ import { useDetailShipmentActions } from '@/modules/directories/counterparties/h
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useMemo, useState } from 'react'
 
 import ProjectDetailHeader from '../components/ProjectDetailHeader'
@@ -185,7 +186,7 @@ export default observer(function ProjectDetailPage() {
         isLoading={projectOps.isLoading}
         filters={projectOps.filters}
         setFilters={projectOps.setFilters}
-        onCreateOperation={() => ops.openCreate('income')}
+        onCreateOperation={(type) => ops.openCreate(type)}
         onEditOperation={onEditOperation}
         onDeleteOperation={ops.handleDelete}
         onCopyOperation={onCopyOperation}

@@ -28,7 +28,7 @@ import {
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useMemo, useState } from 'react'
 
 // 'YYYY-MM' → номер месяца от нуля, чтобы считать разницу в месяцах

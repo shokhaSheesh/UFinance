@@ -4,7 +4,8 @@ import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import OperationTableRow from '@/components/operations/TableRow/new'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Plus, ReceiptText, SlidersHorizontal } from 'lucide-react'
+import CreateOperationMenu from '@/components/operations/CreateOperationMenu/CreateOperationMenu'
+import { ChevronDown, ReceiptText, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
 
 const DetailOperationsSection = ({
@@ -54,10 +55,8 @@ const DetailOperationsSection = ({
                 )}
                 <ChevronDown className={cn('h-4 w-4 transition-transform', isFiltersOpen && 'rotate-180')} />
               </button>
-              <button className="primary-btn gap-1.5" onClick={onCreateOperation}>
-                <Plus size={16} aria-hidden="true" />
-                {t('createOperation')}
-              </button>
+              {/* Выбор типа операции — как на странице «Операции» */}
+              <CreateOperationMenu onCreate={onCreateOperation} label={t('createOperation')} />
             </div>
           </div>
 
