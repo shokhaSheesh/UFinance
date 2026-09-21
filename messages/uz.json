@@ -3077,7 +3077,10 @@
         "title": "Ta'minotchilar bilan kreditorlik",
         "total": "Umumiy kreditorlik",
         "hint": "Siz ta'minotchilarga qancha qarzsiz: olingan, lekin hali to'lanmagan tovar va xizmatlar"
-      }
+      },
+      "expiredShort": "muddati o'tgan {value}",
+      "share": "umumiy summaning {percent}%",
+      "counterparties": "{count} ta kontragent"
     },
     "accountBalance": {
       "title": "Hisoblardagi qoldiq",

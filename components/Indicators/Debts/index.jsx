@@ -58,7 +58,8 @@ const Debts = observer(() => {
         </div>
       </div>
 
-      <div className="space-y-6 mt-4">
+      {/* Дебиторка и кредиторка рядом — на широком экране блок вдвое короче */}
+      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DebtChart type="debitorka" />
         <DebtChart type="kreditorka" />
       </div>
