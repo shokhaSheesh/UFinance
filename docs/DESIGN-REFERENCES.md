@@ -9,7 +9,8 @@
 > Business web apps. They were written without access to the two specific
 > Mobbin screen sets below, which need a Mobbin login. Before an item is
 > implemented, check it against the actual screens. The checklist is in §6.
-> Items marked **⚑ decision** need the product owner's call.
+> Product-owner decisions are recorded in 3.1 (sidebar collapsed by default)
+> and 3.6 (payouts stay red).
 
 ---
 
@@ -63,17 +64,20 @@ on → which shared component changes.
 Both use a left sidebar with full text labels (about 220–240px) that
 collapses to an icon rail. UFinance has only the rail: 80px wide, 10px labels,
 and submenus that open as floating flyouts.
-- Default to the labelled sidebar and let the user collapse it. Remember the
-  choice per user.
-- Submenus (Reports, Directories, Deals, Plans) **expand inline**, like an
-  accordion, instead of flying out. Flyouts are the part of today's nav that
-  is hard to use with a keyboard and gets clipped at the bottom of the screen
-  (UX-AUDIT 2.5).
-- Active section: a solid background plus a left indicator bar.
-- **Changes:** `components/Sidebar/Sidebar.jsx`.
-- **⚑ decision:** the labelled sidebar takes about 150px from the ledger. With
-  collapse available, we recommend labelled as the default. Say if you'd
-  rather default to collapsed.
+- **Decided: collapsed by default.** It opens as today's icon rail, keeping the
+  full width for the ledger. The user can expand it to the labelled sidebar,
+  and the choice is remembered per user.
+- **Expanded:** submenus (Reports, Directories, Deals, Plans) **expand inline**
+  like an accordion.
+- **Collapsed:** inline expansion has nowhere to go in a bare icon rail, so
+  submenus stay as fly-outs. The fly-out is kept but fixed: a real `<button>`
+  with `aria-expanded`, keyboard access, and repositioning so it isn't clipped
+  at the bottom of the screen (UX-AUDIT 2.5). The rail labels go from 10px to
+  at least 12px.
+- Active section: a solid background plus a left indicator bar, in both modes.
+- **Changes:** `components/Sidebar/Sidebar.jsx`, plus a shared sidebar-width
+  value (see the implementation plan). 12 files hardcode the 80px rail width
+  and would break when it expands.
 
 ### 3.2 Data tables
 
@@ -154,15 +158,10 @@ the eye reads the number first. Combine this with tabular figures and a common
 right edge (UX-AUDIT 2.4).
 - **Changes:** `components/shared/Money/`, `PriceStatus`.
 
-**⚑ decision — colour of negative amounts.** *(B)*
-Revolut shows outgoing amounts in normal ink with a `−`, and only incoming in
-green. UFinance shows every payout in red. On a ledger that is mostly
-expenses, the screen turns red, and red reads as "error".
-- Option 1: keep red for payouts (familiar to accountants).
-- Option 2: payouts in normal ink with `−`, income in green, and red only for
-  a real problem such as a negative balance.
-- We lean towards **option 2**, but accountants are used to red for money
-  going out. This is your call.
+**Decided: payouts stay red.** *(Revolut's pattern not taken)*
+Revolut shows outgoing amounts in normal ink with a `−`. UFinance keeps red
+for payouts and green for income, because that's what accountants expect. It
+is listed in §4.
 
 ### 3.7 Empty, loading and error states
 
@@ -199,6 +198,8 @@ sidebar; modest corner radius (6–8px).
 | Labels above form fields | B | On a long form, left labels are denser and scan faster for people who fill it in all day. |
 | Dark mode or gradient cards | B (consumer app) | Fails test 2. Revolut Business web is lighter than the consumer app, but this is the part of Revolut's style to avoid. |
 | Round quick-action icon buttons (Send, Exchange, …) | B | A banking home-screen pattern with no equivalent in a ledger product. |
+| Outgoing amounts in normal ink instead of red | B | Product owner's decision: accountants expect red for money going out. |
+| Labelled sidebar as the default | A, B | Product owner's decision: collapsed by default keeps the width for the ledger. Labelled stays available on expand. |
 | Illustrations in empty states | A | Decorative. Fails test 2. |
 
 ## 5. Where UFinance needs a reference most
@@ -225,7 +226,6 @@ is a claim in §3 that could be wrong for the specific screens you picked.
 - [ ] A, B: main filters are **inline dropdowns showing their value** (3.3)
 - [ ] A: the **period** control comes first (3.3)
 - [ ] B: long forms are grouped into **labelled sections** (3.5)
-- [ ] B: outgoing amounts are in **normal ink**, not red (3.6)
 - [ ] A, B: loading uses **skeleton rows** (3.7)
 - [ ] A, B: sidebar is **labelled and collapsible**, with **inline** submenus (3.1)
 
