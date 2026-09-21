@@ -2,21 +2,24 @@
 
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import Input from '@/components/shared/Input'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import KpiCard from '@/components/shared/KpiCard/KpiCard'
+import Segmented from '@/components/shared/Segmented/Segmented'
 import TableCard from '@/components/shared/Table/TableCard'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
-import { Search } from 'lucide-react'
+import { Banknote, FileText, Percent, Search, TrendingUp } from 'lucide-react'
 import { useScrollDetector } from '@/hooks/useScrollDetector'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQueryClient } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 
-import { useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
+import { useUcodeDefaultApiQuery, useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
 import { apiClient } from '@/lib/api/ucode/base'
 import { showSuccessNotification } from '@/lib/utils/notifications'
+import { GlobalCurrency } from '@/constants/globalCurrency'
+import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { sealDeal } from '@/store/saleDeal.store'
 import { formatAmount, handleDownload, StringtoNumber } from '@/utils/helpers'
@@ -28,7 +31,6 @@ import { showErrorNotification } from '@/lib/utils/notifications'
 import FixedContent from '@/layouts/FixedContent'
 import { toJS } from 'mobx'
 import moment from 'moment'
-import DealsFooter from '../components/DealsFooter'
 import DealsHeader from '../components/DealsHeader'
 import DealsTable from '../components/DealsTable'
 import { useDealsActions } from '../hooks/useDealsActions'
@@ -165,6 +167,21 @@ export default observer(function DealsPage() {
     ? summary?.accrual_profit
     : summary?.cash_profit
 
+  // Статусы — тот же запрос, что в окне фильтров (общий кэш)
+  const { data: statusList } = useUcodeDefaultApiQuery({
+    queryKey: 'sales_status',
+    urlMethod: 'GET',
+    urlParams: '/items/sales_status?from-ofs=true',
+    data: {},
+    querySetting: {
+      select: response => response?.data?.data?.response,
+      staleTime: 1000 * 60 * 60,
+      placeholder: keepPreviousData,
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
+    },
+  })
+
   // ── Export ─────────────────────────────────────────────────────────────────
   const { mutate: exportDeals, isPending: isDealsExportLoading } = useMutation({
     mutationKey: ['export_deals'],
@@ -232,6 +249,32 @@ export default observer(function DealsPage() {
     { value: 'cash_method', label: t('methods.cash') },
   ]
 
+  // Итоги — те же, что были в полосе внизу, плюс рентабельность (прибыль / сумма сделок)
+  const totalSum = Number(summary?.total_deals_sum) || 0
+  const profitValue = Number(totalProfit) || 0
+  const margin = totalSum ? Math.round((profitValue / totalSum) * 1000) / 10 : 0
+  const kpis = [
+    { key: 'count', label: t('kpi.count'), value: summary?.count || 0, hint: t('kpi.countHint'), icon: FileText },
+    { key: 'sum', label: t('kpi.sum'), value: totalSum, currency: GlobalCurrency?.name, hint: t('kpi.sumHint'), icon: Banknote },
+    {
+      key: 'profit',
+      label: t('kpi.profit'),
+      value: profitValue,
+      currency: GlobalCurrency?.name,
+      hint: dealsMethod === 'accrual_method' ? t('methods.accrual') : t('methods.cash'),
+      icon: TrendingUp,
+      tone: 'signed',
+    },
+    { key: 'margin', label: t('kpi.margin'), value: margin, currency: '%', hint: t('kpi.marginHint'), icon: Percent, tone: 'signed' },
+  ]
+
+  // Быстрый фильтр по статусу — вкладками над таблицей; в окне фильтров остаётся множественный выбор
+  const activeStatus = status?.length === 1 ? status[0] : status?.length ? null : 'all'
+  const statusTabs = [
+    { value: 'all', label: t('statusAll') },
+    ...(statusList || []).map(item => ({ value: item.guid, label: item.name, color: item.color })),
+  ]
+
   return (
     <FixedContent>
       {/* ── Filter Sidebar (lazy) ── */}
@@ -240,7 +283,7 @@ export default observer(function DealsPage() {
       </Suspense>
 
       {/* ── Main content ── */}
-      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-y-auto scroll-smooth bg-canvas px-6 pb-6">
+      <main id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full relative overflow-auto scroll-smooth bg-canvas px-6 pb-10">
 
         <DealsHeader
           t={t}
@@ -252,9 +295,28 @@ export default observer(function DealsPage() {
             setShowCreateStudentModal(true)
             setDealToEdit(null)
           }}
+          count={summary?.count ?? null}
         />
 
-        <TableCard>
+        {/* Метод учёта — от него зависят прибыль в карточках и в таблице */}
+        <div className="mb-3 flex items-center gap-3">
+          <span className="text-sm text-slate-500">{t('methodLabel')}</span>
+          <Segmented
+            ariaLabel={t('methodLabel')}
+            options={methodOptions}
+            value={dealsMethod}
+            onChange={(v) => setState('dealsMethod', v)}
+          />
+        </div>
+
+        {/* Итоги по сделкам — наверху и крупно, а не мелкой строкой внизу */}
+        <div className="mb-4 grid grid-cols-4 gap-3">
+          {kpis.map(({ key, ...kpi }) => (
+            <KpiCard key={key} {...kpi} />
+          ))}
+        </div>
+
+        <TableCard className="min-w-fit overflow-visible">
           {/* Поиск, метод учёта и фильтры — в панели над таблицей */}
           <TableToolbar
             search={
@@ -268,22 +330,35 @@ export default observer(function DealsPage() {
                 />
               </div>
             }
-            actions={
-              <>
-                <div className="w-44">
-                  <SingleSelect
-                    data={methodOptions}
-                    withSearch={false}
-                    value={dealsMethod}
-                    isClearable={false}
-                    onChange={(v) => setState('dealsMethod', v)}
-                    className="bg-white"
-                  />
-                </div>
-                <FilterButton onClick={() => setIsFilterOpen(true)} />
-              </>
-            }
+            actions={<FilterButton onClick={() => setIsFilterOpen(true)} />}
+            className="rounded-t-xl"
           />
+
+          {/* Вкладки статусов */}
+          {statusTabs.length > 1 && (
+            <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-200 px-3" role="tablist">
+              {statusTabs.map(tab => {
+                const active = activeStatus === tab.value
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setState('status', tab.value === 'all' ? [] : [tab.value])}
+                    className={cn(
+                      '-mb-px flex h-10 shrink-0 items-center gap-2 border-b-2 px-3 text-sm font-medium cursor-pointer transition-colors',
+                      'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0e73f6]',
+                      active ? 'border-[#0e73f6] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900'
+                    )}
+                  >
+                    {tab.color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tab.color }} />}
+                    {tab.label}
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
         <DealsTable
           t={t}
@@ -306,13 +381,6 @@ export default observer(function DealsPage() {
         {isLoading && formattedDeals.length === 0 && <ScreenLoader className="left-0!" />}
         {(isFetchingNextPage || isFetching) && !isScrolling && <ScreenLoader className="left-0!" />}
       </main>
-
-      <DealsFooter
-        t={t}
-        summary={summary}
-        totalProfit={totalProfit}
-        isFilterOpen={isFilterOpen}
-      />
 
       {/* ── Lazy Modals ── */}
       <Suspense fallback={showCreateStudentModal ? <ModalFallback /> : null}>

@@ -1308,6 +1308,18 @@
       "save": "Сохранить",
       "project": "Проект",
       "projectPlaceholder": "Выберите проект"
+    },
+    "methodLabel": "Метод учёта",
+    "statusAll": "Все",
+    "dealsCountShort": "{count, plural, one {# сделка} few {# сделки} other {# сделок}}",
+    "kpi": {
+      "count": "Сделок",
+      "countHint": "По выбранным фильтрам",
+      "sum": "Сумма сделок",
+      "sumHint": "Товары и услуги по сделкам",
+      "profit": "Прибыль",
+      "margin": "Рентабельность",
+      "marginHint": "Прибыль к сумме сделок"
     }
   },
   "Settings": {

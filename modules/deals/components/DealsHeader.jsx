@@ -15,11 +15,17 @@ export default function DealsHeader({
   onExport,
   onCreateDeal,
   onCreateStudent,
+  count,
 }) {
   return (
     <PageHeader
-      className="px-0"
+      className="sticky top-0 z-40 bg-canvas px-0"
       title={t('pageTitle')}
+      search={
+        count != null && (
+          <span className="truncate text-sm text-slate-500 tabular-nums">{t('dealsCountShort', { count })}</span>
+        )
+      }
       actions={
         <>
           <IconButton

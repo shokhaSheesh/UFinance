@@ -1309,6 +1309,18 @@
       "save": "Saqlash",
       "project": "Loyiha",
       "projectPlaceholder": "Loyihani tanlang"
+    },
+    "methodLabel": "Hisob usuli",
+    "statusAll": "Hammasi",
+    "dealsCountShort": "{count} ta bitim",
+    "kpi": {
+      "count": "Bitimlar",
+      "countHint": "Tanlangan filtrlar bo'yicha",
+      "sum": "Bitimlar summasi",
+      "sumHint": "Bitimlar bo'yicha tovar va xizmatlar",
+      "profit": "Foyda",
+      "margin": "Rentabellik",
+      "marginHint": "Foydaning bitimlar summasiga nisbati"
     }
   },
   "Settings": {
