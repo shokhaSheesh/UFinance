@@ -1,66 +1,30 @@
 "use client"
 
+import { ConfirmDetail, ConfirmDialog } from '@/components/shared/CustomDialog'
+import { Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import Loader from '../../shared/Loader'
-import styles from './OperationsTable.module.scss'
 
 export function DeleteConfirmModal({ isOpen, operation, onConfirm, onCancel, isDeleting = false }) {
   const t = useTranslations('Operations')
-  if (!isOpen) return null
-
   return (
-    <>
-      <div
-        className={styles.deleteModalOverlay}
-        onClick={onCancel}
-      />
-      <div className={styles.deleteModal}>
-        <div className={styles.deleteModalHeader}>
-          <h3 className={styles.deleteModalTitle}>{t('deleteModal.title')}</h3>
-          <button
-            className={styles.deleteModalClose}
-            onClick={onCancel}
-          >
-            ✕
-          </button>
+    <ConfirmDialog
+      open={isOpen}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+      loading={isDeleting}
+      icon={Trash2}
+      title={t('deleteModal.title')}
+      message={t('deleteModal.confirmation')}
+      cancelLabel={t('deleteModal.cancel')}
+      confirmLabel={t('deleteModal.delete')}
+    >
+      {operation && (
+        <div className="flex flex-col gap-1.5">
+          <ConfirmDetail label={t('deleteModal.description')}>{operation.opisanie || '—'}</ConfirmDetail>
+          <ConfirmDetail label={t('deleteModal.amount')}>{operation.summa || '—'}</ConfirmDetail>
+          <ConfirmDetail label={t('deleteModal.date')}>{operation.operationDate || '—'}</ConfirmDetail>
         </div>
-        <div className={styles.deleteModalBody}>
-          <p className={styles.deleteModalText}>
-            {t('deleteModal.confirmation')}
-          </p>
-          {operation && (
-            <div className={styles.deleteModalInfo}>
-              <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.description')}</span>
-                <span className={styles.deleteModalInfoValue}>{operation.opisanie || '—'}</span>
-              </div>
-              <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.amount')}</span>
-                <span className={styles.deleteModalInfoValue}>{operation.summa || '—'}</span>
-              </div>
-              <div className={styles.deleteModalInfoItem}>
-                <span className={styles.deleteModalInfoLabel}>{t('deleteModal.date')}</span>
-                <span className={styles.deleteModalInfoValue}>{operation.operationDate || '—'}</span>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className={styles.deleteModalFooter}>
-          <button
-            className={styles.deleteModalButtonCancel}
-            onClick={onCancel}
-          >
-            {t('deleteModal.cancel')}
-          </button>
-          <button
-            className={styles.deleteModalButtonConfirm}
-            onClick={onConfirm}
-            disabled={isDeleting}
-          >
-            {isDeleting ? <Loader /> : t('deleteModal.delete')}
-          </button>
-        </div>
-      </div>
-    </>
+      )}
+    </ConfirmDialog>
   )
 }

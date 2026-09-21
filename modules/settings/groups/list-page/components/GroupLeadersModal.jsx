@@ -1,9 +1,9 @@
 'use client'
 
 import SelectUsers from '@/components/ReadyComponents/SelectUsers'
-import CustomDialog from '@/components/shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Loader, Plus, Trash2, UserPlus, X } from 'lucide-react'
+import { Loader, Plus, Trash2, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { colorOf, initialsOf } from '../utils/avatar'
@@ -43,55 +43,41 @@ export default function GroupLeadersModal({ open, onClose, group, canEdit }) {
   }
 
   return (
-    <CustomDialog
-      open={open}
-      onClose={handleClose}
-      contentClass="w-[560px] max-w-[95vw] p-0 overflow-hidden"
-    >
-      <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-gray-200">
-        <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-gray-ucode-800">{tg('leadersTitle')}</h3>
-          <p className="text-sm text-gray-ucode-500 mt-0.5 truncate">
-            {group?.nazvanie_gruppy || '—'}
-          </p>
-        </div>
-        <button
-          onClick={handleClose}
-          className="p-1.5 rounded-md text-gray-ucode-400 hover:bg-gray-ucode-100 hover:text-gray-ucode-600 transition-colors cursor-pointer shrink-0"
-        >
-          <X size={18} />
-        </button>
-      </div>
+    <CustomDialog open={open} onClose={handleClose} contentClass="w-[600px]">
+      <DialogHeader
+        title={tg('leadersTitle')}
+        subtitle={group?.nazvanie_gruppy || '—'}
+        onClose={handleClose}
+      />
 
       {canEdit && (
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-ucode-25">
-          <label className="text-xs font-medium text-gray-ucode-600 mb-1.5 block">
-            {tg('addUser')}
-          </label>
-          <div className="flex items-center gap-2">
-            <SelectUsers
-              value={selectedUser}
-              onChange={setSelectedUser}
-              exclude={attachedUserIds}
-              placeholder={tg('userPlaceholder')}
-              className="flex-1 bg-white"
-              dropdownClassName="w-[340px]"
-            />
-            <button
-              onClick={handleAdd}
-              disabled={!selectedUser || isAttaching}
-              className="primary-btn h-9 shrink-0"
-            >
-              {isAttaching ? <Loader size={14} className="animate-spin" /> : <Plus size={16} />}
-              {tc('add')}
-            </button>
-          </div>
+        <div className="shrink-0 px-8 py-4 border-b border-gray-200 bg-gray-ucode-25">
+          <FormRow label={tg('addUser')}>
+            <div className="flex items-center gap-2">
+              <SelectUsers
+                value={selectedUser}
+                onChange={setSelectedUser}
+                exclude={attachedUserIds}
+                placeholder={tg('userPlaceholder')}
+                className="flex-1 bg-white"
+                dropdownClassName="w-[340px]"
+              />
+              <button
+                onClick={handleAdd}
+                disabled={!selectedUser || isAttaching}
+                className="primary-btn h-9 shrink-0"
+              >
+                {isAttaching ? <Loader size={14} className="animate-spin" /> : <Plus size={16} />}
+                {tc('add')}
+              </button>
+            </div>
+          </FormRow>
         </div>
       )}
 
-      <div className="max-h-80 overflow-y-auto">
+      <DialogBody className="max-h-80 p-0">
         {isLoading ? (
-          <div className="px-6 py-4 flex flex-col gap-4">
+          <div className="px-8 py-4 flex flex-col gap-4">
             {[1, 2, 3].map((row) => (
               <div key={row} className="flex items-center gap-3">
                 <Skeleton className="size-9 rounded-full" />
@@ -105,7 +91,7 @@ export default function GroupLeadersModal({ open, onClose, group, canEdit }) {
         ) : leaders.length ? (
           <ul className="divide-y divide-gray-200">
             {leaders.map((leader) => (
-              <li key={leader?.guid} className="flex items-center gap-3 px-6 py-3 group">
+              <li key={leader?.guid} className="flex items-center gap-3 px-8 py-3 group">
                 <span
                   className="size-9 shrink-0 rounded-full grid place-items-center text-xs font-semibold text-white"
                   style={{ background: colorOf(leader?.user_id || leader?.guid) }}
@@ -136,20 +122,20 @@ export default function GroupLeadersModal({ open, onClose, group, canEdit }) {
             ))}
           </ul>
         ) : (
-          <div className="flex flex-col items-center text-center px-6 py-10">
+          <div className="flex flex-col items-center text-center px-8 py-10">
             <div className="size-12 rounded-full bg-gray-ucode-50 grid place-items-center mb-3">
               <UserPlus size={22} className="text-gray-ucode-400" />
             </div>
             <p className="text-sm text-gray-ucode-500">{tg('noLeaders')}</p>
           </div>
         )}
-      </div>
+      </DialogBody>
 
-      <div className="flex justify-end px-6 py-4 border-t border-gray-200">
-        <button onClick={handleClose} className="outline-btn">
+      <DialogFooter>
+        <button type="button" onClick={handleClose} className="secondary-btn h-9">
           {tg('close')}
         </button>
-      </div>
+      </DialogFooter>
     </CustomDialog>
   )
 }

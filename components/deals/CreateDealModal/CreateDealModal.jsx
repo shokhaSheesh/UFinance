@@ -3,7 +3,6 @@
 import CustomDatePicker from '@/components/shared/DatePicker';
 import Input from '@/components/shared/Input';
 import { useQueryClient } from '@tanstack/react-query';
-import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -13,7 +12,7 @@ import { authStore } from '../../../store/auth.store';
 import { formatDate } from '../../../utils/formatDate';
 import SelectProjects from '../../ReadyComponents/SelectProjects';
 import SingleCounterParty from '../../ReadyComponents/SingleCounterParty';
-import CustomDialog from '../../shared/CustomDialog';
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '../../shared/CustomDialog';
 import Loader from '../../shared/Loader';
 import SingleSelect from '../../shared/Selects/SingleSelect';
 import TextArea from '../../shared/TextArea';
@@ -132,47 +131,30 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
   };
 
   return (
-    <CustomDialog open={isOpen} onClose={onClose} contentClass="min-w-[600px]! max-w-[600px] p-0 overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
-        <h2 className="font-sans font-semibold text-lg leading-7 text-gray-900 m-0">
-          {isPurchase
+    <CustomDialog open={isOpen} onClose={onClose} contentClass="w-[600px]">
+      <form id="create-deal-form" className="flex min-h-0 flex-col" onSubmit={handleSubmit}>
+        <DialogHeader
+          title={isPurchase
             ? (isEditing ? tp('titleEdit') : tp('titleNew'))
             : (isEditing ? t('titleEdit') : t('titleNew'))}
-        </h2>
-        <button
-          type="button"
-          className="text-gray-400 hover:text-gray-600 cursor-pointer"
-          onClick={onClose}
-        >
-          <X size={20} />
-        </button>
-      </div>
+          onClose={onClose}
+        />
 
-      {/* Form */}
-      <form id="create-deal-form" className="space-y-3 p-5 text-sm font-normal overflow-y-auto flex-1" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{t('dealName')}</label>
-          <div className=" col-span-5">
+        <DialogBody className="flex flex-col gap-4">
+          <FormRow label={t('dealName')} error={errors.dealName}>
             <Input
               type="text"
               placeholder={t('dealNamePlaceholder')}
               value={dealName}
               onChange={(e) => {
-                setDealName(e.target.value);
-                if (errors.dealName) setErrors(prev => ({ ...prev, dealName: '' }));
+                setDealName(e.target.value)
+                if (errors.dealName) setErrors(prev => ({ ...prev, dealName: '' }))
               }}
               error={!!errors.dealName}
             />
-            {errors.dealName && (
-              <p className="text-red-500 text-xs mt-1">{errors.dealName}</p>
-            )}
-          </div>
-        </div>
+          </FormRow>
 
-        <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{t('dealDate')}</label>
-          <div className=" col-span-5">
+          <FormRow label={t('dealDate')}>
             <CustomDatePicker
               value={dealDate}
               onChange={(val) => setDealDate(val)}
@@ -180,26 +162,20 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
               format="YYYY-MM-DD"
               className="w-full"
             />
-          </div>
-        </div>
+          </FormRow>
 
-        <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{isPurchase ? tp('supplier') : t('client')}</label>
-          <div className=" col-span-5">
+          <FormRow label={isPurchase ? tp('supplier') : t('client')}>
             <SingleCounterParty
               value={client}
               onChange={value => setClient(value)}
               placeholder={isPurchase ? tp('supplierPlaceholder') : t('clientPlaceholder')}
               className={'bg-white'}
             />
-          </div>
-        </div>
+          </FormRow>
 
-        {/* Проект — только если включён модуль проектов */}
-        {appStore.projectActive && (
-          <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center">{t('project')}</label>
-            <div className=" col-span-5">
+          {/* Проект — только если включён модуль проектов */}
+          {appStore.projectActive && (
+            <FormRow label={t('project')}>
               <SelectProjects
                 value={project}
                 onChange={(value) => setProject(value)}
@@ -207,14 +183,11 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
                 className={'bg-white'}
                 selectFirst={!isEditing && !initialData}
               />
-            </div>
-          </div>
-        )}
+            </FormRow>
+          )}
 
-        {!isPurchase && (
-          <div className="grid grid-cols-7">
-            <label className=" col-span-2 flex items-center">{t('vat')}</label>
-            <div className=" col-span-5">
+          {!isPurchase && (
+            <FormRow label={t('vat')}>
               <SingleSelect
                 data={ndsOptions}
                 value={nds}
@@ -224,35 +197,23 @@ export function CreateDealModal({ isOpen, onClose, initialData, isEditing, creat
                 className={'bg-white'}
                 isClearable={false}
               />
-            </div>
-          </div>
-        )}
+            </FormRow>
+          )}
 
-        <div className="grid grid-cols-7">
-          <label className=" col-span-2 flex items-center">{t('comment')}</label>
-          <div className=" col-span-5">
+          <FormRow label={t('comment')} align="start">
             <TextArea value={comment} onChange={(e) => setComment(e.target.value)} />
-          </div>
-        </div>
-      </form>
+          </FormRow>
+        </DialogBody>
 
-      {/* Footer */}
-      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0">
-        <button
-          type="button"
-          className="min-w-[102px] h-10 rounded-lg border border-gray-300 px-4 py-2 bg-white font-sans font-semibold text-sm text-gray-700 cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-400"
-          onClick={onClose}
-        >
-          {t('cancel')}
-        </button>
-        <button
-          type="submit"
-          form="create-deal-form"
-          className="min-w-[102px] h-10 rounded-lg border border-blue-700 px-4 py-2 bg-blue-700 font-sans font-semibold text-sm text-white cursor-pointer transition-all hover:bg-blue-800 hover:border-blue-800 flex items-center justify-center"
-        >
-          {isCreatingDeal ? <Loader /> : (isEditing ? t('save') : t('create'))}
-        </button>
-      </div>
+        <DialogFooter>
+          <button type="button" className="secondary-btn h-9" onClick={onClose}>
+            {t('cancel')}
+          </button>
+          <button type="submit" form="create-deal-form" className="primary-btn">
+            {isCreatingDeal ? <Loader /> : (isEditing ? t('save') : t('create'))}
+          </button>
+        </DialogFooter>
+      </form>
     </CustomDialog>
   );
 }

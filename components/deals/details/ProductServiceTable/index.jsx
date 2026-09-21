@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { FileX2, Loader2 } from 'lucide-react'
+import { FileX2, Loader2, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BsTrash } from 'react-icons/bs'
@@ -12,8 +12,8 @@ import { productServiceDto } from '../../../../lib/dtos/productServiceDto'
 import { showErrorNotification } from '../../../../lib/utils/notifications'
 import { formatAmount } from '../../../../utils/helpers'
 import OperationCheckbox from '../../../shared/Checkbox/operationCheckbox'
+import { ConfirmDialog } from '../../../shared/CustomDialog'
 import CustomModal from '../../../shared/CustomModal'
-import Loader from '../../../shared/Loader'
 
 import EmptyState from '../EmptyState'
 
@@ -275,20 +275,17 @@ const ProductServiceTable = ({ handleSelect, sellingDealId, onAdd, canAdd, onSho
         <div className="p-4 text-right text-neutral-700 font-semibold">Итого:</div>
         <div className={`p-4 text-right font-semibold text-neutral-600`}>{formatAmount(productServicesList?.reduce((acc, item) => acc + item.summa, 0))} UZS</div>
       </div> */}
-      <CustomModal isOpen={open} onClose={() => setOpen(false)}>
-        <div className='p-4'>
-          <h1 className='text-lg font-semibold text-neutral-900'>{t('deletePositionsTitle')}</h1>
-          <p className='text-sm text-neutral-600'>{t('deletePositionsConfirm', { count: selectedItem.length })}</p>
-          <div className='flex justify-end gap-2 mt-4'>
-            <button onClick={() => setOpen(false)} className='secondary-btn'>
-              {t('cancel')}
-            </button>
-            <button onClick={handleDelete} className='delete-btn'>
-              {isProductServiceCustomPending ? <Loader /> : t('delete')}
-            </button>
-          </div>
-        </div>
-      </CustomModal>
+      <ConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={handleDelete}
+        loading={isProductServiceCustomPending}
+        icon={Trash2}
+        title={t('deletePositionsTitle')}
+        message={t('deletePositionsConfirm', { count: selectedItem.length })}
+        cancelLabel={t('cancel')}
+        confirmLabel={t('delete')}
+      />
 
       {/* Позицию держат отгрузки/поставки — удалить её можно только после них */}
       <CustomModal

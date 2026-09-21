@@ -11,11 +11,11 @@ import { appStore } from '@/store/app.store'
 import { areDatesAllowed } from '@/utils/dataEditingRestriction'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { Copy, Loader2, Pencil, Truck } from 'lucide-react'
+import { Copy, Loader2, Pencil, Trash2, Truck } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import CustomModal from '../../../shared/CustomModal'
+import { ConfirmDialog } from '../../../shared/CustomDialog'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
 
@@ -348,39 +348,24 @@ const ShipmenTable = observer(({
         />
       )}
 
-      {showDeleteModal && (
-        <CustomModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-          <div className='p-2 flex flex-col'>
-            <div className='flex justify-between items-center border-b border-gray-100 pb-2'>
-              <h2 className='text-xl font-bold text-neutral-800'>{isPurchase ? tp('deleteSupplyTitle') : t('deleteShipmentTitle')}</h2>
-            </div>
-
-            <div className='py-6 text-base text-neutral-700'
-              dangerouslySetInnerHTML={{
-                __html: isPurchase
-                  ? tp('deleteSupplyConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
-                  : t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
-              }}
-            />
-
-            <div className='flex justify-end gap-4'>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className='px-4 py-2 text-sm text-primary hover:bg-gray-50 rounded-md font-semibold'
-              >
-                {t('cancel')}
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className='px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-md flex items-center justify-center min-w-[100px]'
-              >
-                {isDeleting ? <Loader2 className='animate-spin h-4 w-4' /> : t('delete')}
-              </button>
-            </div>
-          </div>
-        </CustomModal>
-      )}
+      <ConfirmDialog
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        loading={isDeleting}
+        icon={Trash2}
+        title={isPurchase ? tp('deleteSupplyTitle') : t('deleteShipmentTitle')}
+        cancelLabel={t('cancel')}
+        confirmLabel={t('delete')}
+      >
+        <p
+          dangerouslySetInnerHTML={{
+            __html: isPurchase
+              ? tp('deleteSupplyConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+              : t('deleteShipmentConfirm', { amount: formatAmount(shipmentToDelete?.summa) + ' UZS' })
+          }}
+        />
+      </ConfirmDialog>
     </>
   )
 })

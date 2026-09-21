@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import SelectStatiya from "@/components/ReadyComponents/SelectStatiya"
-import CustomDialog from "@/components/shared/CustomDialog"
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from "@/components/shared/CustomDialog"
 import Input from "@/components/shared/Input"
 import TextArea from "@/components/shared/TextArea"
 import { useUcodeRequestMutation, useUpdateChartOfAccounts } from "@/hooks/useDashboard"
@@ -146,23 +146,20 @@ export default function CreateChartOfAccountsModal({
   }
 
   return (
-    <CustomDialog
-      open={isOpen}
-      onClose={onClose}
-      contentClass="p-0"
-    >
-      <div className="w-[640px]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 shrink-0">
-          <h2 className="text-2xl font-bold text-slate-900">
-            {isEditMode ? t("editTitle") : t("createTitle")}
-          </h2>
-        </div>
+    <CustomDialog open={isOpen} onClose={onClose} contentClass="w-[640px]">
+      <form
+        id="chart-of-accounts-form"
+        className="flex min-h-0 flex-col"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <DialogHeader
+          title={isEditMode ? t("editTitle") : t("createTitle")}
+          onClose={onClose}
+        />
 
-        {/* Content */}
-        <div className="px-8 py-6 overflow-y-auto">
+        <DialogBody className="flex flex-col gap-4">
           {/* Tabs */}
-          <div className="flex mb-6 border-b border-gray-200">
+          <div className="flex mb-2 border-b border-gray-200">
             {TAB_CONFIG.map((tab, index) => {
               const isActive = activeTab === tab.key
               const isFirst = index === 0
@@ -189,109 +186,70 @@ export default function CreateChartOfAccountsModal({
             })}
           </div>
 
-          {/* Form */}
-          <form
-            id="chart-of-accounts-form"
-            className="flex flex-col gap-6"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {/* Name */}
-            <div className="flex items-start gap-6">
-              <label className="w-[180px] pt-3 text-[15px] text-slate-900 shrink-0">
-                {t("fields.name")}{" "}
-                <span className="text-red-500">*</span>
-              </label>
-              <div className="flex-1 flex flex-col">
-                <Controller
-                  name="nazvanie"
-                  control={control}
-                  rules={{ required: t("errors.nameRequired") }}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      type="text"
-                      placeholder={t("placeholders.name")}
-                      hasError={!!errors.nazvanie}
-                      className={cn(
-                        "flex-1 px-4 py-3 text-[15px] border rounded transition-all duration-200",
-                        "placeholder:text-gray-400",
-                        "focus:outline-none focus:border-[#0E73F6]",
-                        errors.nazvanie
-                          ? "border-red-500 focus:border-red-500"
-                          : "border-gray-300"
-                      )}
-                    />
-                  )}
+          {/* Name */}
+          <FormRow label={t("fields.name")} required error={errors.nazvanie?.message}>
+            <Controller
+              name="nazvanie"
+              control={control}
+              rules={{ required: t("errors.nameRequired") }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="text"
+                  placeholder={t("placeholders.name")}
+                  hasError={!!errors.nazvanie}
                 />
-                {errors.nazvanie && (
-                  <div className="mt-2 text-[13px] text-red-500">
-                    {errors.nazvanie.message}
-                  </div>
-                )}
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            {/* Parent category */}
-            <div className="flex items-start gap-6">
-              <label className="w-[180px] pt-3 text-[15px] text-slate-900 shrink-0">
-                {t("fields.parent")}
-              </label>
-              <div className="flex-1 flex flex-col">
-                <Controller
-                  name="chart_of_accounts_id_2"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectStatiya
-                      selectedValue={field.value}
-                      setSelectedValue={field.onChange}
-                      placeholder={t("placeholders.selectParent")}
-                      shownParent={TAB_TO_API_TIP[activeTab]}
-                      hasError={!!errors.chart_of_accounts_id_2}
-                      className="bg-white"
-                    />
-                  )}
+          {/* Parent category */}
+          <FormRow label={t("fields.parent")}>
+            <Controller
+              name="chart_of_accounts_id_2"
+              control={control}
+              render={({ field }) => (
+                <SelectStatiya
+                  selectedValue={field.value}
+                  setSelectedValue={field.onChange}
+                  placeholder={t("placeholders.selectParent")}
+                  shownParent={TAB_TO_API_TIP[activeTab]}
+                  hasError={!!errors.chart_of_accounts_id_2}
+                  className="bg-white"
                 />
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            {/* Comment */}
-            <div className="flex items-start gap-6">
-              <label className="w-[180px] pt-3 text-[15px] text-slate-900 shrink-0">
-                {t("fields.comment")}
-              </label>
-              <div className="flex-1 flex flex-col">
-                <Controller
-                  name="komentariy"
-                  control={control}
-                  render={({ field }) => (
-                    <TextArea
-                      {...field}
-                      placeholder={t("placeholders.comment")}
-                      rows={4}
-                      className={''}
-                    />
-                  )}
+          {/* Comment */}
+          <FormRow label={t("fields.comment")} align="start">
+            <Controller
+              name="komentariy"
+              control={control}
+              render={({ field }) => (
+                <TextArea
+                  {...field}
+                  placeholder={t("placeholders.comment")}
+                  rows={4}
                 />
-              </div>
-            </div>
-          </form>
-        </div>
+              )}
+            />
+          </FormRow>
+        </DialogBody>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200 shrink-0">
+        <DialogFooter>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className={'secondary-btn'}
+            className="secondary-btn h-9"
           >
             {tc("cancel")}
           </button>
           <button
             type="submit"
-            form="chart-of-accounts-form"
             disabled={isSubmitting}
-            className={'primary-btn'}
+            className="primary-btn"
           >
             {isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -301,8 +259,8 @@ export default function CreateChartOfAccountsModal({
               tc("create")
             )}
           </button>
-        </div>
-      </div>
+        </DialogFooter>
+      </form>
     </CustomDialog>
   )
 }

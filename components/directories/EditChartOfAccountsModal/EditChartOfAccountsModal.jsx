@@ -1,6 +1,7 @@
 "use client"
 
 import { TreeSelect } from '@/components/common/TreeSelect/TreeSelect'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import { useChartOfAccountsV2, useUpdateChartOfAccounts } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -16,7 +17,7 @@ export default function EditChartOfAccountsModal({ isOpen, onClose, category }) 
     tip_operatsii: []
   })
   const [errors, setErrors] = useState({})
-  const [isClosing, setIsClosing] = useState(false)
+  const [, setIsClosing] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
   // Block body scroll when modal is open
@@ -244,114 +245,83 @@ export default function EditChartOfAccountsModal({ isOpen, onClose, category }) 
   if (!isOpen && !isVisible) return null
 
   return (
-    <>
-      <div 
-        className={cn(styles.overlay, isClosing ? styles.closing : styles.opening)}
-        onClick={handleClose}
-      />
+    <CustomDialog open={isOpen || isVisible} onClose={handleClose} contentClass="w-[640px]">
+      <DialogHeader title="Редактирование учетной статьи" onClose={handleClose} />
 
-      <div 
-        className={cn(styles.modal, isClosing ? styles.closing : styles.opening)}
-      >
-        <div className={styles.header}>
-          <h2 className={styles.title}>Редактирование учетной статьи</h2>
-          <button onClick={handleClose} className={styles.closeButton}>
-            <svg className={styles.closeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className={styles.content}>
-          {/* Tabs */}
-          <div className={styles.tabsContainer}>
-            {tabs.map((tab, index) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={cn(
-                  styles.tab,
-                  index === 0 && styles.first,
-                  index === tabs.length - 1 && styles.last,
-                  index > 0 && styles.notFirst,
-                  activeTab === tab.key ? styles.active : styles.inactive
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Form */}
-          <div className={styles.form}>
-            <div className={styles.formRow}>
-              <label className={styles.label}>
-                Название <span className={styles.required}>*</span>
-              </label>
-              <div className={styles.inputContainer}>
-                <input
-                  type="text"
-                  value={formData.nazvanie}
-                  onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
-                  placeholder="Укажите название статьи"
-                  className={cn(styles.input, errors.nazvanie && styles.inputError)}
-                />
-                {errors.nazvanie && (
-                  <div className={styles.errorMessage}>{errors.nazvanie}</div>
-                )}
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <label className={styles.label}>Относится к</label>
-              <div className={styles.inputContainer}>
-                <TreeSelect
-                  data={treeData}
-                  value={formData.chart_of_accounts_id_2}
-                  onChange={(value) => setFormData({ ...formData, chart_of_accounts_id_2: value })}
-                  placeholder="Выберите родительскую статью"
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <label className={styles.label}>Комментарий</label>
-              <div className={styles.inputContainer}>
-                <textarea
-                  value={formData.komentariy}
-                  onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
-                  placeholder="Пояснение к статье"
-                  className={styles.textarea}
-                  rows={4}
-                />
-              </div>
-            </div>
-
-            {errors.submit && (
-              <div className={styles.errorMessage}>{errors.submit}</div>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.footerRight}>
-            <button 
-              onClick={handleClose} 
-              className={styles.cancelButton}
-              disabled={updateMutation.isPending}
+      <DialogBody className="flex flex-col gap-4">
+        {/* Tabs */}
+        <div className={styles.tabsContainer}>
+          {tabs.map((tab, index) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                styles.tab,
+                index === 0 && styles.first,
+                index === tabs.length - 1 && styles.last,
+                index > 0 && styles.notFirst,
+                activeTab === tab.key ? styles.active : styles.inactive
+              )}
             >
-              Отменить
+              {tab.label}
             </button>
-            <button 
-              onClick={handleSubmit} 
-              className={styles.submitButton}
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? 'Сохранение...' : 'Сохранить'}
-            </button>
-          </div>
+          ))}
         </div>
-      </div>
-    </>
+
+        {/* Form */}
+        <FormRow label="Название" required error={errors.nazvanie}>
+          <input
+            type="text"
+            value={formData.nazvanie}
+            onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
+            placeholder="Укажите название статьи"
+            className={cn(styles.input, errors.nazvanie && styles.inputError)}
+          />
+        </FormRow>
+
+        <FormRow label="Относится к">
+          <TreeSelect
+            data={treeData}
+            value={formData.chart_of_accounts_id_2}
+            onChange={(value) => setFormData({ ...formData, chart_of_accounts_id_2: value })}
+            placeholder="Выберите родительскую статью"
+          />
+        </FormRow>
+
+        <FormRow label="Комментарий" align="start">
+          <textarea
+            value={formData.komentariy}
+            onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
+            placeholder="Пояснение к статье"
+            className={styles.textarea}
+            rows={4}
+          />
+        </FormRow>
+
+        {errors.submit && (
+          <div className="text-sm text-red-600">{errors.submit}</div>
+        )}
+      </DialogBody>
+
+      <DialogFooter>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="secondary-btn h-9"
+          disabled={updateMutation.isPending}
+        >
+          Отменить
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="primary-btn"
+          disabled={updateMutation.isPending}
+        >
+          {updateMutation.isPending ? 'Сохранение...' : 'Сохранить'}
+        </button>
+      </DialogFooter>
+    </CustomDialog>
   )
 }

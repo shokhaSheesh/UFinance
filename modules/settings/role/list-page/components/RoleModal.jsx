@@ -1,6 +1,6 @@
 'use client'
 
-import CustomDialog from '@/components/shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
 import { apiClient } from '@/lib/api/ucode/base'
 import { queryClient } from '@/lib/queryClient'
@@ -60,49 +60,34 @@ export default function RoleModal({ open, onClose, initialRole, onSuccess }) {
   }
 
   return (
-    <CustomDialog open={open} onClose={handleClose} contentClass="w-[480px] max-w-[95vw] p-7">
-      <h2 className="text-lg font-bold text-slate-900 mb-6">
-        {initialRole ? tr('edit') : tr('add')}
-      </h2>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">{tr('name')}</label>
-          <Input
-            placeholder={tr('namePlaceholder')}
-            error={!!errors?.name}
-            {...register('name', { required: tr('errors.nameRequired') })}
-          />
-          {errors?.name && <span className="text-xs text-red-500">{errors?.name?.message}</span>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-500">{tr('description')}</label>
-          <Input
-            placeholder={tr('descriptionPlaceholder')}
-            error={!!errors?.description}
-            {...register('description')}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2.5 mt-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={isSaving}
-            className="px-5 py-2 bg-white text-slate-500 border border-gray-300 rounded-lg text-sm font-medium hover:border-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
-          >
+    <CustomDialog open={open} onClose={handleClose} contentClass="w-[520px]">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-col">
+        <DialogHeader title={initialRole ? tr('edit') : tr('add')} onClose={handleClose} />
+        <DialogBody className="flex flex-col gap-5">
+          <FormRow label={tr('name')} required error={errors?.name?.message}>
+            <Input
+              placeholder={tr('namePlaceholder')}
+              error={!!errors?.name}
+              {...register('name', { required: tr('errors.nameRequired') })}
+            />
+          </FormRow>
+          <FormRow label={tr('description')}>
+            <Input
+              placeholder={tr('descriptionPlaceholder')}
+              error={!!errors?.description}
+              {...register('description')}
+            />
+          </FormRow>
+        </DialogBody>
+        <DialogFooter>
+          <button type="button" onClick={handleClose} disabled={isSaving} className="secondary-btn h-9">
             {tc('cancel')}
           </button>
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="px-5 py-2 bg-[#0E73F6] text-white rounded-lg text-sm font-semibold hover:bg-[#0b5fd4] transition-colors disabled:opacity-60 flex items-center gap-2 cursor-pointer"
-          >
+          <button type="submit" disabled={isSaving} className="primary-btn">
             {isSaving && <Loader size={14} className="animate-spin" />}
             {isSaving ? tc('saving') : initialRole ? tc('save') : tc('create')}
           </button>
-        </div>
+        </DialogFooter>
       </form>
     </CustomDialog>
   )

@@ -1,11 +1,11 @@
 'use client'
 
-import CustomDialog from '@/components/shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import TextArea from '@/components/shared/TextArea'
 import { appStore } from '@/store/app.store'
-import { Loader2, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import MonthRangePicker from './MonthRangePicker'
 
@@ -22,16 +22,6 @@ const EMPTY = {
 
 // Справочники приходят как { key, label }; селекты проекта ждут { value, label }.
 const toOptions = (list) => list.map((o) => ({ value: o.value ?? o.key, label: o.label }))
-
-const Row = ({ label, required, children }) => (
-  <div className="grid grid-cols-7 gap-2">
-    <label className="col-span-2 flex items-center text-sm text-gray-700">
-      {label}
-      {required && <span className="ml-0.5 text-red-500">*</span>}
-    </label>
-    <div className="col-span-5">{children}</div>
-  </div>
-)
 
 /**
  * Модалка создания и редактирования бюджета (БДДС и БДР).
@@ -114,29 +104,11 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
   }
 
   return (
-    <CustomDialog
-      open
-      onClose={onClose}
-      contentClass="min-w-[560px]! max-w-[560px] p-0 overflow-hidden flex flex-col"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h2 className="m-0 text-lg font-semibold text-slate-900">
-          {isEdit ? t('form.editTitle') : t('form.createTitle')}
-        </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="cursor-pointer text-gray-400 transition-colors hover:text-gray-600"
-          aria-label={t('form.close')}
-        >
-          <X size={20} />
-        </button>
-      </div>
+    <CustomDialog open onClose={onClose} contentClass="w-[560px]">
+      <DialogHeader title={isEdit ? t('form.editTitle') : t('form.createTitle')} onClose={onClose} />
 
-      {/* Body */}
-      <div className="space-y-3 p-5 text-sm">
-        <Row label={t('form.name')} required>
+      <DialogBody className="flex flex-col gap-4">
+        <FormRow label={t('form.name')} required error={errors.name}>
           <Input
             autoFocus
             value={form.name}
@@ -144,19 +116,18 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
             placeholder={t('form.namePlaceholder')}
             error={!!errors.name}
           />
-          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
-        </Row>
+        </FormRow>
 
-        <Row label={t('form.period')}>
+        <FormRow label={t('form.period')}>
           <MonthRangePicker
             value={form.period}
             onChange={(period) => set('period', period)}
             monthLabels={monthLabels}
             width="100%"
           />
-        </Row>
+        </FormRow>
 
-        <Row label={t('form.legalEntity')} required>
+        <FormRow label={t('form.legalEntity')} required error={errors.legalEntity}>
           <SingleSelect
             data={toOptions(legalEntities)}
             value={form.legalEntity}
@@ -165,12 +136,11 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
             hasError={!!errors.legalEntity}
             className="bg-white"
           />
-          {errors.legalEntity && <p className="mt-1 text-xs text-red-500">{errors.legalEntity}</p>}
-        </Row>
+        </FormRow>
 
         {/* Проект — только при включённом модуле «Проекты» */}
         {appStore.projectActive && (
-          <Row label={t('form.project')}>
+          <FormRow label={t('form.project')}>
             <SingleSelect
               data={toOptions(projects)}
               value={form.project}
@@ -178,10 +148,10 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
               placeholder={t('form.projectPlaceholder')}
               className="bg-white"
             />
-          </Row>
+          </FormRow>
         )}
 
-        <Row label={t('form.currency')} required>
+        <FormRow label={t('form.currency')} required error={errors.currency}>
           <SingleSelect
             data={toOptions(currencies)}
             value={form.currency}
@@ -191,21 +161,19 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
             hasError={!!errors.currency}
             className="bg-white"
           />
-          {errors.currency && <p className="mt-1 text-xs text-red-500">{errors.currency}</p>}
-        </Row>
+        </FormRow>
 
-        <Row label={t('form.comment')}>
+        <FormRow label={t('form.comment')} align="start">
           <TextArea
             value={form.comment}
             onChange={(e) => set('comment', e.target.value)}
             placeholder={t('form.commentPlaceholder')}
           />
-        </Row>
-      </div>
+        </FormRow>
+      </DialogBody>
 
-      {/* Footer */}
-      <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
-        <button type="button" onClick={onClose} className="secondary-btn" disabled={isSaving}>
+      <DialogFooter>
+        <button type="button" onClick={onClose} className="secondary-btn h-9" disabled={isSaving}>
           {t('form.cancel')}
         </button>
         <button
@@ -217,7 +185,7 @@ const BudgetForm = ({ budget, onClose, onSubmit, t, monthLabels, legalEntities, 
           {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
           {isEdit ? t('form.save') : t('form.create')}
         </button>
-      </div>
+      </DialogFooter>
     </CustomDialog>
   )
 }

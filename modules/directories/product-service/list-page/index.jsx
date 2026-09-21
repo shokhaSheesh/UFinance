@@ -2,11 +2,12 @@
 
 import CreateGroup from "@/components/directories/ProductServices/CreateGroup";
 import CreateSingle from "@/components/directories/ProductServices/CreateSingle";
+import { ConfirmDialog } from "@/components/shared/CustomDialog";
 import CustomModal from "@/components/shared/CustomModal";
-import Loader from "@/components/shared/Loader";
 import ScreenLoader from "@/components/shared/ScreenLoader";
 import FixedContent from "@/layouts/FixedContent";
 import { appStore } from "@/store/app.store";
+import { Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useMemo, useState } from "react";
@@ -216,36 +217,21 @@ export default observer(function ProductServiceListPage() {
         setOpen={() => setIsCreateGroupOpen(false)}
       />
 
-      <CustomModal
-        isOpen={!!itemToDelete}
+      <ConfirmDialog
+        open={!!itemToDelete}
         onClose={() => setItemToDelete(null)}
-      >
-        <div className="flex flex-col gap-6 p-2">
-          <h2 className="text-xl font-bold text-neutral-900 font-sans">
-            {"Удалить"} {itemToDelete?.isGroup ? "группу" : "товар"}
-          </h2>
-          <p className="text-sm text-neutral-600 leading-relaxed font-sans">
-            {itemToDelete?.isGroup
-              ? `Вы действительно хотите удалить группу «${itemToDelete.name}»? Восстановить её будет невозможно.`
-              : `Вы действительно хотите удалить товар «${itemToDelete?.name}»? Восстановить его будет невозможно.`}
-          </p>
-          <div className="flex justify-end items-center gap-6 mt-2">
-            <button
-              onClick={() => setItemToDelete(null)}
-              className="text-[#00A389] font-semibold text-sm hover:underline cursor-pointer"
-            >
-              {"Отменить"}
-            </button>
-            <button
-              onClick={handleDeleteConfirm}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#F04438] rounded-md hover:bg-[#D92D20] transition-colors cursor-pointer min-w-[100px]"
-              disabled={isDeletingItem}
-            >
-              {isDeletingItem ? <Loader size={20} color="white" /> : "Удалить"}
-            </button>
-          </div>
-        </div>
-      </CustomModal>
+        onConfirm={handleDeleteConfirm}
+        loading={isDeletingItem}
+        icon={Trash2}
+        title={`Удалить ${itemToDelete?.isGroup ? "группу" : "товар"}`}
+        message={
+          itemToDelete?.isGroup
+            ? `Вы действительно хотите удалить группу «${itemToDelete.name}»? Восстановить её будет невозможно.`
+            : `Вы действительно хотите удалить товар «${itemToDelete?.name}»? Восстановить его будет невозможно.`
+        }
+        cancelLabel="Отменить"
+        confirmLabel="Удалить"
+      />
 
       {/* Товар уже используется в операциях/сделках — удалить нельзя */}
       <CustomModal isOpen={!!usedItem} onClose={() => setUsedItem(null)}>

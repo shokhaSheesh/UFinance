@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react'
 import { useUcodeDefaultApiQuery } from '../../../hooks/useDashboard'
 import { queryClient } from '../../../lib/queryClient'
 import { authStore } from '../../../store/auth.store'
-import CustomDialog from '../../shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '../../shared/CustomDialog'
 
 export default observer(function CreateLegalEntityModal({ isOpen, onClose, legalEntity = null, legalEntityId }) {
   const t = useTranslations('Directories.legalEntity')
@@ -132,113 +132,89 @@ export default observer(function CreateLegalEntityModal({ isOpen, onClose, legal
   }
 
   return (
-    <CustomDialog open={isOpen} onClose={handleClose} contentClass="p-0">
-      <div className="flex flex-col bg-white rounded-lg max-h-[90vh] w-[600px]" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
-          <h3 id="modal-title" className="text-[18px] font-semibold text-slate-900 m-0">
-            {isEdit ? t('editTitle') : t('createTitle')}
-          </h3>
-        </div>
+    <CustomDialog open={isOpen} onClose={handleClose} contentClass="w-[600px]">
+      <DialogHeader title={isEdit ? t('editTitle') : t('createTitle')} onClose={handleClose} />
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
-          <div className="flex flex-col gap-6">
-            {/* Название */}
-            <div className="flex flex-row gap-2.5">
-              <label className="text-sm font-medium w-[30%] text-slate-700">
-                {t('fields.name')} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex flex-col gap-2 flex-1">
-                <Input
-                  type="text"
-                  value={formData.nazvanie}
-                  onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
-                  placeholder={t('placeholders.name')}
-                  className={cn(errors.nazvanie && 'border-red-500')}
-                />
-                {errors.nazvanie && <p className="text-xs text-red-500 mt-1">{errors.nazvanie}</p>}
-              </div>
-            </div>
+      <DialogBody className="flex flex-col gap-4">
+        {/* Название */}
+        <FormRow label={t('fields.name')} required error={errors.nazvanie}>
+          <Input
+            type="text"
+            value={formData.nazvanie}
+            onChange={(e) => setFormData({ ...formData, nazvanie: e.target.value })}
+            placeholder={t('placeholders.name')}
+            className={cn(errors.nazvanie && 'border-red-500')}
+          />
+        </FormRow>
 
-            {/* Полное название */}
-            <div className="flex flex-row gap-2.5">
-              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.fullName')}</label>
-              <div className="flex flex-col gap-2 flex-1">
-                <Input
-                  type="text"
-                  value={formData.polnoe_nazvanie}
-                  onChange={(e) => setFormData({ ...formData, polnoe_nazvanie: e.target.value })}
-                  placeholder={t('placeholders.fullName')}
-                />
-              </div>
-            </div>
+        {/* Полное название */}
+        <FormRow label={t('fields.fullName')}>
+          <Input
+            type="text"
+            value={formData.polnoe_nazvanie}
+            onChange={(e) => setFormData({ ...formData, polnoe_nazvanie: e.target.value })}
+            placeholder={t('placeholders.fullName')}
+          />
+        </FormRow>
 
-            {/* ИНН/КПП */}
-            <div className="flex flex-row gap-2.5">
-              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.innKpp')}</label>
-              <div className="flex flex-col gap-2 flex-1">
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={formData.inn}
-                    onChange={(e) => {
-                      setFormData({ ...formData, inn: returnNumber(e.target.value) })
-                    }}
-                    placeholder=""
-                    className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    onWheel={(e) => e.target.blur()}
-                  />
-                  <span className="text-sm font-medium text-gray-500 shrink-0">/</span>
-                  <Input
-                    type="number"
-                    value={formData.kpp}
-                    onChange={(e) => setFormData({ ...formData, kpp: returnNumber(e.target.value) })}
-                    placeholder=""
-                    className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    onWheel={(e) => e.target.blur()}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Комментарий */}
-            <div className="flex flex-row gap-2.5">
-              <label className="text-sm font-medium w-[30%] text-slate-700">{t('fields.comment')}</label>
-              <div className="flex flex-col gap-2 flex-1">
-                <TextArea
-                  value={formData.komentariy}
-                  onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
-                  placeholder={t('placeholders.comment')}
-                  rows={4}
-                  hasError={!!errors.komentariy}
-                />
-              </div>
-            </div>
-
-            {errors.submit && (
-              <div className="text-xs text-red-500 mt-1">{errors.submit}</div>
-            )}
+        {/* ИНН/КПП */}
+        <FormRow label={t('fields.innKpp')}>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              value={formData.inn}
+              onChange={(e) => {
+                setFormData({ ...formData, inn: returnNumber(e.target.value) })
+              }}
+              placeholder=""
+              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onWheel={(e) => e.target.blur()}
+            />
+            <span className="text-sm font-medium text-gray-500 shrink-0">/</span>
+            <Input
+              type="number"
+              value={formData.kpp}
+              onChange={(e) => setFormData({ ...formData, kpp: returnNumber(e.target.value) })}
+              placeholder=""
+              className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onWheel={(e) => e.target.blur()}
+            />
           </div>
-        </div>
+        </FormRow>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-2 border-t border-gray-200">
-          <button
-            className="secondary-btn"
-            onClick={handleClose}
-          >
-            {tc('cancel')}
-          </button>
-          <button
-            className="primary-btn disabled:opacity-60 disabled:cursor-not-allowed"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (isEdit ? tc('saving') : tc('creating')) : (isEdit ? tc('save') : tc('create'))}
-          </button>
-        </div>
-      </div>
+        {/* Комментарий */}
+        <FormRow label={t('fields.comment')} align="start">
+          <TextArea
+            value={formData.komentariy}
+            onChange={(e) => setFormData({ ...formData, komentariy: e.target.value })}
+            placeholder={t('placeholders.comment')}
+            rows={4}
+            hasError={!!errors.komentariy}
+          />
+        </FormRow>
+
+        {errors.submit && (
+          <div className="text-xs text-red-500 mt-1">{errors.submit}</div>
+        )}
+      </DialogBody>
+
+      <DialogFooter>
+        <button
+          type="button"
+          className="secondary-btn h-9"
+          onClick={handleClose}
+        >
+          {tc('cancel')}
+        </button>
+        <button
+          type="button"
+          className="primary-btn disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (isEdit ? tc('saving') : tc('creating')) : (isEdit ? tc('save') : tc('create'))}
+        </button>
+      </DialogFooter>
     </CustomDialog>
   )
 })

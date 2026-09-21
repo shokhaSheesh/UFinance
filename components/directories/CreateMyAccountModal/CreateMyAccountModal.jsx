@@ -12,7 +12,7 @@ import { queryClient } from '../../../lib/queryClient'
 import { appStore } from '../../../store/app.store'
 import { formatAmountInput, formatDecimal, StringtoNumber } from '../../../utils/helpers'
 import SelectLegelEntitties from '../../ReadyComponents/SelectLegelEntitties'
-import CustomDialog from '../../shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '../../shared/CustomDialog'
 import FormDatepicker from '../../shared/DatePicker/form-datepicker'
 import Loader from '../../shared/Loader'
 import SingleSelect from '../../shared/Selects/SingleSelect'
@@ -159,299 +159,240 @@ export default function CreateMyAccountModal({ isOpen, onClose, account = null }
   if (!isVisible && !isOpen) return null
 
   return (
-    <CustomDialog className="" open={isOpen} onClose={handleClose}>
-      <div className="flex w-[600px]! flex-col h-full text-slate-900">
-        <div className="border-b pb-3 mb-3 p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{isEdit ? t('editTitle') : t('createTitle')}</h2>
-        </div>
+    <CustomDialog open={isOpen} onClose={handleClose} contentClass="w-[600px]">
+      <DialogHeader title={isEdit ? t('editTitle') : t('createTitle')} onClose={handleClose} />
 
-        <div className="px-4 overflow-y-auto max-h-[70vh] py-4">
-          <div className="flex flex-col gap-3">
-            {/* Название */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">
-                {t('fields.name')} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="nazvanie"
-                  control={control}
-                  rules={{ required: t('errors.nameRequired') }}
-                  render={({ field }) => (
-                    <Input
-                      type="text"
-                      {...field}
-                      placeholder={t('placeholders.name')}
-                      className={cn(errors.nazvanie && "border-red-500")}
-                    />
-                  )}
-                />
-                {errors.nazvanie && (
-                  <div className="text-[12px] text-red-500 mt-1">{errors.nazvanie.message}</div>
-                )}
-              </div>
-            </div>
-
-
-            {/* Группа */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm text-[#0f172a] flex items-center gap-1">
-                {t('fields.group')}
-              </label>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="account_group_id"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectAccountGroups
-                      value={field.value}
-                      onChange={field.onChange}
-                      className="bg-white"
-                    />
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Юрлицо */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.legalEntity')} <span className="text-red-500">*</span></label>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="legal_entity_id"
-                  control={control}
-                  rules={{ required: t('errors.legalEntityRequired') }}
-                  render={({ field }) => (
-                    <SelectLegelEntitties
-                      value={field.value}
-                      multi={false}
-                      onChange={field.onChange}
-                      className="bg-white"
-                      isClearable={false}
-                      placeholder={t('placeholders.selectLegalEntity')}
-                    />
-                  )}
-                />
-                {errors.legal_entity_id && (
-                  <div className="text-xs text-red-500 mt-1">{errors.legal_entity_id.message}</div>
-                )}
-              </div>
-            </div>
-
-            {/* Тип */}
-            <div className="flex flex-row gap-2 ">
-              <label className="w-[30%] text-sm mb-5  text-[#0f172a] flex items-center gap-1">
-                {t('fields.type')}
-              </label>
-              <div className="flex-1 flex flex-col gap-1 justify-start">
-                <Controller
-                  name="tip"
-                  control={control}
-                  render={({ field }) => (
-                    <SingleSelect
-                      data={accountTypes}
-                      value={field.value?.[0] || ''}
-                      onChange={(value) => field.onChange(value ? [value] : [])}
-                      placeholder={t('placeholders.selectType')}
-                      className="flex-1 bg-white"
-                      withSearch={false}
-                      isClearable={false}
-                    />
-                  )}
-                />
-                <div className="flex justiyf-start">
-                  {selectedType && (selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
-                    showDetails ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowDetails(!showDetails)}
-                        className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
-                      >
-                        {t('requisites.hide')}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowDetails(!showDetails)}
-                        className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
-                      >
-                          {t('requisites.show')}
-                      </button>
-                    )
-                  )}
-                </div>
-              </div>
-            </div>
-
-
-
-            {(selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
-              <div className="">
-                {showDetails && (
-                  <div className="flex flex-col gap-3 rounded-md">
-                    <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.bik')}</label>
-                      <div className="flex-1">
-                        <Controller
-                          name="bik"
-                          control={control}
-                          render={({ field }) => (
-                            <Input type="text" {...field} />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.bank')}</label>
-                      <div className="flex-1">
-                        <Controller
-                          name="bank"
-                          control={control}
-                          render={({ field }) => (
-                            <Input type="text" {...field} />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.accountNumber')}</label>
-                      <div className="flex-1">
-                        <Controller
-                          name="rasch_schet"
-                          control={control}
-                          render={({ field }) => (
-                            <Input type="text" {...field} className={cn(errors.rasch_schet && "border-red-500")} />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex  gap-2">
-                      <label className="w-[30%] text-sm  text-[#0f172a] flex items-center">{t('fields.corrAccount')}</label>
-                      <div className="flex-1">
-                        <Controller
-                          name="korr_schet"
-                          control={control}
-                          render={({ field }) => (
-                            <Input type="text" {...field} />
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+      <DialogBody className="flex flex-col gap-4 text-slate-900">
+        {/* Название */}
+        <FormRow label={t('fields.name')} required error={errors.nazvanie?.message}>
+          <Controller
+            name="nazvanie"
+            control={control}
+            rules={{ required: t('errors.nameRequired') }}
+            render={({ field }) => (
+              <Input
+                type="text"
+                {...field}
+                placeholder={t('placeholders.name')}
+                className={cn(errors.nazvanie && "border-red-500")}
+              />
             )}
-            {selectedType === 'Электронный' && (
-              <div className="flex flex-row gap-2">
-                <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.number')}</label>
-                <div className="flex-1">
-                  <Controller
-                    name="nomer"
-                    control={control}
-                    render={({ field }) => (
-                      <Input type="text" {...field} placeholder={t('fields.number')} />
-                    )}
-                  />
-                </div>
-              </div>
+          />
+        </FormRow>
+
+        {/* Группа */}
+        <FormRow label={t('fields.group')}>
+          <Controller
+            name="account_group_id"
+            control={control}
+            render={({ field }) => (
+              <SelectAccountGroups
+                value={field.value}
+                onChange={field.onChange}
+                className="bg-white"
+              />
             )}
-            {/* Начальный остаток */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.initialBalance')}</label>
-              <div className="flex items-center flex-1 gap-2">
-                <Controller
-                  name="nachalьnyy_ostatok"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="text"
-                      value={formatAmountInput(field.value)}
-                      onChange={(e) => field.onChange(formatAmountInput(e.target.value))}
-                      placeholder="0"
-                      className="w-fit"
-                      onWheel={(e) => e.target.blur()}
-                    />
-                  )}
-                />
-              </div>
+          />
+        </FormRow>
+
+        {/* Юрлицо */}
+        <FormRow label={t('fields.legalEntity')} required error={errors.legal_entity_id?.message}>
+          <Controller
+            name="legal_entity_id"
+            control={control}
+            rules={{ required: t('errors.legalEntityRequired') }}
+            render={({ field }) => (
+              <SelectLegelEntitties
+                value={field.value}
+                multi={false}
+                onChange={field.onChange}
+                className="bg-white"
+                isClearable={false}
+                placeholder={t('placeholders.selectLegalEntity')}
+              />
+            )}
+          />
+        </FormRow>
+
+        {/* Тип */}
+        <FormRow label={t('fields.type')} align="start">
+          <Controller
+            name="tip"
+            control={control}
+            render={({ field }) => (
+              <SingleSelect
+                data={accountTypes}
+                value={field.value?.[0] || ''}
+                onChange={(value) => field.onChange(value ? [value] : [])}
+                placeholder={t('placeholders.selectType')}
+                className="flex-1 bg-white"
+                withSearch={false}
+                isClearable={false}
+              />
+            )}
+          />
+          <div className="flex justify-start">
+            {selectedType && (selectedType === 'Безналичный' || selectedType === 'Карта физлица') && (
+              showDetails ? (
+                <button
+                  type="button"
+                  onClick={() => setShowDetails(!showDetails)}
+                  className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
+                >
+                  {t('requisites.hide')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowDetails(!showDetails)}
+                  className="text-xs text-primary hover:text-primary-dark transition-colors cursor-pointer"
+                >
+                  {t('requisites.show')}
+                </button>
+              )
+            )}
+          </div>
+        </FormRow>
+
+        {(selectedType === 'Безналичный' || selectedType === 'Карта физлица') && showDetails && (
+          <>
+            <FormRow label={t('fields.bik')}>
               <Controller
-                name="data_sozdaniya"
+                name="bik"
                 control={control}
                 render={({ field }) => (
-                  <FormDatepicker
-                    value={field.value}
-                    onChange={(value) => field.onChange(moment.parseZone(value).format('YYYY-MM-DD'))}
-                    placeholder={t('placeholders.selectDate')}
-                    format='YYYY-MM-DD'
-                    inputClass={'bg-white'}
-                    className="w-fit"
+                  <Input type="text" {...field} />
+                )}
+              />
+            </FormRow>
+            <FormRow label={t('fields.bank')}>
+              <Controller
+                name="bank"
+                control={control}
+                render={({ field }) => (
+                  <Input type="text" {...field} />
+                )}
+              />
+            </FormRow>
+            <FormRow label={t('fields.accountNumber')}>
+              <Controller
+                name="rasch_schet"
+                control={control}
+                render={({ field }) => (
+                  <Input type="text" {...field} className={cn(errors.rasch_schet && "border-red-500")} />
+                )}
+              />
+            </FormRow>
+            <FormRow label={t('fields.corrAccount')}>
+              <Controller
+                name="korr_schet"
+                control={control}
+                render={({ field }) => (
+                  <Input type="text" {...field} />
+                )}
+              />
+            </FormRow>
+          </>
+        )}
+        {selectedType === 'Электронный' && (
+          <FormRow label={t('fields.number')}>
+            <Controller
+              name="nomer"
+              control={control}
+              render={({ field }) => (
+                <Input type="text" {...field} placeholder={t('fields.number')} />
+              )}
+            />
+          </FormRow>
+        )}
+
+        {/* Начальный остаток */}
+        <FormRow label={t('fields.initialBalance')}>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <Controller
+                name="nachalьnyy_ostatok"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="text"
+                    value={formatAmountInput(field.value)}
+                    onChange={(e) => field.onChange(formatAmountInput(e.target.value))}
+                    placeholder="0"
+                    onWheel={(e) => e.target.blur()}
                   />
                 )}
               />
             </div>
-
-            {/* Валюта */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">
-                {t('fields.currency')}
-              </label>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="currenies_id"
-                  control={control}
-                  render={({ field }) => (
-                    <SingleSelect
-                      data={currencies}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder={tc('placeholders.selectCurrency')}
-                      isClearable={false}
-                      className="flex-1 bg-white"
-                    />
-                  )}
+            <Controller
+              name="data_sozdaniya"
+              control={control}
+              render={({ field }) => (
+                <FormDatepicker
+                  value={field.value}
+                  onChange={(value) => field.onChange(moment.parseZone(value).format('YYYY-MM-DD'))}
+                  placeholder={t('placeholders.selectDate')}
+                  format='YYYY-MM-DD'
+                  inputClass={'bg-white'}
+                  className="w-fit"
                 />
-              </div>
-            </div>
-
-            {/* Комментарий */}
-            <div className="flex flex-row gap-2">
-              <label className="w-[30%] text-sm  text-[#0f172a] flex items-center gap-1">{t('fields.comment')}</label>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="komentariy"
-                  control={control}
-                  render={({ field }) => (
-                    <textarea
-                      {...field}
-                      placeholder={t('placeholders.comment')}
-                      className="p-2.5 text-sm resize-none text-[#0f172a] bg-white border border-gray-200 rounded-md transition-all w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-cyan-500/10 placeholder:text-gray-400 min-h-[80px]"
-                      rows={4}
-                    />
-                  )}
-                />
-              </div>
-            </div>
+              )}
+            />
           </div>
-        </div>
+        </FormRow>
 
-        <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-neutral-200 p-4">
-          <button
-            type="button"
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-transparent rounded-md cursor-pointer transition-all hover:text-[#0f172a] hover:bg-gray-100"
-            onClick={handleClose}
-          >
-            {tc('cancel')}
-          </button>
-          <button
-            type="button"
-            className="px-3 py-2 text-sm font-medium text-white bg-primary rounded-md cursor-pointer transition-all hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <Loader /> : (isEdit ? tc('save') : tc('create'))}
-          </button>
-        </div>
-      </div>
+        {/* Валюта */}
+        <FormRow label={t('fields.currency')}>
+          <Controller
+            name="currenies_id"
+            control={control}
+            render={({ field }) => (
+              <SingleSelect
+                data={currencies}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder={tc('placeholders.selectCurrency')}
+                isClearable={false}
+                className="flex-1 bg-white"
+              />
+            )}
+          />
+        </FormRow>
+
+        {/* Комментарий */}
+        <FormRow label={t('fields.comment')} align="start">
+          <Controller
+            name="komentariy"
+            control={control}
+            render={({ field }) => (
+              <textarea
+                {...field}
+                placeholder={t('placeholders.comment')}
+                className="p-2.5 text-sm resize-none text-[#0f172a] bg-white border border-gray-200 rounded-md transition-all w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-cyan-500/10 placeholder:text-gray-400 min-h-[80px]"
+                rows={4}
+              />
+            )}
+          />
+        </FormRow>
+      </DialogBody>
+
+      <DialogFooter>
+        <button
+          type="button"
+          className="secondary-btn h-9"
+          onClick={handleClose}
+        >
+          {tc('cancel')}
+        </button>
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? <Loader /> : (isEdit ? tc('save') : tc('create'))}
+        </button>
+      </DialogFooter>
     </CustomDialog>
   )
 }

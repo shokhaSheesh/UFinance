@@ -5,7 +5,7 @@ import SinglSelectStatiya from "@/components/ReadyComponents/SingleSelectStatiya
 import { DeleteGroupConfirmModal } from "@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal";
 import EditCounterpartyGroupModal from "@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal";
 import OperationCheckbox from "@/components/shared/Checkbox/operationCheckbox";
-import CustomDialog from "@/components/shared/CustomDialog";
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from "@/components/shared/CustomDialog";
 import Input from "@/components/shared/Input";
 import TextArea from "@/components/shared/TextArea";
 import {
@@ -287,144 +287,151 @@ const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <CustomDialog contentClass="p-0" open={isOpen} onClose={handleClose}>
-      <div className="w-[640px]">
-        {/* Header */}
-        <div className={styles.header}>
-          <h2 className={styles.title}>
-            {activeTab === "group"
-              ? t("createGroupTitle")
-              : isEdit
-              ? t("editTitle")
-              : t("createTitle")}
-          </h2>
+    <CustomDialog contentClass="w-[640px]" open={isOpen} onClose={handleClose}>
+      <DialogHeader
+        title={
+          activeTab === "group"
+            ? t("createGroupTitle")
+            : isEdit
+            ? t("editTitle")
+            : t("createTitle")
+        }
+        onClose={handleClose}
+      />
+
+      <DialogBody className="flex flex-col gap-4">
+        {/* Tabs */}
+        <div className={styles.tabsContainer}>
+          {["counterparty", "group"].map((tab, i) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                styles.tab,
+                i === 0 ? styles.first : cn(styles.last, styles.notFirst),
+                activeTab === tab ? styles.active : styles.inactive
+              )}
+            >
+              {t(tab === "counterparty" ? "tabCounterparty" : "tabGroup")}
+            </button>
+          ))}
         </div>
 
-        <div className={styles.content}>
-          {/* Tabs */}
-          <div className={styles.tabsContainer}>
-            {["counterparty", "group"].map((tab, i) => (
+        {/* ── Counterparty Form ── */}
+        {activeTab === "counterparty" ? (
+          <form
+            id="counterparty-form"
+            className="flex flex-col gap-4"
+            onSubmit={submitIsolated(handleSubmit(onSubmitCounterparty))}
+          >
+            {/* Name */}
+            <FormRow label={t("fields.name")} required error={errors.nazvanie?.message}>
+              <Input
+                placeholder={t("placeholders.name")}
+                className={cn(
+                  styles.input,
+                  errors.nazvanie && styles.inputError
+                )}
+                {...register("nazvanie", {
+                  required: t("errors.nameRequired"),
+                })}
+              />
+            </FormRow>
+
+            {/* Full name */}
+            <FormRow label={t("fields.fullName")}>
+              <Input
+                placeholder={t("placeholders.fullName")}
+                className={styles.input}
+                {...register("polnoe_imya")}
+              />
+            </FormRow>
+
+            {/* Address */}
+            <FormRow label={t("fields.address")}>
+              <Input
+                placeholder={t("placeholders.address")}
+                className={styles.input}
+                {...register("address")}
+              />
+            </FormRow>
+
+            {/* Group */}
+            <FormRow label={t("fields.group")}>
+              <Controller
+                name="counterparties_group_id"
+                control={control}
+                render={({ field }) => (
+                  <SelectCounterPartyGroup
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={t("placeholders.selectGroup")}
+                    className="flex-1 bg-white"
+                  />
+                )}
+              />
+            </FormRow>
+
+            {/* Requisites toggle */}
+            <FormRow label="">
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  styles.tab,
-                  i === 0 ? styles.first : cn(styles.last, styles.notFirst),
-                  activeTab === tab ? styles.active : styles.inactive
-                )}
+                type="button"
+                onClick={() => setDetails((prev) => !prev)}
+                className={cn(styles.requisites, "self-start")}
               >
-                {t(tab === "counterparty" ? "tabCounterparty" : "tabGroup")}
+                <p>{t("requisites")}</p>
               </button>
-            ))}
-          </div>
+            </FormRow>
 
-          {/* ── Counterparty Form ── */}
-          {activeTab === "counterparty" ? (
-            <form
-              id="counterparty-form"
-              className={styles.form}
-              onSubmit={submitIsolated(handleSubmit(onSubmitCounterparty))}
+            {/* Requisites fields */}
+            <div
+              className={cn(
+                styles.requisitesContainer,
+                details && styles.active
+              )}
             >
-              {/* Name */}
-              <div className={styles.formRow}>
-                <label className={styles.label}>
-                  {t("fields.name")} <span className={styles.required}>*</span>
-                </label>
-                <div className={styles.inputContainer}>
-                  <Input
-                    placeholder={t("placeholders.name")}
-                    className={cn(
-                      styles.input,
-                      errors.nazvanie && styles.inputError
-                    )}
-                    {...register("nazvanie", {
-                      required: t("errors.nameRequired"),
-                    })}
-                  />
-                  {errors.nazvanie && (
-                    <p className={styles.errorMessage}>
-                      {errors.nazvanie.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Full name */}
-              <div className={styles.formRow}>
-                <label className={styles.label}>{t("fields.fullName")}</label>
-                <div className={styles.inputContainer}>
-                  <Input
-                    placeholder={t("placeholders.fullName")}
-                    className={styles.input}
-                    {...register("polnoe_imya")}
-                  />
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className={styles.formRow}>
-                <label className={styles.label}>{t("fields.address")}</label>
-                <div className={styles.inputContainer}>
-                  <Input
-                    placeholder={t("placeholders.address")}
-                    className={styles.input}
-                    {...register("address")}
-                  />
-                </div>
-              </div>
-
-              {/* Group */}
-              <div className={styles.formRow}>
-                <label className={styles.label}>{t("fields.group")}</label>
-                <div className={styles.inputContainer}>
-                  <Controller
-                    name="counterparties_group_id"
-                    control={control}
-                    render={({ field }) => (
-                      <SelectCounterPartyGroup
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder={t("placeholders.selectGroup")}
-                        className="flex-1 bg-white"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Requisites toggle */}
-              <div className={styles.formRow}>
-                <label className={styles.label} />
-                <button
-                  type="button"
-                  onClick={() => setDetails((prev) => !prev)}
-                  className={styles.requisites}
-                >
-                  <p>{t("requisites")}</p>
-                </button>
-              </div>
-
-              {/* Requisites fields */}
-              <div
-                className={cn(
-                  styles.requisitesContainer,
-                  details && styles.active
-                )}
-              >
-                {/* INN */}
-                <div className={styles.formRow}>
-                  <label className={styles.label}>
+              {/* INN */}
+              <FormRow
+                label={
+                  <>
                     {t("fields.inn")} <span className={styles.infoIcon}>?</span>
-                  </label>
-                  <div className={styles.inputContainer}>
+                  </>
+                }
+              >
+                <Controller
+                  name="inn"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder={t("placeholders.inn")}
+                      className={cn(styles.input, styles.requisitesInput)}
+                      value={field.value}
+                      onChange={(e) =>
+                        field.onChange(includeNumber(e.target.value))
+                      }
+                    />
+                  )}
+                />
+              </FormRow>
+
+              {/* KPP */}
+              <FormRow label={t("fields.kpp")} align="start">
+                <DynamicFieldList
+                  fields={kppFields}
+                  onAppend={() => appendKpp({ value: "" })}
+                  onRemove={removeKpp}
+                  renderInput={(index) => (
                     <Controller
-                      name="inn"
+                      name={`kpp.${index}.value`}
                       control={control}
                       render={({ field }) => (
                         <Input
                           inputMode="numeric"
                           autoComplete="off"
-                          placeholder={t("placeholders.inn")}
+                          placeholder={t("placeholders.kpp")}
                           className={cn(styles.input, styles.requisitesInput)}
                           value={field.value}
                           onChange={(e) =>
@@ -433,255 +440,195 @@ const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
                         />
                       )}
                     />
-                  </div>
-                </div>
+                  )}
+                />
+              </FormRow>
 
-                {/* KPP */}
-                <div className={styles.formRow}>
-                  <label className={styles.label}>{t("fields.kpp")}</label>
-                  <DynamicFieldList
-                    fields={kppFields}
-                    onAppend={() => appendKpp({ value: "" })}
-                    onRemove={removeKpp}
-                    renderInput={(index) => (
-                      <Controller
-                        name={`kpp.${index}.value`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            inputMode="numeric"
-                            autoComplete="off"
-                            placeholder={t("placeholders.kpp")}
-                            className={cn(styles.input, styles.requisitesInput)}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(includeNumber(e.target.value))
-                            }
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Account number */}
-                <div className={styles.formRow}>
-                  <label className={styles.label}>
-                    {t("fields.accountNumber")}
-                  </label>
-                  <DynamicFieldList
-                    fields={accountFields}
-                    onAppend={() => appendAccount({ value: "" })}
-                    onRemove={removeAccount}
-                    renderInput={(index) => (
-                      <Controller
-                        name={`account_number.${index}.value`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            inputMode="numeric"
-                            autoComplete="off"
-                            placeholder={t("placeholders.account")}
-                            className={cn(styles.input, styles.requisitesInput)}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(includeNumber(e.target.value))
-                            }
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Bank */}
-                <div className={styles.formRow}>
-                  <label className={styles.label}>{t("fields.bank")}</label>
-                  <div className={styles.inputContainer}>
-                    <Input
-                      placeholder={t("placeholders.bank")}
-                      className={cn(styles.input, styles.requisitesInput)}
-                      {...register("bank")}
+              {/* Account number */}
+              <FormRow label={t("fields.accountNumber")} align="start">
+                <DynamicFieldList
+                  fields={accountFields}
+                  onAppend={() => appendAccount({ value: "" })}
+                  onRemove={removeAccount}
+                  renderInput={(index) => (
+                    <Controller
+                      name={`account_number.${index}.value`}
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          inputMode="numeric"
+                          autoComplete="off"
+                          placeholder={t("placeholders.account")}
+                          className={cn(styles.input, styles.requisitesInput)}
+                          value={field.value}
+                          onChange={(e) =>
+                            field.onChange(includeNumber(e.target.value))
+                          }
+                        />
+                      )}
                     />
-                  </div>
-                </div>
+                  )}
+                />
+              </FormRow>
 
-                {/* MFO */}
-                <div className={styles.formRow}>
-                  <label className={styles.label}>{t("fields.mfo")}</label>
-                  <div className={styles.inputContainer}>
-                    <Input
-                      inputMode="numeric"
-                      autoComplete="off"
-                      placeholder={t("placeholders.mfo")}
-                      className={cn(styles.input, styles.requisitesInput)}
-                      {...register("mfo")}
-                    />
-                  </div>
-                </div>
-              </div>
-              {appStore.isDonoSchool && (
-                <div className={styles.formRow}>
-                  <label className={styles.label} />
-                  <Controller
-                    name="not_student"
-                    control={control}
-                    render={({ field }) => (
-                      <OperationCheckbox
-                        checked={field.value}
-                        onChange={field.onChange}
-                        label={t("fields.notStudent")}
-                      />
-                    )}
-                  />
-                </div>
-              )}
+              {/* Bank */}
+              <FormRow label={t("fields.bank")}>
+                <Input
+                  placeholder={t("placeholders.bank")}
+                  className={cn(styles.input, styles.requisitesInput)}
+                  {...register("bank")}
+                />
+              </FormRow>
 
-              <div className={styles.formRow}>
-                <label className={styles.label} />
+              {/* MFO */}
+              <FormRow label={t("fields.mfo")}>
+                <Input
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder={t("placeholders.mfo")}
+                  className={cn(styles.input, styles.requisitesInput)}
+                  {...register("mfo")}
+                />
+              </FormRow>
+            </div>
+            {appStore.isDonoSchool && (
+              <FormRow label="">
                 <Controller
-                  name="primenyat_stat_i_po_umolchaniyu"
+                  name="not_student"
                   control={control}
                   render={({ field }) => (
                     <OperationCheckbox
                       checked={field.value}
                       onChange={field.onChange}
-                      label={t("fields.defaultArticles")}
+                      label={t("fields.notStudent")}
                     />
                   )}
                 />
-              </div>
+              </FormRow>
+            )}
 
-              {/* Article selects */}
-              {showArticles && (
-                <>
-                  {[
-                    {
-                      name: "chart_of_accounts_id",
-                      label: "fields.articleIn",
-                      placeholder: "fields.articleIn",
-                    },
-                    {
-                      name: "chart_of_accounts_id_2",
-                      label: "fields.articleOut",
-                      placeholder: "fields.articleIn",
-                    },
-                  ].map((fieldName, i) => (
-                    <div key={fieldName.name} className={styles.formRow}>
-                      <label className={styles.label}>
-                        {t(fieldName.label)}
-                      </label>
-                      <div className={styles.inputContainer}>
-                        <Controller
-                          name={fieldName?.name}
-                          control={control}
-                          render={({ field }) => (
-                            <SinglSelectStatiya
-                              selectedValue={field.value}
-                              setSelectedValue={field.onChange}
-                              placeholder={t(fieldName.placeholder)}
-                              className="flex-1 bg-white"
-                              type={i === 0 ? "Расходы" : "Доходы"}
-                            />
-                          )}
+            <FormRow label="">
+              <Controller
+                name="primenyat_stat_i_po_umolchaniyu"
+                control={control}
+                render={({ field }) => (
+                  <OperationCheckbox
+                    checked={field.value}
+                    onChange={field.onChange}
+                    label={t("fields.defaultArticles")}
+                  />
+                )}
+              />
+            </FormRow>
+
+            {/* Article selects */}
+            {showArticles && (
+              <>
+                {[
+                  {
+                    name: "chart_of_accounts_id",
+                    label: "fields.articleIn",
+                    placeholder: "fields.articleIn",
+                  },
+                  {
+                    name: "chart_of_accounts_id_2",
+                    label: "fields.articleOut",
+                    placeholder: "fields.articleIn",
+                  },
+                ].map((fieldName, i) => (
+                  <FormRow key={fieldName.name} label={t(fieldName.label)}>
+                    <Controller
+                      name={fieldName?.name}
+                      control={control}
+                      render={({ field }) => (
+                        <SinglSelectStatiya
+                          selectedValue={field.value}
+                          setSelectedValue={field.onChange}
+                          placeholder={t(fieldName.placeholder)}
+                          className="flex-1 bg-white"
+                          type={i === 0 ? "Расходы" : "Доходы"}
                         />
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
+                      )}
+                    />
+                  </FormRow>
+                ))}
+              </>
+            )}
 
-              {/* Comment */}
-              <div className={styles.formRow}>
-                <label className={styles.label}>{t("fields.comment")}</label>
-                <div className={styles.inputContainer}>
-                  <TextArea
-                    placeholder={t("placeholders.comment")}
-                    className={styles.textarea}
-                    rows={4}
-                    hasError={!!errors.komentariy}
-                    {...register("komentariy")}
-                  />
-                </div>
-              </div>
-            </form>
-          ) : (
-            /* ── Group Form ── */
-            <form
-              id="group-form"
-              className={styles.form}
-              onSubmit={submitIsolated(handleSubmitGroup(onSubmitGroup))}
+            {/* Comment */}
+            <FormRow label={t("fields.comment")} align="start">
+              <TextArea
+                placeholder={t("placeholders.comment")}
+                className={styles.textarea}
+                rows={4}
+                hasError={!!errors.komentariy}
+                {...register("komentariy")}
+              />
+            </FormRow>
+          </form>
+        ) : (
+          /* ── Group Form ── */
+          <form
+            id="group-form"
+            className="flex flex-col gap-4"
+            onSubmit={submitIsolated(handleSubmitGroup(onSubmitGroup))}
+          >
+            <FormRow
+              label={t("fields.groupName")}
+              required
+              error={groupErrors.nazvanie_gruppy?.message}
             >
-              <div className={styles.formRow}>
-                <label className={styles.label}>
-                  {t("fields.groupName")}{" "}
-                  <span className={styles.required}>*</span>
-                </label>
-                <div className={styles.inputContainer}>
-                  <Input
-                    placeholder={t("placeholders.groupName")}
-                    className={cn(
-                      styles.input,
-                      groupErrors.nazvanie_gruppy && styles.inputError
-                    )}
-                    {...registerGroup("nazvanie_gruppy", {
-                      required: t("errors.groupNameRequired"),
-                    })}
-                  />
-                  {groupErrors.nazvanie_gruppy && (
-                    <p className={styles.errorMessage}>
-                      {groupErrors.nazvanie_gruppy.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <Input
+                placeholder={t("placeholders.groupName")}
+                className={cn(
+                  styles.input,
+                  groupErrors.nazvanie_gruppy && styles.inputError
+                )}
+                {...registerGroup("nazvanie_gruppy", {
+                  required: t("errors.groupNameRequired"),
+                })}
+              />
+            </FormRow>
 
-              <div className={styles.formRow}>
-                <label className={styles.label}>
-                  {t("fields.groupComment")}
-                </label>
-                <div className={styles.inputContainer}>
-                  <TextArea
-                    placeholder={t("placeholders.groupComment")}
-                    className={styles.textarea}
-                    rows={4}
-                    hasError={!!groupErrors.opisanie_gruppy}
-                    {...registerGroup("opisanie_gruppy")}
-                  />
-                </div>
-              </div>
-            </form>
-          )}
-        </div>
+            <FormRow label={t("fields.groupComment")} align="start">
+              <TextArea
+                placeholder={t("placeholders.groupComment")}
+                className={styles.textarea}
+                rows={4}
+                hasError={!!groupErrors.opisanie_gruppy}
+                {...registerGroup("opisanie_gruppy")}
+              />
+            </FormRow>
+          </form>
+        )}
+      </DialogBody>
 
-        {/* Footer */}
-        <div className="border-t flex items-center justify-end p-2 gap-2">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="secondary-btn"
-            disabled={isSubmitting}
-          >
-            {t("cancel")}
-          </button>
-          <button
-            type="submit"
-            form={
-              activeTab === "counterparty" ? "counterparty-form" : "group-form"
-            }
-            className="primary-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? isEdit
-                ? t("saving")
-                : t("creating")
-              : isEdit
-              ? t("save")
-              : t("create")}
-          </button>
-        </div>
-      </div>
+      <DialogFooter>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="secondary-btn h-9"
+          disabled={isSubmitting}
+        >
+          {t("cancel")}
+        </button>
+        <button
+          type="submit"
+          form={
+            activeTab === "counterparty" ? "counterparty-form" : "group-form"
+          }
+          className="primary-btn"
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? isEdit
+              ? t("saving")
+              : t("creating")
+            : isEdit
+            ? t("save")
+            : t("create")}
+        </button>
+      </DialogFooter>
 
       {/* Edit Group Modal */}
       {editingGroup && (

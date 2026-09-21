@@ -1,11 +1,15 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 
-import CustomDialog from "@/components/shared/CustomDialog"
+import CustomDialog, {
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  FormRow,
+} from "@/components/shared/CustomDialog"
 import Input from "@/components/shared/Input"
 import TextArea from "@/components/shared/TextArea"
 import { useUpdateCounterpartiesGroup } from "@/hooks/useDashboard"
@@ -78,89 +82,66 @@ export default function EditCounterpartyGroupModal({ isOpen, onClose, group }) {
   }
 
   return (
-    <CustomDialog open={isOpen} onClose={handleClose} contentClass="p-0">
-      <div className="w-[640px]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 shrink-0">
-          <h2 className="text-2xl font-bold text-slate-900">
-            {t("editGroupTitle")}
-          </h2>
-          <button
-            onClick={handleClose}
-            className="p-1 text-gray-400 transition-colors duration-200 hover:text-gray-600"
+    <CustomDialog open={isOpen} onClose={handleClose} contentClass="w-[640px]">
+      <form
+        id="edit-group-form"
+        onSubmit={handleSubmit}
+        className="flex min-h-0 flex-col"
+      >
+        <DialogHeader title={t("editGroupTitle")} onClose={handleClose} />
+
+        <DialogBody className="flex flex-col gap-4">
+          {/* Group Name */}
+          <FormRow
+            label={t("fields.groupName")}
+            required
+            error={errors.nazvanie_gruppy}
           >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+            <Input
+              type="text"
+              value={formData.nazvanie_gruppy}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  nazvanie_gruppy: e.target.value,
+                }))
+              }
+              placeholder={t("placeholders.groupName")}
+              className={cn(
+                "w-full px-4 py-3 text-[15px] border rounded transition-all duration-200",
+                "placeholder:text-gray-400",
+                "focus:outline-none focus:border-[#0E73F6]",
+                errors.nazvanie_gruppy
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-gray-300"
+              )}
+            />
+          </FormRow>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-8 py-6">
-          <div className="flex flex-col gap-6">
-            {/* Group Name */}
-            <div className="flex items-start gap-6">
-              <label className="w-[180px] pt-3 text-[15px] text-slate-900 shrink-0">
-                {t("fields.groupName")}{" "}
-                <span className="text-red-500">*</span>
-              </label>
-              <div className="flex-1 flex flex-col">
-                <Input
-                  type="text"
-                  value={formData.nazvanie_gruppy}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      nazvanie_gruppy: e.target.value,
-                    }))
-                  }
-                  placeholder={t("placeholders.groupName")}
-                  className={cn(
-                    "w-full px-4 py-3 text-[15px] border rounded transition-all duration-200",
-                    "placeholder:text-gray-400",
-                    "focus:outline-none focus:border-[#0E73F6]",
-                    errors.nazvanie_gruppy
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-300"
-                  )}
-                />
-                {errors.nazvanie_gruppy && (
-                  <div className="mt-2 text-[13px] text-red-500">
-                    {errors.nazvanie_gruppy}
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Group Description */}
+          <FormRow label={t("fields.groupDescription")} align="start">
+            <TextArea
+              value={formData.opisanie_gruppy}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  opisanie_gruppy: e.target.value,
+                }))
+              }
+              placeholder={t("placeholders.groupDescription")}
+              rows={4}
+              hasError={!!errors.opisanie_gruppy}
+              className=""
+            />
+          </FormRow>
+        </DialogBody>
 
-            {/* Group Description */}
-            <div className="flex items-start gap-6">
-              <label className="w-[180px] pt-3 text-[15px] text-slate-900 shrink-0">
-                {t("fields.groupDescription")}
-              </label>
-              <div className="flex-1 flex flex-col">
-                <TextArea
-                  value={formData.opisanie_gruppy}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      opisanie_gruppy: e.target.value,
-                    }))
-                  }
-                  placeholder={t("placeholders.groupDescription")}
-                  rows={4}
-                  hasError={!!errors.opisanie_gruppy}
-                  className=""
-                />
-              </div>
-            </div>
-          </div>
-        </form>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200 shrink-0">
+        <DialogFooter>
           <button
             type="button"
             onClick={handleClose}
             disabled={updateMutation.isPending}
-            className="secondary-btn"
+            className="secondary-btn h-9"
           >
             {tc("cancel")}
           </button>
@@ -172,8 +153,8 @@ export default function EditCounterpartyGroupModal({ isOpen, onClose, group }) {
           >
             {updateMutation.isPending ? tc("saving") : tc("save")}
           </button>
-        </div>
-      </div>
+        </DialogFooter>
+      </form>
     </CustomDialog>
   )
 }

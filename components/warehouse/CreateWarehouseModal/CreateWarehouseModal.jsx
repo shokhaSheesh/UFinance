@@ -1,6 +1,6 @@
 'use client'
 
-import CustomDialog from '@/components/shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import Input from '@/components/shared/Input'
 import TextArea from '@/components/shared/TextArea'
@@ -75,25 +75,11 @@ export default observer(function CreateWarehouseModal({ isOpen, onClose, warehou
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
   return (
-    <CustomDialog open={isOpen} onClose={handleClose} contentClass="p-0">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col bg-white rounded-lg max-h-[90vh] w-[520px]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="warehouse-modal-title"
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 id="warehouse-modal-title" className="text-lg font-semibold text-slate-900 m-0">
-            {isEdit ? t('titleEdit') : t('titleNew')}
-          </h3>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">
-              {t('name')} <span className="text-red-500">*</span>
-            </label>
+    <CustomDialog open={isOpen} onClose={handleClose} contentClass="w-[560px]">
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-col">
+        <DialogHeader title={isEdit ? t('titleEdit') : t('titleNew')} onClose={handleClose} />
+        <DialogBody className="flex flex-col gap-5">
+          <FormRow label={t('name')} required error={errors.name}>
             <Input
               type="text"
               value={formData.name}
@@ -105,48 +91,39 @@ export default observer(function CreateWarehouseModal({ isOpen, onClose, warehou
               className={cn(errors.name && 'border-red-500')}
               autoFocus
             />
-            {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">{t('address')}</label>
+          </FormRow>
+          <FormRow label={t('address')}>
             <Input
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder={t('addressPlaceholder')}
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">{t('comment')}</label>
+          </FormRow>
+          <FormRow label={t('comment')} align="start">
             <TextArea
               value={formData.comment}
               onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
               placeholder={t('commentPlaceholder')}
               rows={3}
             />
-          </div>
-
-          <OperationCheckbox
-            checked={formData.is_default}
-            onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
-            label={t('isDefault')}
-          />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200">
-          <button type="button" className="secondary-btn" onClick={handleClose} disabled={isSubmitting}>
+          </FormRow>
+          <FormRow label="">
+            <OperationCheckbox
+              checked={formData.is_default}
+              onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
+              label={t('isDefault')}
+            />
+          </FormRow>
+        </DialogBody>
+        <DialogFooter>
+          <button type="button" className="secondary-btn h-9" onClick={handleClose} disabled={isSubmitting}>
             {tc('cancel')}
           </button>
-          <button
-            type="submit"
-            className="primary-btn disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="primary-btn" disabled={isSubmitting}>
             {isSubmitting ? (isEdit ? tc('saving') : tc('creating')) : (isEdit ? tc('save') : tc('create'))}
           </button>
-        </div>
+        </DialogFooter>
       </form>
     </CustomDialog>
   )
