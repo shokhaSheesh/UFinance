@@ -3300,6 +3300,17 @@
       "project": "Loyiha",
       "deal": "Bitim",
       "amount": "Summa"
+    },
+    "statusAll": "Hammasi",
+    "view": {
+      "table": "Jadval",
+      "cards": "Kartochkalar"
+    },
+    "termElapsed": "Muddatning {percent}%",
+    "kpi": {
+      "incomeHint": "Tanlangan loyihalar bo'yicha",
+      "expensesHint": "Tanlangan loyihalar bo'yicha",
+      "profitHint": "Daromad minus xarajat"
     }
   },
   "Errors": {

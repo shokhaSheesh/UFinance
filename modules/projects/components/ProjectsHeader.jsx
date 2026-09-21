@@ -23,16 +23,18 @@ export default function ProjectsHeader({
   onCreateProject,
   onCreateGroup,
   onExport,
+  countLabel,
 }) {
   return (
     <PageHeader
-      className="sticky top-0 z-20 h-[60px] px-3"
+      className="sticky top-0 z-40 bg-canvas px-0"
       title={
         <span className="flex items-center gap-1.5">
           {t('pageTitle')}
           <HintQuestion size={16} className="text-neutral-300" />
         </span>
       }
+      search={countLabel && <span className="truncate text-sm text-slate-500 tabular-nums">{countLabel}</span>}
       actions={
         <>
           <IconButton icon={Download} label={t('downloadExcel')} onClick={onExport} />

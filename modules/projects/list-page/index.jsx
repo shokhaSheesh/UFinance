@@ -1,19 +1,20 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import styles from '../projects.module.scss'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import Input from '@/components/shared/Input'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
+import KpiCard from '@/components/shared/KpiCard/KpiCard'
+import Segmented from '@/components/shared/Segmented/Segmented'
 import TableCard from '@/components/shared/Table/TableCard'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
-import { LayoutList, List, Search } from 'lucide-react'
+import { LayoutGrid, Percent, Rows3, Search, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import CreateProjectGroupModal from '@/components/projects/CreateProjectGroupModal'
 import CreateProjectModal from '@/components/projects/CreateProjectModal'
 import ScreenLoader from '@/components/shared/ScreenLoader'
 import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
-import { statusToRu } from '@/lib/api/ucode/projects'
+import { STATUS_COLORS, statusToRu } from '@/lib/api/ucode/projects'
+import { GlobalCurrency } from '@/constants/globalCurrency'
 import { appStore } from '@/store/app.store'
 import { projectsStore } from '@/store/projects.store'
 import { toJS } from 'mobx'
@@ -24,7 +25,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import ProjectsFilterSidebar from '../components/ProjectsFilterSidebar'
-import ProjectsFooter from '../components/ProjectsFooter'
 import ProjectsHeader from '../components/ProjectsHeader'
 import ProjectsTable from '../components/ProjectsTable'
 import {
@@ -158,23 +158,68 @@ export default observer(function ProjectsListPage() {
 
   if (!mounted) return null
 
+  // Итоги выборки — раньше мелкой полосой внизу экрана
+  const methodHint = analysisMethod === 'accrual' ? t('methods.accrual') : t('methods.cash')
+  const kpis = [
+    { key: 'income', label: t('table.income'), value: summary?.income, currency: GlobalCurrency?.name, hint: t('kpi.incomeHint'), icon: TrendingUp },
+    { key: 'expenses', label: t('table.expenses'), value: summary?.expenses, currency: GlobalCurrency?.name, hint: t('kpi.expensesHint'), icon: TrendingDown },
+    { key: 'profit', label: t('table.profit'), value: Math.round(Number(summary?.profit) || 0), currency: GlobalCurrency?.name, hint: methodHint, icon: Wallet, tone: 'signed' },
+    {
+      key: 'profitability',
+      label: t('table.profitability'),
+      value: summary?.profitability == null ? 0 : Number(Number(summary.profitability).toFixed(1)),
+      currency: '%',
+      hint: methodHint,
+      icon: Percent,
+      tone: 'signed',
+    },
+  ]
+
+  // Вкладки статусов: «Все» — все три статуса, как по умолчанию в фильтре
+  const allStatuses = ['planned', 'in_progress', 'completed']
+  const activeStatusTab = statusesJs.length === allStatuses.length ? 'all' : statusesJs.length === 1 ? statusesJs[0] : null
+  const statusTabs = [
+    { value: 'all', label: t('statusAll') },
+    ...allStatuses.map((value) => ({ value, label: ts(value), color: STATUS_COLORS[value] })),
+  ]
+  const view = viewMode === 'cards' ? 'cards' : 'list'
+
   const showInitialLoader = isLoading && projects.length === 0
 
   return (
     <FixedContent>
       <ProjectsFilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
-      <main id="scrollableDiv" className="w-full relative overflow-y-auto scroll-smooth bg-canvas px-6 pb-6">
+      <main id="scrollableDiv" className="w-full relative overflow-auto scroll-smooth bg-canvas px-6 pb-10">
         <ProjectsHeader
           t={t}
           canAdd={permissions.add}
           onCreateProject={() => setProjectModal({ open: true, project: null })}
           onCreateGroup={() => setGroupModalOpen(true)}
           onExport={() => {}}
+          countLabel={t('footer.count', { count: summary?.count || 0 })}
         />
 
-        <TableCard>
+        {/* Показатель для анализа — от него зависят прибыль и рентабельность */}
+        <div className="mb-3 flex items-center gap-3">
+          <span className="text-sm text-slate-500">{t('analysisIndicator')}</span>
+          <Segmented
+            ariaLabel={t('analysisIndicator')}
+            options={methodOptions}
+            value={analysisMethod}
+            onChange={(v) => setState('analysisMethod', v)}
+          />
+        </div>
+
+        <div className="mb-4 grid grid-cols-4 gap-3">
+          {kpis.map(({ key, ...kpi }) => (
+            <KpiCard key={key} {...kpi} />
+          ))}
+        </div>
+
+        <TableCard className={cn('min-w-fit overflow-visible', view === 'cards' && 'border-0 bg-transparent')}>
           <TableToolbar
+            className={cn('rounded-t-xl', view === 'cards' && 'rounded-xl border border-slate-200')}
             search={
               <div className="w-full max-w-[420px]">
                 <Input
@@ -188,44 +233,55 @@ export default observer(function ProjectsListPage() {
             }
             actions={
               <>
-                <div className="w-60">
-                  <SingleSelect
-                    data={methodOptions}
-                    withSearch={false}
-                    value={analysisMethod}
-                    isClearable={false}
-                    onChange={(v) => setState('analysisMethod', v)}
-                    className="bg-white"
-                  />
-                </div>
-                {/* Переключатель вида списка */}
-                <div className={styles.viewToggle}>
-                  <button
-                    type="button"
-                    className={cn(styles.viewToggleBtn, viewMode === 'list' && styles.active)}
-                    onClick={() => setState('viewMode', 'list')}
-                    aria-label="list view"
-                  >
-                    <List size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    className={cn(styles.viewToggleBtn, viewMode === 'compact' && styles.active)}
-                    onClick={() => setState('viewMode', 'compact')}
-                    aria-label="compact view"
-                  >
-                    <LayoutList size={18} />
-                  </button>
-                </div>
+                <Segmented
+                  ariaLabel={t('view.table')}
+                  value={view}
+                  onChange={(v) => setState('viewMode', v)}
+                  options={[
+                    { value: 'list', label: t('view.table'), icon: Rows3 },
+                    { value: 'cards', label: t('view.cards'), icon: LayoutGrid },
+                  ]}
+                />
                 <FilterButton onClick={() => setIsFilterOpen(true)} />
               </>
             }
           />
 
+          {/* Вкладки статусов — быстрый фильтр; в окне фильтров можно выбрать несколько */}
+          <div
+            role="tablist"
+            className={cn(
+              'flex items-center gap-1 overflow-x-auto px-3',
+              view === 'cards' ? 'mb-3' : 'border-b border-slate-200'
+            )}
+          >
+            {statusTabs.map((tab) => {
+              const active = activeStatusTab === tab.value
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setState('statuses', tab.value === 'all' ? [...allStatuses] : [tab.value])}
+                  className={cn(
+                    '-mb-px flex h-10 shrink-0 items-center gap-2 border-b-2 px-3 text-sm font-medium cursor-pointer transition-colors',
+                    'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0e73f6]',
+                    active ? 'border-[#0e73f6] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900'
+                  )}
+                >
+                  {tab.color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: tab.color }} />}
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+
         <ProjectsTable
           t={t}
           ts={ts}
           tc={tc}
+          view={view}
           projects={filtered}
           isLoading={isLoading}
           hasNextPage={hasNextPage}
@@ -239,8 +295,6 @@ export default observer(function ProjectsListPage() {
         {showInitialLoader && <ScreenLoader className="left-0!" />}
         {(isFetchingNextPage || isFetching) && !showInitialLoader && <ScreenLoader className="left-0!" />}
       </main>
-
-      <ProjectsFooter t={t} summary={summary} isFilterOpen={isFilterOpen} />
 
       {projectModal.open && (
         <CreateProjectModal

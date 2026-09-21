@@ -3146,6 +3146,17 @@
       "project": "Проект",
       "deal": "Сделка",
       "amount": "Сумма"
+    },
+    "statusAll": "Все",
+    "view": {
+      "table": "Таблица",
+      "cards": "Карточки"
+    },
+    "termElapsed": "{percent}% срока",
+    "kpi": {
+      "incomeHint": "По проектам в выборке",
+      "expensesHint": "По проектам в выборке",
+      "profitHint": "Доходы минус расходы"
     }
   },
   "Errors": {
