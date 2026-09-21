@@ -2964,6 +2964,30 @@
       "typeLabel": "DXB",
       "allLegalEntities": "Barcha yuridik shaxslar",
       "empty": "Bu byudjet uchun hozircha moddalar yo‘q"
+    },
+    "budgetList": {
+      "kpi": {
+        "total": "Jami byudjetlar",
+        "totalHint": "Qidiruv va yuridik shaxs bo'yicha",
+        "active": "Hozir amalda",
+        "activeHint": "Joriy oy davr ichida",
+        "planned": "Rejalashtirilgan",
+        "plannedHint": "Davr hali boshlanmagan",
+        "done": "Yakunlangan",
+        "doneHint": "Davr tugagan"
+      },
+      "status": {
+        "active": "Amalda",
+        "planned": "Rejalashtirilgan",
+        "done": "Yakunlangan"
+      },
+      "monthsProgress": "{total} oydan {done}",
+      "view": {
+        "cards": "Kartochkalar",
+        "table": "Jadval"
+      },
+      "updated": "Yangilandi {date}",
+      "showAll": "Hammasini ko'rsatish"
     }
   },
   "Indicators": {

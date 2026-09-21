@@ -2810,6 +2810,30 @@
       "typeLabel": "БДР",
       "allLegalEntities": "Все юрлица",
       "empty": "Для этого бюджета пока нет статей"
+    },
+    "budgetList": {
+      "kpi": {
+        "total": "Всего бюджетов",
+        "totalHint": "С учётом поиска и юрлица",
+        "active": "Идут сейчас",
+        "activeHint": "Текущий месяц входит в период",
+        "planned": "Запланированы",
+        "plannedHint": "Период ещё не начался",
+        "done": "Завершены",
+        "doneHint": "Период закончился"
+      },
+      "status": {
+        "active": "Идёт",
+        "planned": "Запланирован",
+        "done": "Завершён"
+      },
+      "monthsProgress": "{done} из {total} мес.",
+      "view": {
+        "cards": "Карточки",
+        "table": "Таблица"
+      },
+      "updated": "Обновлено {date}",
+      "showAll": "Показать все"
     }
   },
   "Indicators": {

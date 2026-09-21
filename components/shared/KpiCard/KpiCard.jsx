@@ -11,14 +11,26 @@ import { formatNumber } from '@/utils/helpers'
  * Бухгалтер смотрит на них первым делом — поэтому они наверху и крупно.
  *
  * tone="signed" красит сумму: плюс — зелёным, минус — красным (как в таблицах).
+ * onClick превращает карточку в фильтр; active — выбранная карточка.
  */
-export default function KpiCard({ label, value, currency, hint, icon: Icon, tone = 'plain', className }) {
+export default function KpiCard({ label, value, currency, hint, icon: Icon, tone = 'plain', onClick, active = false, className }) {
   const n = Number(value) || 0
   const valueClass =
     tone === 'signed' && n !== 0 ? (n > 0 ? 'text-emerald-700' : 'text-red-600') : 'text-slate-900'
 
+  const Tag = onClick ? 'button' : 'div'
+
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3.5', className)}>
+    <Tag
+      {...(onClick && { type: 'button', onClick, 'aria-pressed': active })}
+      className={cn(
+        'flex min-w-0 flex-col gap-1 rounded-xl border bg-white px-4 py-3.5 text-left',
+        active ? 'border-[#0e73f6] ring-1 ring-[#0e73f6]' : 'border-slate-200',
+        onClick && 'cursor-pointer transition-colors hover:border-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
+        onClick && active && 'hover:border-[#0e73f6]',
+        className
+      )}
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-sm font-medium text-slate-600">{label}</span>
         {Icon && (
@@ -35,6 +47,6 @@ export default function KpiCard({ label, value, currency, hint, icon: Icon, tone
         {currency && <span className="shrink-0 text-sm text-slate-400">{currency}</span>}
       </div>
       {hint && <span className="truncate text-xs text-slate-400">{hint}</span>}
-    </div>
+    </Tag>
   )
 }
