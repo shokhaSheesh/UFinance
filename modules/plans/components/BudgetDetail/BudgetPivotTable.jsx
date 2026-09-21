@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import RowActions from '@/components/shared/RowActions/RowActions'
 import { Loader2, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -595,22 +589,11 @@ const BudgetPivotTable = ({
                     {t(`columns.${c.key}`)}
                   </span>
                   {c.key === "plan" && editable && col.kind === "month" && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-          <RowActionsTrigger />
-        </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-48 p-1" align="end">
-                        <DropdownMenuItem asChild>
-                          <button
-                            className="flex w-full cursor-pointer items-center gap-2 text-sm outline-none"
-                            onClick={() => clearColumn(col)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span>{t("actions.clearColumn")}</span>
-                          </button>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <RowActions
+                      actions={[
+                        { key: 'delete', icon: Trash2, label: t("actions.clearColumn"), onClick: () => clearColumn(col), danger: true },
+                      ]}
+                    />
                   )}
                 </div>
               ))}

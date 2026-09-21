@@ -244,7 +244,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col h-full overflow-hidden text-slate-900">
-      <div className="flex-1 overflow-y-auto  py-4 flex flex-col gap-5">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 flex flex-col gap-6">
         {/* SECTION: ОТКУДА */}
         <div className="flex flex-col gap-5">
           <div className="flex items-center gap-3 mb-2">
@@ -536,7 +536,7 @@ const AccuralForm = observer(({ onCancel, onClose, onSuccess, initialData }) => 
       </div>
 
       {/* Footer Actions */}
-      <div className="flex border-t justify-end gap-2 px-3 pt-3 mt-auto bg-white">
+      <div className="flex shrink-0 border-t border-slate-200 justify-end gap-2 px-8 py-4 mt-auto bg-white">
         <button type="button" onClick={onCancel} className="secondary-btn py-2!">{t('cancel')}</button>
         <button type="submit" className="primary-btn py-2!">{isPending ? <Loader2 className='animate-spin' /> : isNew ? t('create') : t('save')}</button>
       </div>

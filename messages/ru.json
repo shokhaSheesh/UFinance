@@ -653,7 +653,8 @@
       "create": "Создать",
       "save": "Сохранить",
       "filesAndComments": "Файлы и комментарии",
-      "close": "Закрыть"
+      "close": "Закрыть",
+      "updatedAt": "Изменена {date}"
     },
     "forms": {
       "paymentDate": "Дата оплаты",

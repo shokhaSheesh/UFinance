@@ -1,14 +1,6 @@
 // components/DealsTable.jsx
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Download, FileSignature, Trash2 } from 'lucide-react'
-import { IoCopyOutline } from 'react-icons/io5'
-import { MdOutlineModeEdit } from 'react-icons/md'
+import RowActions from '@/components/shared/RowActions/RowActions'
+import { Copy, Download, FileSignature, Pencil, Trash2 } from 'lucide-react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -139,55 +131,17 @@ function DealRow({
 
       {/* Действия — отдельной колонкой, одним меню: раньше иконки лежали
           поверх прибыли и показывались только при наведении */}
-      <div className="w-10 shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+      <div className="w-[176px] shrink-0 flex items-center justify-end pr-2" onClick={(e) => e.stopPropagation()}>
         {(dealPermission.edit || dealPermission.add || dealPermission.delete || deal.contract_file) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <RowActionsTrigger />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-52 p-1.5" align="end">
-              {dealPermission.edit && (
-                <DropdownMenuItem
-                  onClick={(e) => onEditClick(deal, e)}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <MdOutlineModeEdit size={15} /> <span>{t('tooltips.edit')}</span>
-                </DropdownMenuItem>
-              )}
-              {dealPermission.add && (
-                <DropdownMenuItem
-                  onClick={(e) => onCopyClick(deal, e)}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <IoCopyOutline size={15} /> <span>{t('tooltips.copy')}</span>
-                </DropdownMenuItem>
-              )}
-              {dealPermission.edit && (
-                <DropdownMenuItem
-                  onClick={(e) => onUpdate(deal, e)}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <FileSignature size={15} /> <span>{t('tooltips.editContract')}</span>
-                </DropdownMenuItem>
-              )}
-              {deal.contract_file && (
-                <DropdownMenuItem
-                  onClick={() => handleDownload(deal.contract_file, 'Договор.pdf')}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <Download size={15} /> <span>{t('tooltips.downloadContract')}</span>
-                </DropdownMenuItem>
-              )}
-              {dealPermission.delete && (
-                <DropdownMenuItem
-                  onClick={(e) => onDeleteClick(deal, e)}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
-                >
-                  <Trash2 size={15} /> <span>{t('tooltips.delete')}</span>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            actions={[
+              { key: 'edit', icon: Pencil, label: t('tooltips.edit'), onClick: (e) => onEditClick(deal, e), hidden: !(dealPermission.edit) },
+              { key: 'copy', icon: Copy, label: t('tooltips.copy'), onClick: (e) => onCopyClick(deal, e), hidden: !(dealPermission.add) },
+              { key: 'a2', icon: FileSignature, label: t('tooltips.editContract'), onClick: (e) => onUpdate(deal, e), hidden: !(dealPermission.edit) },
+              { key: 'a3', icon: Download, label: t('tooltips.downloadContract'), onClick: () => handleDownload(deal.contract_file, 'Договор.pdf'), hidden: !(deal.contract_file) },
+              { key: 'delete', icon: Trash2, label: t('tooltips.delete'), onClick: (e) => onDeleteClick(deal, e), hidden: !(dealPermission.delete), danger: true },
+            ]}
+          />
         )}
       </div>
     </div>

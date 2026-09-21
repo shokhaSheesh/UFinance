@@ -1,10 +1,4 @@
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import RowActions from '@/components/shared/RowActions/RowActions'
 import {
   Popover,
   PopoverContent,
@@ -17,12 +11,10 @@ import { appStore } from '@/store/app.store'
 import { areDatesAllowed } from '@/utils/dataEditingRestriction'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { Loader2, Truck } from 'lucide-react'
+import { Copy, Loader2, Pencil, Truck } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { IoCopyOutline } from 'react-icons/io5'
-import { MdOutlineModeEdit } from 'react-icons/md'
 import CustomModal from '../../../shared/CustomModal'
 import CreateShipment from '../CreatingShipment'
 import EmptyState from '../EmptyState'
@@ -302,29 +294,12 @@ const ShipmenTable = observer(({
                       </p>
                       <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
                           {canCopy || rowCanEdit && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <RowActionsTrigger />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-44 p-1.5" align="end">
-              {rowCanEdit && (
-                <DropdownMenuItem
-                  onClick={(e) => { e.stopPropagation(); handleEditShipment(item); }}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <MdOutlineModeEdit size={15} /> <span>{tc('edit')}</span>
-                </DropdownMenuItem>
-              )}
-              {canCopy && (
-                <DropdownMenuItem
-                  onClick={(e) => { e.stopPropagation(); handleCopyShipment(item); }}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-                >
-                  <IoCopyOutline size={15} /> <span>{tc('copy')}</span>
-                </DropdownMenuItem>
-              )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <RowActions
+                              actions={[
+                                { key: 'edit', icon: Pencil, label: tc('edit'), onClick: (e) => { e.stopPropagation(); handleEditShipment(item); }, hidden: !(rowCanEdit) },
+                                { key: 'copy', icon: Copy, label: tc('copy'), onClick: (e) => { e.stopPropagation(); handleCopyShipment(item); }, hidden: !(canCopy) },
+                              ]}
+                            />
                           )}
                         </div></div>
                   </td>

@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import RowActions from '@/components/shared/RowActions/RowActions'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -51,53 +45,12 @@ export const CategoryMenu = observer(({ category, onEdit, onDelete, onAddChild }
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-          <RowActionsTrigger />
-        </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48" align="end">
-        {isStatic ? (
-          <DropdownMenuItem asChild>
-            <button
-              className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
-              onClick={handleAddChild}
-            >
-              <Plus size={16} />
-              <span>{t('tooltips.createChild')}</span>
-            </button>
-          </DropdownMenuItem>
-        ) : (
-            <>
-              {categoriesPermissions.add && <DropdownMenuItem asChild>
-              <button
-                  className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
-                onClick={handleAddChild}
-              >
-                  <Plus size={16} />
-                  <span className='flex-1 text-left'>{t('tooltips.createChild')}</span>
-              </button>
-              </DropdownMenuItem>}
-              {categoriesPermissions.edit && <DropdownMenuItem asChild>
-              <button
-                  className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
-                onClick={handleEdit}
-              >
-                  <Pencil size={16} />
-                  <span className='flex-1 text-left'>{t('tooltips.edit')}</span>
-              </button>
-              </DropdownMenuItem>}
-              {categoriesPermissions.delete && <DropdownMenuItem asChild>
-              <button
-                  className="flex w-full gap-2 items-center p-2 text-red-500 cursor-pointer hover:bg-neutral-100 rounded-md outline-none"
-                onClick={handleDelete}
-              >
-                  <Trash2 size={16} />
-                  <span className='flex-1 text-left'>{t('tooltips.delete')}</span>
-              </button>
-              </DropdownMenuItem>}
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <RowActions
+      actions={[
+        { key: 'add', icon: Plus, label: t('tooltips.createChild'), onClick: handleAddChild, hidden: !isStatic && !categoriesPermissions.add },
+        { key: 'edit', icon: Pencil, label: t('tooltips.edit'), onClick: handleEdit, hidden: isStatic || !categoriesPermissions.edit },
+        { key: 'delete', icon: Trash2, label: t('tooltips.delete'), onClick: handleDelete, hidden: isStatic || !categoriesPermissions.delete, danger: true },
+      ]}
+    />
   )
 })

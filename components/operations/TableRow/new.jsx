@@ -464,7 +464,7 @@ const TableRow = observer(
 
           {/* Menu (Actions) */}
           <div
-            className="w-5 flex items-center justify-center px-1"
+            className="w-[108px] shrink-0 flex items-center justify-end pr-2"
             onClick={(e) => e.stopPropagation()}
           >
             <OperationMenu
@@ -554,7 +554,7 @@ const TableRow = observer(
                 </div>
 
                 {/* место под меню действий, как у основной строки */}
-                <div className="w-5 px-1" />
+                <div className="w-[108px] shrink-0" />
               </div>
             );
           })}

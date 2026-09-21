@@ -654,7 +654,8 @@
       "create": "Yaratish",
       "save": "Saqlash",
       "filesAndComments": "Fayllar va izohlar",
-      "close": "Yopish"
+      "close": "Yopish",
+      "updatedAt": "O'zgartirilgan {date}"
     },
     "forms": {
       "paymentDate": "To'lov sanasi",

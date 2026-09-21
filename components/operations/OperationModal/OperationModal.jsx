@@ -131,7 +131,7 @@ const OperationModal = observer(({
 				{/* Форма */}
 				<div className="flex min-w-0 flex-1 flex-col">
 					{/* Шапка: значок типа, заголовок, файлы и комментарии, закрыть */}
-					<div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-6 py-4">
+					<div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-8 py-5">
 						<div className="flex min-w-0 items-center gap-3">
 							<OperationTypeIcon tip={TAB_TIP[activeTab]} className="h-10 w-10" />
 							<div className="min-w-0">
@@ -142,6 +142,9 @@ const OperationModal = observer(({
 									<div className="flex items-center gap-1 text-xs text-slate-500">
 										<Clock size={13} />
 										<span>{t('modal.createdAt', { date: formatDateRu(operationData?.createdAt) || '—' })}</span>
+										{operationData?.updatedAt && operationData.updatedAt !== operationData.createdAt && (
+											<span>· {t('modal.updatedAt', { date: formatDateRu(operationData.updatedAt) })}</span>
+										)}
 									</div>
 								)}
 							</div>
@@ -178,7 +181,7 @@ const OperationModal = observer(({
 
 					{/* Тип операции — сегменты со значками вместо цветных вкладок */}
 					{tabs.length > 1 && (
-						<div className="shrink-0 px-6 pt-4">
+						<div className="shrink-0 px-8 pt-6">
 							<div role="tablist" className="grid gap-1 rounded-xl bg-slate-100 p-1" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
 								{tabs.map(tab => (
 									<button
@@ -204,7 +207,7 @@ const OperationModal = observer(({
 					)}
 
 					{/* Form Content */}
-					<div className="min-h-0 flex-1 overflow-hidden px-6 pt-4">
+					<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
 						{activeTab === 'income' && (
 							<IncomeForm
 								onClose={onClose}

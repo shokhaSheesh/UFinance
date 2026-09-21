@@ -24,7 +24,7 @@ const ProductServiceTableHeader = ({
       <th className='p-2 text-center'>{t('tableHeaders.vat')}</th>
       <th className='p-2 text-end'>{t('tableHeaders.priceWithVat')}</th>
       <th className='p-2 text-start'>{t('tableHeaders.comment')}</th>
-      <th className='p-2 text-start w-10'>&nbsp;</th>
+      <th className='p-2 w-px'>&nbsp;</th>
     </tr>
   </thead>
 )

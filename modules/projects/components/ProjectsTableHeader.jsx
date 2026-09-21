@@ -33,7 +33,7 @@ export default function ProjectsTableHeader({ t }) {
         <span>{symbol}</span>
       </div>
       <div className="w-32 shrink-0 flex px-2 items-center justify-end">{t('table.profitability')}</div>
-      <div className="w-10 shrink-0" />
+      <div className="w-[80px] shrink-0" />
     </div>
   )
 }

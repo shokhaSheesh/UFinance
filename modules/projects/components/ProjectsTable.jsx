@@ -1,10 +1,4 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import RowActions from '@/components/shared/RowActions/RowActions'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
 import { cn } from '@/lib/utils'
 import { formatDateFormat } from '@/utils/formatDate'
@@ -124,31 +118,14 @@ function ProjectRow({ project, ts, tc, onRowClick, onEdit, onDelete }) {
       </div>
 
       {/* Меню действий — только доступные по правам пункты */}
-      <div className="w-10 shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+      <div className="w-[80px] shrink-0 flex items-center justify-end pr-2" onClick={(e) => e.stopPropagation()}>
         {(onEdit || onDelete) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-          <RowActionsTrigger />
-        </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-40 p-1.5" align="end">
-            {onEdit && (
-              <DropdownMenuItem
-                onClick={() => onEdit(project)}
-                className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
-              >
-                <Pencil size={15} /> <span>{tc('edit')}</span>
-              </DropdownMenuItem>
-            )}
-            {onDelete && (
-              <DropdownMenuItem
-                onClick={() => onDelete(project)}
-                className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
-              >
-                <Trash2 size={15} /> <span>{tc('delete')}</span>
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <RowActions
+          actions={[
+            { key: 'edit', icon: Pencil, label: tc('edit'), onClick: () => onEdit(project), hidden: !(onEdit) },
+            { key: 'delete', icon: Trash2, label: tc('delete'), onClick: () => onDelete(project), hidden: !(onDelete), danger: true },
+          ]}
+        />
         )}
       </div>
     </div>
