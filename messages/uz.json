@@ -2064,7 +2064,8 @@
         "searchPlaceholder": "Qidirish...",
         "viewModes": {
           "list": "Ro'yxat",
-          "nested": "Ichma-ich ko'rinish"
+          "nested": "Ichma-ich ko'rinish",
+          "grouped": "Guruhlar bo'yicha"
         },
         "tableHeaders": {
           "counterparty": "Tomon",
@@ -2110,6 +2111,22 @@
           "receipts": "Kirimlar",
           "payments": "Chiqimlar",
           "difference": "Farq"
+        },
+        "methodLabel": "Hisob usuli",
+        "calculationShort": {
+          "cashflow": "Pul oqimi",
+          "cash": "Kassa usuli",
+          "calculation": "Hisoblash usuli"
+        },
+        "kpi": {
+          "receivablesHint": "Bizdan qarzdorlar",
+          "payablesHint": "Bizning qarzimiz",
+          "receiptsHint": "Hamkorlardan kelgan",
+          "paymentsHint": "Hamkorlarga to'langan",
+          "incomeHint": "Hamkorlar bo'yicha daromad",
+          "expenseHint": "Hamkorlar bo'yicha xarajat",
+          "differenceHint": "Kirimlar minus chiqimlar",
+          "profitHint": "Daromad minus xarajat"
         }
       },
       "detail": {

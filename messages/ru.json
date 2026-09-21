@@ -1931,7 +1931,8 @@
         "searchPlaceholder": "Поиск...",
         "viewModes": {
           "list": "Список",
-          "nested": "Вложенный вид"
+          "nested": "Вложенный вид",
+          "grouped": "По группам"
         },
         "tableHeaders": {
           "counterparty": "Контрагент",
@@ -1977,6 +1978,22 @@
           "receipts": "Поступления",
           "payments": "Выплаты",
           "difference": "Разница"
+        },
+        "methodLabel": "Метод учёта",
+        "calculationShort": {
+          "cashflow": "Денежный поток",
+          "cash": "Кассовый метод",
+          "calculation": "Метод начисления"
+        },
+        "kpi": {
+          "receivablesHint": "Нам должны",
+          "payablesHint": "Мы должны",
+          "receiptsHint": "Поступило от контрагентов",
+          "paymentsHint": "Выплачено контрагентам",
+          "incomeHint": "Доходы по контрагентам",
+          "expenseHint": "Расходы по контрагентам",
+          "differenceHint": "Поступления минус выплаты",
+          "profitHint": "Доходы минус расходы"
         }
       },
       "detail": {

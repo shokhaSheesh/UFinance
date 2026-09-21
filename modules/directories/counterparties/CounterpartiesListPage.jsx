@@ -3,10 +3,13 @@ import { FilterField } from '@/components/shared/Filters/FilterDrawer'
 import TableCard from '@/components/shared/Table/TableCard'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
 import IconButton from '@/components/shared/Buttons/IconButton'
+import KpiCard from '@/components/shared/KpiCard/KpiCard'
+import Segmented from '@/components/shared/Segmented/Segmented'
 import FilterButton from '@/components/shared/Filters/FilterButton'
 import { CounterpartyMenu } from '@/components/directories/CounterpartyMenu/CounterpartyMenu'
 import CreateCounterpartyModal from '@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal'
 import { DeleteCounterpartyConfirmModal } from '@/components/directories/DeleteCounterpartyConfirmModal/DeleteCounterpartyConfirmModal'
+import EditCounterpartyGroupModal from '@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal'
 import { DeleteGroupConfirmModal } from '@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal'
 import { FilterSection, FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import { GroupMenu } from '@/components/directories/GroupMenu/GroupMenu'
@@ -16,12 +19,8 @@ import MultiSelectStatiya from '@/components/ReadyComponents/MultiSelectStatiya'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
 import SelectCounterParties from '@/components/ReadyComponents/SelectCounterParties'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
-// OperationCheckbox — Дебиторка/Кредиторка фильтрлари вақтинча яширилгани учун ишлатилмаяпти
-// import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import ScreenLoader from '@/components/shared/ScreenLoader'
-import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { ExpendClose, ExpendOpen } from '@/constants/icons'
 import { useDeleteCounterparties, useDeleteCounterpartiesGroups, useUcodeRequestInfinite } from '@/hooks/useDashboard'
 import { useScrollDetector } from '@/hooks/useScrollDetector'
 import { apiClient } from '@/lib/api/ucode/base'
@@ -30,22 +29,103 @@ import { showSuccessNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { formatAmount, formatNumber, handleDownload } from '@/utils/helpers'
+import { formatAmount, handleDownload } from '@/utils/helpers'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Download, Plus } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, ChevronRight, Download, Folder, FolderOpen, FolderTree, List, Plus, Scale, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
-import { BsList } from 'react-icons/bs'
-import { LuListTree } from 'react-icons/lu'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-const getCalculationOptions = (t) => [
-  { value: "Cashflow", label: t('list.calculationOptions.cashflow') },
-  { value: "Cash", label: t('list.calculationOptions.cash') },
-  { value: "Calculation", label: t('list.calculationOptions.calculation') },
-]
+// Ширины колонок — общие для шапки и строк, чтобы колонки не расходились
+const COL = {
+  group: 'w-40 shrink-0',
+  inn: 'w-32 shrink-0',
+  ops: 'w-24 shrink-0',
+  amount: 'w-32 shrink-0',
+  menu: 'w-10 shrink-0',
+}
+
+/**
+ * Сумма в строке таблицы. Нули бледные — строки с оборотами видны сразу.
+ * signed — знак цветом (разница, прибыль); иначе отрицательные показываются
+ * нулём, как и раньше, если не allowNegative.
+ */
+function AmountCell({ value, signed = false, allowNegative = false, strong = false }) {
+  const n = Number(value) || 0
+  const shown = signed || allowNegative ? n : Math.max(n, 0)
+  return (
+    <div
+      className={cn(
+        COL.amount,
+        'px-3 text-right tabular-nums',
+        strong && 'font-semibold',
+        shown === 0
+          ? 'text-slate-300'
+          : signed
+            ? shown > 0 ? 'text-emerald-700' : 'text-red-600'
+            : 'text-slate-900'
+      )}
+    >
+      {shown === 0 ? '0' : formatAmount(shown)}
+    </div>
+  )
+}
+
+/** Инициалы контрагента в кружке — глазу проще зацепиться за строку в длинном списке. */
+function Monogram({ name }) {
+  const letters = (name || '')
+    .split(/\s+/)
+    .map((word) => word.match(/[\p{L}\p{N}]/u)?.[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
+      {letters || '—'}
+    </span>
+  )
+}
+
+function CounterpartyRow({ item, nested = false, showGroup, isCashflow, onOpen, onEdit, onDelete }) {
+  return (
+    <div
+      className="flex min-h-[52px] cursor-pointer items-center border-b border-slate-100 bg-white text-sm transition-colors hover:bg-[#f5f8ff]"
+      onClick={onOpen}
+    >
+      <div className={cn('flex min-w-[220px] flex-1 items-center gap-3 px-4', nested && 'pl-[76px]')}>
+        <Monogram name={item.nazvanie} />
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate font-medium text-slate-900">{item.nazvanie}</span>
+          {item.komentariy && <span className="truncate text-xs text-slate-400">{item.komentariy}</span>}
+        </div>
+      </div>
+      {showGroup && (
+        <div className={cn(COL.group, 'px-3')}>
+          {item.gruppa ? (
+            <span className="inline-block max-w-full truncate rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+              {item.gruppa}
+            </span>
+          ) : (
+            <span className="text-slate-300">–</span>
+          )}
+        </div>
+      )}
+      {!isCashflow && <div className={cn(COL.inn, 'truncate px-3 tabular-nums text-slate-600')}>{item.inn || '–'}</div>}
+      <div className={cn(COL.ops, 'px-3 text-right tabular-nums text-slate-600')}>{item?.operationCount ?? 0}</div>
+      <AmountCell value={item.debitorka} />
+      <AmountCell value={item.kreditorka} />
+      <AmountCell value={item.income} />
+      <AmountCell value={item.expenses} />
+      <AmountCell value={isCashflow ? item.difference : item.profit} signed />
+      <div className={cn(COL.menu, 'flex items-center justify-center group')} onClick={(e) => e.stopPropagation()}>
+        <CounterpartyMenu counterparty={item} onEdit={onEdit} onDelete={onDelete} />
+      </div>
+    </div>
+  )
+}
 
 /**
  * Список контрагентов. Тот же экран обслуживает справочник «Студенты»:
@@ -324,6 +404,37 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   }
 
 
+  const isCashflow = filters.calculationMethod === 'Cashflow'
+  const rows = viewMode === 'groups' ? counterpartiesGroups : viewMode === 'nested' ? groupedCounterparties : flatCounterparties
+
+  // Итоги — те же, что были в полосе внизу; подписи меняются вместе с методом учёта, как в шапке таблицы
+  const kpis = [
+    { key: 'receivables', label: t('list.summary.receivables'), value: couterpartiesSummary?.debitorka, hint: t('list.kpi.receivablesHint'), icon: ArrowDownLeft },
+    { key: 'payables', label: t('list.summary.payables'), value: couterpartiesSummary?.kreditorka, hint: t('list.kpi.payablesHint'), icon: ArrowUpRight },
+    {
+      key: 'income',
+      label: isCashflow ? t('list.summary.receipts') : t('list.tableHeaders.income'),
+      value: couterpartiesSummary?.income,
+      hint: isCashflow ? t('list.kpi.receiptsHint') : t('list.kpi.incomeHint'),
+      icon: TrendingUp,
+    },
+    {
+      key: 'expense',
+      label: isCashflow ? t('list.summary.payments') : t('list.tableHeaders.expense'),
+      value: couterpartiesSummary?.expense,
+      hint: isCashflow ? t('list.kpi.paymentsHint') : t('list.kpi.expenseHint'),
+      icon: TrendingDown,
+    },
+    {
+      key: 'result',
+      label: isCashflow ? t('list.summary.difference') : t('list.tableHeaders.profit'),
+      value: isCashflow ? couterpartiesSummary?.difference : (couterpartiesSummary?.profit ?? couterpartiesSummary?.difference),
+      hint: isCashflow ? t('list.kpi.differenceHint') : t('list.kpi.profitHint'),
+      icon: Scale,
+      tone: 'signed',
+    },
+  ]
+
   return (
     <div className="w-[calc(100%_-_var(--sidebar-w))] flex h-[calc(100%-60px)]  fixed left-[var(--sidebar-w)] top-[60px]">
       <FilterSidebar
@@ -384,59 +495,16 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             />
           </FilterField>
         </FilterSection>
-
-        {/* Дебиторка / Кредиторка фильтры временно скрыты
-        <FilterSection title={t('list.filters.receivables')}>
-          <div className="space-y-2.5 flex flex-col items-start">
-            {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
-              <OperationCheckbox
-                key={`deb-${item.value}`}
-                checked={filters.debitPaymentTypes?.includes(item.value)}
-                onChange={() => {
-                  setFilters(prev => ({
-                    ...prev,
-                    debitPaymentTypes: prev.debitPaymentTypes?.includes(item.value)
-                      ? prev.debitPaymentTypes?.filter(v => v !== item.value)
-                      : [...prev.debitPaymentTypes, item.value]
-                  }))
-                }}
-                label={item.label}
-              />
-            ))}
-          </div>
-        </FilterSection>
-
-        <FilterSection title={t('list.filters.payables')}>
-          <div className="space-y-2.5 flex flex-col items-start">
-            {[{ label: t('list.filters.cash'), value: 'Cash' }, { label: t('list.filters.nonCash'), value: 'NonCash' }, { label: t('list.filters.without'), value: 'WithoutCash' }].map(item => (
-              <OperationCheckbox
-                key={`kred-${item.value}`}
-                checked={(filters.creditPaymentTypes || [])?.includes(item.value)}
-                onChange={() => {
-                  setFilters(prev => {
-                    const currentArray = prev.creditPaymentTypes || []
-                    return {
-                      ...prev,
-                      creditPaymentTypes: currentArray?.includes(item.value)
-                        ? currentArray?.filter(v => v !== item.value)
-                        : [...currentArray, item.value]
-                    }
-                  })
-                }}
-                label={item.label}
-              />
-            ))}
-          </div>
-        </FilterSection>
-        */}
-
       </FilterSidebar>
 
-
-      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className={`px-6 pb-40 w-full h-full overflow-auto flex-1 bg-canvas`}>
-        <div className="sticky top-0 z-40 bg-canvas flex items-center justify-between h-16">
-          <h1 className="text-xl font-semibold shrink-0">{labels.title}</h1>
-<div className="flex shrink-0 items-center gap-2">
+      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full h-full flex-1 overflow-auto bg-canvas px-6 pb-10">
+        {/* Шапка: заголовок с количеством слева, выгрузка и создание справа */}
+        <div className="sticky top-0 z-40 flex h-16 items-center justify-between bg-canvas">
+          <div className="flex min-w-0 items-baseline gap-3">
+            <h1 className="shrink-0 text-xl font-semibold text-slate-900">{labels.title}</h1>
+            <span className="truncate text-sm text-slate-500 tabular-nums">{labels.count(couterpartiesSummary?.count || 0)}</span>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
             <IconButton icon={Download} label={t('list.downloadExcel')} onClick={exportCounterparties} loading={isCounterpartiesExportLoading} />
             {isMounted && canAdd && (
               <button onClick={() => setIsCreateModalOpen(true)} className="primary-btn gap-1.5">
@@ -447,9 +515,31 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
           </div>
         </div>
 
-        <TableCard className="mb-2">
-          {/* Поиск, метод расчёта, вид списка и фильтры — над таблицей */}
+        {/* Метод учёта — раньше прятался в выпадающем списке, хотя от него зависят все суммы на странице */}
+        <div className="mb-3 flex items-center gap-3">
+          <span className="text-sm text-slate-500">{t('list.methodLabel')}</span>
+          <Segmented
+            ariaLabel={t('list.methodLabel')}
+            value={filters.calculationMethod}
+            onChange={(selected) => setFilters(prev => ({ ...prev, calculationMethod: selected }))}
+            options={[
+              { value: 'Cashflow', label: t('list.calculationShort.cashflow') },
+              { value: 'Cash', label: t('list.calculationShort.cash') },
+              { value: 'Calculation', label: t('list.calculationShort.calculation') },
+            ]}
+          />
+        </div>
+
+        {/* Итоги по контрагентам — наверху и крупно, а не мелкой строкой внизу экрана */}
+        <div className="mb-4 grid grid-cols-5 gap-3">
+          {kpis.map(({ key, ...kpi }) => (
+            <KpiCard key={key} currency={GlobalCurrency.name} {...kpi} />
+          ))}
+        </div>
+
+        <TableCard className="min-w-fit overflow-visible">
           <TableToolbar
+            className="rounded-t-xl"
             search={
               <div className="w-full max-w-[420px]">
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
@@ -457,36 +547,15 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             }
             actions={
               <>
-                <div className='w-[250px]'>
-                  <SingleSelect
-                    data={getCalculationOptions(t)}
-                    value={filters.calculationMethod}
-                    onChange={(selected) => setFilters(prev => ({
-                      ...prev,
-                      calculationMethod: selected
-                    }))}
-                    className={'bg-white'}
-                    placeholder={tc('placeholders.select')}
-                    withSearch={false}
-                    isClearable={false}
-                  />
-                </div>
-                <div className="flex items-center">
-                  <button
-                    className={cn("border-l border-t border-b border-neutral-200 cursor-pointer rounded-l-md py-2 px-2", viewMode === 'list' && 'border-primary border-r')}
-                    onClick={() => setViewMode('list')}
-                    title={t('list.viewModes.list')}
-                  >
-                    <BsList size={18} strokeWidth={.5} />
-                  </button>
-                  <button
-                    className={cn(" border-neutral-200 border-r border-t border-b cursor-pointer rounded-r-md py-2 px-2", viewMode === 'nested' && 'border-primary border-l')}
-                    onClick={() => setViewMode('nested')}
-                    title={t('list.viewModes.nested')}
-                  >
-                    <LuListTree size={18} />
-                  </button>
-                </div>
+                <Segmented
+                  ariaLabel={t('list.viewModes.list')}
+                  value={viewMode}
+                  onChange={setViewMode}
+                  options={[
+                    { value: 'list', label: t('list.viewModes.list'), icon: List },
+                    { value: 'nested', label: t('list.viewModes.grouped'), icon: FolderTree },
+                  ]}
+                />
                 <FilterButton
                   onClick={() => setIsFilterOpen(true)}
                   count={counterpartiesStore.activeFilterCount}
@@ -495,284 +564,128 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             }
           />
 
-        {/* Column Headers */}
-        <div className='flex h-12 sticky top-0 z-30 text-sm gap-1 font-medium text-neutral-500 items-center bg-neutral-50 border-b border-neutral-200'>
-          <>
-            <div className='flex-1 min-w-[200px] flex px-3 items-center justify-start cursor-pointer hover:text-neutral-700'>
+          {/* Шапка колонок — прилипает под шапкой страницы */}
+          <div className="sticky top-16 z-30 flex h-10 items-center border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="flex min-w-[220px] flex-1 items-center px-4">
               {viewMode === 'nested' ? t('list.tableHeaders.group') : t('list.tableHeaders.counterparty')}
-              <ChevronDown className='size-4' />
             </div>
-            {viewMode !== 'nested' && (
-              <div className='w-40 flex px-2 items-center justify-start'>{t('list.tableHeaders.group')}</div>
-            )}
-            {filters.calculationMethod !== 'Cashflow' && (
-              <div className='w-32 flex px-2 items-center justify-start'>{t('list.tableHeaders.inn')}</div>
-            )}
-            <div className='w-24 flex px-2 items-center justify-center'>{t('list.tableHeaders.operations')}</div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>{t('list.tableHeaders.receivables')}, {GlobalCurrency.name}</div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>{t('list.tableHeaders.payables')}, {GlobalCurrency.name}</div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.receipts') : t('list.tableHeaders.income')}
+            {viewMode !== 'nested' && <div className={cn(COL.group, 'px-3')}>{t('list.tableHeaders.group')}</div>}
+            {!isCashflow && <div className={cn(COL.inn, 'px-3')}>{t('list.tableHeaders.inn')}</div>}
+            <div className={cn(COL.ops, 'px-3 text-right')}>{t('list.tableHeaders.operations')}</div>
+            <div className={cn(COL.amount, 'px-3 text-right')}>{t('list.tableHeaders.receivables')}, {GlobalCurrency.name}</div>
+            <div className={cn(COL.amount, 'px-3 text-right')}>{t('list.tableHeaders.payables')}, {GlobalCurrency.name}</div>
+            <div className={cn(COL.amount, 'px-3 text-right')}>
+              {isCashflow ? t('list.tableHeaders.receipts') : t('list.tableHeaders.income')}
             </div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.payments') : t('list.tableHeaders.expense')}
+            <div className={cn(COL.amount, 'px-3 text-right')}>
+              {isCashflow ? t('list.tableHeaders.payments') : t('list.tableHeaders.expense')}
             </div>
-            <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
-              {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.difference') : t('list.tableHeaders.profit')}
+            <div className={cn(COL.amount, 'px-3 text-right')}>
+              {isCashflow ? t('list.tableHeaders.difference') : t('list.tableHeaders.profit')}
             </div>
-            <div className='w-10 flex px-2 items-center justify-center'>&nbsp;</div>
-          </>
-        </div>
-
-        {allCounterparties.length === 0 && !isLoadingCounterparties && (
-          <div className="py-20 text-center text-neutral-500 bg-white">
-            {labels.empty}
-          </div>
-        )}
-
-        <InfiniteScroll
-          dataLength={allCounterparties.length}
-          next={fetchNextPage}
-          hasMore={hasNextPage}
-          scrollThreshold={0.5}
-          scrollableTarget="scrollableDiv"
-        >
-          <div className="flex flex-col">
-            {(viewMode === 'groups' ? counterpartiesGroups : viewMode === 'nested' ? groupedCounterparties : flatCounterparties).map((item) => {
-              if (item.isGroup) {
-                const isExpanded = expandedGroups.has(item.guid)
-                const styleDifference = item?.difference > 0 ? 'text-emerald-500 font-medium' : item?.difference < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
-                const styleProfit = item?.profit > 0 ? 'text-emerald-500 font-medium' : item?.profit < 0 ? 'text-red-500 font-medium' : 'text-neutral-900 font-medium'
-
-                return (
-                  <React.Fragment key={item.id}>
-                    <div
-                      className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
-                      onClick={() => toggleGroup(item.guid)}
-                    >
-                      <div className="flex-1 min-w-[200px] flex px-3 items-center gap-2 font-medium">
-                        <button
-                          className="text-neutral-400 hover:text-neutral-600 outline-none flex items-center justify-center p-1"
-                          onClick={(e) => { e.stopPropagation(); toggleGroup(item.guid) }}
-                        >
-                          {isExpanded ? <ExpendClose /> : <ExpendOpen />}
-                        </button>
-                        <span className="text-slate-900 truncate">{item?.nazvanie} ({item.items?.length || 0})</span>
-                      </div>
-                      {filters.calculationMethod !== 'Cashflow' && (
-                        <div className="w-32 flex px-2 items-center text-neutral-500">–</div>
-                      )}
-                      <div className="w-24 flex px-2 items-center justify-center text-neutral-900 font-medium">
-                        {item?.operationCount ?? 0}
-                      </div>
-                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.debitorka > 0 ? formatAmount(item?.debitorka) : '0'}
-                      </div>
-                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {item.kreditorka > 0 ? formatAmount(item?.kreditorka) : '0'}
-                      </div>
-                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {filters.calculationMethod === 'Cashflow'
-                          ? (item?.income > 0 ? formatAmount(item?.income) : '0')
-                          : (formatAmount(item?.income) || '0')}
-                      </div>
-                      <div className="w-32 flex px-2 items-center justify-end text-neutral-900 font-medium">
-                        {filters.calculationMethod === 'Cashflow'
-                          ? (item?.expenses > 0 ? formatAmount(item?.expenses) : '0')
-                          : (formatAmount(item?.expenses) || '0')}
-                      </div>
-                      <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
-                        {filters.calculationMethod === 'Cashflow'
-                          ? (item?.difference === 0 ? '0' : formatAmount(item.difference))
-                          : (item?.profit === 0 ? '0' : formatAmount(item.profit))}
-                      </div>
-                      <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
-                        <GroupMenu
-                          group={item}
-                          onEdit={(group) => setEditingGroup(group)}
-                          onDelete={(group) => setDeletingGroup(group)}
-                          onCreateCounterparty={(group) => {
-                            setPreselectedGroupId(group.guid)
-                            setIsCreateModalOpen(true)
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {isExpanded && item.items?.length === 0 && (
-                      <div className="bg-neutral-50/50 p-4 text-center text-neutral-400 text-xs font-medium border-b border-neutral-100">
-                        {labels.emptyInGroup}
-                      </div>
-                    )}
-
-                    {isExpanded && item.items?.map((counterparty) => {
-                      const styleDifference = counterparty?.difference > 0 ? 'text-emerald-500' : counterparty?.difference < 0 ? 'text-red-500' : 'text-neutral-500'
-                      const styleProfit = counterparty?.profit > 0 ? 'text-emerald-500' : counterparty?.profit < 0 ? 'text-red-500' : 'text-neutral-500'
-
-                      return (
-                        <div
-                          key={counterparty.id}
-                          className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
-                          onClick={() => router.push(`${detailBasePath}/${counterparty?.guid}`)}
-                        >
-                          <div className="flex-1 min-w-[200px] flex flex-col px-3 pl-8 justify-center">
-                            <span className="text-slate-900 font-medium truncate">{counterparty?.nazvanie}</span>
-                            {counterparty?.komentariy && <span className="text-neutral-400 text-mini truncate">{counterparty?.komentariy}</span>}
-                          </div>
-                          {filters.calculationMethod !== 'Cashflow' && (
-                            <div className="w-32 flex px-2 items-center text-neutral-500 truncate">{counterparty.inn || '–'}</div>
-                          )}
-                          <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{counterparty?.operationCount ?? 0}</div>
-                          <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.debitorka > 0 ? formatAmount(counterparty?.debitorka) : '0'}
-                          </div>
-                          <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.kreditorka > 0 ? formatAmount(counterparty?.kreditorka) : '0'}
-                          </div>
-                          <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.income > 0 ? formatAmount(counterparty?.income) : '0'}
-                          </div>
-                          <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                            {counterparty?.expenses > 0 ? formatAmount(counterparty?.expenses) : '0'}
-                          </div>
-                          <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
-                            {filters.calculationMethod === 'Cashflow'
-                              ? (counterparty?.difference === 0 ? '0' : formatAmount(counterparty?.difference))
-                              : (counterparty?.profit === 0 ? '0' : formatAmount(counterparty?.profit))}
-                          </div>
-                          <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
-                            <CounterpartyMenu
-                              counterparty={counterparty}
-                              onEdit={(cp) => setEditingCounterparty(cp)}
-                              onDelete={(cp) => setDeletingCounterparty(cp)}
-                            />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </React.Fragment>
-                )
-              } else {
-                const styleDifference = item?.difference > 0 ? 'text-emerald-500' : item?.difference < 0 ? 'text-red-500' : 'text-neutral-500'
-                const styleProfit = item?.profit > 0 ? 'text-emerald-500' : item?.profit < 0 ? 'text-red-500' : 'text-neutral-500'
-
-                return (
-                  <div
-                    key={item?.id}
-                    className="flex min-h-[48px] items-center gap-1 hover:bg-neutral-50 border-b border-neutral-100 cursor-pointer bg-white text-sm"
-                    onClick={() => router.push(`${detailBasePath}/${item.guid}`)}
-                  >
-                    <div className="flex-1 min-w-[200px] flex flex-col px-2 justify-center">
-                      <span className="text-slate-900 font-medium truncate">{item.nazvanie}</span>
-                      {item.komentariy && <span className="text-neutral-400 text-mini truncate">{item.komentariy}</span>}
-                    </div>
-                    {viewMode !== 'nested' && (
-                      <div className="w-40 flex px-2 items-center text-neutral-500 truncate">{item.gruppa || '–'}</div>
-                    )}
-                    {filters.calculationMethod !== 'Cashflow' && (
-                      <div className="w-32 flex px-2 items-center text-neutral-500 truncate">{item.inn || '–'}</div>
-                    )}
-                    <div className="w-24 flex px-2 items-center justify-center text-neutral-500">{item?.operationCount ?? 0}</div>
-                    <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.debitorka > 0 ? formatAmount(item?.debitorka) : '0'}
-                    </div>
-                    <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.kreditorka > 0 ? formatAmount(item?.kreditorka) : '0'}
-                    </div>
-                    <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.income > 0 ? formatAmount(item?.income) : '0'}
-                    </div>
-                    <div className="w-32 flex px-2 items-center justify-end text-neutral-500">
-                      {item.expenses > 0 ? formatAmount(item?.expenses) : '0'}
-                    </div>
-                    <div className={cn("w-32 flex px-2 items-center justify-end", filters.calculationMethod === 'Cashflow' ? styleDifference : styleProfit)}>
-                      {filters.calculationMethod === 'Cashflow'
-                        ? (item?.difference === 0 ? '0' : formatAmount(item?.difference))
-                        : (item?.profit === 0 ? '0' : formatAmount(item?.profit))}
-                    </div>
-                    <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
-                      <CounterpartyMenu
-                        counterparty={item}
-                        onEdit={(cp) => setEditingCounterparty(cp)}
-                        onDelete={(cp) => setDeletingCounterparty(cp)}
-                      />
-                    </div>
-                  </div>
-                )
-              }
-            })}
-          </div>
-        </InfiniteScroll>
-        </TableCard>
-
-        {/* Footer */}
-        <div className={cn(
-          'fixed bottom-0 right-0 left-[var(--sidebar-w)] bg-neutral-100 p-2 border-t border-neutral-200 flex items-center gap-8 shrink-0 z-10'
-        )}>
-          <div className="text-sm text-slate-900">
-            <span className="font-semibold text-slate-900 whitespace-nowrap">
-              {labels.count(couterpartiesSummary?.count || 0)}
-            </span>
+            <div className={COL.menu} />
           </div>
 
-          <div className="w-px h-6 bg-gray-200 shrink-0" />
-
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">{t('list.summary.receivables')}</span>
-            <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.debitorka)}</span>
-              <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
-            </div>
-          </div>
-
-          <div className="w-px h-6 bg-gray-200 shrink-0" />
-
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">{t('list.summary.payables')}</span>
-            <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.kreditorka)}</span>
-              <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
-            </div>
-          </div>
-
-          <div className="w-px h-6 bg-gray-200 shrink-0" />
-
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">{t('list.summary.receipts')}</span>
-            <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.income)}</span>
-              <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
-            </div>
-          </div>
-
-          <div className="w-px h-6 bg-gray-200 shrink-0" />
-
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">{t('list.summary.payments')}</span>
-            <div className="flex items-center gap-0.5">
-              <span className="text-xs font-semibold text-slate-900">{formatNumber(couterpartiesSummary?.expense)}</span>
-              <span className="text-xs text-gray-400">{GlobalCurrency.name}</span>
-            </div>
-          </div>
-
-          <div className="w-px h-6 bg-gray-200 shrink-0" />
-
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs text-gray-500 font-medium">{t('list.summary.difference')}</span>
-            <div className="flex items-center gap-0.5">
-              <span className={cn(
-                'text-xs font-semibold',
-                couterpartiesSummary?.difference > 0 ? 'text-emerald-500' : couterpartiesSummary?.difference < 0 ? 'text-red-500' : 'text-slate-900'
-              )}>
-                {couterpartiesSummary?.difference === 0 ? '0' : `${couterpartiesSummary?.difference > 0 ? '+' : ''}${formatNumber(couterpartiesSummary?.difference)}`}
+          {allCounterparties.length === 0 && !isLoadingCounterparties && (
+            <div className="flex flex-col items-center gap-2 py-20 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <Users size={22} aria-hidden="true" />
               </span>
-              <span className={cn(
-                'text-xs',
-                couterpartiesSummary?.difference > 0 ? 'text-emerald-500' : couterpartiesSummary?.difference < 0 ? 'text-red-500' : 'text-gray-400'
-              )}>{GlobalCurrency.name}</span>
+              <span className="text-sm text-slate-500">{labels.empty}</span>
             </div>
-          </div>
-        </div>
+          )}
+
+          <InfiniteScroll
+            dataLength={allCounterparties.length}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            scrollThreshold={0.5}
+            scrollableTarget="scrollableDiv"
+          >
+            <div className="flex flex-col">
+              {rows.map((item) => {
+                if (item.isGroup) {
+                  const isExpanded = expandedGroups.has(item.guid)
+                  return (
+                    <React.Fragment key={item.id}>
+                      <div
+                        className="flex min-h-[52px] cursor-pointer items-center border-b border-slate-200 bg-slate-50/70 text-sm hover:bg-slate-100/70"
+                        onClick={() => toggleGroup(item.guid)}
+                      >
+                        <div className="flex min-w-[220px] flex-1 items-center gap-3 px-4">
+                          <button
+                            type="button"
+                            aria-expanded={isExpanded}
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-400 cursor-pointer hover:bg-slate-200 hover:text-slate-700"
+                            onClick={(e) => { e.stopPropagation(); toggleGroup(item.guid) }}
+                          >
+                            <ChevronRight size={16} className={cn('transition-transform', isExpanded && 'rotate-90')} />
+                          </button>
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200">
+                            {isExpanded ? <FolderOpen size={16} aria-hidden="true" /> : <Folder size={16} aria-hidden="true" />}
+                          </span>
+                          <span className="truncate font-semibold text-slate-900">{item?.nazvanie}</span>
+                          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200 tabular-nums">
+                            {item.items?.length || 0}
+                          </span>
+                        </div>
+                        {!isCashflow && <div className={cn(COL.inn, 'px-3 text-slate-400')}>–</div>}
+                        <div className={cn(COL.ops, 'px-3 text-right font-semibold tabular-nums text-slate-900')}>{item?.operationCount ?? 0}</div>
+                        <AmountCell value={item.debitorka} strong />
+                        <AmountCell value={item.kreditorka} strong />
+                        <AmountCell value={item.income} strong allowNegative={!isCashflow} />
+                        <AmountCell value={item.expenses} strong allowNegative={!isCashflow} />
+                        <AmountCell value={isCashflow ? item.difference : item.profit} strong signed />
+                        <div className={cn(COL.menu, 'flex items-center justify-center group')} onClick={(e) => e.stopPropagation()}>
+                          <GroupMenu
+                            group={item}
+                            onEdit={(group) => setEditingGroup(group)}
+                            onDelete={(group) => setDeletingGroup(group)}
+                            onCreateCounterparty={(group) => {
+                              setPreselectedGroupId(group.guid)
+                              setIsCreateModalOpen(true)
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {isExpanded && item.items?.length === 0 && (
+                        <div className="border-b border-slate-100 bg-white p-4 text-center text-xs font-medium text-slate-400">
+                          {labels.emptyInGroup}
+                        </div>
+                      )}
+
+                      {isExpanded && item.items?.map((counterparty) => (
+                        <CounterpartyRow
+                          key={counterparty.id}
+                          item={counterparty}
+                          nested
+                          showGroup={false}
+                          isCashflow={isCashflow}
+                          onOpen={() => router.push(`${detailBasePath}/${counterparty?.guid}`)}
+                          onEdit={(cp) => setEditingCounterparty(cp)}
+                          onDelete={(cp) => setDeletingCounterparty(cp)}
+                        />
+                      ))}
+                    </React.Fragment>
+                  )
+                }
+
+                return (
+                  <CounterpartyRow
+                    key={item?.id}
+                    item={item}
+                    showGroup={viewMode !== 'nested'}
+                    isCashflow={isCashflow}
+                    onOpen={() => router.push(`${detailBasePath}/${item.guid}`)}
+                    onEdit={(cp) => setEditingCounterparty(cp)}
+                    onDelete={(cp) => setDeletingCounterparty(cp)}
+                  />
+                )
+              })}
+            </div>
+          </InfiniteScroll>
+        </TableCard>
       </div>
 
       {isLoadingCounterparties && allCounterparties.length === 0 && <ScreenLoader className='left-0!' />}
@@ -792,6 +705,15 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         preselectedGroupId={preselectedGroupId}
         counterpartyData={editingCounterparty}
         isStudent={isStudent}
+      />
+      {/* «Редактировать группу» в меню группы раньше ничего не открывало */}
+      <EditCounterpartyGroupModal
+        isOpen={!!editingGroup}
+        group={editingGroup}
+        onClose={() => {
+          setEditingGroup(null)
+          queryClient.invalidateQueries({ queryKey: ['get_counterparties'] })
+        }}
       />
       <DeleteGroupConfirmModal
         isOpen={!!deletingGroup}
