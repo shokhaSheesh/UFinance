@@ -22,7 +22,7 @@ export default function PageHeader({ title, search, filters, actions, className,
   return (
     <div
       className={cn(
-        'flex h-16 shrink-0 items-center justify-between gap-4 bg-white px-4',
+        'flex h-16 shrink-0 items-center justify-between gap-4 bg-transparent px-4',
         className
       )}
     >

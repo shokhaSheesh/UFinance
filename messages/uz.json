@@ -772,6 +772,9 @@
       "byDebit": "[debet bo'yicha]",
       "byCredit": "[kredit bo'yicha]",
       "unconfirmedBadge": "Tasdiqlanmagan"
+    },
+    "summary": {
+      "opsCount": "{count} ta amaliyot"
     }
   },
   "Reports": {

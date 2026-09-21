@@ -15,7 +15,7 @@ export default function TableCard({ className, children, ...props }) {
   return (
     <div
       className={cn(
-        'flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white',
+        'flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white',
         className
       )}
       {...props}

@@ -16,7 +16,7 @@ export default function LocaleSwitcher({ className = '' }) {
         type="button"
         disabled={isLoading}
         onClick={() => toggleOpen()}
-        className="flex items-center gap-2 px-3 py-4 rounded-md text-white text-sm font-medium hover:bg-slate-900/50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 px-3 h-9 rounded-lg text-slate-700 text-sm font-medium hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <Globe size={18} strokeWidth={1.75} />
         <span>{current.label}</span>

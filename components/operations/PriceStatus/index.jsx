@@ -63,7 +63,7 @@ const PriceStatus = observer(({ amount, type, tab, confirmed, accrual, currency,
         </>}
         {(tab === 'Поступление' || tab === 'Выплата' || tab === 'Отгрузка' || tab === 'Поставка') && <>
           <div>
-            <span className='flex items-center text-sm justify-end gap-0.5'>
+            <span className='flex items-center text-sm font-semibold justify-end gap-1'>
               <Money
                 value={amount}
                 sign={type == 'Поступление' ? '+' : type == 'Выплата' ? '-' : ''}

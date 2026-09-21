@@ -7,12 +7,12 @@ import {
   SupplyIcon,
   TypeExpenseIcon,
   TypeIncomeIcon,
-  TypeTransferIcon,
 } from "@/constants/icons";
 import { useChartOfAccountsCategories } from "@/hooks/useChartOfAccountsCategories";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { memo, useMemo, useState } from "react";
@@ -173,7 +173,7 @@ const TableRow = observer(
         <div
           key={op.guid}
           className={cn(
-            "flex text-sm items-stretch bg-white border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer min-h-11"
+            "flex text-sm text-slate-900 items-stretch bg-white border-b border-slate-100 hover:bg-slate-50 cursor-pointer min-h-11 transition-colors"
           )}
           onClick={(e) => {
             if (canEdit) {
@@ -276,19 +276,29 @@ const TableRow = observer(
           {/* Type Icon */}
           <div className="min-w-14 flex px-1 items-center justify-center">
             {op.tip ? (
-              <div className={cn(styles.typeIcon, "scale-75")}>
-                {op.tip === "Поступление" ? (
-                  <TypeIncomeIcon />
-                ) : op.tip === "Выплата" ? (
-                  <TypeExpenseIcon />
-                ) : op.tip === "Перемещение" || op.tip === "Начисление" ? (
-                  <TypeTransferIcon />
-                ) : op.tip === "Отгрузка" ? (
-                  <ShipmentIcon />
-                ) : (
-                  op.tip === "Поставка" && <SupplyIcon />
+              <span
+                title={op.tip}
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full",
+                  op.tip === "Поступление"
+                    ? "bg-green-50 text-green-600"
+                    : op.tip === "Выплата"
+                      ? "bg-red-50 text-red-600"
+                      : "bg-slate-100 text-slate-600"
                 )}
-              </div>
+              >
+                {op.tip === "Поступление" ? (
+                  <ArrowDownLeft size={15} aria-hidden="true" />
+                ) : op.tip === "Выплата" ? (
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                ) : op.tip === "Перемещение" || op.tip === "Начисление" ? (
+                  <ArrowLeftRight size={15} aria-hidden="true" />
+                ) : op.tip === "Отгрузка" ? (
+                  <span className="scale-[0.65]"><ShipmentIcon /></span>
+                ) : (
+                  op.tip === "Поставка" && <span className="scale-[0.65]"><SupplyIcon /></span>
+                )}
+              </span>
             ) : null}
           </div>
 

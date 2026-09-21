@@ -107,7 +107,7 @@ const Branches = observer(() => {
       <button
         type="button"
         onClick={() => branchesList && setOpen(prev => !prev)}
-        className="flex flex-col px-4 py-4 rounded-md hover:bg-slate-900/50 justify-start items-start text-sm text-white bg-transparent border-none cursor-pointer"
+        className="flex items-center gap-1.5 px-3 h-9 rounded-lg hover:bg-slate-100 text-sm font-medium text-slate-700 bg-transparent border-none cursor-pointer transition-colors"
       >
         <span className="flex items-center gap-1 text-start line-clamp-1 w-full font-medium">
           {selectedBranch?.name || t('selectPlaceholder')}

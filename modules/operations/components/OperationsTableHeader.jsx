@@ -6,7 +6,7 @@ import { appStore } from '@/store/app.store'
  */
 export default function OperationsTableHeader({ t }) {
   return (
-    <div className="flex sticky top-0 z-30 text-sm font-medium text-neutral-500 items-center bg-neutral-50 border-b border-neutral-200">
+    <div className="flex sticky top-0 z-30 text-xs font-semibold uppercase tracking-wide text-slate-500 items-center bg-white border-b border-slate-200">
       <div className="min-w-36 pl-5 flex p-3 items-center justify-start">
         {t('columns.date')}
       </div>

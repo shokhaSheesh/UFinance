@@ -141,9 +141,9 @@ export const Profile = observer(() => {
         title={email}
         className={cn(
           'flex h-9 w-9 shrink-0 items-center justify-center rounded-full cursor-pointer',
-          'bg-white/10 text-white transition-colors hover:bg-white/20',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
-          isOpen && 'bg-white/20'
+          'bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
+          isOpen && 'bg-slate-200'
         )}
         onClick={() => setIsOpen(!isOpen)}
       >

@@ -771,6 +771,9 @@
       "byDebit": "[по дебету]",
       "byCredit": "[по кредиту]",
       "unconfirmedBadge": "Не подтв."
+    },
+    "summary": {
+      "opsCount": "{count, plural, one {# операция} few {# операции} many {# операций} other {# операции}}"
     }
   },
   "Reports": {

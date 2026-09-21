@@ -307,7 +307,7 @@ export const Sidebar = observer(() => {
 
   if (!mounted) {
     return (
-      <aside className="bg-blue-950 w-[var(--sidebar-w)] flex flex-col gap-2 h-screen  items-center justify-start fixed left-0">
+      <aside className="bg-white border-r border-slate-200 w-[var(--sidebar-w)] flex flex-col gap-2 h-screen  items-center justify-start fixed left-0">
         <nav className="flex flex-col w-full">
           <div className="mt-2 mx-auto ml-5 mb-4 w-11 h-11" />
         </nav>
@@ -317,11 +317,12 @@ export const Sidebar = observer(() => {
 
   return (
     <aside
-      className="bg-blue-950 w-[var(--sidebar-w)] flex flex-col gap-2  h-screen items-center justify-star  left-0 "
+      className="bg-white border-r border-slate-200 w-[var(--sidebar-w)] flex flex-col gap-2 h-screen items-center justify-start left-0"
       ref={sidebarRef}
     >
       <nav className="flex flex-col   w-full">
         <AppLogo
+          wordmarkColor="#0f172a"
           size={44}
           strokeWidth={1.5}
           className="mt-2 mx-auto ml-5 mb-4"
@@ -341,14 +342,14 @@ export const Sidebar = observer(() => {
             const LinkContent = (
               <div
                 className={cn(
-                  "flex flex-col h-[65px] items-center justify-center w-full transition-all cursor-pointer hover:bg-slate-900/50 text-white/60 hover:text-white ",
-                  (isActive || isSubmenuActive) && " text-white"
+                  "mx-2 my-0.5 flex flex-col h-[60px] items-center justify-center rounded-lg transition-colors cursor-pointer text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                  (isActive || isSubmenuActive) && "bg-[#eef4ff] text-[#0e73f6] hover:bg-[#eef4ff] hover:text-[#0e73f6]"
                 )}
               >
                 <div className="mb-1">
                   <item.icon size={22} strokeWidth={1.5} />
                 </div>
-                <span className="text-mini text-center font-medium leading-tight">
+                <span className="text-[11px] text-center font-medium leading-tight">
                   {item.label}
                 </span>
               </div>
@@ -375,12 +376,8 @@ export const Sidebar = observer(() => {
                   </a>
                   {isSubmenuOpen && (
                     <div
-                      className="fixed left-[var(--sidebar-w)] z-[9999] block w-[200px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
-                      style={{
-                        top: submenuPosition.top,
-                        backgroundColor: "#162456",
-                        color: "white",
-                      }}
+                      className="fixed left-[calc(var(--sidebar-w)_+_4px)] z-[9999] block w-[220px] rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg"
+                      style={{ top: submenuPosition.top }}
                     >
                       <div className="flex flex-col gap-1">
                         {(item.submenu || [])
@@ -392,13 +389,13 @@ export const Sidebar = observer(() => {
                                 key={subIndex}
                                 href={sub.href}
                                 className={cn(
-                                  "block p-2 text-xs text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors",
-                                  isSubActive && "bg-white/20 text-white"
+                                  "block px-2.5 py-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-md transition-colors",
+                                  isSubActive && "bg-[#eef4ff] text-[#0e73f6]"
                                 )}
                               >
                                 <span className="font-medium">{sub.label}</span>
                                 {sub.description && (
-                                  <span className="block text-[10px] text-white/40 mt-0.5 leading-tight">
+                                  <span className="block text-xs text-slate-400 mt-0.5 leading-tight">
                                     {sub.description}
                                   </span>
                                 )}

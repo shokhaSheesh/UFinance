@@ -38,6 +38,7 @@ import ImportErrorModal from "../components/ImportErrorModal";
 import { Search } from "lucide-react";
 import FilterButton from "@/components/shared/Filters/FilterButton";
 import FilterChips from "@/components/shared/Filters/FilterChips";
+import { OperationsSummary } from "@/components/operations/OperationsSummary/OperationsSummary";
 import Input from "@/components/shared/Input";
 import TableCard from "@/components/shared/Table/TableCard";
 import TableToolbar from "@/components/shared/Table/TableToolbar";
@@ -79,11 +80,6 @@ const CustomDialog = lazy(() =>
   import("@/components/shared/CustomDialog").then((m) => ({
     default: m.default || m.CustomDialog || m,
   }))
-);
-const OperationsFooter = lazy(() =>
-  import("@/components/operations/OperationsFooter/OperationsFooter").then(
-    (m) => ({ default: m.default || m.OperationsFooter || m })
-  )
 );
 
 // ── Main page ────────────────────────────────────────────────────────────────
@@ -441,7 +437,7 @@ const OperationsListPage = observer(() => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <FixedContent>
+    <FixedContent className="bg-[#f5f6f8]">
       {isPendingGetOperation && <ScreenLoader />}
       {/* Sidebar */}
       <Suspense
@@ -454,7 +450,7 @@ const OperationsListPage = observer(() => {
       </Suspense>
 
       {/* Main */}
-      <div className="w-full flex flex-col min-h-0 px-4 pb-3">
+      <div className="w-full flex flex-col min-h-0 px-6 pb-4">
         <OperationsHeader
           t={t}
           isMounted={isMounted}
@@ -466,7 +462,9 @@ const OperationsListPage = observer(() => {
           onExport={() => exportOperations()}
         />
 
-        <TableCard className="mb-12">
+        <OperationsSummary totalSummary={totalSummary} />
+
+        <TableCard>
           {/* Поиск и фильтры — внутри рамки таблицы, над её шапкой */}
           <TableToolbar
             search={
@@ -530,8 +528,8 @@ const OperationsListPage = observer(() => {
                     }}
                   >
                     {item.type === "header" ? (
-                      <div className="bg-neutral-50 px-4 py-2 border-b border-neutral-200">
-                        <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                      <div className="bg-slate-50 px-5 py-1.5 border-b border-slate-100">
+                        <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                           {item.label}
                         </h3>
                       </div>
@@ -559,9 +557,6 @@ const OperationsListPage = observer(() => {
         </div>
         </TableCard>
 
-        <Suspense fallback={null}>
-          <OperationsFooter totalSummary={totalSummary} />
-        </Suspense>
       </div>
 
       {/* Loaders */}

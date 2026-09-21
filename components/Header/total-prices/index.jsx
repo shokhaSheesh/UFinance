@@ -250,18 +250,18 @@ const TotalPrice = observer(() => {
     <div ref={balanceRef} className="relative ">
       {/* ── Trigger ─────────────────────────────────────────────────── */}
       <div
-        className="flex flex-col items-center justify-center my-auto relative py-4 px-5 rounded-lg  max-w-full min-w-0 overflow-visible transition-all duration-250 ease-in-out cursor-pointer  hover:bg-slate-900/50  active:translate-y-0"
+        className="flex items-center my-auto relative px-3 h-9 rounded-lg max-w-full min-w-0 overflow-visible transition-colors cursor-pointer hover:bg-slate-100"
         onClick={() => setIsBalanceOpen(!isBalanceOpen)}
       >
         <div className="text-sm font-medium cursor-pointer flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <p className="text-white">
+            <p className="text-slate-500">
               {t("label")}{" "}
               {mounted ? (
                 <Money
                   value={Summary?.current_balance}
                   currency={GlobalCurrency?.name}
-                  decimalClassName="opacity-50"
+                  className="font-semibold text-slate-900"
                 />
               ) : (
                 "0"
@@ -271,7 +271,7 @@ const TotalPrice = observer(() => {
           <ChevronDown
             size={14}
             className={cn(
-              "text-white/70 transition-all duration-200",
+              "text-slate-400 transition-all duration-200",
               isBalanceOpen && "rotate-180"
             )}
           />
