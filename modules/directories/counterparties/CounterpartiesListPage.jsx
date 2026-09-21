@@ -323,7 +323,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
 
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)]  fixed left-[80px] top-[60px]">
+    <div className="w-[calc(100%_-_var(--sidebar-w))] flex h-[calc(100%-60px)]  fixed left-[var(--sidebar-w)] top-[60px]">
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(prev => !prev)}
@@ -695,7 +695,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
 
         {/* Footer */}
         <div className={cn(
-          'fixed bottom-0 right-0 left-20 bg-neutral-100 p-2 border-t border-neutral-200 flex items-center gap-8 shrink-0 z-10'
+          'fixed bottom-0 right-0 left-[var(--sidebar-w)] bg-neutral-100 p-2 border-t border-neutral-200 flex items-center gap-8 shrink-0 z-10'
         )}>
           <div className="text-sm text-slate-900">
             <span className="font-semibold text-slate-900 whitespace-nowrap">

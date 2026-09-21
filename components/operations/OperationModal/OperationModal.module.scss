@@ -1,6 +1,6 @@
 .overlay {
   position: fixed;
-  left: 80px;
+  left: var(--sidebar-w);
   top: 60px;
   right: 0;
   bottom: 0;

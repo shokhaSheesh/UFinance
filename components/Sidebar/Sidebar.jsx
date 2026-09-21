@@ -307,7 +307,7 @@ export const Sidebar = observer(() => {
 
   if (!mounted) {
     return (
-      <aside className="bg-blue-950 w-[80px] flex flex-col gap-2 h-screen  items-center justify-start fixed left-0">
+      <aside className="bg-blue-950 w-[var(--sidebar-w)] flex flex-col gap-2 h-screen  items-center justify-start fixed left-0">
         <nav className="flex flex-col w-full">
           <div className="mt-2 mx-auto ml-5 mb-4 w-11 h-11" />
         </nav>
@@ -317,7 +317,7 @@ export const Sidebar = observer(() => {
 
   return (
     <aside
-      className="bg-blue-950 w-[80px] flex flex-col gap-2  h-screen items-center justify-star  left-0 "
+      className="bg-blue-950 w-[var(--sidebar-w)] flex flex-col gap-2  h-screen items-center justify-star  left-0 "
       ref={sidebarRef}
     >
       <nav className="flex flex-col   w-full">
@@ -375,7 +375,7 @@ export const Sidebar = observer(() => {
                   </a>
                   {isSubmenuOpen && (
                     <div
-                      className="fixed left-[80px] z-[9999] block w-[200px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
+                      className="fixed left-[var(--sidebar-w)] z-[9999] block w-[200px] shadow-lg rounded-tr-lg rounded-br-lg p-2"
                       style={{
                         top: submenuPosition.top,
                         backgroundColor: "#162456",

@@ -422,7 +422,7 @@
   padding: 12px 24px;
   position: fixed;
   bottom: 0;
-  left: 80px;
+  left: var(--sidebar-w);
   right: 0;
   z-index: 30;
   transition: left 0.3s ease;

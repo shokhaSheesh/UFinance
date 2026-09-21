@@ -76,7 +76,7 @@ const CounterpartyDetailPage = observer(({ isStudent = false }) => {
       {detail.isLoading && <ScreenLoader />}
 
       {!detail.counterparty && !detail.isLoading && (
-        <div className="fixed h-[calc(100vh-60px)] top-[60px] left-[80px] right-0 bottom-0 overflow-y-auto">
+        <div className="fixed h-[calc(100vh-60px)] top-[60px] left-[var(--sidebar-w)] right-0 bottom-0 overflow-y-auto">
           <div className="flex-1 h-full flex flex-col">
             <div className="p-8 text-center text-gray-500">{t('notFound')}</div>
           </div>

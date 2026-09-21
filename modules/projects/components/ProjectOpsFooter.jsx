@@ -17,7 +17,7 @@ export default function ProjectOpsFooter({ td, summary, stats }) {
   const total = summary?.total || 0
 
   return (
-    <div className="fixed bottom-0 left-[80px] right-0 h-10 bg-neutral-100 border-t border-gray-200 flex items-center px-6 z-10">
+    <div className="fixed bottom-0 left-[var(--sidebar-w)] right-0 h-10 bg-neutral-100 border-t border-gray-200 flex items-center px-6 z-10">
       <div className="flex items-center gap-4 text-xs">
         <span className="text-gray-600">
           <span className="font-semibold text-slate-900">{total}</span> {plural(total, td, 'operations')}

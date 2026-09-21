@@ -4,7 +4,7 @@
   background-color: #f9fafb; // slate-50
   position: fixed;
     top: 60px;
-    left: 80px;
+    left: var(--sidebar-w);
     right: 0;
     bottom: 0;
 }

@@ -194,7 +194,7 @@ const Students = observer(() => {
   }, [monthsData, t, fullTotalMonths])
 
   return (
-    <div className="w-[calc(100%-80px)] flex h-[calc(100%-60px)] fixed left-[80px] top-[60px]">
+    <div className="w-[calc(100%_-_var(--sidebar-w))] flex h-[calc(100%-60px)] fixed left-[var(--sidebar-w)] top-[60px]">
       {(isLoadingStudents || isFetchingStudents || isPending) && !isScrolling && <ScreenLoader />}
       {isFetchingNextPage && !isScrolling && <ScreenLoader />}
       <FilterSidebar

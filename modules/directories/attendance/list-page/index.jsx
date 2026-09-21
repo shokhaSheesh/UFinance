@@ -65,7 +65,7 @@ const AttendanceReportPage = observer(() => {
   const hasMore = pagination ? pagination.page < pagination.totalPages : false
 
   return (
-    <div className="w-[calc(100%-80px)] flex flex-col h-[calc(100%-60px)] fixed left-[80px] top-[60px] bg-gray-ucode-50">
+    <div className="w-[calc(100%_-_var(--sidebar-w))] flex flex-col h-[calc(100%-60px)] fixed left-[var(--sidebar-w)] top-[60px] bg-gray-ucode-50">
       <div className="flex items-center justify-between gap-4 px-6 h-16 bg-white border-b border-gray-200 shrink-0">
         <h1 className="text-xl font-semibold text-gray-ucode-800 whitespace-nowrap">
           {t('title')}

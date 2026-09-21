@@ -165,7 +165,7 @@
 
 .submenu {
   position: fixed;
-  left: 80px;
+  left: var(--sidebar-w);
   background: #162456;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0 0.5rem 0.5rem 0;
