@@ -3143,6 +3143,11 @@
         "clients80": "Daromadlarning 80% dan ortig'ini keltiradigan mijozlar",
         "incomeShare": "Jamg'arma daromad ulushi, %",
         "clients20": "Daromadlarning 20% dan kamini keltiradigan mijozlar"
+      },
+      "legendShort": {
+        "clients80": "Daromadning 80% ini beradi",
+        "clients20": "Qolgan mijozlar",
+        "incomeShare": "Yig‘ma ulush, %"
       }
     },
     "students": {

@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL } from '../shared/chartTheme'
 import { cn } from '@/lib/utils'
 import { indicators } from '@/store/indicatos.store'
 import ReactECharts from 'echarts-for-react'
@@ -175,8 +176,6 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
         }]
     }), [stats])
 
-    const inteval = months?.length > 5000 ? 400 : months?.length > 1500 ? 300 : months?.length > 1000 ? 100 : months?.length > 500 ? 50 : 10
-
     const barOption = useMemo(() => {
         return {
             tooltip: {
@@ -217,13 +216,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                 data: months,
                 axisLine: { show: true, lineStyle: { color: '#e5e7eb' } },
                 axisTick: { show: false },
-                axisLabel: {
-                    color: '#111827',
-                    fontSize: 12,
-                    interval: inteval,   // ← stop forcing every label
-                    rotate: 40,         // ← tilt when crowded
-                    hideOverlap: true
-                }
+                axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 }
             },
             yAxis: {
                 type: 'value',
@@ -253,7 +246,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                 }
             })) || []
         }
-    }, [zoomRange, months, stats, inteval])
+    }, [zoomRange, months, stats])
 
 
     return (
@@ -303,7 +296,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
                         <ReactECharts
                             ref={chartRef}
                             option={barOption}
-                            style={{ height: '100%', width: 'fit' }}
+                            style={{ height: '100%', width: '100%' }}
                             opts={{ renderer: 'svg' }}
                         />
                     </div>

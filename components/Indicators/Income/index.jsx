@@ -1,5 +1,6 @@
 "use client"
 
+import { AXIS_LABEL } from '../shared/chartTheme'
 import { cn } from '@/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -196,8 +197,6 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
     }
   }, [stats])
 
-  const inteval = months?.length > 5000 ? 400 : months?.length > 1500 ? 300 : months?.length > 1000 ? 100 : months?.length > 500 ? 50 : 10
-
   const barOption = useMemo(() => {
     return {
       tooltip: {
@@ -245,13 +244,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
         data: months,
         axisLine: { show: true, lineStyle: { color: '#e5e7eb' } },
         axisTick: { show: false },
-        axisLabel: {
-          color: '#111827',
-          fontSize: 12,
-          interval: inteval,   // ← stop forcing every label
-          rotate: 40,         // ← tilt when crowded
-          hideOverlap: true
-        }
+        axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 }
       },
       yAxis: {
         type: 'value',
@@ -280,7 +273,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
         }
       }))
     }
-  }, [months, zoomRange, stats?.details, inteval, billion, million, thousand])
+  }, [months, zoomRange, stats?.details, billion, million, thousand])
 
 
   return (
@@ -340,7 +333,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
             <ReactECharts
               ref={chartRef}
               option={barOption}
-              style={{ height: '100%', width: 'fit' }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ renderer: 'svg' }}
             />
           </div>

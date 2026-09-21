@@ -113,49 +113,30 @@ const ProfitableClients = observer(() => {
       // ... tooltip, legend, grid, xAxis, yAxis — o'zgarishsiz ...
       tooltip: {
         trigger: 'item',
-        backgroundColor: 'transparent',
-        borderWidth: 0,
-        padding: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.97)',
+        borderColor: '#e2e8f0',
+        borderWidth: 1,
+        textStyle: { color: '#0f172a', fontSize: 12 },
         formatter: (params) => {
           if (params.value == null) return ''
-          const name = params.name
-          const value = params.value
           const percent = params.data?.percent
-          const bgColor = params.color || '#22c5fd'
-          const formattedValue = formatValue(value)
-          const percentText = percent ? `(${percent}%)` : ''
           return `
-          <div style="
-            background: ${bgColor};
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: sans-serif;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            min-width: 140px;
-          ">
-            <div style="font-size: 14px; margin-bottom: 4px; opacity: 0.95;">${name}</div>
-            <div style="font-size: 20px; font-weight: 600;">${formattedValue} ${percentText} ${GlobalCurrency?.name}</div>
-          </div>
-        `
+            <div style="font-weight: 600; margin-bottom: 4px;">${params.name}</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 8px; height: 8px; border-radius: 9999px; background: ${params.color};"></span>
+              <span style="font-weight: 600;">${formatValue(params.value)} ${GlobalCurrency?.name || ''}</span>
+              ${percent ? `<span style="color: #64748b;">${percent}%</span>` : ''}
+            </div>
+          `
         }
       },
-      legend: {
-        data: [
-          { name: clients80Label, icon: 'roundRect', itemStyle: { color: CHART_COLORS.income } },
-          { name: incomeShareLabel, icon: 'circle', itemStyle: { color: CHART_COLORS.accent } },
-          { name: clients20Label, icon: 'roundRect', itemStyle: { color: CHART_COLORS.secondary } },
-        ],
-        bottom: 0,
-        itemWidth: 12,
-        itemHeight: 12,
-        textStyle: { fontSize: 16 },
-      },
-      grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
+      legend: { show: false },
+      grid: { left: 8, right: 8, bottom: 8, top: 24, containLabel: true },
       xAxis: {
         type: 'category',
         data: names,
-        axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 30 },
+        // названия клиентов — горизонтально, длинные обрезаются «…» (полное — в подсказке)
+        axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0, width: 140, overflow: 'truncate' },
         axisLine: { lineStyle: { color: '#e2e8f0' } },
       },
       yAxis: [
@@ -180,14 +161,14 @@ const ProfitableClients = observer(() => {
           type: 'bar',
           stack: 'clients',
           data: blueSeriesData,
-          barWidth: '90%',
+          barMaxWidth: 72,
         },
         {
           name: clients20Label,
           type: 'bar',
           stack: 'clients',
           data: purpleSeriesData,
-          barWidth: '90%',
+          barMaxWidth: 72,
         },
         {
           name: incomeShareLabel,
@@ -208,10 +189,27 @@ const ProfitableClients = observer(() => {
     <div className=" flex flex-col relative">
       {/* Header with method toggle */}
       <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold text-slate-900">
-          {t('profitableClients.title')},
-          <span className="ml-1 text-slate-500" suppressHydrationWarning>{GlobalCurrency?.name || ''}</span>
-        </h2>
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <h2 className="text-lg font-semibold text-slate-900">
+            {t('profitableClients.title')},
+            <span className="ml-1 text-slate-500" suppressHydrationWarning>{GlobalCurrency?.name || ''}</span>
+          </h2>
+          {/* Короткая легенда под заголовком — раньше длинные подписи стояли внизу под графиком */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+            <span className="flex items-center gap-1.5" title={clients80Label}>
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: CHART_COLORS.income }} />
+              {t('profitableClients.legendShort.clients80')}
+            </span>
+            <span className="flex items-center gap-1.5" title={clients20Label}>
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: CHART_COLORS.secondary }} />
+              {t('profitableClients.legendShort.clients20')}
+            </span>
+            <span className="flex items-center gap-1.5" title={incomeShareLabel}>
+              <span className="h-0.5 w-3 rounded-full" style={{ background: CHART_COLORS.accent }} />
+              {t('profitableClients.legendShort.incomeShare')}
+            </span>
+          </div>
+        </div>
         {/* Раньше «Метод начисления» ставил cash, а «Кассовый метод» — несуществующий 'accural' */}
         <Segmented
           ariaLabel={t('profitableClients.title')}
@@ -239,7 +237,7 @@ const ProfitableClients = observer(() => {
             <ReactECharts
               ref={chartRef}
               option={option}
-              style={{ height: '500px', width: '100%' }}
+              style={{ height: '420px', width: '100%' }}
               opts={{ renderer: 'svg' }}
             />
           )}
