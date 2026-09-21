@@ -367,15 +367,37 @@ const htmlToText = (html) => {
 
 // Изменение ширины панели перетаскиванием
 const MIN_W = 340;
-const MAX_W = 1100;
+// Шире чат не растягивается: дальше таблицы страницы начинают сжиматься
+// до нечитаемого (обрезаются счета, контрагенты, суммы)
+const MAX_W = 620;
 const DEFAULT_W = 424;
 const WIDTH_KEY = "aiChatWidth";
-// С этой ширины окна панель встаёт рядом со страницей (сдвигает её), а не поверх
-const DOCK_MIN_VW = 1024;
 // Сколько места всегда оставляем странице рядом с панелью (плюс меню слева)
 const SIDEBAR_W = 80;
-const MIN_PAGE_W = 560;
-const isDockedViewport = () => typeof window !== "undefined" && window.innerWidth >= DOCK_MIN_VW;
+const MIN_PAGE_W = 740;
+// Рядом со страницей панель встаёт, только если обоим хватает места;
+// иначе — поверх страницы, как раньше
+const PAGE_EASE = "0.32s cubic-bezier(0.4, 0, 0.2, 1)"; // как у выезда самой панели
+
+/**
+ * Регистрирует --ai-w как длину, чтобы переменную можно было анимировать:
+ * страница плавно сужается, пока панель выезжает, и плавно возвращается.
+ * Делается из JS: сборщик CSS выбрасывает @property и transition по
+ * пользовательскому свойству из globals.css.
+ */
+let aiWidthRegistered = false;
+const registerAiWidth = () => {
+  if (aiWidthRegistered || typeof window === "undefined") return;
+  aiWidthRegistered = true;
+  try {
+    window.CSS?.registerProperty?.({ name: "--ai-w", syntax: "<length>", inherits: true, initialValue: "0px" });
+  } catch {
+    /* уже зарегистрировано (горячая перезагрузка) */
+  }
+};
+
+const isDockedViewport = () =>
+  typeof window !== "undefined" && window.innerWidth >= SIDEBAR_W + MIN_PAGE_W + MIN_W;
 const clampWidth = (w) => {
   if (typeof window === "undefined") return w;
   const vw = window.innerWidth;
@@ -466,6 +488,14 @@ const AiChatPanel = observer(() => {
   }, []);
 
   useEffect(() => {
+    registerAiWidth();
+    document.documentElement.style.transition = `--ai-w ${PAGE_EASE}`;
+    return () => {
+      document.documentElement.style.transition = "";
+    };
+  }, []);
+
+  useEffect(() => {
     document.documentElement.style.setProperty(
       "--ai-w",
       isOpen && docked && appStore.isAiActive ? `${panelWidth}px` : "0px"
@@ -489,6 +519,8 @@ const AiChatPanel = observer(() => {
   const startResize = (e) => {
     e.preventDefault();
     setResizing(true);
+    // пока тянем край — без анимации ширины страницы, иначе она отстаёт от курсора
+    document.documentElement.style.transition = "none";
     document.body.style.userSelect = "none";
     document.body.style.cursor = "ew-resize";
     const onMove = (ev) => {
@@ -498,6 +530,7 @@ const AiChatPanel = observer(() => {
     };
     const onUp = () => {
       setResizing(false);
+      document.documentElement.style.transition = `--ai-w ${PAGE_EASE}`;
       document.body.style.userSelect = "";
       document.body.style.cursor = "";
       window.removeEventListener("pointermove", onMove);
