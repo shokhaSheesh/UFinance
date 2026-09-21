@@ -15,7 +15,7 @@ export default function PurchasesTableHeader({ t }) {
       </div>
       <div className="w-24 flex px-2 items-center justify-end">{tp('table.received')}</div>
       <div className="w-24 flex px-2 items-center justify-end">{tp('table.shipped')}</div>
-      <div className="w-[144px] shrink-0" aria-hidden="true"></div>
+      <div className="w-20 shrink-0" aria-hidden="true"></div>
     </div>
   )
 }

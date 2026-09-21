@@ -520,7 +520,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             <div className='w-32 flex px-2 items-center justify-end whitespace-nowrap'>
               {filters.calculationMethod === 'Cashflow' ? t('list.tableHeaders.difference') : t('list.tableHeaders.profit')}
             </div>
-            <div className='w-[112px] shrink-0'>&nbsp;</div>
+            <div className='w-10 flex px-2 items-center justify-center'>&nbsp;</div>
           </>
         </div>
 
@@ -586,7 +586,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                           ? (item?.difference === 0 ? '0' : formatAmount(item.difference))
                           : (item?.profit === 0 ? '0' : formatAmount(item.profit))}
                       </div>
-                      <div className="w-[112px] shrink-0 flex items-center justify-end pr-2 group" onClick={(e) => e.stopPropagation()}>
+                      <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                         <GroupMenu
                           group={item}
                           onEdit={(group) => setEditingGroup(group)}
@@ -640,7 +640,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                               ? (counterparty?.difference === 0 ? '0' : formatAmount(counterparty?.difference))
                               : (counterparty?.profit === 0 ? '0' : formatAmount(counterparty?.profit))}
                           </div>
-                          <div className="w-[112px] shrink-0 flex items-center justify-end pr-2 group" onClick={(e) => e.stopPropagation()}>
+                          <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                             <CounterpartyMenu
                               counterparty={counterparty}
                               onEdit={(cp) => setEditingCounterparty(cp)}
@@ -690,7 +690,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                         ? (item?.difference === 0 ? '0' : formatAmount(item?.difference))
                         : (item?.profit === 0 ? '0' : formatAmount(item?.profit))}
                     </div>
-                    <div className="w-[112px] shrink-0 flex items-center justify-end pr-2 group" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-10 flex px-2 items-center justify-center group" onClick={(e) => e.stopPropagation()}>
                       <CounterpartyMenu
                         counterparty={item}
                         onEdit={(cp) => setEditingCounterparty(cp)}

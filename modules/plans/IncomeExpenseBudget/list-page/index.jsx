@@ -16,7 +16,7 @@ import {
 } from '@/modules/plans/hooks/useBudgets'
 import { appStore } from '@/store/app.store'
 import { observer } from 'mobx-react-lite'
-import { ChevronDown, Loader2, Plus, Search } from 'lucide-react'
+import { ChevronDown, EllipsisVertical, Loader2, Plus, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -164,7 +164,8 @@ const IncomeExpenseBudget = () => {
           {t('columns.modifiedDate')}
           {renderSortIcon('modifiedDate')}
         </div>
-        <div className="w-[88px] shrink-0 px-3 py-2">
+        <div className="w-[50px] flex justify-center px-3 py-2">
+          <EllipsisVertical className="w-4 h-4 text-gray-400" />
         </div>
       </div>
 
@@ -218,7 +219,7 @@ const IncomeExpenseBudget = () => {
                   {item.modifiedDate || '—'}
                 </div>
                 <div
-                  className="w-[88px] shrink-0 px-2 py-3 flex justify-end"
+                  className="w-[50px] px-4 py-3 flex justify-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <BudgetRowMenu

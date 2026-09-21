@@ -1,8 +1,16 @@
 "use client";
 
-import RowActions from "@/components/shared/RowActions/RowActions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { cn } from "@/lib/utils";
 import { Copy, Pencil, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import moment from "moment";
 import { useTranslations } from "next-intl";
 import { appStore } from "../../../store/app.store";
 import { areDatesAllowed } from "../../../utils/dataEditingRestriction";
@@ -75,17 +83,71 @@ export const OperationMenu = observer(
       if (onCopy) onCopy(operation);
     };
 
-    // Действия — кнопками прямо в строке, без меню «три точки».
-    // Даты создания и изменения, которые были внизу меню, показывает шапка
-    // окна редактирования.
+    if (!canEdit && !canDelete && !canAdd) {
+      return null;
+    }
+
     return (
-      <RowActions
-        actions={[
-          { key: "edit", icon: Pencil, label: t("menu.edit"), onClick: handleEdit, hidden: !canEdit },
-          { key: "copy", icon: Copy, label: t("menu.copy"), onClick: handleCopy, hidden: !canAdd },
-          { key: "delete", icon: Trash2, label: t("menu.delete"), onClick: handleDelete, hidden: !canDelete, danger: true },
-        ]}
-      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40 p-2" align="end">
+          {canEdit && (
+            <DropdownMenuItem>
+              <button
+                className={cn(
+                  "w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start"
+                )}
+                onClick={handleEdit}
+              >
+                <Pencil size={16} />
+                <span>{t("menu.edit")}</span>
+              </button>
+            </DropdownMenuItem>
+          )}
+          {canAdd && (
+            <DropdownMenuItem>
+              <button
+                className={cn(
+                  "w-full flex items-center cursor-pointer text-sm gap-2  justify-start"
+                )}
+                onClick={handleCopy}
+              >
+                <Copy size={16} />
+                <span>{t("menu.copy")}</span>
+              </button>
+            </DropdownMenuItem>
+          )}
+          {canDelete && (
+            <DropdownMenuItem>
+              <button
+                className={cn(
+                  "w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start"
+                )}
+                onClick={handleDelete}
+              >
+                <Trash2 size={16} className="text-red-500" />
+                <span>{t("menu.delete")}</span>
+              </button>
+            </DropdownMenuItem>
+          )}
+          <div className="border-t border-neutral-200 pt-2 text-[9px] text-neutral-400">
+            <p className="line-clamp-1">
+              {t("menu.createdLabel")}{" "}
+              {operation?.createdAt &&
+                moment(operation?.createdAt).format("MMM, DD YYYY HH:mm")}
+            </p>
+            <p className="line-clamp-1">{operation?.createdBy || ""}</p>
+            <p className="line-clamp-1">
+              {t("menu.updatedLabel")}{" "}
+              {operation?.updatedAt &&
+                moment(operation?.updatedAt).format("MMM, DD YYYY HH:mm")}
+            </p>
+            <p className="line-clamp-1">{operation?.updatedBy || ""}</p>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 );

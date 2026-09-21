@@ -1,8 +1,16 @@
-import RowActions from '@/components/shared/RowActions/RowActions'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { ExpendClose, ExpendOpen } from "@/constants/icons";
+import { cn } from "@/lib/utils";
 import { formatNumber } from "@/utils/helpers";
-import { Copy, Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from "lucide-react";
 import React from "react";
+import { IoCopyOutline } from "react-icons/io5";
 
 const ProductServiceGroupRow = ({
   group,
@@ -49,12 +57,39 @@ const ProductServiceGroupRow = ({
       <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
         {group?.guid !== "no-group" &&
           (permissions.edit || permissions.delete) && (
-            <RowActions
-              actions={[
-                { key: 'edit', icon: Pencil, label: tc("edit"), onClick: () => onEditGroup(group), hidden: !(permissions.edit) },
-                { key: 'delete', icon: Trash2, label: tc("delete"), onClick: () => onDeleteGroup(group), hidden: !(permissions.delete), danger: true },
-              ]}
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-40 p-2" align="end">
+                {permissions.edit && (
+                  <DropdownMenuItem asChild>
+                    <button
+                      className={cn(
+                        "w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none"
+                      )}
+                      onClick={() => onEditGroup(group)}
+                    >
+                      <Pencil size={16} />
+                      <span>{tc("edit")}</span>
+                    </button>
+                  </DropdownMenuItem>
+                )}
+                {permissions.delete && (
+                  <DropdownMenuItem asChild>
+                    <button
+                      className={cn(
+                        "w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none"
+                      )}
+                      onClick={() => onDeleteGroup(group)}
+                    >
+                      <Trash2 size={16} className="text-red-500" />
+                      <span>{tc("delete")}</span>
+                    </button>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
       </td>
     </tr>
@@ -97,13 +132,52 @@ const ProductServiceGroupRow = ({
           </td>
           <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
             {(permissions.edit || permissions.delete || permissions.add) && (
-              <RowActions
-                actions={[
-                  { key: 'edit', icon: Pencil, label: tc("edit"), onClick: () => onEditItem(child), hidden: !(permissions.edit) },
-                  { key: 'copy', icon: Copy, label: tc("copy"), onClick: () => onCopyItem(child), hidden: !(permissions.add) },
-                  { key: 'delete', icon: Trash2, label: tc("delete"), onClick: () => onDeleteItem(child), hidden: !(permissions.delete), danger: true },
-                ]}
-              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40 p-2" align="end">
+                  {permissions.edit && (
+                    <DropdownMenuItem asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none"
+                        )}
+                        onClick={() => onEditItem(child)}
+                      >
+                        <Pencil size={16} />
+                        <span>{tc("edit")}</span>
+                      </button>
+                    </DropdownMenuItem>
+                  )}
+                  {permissions.add && (
+                    <DropdownMenuItem asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none"
+                        )}
+                        onClick={() => onCopyItem(child)}
+                      >
+                        <IoCopyOutline size={16} />
+                        <span>{tc("copy")}</span>
+                      </button>
+                    </DropdownMenuItem>
+                  )}
+                  {permissions.delete && (
+                    <DropdownMenuItem asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none"
+                        )}
+                        onClick={() => onDeleteItem(child)}
+                      >
+                        <Trash2 size={16} className="text-red-500" />
+                        <span>{tc("delete")}</span>
+                      </button>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </td>
         </tr>

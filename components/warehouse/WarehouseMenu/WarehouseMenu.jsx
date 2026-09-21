@@ -1,6 +1,13 @@
 'use client'
 
-import RowActions from '@/components/shared/RowActions/RowActions'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import { cn } from '@/lib/utils'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -11,11 +18,34 @@ export default function WarehouseMenu({ warehouse, onEdit, onDelete, canEdit = t
   if (!canEdit && !canDelete) return null
 
   return (
-    <RowActions
-      actions={[
-        { key: 'edit', icon: Pencil, label: t('tooltips.edit'), onClick: () => onEdit?.(warehouse), hidden: !canEdit },
-        { key: 'delete', icon: Trash2, label: t('tooltips.delete'), onClick: () => onDelete?.(warehouse), hidden: !canDelete, danger: true },
-      ]}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+          <RowActionsTrigger />
+        </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40 p-2" align="end">
+        {canEdit && (
+          <DropdownMenuItem asChild>
+            <button
+              className={cn('w-full flex items-center cursor-pointer text-sm gap-2 pb-2 justify-start outline-none')}
+              onClick={() => onEdit?.(warehouse)}
+            >
+              <Pencil size={16} />
+              <span>{t('tooltips.edit')}</span>
+            </button>
+          </DropdownMenuItem>
+        )}
+        {canDelete && (
+          <DropdownMenuItem asChild>
+            <button
+              className={cn('w-full flex items-center text-red-500 cursor-pointer text-sm gap-2 justify-start outline-none')}
+              onClick={() => onDelete?.(warehouse)}
+            >
+              <Trash2 size={16} className="text-red-500" />
+              <span>{t('tooltips.delete')}</span>
+            </button>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

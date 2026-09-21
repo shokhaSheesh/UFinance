@@ -1,5 +1,11 @@
 'use client'
-import RowActions from '@/components/shared/RowActions/RowActions'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import OperationModal from '@/components/operations/OperationModal/OperationModal'
 import { applyCopyDates } from '@/utils/operationCopy'
 import { useDeleteOperation } from '@/hooks/useDashboard'
@@ -9,9 +15,11 @@ import operationDto from '@/lib/dtos/operationDto'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { formatAmount } from '@/utils/helpers'
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Copy, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { IoCopyOutline } from 'react-icons/io5'
+import { MdOutlineModeEdit } from 'react-icons/md'
 
 import CustomDialog from '@/components/shared/CustomDialog'
 import ScreenLoader from '@/components/shared/ScreenLoader'
@@ -265,13 +273,37 @@ const ExpenseOperationsTable = observer(({ sellingDealId, onAdd, canAdd, canEdit
                         )}
                         <div className='flex items-center' onClick={(e) => e.stopPropagation()}>
                           {canEdit || rowCanDelete || rowCanEdit && (
-                            <RowActions
-                              actions={[
-                                { key: 'edit', icon: Pencil, label: tc('edit'), onClick: (e) => { e.stopPropagation(); handleEditOperation(item); }, hidden: !(rowCanEdit) },
-                                { key: 'copy', icon: Copy, label: tc('copy'), onClick: (e) => { e.stopPropagation(); handleCopyOperation(item); }, hidden: !(canEdit) },
-                                { key: 'delete', icon: Trash2, label: tc('delete'), onClick: (e) => { e.stopPropagation(); handleDeleteOperation(item); }, hidden: !(rowCanDelete), danger: true },
-                              ]}
-                            />
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <RowActionsTrigger />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-44 p-1.5" align="end">
+              {rowCanEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleEditOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <MdOutlineModeEdit size={15} /> <span>{tc('edit')}</span>
+                </DropdownMenuItem>
+              )}
+              {canEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleCopyOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none"
+                >
+                  <IoCopyOutline size={15} /> <span>{tc('copy')}</span>
+                </DropdownMenuItem>
+              )}
+              {rowCanDelete && (
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); handleDeleteOperation(item); }}
+                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-1.5 rounded-md outline-none text-red-600"
+                >
+                  <Trash2 size={15} /> <span>{tc('delete')}</span>
+                </DropdownMenuItem>
+              )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           )}
                         </div></div>
                     </td>

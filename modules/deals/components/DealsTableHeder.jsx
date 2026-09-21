@@ -21,7 +21,7 @@ export default function DealsTableHeader({ t }) {
         <span>{t('table.profit')}</span>
         <span>{GlobalCurrency?.name}</span>
       </div>
-      <div className="w-[176px] shrink-0" aria-hidden="true"></div>
+      <div className="w-10 shrink-0" aria-hidden="true"></div>
     </div>
   )
 }
