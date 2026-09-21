@@ -1,8 +1,8 @@
 'use client'
 
+import BackLink from '@/components/shared/BackLink/BackLink'
 import Input from '@/components/shared/Input'
 import { Search } from 'lucide-react'
-import { useRouter } from '@/hooks/useAppRouter'
 
 const WarehouseDetailHeader = ({
   t,
@@ -13,20 +13,10 @@ const WarehouseDetailHeader = ({
   onOpenInventory,
   onOpenTransfers,
 }) => {
-  const router = useRouter()
-
   return (
     <div className="shrink-0 bg-white">
-      <div className="px-6 pt-4 text-sm">
-        <button
-          type="button"
-          onClick={() => router.push('/warehouse')}
-          className="text-neutral-400 hover:text-neutral-600 transition-colors cursor-pointer"
-        >
-          {t('pageTitle')}
-        </button>
-        <span className="text-neutral-300 mx-1.5">/</span>
-        <span className="text-neutral-800 font-medium">{warehouseName}</span>
+      <div className="px-6 pt-4">
+        <BackLink href="/warehouse" label={t('pageTitle')} />
       </div>
       <div className="flex items-center justify-between gap-4 px-6 pt-1.5 pb-4">
         <h1 className="text-xl font-bold text-neutral-800 truncate">{warehouseName || t('pageTitle')}</h1>

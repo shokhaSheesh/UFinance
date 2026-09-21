@@ -77,7 +77,7 @@ const CommentChat = ({ dealGuid, variant = 'sale' }) => {
   const hasContent = messages.length > 0 || attachedFiles.length > 0;
 
   return (
-    <div className="flex w-full flex-col h-full bg-white rounded-lg shadow-[0_10px_10px_rgba(118,164,172,0.1)] max-h-[500px] border border-gray-100/50">
+    <div className="flex w-full flex-col h-full bg-white rounded-xl max-h-[500px] border border-slate-200">
       {/* Header */}
       <div className="p-5 border-b border-gray-100 inline-flex items-center justify-between">
         <h3 className="text-sm font-bold text-gray-800 tracking-wider">{t('title')}</h3>

@@ -25,7 +25,8 @@ export default function KpiCard({ label, value, currency, hint, icon: Icon, tone
       {...(onClick && { type: 'button', onClick, 'aria-pressed': active })}
       className={cn(
         'flex min-w-0 flex-col gap-1 rounded-xl border bg-white px-4 py-3.5 text-left',
-        active ? 'border-[#0e73f6] ring-1 ring-[#0e73f6]' : 'border-slate-200',
+        // выбранная — ровная рамка 2px со всех сторон (внутренняя тень, не внешнее кольцо)
+        active ? 'border-[#0e73f6] shadow-[inset_0_0_0_1px_#0e73f6]' : 'border-slate-200',
         onClick && 'cursor-pointer transition-colors hover:border-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
         onClick && active && 'hover:border-[#0e73f6]',
         className

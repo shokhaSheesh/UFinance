@@ -121,7 +121,7 @@ const RoleDetailPage = () => {
       onSubmit={handleSubmit(onSubmit)}
       className="bg-white w-full h-full flex flex-col overflow-auto"
     >
-      <RoleDetailHeader title={tr('permissions.title')} roleName={roleName} />
+      <RoleDetailHeader title={tr('permissions.title')} roleName={roleName} backLabel={tr('pageTitle')} />
 
       {/* Настройки роли общие для обеих вкладок, поэтому живут над табами */}
       <div className="px-4">

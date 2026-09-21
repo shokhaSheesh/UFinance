@@ -79,7 +79,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 18px rgba(118, 164, 172, 0.1);
+  border: 1px solid #e2e8f0;
 
 }
 
@@ -433,7 +433,7 @@
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 18px rgba(118, 164, 172, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 /* Tabs */
@@ -756,7 +756,7 @@
   align-self: start;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 18px rgba(118, 164, 172, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .commentsSectionTitle {

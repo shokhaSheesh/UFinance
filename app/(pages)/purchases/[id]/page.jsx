@@ -1,5 +1,7 @@
 "use client";
 
+import BackLink from '@/components/shared/BackLink/BackLink'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { CreateDealModal } from "@/components/deals/CreateDealModal/CreateDealModal";
 import { DeleteDealModal } from "@/components/deals/DeleteDealModal/DeleteDealModal";
 import CommentChat from "@/components/deals/details/CommentChat";
@@ -44,7 +46,6 @@ import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronUp,
   CirclePlus,
-  Ellipsis,
   FileDown,
   Loader2,
   Pencil,
@@ -247,22 +248,13 @@ export default observer(function PurchaseDetailPage() {
   return (
     <FixedContent className="flex overflow-hidden overflow-y-auto  flex-col space-y-4">
       {isLoading && <ScreenLoader />}
-      {/* Breadcrumbs */}
-      <div className="px-3 py-2 bg-white sticky top-0 z-10">
-        <button
-          onClick={() => router.push("/deals/purchase")}
-          className={styles.breadcrumbLink}
-        >
-          {tp("backToList")}
-        </button>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>
-          {deal?.name || t("noName")}
-        </span>
+      {/* Назад к списку — как на остальных детальных страницах */}
+      <div className="px-6 pt-4">
+        <BackLink href="/deals/purchase" label={tp("backToList")} />
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between px-3 ">
+      <div className="flex items-center justify-between px-6">
         <div className={styles.header}>
           <h1 className={styles.title}>{deal?.name || t("noName")}</h1>
         </div>
@@ -270,16 +262,14 @@ export default observer(function PurchaseDetailPage() {
           {appStore.isWLCMPayment && (
             <button
               onClick={() => setOpenPayment(true)}
-              className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md"
+              className="primary-btn"
             >
               {tc("pay")}
             </button>
           )}
           <Popover>
               <PopoverTrigger asChild>
-                <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
-                  <Ellipsis size={18} className="text-neutral-800" />
-                </span>
+                <RowActionsTrigger />
               </PopoverTrigger>
               <PopoverContent
                 className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1"
@@ -324,11 +314,11 @@ export default observer(function PurchaseDetailPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="min-w-[920px] max-w-[1920px] gap-2 xl:gap-4 px-3 grid grid-cols-3">
+      <div className="min-w-[920px] max-w-[1920px] gap-3 px-6 pb-6 grid grid-cols-3">
         {/* Card 1: Deal Amount */}
         <div
           className={
-            "bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)]"
+            "bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200"
           }
         >
           <div className="flex items-center justify-between">
@@ -407,7 +397,7 @@ export default observer(function PurchaseDetailPage() {
         </div>
 
         {/* Card 2: Receipts */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
+        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">
               Выплаты поставщику
@@ -477,7 +467,7 @@ export default observer(function PurchaseDetailPage() {
         </div>
 
         {/* Card 3: Shipments */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
+        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">
               Поставки
@@ -541,34 +531,34 @@ export default observer(function PurchaseDetailPage() {
         </div>
 
         {/* Main Content Layout */}
-        <div className="col-span-2 bg-white rounded-xl shadow-[0_10px_10px_rgba(118,164,172,0.1)]">
-          <div className="flex flex-col sticky top-16 z-10  ">
+        <div className="col-span-2 bg-white rounded-xl border border-slate-200">
+          <div className="flex flex-col sticky top-0 z-10  ">
             <div className="flex  border-b h-16 border-neutral-100 rounded-t-xl  mb-0">
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${
                   activeTab === "products"
-                    ? "text-neutral-900 border-neutral-900 font-bold"
-                    : "text-neutral-400 border-transparent"
+                    ? "text-slate-900 border-[#0e73f6] font-bold"
+                    : "text-slate-400 border-transparent"
                 }`}
                 onClick={() => setActiveTab("products")}
               >
                 {t("tabs.products")}
               </button>
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${
                   activeTab === "payments"
-                    ? "text-neutral-900 border-neutral-900 font-bold"
-                    : "text-neutral-400 border-transparent"
+                    ? "text-slate-900 border-[#0e73f6] font-bold"
+                    : "text-slate-400 border-transparent"
                 }`}
                 onClick={() => setActiveTab("payments")}
               >
                 Выплаты
               </button>
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${
                   activeTab === "supplies"
-                    ? "text-neutral-900 border-neutral-900 font-bold"
-                    : "text-neutral-400 border-transparent"
+                    ? "text-slate-900 border-[#0e73f6] font-bold"
+                    : "text-slate-400 border-transparent"
                 }`}
                 onClick={() => setActiveTab("supplies")}
               >

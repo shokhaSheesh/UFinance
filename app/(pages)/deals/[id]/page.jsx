@@ -1,5 +1,7 @@
 'use client'
 
+import BackLink from '@/components/shared/BackLink/BackLink'
+import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { CreateDealModal } from '@/components/deals/CreateDealModal/CreateDealModal';
 import { DeleteDealModal } from '@/components/deals/DeleteDealModal/DeleteDealModal';
 import CommentChat from '@/components/deals/details/CommentChat';
@@ -31,7 +33,7 @@ import { appStore } from '@/store/app.store';
 import { sealDeal } from '@/store/saleDeal.store';
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { ChevronUp, CirclePlus, Ellipsis, FileDown, Loader2, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
+import { ChevronUp, CirclePlus, FileDown, Loader2, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation'
@@ -224,27 +226,21 @@ export default observer(function DealDetailPage() {
   return (
     <FixedContent className="flex overflow-hidden overflow-y-auto  flex-col space-y-4">
       {isLoading && <ScreenLoader />}
-      {/* Breadcrumbs */}
-      <div className="px-3 py-2 bg-white sticky top-0 z-10">
-        <button onClick={() => router.push('/deals/selling')} className={styles.breadcrumbLink}>
-          {t('backToList')}
-        </button>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>{deal?.name || t('noName')}</span>
+      {/* Назад к списку — как на остальных детальных страницах */}
+      <div className="px-6 pt-4">
+        <BackLink href="/deals/selling" label={t('backToList')} />
       </div>
 
       {/* Header */}
-      <div className='flex items-center justify-between px-3 '>
+      <div className="flex items-center justify-between px-6">
         <div className={styles.header}>
           <h1 className={styles.title}>{deal?.name || t('noName')}</h1>
         </div>
         <div className='flex items-center gap-2'>
-          {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="px-4 py-2 cursor-pointer hover:bg-primary-dark bg-blue-500 text-white rounded-md">{tc('pay')}</button>}
+          {appStore.isWLCMPayment && <button onClick={() => setOpenPayment(true)} className="primary-btn">{tc('pay')}</button>}
           <Popover>
             <PopoverTrigger asChild>
-              <span className="w-10 h-10 rounded-md cursor-pointer border flex items-center justify-center p-2 bg-white">
-                <Ellipsis size={18} className='text-neutral-800' />
-              </span>
+              <RowActionsTrigger />
             </PopoverTrigger>
             <PopoverContent className="w-40 rounded-md overflow-hidden p-0 border border-gray-50! ring ring-neutral-100 bg-white shadow-md mt-1" align="end">
               <div className="flex flex-col">
@@ -282,9 +278,9 @@ export default observer(function DealDetailPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="min-w-[920px] max-w-[1920px] gap-2 xl:gap-4 px-3 grid grid-cols-4">
+      <div className="min-w-[920px] max-w-[1920px] gap-3 px-6 pb-6 grid grid-cols-4">
         {/* Card 1: Deal Amount */}
-        <div className={'bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)]'}>
+        <div className={'bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200'}>
           <div className="flex items-center justify-between">
             <p className='text-base xl:text-xl flex gap-1 font-semibold text-neutral-800 mt-2 truncate'>
               <span className="truncate">{formatNumber(formatTotalSumma(summeryCards?.total_products_summa))}</span>
@@ -337,7 +333,7 @@ export default observer(function DealDetailPage() {
         </div>
 
         {/* Card 2: Receipts */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
+        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.receipts')}</span>
             {incomePermission && <button onClick={() => { handleCreateOperation(); setActiveTab('receipts'); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
@@ -371,7 +367,7 @@ export default observer(function DealDetailPage() {
         </div>
 
         {/* Card 3: Shipments */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
+        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-2">{t('cards.shipments')}</span>
             {paymentPermission && <button onClick={() => { setIsReturnMode(false); setShowShipmentModal(true); }} className="bg-transparent border-none cursor-pointer p-0 flex items-center justify-center transition-opacity hover:opacity-70 shrink-0">
@@ -402,7 +398,7 @@ export default observer(function DealDetailPage() {
         </div>
 
         {/* Card 4: Profit */}
-        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col shadow-[0_8px_18px_rgba(118,164,172,0.1)] overflow-hidden">
+        <div className="bg-white rounded-xl p-4 xl:p-6 flex flex-col border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between mb-2 xl:mb-4">
             <span className="font-semibold text-sm xl:text-base text-gray-ucode-800 truncate pr-1">{t('cards.profit')}</span>
             <Popover open={showAccounting} onOpenChange={setShowAccounting}>
@@ -462,32 +458,32 @@ export default observer(function DealDetailPage() {
         </div>
         {/* Main Content Layout */}
         {/* Left side - Tabs and content */}
-        <div className="col-span-3 bg-white rounded-xl shadow-[0_10px_10px_rgba(118,164,172,0.1)]">
-          <div className='flex flex-col sticky top-16 z-10  '>
+        <div className="col-span-3 bg-white rounded-xl border border-slate-200">
+          <div className='flex flex-col sticky top-0 z-10  '>
             <div className="flex  border-b h-16 border-neutral-100 rounded-t-xl  mb-0">
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'products' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${activeTab === 'products' ? 'text-slate-900 border-[#0e73f6] font-bold' : 'text-slate-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('products')}
               >
                 {t('tabs.products')} ({summeryCards?.products_count ?? 0})
               </button>
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'receipts' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${activeTab === 'receipts' ? 'text-slate-900 border-[#0e73f6] font-bold' : 'text-slate-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('receipts')}
               >
                 {t('tabs.receipts')} ({summeryCards?.receipts_count ?? 0})
               </button>
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'expenses' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${activeTab === 'expenses' ? 'text-slate-900 border-[#0e73f6] font-bold' : 'text-slate-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('expenses')}
               >
                 {t('tabs.expenses')} ({summeryCards?.expenses_count ?? 0})
               </button>
               <button
-                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 cursor-pointer uppercase border-b-2 bg-transparent border-none relative transition-all hover:text-neutral-800 truncate ${activeTab === 'shipments' ? 'text-neutral-900 border-neutral-900 font-bold' : 'text-neutral-400 border-transparent'
+                className={`font-semibold text-mini xl:text-xs px-3 xl:px-5 py-3 xl:py-4 -mb-px cursor-pointer uppercase border-0 border-b-2 border-solid bg-transparent relative transition-all hover:text-neutral-800 truncate ${activeTab === 'shipments' ? 'text-slate-900 border-[#0e73f6] font-bold' : 'text-slate-400 border-transparent'
                   }`}
                 onClick={() => setActiveTab('shipments')}
               >

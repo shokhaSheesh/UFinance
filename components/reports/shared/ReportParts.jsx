@@ -119,7 +119,7 @@ export function ReportSummaryStrip({ items = [], currency, firstLabel, lastLabel
             key={item.key}
             className={cn(
               'flex min-w-0 flex-col gap-2 rounded-xl border bg-white px-4 py-3.5',
-              item.emphasis ? 'border-[#0e73f6]/40 ring-1 ring-[#0e73f6]/15' : 'border-slate-200'
+              item.emphasis ? 'border-[#0e73f6]/50 bg-[#f8fbff]' : 'border-slate-200'
             )}
           >
             <span className="truncate text-sm font-medium text-slate-600" title={item.name}>

@@ -1,5 +1,6 @@
 'use client'
 
+import BackLink from '@/components/shared/BackLink/BackLink'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import {
@@ -12,7 +13,6 @@ import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
 import { Check, ChevronDown, ChevronRight } from 'lucide-react'
 import HintQuestion from '@/components/shared/HintQuestion'
-import Link from 'next/link'
 import moment from 'moment'
 import styles from '../projects.module.scss'
 
@@ -63,14 +63,12 @@ export default function ProjectDetailHeader({
   return (
     <div className="px-6 pt-4 bg-white">
       {/* Хлебные крошки */}
-      <div className="flex items-center gap-1 text-xs text-neutral-500 mb-3">
-        <Link href="/projects" className="hover:text-primary transition-colors">
-          {td('allProjects')}
-        </Link>
+      <div className="mb-3 flex items-center gap-2">
+        <BackLink href="/projects" label={td('allProjects')} />
         {groupName && (
           <>
-            <ChevronRight size={13} className="text-neutral-300" />
-            <span className="text-neutral-600">{groupName}</span>
+            <ChevronRight size={13} className="text-slate-300" />
+            <span className="text-sm text-slate-600">{groupName}</span>
           </>
         )}
       </div>
