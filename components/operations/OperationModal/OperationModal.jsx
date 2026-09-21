@@ -2,10 +2,12 @@
 
 import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from '@/lib/utils'
-import { Clock, X } from 'lucide-react'
+import { Clock, MessageSquareText, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import OperationTypeIcon from '../OperationTypeIcon/OperationTypeIcon'
 import useMounted from '../../../hooks/useMounted'
 import { useOperationComments } from '../../../hooks/useOperationComments'
 import { appStore } from '../../../store/app.store'
@@ -64,6 +66,16 @@ const OperationModal = observer(({
 	}, [initialTab, modalType])
 
 	const [activeTab, setActiveTab] = useState(() => getTabType(operationData))
+	const [commentsOpen, setCommentsOpen] = useState(false)
+
+	// Esc закрывает окно
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === 'Escape') onClose()
+		}
+		document.addEventListener('keydown', handleKeyDown)
+		return () => document.removeEventListener('keydown', handleKeyDown)
+	}, [onClose])
 
 	// Update active tab when operationData changes (for editing)
 	useEffect(() => {
@@ -85,73 +97,114 @@ const OperationModal = observer(({
 
 	if (!mounted) return null
 
-	return (
-		<>
-			{/* Overlay and Modal Container */}
-			<div className={cn('fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w))]  h-[calc(100%-60px)] right-0 bottom-0 flex justify-end bg-black/50 z-1000 transition-opacity duration-300', isClosing ? 'opacity-0' : 'opacity-100')}>
-				<SentMessages
-					messages={comments.messages}
-					text={comments.text}
-					attachedFiles={comments.attachedFiles}
-					editingId={comments.editingId}
-					editText={comments.editText}
-					editFiles={comments.editFiles}
-					deleteTargetId={comments.deleteTargetId}
-					onTextChange={comments.setText}
-					onFileChange={comments.handleFileChange}
-					onRemoveAttach={comments.handleRemoveAttach}
-					onSend={comments.handleSend}
-					onKeyDown={comments.handleKeyDown}
-					onEdit={comments.handleEdit}
-					onEditChange={comments.setEditText}
-					onEditFileChange={comments.handleEditFileChange}
-					onEditConfirm={comments.handleEditConfirm}
-					onEditCancel={comments.handleEditCancel}
-					onDelete={comments.handleDeleteRequest}
-					onDeleteConfirm={comments.handleDeleteConfirm}
-					onDeleteCancel={comments.handleDeleteCancel}
-				/>
-				<div className="min-w-[600px]! max-w-[900px]! h-full bg-white p-4 flex flex-col transition-transform duration-300">
-					<div className="flex items-center justify-between mb-2">
-						<div className="flex items-center gap-2">
-							<h2 className="text-lg font-bold text-neutral-900">
-								{isNew ? t('modal.createTitle') : t('modal.editTitle')}
-							</h2>
-							{!isNew && (
-								<div className="flex items-center gap-1 text-sm text-neutral-600">
-									<Clock size={15} />
-									<span>{t('modal.createdAt', { date: formatDateRu(operationData?.createdAt) || '—' })}</span>
-								</div>
-							)}
+	// Тип формы → tip для значка
+	const TAB_TIP = { income: 'Поступление', payment: 'Выплата', transfer: 'Перемещение', accrual: 'Начисление' }
+
+	const tabs = [
+		{ id: 'income', label: t('modal.tabIncome'), canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
+		{ id: 'payment', label: t('modal.tabPayment'), canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
+		{ id: 'transfer', label: t('modal.tabTransfer'), canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
+		{ id: 'accrual', label: t('modal.tabAccrual'), canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew },
+	].filter(tab => tab.canShow)
+
+	const commentsCount = (comments.messages?.length || 0) + (comments.attachedFiles?.length || 0)
+
+	// Окно по центру экрана — вместо панели, выезжавшей от края. Портал в body:
+	// окно должно быть над шапкой и меню, а не внутри контейнера страницы.
+	return createPortal(
+		<div
+			className={cn(
+				'fixed inset-0 z-1000 flex items-center justify-center p-4 transition-opacity duration-200',
+				isClosing ? 'opacity-0' : 'opacity-100'
+			)}
+		>
+			<div className="absolute inset-0 bg-slate-900/40" onClick={onClose} aria-hidden="true" />
+
+			<div
+				role="dialog"
+				aria-modal="true"
+				className={cn(
+					'relative flex h-[min(880px,92vh)] max-w-full overflow-hidden rounded-2xl bg-white shadow-[0_24px_64px_rgba(15,23,42,0.22)] transition-[width] duration-200',
+					commentsOpen ? 'w-[1140px]' : 'w-[760px]'
+				)}
+			>
+				{/* Форма */}
+				<div className="flex min-w-0 flex-1 flex-col">
+					{/* Шапка: значок типа, заголовок, файлы и комментарии, закрыть */}
+					<div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-6 py-4">
+						<div className="flex min-w-0 items-center gap-3">
+							<OperationTypeIcon tip={TAB_TIP[activeTab]} className="h-10 w-10" />
+							<div className="min-w-0">
+								<h2 className="text-lg font-semibold text-slate-900">
+									{isNew ? t('modal.createTitle') : t('modal.editTitle')}
+								</h2>
+								{!isNew && (
+									<div className="flex items-center gap-1 text-xs text-slate-500">
+										<Clock size={13} />
+										<span>{t('modal.createdAt', { date: formatDateRu(operationData?.createdAt) || '—' })}</span>
+									</div>
+								)}
+							</div>
 						</div>
-						<button onClick={onClose} className="text-neutral-500 cursor-pointer hover:text-neutral-700 transition-colors">
-							<X />
-						</button>
+						<div className="flex shrink-0 items-center gap-2">
+							<button
+								type="button"
+								onClick={() => setCommentsOpen(v => !v)}
+								aria-pressed={commentsOpen}
+								className={cn(
+									'flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium cursor-pointer transition-colors',
+									'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
+									commentsOpen
+										? 'border-[#0e73f6] bg-[#eef4ff] text-[#0e73f6]'
+										: 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+								)}
+							>
+								<MessageSquareText size={16} aria-hidden="true" />
+								{t('modal.filesAndComments')}
+								{commentsCount > 0 && (
+									<span className="rounded-full bg-slate-200 px-1.5 text-xs font-semibold text-slate-700 tabular-nums">{commentsCount}</span>
+								)}
+							</button>
+							<button
+								type="button"
+								onClick={onClose}
+								aria-label={t('modal.close')}
+								className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 cursor-pointer transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]"
+							>
+								<X size={18} />
+							</button>
+						</div>
 					</div>
 
-					{/* Tabs */}
-					<div className="pb-3 pt-1 border-b mb-4 flex gap-3 border-neutral-200">
-						{[
-							{ id: 'income', label: t('modal.tabIncome'), color: 'bg-green-600', canShow: operationPermissions?.income?.add && isNew || operationPermissions?.income?.edit && !isNew },
-							{ id: 'payment', label: t('modal.tabPayment'), color: 'bg-red-600', canShow: operationPermissions?.payout?.add && isNew || operationPermissions?.payout?.edit && !isNew },
-							{ id: 'transfer', label: t('modal.tabTransfer'), color: 'bg-slate-600', canShow: operationPermissions?.transfer?.add && isNew || operationPermissions?.transfer?.edit && !isNew },
-							{ id: 'accrual', label: t('modal.tabAccrual'), color: 'bg-zinc-500', canShow: operationPermissions?.accrual?.add && isNew || operationPermissions?.accrual?.edit && !isNew }
-						].filter(tab => tab.canShow).map(tab => (
-							<button
-								key={tab.id}
-								className={cn(
-									"px-3 py-2 rounded-sm text-neutral-700 cursor-pointer text-sm transition-all",
-									activeTab === tab.id ? `${tab.color} text-white` : "hover:bg-neutral-100"
-								)}
-								onClick={() => setActiveTab(tab.id)}
-							>
-								{tab.label}
-							</button>
-						))}
-					</div>
+					{/* Тип операции — сегменты со значками вместо цветных вкладок */}
+					{tabs.length > 1 && (
+						<div className="shrink-0 px-6 pt-4">
+							<div role="tablist" className="grid gap-1 rounded-xl bg-slate-100 p-1" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+								{tabs.map(tab => (
+									<button
+										key={tab.id}
+										type="button"
+										role="tab"
+										aria-selected={activeTab === tab.id}
+										onClick={() => setActiveTab(tab.id)}
+										className={cn(
+											'flex h-10 items-center justify-center gap-2 rounded-lg text-sm font-medium cursor-pointer transition-colors',
+											'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0e73f6]',
+											activeTab === tab.id
+												? 'bg-white text-slate-900 shadow-sm'
+												: 'text-slate-500 hover:text-slate-900'
+										)}
+									>
+										<OperationTypeIcon tip={TAB_TIP[tab.id]} size="sm" />
+										{tab.label}
+									</button>
+								))}
+							</div>
+						</div>
+					)}
 
 					{/* Form Content */}
-					<div className="flex-1 overflow-hidden">
+					<div className="min-h-0 flex-1 overflow-hidden px-6 pt-4">
 						{activeTab === 'income' && (
 							<IncomeForm
 								onClose={onClose}
@@ -194,8 +247,38 @@ const OperationModal = observer(({
 						)}
 					</div>
 				</div>
+
+				{/* Файлы и комментарии — колонка внутри окна, а не серая плашка сбоку */}
+				{commentsOpen && (
+					<div className="flex shrink-0 border-l border-slate-200">
+						<SentMessages
+							open
+							messages={comments.messages}
+							text={comments.text}
+							attachedFiles={comments.attachedFiles}
+							editingId={comments.editingId}
+							editText={comments.editText}
+							editFiles={comments.editFiles}
+							deleteTargetId={comments.deleteTargetId}
+							onTextChange={comments.setText}
+							onFileChange={comments.handleFileChange}
+							onRemoveAttach={comments.handleRemoveAttach}
+							onSend={comments.handleSend}
+							onKeyDown={comments.handleKeyDown}
+							onEdit={comments.handleEdit}
+							onEditChange={comments.setEditText}
+							onEditFileChange={comments.handleEditFileChange}
+							onEditConfirm={comments.handleEditConfirm}
+							onEditCancel={comments.handleEditCancel}
+							onDelete={comments.handleDeleteRequest}
+							onDeleteConfirm={comments.handleDeleteConfirm}
+							onDeleteCancel={comments.handleDeleteCancel}
+						/>
+					</div>
+				)}
 			</div>
-		</>
+		</div>,
+		document.body
 	)
 })
 

@@ -237,22 +237,27 @@ const SentMessages = ({
   onDelete,
   onDeleteConfirm,
   onDeleteCancel,
+  // Управляемый режим: окно операции само открывает и закрывает колонку
+  // кнопкой в своей шапке, а собственные кнопки панели скрываются
+  open: controlledOpen,
 }) => {
-  const [open, setOpen] = useState(false)
+  const [innerOpen, setOpen] = useState(false)
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : innerOpen
   const t = useTranslations('Operations.comments')
   const fileInputRef = useRef(null)
 
   return (
     <>
 
-      {!open && <div className='flex h-fit self-start p-2 m-2 text-sm rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(true)}>
+      {!isControlled && !open && <div className='flex h-fit self-start p-2 m-2 text-sm rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(true)}>
         <MessageSquareText size={18} />
         <p>Файлы и комментарии</p>
       </div>}
 
       <div className='sm-root' style={{ display: open ? 'flex' : 'none' }}>
         <div className="flex items-center justify-end">
-          {open && <div className='flex h-fit self-end p-2 m-2 rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(false)}>
+          {!isControlled && open && <div className='flex h-fit self-end p-2 m-2 rounded-md cursor-pointer hover:text-neutral-400 relative bg-neutral-600 items-center gap-2 text-white top-0' onClick={() => setOpen(false)}>
             <Minimize2 size={16} />
             <p>Свернуть</p>
           </div>}

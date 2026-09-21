@@ -1,22 +1,33 @@
 // components/OperationsHeader.jsx
+import OperationTypeIcon from '@/components/operations/OperationTypeIcon/OperationTypeIcon'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, Download, Loader2, PenLine, Plus, Upload } from 'lucide-react'
+import { appStore } from '@/store/app.store'
+import { ChevronDown, Download, FileSpreadsheet, Loader2, Plus } from 'lucide-react'
+
+// Тип формы → tip для значка и право на создание
+const CREATE_TYPES = [
+  { id: 'income', tip: 'Поступление', label: 'modal.tabIncome', perm: 'income' },
+  { id: 'payment', tip: 'Выплата', label: 'modal.tabPayment', perm: 'payout' },
+  { id: 'transfer', tip: 'Перемещение', label: 'modal.tabTransfer', perm: 'transfer' },
+  { id: 'accrual', tip: 'Начисление', label: 'modal.tabAccrual', perm: 'accrual' },
+]
 
 /**
  * Шапка страницы операций: заголовок и действия.
  *
- * Поиск и фильтры живут не здесь, а в панели над самой таблицей
- * (TableToolbar) — они относятся к таблице, а не к разделу.
- *
- * Импорт лежит внутри кнопки «Создать»: ручной ввод и загрузка из Excel —
- * два способа сделать одно и то же. Выгрузка — отдельная кнопка с иконкой.
+ * «Создать» открывает выбор типа операции: четыре типа со значком и одной
+ * строкой пояснения, ниже — импорт из Excel. Раньше кнопка сразу открывала
+ * форму поступления, а тип меняли вкладками уже внутри неё — первое действие
+ * почти каждой новой операции было исправлением типа. Типы, которые роль не
+ * может создавать, в меню не показываются.
  */
 export default function OperationsHeader({
   t,
@@ -28,6 +39,9 @@ export default function OperationsHeader({
   onImport,
   onExport,
 }) {
+  const perms = appStore.permission?.operations || {}
+  const types = CREATE_TYPES.filter((type) => perms?.[type.perm]?.add)
+
   return (
     <PageHeader
       className="px-0"
@@ -54,22 +68,36 @@ export default function OperationsHeader({
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 p-1.5" align="end">
-                <DropdownMenuItem
-                  onClick={onCreate}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-2 rounded-md outline-none"
-                >
-                  <PenLine size={15} />
-                  <span>{t('page.createManual')}</span>
-                </DropdownMenuItem>
+              <DropdownMenuContent className="w-80 rounded-xl p-1.5" align="end" sideOffset={6}>
+                {types.map((type) => (
+                  <DropdownMenuItem
+                    key={type.id}
+                    onClick={() => onCreate(type.id)}
+                    className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 cursor-pointer outline-none"
+                  >
+                    <OperationTypeIcon tip={type.tip} />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-sm font-medium text-slate-900">{t(type.label)}</span>
+                      <span className="text-xs text-slate-500">{t(`createHints.${type.id}`)}</span>
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+
+                <DropdownMenuSeparator className="my-1.5" />
+
                 <DropdownMenuItem
                   onClick={onImport}
                   disabled={isImporting}
-                  className="w-full flex items-center gap-2 cursor-pointer text-sm px-2 py-2 rounded-md outline-none"
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 cursor-pointer outline-none"
                 >
-                  <Upload size={15} />
-                  <span>{t('page.createImport')}</span>
-                  {isImporting && <Loader2 size={14} className="animate-spin ml-auto" />}
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                    <FileSpreadsheet size={15} aria-hidden="true" />
+                  </span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="text-sm font-medium text-slate-900">{t('page.createImport')}</span>
+                    <span className="text-xs text-slate-500">{t('createHints.importHint')}</span>
+                  </span>
+                  {isImporting && <Loader2 size={14} className="ml-auto animate-spin" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

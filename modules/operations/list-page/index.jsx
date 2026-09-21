@@ -310,11 +310,11 @@ const OperationsListPage = observer(() => {
     });
   };
 
-  const handleCreate = () => {
-    // document.body.style.overflow = 'hidden'
+  // Тип выбирается до открытия формы — в меню «Создать»
+  const handleCreate = (type = "income") => {
     openWithAnimation(() => {
       setOpenModal({ id: "new", isNew: true });
-      setModalType("income");
+      setModalType(type);
     });
   };
 
