@@ -22,15 +22,21 @@ import { observer } from 'mobx-react-lite'
 const Money = observer(({ value, currency = '', sign, cents, className, decimalClassName }) => {
   const parts = splitAmount(value, cents === undefined ? undefined : { cents })
   const prefix = sign !== undefined ? sign : parts.sign
-  const tail = [parts.dec ? `.${parts.dec}` : '', currency ? ` ${currency}` : '']
-    .join('')
-
+  // Копейки — часть числа: тот же цвет, 12px (text-xs) — чуть мельче суммы.
+  // Раньше хвост был 0.78em, font-light и opacity-60 — около 11px на 60%
+  // непрозрачности, самые плохо читаемые цифры в бухгалтерской программе.
+  // Код валюты — не число, он приглушён, чтобы взгляд шёл по цифрам.
+  // tabular-nums: у всех цифр одна ширина, суммы в колонке встают разряд
+  // под разрядом.
   return (
-    <span className={cn('whitespace-nowrap', className)}>
+    <span className={cn('whitespace-nowrap tabular-nums', className)}>
       {prefix}
       {parts.int}
-      {tail && (
-        <span className={cn('text-[0.78em] font-light opacity-60', decimalClassName)}>{tail}</span>
+      {parts.dec && (
+        <span className={cn('text-xs', decimalClassName)}>.{parts.dec}</span>
+      )}
+      {currency && (
+        <span className="text-xs font-normal text-slate-500"> {currency}</span>
       )}
     </span>
   )
