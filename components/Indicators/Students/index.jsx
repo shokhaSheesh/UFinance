@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE, TOOLTIP_BOX } from '../shared/chartTheme'
 import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import useMounted from '@/hooks/useMounted'
@@ -112,6 +112,7 @@ const Students = () => {
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
+      ...TOOLTIP_BOX,
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e5e7eb',
       borderWidth: 1,

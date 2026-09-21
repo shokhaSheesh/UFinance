@@ -1,6 +1,6 @@
 'use client'
 
-import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE, TOOLTIP_BOX } from '../shared/chartTheme'
 import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useQuery } from '@tanstack/react-query'
@@ -113,6 +113,7 @@ const ProfitableClients = observer(() => {
       // ... tooltip, legend, grid, xAxis, yAxis — o'zgarishsiz ...
       tooltip: {
         trigger: 'item',
+        ...TOOLTIP_BOX,
         backgroundColor: 'rgba(255, 255, 255, 0.97)',
         borderColor: '#e2e8f0',
         borderWidth: 1,

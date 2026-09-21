@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL } from '../shared/chartTheme'
+import { AXIS_LABEL, TOOLTIP_BOX } from '../shared/chartTheme'
 import { cn } from '@/lib/utils'
 import { indicators } from '@/store/indicatos.store'
 import ReactECharts from 'echarts-for-react'
@@ -127,6 +127,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
     const donutOption = useMemo(() => ({
         tooltip: {
             trigger: 'item',
+            ...TOOLTIP_BOX,
             formatter: '{b}: {c} ({d}%)',
             confine: false,
             appendToBody: true,
@@ -180,6 +181,7 @@ const Expenses = observer(({ profitAndLossDataList, isLoading, method, cashFlowD
         return {
             tooltip: {
                 trigger: 'axis',
+                ...TOOLTIP_BOX,
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 borderColor: '#e5e7eb',
                 borderWidth: 1,

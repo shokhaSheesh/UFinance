@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE, TOOLTIP_BOX } from '../shared/chartTheme'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -144,6 +144,7 @@ const CashFlow = () => {
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
+      ...TOOLTIP_BOX,
       axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e5e7eb',

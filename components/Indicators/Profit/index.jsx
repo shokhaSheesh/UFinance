@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE, TOOLTIP_BOX } from '../shared/chartTheme'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -260,6 +260,7 @@ const Profit = () => {
   const options = useMemo(() => ({
     tooltip: {
       trigger: 'axis',
+      ...TOOLTIP_BOX,
       axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e5e7eb',

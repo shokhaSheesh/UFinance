@@ -24,3 +24,9 @@ export const AXIS_LABEL = {
 }
 
 export const SPLIT_LINE = { lineStyle: { color: '#f1f5f9' } }
+
+/** Рамка подсказки: отступы внутри, скругление и мягкая тень — текст не прилипает к краям. */
+export const TOOLTIP_BOX = {
+  padding: [10, 14],
+  extraCssText: 'border-radius: 8px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);',
+}

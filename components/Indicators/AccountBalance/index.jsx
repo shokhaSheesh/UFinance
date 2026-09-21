@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE } from '../shared/chartTheme'
+import { AXIS_LABEL, CHART_COLORS, SPLIT_LINE, TOOLTIP_BOX } from '../shared/chartTheme'
 import { STATIC_ACCOUNT_BALANCE_DATA } from '@/components/Indicators/constants/staticChartData'
 import CustomMonthSlider from '@/components/Indicators/shared/CustomMonthSlider'
 import Loader from '@/components/shared/Loader'
@@ -127,6 +127,7 @@ const AccountBalance = () => {
         return {
             tooltip: {
                 trigger: 'axis',
+                ...TOOLTIP_BOX,
                 // вертикальная линия под курсором — видно, какой день показан
                 axisPointer: { type: 'line', lineStyle: { color: '#94a3b8', type: 'dashed' } },
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',

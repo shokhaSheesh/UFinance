@@ -1,6 +1,6 @@
 "use client"
 
-import { AXIS_LABEL } from '../shared/chartTheme'
+import { AXIS_LABEL, TOOLTIP_BOX } from '../shared/chartTheme'
 import { cn } from '@/lib/utils'
 import ReactECharts from 'echarts-for-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -147,6 +147,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
     return {
       tooltip: {
         trigger: 'item',
+        ...TOOLTIP_BOX,
         formatter: '{b}: {c} ({d}%)',
         confine: false,
         appendToBody: true,
@@ -201,6 +202,7 @@ const Income = observer(({ method, profitAndLossDataList, cashFlowDataList, isLo
     return {
       tooltip: {
         trigger: 'axis',
+        ...TOOLTIP_BOX,
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: '#e5e7eb',
         borderWidth: 1,
