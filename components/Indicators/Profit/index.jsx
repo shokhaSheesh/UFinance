@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
 import HintQuestion from '@/components/shared/HintQuestion'
@@ -16,7 +15,9 @@ import { indicators } from '../../../store/indicatos.store'
 import { operationFilterStore } from '../../../store/operationFilter.store'
 import { formatNumber, formatTotalSumma } from '../../../utils/helpers'
 import { STATIC_PROFIT_DATA } from '../constants/staticChartData'
+import Segmented from '@/components/shared/Segmented/Segmented'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import StatTiles from '../shared/StatTiles'
 import { localizeMonthTitle } from '../utils/localizeMonth'
 import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
@@ -249,9 +250,9 @@ const Profit = () => {
     return [
       { label: t('profit.stats.income'), value: formatNumber(formatTotalSumma(incomeTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleIncomePress },
       { label: t('profit.stats.expenses'), value: formatNumber(formatTotalSumma(expenseTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: handleExpensePress },
-      { label: t('profit.stats.netProfit'), value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.netProfit'), value: formatNumber(formatTotalSumma(netProfitTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
       { label: t('profit.stats.profitability'), value: formatNumber(margin) || 0, symbol: '%', plan: '0%', color: 'text-slate-900', planColor: 'text-blue-500' },
-      { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500', onClick: () => { } },
+      { label: t('profit.stats.dividends'), value: formatNumber(formatTotalSumma(dividendTotal, 0)) || 0, symbol: GlobalCurrency?.name, plan: '0', color: 'text-slate-900', planColor: 'text-blue-500' },
     ]
   }, [profitAndLossDataList, incomeTotal, expenseTotal, dividendsTotal, handleExpensePress, handleIncomePress, t,])
   const inteval = months?.length > 50 ? 5 : months?.length > 10 ? 1 : 0
@@ -376,20 +377,25 @@ const Profit = () => {
 
   return (
     <div className="w-full bg-white p-6">
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">{t('profit.title')}, {GlobalCurrency?.name || ''}</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{t('profit.title')}, {GlobalCurrency?.name || ''}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="items-center rounded-md">
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'accrual')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'accrual' ? 'border-primary rounded-l-md ' : ''}`}>{t('profit.accrualMethod')}</button>
-          <button type="button" onClick={() => indicatorsStore.setState('profitableclientsMethod', 'cash')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-52 ${indicatorsStore.profitableclientsMethod === 'cash' ? 'border-primary rounded-r-md ' : ''}`}>{t('profit.cashMethod')}</button>
-        </div>
+        <Segmented
+          ariaLabel={t('profit.accrualMethod')}
+          value={indicatorsStore.profitableclientsMethod}
+          onChange={(value) => indicatorsStore.setState('profitableclientsMethod', value)}
+          options={[
+            { value: 'accrual', label: t('profit.accrualMethod') },
+            { value: 'cash', label: t('profit.cashMethod') },
+          ]}
+        />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6  relative">
+      <div className="relative flex flex-col gap-4">
         {/* Loading Overlay */}
         {(isLoading || isFetching || isPending) && (
           <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
@@ -400,25 +406,12 @@ const Profit = () => {
           </div>
         )}
 
-        {/* Statistics panel */}
-        <div className="w-full lg:w-[420px] shrink-0 space-y-7 pr-4 mt-4">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="flex items-center justify-between group">
-              <span className=" text-xs 2xl:text-sm font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
-                {stat.label}
-              </span>
-              <div className="flex flex-col items-end">
-                <span onClick={stat.onClick} className={cn(" text-xl cursor-pointer xl:text-2xl 2xl:text-3xl font-bold leading-none mb-1", stat.color)} suppressHydrationWarning>
-                  {stat.value}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Итоги — плитками над графиком */}
+        <StatTiles items={stats} />
 
         {/* Chart container */}
-        <div className="flex-1 overflow-visible!">
-          <div className="mb-4 pt-4 px-2 overflow-visible!">
+        <div className="w-full overflow-visible!">
+          <div className="mb-4 px-2 overflow-visible!">
             <CustomMonthSlider
               value={zoomRange}
               onChange={setZoomRange}
@@ -428,7 +421,7 @@ const Profit = () => {
             <ReactECharts
               ref={chartRef}
               option={options}
-              style={{ height: '100%', width: 'fit' }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ renderer: 'svg' }}
             />
           </div>

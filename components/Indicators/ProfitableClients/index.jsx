@@ -1,5 +1,6 @@
 'use client'
 
+import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useQuery } from '@tanstack/react-query'
 import ReactECharts from 'echarts-for-react'
@@ -206,16 +207,21 @@ const ProfitableClients = observer(() => {
   return (
     <div className=" flex flex-col relative">
       {/* Header with method toggle */}
-      <div className="flex items-center gap-10 mb-4 border-b py-5">
-        <h3 className="text-sm font-medium text-slate-700">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <h2 className="text-lg font-semibold text-slate-900">
           {t('profitableClients.title')},
           <span className="ml-1 text-slate-500" suppressHydrationWarning>{GlobalCurrency?.name || ''}</span>
-        </h3>
-
-        <div className="items-center rounded-md">
-          <button type="button" onClick={() => setState('profitableclientsMethod', 'cash')} id="income_expenses" className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'cash' ? 'border-primary rounded-l-md ' : ''}`}>{t('profitableClients.accrualMethod')}</button>
-          <button type="button" onClick={() => setState('profitableclientsMethod', 'accural')} id="receipts_payments" className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2  w-44 ${profitableclientsMethod === 'accural' ? 'border-primary rounded-r-md ' : ''}`}>{t('profitableClients.cashMethod')}</button>
-        </div>
+        </h2>
+        {/* Раньше «Метод начисления» ставил cash, а «Кассовый метод» — несуществующий 'accural' */}
+        <Segmented
+          ariaLabel={t('profitableClients.title')}
+          value={profitableclientsMethod}
+          onChange={(value) => setState('profitableclientsMethod', value)}
+          options={[
+            { value: 'accrual', label: t('profitableClients.accrualMethod') },
+            { value: 'cash', label: t('profitableClients.cashMethod') },
+          ]}
+        />
       </div>
 
       {/* Chart */}

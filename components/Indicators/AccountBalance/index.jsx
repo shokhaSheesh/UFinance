@@ -216,7 +216,7 @@ const AccountBalance = () => {
     // if (!mounted) return null
 
     return (
-        <div className="w-full bg-white relative p-6 rounded-lg mt-6">
+        <div className="w-full bg-white relative p-6">
             {/* Loading Overlay */}
             {(isLoading || isFetching || isPending) && (
                 <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
@@ -226,9 +226,9 @@ const AccountBalance = () => {
                     </div>
                 </div>
             )}
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-[20px] font-bold text-[#111827]">{t('accountBalance.title')}, {mounted ? GlobalCurrency?.name : ''}</h2>
+                    <h2 className="text-lg font-semibold text-slate-900">{t('accountBalance.title')}, {mounted ? GlobalCurrency?.name : ''}</h2>
                     <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
                         <HintQuestion className="size-3 text-neutral-400" />
                     </div>

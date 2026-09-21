@@ -2878,7 +2878,16 @@
         "account": "Счет",
         "deal": "Сделка",
         "project": "Проекты"
-      }
+      },
+      "labels": {
+        "period": "Период",
+        "display": "Шаг",
+        "accounts": "Счета",
+        "projects": "Проекты",
+        "deals": "Сделки"
+      },
+      "sections": "Разделы",
+      "activeFilters": "{count, plural, one {# фильтр} few {# фильтра} other {# фильтров}}"
     },
     "debts": {
       "title": "Долги",

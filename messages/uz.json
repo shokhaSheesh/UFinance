@@ -3032,7 +3032,16 @@
         "account": "Hisob",
         "deal": "Bitim",
         "project": "Loyihalar"
-      }
+      },
+      "labels": {
+        "period": "Davr",
+        "display": "Qadam",
+        "accounts": "Hisoblar",
+        "projects": "Loyihalar",
+        "deals": "Bitimlar"
+      },
+      "sections": "Bo'limlar",
+      "activeFilters": "{count} ta filtr"
     },
     "debts": {
       "title": "Qarzlar",

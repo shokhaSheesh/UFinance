@@ -1,5 +1,6 @@
 "use client"
 
+import Segmented from '@/components/shared/Segmented/Segmented'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import useMounted from '@/hooks/useMounted'
 import { apiClient } from '@/lib/api/ucode/base'
@@ -200,31 +201,24 @@ const Students = () => {
 
   return (
     <div className="w-full bg-white p-6">
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">
+          <h2 className="text-lg font-semibold text-slate-900">
             {t('students.title')}, {GlobalCurrency?.name || ''}
           </h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="items-center rounded-md">
-          <button
-            type="button"
-            onClick={() => indicatorsStore.setState('accounting', 'accrual')}
-            className={`text-neutral-700 border rounded-l-md cursor-pointer text-sm p-2 w-52 ${indicatorsStore.accounting === 'accrual' ? 'border-primary rounded-l-md' : ''}`}
-          >
-            {t('students.accrualMethod')}
-          </button>
-          <button
-            type="button"
-            onClick={() => indicatorsStore.setState('accounting', 'cash')}
-            className={`text-neutral-700 border rounded-r-md cursor-pointer text-sm p-2 w-52 ${indicatorsStore.accounting === 'cash' ? 'border-primary rounded-r-md' : ''}`}
-          >
-            {t('students.cashMethod')}
-          </button>
-        </div>
+        <Segmented
+          ariaLabel={t('students.accrualMethod')}
+          value={indicatorsStore.accounting}
+          onChange={(value) => indicatorsStore.setState('accounting', value)}
+          options={[
+            { value: 'accrual', label: t('students.accrualMethod') },
+            { value: 'cash', label: t('students.cashMethod') },
+          ]}
+        />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 relative">

@@ -27,9 +27,9 @@ const Debts = observer(() => {
   ]
 
   return (
-    <div className="w-full bg-white rounded-lg p-6 mt-6">
+    <div className="w-full bg-white p-6">
       <div className="flex items-end justify-between gap-4 flex-wrap">
-        <h2 className="text-[26px] font-bold text-[#111827] py-1">{t('debts.title')}</h2>
+        <h2 className="text-lg font-semibold text-slate-900 py-1">{t('debts.title')}</h2>
 
         <div className="flex items-end gap-3 flex-wrap">
           <Field label={t('debts.filters.legalEntity')} className="w-[200px]">

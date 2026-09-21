@@ -14,7 +14,9 @@ import { apiClient } from '../../../lib/api/ucode/base'
 import { indicators } from '../../../store/indicatos.store'
 import { formatAmount, formatNumber } from '../../../utils/helpers'
 import { STATIC_CASHFLOW_DATA } from '../constants/staticChartData'
+import Segmented from '@/components/shared/Segmented/Segmented'
 import CustomMonthSlider from '../shared/CustomMonthSlider'
+import StatTiles from '../shared/StatTiles'
 import { localizeMonthTitle } from '../utils/localizeMonth'
 import { enqueueIndicatorRequest } from '../utils/requestQueue'
 
@@ -229,7 +231,7 @@ const CashFlow = () => {
   if (!mounted) return null
 
   return (
-    <div className="w-full bg-white p-6 mt-6 relative">
+    <div className="w-full bg-white p-6 relative">
       {(isLoading || isPending || isFetching) && (
         <div className="absolute inset-0 bg-white/80 z-100 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
@@ -238,46 +240,22 @@ const CashFlow = () => {
           </div>
         </div>
       )}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-8">
+      <div className="mb-5 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-[22px] font-bold text-[#111827]">{t('cashFlow.title')}, {GlobalCurrency?.name}</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{t('cashFlow.title')}, {GlobalCurrency?.name}</h2>
           <div className="flex items-center justify-center size-5 bg-neutral-100 rounded-full cursor-help">
             <HintQuestion className="size-3 text-neutral-400" />
           </div>
         </div>
-        <div className="flex flex-wrap bg-[#f3f4f624]  rounded-md p-1">
-          {TABS.map((tab, idx) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => setActiveTab(tab.value)}
-              className={`text-neutral-700 border cursor-pointer text-sm p-2 w-32 ${idx === 0 ? 'rounded-l-md' : idx === TABS.length - 1 ? 'rounded-r-md' : ''
-                } ${activeTab === tab.value ? 'border-primary' : ''}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Segmented ariaLabel={t('cashFlow.title')} options={TABS} value={activeTab} onChange={setActiveTab} />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="w-full lg:w-[320px] shrink-0 space-y-7 pr-4 mt-4">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="flex items-center justify-between group">
-              <span className="text-[14px] font-medium text-neutral-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">
-                {stat.label}
-              </span>
-              <div className="flex flex-col items-end">
-                <span className={cn("text-base font-medium leading-none", stat.color)}>
-                  {stat.value} <span suppressHydrationWarning>{stat.symbol}</span>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="flex flex-col gap-4">
+        {/* Итоги — плитками над графиком */}
+        <StatTiles items={stats} />
 
-        <div className="flex-1">
-          <div className="mb-4 pt-4 px-2">
+        <div className="w-full">
+          <div className="mb-4 px-2">
             <CustomMonthSlider value={zoomRange} onChange={setZoomRange} />
           </div>
           <div className="h-[450px] w-full">
