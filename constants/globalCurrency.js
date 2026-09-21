@@ -1,7 +1,14 @@
 import { appStore } from "../store/app.store";
 
+// Валюта на экране — ISO-код (UZS, USD, EUR), а не символ (so'm, $, €).
+// Символы у разных валют совпадают (kr — у трёх крон, ¥ — у юаня и иены)
+// или вовсе нечитаемы для части пользователей; код однозначен.
+// Если код не пришёл (старое сохранённое состояние), показываем символ.
 export const GlobalCurrency = {
   get name() {
+    return appStore.currency?.code || appStore.currency?.name || "";
+  },
+  get symbol() {
     return appStore.currency?.name || "";
   },
   get guid() {
@@ -11,10 +18,10 @@ export const GlobalCurrency = {
     return appStore.currency?.code || "";
   },
   valueOf() {
-    return appStore.currency?.name || "";
+    return appStore.currency?.code || appStore.currency?.name || "";
   },
   toString() {
-    return appStore.currency?.name || "";
+    return appStore.currency?.code || appStore.currency?.name || "";
   }
 };
 

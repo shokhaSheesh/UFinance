@@ -117,7 +117,7 @@ export function useProductServiceData(t, tc) {
             // used === true → товар уже задействован в операциях/сделках:
             // валюту менять нельзя и удалять его нельзя
             used: !!item?.used,
-            currency: item?.currenies_symbol,
+            currency: item?.currenies_kod || item?.currenies_symbol,
             groupName: groupName,
             groupId: groupId,
           };

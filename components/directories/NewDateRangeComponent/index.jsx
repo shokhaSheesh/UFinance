@@ -82,6 +82,25 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
     setDateType(type)
   }
 
+  // Календарь открыт всегда, поэтому «активное» поле есть всегда: если
+  // пользователь ничего не выбирал — это «С»
+  const activeField = singleDateMode ? 'startDate' : (dateType || 'startDate')
+
+  // Клик по дню: заполняет активное поле и переводит выбор на «По».
+  // Ручной выбор дат снимает подсветку готового периода.
+  const handleDayPick = (value) => {
+    setActivePreset(null)
+    if (singleDateMode || activeField === 'startDate') {
+      setStartDate(value)
+      // конец раньше нового начала — сбрасываем, чтобы диапазон не вывернулся
+      if (endDate && value && new Date(value) > new Date(endDate)) setEndDate(null)
+      if (!singleDateMode) setDateType('endDate')
+    } else {
+      setEndDate(value)
+      setDateType('startDate')
+    }
+  }
+
 
   return (
     <div className="flex flex-col gap-3 w-full relative" ref={wrapperRef}>
@@ -114,86 +133,77 @@ export default observer(function NewDateRangeComponent({ value, onChange, single
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-[340px] rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
-          {/* Готовые периоды */}
-          <div className="grid grid-cols-2 gap-1.5">
-            {Object.values(PRESET_GROUPS).flat().map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                className={`h-8 rounded-md text-xs font-medium cursor-pointer transition-colors ${activePreset === item.key
-                  ? 'bg-primary text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
-                onClick={() => handlePreset(item.key)}
-              >
-                {t(`presets.${item.tKey}`)}
-              </button>
-            ))}
-          </div>
-
-          {/* Свой диапазон: «С» и «По» */}
-          <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
-            <button
-              type="button"
-              onClick={() => handleDateType('startDate')}
-              className={`flex flex-col items-start gap-0.5 rounded-lg border px-2.5 py-1.5 text-left cursor-pointer transition-colors ${dateType === 'startDate' ? 'border-primary bg-[#eef4ff]' : 'border-slate-200 hover:border-slate-300'}`}
-            >
-              <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{t('from')}</span>
-              <span className={`text-sm tabular-nums ${startDate ? 'text-slate-900' : 'text-slate-400'}`}>
-                {startDate ? formatDate(startDate) : (singleDateMode ? t('selectDate') : t('start'))}
-              </span>
-            </button>
+        {/* Две панели: слева готовые периоды, справа календарь — открыт сразу.
+            Раньше всё шло одной колонкой (периоды, поля, календарь), окно
+            выходило высоким и в окне фильтров вылезало за верх экрана. */}
+        <DropdownMenuContent
+          align="start"
+          className={`${singleDateMode ? 'w-[340px]' : 'w-[600px]'} max-w-[94vw] rounded-xl border border-slate-200 bg-white p-0 shadow-lg`}
+        >
+          <div className="flex">
             {!singleDateMode && (
-              <button
-                type="button"
-                onClick={() => handleDateType('endDate')}
-                className={`flex flex-col items-start gap-0.5 rounded-lg border px-2.5 py-1.5 text-left cursor-pointer transition-colors ${dateType === 'endDate' ? 'border-primary bg-[#eef4ff]' : 'border-slate-200 hover:border-slate-300'}`}
-              >
-                <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{t('to')}</span>
-                <span className={`text-sm tabular-nums ${endDate ? 'text-slate-900' : 'text-slate-400'}`}>
-                  {endDate ? formatDate(endDate) : t('end')}
-                </span>
-              </button>
+              <div className="flex w-[176px] shrink-0 flex-col gap-0.5 border-r border-slate-100 p-2">
+                {Object.values(PRESET_GROUPS).flat().map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handlePreset(item.key)}
+                    className={`h-8 rounded-md px-2.5 text-left text-sm cursor-pointer transition-colors ${activePreset === item.key
+                      ? 'bg-[#eef4ff] font-medium text-primary'
+                      : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                  >
+                    {t(`presets.${item.tKey}`)}
+                  </button>
+                ))}
+              </div>
             )}
-          </div>
 
-          {/* Календарь — под полями «С»/«По», внутри окна выбора. Раньше он
-              открывался справа от него и в окне по центру экрана уходил за край. */}
-          {dateType === 'startDate' && (
-            <div className="mt-2 flex justify-center">
-              <CustomCalendar
-                maxDate={endDate}
-                format="DD MMM, YYYY"
-                value={startDate}
-                onChange={(value) => {
-                  setStartDate(value)
-                  setDateType(singleDateMode ? '' : 'endDate')
-                }}
-              />
-            </div>
-          )}
-          {dateType === 'endDate' && (
-            <div className="mt-2 flex justify-center">
-              <CustomCalendar
-                minDate={startDate}
-                format="DD MMM, YYYY"
-                value={endDate}
-                onChange={(value) => {
-                  setEndDate(value)
-                  setDateType('')
-                }}
-              />
-            </div>
-          )}
+            <div className="flex min-w-0 flex-1 flex-col p-3">
+              {/* «С» и «По»: какое поле выделено, в то и попадёт следующий клик в календаре */}
+              <div className={`grid gap-2 ${singleDateMode ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                <button
+                  type="button"
+                  onClick={() => handleDateType('startDate')}
+                  className={`flex flex-col items-start gap-0.5 rounded-lg border px-2.5 py-1.5 text-left cursor-pointer transition-colors ${activeField === 'startDate' ? 'border-primary bg-[#eef4ff]' : 'border-slate-200 hover:border-slate-300'}`}
+                >
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{singleDateMode ? t('selectDate') : t('from')}</span>
+                  <span className={`text-sm tabular-nums ${startDate ? 'text-slate-900' : 'text-slate-400'}`}>
+                    {startDate ? formatDate(startDate) : t('start')}
+                  </span>
+                </button>
+                {!singleDateMode && (
+                  <button
+                    type="button"
+                    onClick={() => handleDateType('endDate')}
+                    className={`flex flex-col items-start gap-0.5 rounded-lg border px-2.5 py-1.5 text-left cursor-pointer transition-colors ${activeField === 'endDate' ? 'border-primary bg-[#eef4ff]' : 'border-slate-200 hover:border-slate-300'}`}
+                  >
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{t('to')}</span>
+                    <span className={`text-sm tabular-nums ${endDate ? 'text-slate-900' : 'text-slate-400'}`}>
+                      {endDate ? formatDate(endDate) : t('end')}
+                    </span>
+                  </button>
+                )}
+              </div>
 
-          <div className="mt-3 flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
-            <button type="button" className="secondary-btn" onClick={handleReset}>
-              {t('reset')}
-            </button>
-            <button type="button" className="primary-btn" onClick={handleApply}>
-              {t('apply')}
-            </button>
+              <div className="mt-2 flex justify-center">
+                <CustomCalendar
+                  format="DD MMM, YYYY"
+                  value={activeField === 'endDate' ? (endDate || startDate) : startDate}
+                  minDate={activeField === 'endDate' ? startDate : undefined}
+                  onChange={handleDayPick}
+                />
+              </div>
+
+              <div className="mt-2 flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+                <button type="button" className="secondary-btn" onClick={handleReset}>
+                  {t('reset')}
+                </button>
+                <button type="button" className="primary-btn" onClick={handleApply}>
+                  {t('apply')}
+                </button>
+              </div>
+            </div>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

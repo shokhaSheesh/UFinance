@@ -56,7 +56,7 @@ export const useGeneralSettings = () => {
         appStore?.setCurrency({
           name: selected?.icon,
           guid: selected?.guid,
-          code: selected?.code,
+          code: selected?.kod ?? selected?.code,
         })
         CURRENCY_DEPENDENT_QUERY_KEYS.forEach(key => {
           queryClient.invalidateQueries({ queryKey: [key] })
