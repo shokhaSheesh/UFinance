@@ -1,6 +1,9 @@
 'use client'
 
 import Debts from '@/components/Indicators/Debts'
+import CashRunway from '@/components/Indicators/CashRunway'
+import DealsByStatus from '@/components/Indicators/DealsByStatus'
+import MarginTrend from '@/components/Indicators/MarginTrend'
 import Students from '@/components/Indicators/Students'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
@@ -15,7 +18,7 @@ import Profit from '../../../components/Indicators/Profit'
 import ProfitableClients from '../../../components/Indicators/ProfitableClients'
 
 /**
- * Показатели — длинная страница из семи графиков. Каждый график теперь в
+ * Показатели — длинная страница из десяти графиков. Каждый график теперь в
  * одинаковой карточке с рамкой (раньше: где белый блок, где просто текст на
  * сером фоне, заголовки разного размера), а сверху — строка разделов:
  * к нужному графику можно перейти одним кликом, текущий подсвечен.
@@ -40,10 +43,13 @@ const IndicatorsPage = () => {
   const sections = [
     appStore.isDonoSchool && { id: 'students', label: t('students.title') },
     { id: 'profit', label: t('profit.title') },
+    { id: 'margin', label: t('margin.title') },
     { id: 'cash-flow', label: t('cashFlow.title') },
+    { id: 'cash-runway', label: t('cashRunway.title') },
     { id: 'account-balance', label: t('accountBalance.title') },
     { id: 'payment-structure', label: t('paymentStructure.title') },
     { id: 'profitable-clients', label: t('profitableClients.title') },
+    { id: 'deals-by-status', label: t('dealsByStatus.title') },
     { id: 'debts', label: t('debts.title') },
   ].filter(Boolean)
 
@@ -90,10 +96,14 @@ const IndicatorsPage = () => {
           <Section id="students"><Students /></Section>
         )}
         <Section id="profit"><Profit /></Section>
+        {/* Новые блоки стоят рядом с теми, чьи данные дополняют */}
+        <Section id="margin"><MarginTrend /></Section>
         <Section id="cash-flow"><CashFlow /></Section>
+        <Section id="cash-runway"><CashRunway /></Section>
         <Section id="account-balance"><AccountBalance /></Section>
         <Section id="payment-structure" padded><PaymentStructure /></Section>
         <Section id="profitable-clients" padded><ProfitableClients /></Section>
+        <Section id="deals-by-status"><DealsByStatus /></Section>
         <Section id="debts"><Debts /></Section>
       </div>
     </div>

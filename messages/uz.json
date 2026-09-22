@@ -3168,6 +3168,55 @@
         "activeStudents": "Faol talabalar",
         "passiveStudents": "Faol bo'lmagan talabalar"
       }
+    },
+    "cashRunway": {
+      "title": "Pul zaxirasi",
+      "hint": "Tushumlar to'xtasa, hisoblardagi pul necha oyga yetishini ko'rsatadi. O'rtacha qiymat tanlangan davrning o'tgan oylari bo'yicha olinadi.",
+      "balance": "Hisoblardagi qoldiq",
+      "balanceHint": "Bugungi holat",
+      "receipts": "Oylik tushumlar",
+      "payments": "Oylik to'lovlar",
+      "net": "Oylik sof oqim",
+      "avgHint": "Davrning o'tgan oylari bo'yicha o'rtacha",
+      "cover": "{months} oy",
+      "coverTitle": "Yetadi",
+      "coverCaption": "tushumlar to'xtasa, to'lovlar uchun",
+      "burn": "Joriy sur’atda qoldiq taxminan {months} oyda tugaydi.",
+      "growing": "Tushumlar to'lovlarni qoplaydi — qoldiq oyiga o'rtacha {amount} ga o'sadi.",
+      "zones": {
+        "danger": "Bir oydan kam",
+        "warning": "1–3 oy",
+        "ok": "3 oy va undan ko‘p"
+      },
+      "noData": "Tanlangan davr bo'yicha ma'lumot yetarli emas"
+    },
+    "margin": {
+      "title": "Davrlar bo'yicha rentabellik",
+      "hint": "Har bir davr bo'yicha sof foydaning daromadga nisbati. Hisob usuli — «Foyda» blokidagidek.",
+      "average": "Davr bo'yicha o'rtacha",
+      "best": "Eng yaxshi davr",
+      "worst": "Eng yomon davr",
+      "series": "Rentabellik",
+      "averageLine": "O'rtacha",
+      "revenue": "Daromad",
+      "netProfit": "Sof foyda",
+      "noRevenue": "daromad yo'q",
+      "noData": "Tanlangan davrda daromad yo'q"
+    },
+    "dealsByStatus": {
+      "title": "Holatlar bo'yicha bitimlar",
+      "hint": "Tanlangan davrdagi savdo bitimlari holat bo'yicha: soni, summasi va qancha qismi to'langan.",
+      "count": "Bitimlar",
+      "sum": "Bitimlar summasi",
+      "average": "O'rtacha chek",
+      "paid": "To'langan",
+      "paidHint": "bitimlar summasining {percent}%",
+      "dealsCount": "{count} ta bitim",
+      "paidPart": "To'langan",
+      "unpaidPart": "Hali to'lanmagan",
+      "partial": "{total} tadan dastlabki {shown} ta bitim ko‘rsatilgan",
+      "noStatus": "Holatsiz",
+      "noData": "Tanlangan davrda bitimlar yo'q"
     }
   },
   "Payment": {
