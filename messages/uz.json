@@ -312,7 +312,9 @@
     "clear": "Tozalash",
     "creating": "Yaratilmoqda...",
     "saving": "Saqlanmoqda...",
-    "actions": "Amallar"
+    "actions": "Amallar",
+    "tableOnly": "Faqat jadval",
+    "showSummary": "Yakunlarni ko'rsatish"
   },
   "Auth": {
     "title": {

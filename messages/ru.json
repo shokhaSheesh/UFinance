@@ -312,7 +312,9 @@
     "archive": "Архивировать",
     "unarchive": "Разархивировать",
     "clear": "Очистить",
-    "actions": "Действия"
+    "actions": "Действия",
+    "tableOnly": "Только таблица",
+    "showSummary": "Показать итоги"
   },
   "Auth": {
     "title": {

@@ -41,6 +41,8 @@ import FilterChips from "@/components/shared/Filters/FilterChips";
 import { OperationsSummary } from "@/components/operations/OperationsSummary/OperationsSummary";
 import Input from "@/components/shared/Input";
 import TableCard from "@/components/shared/Table/TableCard";
+import TableOnlyToggle, { Collapsible, useTableOnly } from "@/components/shared/Table/TableOnlyToggle";
+import { cn } from "@/lib/utils";
 import TableToolbar from "@/components/shared/Table/TableToolbar";
 import OperationsHeader from "../components/OperationsHeader";
 import OperationsTableHeader from "../components/OperationsTableHeader";
@@ -85,6 +87,7 @@ const CustomDialog = lazy(() =>
 // ── Main page ────────────────────────────────────────────────────────────────
 const OperationsListPage = observer(() => {
   const t = useTranslations("Operations");
+  const [tableOnly, toggleTableOnly] = useTableOnly("operations");
   const isMounted = useMounted();
   const queryClient = useQueryClient();
 
@@ -451,6 +454,8 @@ const OperationsListPage = observer(() => {
 
       {/* Main */}
       <div className="w-full flex flex-col min-h-0 px-6 pb-4">
+        {/* «Только таблица» сворачивает шапку и итоги */}
+        <Collapsible collapsed={tableOnly}>
         <OperationsHeader
           t={t}
           isMounted={isMounted}
@@ -463,8 +468,9 @@ const OperationsListPage = observer(() => {
         />
 
         <OperationsSummary totalSummary={totalSummary} />
+        </Collapsible>
 
-        <TableCard>
+        <TableCard className={cn('transition-[margin] duration-300', tableOnly && 'mt-4')}>
           {/* Поиск и фильтры — внутри рамки таблицы, над её шапкой */}
           <TableToolbar
             search={
@@ -477,7 +483,12 @@ const OperationsListPage = observer(() => {
                 onChange={(e) => operationFilterStore.setSearchQuery(e.target.value)}
               />
             }
-            actions={<FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />}
+            actions={
+              <>
+                <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
+                <TableOnlyToggle tableOnly={tableOnly} onToggle={toggleTableOnly} />
+              </>
+            }
           />
 
           {/* Что сейчас отфильтровано — видно всегда, даже когда панель закрыта */}

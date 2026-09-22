@@ -1,6 +1,7 @@
 "use client"
 import { FilterField } from '@/components/shared/Filters/FilterDrawer'
 import TableCard from '@/components/shared/Table/TableCard'
+import TableOnlyToggle, { Collapsible, useTableOnly } from '@/components/shared/Table/TableOnlyToggle'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import KpiCard from '@/components/shared/KpiCard/KpiCard'
@@ -162,6 +163,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   const stickyRef = useRef(null)
   const [stickyHeight, setStickyHeight] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [tableOnly, toggleTableOnly] = useTableOnly(isStudent ? 'students' : 'counterparties')
   useEffect(() => {
     const el = stickyRef.current
     if (!el) return
@@ -524,7 +526,9 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         className="w-full h-full flex-1 overflow-auto bg-canvas px-6 pb-10"
       >
         {/* Закреплённый блок: шапка, метод учёта и итоги */}
-        <div ref={stickyRef} className={cn('sticky top-0 z-40 bg-canvas', isScrolled && 'shadow-[0_1px_0_#e2e8f0]')}>
+        <div ref={stickyRef} className={cn('sticky top-0 z-40 bg-canvas', isScrolled && !tableOnly && 'shadow-[0_1px_0_#e2e8f0]', tableOnly && 'pt-4')}>
+        {/* «Только таблица» сворачивает шапку, метод учёта и итоги */}
+        <Collapsible collapsed={tableOnly}>
         {/* Шапка: заголовок с количеством слева, выгрузка и создание справа */}
         <div className="flex h-16 items-center justify-between">
           <div className="flex min-w-0 items-baseline gap-3">
@@ -563,6 +567,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
             <KpiCard key={key} currency={GlobalCurrency.name} compact={isScrolled} {...kpi} />
           ))}
         </div>
+        </Collapsible>
         </div>
 
         <TableCard className="min-w-fit overflow-visible">
@@ -588,6 +593,7 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
                   onClick={() => setIsFilterOpen(true)}
                   count={counterpartiesStore.activeFilterCount}
                 />
+                <TableOnlyToggle tableOnly={tableOnly} onToggle={toggleTableOnly} />
               </>
             }
           />
