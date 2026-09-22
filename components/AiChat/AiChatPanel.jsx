@@ -41,6 +41,19 @@ const CloseIcon = () => (
   </svg>
 );
 
+// развернуть на весь экран / свернуть обратно в панель
+const ExpandIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+  </svg>
+);
+
+const CollapseIcon = () => (
+  <svg viewBox="0 0 24 24">
+    <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />
+  </svg>
+);
+
 const ClipIcon = () => (
   <svg viewBox="0 0 24 24">
     <path d="M21 11.5l-9 9a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a1.5 1.5 0 01-2-2l8-8" />
@@ -446,6 +459,9 @@ const AiChatPanel = observer(() => {
   const [editing, setEditing] = useState(null); // { messageId } — правка отправленного сообщения
   const [panelWidth, setPanelWidth] = useState(DEFAULT_W);
   const [resizing, setResizing] = useState(false);
+  // Второй режим: чат на всю страницу (кроме меню слева). Страница под ним
+  // не перестраивается — --ai-w остаётся шириной панели.
+  const [expanded, setExpanded] = useState(false);
   const [uploading, setUploading] = useState(false);
   const bodyRef = useRef(null);
   const editorRef = useRef(null); // textarea композера
@@ -466,6 +482,7 @@ const AiChatPanel = observer(() => {
     if (!wasOpenRef.current) return;
     wasOpenRef.current = false;
     setHistoryOpen(false);
+    setExpanded(false);
     if (!aiChatStore.consumeUsed()) return;
     queryClient.invalidateQueries();
   }, [isOpen, queryClient]);
@@ -720,11 +737,16 @@ const AiChatPanel = observer(() => {
       }
       // Esc в режиме правки отменяет её — этим занимается сам композер
       if (editing) return;
+      // из полноэкранного режима Esc сначала возвращает в панель
+      if (expanded) {
+        setExpanded(false);
+        return;
+      }
       aiChatStore.close();
     };
     document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
-  }, [isOpen, historyOpen, editing]);
+  }, [isOpen, historyOpen, editing, expanded]);
 
   const showGreeting =
     !historyLoading &&
@@ -751,18 +773,18 @@ const AiChatPanel = observer(() => {
         />
       )}
       <aside
-        className={`${styles.panel} ${docked ? styles.docked : ""} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
-        style={{ width: panelWidth }}
+        className={`${styles.panel} ${docked ? styles.docked : ""} ${expanded ? styles.expanded : ""} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
+        style={{ width: expanded ? "calc(100vw - var(--sidebar-w))" : panelWidth }}
         aria-hidden={!isOpen}
       >
-        {/* Ручка изменения ширины (левый край, по центру) */}
-        <div
+        {/* Ручка изменения ширины (левый край, по центру) — только в режиме панели */}
+        {!expanded && <div
           className={styles.resizeHandle}
           onPointerDown={startResize}
           role="separator"
           aria-orientation="vertical"
           aria-label={t("resizeHint")}
-        />
+        />}
 
         {/* Header */}
         <div className={styles.head}>
@@ -785,6 +807,16 @@ const AiChatPanel = observer(() => {
             </div>
           </div>
           <div className={styles.headActions}>
+            <button
+              type="button"
+              className={`${styles.hicon} ${styles.tip}`}
+              data-tip={expanded ? t("collapse") : t("expand")}
+              onClick={() => setExpanded((value) => !value)}
+              aria-label={expanded ? t("collapse") : t("expand")}
+              aria-pressed={expanded}
+            >
+              {expanded ? <CollapseIcon /> : <ExpandIcon />}
+            </button>
             <button
               type="button"
               className={`${styles.hicon} ${styles.tip}`}

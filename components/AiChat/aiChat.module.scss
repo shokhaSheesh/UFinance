@@ -42,7 +42,10 @@ $red: #e5484d;
   z-index: 1200;
   box-shadow: -10px 0 40px rgba(38, 32, 25, 0.06);
   transform: translateX(0);
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  // ширина тоже анимируется — переход панель ↔ весь экран плавный
+  transition:
+    transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.closed {
     transform: translateX(101%);
@@ -52,6 +55,20 @@ $red: #e5484d;
   // рядом со страницей: без тени, граница отделяет от контента
   &.docked {
     box-shadow: none;
+  }
+
+  // на всю страницу: переписка, подсказки и поле ввода — по центру
+  // читаемой ширины, а не растянуты на весь экран
+  &.expanded {
+    max-width: none;
+    box-shadow: -10px 0 40px rgba(38, 32, 25, 0.08);
+
+    .body,
+    .suggests,
+    .composer {
+      padding-left: max(20px, calc((100% - 860px) / 2));
+      padding-right: max(20px, calc((100% - 860px) / 2));
+    }
   }
 
   // во время ресайза убираем переходы, чтобы не было рывков

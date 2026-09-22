@@ -35,7 +35,7 @@ import { ArrowDownLeft, ArrowUpRight, ChevronRight, Download, Folder, FolderOpen
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/hooks/useAppRouter'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 // Ширины колонок — общие для шапки и строк, чтобы колонки не расходились
@@ -154,6 +154,23 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => setIsMounted(true), [])
+
+  // Шапка, метод учёта и итоги закреплены сверху при прокрутке (просьба PO:
+  // цифры всегда перед глазами). После начала прокрутки карточки ужимаются,
+  // чтобы закреплённый блок не съедал экран. Высоту блока меряем — под ней
+  // прилипает шапка колонок таблицы.
+  const stickyRef = useRef(null)
+  const [stickyHeight, setStickyHeight] = useState(0)
+  const [isScrolled, setIsScrolled] = useState(false)
+  useEffect(() => {
+    const el = stickyRef.current
+    if (!el) return
+    const update = () => setStickyHeight(el.offsetHeight)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const directoryPermissions = appStore.permission.directories
   const canAdd = isMounted && directoryPermissions?.counterparties?.add
@@ -497,9 +514,19 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         </FilterSection>
       </FilterSidebar>
 
-      <div id="scrollableDiv" ref={scrollRef} onScroll={handleScroll} className="w-full h-full flex-1 overflow-auto bg-canvas px-6 pb-10">
+      <div
+        id="scrollableDiv"
+        ref={scrollRef}
+        onScroll={(e) => {
+          handleScroll(e)
+          setIsScrolled(e.currentTarget.scrollTop > 8)
+        }}
+        className="w-full h-full flex-1 overflow-auto bg-canvas px-6 pb-10"
+      >
+        {/* Закреплённый блок: шапка, метод учёта и итоги */}
+        <div ref={stickyRef} className={cn('sticky top-0 z-40 bg-canvas', isScrolled && 'shadow-[0_1px_0_#e2e8f0]')}>
         {/* Шапка: заголовок с количеством слева, выгрузка и создание справа */}
-        <div className="sticky top-0 z-40 flex h-16 items-center justify-between bg-canvas">
+        <div className="flex h-16 items-center justify-between">
           <div className="flex min-w-0 items-baseline gap-3">
             <h1 className="shrink-0 text-xl font-semibold text-slate-900">{labels.title}</h1>
             <span className="truncate text-sm text-slate-500 tabular-nums">{labels.count(couterpartiesSummary?.count || 0)}</span>
@@ -531,10 +558,11 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
         </div>
 
         {/* Итоги по контрагентам — наверху и крупно, а не мелкой строкой внизу экрана */}
-        <div className="mb-4 grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-5 gap-3 pb-4">
           {kpis.map(({ key, ...kpi }) => (
-            <KpiCard key={key} currency={GlobalCurrency.name} {...kpi} />
+            <KpiCard key={key} currency={GlobalCurrency.name} compact={isScrolled} {...kpi} />
           ))}
+        </div>
         </div>
 
         <TableCard className="min-w-fit overflow-visible">
@@ -565,7 +593,10 @@ const CounterpartiesListPage = observer(({ isStudent = false }) => {
           />
 
           {/* Шапка колонок — прилипает под шапкой страницы */}
-          <div className="sticky top-16 z-30 flex h-10 items-center border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
+          <div
+            className="sticky z-30 flex h-10 items-center border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500"
+            style={{ top: stickyHeight }}
+          >
             <div className="flex min-w-[220px] flex-1 items-center px-4">
               {viewMode === 'nested' ? t('list.tableHeaders.group') : t('list.tableHeaders.counterparty')}
             </div>

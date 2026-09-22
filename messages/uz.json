@@ -50,7 +50,9 @@
       "Javobni rasmiylashtiryapman"
     ],
     "hint": "Yordam kerakmi? AI Yordamchidan so'rang — amaliyotni topadi, hisobotni tushuntiradi yoki qanday qilishni aytadi.",
-    "hintDismiss": "Maslahatni yashirish"
+    "hintDismiss": "Maslahatni yashirish",
+    "expand": "To'liq ekranga yoyish",
+    "collapse": "Panelga qaytarish"
   },
   "Warehouse": {
     "pageTitle": "Mening omborim",

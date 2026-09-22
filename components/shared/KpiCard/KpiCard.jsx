@@ -12,8 +12,9 @@ import { formatNumber } from '@/utils/helpers'
  *
  * tone="signed" красит сумму: плюс — зелёным, минус — красным (как в таблицах).
  * onClick превращает карточку в фильтр; active — выбранная карточка.
+ * compact — ужатый вид (без пояснения, сумма мельче): для закреплённых карточек при прокрутке.
  */
-export default function KpiCard({ label, value, currency, hint, icon: Icon, tone = 'plain', onClick, active = false, className }) {
+export default function KpiCard({ label, value, currency, hint, icon: Icon, tone = 'plain', onClick, active = false, compact = false, className }) {
   const n = Number(value) || 0
   const valueClass =
     tone === 'signed' && n !== 0 ? (n > 0 ? 'text-emerald-700' : 'text-red-600') : 'text-slate-900'
@@ -24,7 +25,8 @@ export default function KpiCard({ label, value, currency, hint, icon: Icon, tone
     <Tag
       {...(onClick && { type: 'button', onClick, 'aria-pressed': active })}
       className={cn(
-        'flex min-w-0 flex-col gap-1 rounded-xl border bg-white px-4 py-3.5 text-left',
+        'flex min-w-0 flex-col rounded-xl border bg-white px-4 text-left transition-[padding] duration-200',
+        compact ? 'gap-0.5 py-2' : 'gap-1 py-3.5',
         // выбранная — ровная рамка 2px со всех сторон (внутренняя тень, не внешнее кольцо)
         active ? 'border-[#0e73f6] shadow-[inset_0_0_0_1px_#0e73f6]' : 'border-slate-200',
         onClick && 'cursor-pointer transition-colors hover:border-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e73f6]',
@@ -34,20 +36,20 @@ export default function KpiCard({ label, value, currency, hint, icon: Icon, tone
     >
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-sm font-medium text-slate-600">{label}</span>
-        {Icon && (
+        {Icon && !compact && (
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-500">
             <Icon size={15} aria-hidden="true" />
           </span>
         )}
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className={cn('truncate text-[22px] font-semibold leading-8 tabular-nums', valueClass)}>
+        <span className={cn('truncate font-semibold tabular-nums transition-[font-size] duration-200', compact ? 'text-lg leading-7' : 'text-[22px] leading-8', valueClass)}>
           {tone === 'signed' && n > 0 ? '+' : ''}
           {n === 0 ? '0' : formatNumber(n)}
         </span>
         {currency && <span className="shrink-0 text-sm text-slate-400">{currency}</span>}
       </div>
-      {hint && <span className="truncate text-xs text-slate-400">{hint}</span>}
+      {hint && !compact && <span className="truncate text-xs text-slate-400">{hint}</span>}
     </Tag>
   )
 }
