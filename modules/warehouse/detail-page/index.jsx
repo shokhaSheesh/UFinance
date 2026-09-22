@@ -1,7 +1,13 @@
 'use client'
 
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
+import Input from '@/components/shared/Input'
+import KpiCard from '@/components/shared/KpiCard/KpiCard'
 import ScreenLoader from '@/components/shared/ScreenLoader'
+import TableCard from '@/components/shared/Table/TableCard'
+import TableToolbar from '@/components/shared/Table/TableToolbar'
+import { formatNumber } from '@/utils/helpers'
+import { Banknote, Boxes, Clock, Layers, PackageCheck, Search, Tag } from 'lucide-react'
 import FixedContent from '@/layouts/FixedContent'
 import { queryClient } from '@/lib/queryClient'
 import { appStore } from '@/store/app.store'
@@ -22,8 +28,8 @@ import WarehouseRow from '../components/WarehouseRow'
 import WarehouseTableHeader from '../components/WarehouseTableHeader'
 import { useWarehouseStockData } from './hooks/useWarehouseStockData'
 
-// колонки: № + 11 данных + иконка единицы
-const COLUMN_COUNT = 13
+// колонки: № + 11 данных (значок товара теперь в колонке названия)
+const COLUMN_COUNT = 12
 
 export default observer(function WarehouseDetailPage() {
   const t = useTranslations('Warehouse')
@@ -65,6 +71,24 @@ export default observer(function WarehouseDetailPage() {
   const [selectedTransfer, setSelectedTransfer] = useState(null)
   const canCreateTransfer = !!appStore.permission.warehouse?.add
 
+  // Те же итоги, что были в подвале, плюс потенциальная наценка (продажа − себестоимость)
+  const markup = totals.totalSale - totals.totalCost
+  const kpis = [
+    { key: 'positions', label: t('footer.positions'), value: totals.positions, hint: t('kpi.positionsHint'), icon: Boxes },
+    { key: 'balance', label: t('footer.totalBalance'), value: totals.balance, hint: t('kpi.balanceHint'), icon: Layers },
+    { key: 'waiting', label: t('footer.waitingBalance'), value: totals.waiting, hint: t('kpi.waitingHint'), icon: Clock },
+    { key: 'available', label: t('footer.availableBalance'), value: totals.available, hint: t('kpi.availableHint'), icon: PackageCheck },
+    { key: 'cost', label: t('footer.totalCost'), value: totals.totalCost, currency, hint: t('kpi.costHint'), icon: Banknote },
+    {
+      key: 'sale',
+      label: t('footer.totalSale'),
+      value: totals.totalSale,
+      currency,
+      hint: t('kpi.saleHint', { amount: `${markup > 0 ? '+' : ''}${formatNumber(markup)}${currency ? ` ${currency}` : ''}` }),
+      icon: Tag,
+    },
+  ]
+
   const handleDocClosed = () => {
     queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_shipments'] })
     queryClient.invalidateQueries({ queryKey: ['list_planned_warehouse_supplies'] })
@@ -82,53 +106,75 @@ export default observer(function WarehouseDetailPage() {
   }, [])
 
   return (
-    <FixedContent className="flex-col bg-white">
+    <FixedContent className="flex-col bg-canvas">
       {(isLoading || isLoadingWarehouse) && <ScreenLoader />}
 
       <WarehouseDetailHeader
         t={t}
         warehouseName={warehouse?.name}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        address={warehouse?.address}
+        isDefault={!!warehouse?.is_default}
         onOpenPlanned={setPlannedType}
         onOpenInventory={() => setIsInventoryOpen(true)}
         onOpenTransfers={() => setIsTransferListOpen(true)}
       />
 
-      <div className="flex-1 min-h-0 overflow-auto px-3">
-        <table className="w-full border-collapse text-[13.5px]">
-          <WarehouseTableHeader t={t} currency={currency} />
-          <tbody>
-            {items.length === 0 ? (
-              <tr>
-                <td colSpan={COLUMN_COUNT} className="py-16 text-center text-neutral-400">
-                  {isLoading ? '' : t('empty')}
-                </td>
-              </tr>
-            ) : (
-              items.map((item, index) => (
-                <WarehouseRow
-                  key={item.guid || index}
-                  item={item}
-                  // сквозная нумерация: на второй странице продолжается, а не начинается с 1
-                  number={(page - 1) * limit + index + 1}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Итоги по складу — раньше мелкой строкой в сером подвале */}
+      <div className="grid shrink-0 grid-cols-3 gap-3 px-6 pt-4 xl:grid-cols-6">
+        {kpis.map(({ key, ...kpi }) => (
+          <KpiCard key={key} {...kpi} />
+        ))}
       </div>
 
-      <WarehouseFooter
-        t={t}
-        totals={totals}
-        page={page}
-        totalPages={totalPages}
-        total={total}
-        limit={limit}
-        onPageChange={setPage}
-        currency={currency}
-      />
+      <div className="flex min-h-0 flex-1 flex-col px-6 pt-4 pb-6">
+        <TableCard>
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <Input
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftIcon={<Search size={18} />}
+                />
+              </div>
+            }
+          />
+          <div className="min-h-0 flex-1 overflow-auto">
+            <table className="w-full border-collapse text-sm">
+              <WarehouseTableHeader t={t} currency={currency} />
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan={COLUMN_COUNT} className="py-16 text-center text-slate-400">
+                      {isLoading ? '' : t('empty')}
+                    </td>
+                  </tr>
+                ) : (
+                  items.map((item, index) => (
+                    <WarehouseRow
+                      key={item.guid || index}
+                      item={item}
+                      // сквозная нумерация: на второй странице продолжается, а не начинается с 1
+                      number={(page - 1) * limit + index + 1}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <WarehouseFooter
+            t={t}
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={limit}
+            onPageChange={setPage}
+          />
+        </TableCard>
+      </div>
 
       <PlannedListModal
         open={!!plannedType && !selectedDoc}

@@ -3,7 +3,8 @@
 import Input from '@/components/shared/Input'
 import TableCard from '@/components/shared/Table/TableCard'
 import TableToolbar from '@/components/shared/Table/TableToolbar'
-import { Search } from 'lucide-react'
+import Segmented from '@/components/shared/Segmented/Segmented'
+import { LayoutGrid, Rows3, Search } from 'lucide-react'
 import CreateWarehouseModal from '@/components/warehouse/CreateWarehouseModal/CreateWarehouseModal'
 import DeleteWarehouseConfirmModal from '@/components/warehouse/DeleteWarehouseConfirmModal/DeleteWarehouseConfirmModal'
 import FixedContent from '@/layouts/FixedContent'
@@ -33,6 +34,7 @@ export default observer(function WarehousesListPage() {
   const [isTransferListOpen, setIsTransferListOpen] = useState(false)
   const [isTransferFormOpen, setIsTransferFormOpen] = useState(false)
   const [selectedTransfer, setSelectedTransfer] = useState(null)
+  const [view, setView] = useState('cards')
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -53,15 +55,16 @@ export default observer(function WarehousesListPage() {
 
   return (
     <FixedContent className="flex-col">
-      <div className="flex min-h-0 flex-1 flex-col px-6 pb-6">
+      <div className="flex min-h-0 flex-1 flex-col overflow-auto px-6 pb-6">
       <WarehousesHeader
         t={t}
         canAdd={!!warehousePermission?.add}
+        count={isLoading ? null : warehouses.length}
         onCreateClick={() => modals.setIsCreateModalOpen(true)}
         onOpenTransfers={() => setIsTransferListOpen(true)}
       />
 
-      <TableCard>
+      <TableCard className="flex-none">
         <TableToolbar
           search={
             <div className="w-full max-w-[420px]">
@@ -74,11 +77,23 @@ export default observer(function WarehousesListPage() {
               />
             </div>
           }
+          actions={
+            <Segmented
+              ariaLabel={t('view.cards')}
+              value={view}
+              onChange={setView}
+              options={[
+                { value: 'cards', label: t('view.cards'), icon: LayoutGrid },
+                { value: 'table', label: t('view.table'), icon: Rows3 },
+              ]}
+            />
+          }
         />
 
       <WarehousesTable
         t={t}
         tc={tc}
+        view={view}
         warehouses={warehouses}
         isLoading={isLoading}
         canEdit={!!warehousePermission?.edit}

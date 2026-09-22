@@ -241,6 +241,21 @@
       "totalQuantity": "Umumiy miqdor",
       "totalAmount": "Ko'chirish summasi",
       "readOnlyHint": "Ko'chirishni o'zgartirib bo'lmaydi — teskari ko'chirish yarating"
+    },
+    "count": "{count} ta ombor",
+    "view": {
+      "cards": "Kartochkalar",
+      "table": "Jadval"
+    },
+    "transfersButton": "Ko'chirishlar",
+    "open": "Omborni ochish",
+    "kpi": {
+      "positionsHint": "Ombordagi tovar va xizmatlar",
+      "balanceHint": "Kutilmoqda + mavjud",
+      "waitingHint": "Hujjatlar uchun zaxiralangan",
+      "availableHint": "Hozir jo‘natish mumkin",
+      "costHint": "O'rtacha tannarx bo'yicha",
+      "saleHint": "Potensial ustama {amount}"
     }
   },
   "filter": "Filtrlar",
