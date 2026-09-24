@@ -1,8 +1,6 @@
 'use client'
 
-import BalanceSection from '@/components/Indicators/BalanceSection'
 import Debts from '@/components/Indicators/Debts'
-import CashRunway from '@/components/Indicators/CashRunway'
 import DealsByStatus from '@/components/Indicators/DealsByStatus'
 import MarginTrend from '@/components/Indicators/MarginTrend'
 import Students from '@/components/Indicators/Students'
@@ -46,12 +44,10 @@ const IndicatorsPage = () => {
     { id: 'profit', label: t('profit.title') },
     { id: 'margin', label: t('margin.title') },
     { id: 'cash-flow', label: t('cashFlow.title') },
-    { id: 'cash-runway', label: t('cashRunway.title') },
     { id: 'account-balance', label: t('accountBalance.title') },
     { id: 'payment-structure', label: t('paymentStructure.title') },
     { id: 'profitable-clients', label: t('profitableClients.title') },
     { id: 'deals-by-status', label: t('dealsByStatus.title') },
-    { id: 'balance-overview', label: t('balanceSection.title') },
     { id: 'debts', label: t('debts.title') },
   ].filter(Boolean)
 
@@ -101,13 +97,10 @@ const IndicatorsPage = () => {
         {/* Новые блоки стоят рядом с теми, чьи данные дополняют */}
         <Section id="margin"><MarginTrend /></Section>
         <Section id="cash-flow"><CashFlow /></Section>
-        <Section id="cash-runway"><CashRunway /></Section>
         <Section id="account-balance"><AccountBalance /></Section>
         <Section id="payment-structure" padded><PaymentStructure /></Section>
         <Section id="profitable-clients" padded><ProfitableClients /></Section>
         <Section id="deals-by-status"><DealsByStatus /></Section>
-        {/* «Баланс» — те же блоки, что на «Моей компании» */}
-        <Section id="balance-overview"><BalanceSection /></Section>
         <Section id="debts"><Debts /></Section>
       </div>
     </div>

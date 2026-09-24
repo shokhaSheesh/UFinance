@@ -864,7 +864,75 @@
       "display": "Ko'rinish",
       "titleTest": "Balans (Test)",
       "balanced": "Balans mos keladi",
-      "difference": "Farq"
+      "difference": "Farq",
+      "charts": {
+        "view": {
+          "table": "Jadval",
+          "charts": "Diagrammalar"
+        },
+        "kpi": {
+          "assets": "Jami aktivlar",
+          "assetsHint": "Kompaniyaning barcha mulki",
+          "liabilities": "Jami majburiyatlar",
+          "liabilitiesHint": "Qisqa va uzoq muddatli",
+          "equity": "Xususiy kapital",
+          "equityHint": "Aktivlar minus majburiyatlar",
+          "workingCapital": "Aylanma kapital",
+          "workingCapitalHint": "Joriy aktivlar minus joriy majburiyatlar",
+          "currentRatio": "Joriy likvidlik",
+          "currentRatioHint": "Joriy aktivlar ÷ joriy majburiyatlar",
+          "quickRatio": "Tezkor likvidlik",
+          "quickRatioHint": "(Pul + debitorlik) ÷ joriy majburiyatlar",
+          "debtToEquity": "Qarz / kapital",
+          "debtToEquityHint": "Barcha majburiyatlar ÷ xususiy kapital",
+          "equityShare": "Kapital ulushi",
+          "equityShareHint": "Xususiy kapital ÷ aktivlar"
+        },
+        "equation": {
+          "title": "Balans tengligi",
+          "subtitle": "Davr oxiridagi holat",
+          "assets": "Aktivlar",
+          "liabilities": "Majburiyatlar",
+          "equity": "Kapital",
+          "ok": "Balans tengligi bajarilgan · farq 0",
+          "fail": "Farq: {value}",
+          "liabilitiesShare": "Majburiyatlar {percent}%",
+          "equityShare": "Kapital {percent}%"
+        },
+        "liquidity": {
+          "title": "Likvidlik va qarz yuki",
+          "subtitle": "Majburiyatlarni qoplash imkoniyati",
+          "note": "Ko'rsatkichlar tanlangan davr oxiridagi qoldiqlar asosida hisoblangan."
+        },
+        "assetsPie": {
+          "title": "Aktivlar tarkibi",
+          "subtitle": "Pul, debitorlik, zaxira va uzoq muddatli aktivlar"
+        },
+        "financingPie": {
+          "title": "Moliyalashtirish manbalari",
+          "subtitle": "Kreditorlik, qarzlar va xususiy kapital"
+        },
+        "dynamics": {
+          "title": "Balans dinamikasi",
+          "subtitle": "Aktivlar, majburiyatlar va kapital kesimlar bo'yicha",
+          "assets": "Aktivlar",
+          "liabilities": "Majburiyatlar",
+          "equity": "Kapital",
+          "needPeriods": "Dinamikani ko'rish uchun davrlar bo'yicha bo'linishni tanlang"
+        },
+        "workingCapital": {
+          "title": "Aylanma kapital",
+          "subtitle": "Joriy aktivlar va joriy majburiyatlar",
+          "cash": "Pul mablag‘lari",
+          "receivablesInventory": "Debitorlik va zaxiralar",
+          "other": "Boshqa joriy aktivlar",
+          "currentAssets": "Joriy aktivlar — jami",
+          "currentLiabilities": "Joriy majburiyatlar",
+          "total": "Aylanma kapital",
+          "hint": "Hisoblash: joriy aktivlar − joriy majburiyatlar. Operatsion faoliyat uchun qisqa muddatli moliyaviy zaxirani ko'rsatadi."
+        },
+        "noData": "Tanlangan davr uchun ma'lumot yo'q"
+      }
     },
     "students": {
       "title": "Talabalar bo'yicha oylik hisobot",

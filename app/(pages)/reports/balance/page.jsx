@@ -1,7 +1,10 @@
 'use client'
 
 import TableCard from '@/components/shared/Table/TableCard'
+import BalanceCharts from '@/components/reports/balance/BalanceCharts'
 import FilterButton from '@/components/shared/Filters/FilterButton'
+import Segmented from '@/components/shared/Segmented/Segmented'
+import { LayoutGrid, Rows3 } from 'lucide-react'
 import { useBalanceFilterCount } from '@/hooks/useReportFilterCount'
 import IconButton from '@/components/shared/Buttons/IconButton'
 import BalanceFilterSidebar from '@/components/reports/balance/FilterSidebar'
@@ -26,6 +29,8 @@ export default observer(function BalancePage() {
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  // Два вида одного отчёта: привычная таблица и разбор диаграммами
+  const [view, setView] = useState('table')
 
   const filterCount = useBalanceFilterCount()
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount, periodType } = balanceStore
@@ -190,18 +195,35 @@ export default observer(function BalancePage() {
             className={'bg-white w-44'} wrapperClassName="w-44 shrink-0"
             dropdownClassName={'w-44'}
           />
+          <Segmented
+            ariaLabel={t('balance.charts.view.table')}
+            value={view}
+            onChange={setView}
+            options={[
+              { value: 'table', label: t('balance.charts.view.table'), icon: Rows3 },
+              { value: 'charts', label: t('balance.charts.view.charts'), icon: LayoutGrid },
+            ]}
+          />
           <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
             </div>
         </div>
 
-        <div className="px-6 shrink-0 text-center mb-4 text-sm font-medium ">
-          {t('balance.formula')}
-        </div>
+        {/* В виде диаграмм формула показана карточкой «Равенство баланса» */}
+        {view === 'table' && (
+          <div className="px-6 shrink-0 text-center mb-4 text-sm font-medium ">
+            {t('balance.formula')}
+          </div>
+        )}
 
         {/* Таблица — единственная область прокрутки: колонки периодов уходят
             вправо, а колонка статей и шапка остаются на месте. Раньше карточка
             обрезала лишние колонки, и прокрутить вбок было нельзя. */}
+        {view === 'charts' ? (
+          <div className='min-h-0 flex-1 overflow-auto px-6 pb-6'>
+            <BalanceCharts periods={periods} currency={selectedCurrency} />
+          </div>
+        ) : (
         <div className='flex min-h-0 flex-1 px-6 pb-6'>
           <TableCard className="min-h-0 flex-1 overflow-auto">
           {/* Spinner overlay on filter change (data already present) */}
@@ -234,6 +256,7 @@ export default observer(function BalancePage() {
           )}
           </TableCard>
         </div>
+        )}
       </div>
     </div>
   )
