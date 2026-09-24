@@ -4,10 +4,14 @@ import CreateGroup from "@/components/directories/ProductServices/CreateGroup";
 import CreateSingle from "@/components/directories/ProductServices/CreateSingle";
 import { ConfirmDialog } from "@/components/shared/CustomDialog";
 import CustomModal from "@/components/shared/CustomModal";
+import Input from "@/components/shared/Input";
 import ScreenLoader from "@/components/shared/ScreenLoader";
+import Segmented from "@/components/shared/Segmented/Segmented";
+import TableCard from "@/components/shared/Table/TableCard";
+import TableToolbar from "@/components/shared/Table/TableToolbar";
 import FixedContent from "@/layouts/FixedContent";
 import { appStore } from "@/store/app.store";
-import { Trash2 } from "lucide-react";
+import { Package, Search, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useMemo, useState } from "react";
@@ -37,8 +41,6 @@ export default observer(function ProductServiceListPage() {
     setIsCreateSingleOpen,
     isCreateGroupOpen,
     setIsCreateGroupOpen,
-    isMenuOpen,
-    setIsMenuOpen,
     itemToDelete,
     setItemToDelete,
     isDeletingItem,
@@ -122,25 +124,59 @@ export default observer(function ProductServiceListPage() {
 
   return (
     <>
-      <FixedContent className="flex bg-white overflow-y-auto pb-20 flex-col flex-1 gap-4">
+      <FixedContent className="flex min-h-0 flex-1 flex-col overflow-auto bg-canvas px-6 pb-6">
         {isLoading && <ScreenLoader />}
 
         <ProductServiceHeader
           t={t}
           tc={tc}
           canAdd={productsServicesPermissions.add}
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
+          count={isLoading ? null : totalItemsCount}
           onCreateSingle={handleCreateSingle}
           onCreateGroup={handleCreateGroup}
-          filters={filters}
-          setFilters={setFilters}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
         />
 
-        <div id="table-container" className="flex-1 w-full px-3 bg-white">
-          <table className="w-full max-h-[calc(100vh-60px)] overflow-y-auto">
+        <TableCard>
+          {/* Поиск и фильтры — в панели над таблицей, как на других страницах */}
+          <TableToolbar
+            search={
+              <div className="w-full max-w-[420px]">
+                <Input
+                  type="text"
+                  placeholder={t('searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftIcon={<Search size={18} />}
+                />
+              </div>
+            }
+            actions={
+              <>
+                <Segmented
+                  ariaLabel={t('types.all')}
+                  value={filters.type}
+                  onChange={(value) => setFilters((prev) => ({ ...prev, type: value }))}
+                  options={[
+                    { value: 'all', label: t('types.all') },
+                    { value: 'product', label: t('types.products') },
+                    { value: 'service', label: t('types.services') },
+                  ]}
+                />
+                <Segmented
+                  ariaLabel={t('grouping.none')}
+                  value={filters.group}
+                  onChange={(value) => setFilters((prev) => ({ ...prev, group: value }))}
+                  options={[
+                    { value: 'none', label: t('grouping.none') },
+                    { value: 'group', label: t('grouping.group') },
+                  ]}
+                />
+              </>
+            }
+          />
+
+        <div id="table-container" className="min-h-0 flex-1 overflow-auto">
+          <table className="w-full border-collapse text-sm">
             <ProductServiceTableHeader
               t={t}
               filters={filters}
@@ -150,8 +186,13 @@ export default observer(function ProductServiceListPage() {
             <tbody className="flex-1 overflow-y-auto">
               {productServicesList.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-neutral-400">
-                    {t("noData")}
+                  <td colSpan={9} className="px-6 py-16 text-center">
+                    <span className="flex flex-col items-center gap-2">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                        <Package size={22} aria-hidden="true" />
+                      </span>
+                      <span className="text-sm text-slate-500">{searchQuery ? t("noResults") : t("noData")}</span>
+                    </span>
                   </td>
                 </tr>
               ) : (
@@ -192,11 +233,8 @@ export default observer(function ProductServiceListPage() {
             </tbody>
           </table>
         </div>
+        </TableCard>
       </FixedContent>
-
-      <div className="fixed bottom-0 left-[var(--sidebar-w)] py-4 px-3 right-[var(--ai-w,0px)] bg-white border-t border-gray-200">
-        <span className={"lowercase"}>{t("footer.total", { count: 3 })}</span>
-      </div>
 
       <CreateSingle
         open={isCreateSingleOpen}

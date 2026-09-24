@@ -2344,7 +2344,8 @@
       "selected": "Выбрано",
       "successDeleted": "Успешно удалено",
       "bulkSuccessDeleted": "Выбранные элементы успешно удалены",
-      "bulkDeleteError": "Ошибка при массовом удалении"
+      "bulkDeleteError": "Ошибка при массовом удалении",
+      "itemsCount": "{count, plural, one {# позиция} few {# позиции} other {# позиций}}"
     },
     "details": {
       "status": {

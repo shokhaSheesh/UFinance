@@ -7,6 +7,7 @@ import FixedContent from '@/layouts/FixedContent'
 import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { showErrorNotification } from '@/lib/utils/notifications'
+import { ListTree, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
@@ -37,65 +38,69 @@ const TransactionCategoriesListPage = observer(() => {
 	]
 
 	return (
-		<FixedContent className="flex overflow-y-auto flex-col bg-slate-50">
-
-			{/* Header */}
-			<div className="bg-white h-[120px] border-b sticky top-0 z-50 border-gray-200 p-4 px-6 shrink-0">
-				<div className="flex items-center justify-between mb-4">
-					<div className="flex items-center gap-4">
+		<FixedContent className="flex flex-col overflow-y-auto bg-canvas">
+			{/* Шапка: заголовок, создание и поиск; ниже — вкладки разделов учёта */}
+			<div className="sticky top-0 z-50 shrink-0 border-b border-slate-200 bg-white px-6">
+				<div className="flex h-16 items-center justify-between gap-4">
+					<div className="flex items-center gap-3">
 						<h1 className="text-xl font-semibold text-slate-900">{t('pageTitle')}</h1>
+					</div>
+					<div className="flex items-center gap-2">
+						<div className="w-[280px]">
+							<PageSearchBar contentRef={contentRef} placeholder={tc('search')} />
+						</div>
 						{data.categoriesPermissions.add && (
-							<button onClick={() => setIsCreateModalOpen(true)} className="primary-btn px-5 py-2 text-sm font-medium">
+							<button onClick={() => setIsCreateModalOpen(true)} className="primary-btn gap-1.5">
+								<Plus size={16} />
 								{t('create')}
 							</button>
 						)}
 					</div>
-					<div className="relative">
-						<PageSearchBar
-							contentRef={contentRef}
-							placeholder={tc('search')}
-						/>
-					</div>
 				</div>
 
-				<div className="flex items-center">
-					{tabs.map((tab, index) => (
-						<button
-							key={tab.key}
-							onClick={() => { data.handleTabChange(tab.key); setSearchQuery('') }}
-							className={cn(
-								"px-4 py-2 text-xs border bg-white transition-colors",
-								index === 0 && "rounded-l",
-								index === tabs.length - 1 && "rounded-r -ml-px",
-								index > 0 && "-ml-px",
-								data.activeTab === tab.key ? "text-primary border-primary z-10" : "text-slate-600 border-gray-300 hover:text-slate-900",
-							)}
-						>
-							{tab.label}
-						</button>
-					))}
+				{/* Вкладки — подчёркиванием, как на других страницах (раньше — серые кнопки в ряд) */}
+				<div className="flex items-center gap-1 overflow-x-auto" role="tablist">
+					{tabs.map((tab) => {
+						const active = data.activeTab === tab.key
+						return (
+							<button
+								key={tab.key}
+								type="button"
+								role="tab"
+								aria-selected={active}
+								onClick={() => { data.handleTabChange(tab.key); setSearchQuery('') }}
+								className={cn(
+									'-mb-px flex h-11 shrink-0 items-center border-b-2 px-3 text-sm font-medium cursor-pointer transition-colors',
+									'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0e73f6]',
+									active ? 'border-[#0e73f6] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900',
+								)}
+							>
+								{tab.label}
+							</button>
+						)
+					})}
 				</div>
 			</div>
 
-			{/* Content */}
-			<div ref={contentRef} className="flex-1 flex">
-				{/* Left Sidebar - Category Tree */}
-				<div className=" w-1/2 h-full stiky top-[120px] bg-white border-r border-gray-200 p-4 pb-6 " key={data.activeTab}>
+			{/* Содержимое: дерево статей и подсказка, как они попадают в отчёты */}
+			<div ref={contentRef} className="flex flex-1 gap-4 p-6">
+				<div className="w-1/2 rounded-xl border border-slate-200 bg-white p-4" key={data.activeTab}>
 					{data.isLoading && (
-						<div style={{ padding: '20px', textAlign: 'center' }}>{t('loading')}...</div>
+						<div className="py-8 text-center text-sm text-slate-400">{t('loading')}...</div>
 					)}
 					{data.error && (
-						<div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+						<div className="py-8 text-center text-sm text-red-600">
 							{t('error')}: {data.error?.message || t('errorLoading')}
 						</div>
 					)}
-					{!data.isLoading &&
-						!data.error &&
-						data.categories.length === 0 && (
-							<div className="p-8 text-center bg-gray-100 text-slate-400 pointer-events-none select-none rounded-md my-4">
-								{searchQuery ? t('noResults') : t('noData')}
-							</div>
-						)}
+					{!data.isLoading && !data.error && data.categories.length === 0 && (
+						<div className="flex flex-col items-center gap-2 py-16 text-center">
+							<span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+								<ListTree size={22} aria-hidden="true" />
+							</span>
+							<span className="text-sm text-slate-500">{searchQuery ? t('noResults') : t('noData')}</span>
+						</div>
+					)}
 					{data.categories.map((category, categoryIndex) => (
 						<CategoryTreeItem
 							key={`${data.activeTab}/${categoryIndex}/${category?.id}`}
@@ -127,7 +132,6 @@ const TransactionCategoriesListPage = observer(() => {
 					))}
 				</div>
 
-				{/* Right Content - Cards */}
 				<ReportsInfoPanel t={t} />
 			</div>
 

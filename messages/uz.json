@@ -2477,7 +2477,8 @@
       "selected": "Tanlangan",
       "successDeleted": "Muvaffaqiyatli o'chirildi",
       "bulkSuccessDeleted": "Tanlangan elementlar muvaffaqiyatli o'chirildi",
-      "bulkDeleteError": "Ommaviy o'chirishda xatolik"
+      "bulkDeleteError": "Ommaviy o'chirishda xatolik",
+      "itemsCount": "{count} ta pozitsiya"
     },
     "contract": {
       "pageTitle": "Shartnomalar",

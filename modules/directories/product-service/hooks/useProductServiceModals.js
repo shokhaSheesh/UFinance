@@ -13,7 +13,6 @@ export function useProductServiceModals(t) {
 
   const [isCreateSingleOpen, setIsCreateSingleOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [errorGroup, setErrorGroup] = useState(null)
@@ -44,12 +43,10 @@ export function useProductServiceModals(t) {
     setItemToEdit(null)
     setIsCopying(false)
     setIsCreateSingleOpen(true)
-    setIsMenuOpen(false)
   }
 
   const handleCreateGroup = () => {
     setIsCreateGroupOpen(true)
-    setIsMenuOpen(false)
   }
 
   const handleDeleteConfirm = async () => {
@@ -94,7 +91,6 @@ export function useProductServiceModals(t) {
   return {
     isCreateSingleOpen, setIsCreateSingleOpen,
     isCreateGroupOpen, setIsCreateGroupOpen,
-    isMenuOpen, setIsMenuOpen,
     itemToDelete, setItemToDelete,
     isDeletingItem,
     errorGroup, setErrorGroup,

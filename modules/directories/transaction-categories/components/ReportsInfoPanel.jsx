@@ -1,6 +1,6 @@
 const ReportsInfoPanel = ({ t }) => (
-	<div className="w-1/2 px-6 pt-6 mx-auto">
-		<p className="text-sm text-slate-500 mb-6 text-center">
+	<div className="w-1/2 min-w-0">
+		<p className="mb-4 text-sm text-slate-500">
 			{t('info.title')}
 		</p>
 
@@ -9,8 +9,8 @@ const ReportsInfoPanel = ({ t }) => (
 			<div className="flex-1">
 				<div className="flex flex-col gap-4">
 					{/* Cash Flow */}
-					<div className="bg-white rounded-lg border border-primary p-4">
-						<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.cashFlow.title')}</h3>
+					<div className="rounded-xl border border-slate-200 bg-white p-4">
+						<h3 className="mb-3 border-b border-slate-100 pb-3 text-base font-semibold text-slate-900">{t('reports.cashFlow.title')}</h3>
 
 						<div className="flex flex-col gap-3">
 							{['operational', 'investment', 'financial'].map((section, i) => (
@@ -30,8 +30,8 @@ const ReportsInfoPanel = ({ t }) => (
 					</div>
 
 					{/* P&L */}
-					<div className="bg-white rounded-lg border border-primary p-4">
-						<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.pAndL.title')}</h3>
+					<div className="rounded-xl border border-slate-200 bg-white p-4">
+						<h3 className="mb-3 border-b border-slate-100 pb-3 text-base font-semibold text-slate-900">{t('reports.pAndL.title')}</h3>
 
 						<div className="flex flex-col gap-3">
 							<div className="flex flex-col">
@@ -89,7 +89,7 @@ const ReportsInfoPanel = ({ t }) => (
 			<div className="flex-1 pb-10">
 				{/* Balance */}
 				<div className="bg-white rounded-lg border border-primary p-4 h-full">
-					<h3 className="text-lg font-bold text-slate-900 mb-3 pb-3 border-b border-gray-200">{t('reports.balance.title')}</h3>
+					<h3 className="mb-3 border-b border-slate-100 pb-3 text-base font-semibold text-slate-900">{t('reports.balance.title')}</h3>
 
 					<div className="flex flex-col gap-3">
 						{/* Current Assets */}

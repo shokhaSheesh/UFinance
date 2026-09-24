@@ -52,10 +52,6 @@ export const OperationsSummary = observer(({ totalSummary }) => {
 
   return (
     <div className="flex shrink-0 gap-3 pb-4">
-      <Card icon={Hash} label={t('footer.operations')}>
-        {totalSummary?.count ?? 0}
-      </Card>
-
       <Card icon={ArrowDownLeft} tone="in" label={t('footer.receipts')} count={opsCount(byType.receipt?.count)}>
         <Money value={byType.receipt?.total_summa ?? 0} currency={currency} />
       </Card>
@@ -73,6 +69,11 @@ export const OperationsSummary = observer(({ totalSummary }) => {
           {net > 0 ? '+' : ''}
           <Money value={net} currency={currency} />
         </span>
+      </Card>
+
+      {/* Количество — последней карточкой: сначала деньги, потом «сколько операций» */}
+      <Card icon={Hash} label={t('footer.operations')}>
+        {totalSummary?.count ?? 0}
       </Card>
     </div>
   )

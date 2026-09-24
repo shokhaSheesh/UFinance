@@ -254,7 +254,6 @@ export default observer(function DealsPage() {
   const profitValue = Number(totalProfit) || 0
   const margin = totalSum ? Math.round((profitValue / totalSum) * 1000) / 10 : 0
   const kpis = [
-    { key: 'count', label: t('kpi.count'), value: summary?.count || 0, hint: t('kpi.countHint'), icon: FileText },
     { key: 'sum', label: t('kpi.sum'), value: totalSum, currency: GlobalCurrency?.name, hint: t('kpi.sumHint'), icon: Banknote },
     {
       key: 'profit',
@@ -266,6 +265,8 @@ export default observer(function DealsPage() {
       tone: 'signed',
     },
     { key: 'margin', label: t('kpi.margin'), value: margin, currency: '%', hint: t('kpi.marginHint'), icon: Percent, tone: 'signed' },
+    // Количество — последней карточкой, как на странице операций
+    { key: 'count', label: t('kpi.count'), value: summary?.count || 0, hint: t('kpi.countHint'), icon: FileText },
   ]
 
   // Быстрый фильтр по статусу — вкладками над таблицей; в окне фильтров остаётся множественный выбор
