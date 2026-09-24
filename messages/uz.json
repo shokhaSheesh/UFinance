@@ -3239,6 +3239,10 @@
       "partial": "{total} tadan dastlabki {shown} ta bitim ko‘rsatilgan",
       "noStatus": "Holatsiz",
       "noData": "Tanlangan davrda bitimlar yo'q"
+    },
+    "balanceSection": {
+      "title": "Balans",
+      "hint": "Qarzlar aylanishi, eng yirik qarzdorlar va kreditorlar, loyihalar rentabelligi va davr nisbatlari"
     }
   },
   "Payment": {

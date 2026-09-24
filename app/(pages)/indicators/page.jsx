@@ -1,5 +1,6 @@
 'use client'
 
+import BalanceSection from '@/components/Indicators/BalanceSection'
 import Debts from '@/components/Indicators/Debts'
 import CashRunway from '@/components/Indicators/CashRunway'
 import DealsByStatus from '@/components/Indicators/DealsByStatus'
@@ -50,6 +51,7 @@ const IndicatorsPage = () => {
     { id: 'payment-structure', label: t('paymentStructure.title') },
     { id: 'profitable-clients', label: t('profitableClients.title') },
     { id: 'deals-by-status', label: t('dealsByStatus.title') },
+    { id: 'balance-overview', label: t('balanceSection.title') },
     { id: 'debts', label: t('debts.title') },
   ].filter(Boolean)
 
@@ -104,6 +106,8 @@ const IndicatorsPage = () => {
         <Section id="payment-structure" padded><PaymentStructure /></Section>
         <Section id="profitable-clients" padded><ProfitableClients /></Section>
         <Section id="deals-by-status"><DealsByStatus /></Section>
+        {/* «Баланс» — те же блоки, что на «Моей компании» */}
+        <Section id="balance-overview"><BalanceSection /></Section>
         <Section id="debts"><Debts /></Section>
       </div>
     </div>

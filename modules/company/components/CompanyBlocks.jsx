@@ -10,9 +10,16 @@ const money = (value) => formatNumber(formatTotalSumma(value, 0)) || '0'
 const percent = (value) => (value == null ? '—' : `${(Math.round(value * 10) / 10).toLocaleString('ru-RU')}%`)
 
 /** Карточка блока с заголовком и подписью. */
-export function Block({ title, subtitle, hint, footer, className, children }) {
+export function Block({ title, subtitle, hint, footer, flat = false, className, children }) {
   return (
-    <div className={cn('flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5', className)}>
+    <div
+      className={cn(
+        'flex min-w-0 flex-col rounded-xl p-5',
+        // flat — панель внутри другой карточки: рамка заменена мягким фоном
+        flat ? 'bg-slate-50/60' : 'border border-slate-200 bg-white',
+        className
+      )}
+    >
       <div className="mb-4 flex items-start gap-2">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
