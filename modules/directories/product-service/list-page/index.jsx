@@ -33,6 +33,7 @@ export default observer(function ProductServiceListPage() {
     filters,
     setFilters,
     productServicesList,
+    totalItemsCount,
     isLoading,
   } = useProductServiceData(t, tc);
 
