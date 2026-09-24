@@ -761,7 +761,8 @@ const AiChatPanel = observer(() => {
     quickReplies.length > 0 && !isAwaiting && streamingText === null;
 
   // AI-ассистент включается флагом ia_active из get_general_settings
-  if (!appStore.isAiActive) return null;
+  // Тот же флаг из localStorage — панель тоже рисуем только в браузере
+  if (!mounted || !appStore.isAiActive) return null;
 
   return (
     <>

@@ -1,5 +1,6 @@
 "use client";
 
+import useMounted from "@/hooks/useMounted";
 import { cn } from "@/lib/utils";
 import { aiChatStore } from "@/store/aiChat.store";
 import { appStore } from "@/store/app.store";
@@ -26,6 +27,9 @@ const HINT_DISMISSED_KEY = "aiChatHintDismissed";
  */
 const AiChatButton = observer(() => {
   const t = useTranslations("AiChat");
+  // Флаг ia_active лежит в localStorage: на сервере он всегда выключен, и без
+  // этой проверки разметка сервера и браузера расходилась (hydration mismatch)
+  const mounted = useMounted();
   const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
@@ -58,6 +62,7 @@ const AiChatButton = observer(() => {
   };
 
   // Показываем кнопку только если AI-ассистент включён в настройках (get_general_settings)
+  if (!mounted) return null;
   if (!appStore.isAiActive) return null;
   if (aiChatStore.isOpen) return null;
   // Пока открыта модалка или выезжающая панель, кнопка перекрывала бы форму
