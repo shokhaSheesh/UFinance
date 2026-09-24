@@ -1,13 +1,20 @@
 'use client'
 
+import { CATEGORY_TYPES, CategoryTypeIcon, CategoryTypeTabs } from '@/components/directories/CategoryTypes'
 import CreateChartOfAccountsModal from '@/components/directories/CreateChartOfAccountsModal/CreateChartOfAccountsModal'
 import { DeleteCategoryConfirmModal } from '@/components/directories/DeleteCategoryConfirmModal/DeleteCategoryConfirmModal'
 import { PageSearchBar } from '@/components/PageSearchbar'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import useMounted from '@/hooks/useMounted'
 import FixedContent from '@/layouts/FixedContent'
 import { queryClient } from '@/lib/queryClient'
-import { cn } from '@/lib/utils'
 import { showErrorNotification } from '@/lib/utils/notifications'
-import { ListTree, Plus } from 'lucide-react'
+import { ChevronDown, ListTree, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
@@ -25,17 +32,13 @@ const TransactionCategoriesListPage = observer(() => {
 	const [isEditMode, setIsEditMode] = useState(false)
 	const [categoryToDelete, setCategoryToDelete] = useState(null)
 	const [searchQuery, setSearchQuery] = useState('')
+	// Раздел, выбранный в меню «Создать»: статью можно завести не только в том
+	// разделе, который сейчас открыт
+	const [createTab, setCreateTab] = useState(null)
 	const contentRef = useRef(null)
+	const isMounted = useMounted()
 
 	const data = useCategoriesData(searchQuery)
-
-	const tabs = [
-		{ key: 'income', label: t('tabs.income') },
-		{ key: 'expense', label: t('tabs.expense') },
-		{ key: 'assets', label: t('tabs.assets') },
-		{ key: 'liabilities', label: t('tabs.liabilities') },
-		{ key: 'capital', label: t('tabs.capital') },
-	]
 
 	return (
 		<FixedContent className="flex flex-col overflow-y-auto bg-canvas">
@@ -49,36 +52,49 @@ const TransactionCategoriesListPage = observer(() => {
 						<div className="w-[280px]">
 							<PageSearchBar contentRef={contentRef} placeholder={tc('search')} />
 						</div>
-						{data.categoriesPermissions.add && (
-							<button onClick={() => setIsCreateModalOpen(true)} className="primary-btn gap-1.5">
-								<Plus size={16} />
-								{t('create')}
-							</button>
+						{/* «Создать» сразу спрашивает раздел: доход, расход, актив,
+						    обязательство или капитал — как выбор типа операции */}
+						{isMounted && data.categoriesPermissions.add && (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button type="button" className="primary-btn gap-1.5">
+										<Plus size={16} />
+										{t('create')}
+										<ChevronDown size={16} />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent className="w-60 rounded-xl p-1.5" align="end" sideOffset={6}>
+									{CATEGORY_TYPES.map(({ key }) => (
+										<DropdownMenuItem
+											key={key}
+											onClick={() => {
+												setCreateTab(key)
+												setCategoryToEdit(null)
+												setIsEditMode(false)
+												setIsCreateModalOpen(true)
+											}}
+											className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 cursor-pointer outline-none"
+										>
+											<CategoryTypeIcon type={key} size="sm" />
+											<span className="text-sm font-medium text-slate-900">{t(`createType.${key}`)}</span>
+										</DropdownMenuItem>
+									))}
+								</DropdownMenuContent>
+							</DropdownMenu>
 						)}
 					</div>
 				</div>
 
-				{/* Вкладки — подчёркиванием, как на других страницах (раньше — серые кнопки в ряд) */}
-				<div className="flex items-center gap-1 overflow-x-auto" role="tablist">
-					{tabs.map((tab) => {
-						const active = data.activeTab === tab.key
-						return (
-							<button
-								key={tab.key}
-								type="button"
-								role="tab"
-								aria-selected={active}
-								onClick={() => { data.handleTabChange(tab.key); setSearchQuery('') }}
-								className={cn(
-									'-mb-px flex h-11 shrink-0 items-center border-b-2 px-3 text-sm font-medium cursor-pointer transition-colors',
-									'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0e73f6]',
-									active ? 'border-[#0e73f6] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-900',
-								)}
-							>
-								{tab.label}
-							</button>
-						)
-					})}
+				{/* Разделы учёта — значок в цвете раздела и название, как типы
+				    операций: раньше это были одинаковые подчёркнутые надписи */}
+				<div className="pb-3">
+					<CategoryTypeTabs
+						value={data.activeTab}
+						onChange={(key) => { data.handleTabChange(key); setSearchQuery('') }}
+						label={(key) => t(`tabs.${key}`)}
+						ariaLabel={t('pageTitle')}
+						className="max-w-full overflow-x-auto"
+					/>
 				</div>
 			</div>
 
@@ -142,8 +158,9 @@ const TransactionCategoriesListPage = observer(() => {
 					setIsCreateModalOpen(false)
 					setCategoryToEdit(null)
 					setIsEditMode(false)
+					setCreateTab(null)
 				}}
-				initialTab={data.activeTab}
+				initialTab={createTab ?? data.activeTab}
 				parentCategory={!isEditMode ? categoryToEdit : null}
 				category={isEditMode ? categoryToEdit : null}
 			/>

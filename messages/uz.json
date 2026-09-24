@@ -2110,6 +2110,13 @@
         "totalCapital": "JAMI KAPITAL",
         "balanceEquation": "AKTIVLAR = MAJBURIYATLAR + KAPITAL"
       }
+    },
+    "createType": {
+      "income": "Daromad moddasi",
+      "expense": "Xarajat moddasi",
+      "assets": "Aktiv moddasi",
+      "liabilities": "Majburiyat moddasi",
+      "capital": "Kapital moddasi"
     }
   },
   "Directories": {

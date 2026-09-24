@@ -6,21 +6,13 @@ import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
+import { CategoryTypeTabs } from "@/components/directories/CategoryTypes"
 import SelectStatiya from "@/components/ReadyComponents/SelectStatiya"
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from "@/components/shared/CustomDialog"
 import Input from "@/components/shared/Input"
 import TextArea from "@/components/shared/TextArea"
 import { useUcodeRequestMutation, useUpdateChartOfAccounts } from "@/hooks/useDashboard"
-import { cn } from "@/lib/utils"
 import { authStore } from "@/store/auth.store"
-
-const TAB_CONFIG = [
-  { key: "income", color: "text-emerald-600 border-emerald-600" },
-  { key: "expense", color: "text-rose-600 border-rose-600" },
-  { key: "assets", color: "text-amber-600 border-amber-600" },
-  { key: "liabilities", color: "text-orange-600 border-orange-600" },
-  { key: "capital", color: "text-violet-600 border-violet-600" },
-]
 
 // Hardcoded mapping for API - API expects Russian tip values
 const TAB_TO_API_TIP = {
@@ -158,33 +150,15 @@ export default function CreateChartOfAccountsModal({
         />
 
         <DialogBody className="flex flex-col gap-4">
-          {/* Tabs */}
-          <div className="flex mb-2 border-b border-gray-200">
-            {TAB_CONFIG.map((tab, index) => {
-              const isActive = activeTab === tab.key
-              const isFirst = index === 0
-              const isLast = index === TAB_CONFIG.length - 1
-
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveTab(tab.key)}
-                  className={cn(
-                    "py-3 px-6 text-sm flex-1 font-medium bg-transparent border-b-2 transition-all duration-200 cursor-pointer",
-                    isFirst && "pl-0",
-                    isLast && "pr-0",
-                    !isFirst && "ml-2",
-                    isActive
-                      ? cn(tab.color, "border-current")
-                      : "text-gray-500 border-transparent hover:text-slate-900"
-                  )}
-                >
-                  {t(`tabs.${tab.key}`)}
-                </button>
-              )
-            })}
-          </div>
+          {/* Раздел учёта — значки и цвета те же, что в списке статей */}
+          <CategoryTypeTabs
+            full
+            className="mb-2"
+            value={activeTab}
+            onChange={setActiveTab}
+            label={(key) => t(`tabs.${key}`)}
+            ariaLabel={t("createTitle")}
+          />
 
           {/* Name */}
           <FormRow label={t("fields.name")} required error={errors.nazvanie?.message}>
