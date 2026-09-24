@@ -243,7 +243,7 @@ const ProfitAndLossPage = observer(() => {
     // Оформление как в балансовом отчёте: разделы и итоги выделены заливкой
     // и синей полосой слева, вложенные статьи светлее, остальные на белом
     const isStrong = depth === 0 || isResultRow || isTotalRow
-    const rowBg = isStrong ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50/70' : 'bg-white'
+    const rowBg = isStrong ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50' : 'bg-white'
     const textTone = isStrong
       ? 'text-slate-900 font-semibold'
       : depth === 1

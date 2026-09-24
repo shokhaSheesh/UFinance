@@ -37,7 +37,7 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
 
   // Оформление то же, что в балансовом отчёте: корневые разделы заливкой и
   // синей полосой слева, вложенные — светлее, статьи на белом
-  const rowBg = isBold ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50/70' : 'bg-white'
+  const rowBg = isBold ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50' : 'bg-white'
   const textTone = isBold
     ? 'text-slate-900 font-semibold'
     : depth === 1

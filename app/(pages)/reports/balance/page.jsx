@@ -127,7 +127,7 @@ export default observer(function BalancePage() {
     const isRoot = item?.id === 'active' || item?.id === 'passive' || level === 0
     const isSection = !isRoot && level === 1
 
-    const rowBg = isRoot ? 'bg-slate-100' : isSection ? 'bg-slate-50/70' : 'bg-white'
+    const rowBg = isRoot ? 'bg-slate-100' : isSection ? 'bg-slate-50' : 'bg-white'
     const textTone = isRoot
       ? 'text-slate-900 font-semibold'
       : isSection
@@ -204,8 +204,10 @@ export default observer(function BalancePage() {
           </div>
         </div>
 
-        {/* Настройки отчёта и формула баланса */}
-        <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6">
+        {/* Настройки отчёта: валюта и разбивка по периодам. Формулу
+            «Активы = Обязательства + Капитал» убрали — она ничего не
+            сообщала о данных и занимала целую строку */}
+        <div className="mb-3 flex shrink-0 justify-end px-6">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <label className="flex items-center gap-2">
               <span className="text-xs text-slate-500">{t('balance.currencyLabel')}</span>
@@ -236,11 +238,6 @@ export default observer(function BalancePage() {
               />
             </label>
           </div>
-
-          {/* В виде диаграмм формула показана карточкой «Равенство баланса» */}
-          {view === 'table' && (
-            <span className="text-sm font-medium text-slate-500">{t('balance.formula')}</span>
-          )}
         </div>
 
         {/* Таблица — единственная область прокрутки: колонки периодов уходят
