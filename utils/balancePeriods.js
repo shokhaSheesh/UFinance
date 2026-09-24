@@ -2,25 +2,31 @@ import moment from 'moment'
 
 const SHORT_MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 
-// Срезы (as_of) внутри периода: конец каждого квартала/года + сам конец периода.
-// Для 'monthly' срезы считает бэкенд (period_start_date + period_end_date),
-// для 'total' срез один — конец периода.
+// Сколько срезов максимум запрашиваем: при разбивке по дням длинный период
+// иначе превратился бы в сотни колонок и такой же тяжёлый запрос
+const MAX_CUTOFFS = 190
+
+// Срезы (as_of) внутри периода: конец каждого дня/квартала/года + сам конец
+// периода. Для 'monthly' срезы считает бэкенд (period_start_date +
+// period_end_date), для 'total' срез один — конец периода.
 export const buildCutoffs = (start, end, periodType) => {
   const from = moment(start)
   const to = moment(end)
   if (!from.isValid() || !to.isValid() || to.isBefore(from, 'day')) return []
 
-  const unit = periodType === 'yearly' ? 'year' : 'quarter'
+  const unit = periodType === 'daily' ? 'day' : periodType === 'yearly' ? 'year' : 'quarter'
   const cutoffs = []
 
   let cursor = from.clone().endOf(unit)
-  while (cursor.isBefore(to, 'day')) {
+  while (cursor.isBefore(to, 'day') && cutoffs.length < MAX_CUTOFFS) {
     cutoffs.push(cursor.format('YYYY-MM-DD'))
     cursor = cursor.add(1, 'day').endOf(unit)
   }
   cutoffs.push(to.format('YYYY-MM-DD'))
 
-  return [...new Set(cutoffs)]
+  // Период длиннее лимита — оставляем последние срезы: свежие данные нужнее
+  const unique = [...new Set(cutoffs)]
+  return unique.length > MAX_CUTOFFS ? unique.slice(-MAX_CUTOFFS) : unique
 }
 
 // Тело запроса для balance_report_multi — способ задания дат зависит от разбивки
@@ -31,6 +37,7 @@ export const buildPeriodPayload = (dateRange, periodType) => {
   if (!end) return {}
   if (periodType === 'total' || !start) return { as_of: end }
   if (periodType === 'monthly') return { period_start_date: start, period_end_date: end }
+  // 'daily', 'quarterly', 'yearly' — срезы считаем на фронте
 
   return { as_of_list: buildCutoffs(start, end, periodType) }
 }

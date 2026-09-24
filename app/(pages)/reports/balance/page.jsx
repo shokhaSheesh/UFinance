@@ -11,7 +11,7 @@ import { Download } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { balanceStore } from '../../../../components/reports/balance/balance.store'
 import ScreenLoader from '../../../../components/shared/ScreenLoader'
 import SingleSelect from '../../../../components/shared/Selects/SingleSelect'
@@ -19,6 +19,7 @@ import { apiClient } from '../../../../lib/api/ucode/base'
 import { showSuccessNotification } from '../../../../lib/utils/notifications'
 import { appStore } from '../../../../store/app.store'
 import { formatNumber, formatTotalSumma, handleDownload } from '../../../../utils/helpers'
+import { buildColumns, buildPeriodPayload, collectInitialExpanded, mergePeriodRows } from '@/utils/balancePeriods'
 
 export default observer(function BalancePage() {
   const t = useTranslations('Reports')
@@ -27,20 +28,41 @@ export default observer(function BalancePage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const filterCount = useBalanceFilterCount()
-  const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount } = balanceStore
+  const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount, periodType } = balanceStore
 
-  const filterData = {
-    as_of: dateRange ? moment(dateRange.end).format('YYYY-MM-DD') : '',
+  const periodOptions = useMemo(() => [
+    { value: 'daily', label: t('balance.grouping.daily') },
+    { value: 'monthly', label: t('balance.grouping.monthly') },
+    { value: 'quarterly', label: t('balance.grouping.quarterly') },
+    { value: 'yearly', label: t('balance.grouping.yearly') },
+    { value: 'total', label: t('balance.grouping.total') },
+  ], [t])
+
+  const baseFilterData = {
     account_ids: selectedAccount ? selectedAccount : [],
     legal_entity_id: selectedEntity,
     user_currency_code: selectedCurrency,
     contr_agent_ids: selectedCounterparties,
   }
 
+  // Колонки строятся по разбивке: день / месяц / квартал / год или один срез
+  // на конец периода. Даты для среза собирает buildPeriodPayload.
+  const filterData = {
+    ...baseFilterData,
+    ...buildPeriodPayload(dateRange, periodType),
+  }
+
+  // Выгрузка по-прежнему одной датой — на конец периода
+  const exportFilterData = {
+    ...baseFilterData,
+    as_of: dateRange?.end ? moment(dateRange.end).format('YYYY-MM-DD') : '',
+  }
+
   const { data, isLoading, isFetching, error } = useQuery({
-    queryKey: ["balance_report", filterData],
-    queryFn: () => apiClient.invokeFunction({ method: "balance_report", data: filterData }),
-    select: (res) => res?.data,
+    queryKey: ["balance_report", "multi", filterData],
+    queryFn: () => apiClient.invokeFunction({ method: "balance_report_multi", data: filterData }),
+    // ответ приходит как { data: { periods, ... } }, но поддерживаем и вложенный вариант
+    select: (res) => (res?.data?.periods ? res.data : res?.data?.data ?? res?.data),
     refetchOnWindowFocus: false,  // tab o'zgarganda OFF
     refetchOnMount: true,          // page ga qaytganda ON ✅
     staleTime: 0,
@@ -49,7 +71,7 @@ export default observer(function BalancePage() {
 
   const { mutate: exportBalanceReport, isPending: isExportBalanceReportLoading } = useMutation({
     mutationKey: ['export_balance_report'],
-    mutationFn: () => apiClient.invokeFunction({ method: 'export_balance_report', data: filterData }),
+    mutationFn: () => apiClient.invokeFunction({ method: 'export_balance_report', data: exportFilterData }),
     onSuccess: (uploadData) => {
       showSuccessNotification(t('common.fileDownloaded'))
       const fileLink = uploadData?.data?.link
@@ -60,39 +82,26 @@ export default observer(function BalancePage() {
     }
   })
 
+  const periods = useMemo(() => data?.periods || [], [data])
+  const columns = useMemo(() => {
+    const built = buildColumns(periods)
+    // один срез «на конец периода» подписываем «Итого», а не датой
+    return periodType === 'total' && built.length === 1
+      ? [{ ...built[0], title: t('common.total') }]
+      : built
+  }, [periods, periodType, t])
+  const rows = useMemo(() => mergePeriodRows(periods), [periods])
+
   useEffect(() => {
-    if (!isInitialLoad || !data) return
-    const hasData =
-      (data.assets && data.assets.length > 0) ||
-      (data.liabilities && data.liabilities.length > 0) ||
-      (data.equity && data.equity.length > 0)
-
-    if (!hasData) return
-
-    const firstLevelIds = new Set()
-    const addFirstLevel = (items) => {
-      items.forEach(item => {
-        if (item.children && item.children.length > 0) {
-          firstLevelIds.add(item.id)
-          item.children.forEach(child => {
-            if (child.children && child.children.length > 0) {
-              firstLevelIds.add(child.id)
-            }
-          })
-        }
-      })
-    }
-
-    addFirstLevel(data.data || [])
-
-    setExpandedRows(firstLevelIds)
+    if (!isInitialLoad || rows.length === 0) return
+    setExpandedRows(collectInitialExpanded(rows))
     setIsInitialLoad(false)
-  }, [data, isInitialLoad])
+  }, [rows, isInitialLoad])
 
-  const toggleRow = (id) => {
+  const toggleRow = (key) => {
     setExpandedRows(prev => {
       const next = new Set(prev)
-      if (next.has(id)) { next.delete(id) } else { next.add(id) }
+      if (next.has(key)) { next.delete(key) } else { next.add(key) }
       return next
     })
   }
@@ -102,13 +111,13 @@ export default observer(function BalancePage() {
 
     const children = item.children || item.details
     const hasChildren = children && children.length > 0
-    const isExpanded = item.name === 'active' || item.name === 'passive' || expandedRows.has(item.id)
+    const isExpanded = item.name === 'active' || item.name === 'passive' || expandedRows.has(item.uniquePath ?? item.id)
     const indent = level * 24
     const isTotalRow = level === 0
     const isActiveOrPassive = item?.id === 'active' || item?.id === 'passive'
 
     return (
-      <React.Fragment key={item.id}>
+      <React.Fragment key={item.uniquePath ?? item.id}>
         <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
           <td
             className={`sticky left-0  z-1 min-w-[200px] w-[1250px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
@@ -116,7 +125,7 @@ export default observer(function BalancePage() {
           >
             <div
               className={`flex  items-center gap-2 ${hasChildren ? 'cursor-pointer select-none hover:opacity-80' : ''}`}
-              onClick={() => hasChildren && toggleRow(item.id)}
+              onClick={() => hasChildren && toggleRow(item.uniquePath ?? item.id)}
             >
               {hasChildren && (
                 <button className="bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center text-gray-ucode-500 rounded transition-colors duration-200 hover:bg-gray-100 [&_svg]:w-5 [&_svg]:h-5">
@@ -126,13 +135,19 @@ export default observer(function BalancePage() {
               <span className={isTotalRow ? 'font-semibold' : ''}>{item.name}</span>
             </div>
           </td>
-          <td className={`px-2 py-1.5  text-xs text-slate-900 border-b border-gray-200 text-right font-semibold whitespace-nowrap ${isActiveOrPassive && 'bg-primary! text-white!'}`}>
-            <span className={isTotalRow ? 'text-xs font-semibold' : ''}>
-              {(item.value === 0 || item.value == null)
-                ? '–'
-                : formatNumber(formatTotalSumma(item.value))}
-            </span>
-          </td>
+          {columns.map((column) => {
+            const value = item.values?.[column.key]
+            return (
+              <td
+                key={column.key}
+                className={`px-2 py-1.5 min-w-[120px] text-xs text-slate-900 border-b border-gray-200 text-right font-semibold whitespace-nowrap tabular-nums ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+              >
+                <span className={isTotalRow ? 'text-xs font-semibold' : ''}>
+                  {(value === 0 || value == null) ? '–' : formatNumber(formatTotalSumma(value))}
+                </span>
+              </td>
+            )
+          })}
         </tr>
         {hasChildren && isExpanded && children.map(child => renderRow(child, level + 1, true))}
       </React.Fragment>
@@ -165,6 +180,16 @@ export default observer(function BalancePage() {
             className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
             dropdownClassName={'w-28'}
           />
+          <SingleSelect
+            data={periodOptions}
+            value={periodType}
+            onChange={(value) => balanceStore.setPeriodType(value)}
+            placeholder={t('balance.display')}
+            isClearable={false}
+            withSearch={false}
+            className={'bg-white w-44'} wrapperClassName="w-44 shrink-0"
+            dropdownClassName={'w-44'}
+          />
           <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
           <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
             </div>
@@ -190,12 +215,16 @@ export default observer(function BalancePage() {
             <table className="w-full">
               <thead className=" bg-neutral-100 sticky top-16 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2 text-[11px] font-medium min-w-[200px] w-[200px]">{t('balance.accountHeader')}</th>
-                  <th className="text-right px-4 py-2 text-xs font-medium">{t('common.total')}</th>
+                  <th className="text-left px-4 py-2 text-[11px] font-medium sticky left-0 z-20 bg-slate-50 min-w-[260px] w-[260px]">{t('balance.accountHeader')}</th>
+                  {columns.map((column) => (
+                    <th key={column.key} className="text-right px-4 py-2 text-xs font-medium whitespace-nowrap min-w-[120px]">
+                      {column.title}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {data?.data?.map(row => renderRow(row))}
+                {rows.map(row => renderRow(row))}
                 {/* {data?.liabilities?.map(row => renderRow(row))}
                   {data?.equity?.map(row => renderRow(row))} */}
               </tbody>

@@ -14,8 +14,9 @@ import ScreenLoader from '@/components/shared/ScreenLoader'
 import { formatDateFormat } from '@/utils/formatDate'
 import { formatAmount, handleDownload } from '@/utils/helpers'
 
-import PurchasesTableHeader from '../components/PurchasesTableHeder'
-import styles from '../purchases-list/purchases.module.scss'
+import { Monogram, Progress, StatusPill } from '@/components/deals/RowParts'
+import { cn } from '@/lib/utils'
+import PurchasesTableHeader, { PURCHASE_COL } from '../components/PurchasesTableHeder'
 
 export default function PurchasesTable({
   t,
@@ -36,7 +37,7 @@ export default function PurchasesTable({
       <PurchasesTableHeader t={t} />
 
       {formattedDeals?.length === 0 && !isLoading && (
-        <div className="py-20 text-center text-neutral-500 text-sm">
+        <div className="py-20 text-center text-sm text-slate-500">
           {t('empty')}
         </div>
       )}
@@ -78,37 +79,49 @@ function PurchaseRow({
   onEditClick,
   onCopyClick,
 }) {
+  const received = Number(deal?.paid_percent ?? deal?.receipts_percentage) || 0
+  const shipped = Number(deal?.supply_percent ?? deal?.shipments_percentage) || 0
+
   return (
     <div
       onClick={(e) => onRowClick(deal, e)}
-      className="flex items-center h-12 border-b border-neutral-100 hover:bg-neutral-50 group cursor-pointer text-xs"
+      className="group flex min-h-[56px] cursor-pointer items-center border-b border-slate-100 bg-white text-sm transition-colors hover:bg-[#f5f8ff]"
     >
-      <div className="w-32 shrink-0 px-2">{formatDateFormat(deal.Data_sdelki)}</div>
+      {/* Дата */}
+      <div className={cn(PURCHASE_COL.date, 'px-4 tabular-nums text-slate-600')}>{formatDateFormat(deal.Data_sdelki)}</div>
 
-      <div className="flex-1 min-w-24 line-clamp-1 flex flex-col px-2">
-        <p className="truncate">{deal.nazvanie}</p>
-        <p className="text-neutral-400 truncate">{deal.comment}</p>
+      {/* Название и комментарий */}
+      <div className={cn(PURCHASE_COL.name, 'flex min-w-0 flex-col px-3')}>
+        <span className="truncate font-medium text-slate-900">{deal.nazvanie}</span>
+        {deal.comment && <span className="truncate text-xs text-slate-400">{deal.comment}</span>}
       </div>
 
-      <div className="flex-1 min-w-32 line-clamp-1  shrink-0 px-2 truncate">{deal?.partner_name || '-'}</div>
-
-      <div className="w-28 shrink-0 px-2 flex items-center justify-center">
-        <span
-          className={`${styles.status} ${styles[`status_${deal.status}`]}`}
-          style={{ color: deal?.color, backgroundColor: deal?.color + '10' }}
-        >
-          {deal?.status || '-'}
-        </span>
+      {/* Поставщик */}
+      <div className={cn(PURCHASE_COL.client, 'flex min-w-0 items-center gap-2.5 px-3')}>
+        <Monogram name={deal?.partner_name} />
+        <span className="truncate text-slate-700">{deal?.partner_name || '-'}</span>
       </div>
 
-      <div className="w-36 shrink-0 px-2 text-end">{formatAmount(deal.summa_sdelki)}</div>
+      {/* Статус */}
+      <div className={cn(PURCHASE_COL.status, 'px-3')}>
+        <StatusPill label={deal?.status} color={deal?.color} />
+      </div>
 
-      <div className="w-24 shrink-0 px-2 text-end">{deal.postupilo || '0%'}</div>
+      {/* Сумма */}
+      <div className={cn(PURCHASE_COL.amount, 'px-3 text-right font-medium tabular-nums text-slate-900')}>
+        {formatAmount(deal.summa_sdelki)}
+      </div>
 
-      <div className="w-24 shrink-0 px-2 text-end">{deal.otgruzheno || '0%'}</div>
+      {/* Оплачено / поставлено — полоской, как в сделках */}
+      <div className={cn(PURCHASE_COL.progress, 'px-3')}>
+        <Progress value={received} label={deal.postupilo || '0%'} barClass="bg-[#0e73f6]" />
+      </div>
+      <div className={cn(PURCHASE_COL.progress, 'px-3')}>
+        <Progress value={shipped} label={deal.otgruzheno || '0%'} barClass="bg-slate-500" />
+      </div>
 
       {/* Действия — одним меню вместо россыпи иконок в строке */}
-      <div className="w-20 shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+      <div className={cn(PURCHASE_COL.menu, 'flex items-center justify-center')} onClick={(e) => e.stopPropagation()}>
         {(dealPermission.edit || dealPermission.add || dealPermission.delete || deal.contract_file) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

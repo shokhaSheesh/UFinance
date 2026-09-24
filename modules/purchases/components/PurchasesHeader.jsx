@@ -13,6 +13,7 @@ export default function PurchasesHeader({
   isDealsExportLoading,
   onExport,
   onCreateDeal,
+  count,
 }) {
   const tPurchases = useTranslations("Purchases");
 
@@ -20,6 +21,7 @@ export default function PurchasesHeader({
     <PageHeader
       className="px-0"
       title={tPurchases("pageTitle")}
+      search={count != null && <span className="text-sm tabular-nums text-slate-500">{t("dealsCountShort", { count })}</span>}
       actions={
         <>
           <IconButton

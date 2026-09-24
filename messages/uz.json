@@ -857,7 +857,8 @@
         "monthly": "Oylar bo'yicha",
         "quarterly": "Choraklar bo'yicha",
         "yearly": "Yillar bo'yicha",
-        "total": "Davr oxiriga"
+        "total": "Davr oxiriga",
+        "daily": "Kunlar bo‘yicha"
       },
       "display": "Ko'rinish",
       "titleTest": "Balans (Test)",
