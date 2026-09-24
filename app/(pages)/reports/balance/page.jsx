@@ -35,14 +35,6 @@ export default observer(function BalancePage() {
   const filterCount = useBalanceFilterCount()
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount, periodType } = balanceStore
 
-  const periodOptions = useMemo(() => [
-    { value: 'daily', label: t('balance.grouping.daily') },
-    { value: 'monthly', label: t('balance.grouping.monthly') },
-    { value: 'quarterly', label: t('balance.grouping.quarterly') },
-    { value: 'yearly', label: t('balance.grouping.yearly') },
-    { value: 'total', label: t('balance.grouping.total') },
-  ], [t])
-
   const baseFilterData = {
     account_ids: selectedAccount ? selectedAccount : [],
     legal_entity_id: selectedEntity,
@@ -184,12 +176,24 @@ export default observer(function BalancePage() {
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
       <div className={"flex w-full min-w-0 flex-col bg-canvas"}>
-        {/* В шапке только название и три действия: вид, фильтры, выгрузка.
-            Валюта и разбивка по периодам — строкой ниже, рядом с таблицей:
-            в один ряд помещалось шесть элементов, и шапка выглядела свалкой */}
+        {/* В шапке — название, валюта, вид, фильтры и выгрузка. Разбивка по
+            периодам переехала в фильтры: в один ряд помещалось шесть
+            элементов, и заголовок терялся между выпадающими списками */}
         <div className="flex h-16 shrink-0 items-center justify-between gap-3 px-6 bg-canvas">
           <h1 className="text-xl font-semibold whitespace-nowrap">{t('balance.title')}</h1>
           <div className="flex items-center gap-2">
+            <SingleSelect
+              data={appStore.myCurrencies}
+              value={balanceStore.selectedCurrency}
+              onChange={(value) => {
+                balanceStore.setSelectedCurrency(value)
+                balanceStore.fetchBalance()
+              }}
+              isClearable={false}
+              withSearch={false}
+              className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
+              dropdownClassName={'w-28'}
+            />
             <Segmented
               ariaLabel={t('balance.charts.view.table')}
               value={view}
@@ -201,42 +205,6 @@ export default observer(function BalancePage() {
             />
             <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
             <IconButton icon={Download} label={t('common.downloadExcel')} onClick={exportBalanceReport} loading={isExportBalanceReportLoading} />
-          </div>
-        </div>
-
-        {/* Настройки отчёта: валюта и разбивка по периодам. Формулу
-            «Активы = Обязательства + Капитал» убрали — она ничего не
-            сообщала о данных и занимала целую строку */}
-        <div className="mb-3 flex shrink-0 justify-end px-6">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <label className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">{t('balance.currencyLabel')}</span>
-              <SingleSelect
-                data={appStore.myCurrencies}
-                value={balanceStore.selectedCurrency}
-                onChange={(value) => {
-                  balanceStore.setSelectedCurrency(value)
-                  balanceStore.fetchBalance()
-                }}
-                isClearable={false}
-                withSearch={false}
-                className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
-                dropdownClassName={'w-28'}
-              />
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">{t('balance.groupingLabel')}</span>
-              <SingleSelect
-                data={periodOptions}
-                value={periodType}
-                onChange={(value) => balanceStore.setPeriodType(value)}
-                placeholder={t('balance.display')}
-                isClearable={false}
-                withSearch={false}
-                className={'bg-white w-44'} wrapperClassName="w-44 shrink-0"
-                dropdownClassName={'w-44'}
-              />
-            </label>
           </div>
         </div>
 

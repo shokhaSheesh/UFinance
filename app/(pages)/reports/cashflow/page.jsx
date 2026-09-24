@@ -158,13 +158,6 @@ const nameMap = {
 
 export default observer(function CashFlowReportPage() {
   const t = useTranslations('Reports')
-  const groupingOptions = useMemo(() => [
-    { value: 'daily', label: t('cashflow.grouping.daily') },
-    { value: 'monthly', label: t('cashflow.grouping.monthly') },
-    { value: 'quarterly', label: t('cashflow.grouping.quarterly') },
-    { value: 'yearly', label: t('cashflow.grouping.yearly') }
-  ], [t])
-
   const [expandedMap, setExpandedMap] = useState({})
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const filterCount = useCashFlowFilterCount()
@@ -455,18 +448,6 @@ export default observer(function CashFlowReportPage() {
               withSearch={false}
               className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
               dropdownClassName={'w-28'}
-            />
-            <SingleSelect
-              data={groupingOptions}
-              value={periodType}
-              onChange={(value) => {
-                cashFlowStore.setPeriodType(value)
-              }}
-              placeholder={t('common.buildingMethod')}
-              withSearch={false}
-              isClearable={false}
-              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
-              dropdownClassName="bg-white"
             />
             <FilterButton onClick={() => setIsFilterOpen(true)} count={filterCount} />
             <IconButton icon={Download} label={t('common.downloadExcel')} onClick={handleExportCashFlow} loading={isCashFlowLoading} />

@@ -818,7 +818,8 @@
       "counterpartyGroup": "Hamkorlar guruhi",
       "deals": "Bitimlar",
       "projects": "Loyihalar",
-      "currency": "Valyuta"
+      "currency": "Valyuta",
+      "grouping": "Bo‘linish"
     },
     "cashflow": {
       "title": "Pul mablag'larining harakati to'g'risida hisobot",

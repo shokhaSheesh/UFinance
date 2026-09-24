@@ -6,8 +6,10 @@ import { usePnLFilterCount } from '@/hooks/useReportFilterCount'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import MultiSelectZdelka from '@/components/ReadyComponents/MultiZdelka'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 import SelectCounterParties from '../../../ReadyComponents/SelectCounterParties'
 import SelectMyAccoutGroup from '../../../ReadyComponents/SelectMyAccoutGroup'
 import SelectProjects from '../../../ReadyComponents/SelectProjects'
@@ -23,6 +25,13 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
   }
 
   const { dateRangeType } = pnlStore
+
+  // Разбивка на колонки — рядом с периодом, а не в шапке страницы
+  const groupingOptions = useMemo(() => [
+    { value: 'daily', label: t('pnl.grouping.daily') },
+    { value: 'weekly', label: t('pnl.grouping.weekly') },
+    { value: 'monthly', label: t('pnl.grouping.monthly') },
+  ], [t])
 
 
   const clearCount = usePnLFilterCount()
@@ -48,6 +57,17 @@ const PnLFilterSidebar = observer(({ isOpen, onClose }) => {
             onSetPresent={(present) => pnlStore.setDateRangeType(present)}
             onClear={() => pnlStore.setDateRangeType('')}
             defaultValue={pnlStore.defaultDate}
+          />
+        </FilterField>
+        <FilterField full label={t('common.grouping')}>
+          <SingleSelect
+            data={groupingOptions}
+            value={pnlStore.selectedGrouping}
+            onChange={(value) => pnlStore.setSelectedGrouping(value)}
+            placeholder={t('common.buildingMethod')}
+            isClearable={false}
+            withSearch={false}
+            className="bg-white"
           />
         </FilterField>
       </FilterGroup>

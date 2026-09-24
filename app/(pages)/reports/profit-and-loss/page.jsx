@@ -38,11 +38,6 @@ const ProfitAndLossPage = observer(() => {
     { value: 'accrual', label: t('pnl.accounting.accrual') },
     { value: 'cash', label: t('pnl.accounting.cash') }
   ], [t])
-  const groupingOptions = useMemo(() => [
-    { value: 'daily', label: t('pnl.grouping.daily') },
-    { value: 'weekly', label: t('pnl.grouping.weekly') },
-    { value: 'monthly', label: t('pnl.grouping.monthly') }
-  ], [t])
 
   const [expandedRows, setExpandedRows] = useState(new Set())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -433,17 +428,6 @@ const ProfitAndLossPage = observer(() => {
               withSearch={false}
               className={'bg-white w-28'} wrapperClassName="w-28 shrink-0"
               dropdownClassName={'w-28'}
-            />
-            <SingleSelect
-              data={groupingOptions}
-              value={pnlStore.selectedGrouping}
-              onChange={(value) => {
-                pnlStore.setSelectedGrouping(value)
-              }}
-              isClearable={false}
-              withSearch={false}
-              placeholder={t('common.buildingMethod')}
-              className="bg-white w-44" wrapperClassName="w-44 shrink-0"
             />
             <SingleSelect
               data={accountingMethodOptions}

@@ -9,14 +9,24 @@ import SelectProjects from '@/components/ReadyComponents/SelectProjects'
 import { FilterSidebar } from '@/components/directories/FilterSidebar/FilterSidebar'
 import NewDateRangeComponent from '@/components/directories/NewDateRangeComponent'
 import { appStore } from '@/store/app.store'
+import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 import { cashFlowStore } from '../cashflow.store'
 
 const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
   const t = useTranslations('Reports')
   const tf = useTranslations('filters')
-  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, projectId, defaultDate, dateRangeType } = cashFlowStore
+  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, projectId, defaultDate, dateRangeType, periodType } = cashFlowStore
+
+  // Разбивка на колонки — рядом с периодом, а не в шапке страницы
+  const groupingOptions = useMemo(() => [
+    { value: 'daily', label: t('cashflow.grouping.daily') },
+    { value: 'monthly', label: t('cashflow.grouping.monthly') },
+    { value: 'quarterly', label: t('cashflow.grouping.quarterly') },
+    { value: 'yearly', label: t('cashflow.grouping.yearly') },
+  ], [t])
 
   const handleDateRangeChange = (range) => {
     cashFlowStore.setPeriodDateRange(range)
@@ -46,6 +56,17 @@ const CashFlowFilterSidebar = observer(({ isOpen, onClose }) => {
             onSetPresent={(present) => cashFlowStore.setDateRangeType(present)}
             onClear={() => cashFlowStore.setDateRangeType('')}
             defaultValue={defaultDate}
+          />
+        </FilterField>
+        <FilterField full label={t('common.grouping')}>
+          <SingleSelect
+            data={groupingOptions}
+            value={periodType}
+            onChange={(value) => cashFlowStore.setPeriodType(value)}
+            placeholder={t('common.buildingMethod')}
+            isClearable={false}
+            withSearch={false}
+            className="bg-white"
           />
         </FilterField>
       </FilterGroup>

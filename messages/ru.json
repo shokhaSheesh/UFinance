@@ -817,7 +817,8 @@
       "counterpartyGroup": "Группа контрагентов",
       "deals": "Сделки",
       "projects": "Проекты",
-      "currency": "Валюта"
+      "currency": "Валюта",
+      "grouping": "Разбивка"
     },
     "cashflow": {
       "title": "Отчет о движении денежных средств",

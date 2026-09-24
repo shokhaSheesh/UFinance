@@ -19,8 +19,12 @@ const datesEqual = (a, b) =>
 
 const len = (value) => (Array.isArray(value) ? value.length : 0)
 
+// Разбивка на колонки тоже живёт в панели фильтров, поэтому считается вместе
+// с остальными: по умолчанию во всех трёх отчётах — по месяцам
+const grouping = (value) => (value && value !== 'monthly' ? 1 : 0)
+
 export function useCashFlowFilterCount() {
-  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, projectId, defaultDate } =
+  const { periodStartDate, periodEndDate, sellingDealId, contrAgentId, accountId, projectId, defaultDate, periodType } =
     cashFlowStore
 
   return (
@@ -28,7 +32,8 @@ export function useCashFlowFilterCount() {
     len(accountId) +
     len(contrAgentId) +
     len(projectId) +
-    len(sellingDealId)
+    len(sellingDealId) +
+    grouping(periodType)
   )
 }
 
@@ -45,6 +50,7 @@ export function usePnLFilterCount() {
     ebitda,
     ebit,
     ebt,
+    selectedGrouping,
   } = pnlStore
 
   return (
@@ -54,16 +60,18 @@ export function usePnLFilterCount() {
     len(selectedProjects) +
     len(deals) +
     len(selectedLegalEntities) +
-    (operational || ebitda || ebit || ebt ? 1 : 0)
+    (operational || ebitda || ebit || ebt ? 1 : 0) +
+    grouping(selectedGrouping)
   )
 }
 
 export function useBalanceFilterCount() {
-  const { dateRange, defaultDate, selectedAccount, selectedCounterparties } = balanceStore
+  const { dateRange, defaultDate, selectedAccount, selectedCounterparties, periodType } = balanceStore
 
   return (
     (!datesEqual(dateRange?.start, defaultDate?.start) || !datesEqual(dateRange?.end, defaultDate?.end) ? 1 : 0) +
     len(selectedAccount) +
-    len(selectedCounterparties)
+    len(selectedCounterparties) +
+    grouping(periodType)
   )
 }
