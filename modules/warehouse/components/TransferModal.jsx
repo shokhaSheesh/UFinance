@@ -1,6 +1,5 @@
 'use client'
 
-import useModalPresence from '@/hooks/useModalPresence'
 import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitties'
 import SelectProductService from '@/components/ReadyComponents/SelectProductService'
 import SelectProjects from '@/components/ReadyComponents/SelectProjects'
@@ -13,7 +12,8 @@ import { showErrorNotification, showSuccessNotification } from '@/lib/utils/noti
 import { useWarehouseStockProducts } from '@/modules/warehouse/hooks/useWarehouseStockProducts'
 import { appStore } from '@/store/app.store'
 import { formatAmountInput, formatDecimal, StringtoNumber } from '@/utils/helpers'
-import { Trash2, X } from 'lucide-react'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
+import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -37,8 +37,6 @@ const emptyRow = (id) => ({
 })
 
 const TransferModal = observer(({ open, onClose, warehouseId, onCreated, t }) => {
-  useModalPresence()
-
   const [fromWarehouse, setFromWarehouse] = useState('')
   const [toWarehouse, setToWarehouse] = useState('')
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
@@ -240,143 +238,105 @@ const TransferModal = observer(({ open, onClose, warehouseId, onCreated, t }) =>
     }
   }
 
-  if (!open) return null
-
   return (
-    <div className="fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-[calc(100%-60px)] right-[var(--ai-w,0px)] bottom-0 flex justify-end bg-black/50 z-1000 transition-opacity duration-300">
-      <div className="h-full bg-white flex flex-col w-[860px] max-w-full shadow-xl">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 relative">
-          <h2 className="text-lg font-semibold">{t('transfer.createTitle')}</h2>
-          <button
-            className="p-2 absolute right-4 top-2 hover:bg-gray-100 rounded-full cursor-pointer"
-            onClick={onClose}
-          >
-            <X size={20} />
-          </button>
-        </div>
+    <CustomDialog open={open} onClose={onClose} contentClass="w-[920px] max-w-full">
+      <DialogHeader
+        icon={ArrowLeftRight}
+        title={t('transfer.createTitle')}
+        subtitle={t('transfer.subtitle')}
+        onClose={onClose}
+      />
 
-        {/* Body */}
-        <div className="p-4 flex-1 overflow-auto">
-          {/* Откуда */}
-          <div className="flex items-center gap-2 pb-3">
-            <label className="w-40 shrink-0 text-xss!">
-              {t('transfer.from')} <span className="text-red-500">*</span>
-            </label>
-            <div>
-              <SingleSelect
-                data={warehouseOptions}
-                value={fromWarehouse}
-                onChange={(value) => {
-                  setFromWarehouse(value)
-                  // получатель мог совпасть с новым отправителем
-                  if (value && value === toWarehouse) setToWarehouse('')
-                  // на другом складе выбранных товаров может не быть
-                  setRows([emptyRow(Date.now())])
-                  setStockByProduct({})
-                  setErrors((prev) => ({ ...prev, fromWarehouse: null }))
-                }}
-                placeholder={t('transfer.warehousePlaceholder')}
-                className="w-80! bg-white"
-                hasError={!!errors.fromWarehouse}
-              />
-              {errors.fromWarehouse && (
-                <div className="text-[11px] text-red-500 mt-1">{errors.fromWarehouse}</div>
-              )}
-            </div>
-          </div>
+      <DialogBody className="flex flex-col gap-4">
+        <FormRow label={t('transfer.from')} required error={errors.fromWarehouse}>
+          <SingleSelect
+            data={warehouseOptions}
+            value={fromWarehouse}
+            onChange={(value) => {
+              setFromWarehouse(value)
+              // получатель мог совпасть с новым отправителем
+              if (value && value === toWarehouse) setToWarehouse('')
+              // на другом складе выбранных товаров может не быть
+              setRows([emptyRow(Date.now())])
+              setStockByProduct({})
+              setErrors((prev) => ({ ...prev, fromWarehouse: null }))
+            }}
+            placeholder={t('transfer.warehousePlaceholder')}
+            className="bg-white"
+            hasError={!!errors.fromWarehouse}
+          />
+        </FormRow>
 
-          {/* Куда */}
-          <div className="flex items-center gap-2 pb-3">
-            <label className="w-40 shrink-0 text-xss!">
-              {t('transfer.to')} <span className="text-red-500">*</span>
-            </label>
-            <div>
-              <SingleSelect
-                data={toWarehouseOptions}
-                value={toWarehouse}
-                onChange={(value) => {
-                  setToWarehouse(value)
-                  setErrors((prev) => ({ ...prev, toWarehouse: null }))
-                }}
-                placeholder={t('transfer.warehousePlaceholder')}
-                className="w-80! bg-white"
-                hasError={!!errors.toWarehouse}
-              />
-              {errors.toWarehouse && (
-                <div className="text-[11px] text-red-500 mt-1">{errors.toWarehouse}</div>
-              )}
-            </div>
-          </div>
+        <FormRow label={t('transfer.to')} required error={errors.toWarehouse}>
+          <SingleSelect
+            data={toWarehouseOptions}
+            value={toWarehouse}
+            onChange={(value) => {
+              setToWarehouse(value)
+              setErrors((prev) => ({ ...prev, toWarehouse: null }))
+            }}
+            placeholder={t('transfer.warehousePlaceholder')}
+            className="bg-white"
+            hasError={!!errors.toWarehouse}
+          />
+        </FormRow>
 
-          {/* Дата */}
-          <div className="flex items-center gap-2 pb-3">
-            <label className="w-40 shrink-0 text-xss!">
-              {t('transfer.date')} <span className="text-red-500">*</span>
-            </label>
-            <div>
-              <FormDatepicker
-                value={date}
-                onChange={(value) => {
-                  setDate(value)
-                  if (errors.date) setErrors((prev) => ({ ...prev, date: null }))
-                }}
-                format="YYYY-MM-DD"
-                inputClass={'w-44!'}
-              />
-              {errors.date && <div className="text-[11px] text-red-500 mt-1">{errors.date}</div>}
-            </div>
-          </div>
+        <FormRow label={t('transfer.date')} required error={errors.date}>
+          <FormDatepicker
+            value={date}
+            onChange={(value) => {
+              setDate(value)
+              if (errors.date) setErrors((prev) => ({ ...prev, date: null }))
+            }}
+            format="YYYY-MM-DD"
+            inputClass={'w-44!'}
+          />
+        </FormRow>
 
-          {/* Юрлицо */}
-          <div className="flex items-center gap-2 pb-3">
-            <label className="w-40 shrink-0 text-xss!">{t('transfer.legalEntity')}</label>
-            <SelectLegelEntitties
-              multi={false}
-              value={legalEntity}
-              onChange={setLegalEntity}
-              placeholder={t('transfer.legalEntityPlaceholder')}
-              className="w-80! bg-white"
+        <FormRow label={t('transfer.legalEntity')}>
+          <SelectLegelEntitties
+            multi={false}
+            value={legalEntity}
+            onChange={setLegalEntity}
+            placeholder={t('transfer.legalEntityPlaceholder')}
+            className="bg-white"
+          />
+        </FormRow>
+
+        {/* Проект — только когда модуль проектов включён */}
+        {appStore.projectActive && (
+          <FormRow label={t('transfer.project')}>
+            <SelectProjects
+              value={project}
+              onChange={setProject}
+              placeholder={t('transfer.projectPlaceholder')}
+              className="bg-white"
             />
+          </FormRow>
+        )}
+
+        <FormRow label={t('transfer.comment')}>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('transfer.commentPlaceholder')}
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary"
+          />
+        </FormRow>
+
+        {/* Товары: только наименование и количество — без цен */}
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-sm font-semibold text-slate-900">{t('transfer.products')}</span>
+            <span className="text-xs text-slate-400">{t('transfer.costHint')}</span>
           </div>
 
-          {/* Проект — только когда модуль проектов включён */}
-          {appStore.projectActive && (
-            <div className="flex items-center gap-2 pb-3">
-              <label className="w-40 shrink-0 text-xss!">{t('transfer.project')}</label>
-              <SelectProjects
-                value={project}
-                onChange={setProject}
-                placeholder={t('transfer.projectPlaceholder')}
-                className="w-80! bg-white"
-              />
-            </div>
-          )}
-
-          {/* Комментарий */}
-          <div className="flex items-center gap-2 pb-3">
-            <label className="w-40 shrink-0 text-xss!">{t('transfer.comment')}</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('transfer.commentPlaceholder')}
-              className="w-80 h-10 px-3 text-sm border border-gray-200 rounded-md outline-none bg-white focus:border-primary"
-            />
-          </div>
-
-          {/* Товары: только наименование и количество — без цен */}
-          <div className="mt-2">
-            <div className="flex flex-col gap-1 mb-2">
-              <span className="text-sm font-medium text-neutral-800">
-                {t('transfer.products')}
-              </span>
-              <span className="text-[11px] text-neutral-400">{t('transfer.costHint')}</span>
-              {errors.products && (
-                <span className="text-[10px] text-red-500 font-medium">{errors.products}</span>
-              )}
+          {(errors.products || shortages.length > 0) && (
+            <div className="flex flex-col gap-0.5 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+              {errors.products && <span>{errors.products}</span>}
               {shortages.map((s) => (
-                <span key={s.pid} className="text-[10px] text-red-500 font-medium">
+                <span key={s.pid}>
                   {t('transfer.stockExceeded', {
                     name: s.name,
                     available: formatAmountInput(s.available) || 0,
@@ -385,135 +345,111 @@ const TransferModal = observer(({ open, onClose, warehouseId, onCreated, t }) =>
                 </span>
               ))}
             </div>
+          )}
 
-            <div className="border border-gray-200 rounded-md overflow-visible">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-neutral-50 text-neutral-600 font-light h-8 text-mini border-b border-gray-200">
-                    <th className="text-left px-3">{t('transfer.productName')}</th>
-                    <th className="w-[110px] border-l border-gray-200 text-right px-2">
-                      {t('transfer.quantity')}
-                    </th>
-                    <th className="w-[90px] border-l border-gray-200 text-right px-2">
-                      {t('transfer.unit')}
-                    </th>
-                    <th className="w-[110px] border-l border-gray-200 text-right px-2">
-                      {t('transfer.available')}
-                    </th>
-                    <th className="w-10 border-l border-gray-200" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => {
-                    const available = row.productServiceId
-                      ? stockByProduct[row.productServiceId]
-                      : null
-                    const isShorted =
-                      row.productServiceId && shortedIds.has(row.productServiceId)
-                    return (
-                      <tr key={row.id} className="border-b border-gray-100 last:border-none">
-                        <td>
-                          <div className="pr-2 pt-1 pb-1 pl-1">
-                            <SelectProductService
-                              value={row.name}
-                              selectedLabel={row.naimenovanie}
-                              onChange={(value, raw) => handleSelectProduct(row.id, value, raw)}
-                              // перемещаются только товары — услуги склада не касаются
-                              type="product"
-                              // и только те, что есть на складе-отправителе
-                              allowedProductIds={fromWarehouse ? stockProductIds : null}
-                              disabled={!fromWarehouse || isLoadingStockProducts}
-                              placeholder={
-                                fromWarehouse
-                                  ? t('transfer.selectProduct')
-                                  : t('transfer.selectWarehouseFirst')
-                              }
-                              className="bg-white border-none"
-                            />
-                          </div>
-                        </td>
-                        <td className="border-l border-gray-200">
-                          <input
-                            type="text"
-                            value={formatAmountInput(row.quantity)}
-                            onChange={(e) =>
-                              updateQuantity(row.id, formatAmountInput(e.target.value))
+          <div className="overflow-visible rounded-xl border border-slate-200">
+            <table className="w-full">
+              <thead>
+                <tr className="h-9 border-b border-slate-200 bg-slate-50 text-[11px] font-semibold tracking-wide text-slate-500 uppercase">
+                  <th className="px-3 text-left">{t('transfer.productName')}</th>
+                  <th className="w-[110px] border-l border-slate-200 px-2 text-right">{t('transfer.quantity')}</th>
+                  <th className="w-[90px] border-l border-slate-200 px-2 text-right">{t('transfer.unit')}</th>
+                  <th className="w-[110px] border-l border-slate-200 px-2 text-right">{t('transfer.available')}</th>
+                  <th className="w-10 border-l border-slate-200" />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => {
+                  const available = row.productServiceId ? stockByProduct[row.productServiceId] : null
+                  const isShorted = row.productServiceId && shortedIds.has(row.productServiceId)
+                  return (
+                    <tr key={row.id} className="border-b border-slate-100 last:border-none">
+                      <td>
+                        <div className="p-1 pr-2">
+                          <SelectProductService
+                            value={row.name}
+                            selectedLabel={row.naimenovanie}
+                            onChange={(value, raw) => handleSelectProduct(row.id, value, raw)}
+                            // перемещаются только товары — услуги склада не касаются
+                            type="product"
+                            // и только те, что есть на складе-отправителе
+                            allowedProductIds={fromWarehouse ? stockProductIds : null}
+                            disabled={!fromWarehouse || isLoadingStockProducts}
+                            placeholder={
+                              fromWarehouse ? t('transfer.selectProduct') : t('transfer.selectWarehouseFirst')
                             }
-                            className={`w-full h-10 text-end text-xs outline-none pr-2 ${
-                              isShorted ? 'bg-red-50 text-red-600' : ''
-                            }`}
+                            className="bg-white border-none"
                           />
-                        </td>
-                        <td className="border-l border-gray-200">
-                          <span className="block h-10 truncate pr-2 text-end text-xs leading-10 text-neutral-500">
-                            {row.unitName || '—'}
-                          </span>
-                        </td>
-                        <td className="border-l border-gray-200">
-                          <span
-                            className={`block h-10 pr-2 text-end text-xs leading-10 ${
-                              isShorted ? 'text-red-600 font-medium' : 'text-neutral-500'
-                            }`}
-                          >
-                            {available != null
-                              ? formatAmountInput(available) || 0
-                              : row.productServiceId
-                                ? '…'
-                                : ''}
-                          </span>
-                        </td>
-                        <td className="border-l border-gray-200">
-                          <button
-                            type="button"
-                            onClick={() => removeRow(row.id)}
-                            disabled={rows.length === 1}
-                            className="flex items-center justify-center w-full h-10 text-neutral-300 hover:text-red-500 disabled:opacity-30 disabled:hover:text-neutral-300 cursor-pointer disabled:cursor-default"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <button
-              type="button"
-              onClick={addRow}
-              className="mt-2 text-sm text-primary cursor-pointer hover:underline"
-            >
-              {t('transfer.addRow')}
-            </button>
+                        </div>
+                      </td>
+                      <td className="border-l border-slate-200">
+                        <input
+                          type="text"
+                          value={formatAmountInput(row.quantity)}
+                          onChange={(e) => updateQuantity(row.id, formatAmountInput(e.target.value))}
+                          className={`h-10 w-full pr-2 text-end text-xs tabular-nums outline-none ${isShorted ? 'bg-red-50 text-red-600' : ''}`}
+                        />
+                      </td>
+                      <td className="border-l border-slate-200">
+                        <span className="block h-10 truncate pr-2 text-end text-xs leading-10 text-slate-500">
+                          {row.unitName || '—'}
+                        </span>
+                      </td>
+                      <td className="border-l border-slate-200">
+                        <span
+                          className={`block h-10 pr-2 text-end text-xs leading-10 tabular-nums ${isShorted ? 'font-medium text-red-600' : 'text-slate-500'}`}
+                        >
+                          {available != null ? formatAmountInput(available) || 0 : row.productServiceId ? '…' : ''}
+                        </span>
+                      </td>
+                      <td className="border-l border-slate-200">
+                        <button
+                          type="button"
+                          onClick={() => removeRow(row.id)}
+                          disabled={rows.length === 1}
+                          className="flex h-10 w-full cursor-pointer items-center justify-center text-slate-300 transition-colors hover:text-red-500 disabled:cursor-default disabled:opacity-30 disabled:hover:text-slate-300"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t border-gray-200">
-          <span className="text-xs text-neutral-400">
+          <button
+            type="button"
+            onClick={addRow}
+            className="flex w-fit cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-primary transition-colors hover:bg-slate-50"
+          >
+            <Plus size={15} aria-hidden="true" />
+            {t('transfer.addRow')}
+          </button>
+        </div>
+      </DialogBody>
+
+      <DialogFooter
+        left={
+          <span className="text-xs text-slate-400">
             <span className="text-red-500">*</span> {t('transfer.requiredFields')}
           </span>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="px-4 h-10 text-sm text-primary cursor-pointer hover:bg-gray-50 rounded-md font-medium"
-              onClick={onClose}
-            >
-              {t('transfer.cancel')}
-            </button>
-            <button
-              type="button"
-              className="primary-btn"
-              onClick={handleCreate}
-              disabled={isSaving || shortages.length > 0}
-            >
-              {isSaving ? <Loader /> : t('transfer.create')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        }
+      >
+        <button type="button" className="secondary-btn" onClick={onClose}>
+          {t('transfer.cancel')}
+        </button>
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={handleCreate}
+          disabled={isSaving || shortages.length > 0}
+        >
+          {isSaving ? <Loader /> : t('transfer.create')}
+        </button>
+      </DialogFooter>
+    </CustomDialog>
   )
 })
 

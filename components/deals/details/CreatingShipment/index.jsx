@@ -1,7 +1,6 @@
-import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from "@/lib/utils";
 import { keepPreviousData } from "@tanstack/react-query";
-import { TrashIcon, X } from "lucide-react";
+import { MessageSquareText, TrashIcon, Truck, X } from "lucide-react";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
@@ -36,6 +35,11 @@ import SingleCounterParty from "../../../ReadyComponents/SingleCounterParty";
 import SinglSelectStatiya from "../../../ReadyComponents/SingleSelectStatiya";
 import OperationCheckbox from "../../../shared/Checkbox/operationCheckbox";
 import FormDatepicker from "../../../shared/DatePicker/form-datepicker";
+import CustomDialog, {
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+} from "../../../shared/CustomDialog";
 import Loader from "../../../shared/Loader";
 import SingleSelect from "../../../shared/Selects/SingleSelect";
 import styles from "./style.module.scss";
@@ -206,6 +210,8 @@ const CreateShipment = observer(
       },
     ]);
     const [code, setCode] = useState("");
+    // Файлы и комментарии — колонка внутри окна, как в окне операции
+    const [commentsOpen, setCommentsOpen] = useState(false);
     const isNewShipment = !isEditing;
     const comments = useOperationComments({
       isNew: isNewShipment,
@@ -873,50 +879,53 @@ const CreateShipment = observer(
 
     if (isGettingSingleShipment && initialData?.guid) {
       return (
-        <>
-          {/* Overlay */}
-          <div
-            className={cn(
-              "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-full right-[var(--ai-w,0px)] bottom-0 flex bg-black/50 z-1000 transition-opacity duration-300"
-            )}
-            onClick={onClose}
-          />
-
-          {/* Panel */}
-          <div className={cn(styles.panel, "flex justify-center items-center")}>
-            <Loader />
-          </div>
-        </>
+        <CustomDialog open onClose={onClose} contentClass="h-60 w-[820px] max-w-full items-center justify-center">
+          <Loader />
+        </CustomDialog>
       );
     }
 
     return (
-      <>
-        {/* Overlay */}
-        <div
-          className={cn(
-            "fixed top-[60px] left-[var(--sidebar-w)] w-[calc(100%_-_var(--sidebar-w)_-_var(--ai-w,0px))] h-[calc(100%-60px)] right-[var(--ai-w,0px)] bottom-0 flex justify-end bg-black/50  z-1000 transition-opacity duration-300"
-          )}
-        >
-          {/* Panel */}
-          <div className={cn(styles.panel, "h-full bg-white flex flex-col")}>
-            {/* Header */}
-            <div className="p-4 border-b relative">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {isEditing ? L.titleEdit : L.titleNew}
-                </h2>
-              </div>
-              <button
-                className="p-2 absolute right-4 top-2 hover:bg-gray-100 rounded-full"
-                onClick={onClose}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      <CustomDialog
+        open={open}
+        onClose={onClose}
+        contentClass={cn(
+          "h-[min(880px,92vh)] max-w-full overflow-hidden transition-[width] duration-200",
+          commentsOpen ? "w-[1200px]" : "w-[840px]"
+        )}
+      >
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <DialogHeader
+              icon={Truck}
+              title={isEditing ? L.titleEdit : L.titleNew}
+              subtitle={dealName}
+              onClose={onClose}
+              actions={
+                <button
+                  type="button"
+                  onClick={() => setCommentsOpen((value) => !value)}
+                  aria-pressed={commentsOpen}
+                  className={cn(
+                    "flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium cursor-pointer transition-colors",
+                    commentsOpen
+                      ? "border-[#0e73f6] bg-[#eef4ff] text-[#0e73f6]"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  )}
+                >
+                  <MessageSquareText size={16} aria-hidden="true" />
+                  {t("filesAndComments")}
+                  {comments.messages?.length > 0 && (
+                    <span className="rounded-full bg-slate-200 px-1.5 text-xs font-semibold tabular-nums text-slate-700">
+                      {comments.messages.length}
+                    </span>
+                  )}
+                </button>
+              }
+            />
 
             {/* Form Body */}
-            <div className="p-4 flex-1 overflow-auto">
+            <DialogBody>
               {/* Date + Planned */}
               <div className="flex gap-2 mb-4">
                 <label className=" w-40 text-sm font-medium text-gray-700">
@@ -1342,39 +1351,45 @@ const CreateShipment = observer(
                   </p>
                 </div>
               </div>
-            </div>
+            </DialogBody>
 
             {/* Footer */}
-            <div className={styles.footer}>
-              <span className={styles.requiredNote}>
-                <span className={styles.required}>*</span> {t("requiredFields")}
-              </span>
-              <div className={styles.footerActions}>
-                <button className={styles.cancelBtn} onClick={onClose}>
-                  {t("cancel")}
-                </button>
+            <DialogFooter
+              left={
+                <span className="text-xs text-slate-400">
+                  <span className="text-red-500">*</span> {t("requiredFields")}
+                </span>
+              }
+            >
+              <button type="button" className="secondary-btn" onClick={onClose}>
+                {t("cancel")}
+              </button>
 
-                <button
-                  className="primary-btn"
-                  onClick={handleCreate}
-                  disabled={
-                    isCreating ||
-                    isCheckingStock ||
-                    isSaveBlockedByClosedWarehouse
-                  }
-                >
-                  {isCreating || isCheckingStock ? (
-                    <Loader />
-                  ) : isEditing ? (
-                    t("save")
-                  ) : (
-                    t("create")
-                  )}
-                </button>
-              </div>
-            </div>
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={handleCreate}
+                disabled={
+                  isCreating ||
+                  isCheckingStock ||
+                  isSaveBlockedByClosedWarehouse
+                }
+              >
+                {isCreating || isCheckingStock ? (
+                  <Loader />
+                ) : isEditing ? (
+                  t("save")
+                ) : (
+                  t("create")
+                )}
+              </button>
+            </DialogFooter>
           </div>
+
+          {commentsOpen && (
+          <div className="flex shrink-0 border-l border-slate-200">
           <SentMessages
+            open
             messages={comments.messages}
             text={comments.text}
             attachedFiles={comments.attachedFiles}
@@ -1396,8 +1411,10 @@ const CreateShipment = observer(
             onDeleteConfirm={comments.handleDeleteConfirm}
             onDeleteCancel={comments.handleDeleteCancel}
           />
+          </div>
+          )}
         </div>
-      </>
+      </CustomDialog>
     );
   }
 );

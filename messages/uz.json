@@ -150,6 +150,7 @@
     "inventory": {
       "button": "Inventarizatsiya",
       "title": "Inventarizatsiya",
+      "subtitle": "Ombordagi ortiqcha va kamomad",
       "type": "Turi",
       "typeIn": "Ortiqcha (kirim)",
       "typeOut": "Kamomad (chiqim)",
@@ -183,6 +184,7 @@
       "button": "Ko'chirish",
       "createButton": "Yangi ko'chirish",
       "createTitle": "Skladlar orasida ko'chirish",
+      "subtitle": "Tovarlarni jo‘natuvchi ombordan qabul qiluvchi omborga",
       "listTitle": "Skladlar orasidagi ko'chirishlar",
       "listEmpty": "Ko'chirishlar yo'q",
       "searchPlaceholder": "Sklad yoki izoh bo'yicha qidirish",
@@ -1045,7 +1047,8 @@
       "undistributedExpense": "Taqsimlanmagan xarajat",
       "removeFromSupply": "Yetkazmadan olib tashlash",
       "supplySum": "Yetkazma summasi",
-      "products": "Yetkazma uchun tovar/xizmatlar"
+      "products": "Yetkazma uchun tovar/xizmatlar",
+      "filesAndComments": "Fayllar va izohlar"
     },
     "supplyTable": {
       "emptyTitle": "Bitimga yetkazmalar qo'shing",
@@ -1400,7 +1403,8 @@
       "create": "Yaratish",
       "save": "Saqlash",
       "project": "Loyiha",
-      "projectPlaceholder": "Loyihani tanlang"
+      "projectPlaceholder": "Loyihani tanlang",
+      "filesAndComments": "Fayllar va izohlar"
     },
     "methodLabel": "Hisob usuli",
     "statusAll": "Hammasi",

@@ -79,8 +79,11 @@ const CustomDialog = ({
 
 export default CustomDialog
 
-/** Шапка окна: необязательный значок, заголовок, подзаголовок, кнопка закрытия. */
-export function DialogHeader({ icon: Icon, tone = 'primary', title, subtitle, onClose, className }) {
+/**
+ * Шапка окна: необязательный значок, заголовок, подзаголовок, кнопка закрытия.
+ * `actions` — кнопки слева от закрытия (например, «Файлы и комментарии»).
+ */
+export function DialogHeader({ icon: Icon, tone = 'primary', title, subtitle, onClose, actions, className }) {
   const t = useTranslations('Common')
   const toneClass = {
     primary: 'bg-[#eef4ff] text-[#0e73f6]',
@@ -101,6 +104,8 @@ export function DialogHeader({ icon: Icon, tone = 'primary', title, subtitle, on
           {subtitle && <p className="mt-0.5 text-sm text-slate-500">{subtitle}</p>}
         </div>
       </div>
+      <div className="flex shrink-0 items-center gap-2">
+        {actions}
       {onClose && (
         <button
           type="button"
@@ -111,6 +116,7 @@ export function DialogHeader({ icon: Icon, tone = 'primary', title, subtitle, on
           <X size={18} aria-hidden="true" />
         </button>
       )}
+      </div>
     </div>
   )
 }

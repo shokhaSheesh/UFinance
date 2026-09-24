@@ -111,45 +111,59 @@ export default observer(function BalancePage() {
     })
   }
 
+  /**
+   * Строка отчёта. Уровень задаёт вес: корневые разделы («Активы», «Пассивы»)
+   * выделены заливкой и синей полосой слева, разделы второго уровня — светлым
+   * фоном, статьи — обычным текстом. Пустых значений в балансе много, поэтому
+   * ячейка без суммы остаётся пустой: раньше страница была усеяна прочерками.
+   */
   const renderRow = (item, level = 0, parentExpanded = true) => {
     if (!parentExpanded) return null
 
     const children = item.children || item.details
     const hasChildren = children && children.length > 0
     const isExpanded = item.name === 'active' || item.name === 'passive' || expandedRows.has(item.uniquePath ?? item.id)
-    const indent = level * 24
-    const isTotalRow = level === 0
-    const isActiveOrPassive = item?.id === 'active' || item?.id === 'passive'
+    const indent = level * 20
+    const isRoot = item?.id === 'active' || item?.id === 'passive' || level === 0
+    const isSection = !isRoot && level === 1
+
+    const rowBg = isRoot ? 'bg-slate-100' : isSection ? 'bg-slate-50/70' : 'bg-white'
+    const textTone = isRoot
+      ? 'text-slate-900 font-semibold'
+      : isSection
+        ? 'text-slate-800 font-medium'
+        : 'text-slate-600'
 
     return (
       <React.Fragment key={item.uniquePath ?? item.id}>
-        <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
+        <tr className={`group border-b ${isRoot ? 'border-slate-300' : 'border-slate-100'}`}>
           <td
-            className={`sticky left-0 z-10 min-w-[260px] w-[260px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
-            style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#007bff' : '#fff' }}
+            className={`sticky left-0 z-10 min-w-[260px] w-[260px] border-r border-slate-200 px-3 py-2 text-xs whitespace-normal wrap-break-word transition-colors ${rowBg} ${textTone} group-hover:bg-sky-50 ${isRoot ? 'shadow-[inset_3px_0_0_#0e73f6]' : ''}`}
+            style={{ paddingLeft: `${indent + 14}px` }}
           >
             <div
-              className={`flex  items-center gap-2 ${hasChildren ? 'cursor-pointer select-none hover:opacity-80' : ''}`}
+              className={`flex items-center gap-1.5 ${hasChildren ? 'cursor-pointer select-none hover:opacity-80' : ''}`}
               onClick={() => hasChildren && toggleRow(item.uniquePath ?? item.id)}
             >
-              {hasChildren && (
-                <button className="bg-transparent border-0 cursor-pointer p-0 flex items-center justify-center text-gray-ucode-500 rounded transition-colors duration-200 hover:bg-gray-100 [&_svg]:w-5 [&_svg]:h-5">
-                  {isExpanded ? <ExpendClose color={isActiveOrPassive ? '#fff' : '#667085'} /> : <ExpendOpen color={isActiveOrPassive ? '#fff' : '#667085'} />}
+              {hasChildren ? (
+                <button className="flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-slate-400 transition-colors hover:text-slate-600 [&_svg]:h-4 [&_svg]:w-4">
+                  {isExpanded ? <ExpendClose color={isRoot ? '#334155' : '#94a3b8'} /> : <ExpendOpen color={isRoot ? '#334155' : '#94a3b8'} />}
                 </button>
+              ) : (
+                <span className="w-4 shrink-0" />
               )}
-              <span className={isTotalRow ? 'font-semibold' : ''}>{item.name}</span>
+              <span>{item.name}</span>
             </div>
           </td>
           {columns.map((column) => {
             const value = item.values?.[column.key]
+            const isEmpty = value === 0 || value == null
             return (
               <td
                 key={column.key}
-                className={`px-2 py-1.5 min-w-[120px] text-xs text-slate-900 border-b border-gray-200 text-right font-semibold whitespace-nowrap tabular-nums ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+                className={`min-w-[120px] border-b-0 px-3 py-2 text-right text-xs tabular-nums whitespace-nowrap transition-colors ${rowBg} ${textTone} group-hover:bg-sky-50 ${!isEmpty && Number(value) < 0 ? 'text-red-600!' : ''}`}
               >
-                <span className={isTotalRow ? 'text-xs font-semibold' : ''}>
-                  {(value === 0 || value == null) ? '–' : formatNumber(formatTotalSumma(value))}
-                </span>
+                {isEmpty ? '' : formatNumber(formatTotalSumma(value))}
               </td>
             )
           })}
@@ -237,11 +251,13 @@ export default observer(function BalancePage() {
             </div>
           ) : (
             <table className="w-full min-w-max">
-              <thead className="bg-slate-50 sticky top-0 z-30">
-                <tr>
-                  <th className="text-left px-4 py-2 text-[11px] font-medium sticky left-0 z-20 bg-slate-50 min-w-[260px] w-[260px]">{t('balance.accountHeader')}</th>
+              <thead className="sticky top-0 z-30 bg-slate-50">
+                <tr className="border-b border-slate-200">
+                  <th className="sticky left-0 z-20 min-w-[260px] w-[260px] border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-left text-[11px] font-semibold tracking-wide text-slate-500 uppercase">
+                    {t('balance.accountHeader')}
+                  </th>
                   {columns.map((column) => (
-                    <th key={column.key} className="text-right px-4 py-2 text-xs font-medium whitespace-nowrap min-w-[120px]">
+                    <th key={column.key} className="min-w-[120px] bg-slate-50 px-3 py-2.5 text-right text-[11px] font-semibold tracking-wide whitespace-nowrap text-slate-500 uppercase">
                       {column.title}
                     </th>
                   ))}
