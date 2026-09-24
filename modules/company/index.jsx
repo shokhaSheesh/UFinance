@@ -18,7 +18,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { Block, ProjectsRoi, RankedList, RatioBar, TurnoverDays } from './components/CompanyBlocks'
-import { ProfitVsCashChart, ProfitWaterfall } from './components/CompanyCharts'
+import { IncomeExpenseByPeriod, ProfitVsCashChart } from './components/CompanyCharts'
 import { useCompanyData } from './hooks/useCompanyData'
 
 const money = (value) => Math.round(Number(value) || 0)
@@ -83,18 +83,19 @@ const CompanyPage = () => {
           ))}
         </div>
 
-        {/* Итог периода водопадом и сравнение прибыли с деньгами —
-            намеренно не те же графики, что на «Показателях» */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-          <ProfitWaterfall pnl={pnl} />
-          <ProfitVsCashChart pnl={pnl} cash={cash} />
-        </div>
+        {/* Доходы и расходы по периодам — во всю ширину */}
+        <IncomeExpenseByPeriod pnl={pnl} />
 
-        {/* Оборачиваемость, должники, кредиторы */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        {/* Прибыль против денег и оборачиваемость */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <ProfitVsCashChart pnl={pnl} cash={cash} />
           <Block title={t('turnover.title')} subtitle={t('turnover.subtitle')} hint={t('turnover.hint')}>
             <TurnoverDays turnover={turnover} />
           </Block>
+        </div>
+
+        {/* Должники и кредиторы */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
 
           <Block
             title={t('debtors.title')}

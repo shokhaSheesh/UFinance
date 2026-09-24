@@ -31,7 +31,7 @@ const baseTooltip = {
 /**
  * Карточка графика: заголовок, легенда, сам график.
  */
-export function ChartCard({ title, subtitle, series = [], option, height = 260, children }) {
+export function ChartCard({ title, subtitle, series = [], option, height = 260, header, children }) {
   return (
     <div className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
@@ -39,7 +39,8 @@ export function ChartCard({ title, subtitle, series = [], option, height = 260, 
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
           {subtitle && <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>}
         </div>
-        {series.length > 0 && (
+        {header}
+        {!header && series.length > 0 && (
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             {series.map((item) => (
               <span key={item.name} className="flex items-center gap-1.5">
@@ -59,28 +60,34 @@ export function ChartCard({ title, subtitle, series = [], option, height = 260, 
 }
 
 /**
- * «Из чего сложилась прибыль» — водопад: доход, минус расход, остаток прибыли.
- * На «Показателях» те же суммы показаны помесячными столбиками; здесь важен
- * не ход по месяцам, а итог периода одной картинкой.
+ * «Доходы и расходы по периодам» — зеркальные столбики: доходы вверх,
+ * расходы вниз от нулевой линии, прибыль поверх линией. На «Показателях»
+ * те же величины стоят рядом столбиками вверх — там сравнивают высоту,
+ * здесь сразу видно, чем период закрылся и насколько расходы «съели» доход.
+ * Итоги периода — в шапке карточки.
  */
-export function ProfitWaterfall({ pnl }) {
+export function IncomeExpenseByPeriod({ pnl }) {
   const t = useTranslations('Company')
+  const locale = useLocale()
   const shortValue = useShortFormatter()
   const currency = GlobalCurrency?.name
 
-  const revenue = Number(pnl.revenueTotal) || 0
-  const expenses = Number(pnl.expensesTotal) || 0
-  const profit = Number(pnl.profitTotal) || 0
+  const labels = useMemo(
+    () => (pnl.legend || []).map((item) => localizeMonthTitle(locale, item.startDate)),
+    [pnl.legend, locale]
+  )
 
-  const option = useMemo(() => {
-    const labels = [t('waterfall.revenue'), t('waterfall.expenses'), t('waterfall.profit')]
-    // столбик расходов «висит» от прибыли до дохода — видно, сколько съели расходы
-    const base = [0, Math.min(profit, revenue), 0]
-    const values = [revenue, Math.abs(expenses), Math.abs(profit)]
-    const colors = [CHART_COLORS.income, CHART_COLORS.expense, profit < 0 ? CHART_COLORS.expense : CHART_COLORS.result]
-    const real = [revenue, -Math.abs(expenses), profit]
+  // расходы рисуем вниз, поэтому со знаком минус; в подсказке — как есть
+  const expensesDown = useMemo(() => (pnl.expenses || []).map((value) => -Math.abs(Number(value) || 0)), [pnl.expenses])
 
-    return {
+  const series = [
+    { name: t('byPeriod.revenue'), color: CHART_COLORS.income },
+    { name: t('byPeriod.expenses'), color: CHART_COLORS.expense },
+    { name: t('byPeriod.profit'), color: CHART_COLORS.result },
+  ]
+
+  const option = useMemo(
+    () => ({
       tooltip: {
         trigger: 'axis',
         ...baseTooltip,
@@ -88,37 +95,102 @@ export function ProfitWaterfall({ pnl }) {
         formatter: (params) => {
           const index = params?.[0]?.dataIndex
           if (index == null) return ''
-          return `
-            <div style="font-weight:600;margin-bottom:4px;">${labels[index]}</div>
-            <div style="font-weight:600;">${money(real[index])} ${currency || ''}</div>
-          `
+          const rows = [
+            [series[0].name, pnl.revenue?.[index]],
+            [series[1].name, -Math.abs(Number(pnl.expenses?.[index]) || 0)],
+            [series[2].name, pnl.profit?.[index]],
+          ]
+            .map(
+              ([name, value], i) => `
+                <div style="display:flex;justify-content:space-between;gap:16px;">
+                  <span style="color:#64748b;display:flex;align-items:center;gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:9999px;background:${series[i].color};"></span>${name}
+                  </span>
+                  <span style="font-weight:600;">${money(value)} ${currency || ''}</span>
+                </div>`
+            )
+            .join('')
+          return `<div style="font-weight:600;margin-bottom:6px;">${labels[index]}</div>${rows}`
         },
       },
-      grid: { left: 8, right: 12, top: 24, bottom: 8, containLabel: true },
-      xAxis: { type: 'category', data: labels, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { ...AXIS_LABEL } },
-      yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, splitLine: SPLIT_LINE, axisLabel: { ...AXIS_LABEL, formatter: shortValue } },
+      grid: { left: 8, right: 12, top: 16, bottom: 8, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { lineStyle: { color: '#e2e8f0' } },
+        axisTick: { show: false },
+        axisLabel: { ...AXIS_LABEL, interval: 'auto', rotate: 0 },
+      },
+      yAxis: {
+        type: 'value',
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: SPLIT_LINE,
+        axisLabel: { ...AXIS_LABEL, formatter: (value) => shortValue(Math.abs(value)) },
+      },
       series: [
-        { type: 'bar', stack: 'total', silent: true, itemStyle: { color: 'transparent' }, emphasis: { disabled: true }, data: base, barMaxWidth: 96 },
         {
+          name: series[0].name,
           type: 'bar',
-          stack: 'total',
-          barMaxWidth: 96,
-          data: values.map((value, index) => ({ value, itemStyle: { color: colors[index], borderRadius: [6, 6, 0, 0] } })),
-          label: {
-            show: true,
-            position: 'top',
-            formatter: ({ dataIndex }) => money(real[dataIndex]),
-            color: '#334155',
-            fontSize: 12,
-            fontWeight: 600,
-          },
+          stack: 'flow',
+          data: pnl.revenue,
+          barMaxWidth: 26,
+          itemStyle: { color: CHART_COLORS.income, borderRadius: [4, 4, 0, 0] },
+        },
+        {
+          name: series[1].name,
+          type: 'bar',
+          stack: 'flow',
+          data: expensesDown,
+          barMaxWidth: 26,
+          itemStyle: { color: CHART_COLORS.expense, borderRadius: [0, 0, 4, 4] },
+        },
+        {
+          name: series[2].name,
+          type: 'line',
+          data: pnl.profit,
+          smooth: 0.25,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: { width: 2.5, color: CHART_COLORS.result },
+          itemStyle: { color: CHART_COLORS.result, borderColor: '#fff', borderWidth: 2 },
         },
       ],
-    }
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revenue, expenses, profit, currency, t])
+    [labels, pnl.revenue, pnl.profit, expensesDown, currency]
+  )
 
-  return <ChartCard title={t('waterfall.title')} subtitle={t('waterfall.subtitle')} option={option} height={280} />
+  // Итоги периода — чипами в шапке, чтобы не потерять общие суммы
+  const totals = [
+    { label: t('byPeriod.revenue'), value: pnl.revenueTotal, color: CHART_COLORS.income },
+    { label: t('byPeriod.expenses'), value: -Math.abs(Number(pnl.expensesTotal) || 0), color: CHART_COLORS.expense },
+    { label: t('byPeriod.profit'), value: pnl.profitTotal, color: CHART_COLORS.result },
+  ]
+
+  return (
+    <ChartCard
+      title={t('byPeriod.title')}
+      subtitle={t('byPeriod.subtitle')}
+      option={option}
+      height={320}
+      header={
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          {totals.map((item) => (
+            <span key={item.label} className="flex items-baseline gap-2">
+              <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="h-2.5 w-2.5 rounded-sm" style={{ background: item.color }} />
+                {item.label}
+              </span>
+              <span className="text-sm font-semibold tabular-nums text-slate-900">
+                {money(item.value)} <span className="text-xs font-normal text-slate-400">{currency}</span>
+              </span>
+            </span>
+          ))}
+        </div>
+      }
+    />
+  )
 }
 
 /**

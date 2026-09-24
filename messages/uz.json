@@ -3559,6 +3559,14 @@
       "cash": "Pul oqimi (fakt)",
       "gap": "Davr oxiridagi farq",
       "gapHint": "Foyda minus haqiqiy pul oqimi: foydaning shuncha qismi hali pulga aylanmagan"
+    },
+    "byPeriod": {
+      "title": "Davrlar bo'yicha daromad va xarajat",
+      "subtitle": "Daromad tepaga, xarajat pastga, foyda — chiziq",
+      "revenue": "Daromad",
+      "expenses": "Xarajat",
+      "profit": "Sof foyda",
+      "total": "Davr uchun jami"
     }
   }
 }
