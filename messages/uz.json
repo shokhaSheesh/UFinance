@@ -402,7 +402,8 @@
       "settings": "Sozlamalar",
       "plans": "Rejalar",
       "warehouse": "Mening omborim",
-      "projects": "Loyihalar"
+      "projects": "Loyihalar",
+      "company": "Mening kompaniyam"
     },
     "plans": {
       "cash_flow_budget": "Pul harakati byudjeti",
@@ -3473,5 +3474,76 @@
     "period": "Davr",
     "parameters": "Parametrlar",
     "amounts": "Summalar"
+  },
+  "Company": {
+    "pageTitle": "Mening kompaniyam",
+    "subtitle": "Daromad, foyda, pul va qarzlar — bitta sahifada",
+    "noName": "Nomsiz",
+    "noData": "Tanlangan davr uchun ma'lumot yo'q",
+    "kpi": {
+      "revenue": "Daromad",
+      "revenueHint": "Davr uchun hisoblangan",
+      "expenses": "Xarajat",
+      "expensesHint": "Davr uchun hisoblangan",
+      "profit": "Sof foyda",
+      "profitHint": "Daromad minus xarajat",
+      "margin": "Rentabellik",
+      "marginHint": "Sof foydaning daromadga nisbati",
+      "balance": "Hisoblardagi qoldiq",
+      "balanceHint": "Bugungi holat",
+      "receivables": "Debitorlik",
+      "receivablesHint": "Bizdan qarzdorlar",
+      "payables": "Kreditorlik",
+      "payablesHint": "Bizning qarzimiz",
+      "roi": "Loyihalar rentabelligi",
+      "roiHint": "Loyihalar bo'yicha o'rtacha"
+    },
+    "trend": {
+      "title": "Daromad, xarajat va foyda",
+      "subtitle": "Davrlar kesimida · hisoblangan summalar",
+      "revenue": "Daromad",
+      "expenses": "Xarajat",
+      "profit": "Sof foyda"
+    },
+    "cash": {
+      "title": "Pul oqimi",
+      "subtitle": "Haqiqiy kirim va chiqimlar",
+      "receipts": "Kirimlar",
+      "payments": "Chiqimlar",
+      "net": "Davrdagi sof oqim"
+    },
+    "turnover": {
+      "title": "Qarzlar aylanishi",
+      "subtitle": "Davr bo'yicha o'rtacha, kun",
+      "dso": "Debitorlik, DSO",
+      "dpo": "Kreditorlik, DPO",
+      "cycle": "Pul sikli",
+      "hint": "DSO — sizga o'rtacha necha kunda to'lashadi, DPO — siz necha kunda to'laysiz. Pul sikli = DSO − DPO, zaxiralarsiz.",
+      "days": "{count} kun"
+    },
+    "debtors": {
+      "title": "Top-5 qarzdor",
+      "subtitle": "Eng ko'p qarzi borlar",
+      "overdue": "Shundan muddati o'tgan:"
+    },
+    "vendors": {
+      "title": "Top-5 kreditor",
+      "subtitle": "Eng ko'p qarzimiz borlar",
+      "overdue": "Shundan muddati o'tgan:"
+    },
+    "projects": {
+      "title": "Loyihalar rentabelligi",
+      "subtitle": "Rentabellik bo'yicha top-5",
+      "empty": "Aylanmasi bor loyiha yo'q",
+      "profit": "Foyda"
+    },
+    "ratios": {
+      "title": "Rentabellik va tuzilma",
+      "subtitle": "Davrning asosiy nisbatlari",
+      "margin": "Sof foyda rentabelligi",
+      "expenseShare": "Xarajatlarning daromaddagi ulushi",
+      "collected": "Hisoblangandan to'langan",
+      "collectedHint": "Kirimlarning daromadga nisbati"
+    }
   }
 }

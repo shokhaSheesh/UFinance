@@ -4,15 +4,7 @@ import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { authStore } from "@/store/auth.store";
-import {
-  Briefcase,
-  CalendarCheck,
-  ChartLine,
-  ClipboardList,
-  Library,
-  RefreshCw,
-  Warehouse,
-} from "lucide-react";
+import { Briefcase, Building2, CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw, Warehouse } from 'lucide-react';
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -89,6 +81,14 @@ export const Sidebar = observer(() => {
   const permissions = toJS(appStore.permission);
 
   const navItems = [
+    {
+      icon: Building2,
+      label: t("nav.company"),
+      href: "/company",
+      hasPage: true,
+      // Та же видимость, что у «Показателей»: это сводка по тем же данным
+      canShow: permissions?.indicators?.read,
+    },
     {
       icon: ChartLine,
       label: t("nav.indicators"),
