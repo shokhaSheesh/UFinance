@@ -1,4 +1,4 @@
-import CustomDialog from '@/components/shared/CustomDialog'
+import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import { keepPreviousData } from '@tanstack/react-query'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -10,7 +10,7 @@ import { appStore } from '../../../store/app.store'
 import { formatAmountInput, formatDecimal, StringtoNumber } from '../../../utils/helpers'
 import Input from '../../shared/Input'
 import Loader from '../../shared/Loader'
-import SegmentedControl from '../../shared/SegmentedControl'
+import Segmented from '../../shared/Segmented/Segmented'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 import TextArea from '../../shared/TextArea'
 
@@ -156,214 +156,185 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
   }
 
   return (
-    <CustomDialog
-      open={open}
-      onClose={() => setOpen(false)}
-      contentClass={'p-0! rounded-xl'}
-    >
-      <div className="">
-        <h2 className="text-lg font-semibold p-4 border-b border-gray-200">
-          {isEditing
-            ? (viewMode === 'product' ? t('editProductTitle') : t('editServiceTitle'))
-            : (viewMode === 'product' ? t('createProductTitle') : t('createServiceTitle'))}
-        </h2>
+    <CustomDialog open={open} onClose={() => setOpen(false)} contentClass="w-[640px]">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-col">
+        <DialogHeader
+          title={
+            isEditing
+              ? (viewMode === 'product' ? t('editProductTitle') : t('editServiceTitle'))
+              : (viewMode === 'product' ? t('createProductTitle') : t('createServiceTitle'))
+          }
+          onClose={() => setOpen(false)}
+        />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
-          <div className="p-6 flex flex-col gap-5">
-            <div className="flex items-start gap-4">
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.type')}</div>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="viewMode"
-                  control={control}
-                  render={({ field }) => (
-                    <SegmentedControl
-                      options={viewOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  )}
+        <DialogBody className="flex flex-col gap-4">
+          <FormRow label={t('fields.type')}>
+            <Controller
+              name="viewMode"
+              control={control}
+              render={({ field }) => (
+                <Segmented options={viewOptions} value={field.value} onChange={field.onChange} ariaLabel={t('fields.type')} />
+              )}
+            />
+          </FormRow>
+
+          <FormRow
+            label={viewMode === 'product' ? t('fields.name') : t('fields.name').replace('товара', 'услуги')}
+            required
+            error={errors.name?.message}
+          >
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: t('errors.nameRequired') }}
+              render={({ field }) => (
+                <Input
+                  placeholder={t('placeholders.name')}
+                  className="w-full"
+                  value={field.value}
+                  error={!!errors.name}
+                  onChange={e => field.onChange(e.target.value)}
                 />
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            <div className="flex items-start gap-4">
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{viewMode === 'product' ? t('fields.name') : t('fields.name').replace('товара', 'услуги')}</div>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="name"
-                  control={control}
-                  rules={{ required: t('errors.nameRequired') }}
-                  render={({ field }) => (
-                    <Input
-                      placeholder={t('placeholders.name')}
-                      className="w-full"
-                      value={field.value}
-                      error={!!errors.name}
-                      onChange={e => field.onChange(e.target.value)}
-                    />
-                  )}
-                />
-                {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              {viewMode === 'product' && <>
-                <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.article')}</div>
-                <div className="flex-1 flex flex-col gap-1">
-                  <Controller
-                    name="article"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        placeholder={t('placeholders.article')}
-                        style={{ width: '140px' }}
-                        value={field.value}
-                        onChange={e => field.onChange(e.target.value)}
-                      />
-                    )}
+          {/* Артикул — только у товара; у услуги остаётся одна единица измерения */}
+          {viewMode === 'product' && (
+            <FormRow label={t('fields.article')}>
+              <Controller
+                name="article"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    placeholder={t('placeholders.article')}
+                    value={field.value}
+                    onChange={e => field.onChange(e.target.value)}
                   />
-                </div>
-              </>}
+                )}
+              />
+            </FormRow>
+          )}
 
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">
-                {t('fields.unit')}
-              </div>
-              <div className={`flex-1 flex flex-col gap-1 ${viewMode === 'service' ? 'max-w-[250px]' : ''}`}>
-                <Controller
-                  name="unit"
-                  control={control}
-                  render={({ field }) => (
-                    <SingleSelect
-                      data={apiOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder={t('placeholders.selectUnit')}
-                      className={'bg-white'}
-                      isClearable={false}
-                    />
-                  )}
+          <FormRow label={t('fields.unit')}>
+            <Controller
+              name="unit"
+              control={control}
+              render={({ field }) => (
+                <SingleSelect
+                  data={apiOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={t('placeholders.selectUnit')}
+                  className={'bg-white'}
+                  isClearable={false}
                 />
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            <div className="flex items-start gap-4">
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{viewMode === 'product' ? t('fields.group') : t('fields.group').replace('товаров', 'услуг')}</div>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="group"
-                  control={control}
-                  render={({ field }) => (
-                    <SingleSelect
-                      data={groupsList}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder={t('placeholders.selectGroup')}
-                      className={'bg-white'}
-                    />
-                  )}
+          <FormRow label={viewMode === 'product' ? t('fields.group') : t('fields.group').replace('товаров', 'услуг')}>
+            <Controller
+              name="group"
+              control={control}
+              render={({ field }) => (
+                <SingleSelect
+                  data={groupsList}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={t('placeholders.selectGroup')}
+                  className={'bg-white'}
                 />
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            <div className="flex items-start gap-4">
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0 flex items-center gap-2">
-                {t('fields.price')}
-              </div>
-              <div className="flex items-center gap-2 flex-1">
-                <Controller
-                  name="price"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      className="flex-1 w-32"
-                      placeholder={t('placeholders.price')}
-                      value={formatAmountInput(field.value)}
-                      onChange={e => field.onChange(formatAmountInput(e.target.value))}
-                    />
-                  )}
-                />
-                <Controller
-                  name="currency"
-                  control={control}
-                  render={({ field }) => (
-                    <SingleSelect
-                      data={myCurrencies}
-                      value={field.value || myCurrencies?.[0]?.value}
-                      onChange={field.onChange}
-                      isClearable={false}
-                      withSearch={false}
-                      // Валюту нельзя менять только у товара, который уже
-                      // используется в операциях/сделках (used === true)
-                      disabled={!!initialData?.used}
-                      className={'bg-white w-20'}
-                    />
-                  )}
-                />
-              </div>
+          <FormRow label={t('fields.price')}>
+            <div className="flex items-center gap-2">
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    className="flex-1"
+                    placeholder={t('placeholders.price')}
+                    value={formatAmountInput(field.value)}
+                    onChange={e => field.onChange(formatAmountInput(e.target.value))}
+                  />
+                )}
+              />
+              <Controller
+                name="currency"
+                control={control}
+                render={({ field }) => (
+                  <SingleSelect
+                    data={myCurrencies}
+                    value={field.value || myCurrencies?.[0]?.value}
+                    onChange={field.onChange}
+                    isClearable={false}
+                    withSearch={false}
+                    // Валюту нельзя менять только у товара, который уже
+                    // используется в операциях/сделках (used === true)
+                    disabled={!!initialData?.used}
+                    className={'bg-white w-24'}
+                  />
+                )}
+              />
+            </div>
+          </FormRow>
 
-              <div className="text-sm py-1.5 text-gray-700 font-medium shrink-0 ml-auto mr-4 w-auto">
-                {t('fields.vat')}
-              </div>
-              <div className="flex-1 flex flex-col gap-1 w-[120px]">
-                <Controller
-                  name="vat"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      placeholder={t('placeholders.vat')}
-                      className="w-full"
-                      value={field.value ? `${field.value}%` : ''}
-                      onChange={e => {
-                        const raw = e.target.value.replace(/%/g, '').replace(/\D/g, '').slice(0, 2);
-                        field.onChange(raw);
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Backspace') {
-                          e.preventDefault();
-                          const val = String(field.value || '');
-                          field.onChange(val.slice(0, -1));
-                        }
-                      }}
-                    />
-                  )}
+          <FormRow label={t('fields.vat')}>
+            <Controller
+              name="vat"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  placeholder={t('placeholders.vat')}
+                  className="w-[120px]"
+                  value={field.value ? `${field.value}%` : ''}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/%/g, '').replace(/\D/g, '').slice(0, 2);
+                    field.onChange(raw);
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Backspace') {
+                      e.preventDefault();
+                      const val = String(field.value || '');
+                      field.onChange(val.slice(0, -1));
+                    }
+                  }}
                 />
-              </div>
-            </div>
+              )}
+            />
+          </FormRow>
 
-            <div className="flex items-start gap-4">
-              <div className="w-[140px] text-sm py-1.5 text-gray-700 font-medium shrink-0">{t('fields.comment')}</div>
-              <div className="flex-1 flex flex-col gap-1">
-                <Controller
-                  name="comment"
-                  control={control}
-                  render={({ field }) => (
-                    <TextArea
-                      placeholder={viewMode === 'product' ? t('placeholders.comment') : t('placeholders.comment').replace('товару', 'услуге')}
-                      className="w-full resize-y min-h-20"
-                      rows={4}
-                      value={field.value}
-                      hasError={false}
-                      onChange={e => field.onChange(e.target.value)}
-                    />
-                  )}
+          <FormRow label={t('fields.comment')} align="start">
+            <Controller
+              name="comment"
+              control={control}
+              render={({ field }) => (
+                <TextArea
+                  placeholder={viewMode === 'product' ? t('placeholders.comment') : t('placeholders.comment').replace('товару', 'услуге')}
+                  className="w-full resize-y min-h-20"
+                  rows={4}
+                  value={field.value}
+                  hasError={false}
+                  onChange={e => field.onChange(e.target.value)}
                 />
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-end py-5 px-6 border-t border-gray-100 bg-gray-50 rounded-b-lg">
-            <div className="flex items-center gap-3">
-              <button type="button" className="bg-transparent border-none text-sm font-semibold text-sky-500 cursor-pointer py-2 px-4 hover:opacity-80 transition-opacity" onClick={() => setOpen(false)}>
-                {tc('cancel')}
-              </button>
-              <button type="submit" className="bg-primary text-white border-none rounded-md text-sm font-semibold py-2.5 px-6 cursor-pointer hover:bg-primary-dark transition-colors" disabled={isPending}>
-                {isPending ? <Loader /> : isEditing ? tc('save') : tc('create')}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+              )}
+            />
+          </FormRow>
+        </DialogBody>
+
+        <DialogFooter>
+          <button type="button" className="secondary-btn h-9" onClick={() => setOpen(false)} disabled={isPending}>
+            {tc('cancel')}
+          </button>
+          <button type="submit" className="primary-btn" disabled={isPending}>
+            {isPending ? <Loader /> : isEditing ? tc('save') : tc('create')}
+          </button>
+        </DialogFooter>
+      </form>
     </CustomDialog>
   )
 })

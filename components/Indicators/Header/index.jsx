@@ -29,7 +29,7 @@ const len = (value) => (Array.isArray(value) ? value.length : value ? 1 : 0)
  * переменные, которые ничего не фильтровали, и не показывался; теперь он
  * сбрасывает сами фильтры и виден, когда что-то выбрано.
  */
-const IndicatorsNavbar = () => {
+const IndicatorsNavbar = ({ title, subtitle }) => {
   const t = useTranslations('Indicators')
 
   const monthsFull = t('common.monthNamesFull').split(',')
@@ -61,9 +61,10 @@ const IndicatorsNavbar = () => {
   return (
     <div id="indicator_header" className="bg-white">
       <div className="flex items-end justify-between gap-6 px-6 pt-4 pb-3">
-        <div className="shrink-0">
-          <h1 className="text-xl font-semibold text-slate-900">{t('header.title')}</h1>
-          <p className="text-sm capitalize text-slate-500">{dateText}</p>
+        {/* Заголовок можно переопределить: тот же фильтр-бар стоит и на «Моей компании» */}
+        <div className="min-w-0 shrink-0">
+          <h1 className="text-xl font-semibold text-slate-900">{title || t('header.title')}</h1>
+          <p className={subtitle ? 'text-sm text-slate-500' : 'text-sm capitalize text-slate-500'}>{subtitle || dateText}</p>
         </div>
         {activeCount > 0 && (
           <button

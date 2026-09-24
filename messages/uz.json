@@ -3544,6 +3544,21 @@
       "expenseShare": "Xarajatlarning daromaddagi ulushi",
       "collected": "Hisoblangandan to'langan",
       "collectedHint": "Kirimlarning daromadga nisbati"
+    },
+    "waterfall": {
+      "title": "Foyda nimadan tashkil topgan",
+      "subtitle": "Davr daromadi minus xarajat",
+      "revenue": "Daromad",
+      "expenses": "Xarajat",
+      "profit": "Sof foyda"
+    },
+    "cumulative": {
+      "title": "Foyda va pul — yig'ma",
+      "subtitle": "Hisoblangan va haqiqatda olingan",
+      "profit": "Foyda (hisoblangan)",
+      "cash": "Pul oqimi (fakt)",
+      "gap": "Davr oxiridagi farq",
+      "gapHint": "Foyda minus haqiqiy pul oqimi: foydaning shuncha qismi hali pulga aylanmagan"
     }
   }
 }

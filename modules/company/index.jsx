@@ -18,7 +18,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { Block, ProjectsRoi, RankedList, RatioBar, TurnoverDays } from './components/CompanyBlocks'
-import { CashFlowChart, RevenueExpenseChart } from './components/CompanyCharts'
+import { ProfitVsCashChart, ProfitWaterfall } from './components/CompanyCharts'
 import { useCompanyData } from './hooks/useCompanyData'
 
 const money = (value) => Math.round(Number(value) || 0)
@@ -73,14 +73,9 @@ const CompanyPage = () => {
       {data.isLoading && <ScreenLoader className="left-0!" />}
 
       {/* Фильтры — те же, что на «Показателях» */}
-      <IndicatorsNavbar />
+      <IndicatorsNavbar title={t('pageTitle')} subtitle={t('subtitle')} />
 
       <div className="flex flex-col gap-4 p-6">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900">{t('pageTitle')}</h1>
-          <p className="text-sm text-slate-500">{t('subtitle')}</p>
-        </div>
-
         {/* Восемь показателей: деньги, прибыль, долги, проекты */}
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           {kpis.map(({ key, ...kpi }) => (
@@ -88,10 +83,11 @@ const CompanyPage = () => {
           ))}
         </div>
 
-        {/* Доходы / расходы / прибыль и денежный поток */}
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <RevenueExpenseChart pnl={pnl} />
-          <CashFlowChart cash={cash} />
+        {/* Итог периода водопадом и сравнение прибыли с деньгами —
+            намеренно не те же графики, что на «Показателях» */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <ProfitWaterfall pnl={pnl} />
+          <ProfitVsCashChart pnl={pnl} cash={cash} />
         </div>
 
         {/* Оборачиваемость, должники, кредиторы */}
