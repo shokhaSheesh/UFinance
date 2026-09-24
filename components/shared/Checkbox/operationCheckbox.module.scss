@@ -1,7 +1,13 @@
+// Флажок с подписью прижат влево и по ширине содержимого: в колонке формы
+// (FormRow) контейнер растягивался на всю ширину поля, и флажок с подписью
+// оказывался по центру — в стороне от полей ввода над ним.
 .checkboxContainer {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
   cursor: pointer;
   position: relative;
 }

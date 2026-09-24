@@ -934,7 +934,9 @@
           "hint": "Hisoblash: joriy aktivlar − joriy majburiyatlar. Operatsion faoliyat uchun qisqa muddatli moliyaviy zaxirani ko'rsatadi."
         },
         "noData": "Tanlangan davr uchun ma'lumot yo'q"
-      }
+      },
+      "currencyLabel": "Valyuta",
+      "groupingLabel": "Davr"
     },
     "students": {
       "title": "Talabalar bo'yicha oylik hisobot",

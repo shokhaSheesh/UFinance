@@ -238,42 +238,47 @@ const ProfitAndLossPage = observer(() => {
     const isResultRow = item.type === 'result'
     const isTotalRow = item.type === 'total'
 
-    const paddingLeft = `${depth * 1 + 1}rem`
+    const paddingLeft = `${depth * 1.25 + 0.875}rem`
+
+    // Оформление как в балансовом отчёте: разделы и итоги выделены заливкой
+    // и синей полосой слева, вложенные статьи светлее, остальные на белом
+    const isStrong = depth === 0 || isResultRow || isTotalRow
+    const rowBg = isStrong ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50/70' : 'bg-white'
+    const textTone = isStrong
+      ? 'text-slate-900 font-semibold'
+      : depth === 1
+        ? 'text-slate-800 font-medium'
+        : 'text-slate-600'
 
     return (
       <React.Fragment key={item.id}>
-        <tr
-          className={`border-b box-content border-neutral-200 transition-colors ${depth === 0 || isResultRow || isTotalRow
-            ? 'bg-neutral-50 font-semibold'
-            : 'hover:bg-neutral-50'
-            }`}
-        >
+        <tr className={cn('group border-b', isStrong ? 'border-slate-300' : 'border-slate-100')}>
           {/* Name cell — sticky left */}
           <td
-            className={`sticky left-0 z-10 p-0! box-border transition-shadow duration-300 ${depth === 0 || isResultRow || isTotalRow ? 'bg-neutral-50' : 'bg-white'
-              } hover:bg-neutral-100 transition-colors`}
+            className={cn(
+              'sticky left-0 z-10 box-border p-0! transition-colors',
+              rowBg,
+              'group-hover:bg-sky-50',
+              isStrong && 'shadow-[inset_3px_0_0_#0e73f6]'
+            )}
           >
             <div
-              className={`flex items-center cursor-pointer! w-full border-r px-4 py-2 text-xss! gap-2 ${hasChildren ? '' : 'cursor-default'
-                }`}
+              className={cn(
+                'flex w-full items-center gap-1.5 border-r border-slate-200 py-2 pr-3 text-xs',
+                textTone,
+                hasChildren ? 'cursor-pointer!' : 'cursor-default'
+              )}
               style={{ paddingLeft }}
               onClick={() => hasChildren && toggleRow(item.id)}
             >
-              {hasChildren && (
-                <button className="bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-neutral-500 hover:text-neutral-900 transition-colors w-4 h-4">
-                  {isExpanded ? <ExpendClose /> : <ExpendOpen />}
+              {hasChildren ? (
+                <button className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center border-none bg-transparent p-0 text-slate-400 transition-colors hover:text-slate-600">
+                  {isExpanded ? <ExpendClose color={isStrong ? '#334155' : '#94a3b8'} /> : <ExpendOpen color={isStrong ? '#334155' : '#94a3b8'} />}
                 </button>
+              ) : (
+                <span className="w-4 shrink-0" />
               )}
-              <span
-                className={cn(
-                  'cursor-pointer!',
-                  depth === 0 || isResultRow || isTotalRow
-                    ? 'font-semibold'
-                    : 'text-sm'
-                )}
-              >
-                {item.name}
-              </span>
+              <span>{item.name}</span>
             </div>
           </td>
 
@@ -289,20 +294,26 @@ const ProfitAndLossPage = observer(() => {
             return (
               <td
                 key={period.key}
-                className={`px-2 text-xs text-end border-r min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
-                  }`}
+                className={cn(
+                  'min-w-[150px] max-w-[150px] border-r border-slate-200 px-3 py-2 text-end text-xs tabular-nums transition-colors',
+                  rowBg,
+                  textTone,
+                  'group-hover:bg-sky-50',
+                  value < 0 && 'text-red-600!'
+                )}
               >
                 <span
-                  className={`${isPercentRow ? 'cursor-default!' : 'cursor-pointer! hover:text-primary'
-                    } ${depth === 0 || isResultRow || isTotalRow ? 'font-semibold' : ''
-                    } transition-colors`}
+                  className={cn(
+                    'line-clamp-1',
+                    isPercentRow ? 'cursor-default!' : 'cursor-pointer! transition-colors hover:text-primary'
+                  )}
                   onClick={
                     isPercentRow
                       ? undefined
                       : () => handleCellClick(item, { key: period.key, label: period.title })
                   }
                 >
-                  <span className="line-clamp-1 text-end w-full">{displayValue}</span>
+                  {displayValue}
                 </span>
               </td>
             )
@@ -310,15 +321,19 @@ const ProfitAndLossPage = observer(() => {
 
           {/* Total cell */}
           <td
-            className={`px-2 text-right border-l min-w-[150px] max-w-[150px] ${isPercentRow ? 'cursor-default' : 'cursor-pointer'
-              }`}
+            className={cn(
+              'min-w-[150px] max-w-[150px] border-l border-slate-200 px-3 py-2 text-right text-xs font-semibold tabular-nums transition-colors',
+              rowBg,
+              textTone,
+              'group-hover:bg-sky-50',
+              item.totalValue < 0 && 'text-red-600!'
+            )}
           >
             <span
-              className={`text-xs line-clamp-1 ${isPercentRow
-                ? 'cursor-default!'
-                : 'cursor-pointer! hover:underline hover:text-primary'
-                } ${depth === 0 || isResultRow || isTotalRow ? 'font-semibold' : 'text-xs'
-                } transition-colors`}
+              className={cn(
+                'line-clamp-1',
+                isPercentRow ? 'cursor-default!' : 'cursor-pointer! transition-colors hover:text-primary'
+              )}
               onClick={isPercentRow ? undefined : () => handleCellClick(item, null)}
             >
               {item.totalValue === 0
@@ -461,20 +476,20 @@ const ProfitAndLossPage = observer(() => {
             <div className='flex flex-1 overflow-hidden'>
               <div className='overflow-x-auto' >
                 <table className="w-full  mb-10">
-                  <thead className={"bg-neutral-100 sticky top-0 z-50 "}>
-                    <tr>
+                  <thead className="sticky top-0 z-50 bg-slate-50">
+                    <tr className="border-b border-slate-200">
                       <th
-                        className="text-left text-xs font-medium sticky left-0 z-40 bg-neutral-100"
+                        className="sticky left-0 z-40 bg-slate-50 text-left text-[11px] font-semibold tracking-wide text-slate-500 uppercase"
                         style={{ minWidth: 420 }}
                       >
-                        <p className='px-4 w-full border-r py-2'>{t('pnl.article')}</p>
+                        <p className="w-full border-r border-slate-200 px-4 py-2.5">{t('pnl.article')}</p>
                       </th>
                       {legend.map(period => (
-                        <th key={period.key} className="text-right bg-neutral-100 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] text-xs text-xss! font-medium">
-                          <span className='line-clamp-1 border-l px-4 py-2'>{period.title}</span>
+                        <th key={period.key} className="min-w-[80px] max-w-[80px] border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-[11px] font-semibold tracking-wide whitespace-nowrap text-slate-500 uppercase">
+                          <span className="line-clamp-1">{period.title}</span>
                         </th>
                       ))}
-                      <th className="text-right bg-neutral-100 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium">
+                      <th className="min-w-[80px] max-w-[80px] shrink-0 border-l border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-[11px] font-semibold tracking-wide whitespace-nowrap text-slate-500 uppercase">
                         {t('common.total')}
                       </th>
                     </tr>

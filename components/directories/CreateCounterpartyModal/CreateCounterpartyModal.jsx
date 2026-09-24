@@ -5,6 +5,7 @@ import SinglSelectStatiya from "@/components/ReadyComponents/SingleSelectStatiya
 import { DeleteGroupConfirmModal } from "@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal";
 import EditCounterpartyGroupModal from "@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal";
 import OperationCheckbox from "@/components/shared/Checkbox/operationCheckbox";
+import { ChevronDown } from "lucide-react";
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from "@/components/shared/CustomDialog";
 import Input from "@/components/shared/Input";
 import TextArea from "@/components/shared/TextArea";
@@ -373,16 +374,21 @@ const CreateCounterpartyModal = observer(function CreateCounterpartyModal({
               />
             </FormRow>
 
-            {/* Requisites toggle */}
-            <FormRow label="">
-              <button
-                type="button"
-                onClick={() => setDetails((prev) => !prev)}
-                className={cn(styles.requisites, "self-start")}
-              >
-                <p>{t("requisites")}</p>
-              </button>
-            </FormRow>
+            {/* Реквизиты — раскрывающийся раздел на всю ширину окна, а не
+                ссылка, висевшая посреди формы */}
+            <button
+              type="button"
+              onClick={() => setDetails((prev) => !prev)}
+              aria-expanded={details}
+              className="flex w-full cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
+            >
+              <ChevronDown
+                size={16}
+                aria-hidden="true"
+                className={cn("shrink-0 transition-transform", details && "rotate-180")}
+              />
+              {t("requisites")}
+            </button>
 
             {/* Requisites fields */}
             <div

@@ -35,29 +35,45 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
 
   const totalMonthSum = months.reduce((acc, m) => acc + (row.months?.[m] || 0), 0)
 
+  // Оформление то же, что в балансовом отчёте: корневые разделы заливкой и
+  // синей полосой слева, вложенные — светлее, статьи на белом
+  const rowBg = isBold ? 'bg-slate-100' : depth === 1 ? 'bg-slate-50/70' : 'bg-white'
+  const textTone = isBold
+    ? 'text-slate-900 font-semibold'
+    : depth === 1
+      ? 'text-slate-800 font-medium'
+      : 'text-slate-600'
+  const totalValue = row.total || totalMonthSum
+
   return (
     <>
-      <tr className={`border-b box-content border-neutral-200 transition-colors ${depth === 0 ? 'bg-neutral-50 font-semibold' : 'hover:bg-neutral-50'}`}>
+      <tr className={cn('group border-b', isBold ? 'border-slate-300' : 'border-slate-100')}>
         {/* Name cell */}
-
         <td
           className={cn(
-            " sticky left-0 z-10 p-0! box-border transition-shadow duration-300",
-            depth === 0 ? "bg-neutral-50" : "bg-white",
-            "hover:bg-neutral-100 transition-colors",
+            'sticky left-0 z-10 box-border p-0! transition-colors',
+            rowBg,
+            'group-hover:bg-sky-50',
+            isBold && 'shadow-[inset_3px_0_0_#0e73f6]'
           )}
         >
           <div
-            className={`flex items-center w-full border-r py-2 text-xss! gap-2 ${hasChildren ? "cursor-pointer!" : "cursor-default"}`}
-            style={{ paddingLeft: `${depth * 1 + 1}rem` }}
+            className={cn(
+              'flex w-full items-center gap-1.5 border-r border-slate-200 py-2 pr-3 text-xs',
+              textTone,
+              hasChildren ? 'cursor-pointer!' : 'cursor-default'
+            )}
+            style={{ paddingLeft: `${depth * 1.25 + 0.875}rem` }}
             onClick={hasChildren ? () => onToggle(row.uniquePath) : undefined}
           >
-            {hasChildren && (
-              <button className="bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-neutral-500 hover:text-neutral-900 transition-colors w-4 h-4">
-                {isExpanded ? <ExpendClose /> : <ExpendOpen />}
+            {hasChildren ? (
+              <button className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center border-none bg-transparent p-0 text-slate-400 transition-colors hover:text-slate-600">
+                {isExpanded ? <ExpendClose color={isBold ? '#334155' : '#94a3b8'} /> : <ExpendOpen color={isBold ? '#334155' : '#94a3b8'} />}
               </button>
+            ) : (
+              <span className="w-4 shrink-0" />
             )}
-            <span className={isBold ? "font-semibold" : "text-sm"}>{row.name}</span>
+            <span>{row.name}</span>
           </div>
         </td>
 
@@ -66,32 +82,47 @@ function TableRow({ row, months, legend, depth = 0, expandedMap, onToggle, onCel
           const val = row.months?.[month] ?? 0
           const legendItem = legend.find(l => l.key === month)
           return (
-            <td key={month} className="px-2 cursor-pointer! text-xs text-end border-r min-w-[150px] max-w-[150px]">
+            <td
+              key={month}
+              className={cn(
+                'min-w-[150px] max-w-[150px] border-r border-slate-200 px-3 py-2 text-end text-xs tabular-nums transition-colors',
+                rowBg,
+                textTone,
+                'group-hover:bg-sky-50',
+                val < 0 && 'text-red-600!'
+              )}
+            >
               <span
-                className={`  ${isBold ? "font-semibold" : ""} ${row?.isClickable ? ' hover:text-primary transition-colors' : ''}`}
+                className={cn('line-clamp-1', row?.isClickable && 'cursor-pointer transition-colors hover:text-primary')}
                 onClick={() => {
                   if (!row?.isClickable) return
                   onCellClick(row, { key: month, label: legendItem?.title || month })
                 }}
               >
-                {/* <CustomTooltip> */}
-                <span className='line-clamp-1 text-end w-full cursor-pointer'>{formatNumber(formatTotalSumma(val))}</span>
-                {/* </CustomTooltip> */}
+                {formatNumber(formatTotalSumma(val))}
               </span>
             </td>
           )
         })}
 
         {/* Total cell */}
-        <td className="px-2 text-right border-l min-w-[150px] max-w-[150px] cursor-pointer!">
+        <td
+          className={cn(
+            'min-w-[150px] max-w-[150px] border-l border-slate-200 px-3 py-2 text-right text-xs font-semibold tabular-nums transition-colors',
+            rowBg,
+            textTone,
+            'group-hover:bg-sky-50',
+            totalValue < 0 && 'text-red-600!'
+          )}
+        >
           <span
-            className={`text-xs line-clamp-1 ${isBold ? "font-semibold" : "text-xs"} ${!row?.isClickable ? ' hover:underline hover:text-primary transition-colors' : ''}`}
+            className={cn('line-clamp-1', row?.isClickable && 'cursor-pointer transition-colors hover:text-primary')}
             onClick={() => {
               if (!row?.isClickable) return
               onCellClick(row, null)
             }}
           >
-            {formatNumber(formatTotalSumma(row.total || totalMonthSum))}
+            {formatNumber(formatTotalSumma(totalValue))}
           </span>
         </td>
       </tr>
@@ -446,22 +477,20 @@ export default observer(function CashFlowReportPage() {
             <div className='flex flex-1 overflow-hidden'>
             <div className="overflow-x-auto">
               <table className="w-full  mb-10">
-                <thead className=" bg-neutral-100 sticky top-0 z-50">
-                  <tr>
+                <thead className="sticky top-0 z-50 bg-slate-50">
+                  <tr className="border-b border-slate-200">
                     <th
-                      className={cn(
-                        "text-left  text-xs font-medium sticky left-0 z-40 bg-neutral-100 transition-shadow duration-300",
-                      )}
+                      className="sticky left-0 z-40 bg-slate-50 text-left text-[11px] font-semibold tracking-wide text-slate-500 uppercase"
                       style={{ minWidth: 420 }}
                     >
-                      <p className='px-4 w-full border-r py-2'>{t('cashflow.articleHeader')}</p>
+                      <p className="w-full border-r border-slate-200 px-4 py-2.5">{t('cashflow.articleHeader')}</p>
                     </th>
                     {legend.map(col => (
-                      <th key={col.key} className="text-right bg-neutral-100 border-none text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px]  text-xs border-r border-neutral-200  text-xss! font-medium" >
-                        <span className='line-clamp-1 border-l  px-4 py-2 '>{col.title}</span>
+                      <th key={col.key} className="min-w-[80px] max-w-[80px] border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-[11px] font-semibold tracking-wide whitespace-nowrap text-slate-500 uppercase">
+                        <span className="line-clamp-1">{col.title}</span>
                       </th>
                     ))}
-                    <th className="text-right bg-neutral-100 text-nowrap whitespace-nowrap lowercase min-w-[80px] max-w-[80px] shrink-0 border-l border-neutral-200 px-4 text-xs py-2 text-xss! font-medium" >
+                    <th className="min-w-[80px] max-w-[80px] shrink-0 border-l border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-[11px] font-semibold tracking-wide whitespace-nowrap text-slate-500 uppercase">
                       {t('common.total')}
                     </th>
                   </tr>
