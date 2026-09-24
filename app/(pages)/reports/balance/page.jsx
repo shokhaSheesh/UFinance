@@ -120,7 +120,7 @@ export default observer(function BalancePage() {
       <React.Fragment key={item.uniquePath ?? item.id}>
         <tr className={`border-b  border-gray-100 transition-colors duration-200 hover:bg-[#f0f4f8] ${isTotalRow ? 'font-semibold' : ''} `}>
           <td
-            className={`sticky left-0  z-1 min-w-[200px] w-[1250px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
+            className={`sticky left-0 z-10 min-w-[260px] w-[260px] px-2 py-1.5 text-[11px] text-slate-900 border-b border-r border-gray-200 whitespace-normal wrap-break-word  ${isActiveOrPassive && 'bg-primary! text-white!'}`}
             style={{ paddingLeft: `${indent + 16}px`, backgroundColor: isActiveOrPassive ? '#007bff' : '#fff' }}
           >
             <div
@@ -164,8 +164,8 @@ export default observer(function BalancePage() {
 
       {(isLoading || isFetching) && <ScreenLoader />}
       {/* Main Content */}
-      <div className={"w-full relative bg-canvas overflow-auto pb-10"}>
-        <div className="flex px-6 h-16 items-center justify-between sticky top-0 z-20 bg-canvas">
+      <div className={"flex w-full min-w-0 flex-col bg-canvas"}>
+        <div className="flex shrink-0 px-6 h-16 items-center justify-between bg-canvas">
           <h1 className='text-xl whitespace-nowrap font-semibold'>{t('balance.title')}</h1>
             <div className="flex items-center gap-3">
           <SingleSelect
@@ -195,13 +195,15 @@ export default observer(function BalancePage() {
             </div>
         </div>
 
-        <div className="px-4 text-center mb-4 text-sm font-medium ">
+        <div className="px-6 shrink-0 text-center mb-4 text-sm font-medium ">
           {t('balance.formula')}
         </div>
 
-        {/* Table with loading overlay */}
-        <div className='px-4 pb-4'>
-          <TableCard className="flex-none w-fit max-w-full self-start">
+        {/* Таблица — единственная область прокрутки: колонки периодов уходят
+            вправо, а колонка статей и шапка остаются на месте. Раньше карточка
+            обрезала лишние колонки, и прокрутить вбок было нельзя. */}
+        <div className='flex min-h-0 flex-1 px-6 pb-6'>
+          <TableCard className="min-h-0 flex-1 overflow-auto">
           {/* Spinner overlay on filter change (data already present) */}
 
           {error && !isLoading && !isFetching ? (
@@ -212,8 +214,8 @@ export default observer(function BalancePage() {
               </button>
             </div>
           ) : (
-            <table className="w-full">
-              <thead className=" bg-neutral-100 sticky top-16 z-10">
+            <table className="w-full min-w-max">
+              <thead className="bg-slate-50 sticky top-0 z-30">
                 <tr>
                   <th className="text-left px-4 py-2 text-[11px] font-medium sticky left-0 z-20 bg-slate-50 min-w-[260px] w-[260px]">{t('balance.accountHeader')}</th>
                   {columns.map((column) => (
