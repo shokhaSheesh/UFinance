@@ -39,6 +39,7 @@ export default observer(function ProductServiceListPage() {
 
   const {
     isCreateSingleOpen,
+    createType,
     setIsCreateSingleOpen,
     isCreateGroupOpen,
     setIsCreateGroupOpen,
@@ -247,6 +248,7 @@ export default observer(function ProductServiceListPage() {
           }
         }}
         initialData={itemToEdit}
+        initialType={createType}
         isEditing={!!itemToEdit && !isCopying}
       />
 

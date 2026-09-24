@@ -39,9 +39,13 @@ export function useProductServiceModals(t) {
     queryClient.invalidateQueries({ queryKey: ['list_products_and_services'] })
   }
 
-  const handleCreateSingle = () => {
+  // тип выбирают в меню «Создать» — форма открывается сразу нужной
+  const [createType, setCreateType] = useState(null)
+
+  const handleCreateSingle = (type = null) => {
     setItemToEdit(null)
     setIsCopying(false)
+    setCreateType(type)
     setIsCreateSingleOpen(true)
   }
 
@@ -90,6 +94,7 @@ export function useProductServiceModals(t) {
 
   return {
     isCreateSingleOpen, setIsCreateSingleOpen,
+    createType,
     isCreateGroupOpen, setIsCreateGroupOpen,
     itemToDelete, setItemToDelete,
     isDeletingItem,

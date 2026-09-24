@@ -2480,7 +2480,9 @@
       "successDeleted": "Muvaffaqiyatli o'chirildi",
       "bulkSuccessDeleted": "Tanlangan elementlar muvaffaqiyatli o'chirildi",
       "bulkDeleteError": "Ommaviy o'chirishda xatolik",
-      "itemsCount": "{count} ta pozitsiya"
+      "itemsCount": "{count} ta pozitsiya",
+      "createProduct": "Tovar yaratish",
+      "createService": "Xizmat yaratish"
     },
     "contract": {
       "pageTitle": "Shartnomalar",

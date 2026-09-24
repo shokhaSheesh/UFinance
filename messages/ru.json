@@ -2347,7 +2347,9 @@
       "successDeleted": "Успешно удалено",
       "bulkSuccessDeleted": "Выбранные элементы успешно удалены",
       "bulkDeleteError": "Ошибка при массовом удалении",
-      "itemsCount": "{count, plural, one {# позиция} few {# позиции} other {# позиций}}"
+      "itemsCount": "{count, plural, one {# позиция} few {# позиции} other {# позиций}}",
+      "createProduct": "Создать товар",
+      "createService": "Создать услугу"
     },
     "details": {
       "status": {

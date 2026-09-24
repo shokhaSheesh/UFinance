@@ -14,7 +14,7 @@ import Segmented from '../../shared/Segmented/Segmented'
 import SingleSelect from '../../shared/Selects/SingleSelect'
 import TextArea from '../../shared/TextArea'
 
-const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false }) => {
+const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEditing = false, initialType = null }) => {
   const t = useTranslations('Directories.product')
   const tc = useTranslations('Common')
   const viewOptions = !appStore.isDonoSchool ? [
@@ -96,7 +96,8 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
       }
     }
     return {
-      viewMode: appStore.isDonoSchool ? 'service' : 'product',
+      // тип приходит из меню «Создать»; иначе — как раньше
+      viewMode: initialType || (appStore.isDonoSchool ? 'service' : 'product'),
       name: '',
       article: '',
       unit: apiOptions?.[0].value || null,
@@ -106,7 +107,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
       vat: '',
       comment: ''
     }
-  }, [initialData, apiOptions, myCurrencies])
+  }, [initialData, apiOptions, myCurrencies, initialType])
 
   const { control, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues
@@ -173,7 +174,7 @@ const CreateSingle = observer(({ open = true, setOpen, initialData = null, isEdi
               name="viewMode"
               control={control}
               render={({ field }) => (
-                <Segmented options={viewOptions} value={field.value} onChange={field.onChange} ariaLabel={t('fields.type')} />
+                <Segmented className="self-start" options={viewOptions} value={field.value} onChange={field.onChange} ariaLabel={t('fields.type')} />
               )}
             />
           </FormRow>
