@@ -3763,7 +3763,10 @@
       "resend": "Qayta yuborish",
       "resendIn": "Qayta yuborish {seconds} dan keyin",
       "phoneChanged": "Raqam o‘zgartirildi",
-      "logoutSlide": "Chiqish"
+      "logoutSlide": "Chiqish",
+      "photoChanged": "Rasm yangilandi",
+      "nameHint": "Hamkasblar sizni amaliyot va hisobotlarda shunday ko‘radi.",
+      "emailHint": "Bu manzilga kirish va parol o‘zgarishi haqidagi xatlar keladi."
     },
     "reports": {
       "hint": "Hisobotlar telefon uchun tayyorlanmoqda: raqamlar, diagrammalar va bir davrli jadval. Hozircha ular kompyuterda mavjud.",
