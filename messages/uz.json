@@ -3878,6 +3878,19 @@
     },
     "articles": {
       "empty": "Moddalar yo‘q"
+    },
+    "common": {
+      "deleted": "O‘chirildi"
+    },
+    "products": {
+      "empty": "Tovar va xizmatlar yo‘q",
+      "product": "Tovar",
+      "service": "Xizmat"
+    },
+    "settings": {
+      "paymentHint": "Amaliyotlarda to‘lov turini ko‘rsatish",
+      "accrualHint": "Bitim tanlanganda «Hisoblash sanasi» maydoni",
+      "desktopOnly": "Foydalanuvchilar, rollar, filiallar, valyutalar va shartnomalar kompyuterda sozlanadi."
     }
   }
 }

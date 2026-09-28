@@ -24,7 +24,6 @@ import {
   ListTree,
   Package,
   Settings,
-  ShieldCheck,
   Users,
   Warehouse,
 } from 'lucide-react'
@@ -134,7 +133,7 @@ const MobileProfilePage = observer(() => {
           href: '/m/counterparties',
         },
         { key: 'plans', icon: ClipboardList, label: tNav('nav.plans'), can: true, href: '/m/plans' },
-        { key: 'projects', icon: FolderTree, label: tNav('nav.projects'), can: appStore.projectActive },
+        { key: 'projects', icon: FolderTree, label: tNav('nav.projects'), can: appStore.projectActive, href: '/m/projects' },
         { key: 'warehouse', icon: Warehouse, label: tNav('nav.warehouse'), can: appStore.warehouseActive, href: '/m/warehouse' },
       ],
     },
@@ -161,12 +160,14 @@ const MobileProfilePage = observer(() => {
           icon: Building2,
           label: tNav('directories.legalEntities'),
           can: permission?.directories?.legalentities?.read,
+          href: '/m/entities',
         },
         {
           key: 'products',
           icon: Package,
           label: tNav('directories.productsServices'),
           can: permission?.directories?.productsServices?.read,
+          href: '/m/products',
         },
       ],
     },
@@ -174,8 +175,7 @@ const MobileProfilePage = observer(() => {
       key: 'settings',
       title: tNav('nav.settings'),
       rows: [
-        { key: 'settings', icon: Settings, label: t('profile.appSettings'), can: permission?.settings?.general?.read },
-        { key: 'security', icon: ShieldCheck, label: t('profile.security'), can: true },
+        { key: 'settings', icon: Settings, label: t('profile.appSettings'), can: permission?.settings?.general?.read, href: '/m/settings' },
       ],
     },
   ]
