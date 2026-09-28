@@ -19,8 +19,8 @@ const MobileReportsPage = () => {
 
   const reports = [
     { key: 'cashflow', icon: TrendingUp, title: tr('cashflow.title'), href: '/m/reports/cashflow' },
-    { key: 'pnl', icon: BarChart3, title: tr('pnl.title') },
-    { key: 'balance', icon: Scale, title: tr('balance.title') },
+    { key: 'pnl', icon: BarChart3, title: tr('pnl.title'), href: '/m/reports/pnl' },
+    { key: 'balance', icon: Scale, title: tr('balance.title'), href: '/m/reports/balance' },
   ]
 
   return (
@@ -40,7 +40,7 @@ const MobileReportsPage = () => {
         ))}
       </MCard>
 
-      <p className="px-2 pt-4 text-xs leading-relaxed text-slate-500">{t('reports.hint')}</p>
+      <p className="px-2 pt-4 text-xs leading-relaxed text-slate-500">{t('reports.tableHint')}</p>
     </div>
   )
 }

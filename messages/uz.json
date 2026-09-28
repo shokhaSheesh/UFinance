@@ -3725,7 +3725,10 @@
       "endingBalance": "Davr oxiridagi qoldiq",
       "noData": "Bu davr uchun ma’lumot yo‘q",
       "tableHint": "Bir vaqtda bitta davr — yuqoridan almashtiring. Barcha ustunli to‘liq jadval kompyuterda qoldi.",
-      "period": "Davr"
+      "period": "Davr",
+      "margin": "Rentabellik",
+      "notBalanced": "Balans to‘g‘ri kelmadi",
+      "balanceHint": "Moddalar va sana ustunlari bo‘lgan to‘liq balans jadvali kompyuterda qoldi."
     },
     "form": {
       "created": "Amaliyot yaratildi",
