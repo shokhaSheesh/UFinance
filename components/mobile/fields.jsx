@@ -3,7 +3,7 @@
 import BottomSheet from '@/components/mobile/BottomSheet'
 import CalendarSheet from '@/components/mobile/CalendarSheet'
 import { cn } from '@/lib/utils'
-import { CalendarDays, Check, ChevronRight, Loader2, Search, X } from 'lucide-react'
+import { CalendarDays, Check, ChevronRight, Eye, EyeOff, Loader2, Search, X } from 'lucide-react'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
@@ -221,6 +221,33 @@ export function MSwitch({ label, hint, checked, onChange }) {
         />
       </span>
     </button>
+  )
+}
+
+/** Пароль: то же поле, но со значком «показать». */
+export function MPasswordField({ label, value, onChange, placeholder, error, autoComplete = 'off' }) {
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <MFieldRow label={label} error={error}>
+      <span className="flex items-center gap-2">
+        <input
+          type={visible ? 'text' : 'password'}
+          value={value || ''}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          className="min-w-0 flex-1 bg-transparent text-[16px] text-slate-900 outline-none placeholder:text-slate-400"
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((prev) => !prev)}
+          className="shrink-0 text-slate-400 active:text-slate-600"
+        >
+          {visible ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+        </button>
+      </span>
+    </MFieldRow>
   )
 }
 

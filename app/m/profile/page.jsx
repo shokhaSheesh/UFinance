@@ -14,6 +14,7 @@ import {
   Briefcase,
   Building2,
   Check,
+  ChevronRight,
   ClipboardList,
   Coins,
   FolderTree,
@@ -183,17 +184,22 @@ const MobileProfilePage = observer(() => {
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
       <MScreenHeader title={t('tabs.profile')} />
 
-      {/* Кто вошёл */}
-      <div className="flex items-center gap-3.5 rounded-[24px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-5 text-white">
+      {/* Кто вошёл — нажатие открывает «Мой профиль» */}
+      <button
+        type="button"
+        onClick={() => router.push('/m/profile/edit')}
+        className="flex w-full items-center gap-3.5 rounded-[24px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-5 text-left text-white active:opacity-95"
+      >
         <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-lg font-bold">
           {(mounted && name ? name : 'U').slice(0, 1).toUpperCase()}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="truncate text-base font-bold">{mounted ? name : ''}</div>
           {user.email && <div className="mt-0.5 truncate text-xs text-white/75">{user.email}</div>}
           {user.phone && <div className="mt-0.5 truncate text-xs text-white/75">{user.phone}</div>}
         </div>
-      </div>
+        <ChevronRight size={18} className="shrink-0 text-white/70" aria-hidden="true" />
+      </button>
 
       {/* Аккаунт: то, что переключают прямо с телефона */}
       <SectionHead title={t('profile.account')} />
