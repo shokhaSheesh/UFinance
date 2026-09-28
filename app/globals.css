@@ -217,9 +217,10 @@
 /* Подсказка на ползунке подтверждения: кнопка покачивается вправо, пока
    её не потянули — иначе непонятно, что элемент вообще двигается. */
 @keyframes m-nudge {
-	0%, 55%, 100% { transform: translateX(0); }
-	70% { transform: translateX(10px); }
-	85% { transform: translateX(3px); }
+	0%, 45%, 100% { transform: translateX(0); }
+	58% { transform: translateX(12px); }
+	70% { transform: translateX(2px); }
+	82% { transform: translateX(8px); }
 }
 
 .m-nudge {

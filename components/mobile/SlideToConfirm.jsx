@@ -1,17 +1,18 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { ChevronRight } from 'lucide-react'
+import { ChevronsRight } from 'lucide-react'
 import { useRef, useState } from 'react'
 
 /**
  * Ползунок подтверждения: действие срабатывает, когда кнопку дотянули до
  * правого края.
  *
- * Для необратимых действий одно нажатие — слишком мало: палец задевает
- * кнопку случайно, особенно в списке. Здесь нужно осознанное движение.
- * Пока ползунок не трогали, он сам подталкивается вправо и стрелки бегут
- * в ту же сторону — иначе не догадаться, что его надо тянуть.
+ * Для необратимых действий одного нажатия мало: палец задевает кнопку
+ * случайно, особенно в конце длинного списка. Здесь нужно осознанное
+ * движение. Что элемент тянут, а не жмут, показывает сама кнопка: пока её
+ * не трогали, она покачивается вправо и обратно. Объяснять это надписью
+ * не нужно — подпись оставлена короткой, только про действие.
  */
 export default function SlideToConfirm({ label, onConfirm, tone = 'danger', className }) {
   const trackRef = useRef(null)
@@ -64,22 +65,27 @@ export default function SlideToConfirm({ label, onConfirm, tone = 'danger', clas
     <div
       ref={trackRef}
       className={cn(
-        'relative flex h-[60px] w-full items-center overflow-hidden rounded-full px-1',
-        danger ? 'bg-red-50' : 'bg-slate-100',
+        'relative flex h-[62px] w-full items-center overflow-hidden rounded-full border p-[5px]',
+        danger ? 'border-red-200 bg-white' : 'border-slate-200 bg-white',
         className
       )}
     >
-      {/* Подпись гаснет по мере того, как ползунок едет вправо */}
+      {/* Пройденный путь закрашивается — видно, сколько осталось дотянуть */}
+      <span
+        aria-hidden="true"
+        className={cn('absolute inset-y-0 left-0 rounded-full', danger ? 'bg-red-50' : 'bg-[#eaf2ff]')}
+        style={{ width: `${Math.min(offset + KNOB + 10, 10000)}px`, transition: dragging ? 'none' : 'width .2s ease' }}
+      />
+
+      {/* Подпись короткая: что делает, объясняет само движение кнопки */}
       <span
         className={cn(
-          'pointer-events-none absolute inset-0 flex items-center justify-center gap-1 text-[15px] font-semibold',
+          'pointer-events-none absolute inset-0 flex items-center justify-center text-[15px] font-semibold',
           danger ? 'text-red-600' : 'text-slate-700'
         )}
-        style={{ opacity: 1 - progress * 1.4 }}
+        style={{ opacity: 1 - progress * 1.6 }}
       >
         {label}
-        <ChevronRight size={16} className="opacity-40" aria-hidden="true" />
-        <ChevronRight size={16} className="-ml-2.5 opacity-70" aria-hidden="true" />
       </span>
 
       <button
@@ -90,14 +96,14 @@ export default function SlideToConfirm({ label, onConfirm, tone = 'danger', clas
         onPointerCancel={end}
         aria-label={label}
         className={cn(
-          'relative z-10 flex h-[52px] w-[52px] shrink-0 touch-none items-center justify-center rounded-full text-white shadow-sm',
-          danger ? 'bg-red-600' : 'bg-[#0e73f6]',
-          !touched && 'm-nudge',
+          'relative z-10 flex h-[52px] w-[52px] shrink-0 touch-none items-center justify-center rounded-full text-white',
+          danger ? 'bg-red-600 shadow-[0_4px_12px_rgba(220,38,38,0.35)]' : 'bg-[#0e73f6] shadow-[0_4px_12px_rgba(14,115,246,0.35)]',
+          !touched && !dragging && 'm-nudge',
           !dragging && 'transition-transform duration-200'
         )}
         style={{ transform: `translateX(${offset}px)` }}
       >
-        <ChevronRight size={22} aria-hidden="true" />
+        <ChevronsRight size={22} aria-hidden="true" />
       </button>
     </div>
   )
