@@ -1,5 +1,6 @@
 'use client'
 
+import HomeSettingsSheet from '@/components/mobile/HomeSettingsSheet'
 import { MCard, MEmpty, MSkeleton, QuickActions, SectionHead } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -10,6 +11,7 @@ import operationsDto from '@/lib/dtos/operationsDto'
 import { cn } from '@/lib/utils'
 import { useCompanyData } from '@/modules/company/hooks/useCompanyData'
 import { appStore } from '@/store/app.store'
+import { mobileHomeStore } from '@/store/mobileHome.store'
 import { authStore } from '@/store/auth.store'
 import { keepPreviousData } from '@tanstack/react-query'
 import {
@@ -21,13 +23,14 @@ import {
   Landmark,
   PackageCheck,
   Scale,
+  SlidersHorizontal,
   TrendingDown,
   TrendingUp,
   Truck,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 
 /**
  * Главная мобильного приложения.
@@ -83,6 +86,7 @@ const MobileHomePage = observer(() => {
   const router = useRouter()
   const mounted = useMounted()
   const data = useCompanyData()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const currency = mounted ? GlobalCurrency?.name : ''
   const userName = authStore.userData?.name || authStore.userData?.login || ''
@@ -150,6 +154,137 @@ const MobileHomePage = observer(() => {
 
   const netFlow = data.cash.net || 0
 
+  // Состав главной пользователь настраивает сам: порядок и видимость
+  // блоков лежат в mobileHomeStore
+  const sectionBlocks = {
+    accounts: (
+      <>
+      {/* Счета */}
+      <SectionHead title={t('home.accounts')} />
+      {isLoadingAccounts && !accounts.length ? (
+        <MSkeleton rows={2} />
+      ) : accounts.length ? (
+        <MCard list>
+          {accounts.slice(0, 4).map((account) => (
+            <ListRow
+              key={account.guid}
+              icon={Landmark}
+              tone="bg-slate-100 text-slate-500"
+              title={account.name}
+              subtitle={account.entity}
+              value={<Money value={account.balance} currency={account.currency} />}
+            />
+          ))}
+        </MCard>
+      ) : (
+        <MCard>
+          <MEmpty icon={Landmark} title={t('home.noAccounts')} />
+        </MCard>
+      )}
+
+      </>
+    ),
+    recent: (
+      <>
+      {/* Последние операции */}
+      {recent.length > 0 && (
+        <>
+          <SectionHead
+            title={t('home.recent')}
+            action={t('home.all')}
+            onAction={() => router.push('/m/transactions')}
+          />
+          <MCard list>
+            {recent.map((operation) => {
+              const look = TYPE_LOOK[operation.tip] || TYPE_LOOK['Начисление']
+              const isIncome = operation.operationType === 'income'
+              const isPayment = operation.operationType === 'payment'
+              return (
+                <ListRow
+                  key={operation.guid}
+                  icon={look.icon}
+                  tone={look.tone}
+                  title={operation.counterparty || operation.tip}
+                  subtitle={[operation.chartOfAccounts, operation.my_account_name].filter(Boolean).join(' · ')}
+                  onClick={() => router.push(`/m/transactions/${operation.guid}`)}
+                  valueClass={isIncome ? 'text-emerald-600!' : isPayment ? 'text-red-600!' : ''}
+                  value={
+                    <Money
+                      value={operation.summa}
+                      currency={operation.currency || currency}
+                      sign={isIncome ? '+' : isPayment ? '−' : ''}
+                    />
+                  }
+                  valueSub={operation.operationDate}
+                />
+              )
+            })}
+          </MCard>
+        </>
+      )}
+
+      </>
+    ),
+    period: (
+      <>
+      {/* Доходы и расходы за период */}
+      <SectionHead title={t('home.period')} action={t('home.reportsLink')} onAction={() => router.push('/m/reports')} />
+      <MCard list>
+        <ListRow
+          icon={TrendingUp}
+          tone="bg-emerald-50 text-emerald-600"
+          title={t('home.income')}
+          value={<Money value={data.pnl.revenueTotal} currency={currency} />}
+        />
+        <ListRow
+          icon={TrendingDown}
+          tone="bg-red-50 text-red-600"
+          title={t('home.expense')}
+          value={<Money value={data.pnl.expensesTotal} currency={currency} />}
+        />
+        <ListRow
+          icon={Scale}
+          tone="bg-slate-100 text-slate-500"
+          title={t('home.profit')}
+          valueClass={data.pnl.profitTotal >= 0 ? 'text-emerald-600!' : 'text-red-600!'}
+          value={<Money value={data.pnl.profitTotal} currency={currency} />}
+        />
+      </MCard>
+
+      </>
+    ),
+    settlements: (
+      <>
+      {/* Взаиморасчёты */}
+      <SectionHead title={t('home.settlements')} />
+      <MCard list>
+        <ListRow
+          icon={ArrowDownLeft}
+          tone="bg-emerald-50 text-emerald-600"
+          title={t('home.receivables')}
+          subtitle={
+            data.receivablesOverdue
+              ? t('home.overdue', { amount: Math.round(data.receivablesOverdue).toLocaleString('ru-RU') })
+              : undefined
+          }
+          value={<Money value={data.receivables} currency={currency} />}
+        />
+        <ListRow
+          icon={ArrowUpRight}
+          tone="bg-red-50 text-red-600"
+          title={t('home.payables')}
+          subtitle={
+            data.payablesOverdue
+              ? t('home.overdue', { amount: Math.round(data.payablesOverdue).toLocaleString('ru-RU') })
+              : undefined
+          }
+          value={<Money value={data.payables} currency={currency} />}
+        />
+      </MCard>
+      </>
+    ),
+  }
+
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
       {/* Кто вошёл и в каком филиале */}
@@ -169,6 +304,14 @@ const MobileHomePage = observer(() => {
             <div className="truncate text-[15px] font-bold text-slate-900">{branchName}</div>
           )}
         </div>
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          aria-label={t('home.customize')}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 active:bg-slate-100"
+        >
+          <SlidersHorizontal size={18} aria-hidden="true" />
+        </button>
         <button
           type="button"
           onClick={() => router.push('/m/transactions')}
@@ -202,117 +345,12 @@ const MobileHomePage = observer(() => {
 
       <QuickActions actions={quickActions} />
 
-      {/* Счета */}
-      <SectionHead title={t('home.accounts')} />
-      {isLoadingAccounts && !accounts.length ? (
-        <MSkeleton rows={2} />
-      ) : accounts.length ? (
-        <MCard list>
-          {accounts.slice(0, 4).map((account) => (
-            <ListRow
-              key={account.guid}
-              icon={Landmark}
-              tone="bg-slate-100 text-slate-500"
-              title={account.name}
-              subtitle={account.entity}
-              value={Math.round(Number(account.balance) || 0).toLocaleString('ru-RU')}
-              valueSub={account.currency}
-            />
-          ))}
-        </MCard>
-      ) : (
-        <MCard>
-          <MEmpty icon={Landmark} title={t('home.noAccounts')} />
-        </MCard>
-      )}
+      {/* Блоки в порядке, который выбрал пользователь */}
+      {mobileHomeStore.visibleSections.map((key) => (
+        <Fragment key={key}>{sectionBlocks[key]}</Fragment>
+      ))}
 
-      {/* Последние операции */}
-      {recent.length > 0 && (
-        <>
-          <SectionHead
-            title={t('home.recent')}
-            action={t('home.all')}
-            onAction={() => router.push('/m/transactions')}
-          />
-          <MCard list>
-            {recent.map((operation) => {
-              const look = TYPE_LOOK[operation.tip] || TYPE_LOOK['Начисление']
-              const isIncome = operation.operationType === 'income'
-              const isPayment = operation.operationType === 'payment'
-              return (
-                <ListRow
-                  key={operation.guid}
-                  icon={look.icon}
-                  tone={look.tone}
-                  title={operation.counterparty || operation.tip}
-                  subtitle={operation.chartOfAccounts}
-                  onClick={() => router.push(`/m/transactions/${operation.guid}`)}
-                  valueClass={isIncome ? 'text-emerald-600!' : isPayment ? 'text-red-600!' : ''}
-                  value={
-                    <Money
-                      value={operation.summa}
-                      currency={operation.currency || currency}
-                      sign={isIncome ? '+' : isPayment ? '−' : ''}
-                    />
-                  }
-                  valueSub={operation.operationDate}
-                />
-              )
-            })}
-          </MCard>
-        </>
-      )}
-
-      {/* Доходы и расходы за период */}
-      <SectionHead title={t('home.period')} action={t('home.reportsLink')} onAction={() => router.push('/m/reports')} />
-      <MCard list>
-        <ListRow
-          icon={TrendingUp}
-          tone="bg-emerald-50 text-emerald-600"
-          title={t('home.income')}
-          value={<Money value={data.pnl.revenueTotal} currency={currency} />}
-        />
-        <ListRow
-          icon={TrendingDown}
-          tone="bg-red-50 text-red-600"
-          title={t('home.expense')}
-          value={<Money value={data.pnl.expensesTotal} currency={currency} />}
-        />
-        <ListRow
-          icon={Scale}
-          tone="bg-slate-100 text-slate-500"
-          title={t('home.profit')}
-          valueClass={data.pnl.profitTotal >= 0 ? 'text-emerald-600!' : 'text-red-600!'}
-          value={<Money value={data.pnl.profitTotal} currency={currency} />}
-        />
-      </MCard>
-
-      {/* Взаиморасчёты */}
-      <SectionHead title={t('home.settlements')} />
-      <MCard list>
-        <ListRow
-          icon={ArrowDownLeft}
-          tone="bg-emerald-50 text-emerald-600"
-          title={t('home.receivables')}
-          subtitle={
-            data.receivablesOverdue
-              ? t('home.overdue', { amount: Math.round(data.receivablesOverdue).toLocaleString('ru-RU') })
-              : undefined
-          }
-          value={<Money value={data.receivables} currency={currency} />}
-        />
-        <ListRow
-          icon={ArrowUpRight}
-          tone="bg-red-50 text-red-600"
-          title={t('home.payables')}
-          subtitle={
-            data.payablesOverdue
-              ? t('home.overdue', { amount: Math.round(data.payablesOverdue).toLocaleString('ru-RU') })
-              : undefined
-          }
-          value={<Money value={data.payables} currency={currency} />}
-        />
-      </MCard>
+      <HomeSettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 })

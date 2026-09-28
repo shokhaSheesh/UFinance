@@ -3708,7 +3708,12 @@
       "debtors": "Eng katta qarzdorlar",
       "recent": "Oxirgi amaliyotlar",
       "all": "Barchasi",
-      "forPeriod": "davr uchun"
+      "forPeriod": "davr uchun",
+      "customize": "Asosiy sahifani sozlash",
+      "customizeHint": "Nimani va qanday tartibda ko‘rsatish",
+      "resetLayout": "Standart holat",
+      "moveUp": "Yuqoriga",
+      "moveDown": "Pastga"
     },
     "transactions": {
       "planned": "Rejalashtirilgan",

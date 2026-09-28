@@ -3554,7 +3554,12 @@
       "debtors": "Кто больше должен",
       "recent": "Последние операции",
       "all": "Все",
-      "forPeriod": "за период"
+      "forPeriod": "за период",
+      "customize": "Настроить главную",
+      "customizeHint": "Что показывать и в каком порядке",
+      "resetLayout": "По умолчанию",
+      "moveUp": "Выше",
+      "moveDown": "Ниже"
     },
     "transactions": {
       "planned": "Запланировано",

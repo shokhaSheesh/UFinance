@@ -25,6 +25,20 @@ export const GlobalCurrency = {
   }
 };
 
+/**
+ * ISO-код валюты по её guid.
+ *
+ * В записях операций валюта приходит символом («so'm»), а в шапке и в
+ * настройках показывается код («UZS») — на одной странице получались два
+ * разных обозначения одной валюты. Код берём из справочника валют, символ
+ * оставляем запасным вариантом, пока справочник не загрузился.
+ */
+export const currencyCodeById = (guid, fallback = '') => {
+  if (!guid) return fallback
+  const found = appStore.currencies?.find((item) => item?.guid === guid)
+  return found?.kod || fallback
+}
+
 export const currencyInfo = {
   ZAR: 'ZAR (Рэнд)',
   YER: 'YER (Йеменский риал)',
