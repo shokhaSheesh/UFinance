@@ -1,6 +1,5 @@
 'use client'
 
-import Money from '@/components/shared/Money'
 import { cn } from '@/lib/utils'
 import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
 
@@ -144,49 +143,6 @@ export function SectionHead({ title, action, onAction, className }) {
   )
 }
 
-/**
- * Главная карточка с остатком: синяя, во всю ширину.
- * Единственное цветное пятно на экране — по ней сразу понятно, где деньги.
- */
-export function HeroCard({ label, amount, currency, note, badge, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="relative w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-6 text-left text-white active:opacity-95"
-    >
-      <span className="pointer-events-none absolute -right-2 bottom--2 text-[64px] leading-none font-extrabold text-white/10 select-none">
-        UF
-      </span>
-
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-[11px] font-semibold tracking-[0.06em] text-white/80 uppercase">{label}</span>
-        {badge}
-      </div>
-
-      <div className="mt-2 text-[32px] leading-none font-bold tracking-[-0.02em]">
-        <Money value={amount} currency={currency} />
-      </div>
-
-      {note && <div className="mt-3 max-w-[70%] text-xs leading-relaxed text-white/80">{note}</div>}
-    </button>
-  )
-}
-
-/** Чип с изменением за период — поверх синей карточки. */
-export function DeltaChip({ children, positive = true }) {
-  return (
-    <span
-      className={cn(
-        'flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold',
-        positive ? 'bg-white/20 text-white' : 'bg-white/20 text-white'
-      )}
-    >
-      {children}
-    </span>
-  )
-}
-
 /** Круглые кнопки под главной карточкой: создать операцию, открыть отчёты. */
 export function QuickActions({ actions = [] }) {
   return (
@@ -205,29 +161,6 @@ export function QuickActions({ actions = [] }) {
         </button>
       ))}
     </div>
-  )
-}
-
-/** Две небольшие карточки в ряд: доходы и расходы, долги нам и наши. */
-export function StatTile({ label, value, currency, note, tone = 'neutral', onClick }) {
-  const valueClass = {
-    neutral: 'text-slate-900',
-    in: 'text-emerald-600',
-    out: 'text-red-600',
-  }[tone]
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex min-w-0 flex-1 flex-col gap-1 rounded-[20px] bg-white px-4 py-3.5 text-left active:bg-slate-50"
-    >
-      <span className="truncate text-xs text-slate-500">{label}</span>
-      <span className={cn('truncate text-[17px] font-bold tabular-nums', valueClass)}>
-        <Money value={value} currency={currency} />
-      </span>
-      {note && <span className="truncate text-[11px] text-slate-400">{note}</span>}
-    </button>
   )
 }
 

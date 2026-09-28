@@ -3705,7 +3705,10 @@
       "receivables": "Bizga qarzdor",
       "payables": "Biz qarzdormiz",
       "overdue": "Muddati o‘tgan {amount}",
-      "debtors": "Eng katta qarzdorlar"
+      "debtors": "Eng katta qarzdorlar",
+      "recent": "Oxirgi amaliyotlar",
+      "all": "Barchasi",
+      "forPeriod": "davr uchun"
     },
     "transactions": {
       "planned": "Rejalashtirilgan",

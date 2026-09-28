@@ -3551,7 +3551,10 @@
       "receivables": "Нам должны",
       "payables": "Мы должны",
       "overdue": "Просрочено {amount}",
-      "debtors": "Кто больше должен"
+      "debtors": "Кто больше должен",
+      "recent": "Последние операции",
+      "all": "Все",
+      "forPeriod": "за период"
     },
     "transactions": {
       "planned": "Запланировано",
