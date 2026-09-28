@@ -3666,17 +3666,52 @@
     "device": "Ekran kengligi",
     "reload": "Yangilash",
     "openInTab": "Yangi oynada ochish",
-    "hintReady": "Ramka ichida maket emas, telefon kengligidagi haqiqiy dastur: bu yerda ishlagan narsa telefonda ham ishlaydi.",
-    "hintDesktopLayout": "Bu bo‘lim hali mobil ko‘rinishga o‘tkazilmagan — ramka ichida hozircha kompyuter sahifasi.",
+    "hintReady": "Ramka ichida — mobil ilova (/m tarmog‘i) o‘z ko‘rinishi bilan, kompyuter sahifasining siqilgan varianti emas.",
+    "hintDesktopLayout": "Bu ekran hali tayyorlanmoqda — hozircha o‘rniga qisqa ma’lumot.",
     "routes": {
-      "operations": "Amaliyotlar",
-      "company": "Mening kompaniyam",
-      "deals": "Bitimlar",
-      "indicators": "Ko‘rsatkichlar",
-      "counterparties": "Kontragentlar",
+      "home": "Asosiy",
+      "transactions": "Amaliyotlar",
       "reports": "Hisobotlar",
-      "warehouse": "Mening omborim",
-      "settings": "Sozlamalar"
+      "profile": "Profil"
+    }
+  },
+  "Mobile": {
+    "tabs": {
+      "home": "Asosiy",
+      "transactions": "Amaliyotlar",
+      "reports": "Hisobotlar",
+      "profile": "Profil"
+    },
+    "home": {
+      "greeting": "Salom!",
+      "greetingName": "Salom, {name}",
+      "balance": "Hisoblardagi qoldiq",
+      "accountsCount": "{count} ta hisob",
+      "accounts": "Hisoblar",
+      "noAccounts": "Hozircha hisoblar yo‘q",
+      "period": "Davr uchun",
+      "reportsLink": "Hisobotlar",
+      "income": "Daromadlar",
+      "expense": "Xarajatlar",
+      "profit": "Foyda",
+      "settlements": "O‘zaro hisob-kitoblar",
+      "receivables": "Bizga qarzdor",
+      "payables": "Biz qarzdormiz",
+      "overdue": "Muddati o‘tgan {amount}",
+      "debtors": "Eng katta qarzdorlar"
+    },
+    "transactions": {
+      "planned": "Rejalashtirilgan",
+      "emptyHint": "Filtrlarni o‘zgartiring yoki «plus» tugmasi bilan amaliyot yarating"
+    },
+    "profile": {
+      "sections": "Bo‘limlar",
+      "account": "Hisob",
+      "logout": "Chiqish",
+      "soon": "Tez orada telefonda"
+    },
+    "reports": {
+      "hint": "Hisobotlar telefon uchun tayyorlanmoqda: raqamlar, diagrammalar va bir davrli jadval. Hozircha ular kompyuterda mavjud."
     }
   }
 }

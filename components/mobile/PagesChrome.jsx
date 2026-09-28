@@ -3,24 +3,31 @@
 import AiChatButton from '@/components/AiChat/AiChatButton'
 import AiChatPanel from '@/components/AiChat/AiChatPanel'
 import { Header } from '@/components/Header/Header'
-import MobileShell from '@/components/mobile/MobileShell'
 import { Sidebar } from '@/components/Sidebar/Sidebar'
 import useIsMobile from '@/hooks/useIsMobile'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 /**
- * Обрамление страниц: на большом экране — меню слева и шапка сверху,
- * на телефоне — нижняя панель разделов.
+ * Обрамление настольных страниц.
  *
- * Ширину окна видно только в браузере, поэтому до первой отрисовки на
- * клиенте показываем пустой холст: иначе телефон на мгновение получил бы
- * настольную вёрстку с меню на 80 точек и горизонтальной прокруткой.
+ * Мобильное приложение живёт отдельной веткой `/m` со своей вёрсткой, а не
+ * этими же страницами, ужатыми до ширины телефона. Поэтому с телефона
+ * настольный маршрут перебрасывает в приложение: показывать таблицу на
+ * тринадцать колонок на 390 точках бессмысленно.
  */
 export default function PagesChrome({ children }) {
   const isMobile = useIsMobile()
+  const router = useRouter()
+  const pathname = usePathname()
 
-  if (isMobile === null) return <div className="h-screen bg-canvas" />
+  useEffect(() => {
+    if (isMobile && !pathname.startsWith('/m')) router.replace('/m')
+  }, [isMobile, pathname, router])
 
-  if (isMobile) return <MobileShell>{children}</MobileShell>
+  // Ширина окна известна только в браузере: до первой отрисовки на клиенте
+  // держим пустой холст, иначе телефон мигнёт настольной вёрсткой
+  if (isMobile === null || isMobile) return <div className="h-screen bg-canvas" />
 
   return (
     <div className="flex h-screen max-w-full pr-[var(--ai-w,0px)]">

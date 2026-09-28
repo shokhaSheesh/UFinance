@@ -23,16 +23,12 @@ const DEVICES = [
   { value: 'large', width: 430, height: 932 },
 ]
 
-/** Разделы, которые уже переведены на мобильную вёрстку, идут первыми. */
+/** Экраны мобильного приложения (ветка /m). */
 const ROUTES = [
-  { value: '/operations', key: 'operations', ready: true },
-  { value: '/company', key: 'company' },
-  { value: '/deals', key: 'deals' },
-  { value: '/indicators', key: 'indicators' },
-  { value: '/directories/counterparties', key: 'counterparties' },
-  { value: '/reports/cashflow', key: 'reports' },
-  { value: '/warehouse', key: 'warehouse' },
-  { value: '/settings', key: 'settings' },
+  { value: '/m', key: 'home', ready: true },
+  { value: '/m/transactions', key: 'transactions', ready: true },
+  { value: '/m/reports', key: 'reports' },
+  { value: '/m/profile', key: 'profile', ready: true },
 ]
 
 export default function MobilePreviewPage() {
