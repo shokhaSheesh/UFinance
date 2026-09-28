@@ -147,6 +147,7 @@ const MobileProfilePage = observer(() => {
           icon: Landmark,
           label: tNav('directories.accounts'),
           can: permission?.directories?.accounts?.read,
+          href: '/m/accounts',
         },
         {
           key: 'articles',

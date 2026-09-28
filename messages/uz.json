@@ -3867,6 +3867,10 @@
     "warehouse": {
       "positions": "Pozitsiyalar",
       "waiting": "kutilmoqda {count}"
+    },
+    "accounts": {
+      "empty": "Hozircha hisoblar yo‘q",
+      "operations": "Hisob bo‘yicha amaliyotlar"
     }
   }
 }

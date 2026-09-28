@@ -3713,6 +3713,10 @@
     "warehouse": {
       "positions": "Позиций",
       "waiting": "ждём {count}"
+    },
+    "accounts": {
+      "empty": "Счетов пока нет",
+      "operations": "Операции по счёту"
     }
   }
 }
