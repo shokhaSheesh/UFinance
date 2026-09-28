@@ -24,7 +24,7 @@ export function TileIcon({ icon: Icon, tone = 'neutral', className }) {
   }[tone]
 
   return (
-    <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', toneClass, className)}>
+    <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full', toneClass, className)}>
       <Icon size={19} aria-hidden="true" />
     </span>
   )
@@ -34,7 +34,7 @@ export function TileIcon({ icon: Icon, tone = 'neutral', className }) {
 export function MCard({ list = false, className, children, ...props }) {
   return (
     <div
-      className={cn('rounded-[20px] bg-white', list ? 'px-4' : 'p-4', className)}
+      className={cn('rounded-[24px] bg-white', list ? 'px-4' : 'p-5', className)}
       {...props}
     >
       {children}
@@ -98,7 +98,7 @@ export function HeroCard({ label, amount, currency, note, badge, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="relative w-full overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-5 text-left text-white active:opacity-95"
+      className="relative w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-6 text-left text-white active:opacity-95"
     >
       <span className="pointer-events-none absolute -right-2 bottom--2 text-[64px] leading-none font-extrabold text-white/10 select-none">
         UF
@@ -109,12 +109,26 @@ export function HeroCard({ label, amount, currency, note, badge, onClick }) {
         {badge}
       </div>
 
-      <div className="mt-1.5 text-[26px] leading-tight font-bold">
+      <div className="mt-2 text-[32px] leading-none font-bold tracking-[-0.02em]">
         <Money value={amount} currency={currency} />
       </div>
 
       {note && <div className="mt-3 max-w-[70%] text-xs leading-relaxed text-white/80">{note}</div>}
     </button>
+  )
+}
+
+/** Чип с изменением за период — поверх синей карточки. */
+export function DeltaChip({ children, positive = true }) {
+  return (
+    <span
+      className={cn(
+        'flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-semibold',
+        positive ? 'bg-white/20 text-white' : 'bg-white/20 text-white'
+      )}
+    >
+      {children}
+    </span>
   )
 }
 
@@ -129,8 +143,8 @@ export function QuickActions({ actions = [] }) {
           onClick={onClick}
           className="flex min-w-0 flex-1 flex-col items-center gap-2"
         >
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#0e73f6] active:bg-slate-100">
-            <Icon size={20} aria-hidden="true" />
+          <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white text-[#0e73f6] shadow-[0_2px_10px_rgba(15,23,42,0.06)] active:bg-slate-100">
+            <Icon size={21} aria-hidden="true" />
           </span>
           <span className="w-full truncate text-center text-[11px] font-medium text-slate-500">{label}</span>
         </button>

@@ -47,48 +47,58 @@ const MobileAppLayout = observer(({ children }) => {
   const createTypes = CREATE_TYPES.filter(({ permission: key }) => permission?.operations?.[key]?.add)
 
   const isActive = (tab) => (tab.exact ? pathname === tab.href : pathname.startsWith(tab.href))
+  // На экране создания операции панель разделов не нужна: там своя кнопка
+  // внизу, и две полосы одна над другой мешают друг другу
+  const hideTabs = pathname.startsWith('/m/transactions/new')
 
   return (
-    <div className="flex h-[100dvh] w-full max-w-[100vw] min-w-0 flex-col overflow-hidden bg-[#f4f5f7]">
+    <div className="relative flex h-[100dvh] w-full max-w-[100vw] min-w-0 flex-col overflow-hidden bg-[#f4f5f7]">
       <main className="min-h-0 w-full min-w-0 flex-1 overflow-hidden">{children}</main>
 
-      <nav className="flex shrink-0 items-stretch border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]">
-        {TABS.map((tab, index) => {
-          if (tab.fab) {
+      {/* Панель разделов «таблеткой» — отделена от края, как в современных
+          финансовых приложениях: экран под ней продолжается, и панель не
+          выглядит краем страницы */}
+      {!hideTabs && (
+      <nav className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
+        <div className="pointer-events-auto flex w-full max-w-[420px] items-stretch rounded-[26px] bg-white/95 px-1.5 shadow-[0_8px_28px_rgba(15,23,42,0.16)] backdrop-blur">
+          {TABS.map((tab, index) => {
+            if (tab.fab) {
+              return (
+                <div key="fab" className="flex w-14 shrink-0 items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setCreateOpen(true)}
+                    aria-label={tOps('page.create')}
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0e73f6] text-white shadow-[0_6px_16px_rgba(14,115,246,0.4)] active:bg-[#0b5fd4]"
+                  >
+                    <Plus size={23} aria-hidden="true" />
+                  </button>
+                </div>
+              )
+            }
+
+            const active = isActive(tab)
+            const Icon = tab.icon
+
             return (
-              <div key="fab" className="flex w-16 shrink-0 justify-center">
-                <button
-                  type="button"
-                  onClick={() => setCreateOpen(true)}
-                  aria-label={tOps('page.create')}
-                  className="-mt-5 flex h-14 w-14 items-center justify-center self-start rounded-full bg-[#0e73f6] text-white shadow-[0_8px_20px_rgba(14,115,246,0.35)] active:bg-[#0b5fd4]"
-                >
-                  <Plus size={24} aria-hidden="true" />
-                </button>
-              </div>
+              <button
+                key={tab.href || index}
+                type="button"
+                onClick={() => router.push(tab.href)}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-[20px] px-1 py-2.5 text-[10px] font-semibold transition-colors',
+                  active ? 'bg-[#eaf2ff] text-[#0e73f6]' : 'text-slate-400'
+                )}
+              >
+                <Icon size={20} aria-hidden="true" />
+                <span className="max-w-full truncate">{t(`tabs.${tab.key}`)}</span>
+              </button>
             )
-          }
-
-          const active = isActive(tab)
-          const Icon = tab.icon
-
-          return (
-            <button
-              key={tab.href || index}
-              type="button"
-              onClick={() => router.push(tab.href)}
-              aria-current={active ? 'page' : undefined}
-              className={cn(
-                'flex min-w-0 flex-1 flex-col items-center gap-1 px-1 pt-2.5 pb-2 text-[10.5px] font-medium',
-                active ? 'text-[#0e73f6]' : 'text-slate-400'
-              )}
-            >
-              <Icon size={21} aria-hidden="true" />
-              <span className="max-w-full truncate">{t(`tabs.${tab.key}`)}</span>
-            </button>
-          )
-        })}
+          })}
+        </div>
       </nav>
+      )}
 
       <BottomSheet open={createOpen} onClose={() => setCreateOpen(false)} title={tOps('page.create')}>
         <div className="flex flex-col">

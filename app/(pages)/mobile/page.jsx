@@ -3,9 +3,9 @@
 import Segmented from '@/components/shared/Segmented/Segmented'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
-import { ExternalLink, RotateCcw } from 'lucide-react'
+import { BatteryFull, ExternalLink, RotateCcw, Signal, Wifi } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * Мобильная версия на большом экране.
@@ -38,6 +38,17 @@ export default function MobilePreviewPage() {
   const [route, setRoute] = useState('/m')
   // Перезагрузка кадра: меняем ключ, чтобы iframe создался заново
   const [reloadKey, setReloadKey] = useState(0)
+  // Часы в строке состояния — только после монтирования, иначе сервер и
+  // браузер нарисуют разное время
+  const [clock, setClock] = useState('')
+
+  useEffect(() => {
+    const tick = () =>
+      setClock(new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }))
+    tick()
+    const timer = setInterval(tick, 30000)
+    return () => clearInterval(timer)
+  }, [])
 
   const size = useMemo(() => DEVICES.find((item) => item.value === device) || DEVICES[1], [device])
   const current = useMemo(() => ROUTES.find((item) => item.value === route), [route])
@@ -89,21 +100,31 @@ export default function MobilePreviewPage() {
           {current?.ready ? t('hintReady') : t('hintDesktopLayout')}
         </p>
 
-        {/* Рамка телефона: ширина кадра и задаёт мобильную вёрстку внутри */}
+        {/* Рамка телефона: сверху строка состояния с вырезом — под ней
+            начинается экран приложения, как на настоящем телефоне */}
         <div
           className={cn(
-            'relative shrink-0 rounded-[2.2rem] border-[10px] border-slate-900 bg-white',
+            'relative flex shrink-0 flex-col overflow-hidden rounded-[2.4rem] border-[10px] border-slate-900 bg-white',
             'shadow-[0_24px_60px_rgba(15,23,42,0.28)]'
           )}
           style={{ width: size.width + 20, height: size.height + 20 }}
         >
-          <span className="absolute top-2.5 left-1/2 z-10 h-5 w-28 -translate-x-1/2 rounded-full bg-slate-900" />
+          <div className="relative flex h-11 shrink-0 items-center justify-between bg-white px-6 text-[13px] font-semibold text-slate-900">
+            <span>{clock}</span>
+            <span className="absolute left-1/2 top-1.5 h-6 w-28 -translate-x-1/2 rounded-full bg-slate-900" />
+            <span className="flex items-center gap-1 text-slate-500">
+              <Signal size={13} aria-hidden="true" />
+              <Wifi size={13} aria-hidden="true" />
+              <BatteryFull size={15} aria-hidden="true" />
+            </span>
+          </div>
+
           <iframe
             key={`${reloadKey}-${route}-${device}`}
             ref={frameRef}
             src={route}
             title={t('title')}
-            className="h-full w-full rounded-[1.5rem] border-0"
+            className="min-h-0 w-full flex-1 border-0"
           />
         </div>
       </div>

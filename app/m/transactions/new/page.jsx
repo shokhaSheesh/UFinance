@@ -250,7 +250,7 @@ const MobileOperationFormPage = observer(() => {
   return (
     <div className="flex h-full flex-col">
       {/* Шапка со стрелкой назад */}
-      <div className="flex h-14 shrink-0 items-center gap-2 px-2 pt-[env(safe-area-inset-top)]">
+      <div className="flex h-14 shrink-0 items-center gap-2 px-2 pt-[max(env(safe-area-inset-top),12px)]">
         <button
           type="button"
           onClick={() => router.back()}

@@ -40,7 +40,7 @@ export default function BottomSheet({ open, onClose, title, subtitle, footer, ch
         role="dialog"
         aria-modal="true"
         className={cn(
-          'relative flex max-h-[88vh] flex-col rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_40px_rgba(15,23,42,0.18)]',
+          'relative flex max-h-[88vh] flex-col rounded-t-[28px] bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_40px_rgba(15,23,42,0.18)]',
           className
         )}
       >

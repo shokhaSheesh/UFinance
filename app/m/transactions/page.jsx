@@ -163,7 +163,7 @@ const MobileTransactionsPage = observer(() => {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       {/* Шапка и поиск */}
-      <div className="shrink-0 px-4 pt-[env(safe-area-inset-top)]">
+      <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
         <div className="flex h-14 items-center justify-between gap-2">
           <h1 className="truncate text-[21px] font-bold text-slate-900">{tm('tabs.transactions')}</h1>
           <button
@@ -236,7 +236,7 @@ const MobileTransactionsPage = observer(() => {
       </div>
 
       {/* Лента операций */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-28">
         {isLoading && !sections.length && <MSkeleton className="pt-4" rows={5} />}
 
         {!isLoading && !sections.length && (

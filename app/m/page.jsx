@@ -1,6 +1,6 @@
 'use client'
 
-import { HeroCard, MCard, MEmpty, MRow, MSkeleton, QuickActions, SectionHead, StatTile } from '@/components/mobile/ui'
+import { DeltaChip, HeroCard, MCard, MEmpty, MRow, MSkeleton, QuickActions, SectionHead, StatTile } from '@/components/mobile/ui'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { useRouter } from '@/hooks/useAppRouter'
@@ -9,7 +9,7 @@ import { useCompanyData } from '@/modules/company/hooks/useCompanyData'
 import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
 import { keepPreviousData } from '@tanstack/react-query'
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, BarChart3, Landmark, Users, Wallet } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, BarChart3, Landmark, TrendingDown, TrendingUp, Users, Wallet } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useLocale, useTranslations } from 'next-intl'
 import { useMemo } from 'react'
@@ -75,7 +75,7 @@ const MobileHomePage = observer(() => {
   ]
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[env(safe-area-inset-top)] pb-6">
+    <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
       {/* Шапка: марка, валюта, вход в профиль */}
       <div className="flex items-center justify-between gap-3 pt-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0e73f6] text-[13px] font-extrabold text-white">
@@ -110,6 +110,16 @@ const MobileHomePage = observer(() => {
         amount={accountsData?.summary?.current_balance ?? 0}
         currency={currency}
         note={accounts.length ? t('home.accountsCount', { count: accounts.length }) : null}
+        badge={
+          // чистый поток за выбранный период: сколько пришло минус сколько ушло
+          data.cash.net ? (
+            <DeltaChip positive={data.cash.net >= 0}>
+              {data.cash.net >= 0 ? <TrendingUp size={13} aria-hidden="true" /> : <TrendingDown size={13} aria-hidden="true" />}
+              {data.cash.net > 0 ? '+' : ''}
+              {Math.round(data.cash.net).toLocaleString('ru-RU')}
+            </DeltaChip>
+          ) : null
+        }
       />
 
       <QuickActions actions={quickActions} />

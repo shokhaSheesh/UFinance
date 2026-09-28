@@ -22,7 +22,7 @@ const MobileReportsPage = () => {
   ]
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[env(safe-area-inset-top)] pb-6">
+    <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
       <h1 className="py-4 text-[21px] font-bold text-slate-900">{t('tabs.reports')}</h1>
 
       <MCard list>
