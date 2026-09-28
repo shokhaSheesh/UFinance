@@ -43,37 +43,6 @@ export const collectRows = (rows = [], name, acc = []) => {
   return acc
 }
 
-/** Полоса выбора периода: чипы по периодам отчёта плюс «Итого». */
-export function PeriodChips({ legend = [], value, onChange, totalLabel }) {
-  return (
-    <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-      {legend.map((item) => (
-        <button
-          key={item.key}
-          type="button"
-          onClick={() => onChange(item.key)}
-          className={cn(
-            'shrink-0 rounded-full px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap',
-            value === item.key ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
-          )}
-        >
-          {item.title}
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={() => onChange(TOTAL_KEY)}
-        className={cn(
-          'shrink-0 rounded-full px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap',
-          value === TOTAL_KEY ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
-        )}
-      >
-        {totalLabel}
-      </button>
-    </div>
-  )
-}
-
 /** Плитка итога периода. */
 export function ReportTile({ label, value, currency, tone = 'neutral', percent = false }) {
   return (

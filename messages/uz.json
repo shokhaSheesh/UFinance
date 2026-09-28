@@ -3737,7 +3737,13 @@
       "period": "Davr",
       "margin": "Rentabellik",
       "notBalanced": "Balans to‘g‘ri kelmadi",
-      "balanceHint": "Moddalar va sana ustunlari bo‘lgan to‘liq balans jadvali kompyuterda qoldi."
+      "balanceHint": "Moddalar va sana ustunlari bo‘lgan to‘liq balans jadvali kompyuterda qoldi.",
+      "grouping": "Bo‘linish",
+      "exactDates": "Aniq sanalar",
+      "presetMonth": "Shu oy",
+      "presetQuarter": "Chorak",
+      "presetYear": "Yil",
+      "presetLastMonth": "O‘tgan oy"
     },
     "form": {
       "created": "Amaliyot yaratildi",

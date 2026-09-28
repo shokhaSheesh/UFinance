@@ -50,21 +50,6 @@ const TYPE_LOOK = {
   Поставка: { icon: PackageCheck, tone: 'neutral' },
 }
 
-/** Небольшая плитка итога. */
-const Tile = ({ label, children, tone = 'neutral', className }) => (
-  <div className={cn('flex min-w-0 flex-col gap-1 rounded-[18px] bg-white px-3.5 py-3', className)}>
-    <span className="truncate text-[11px] text-slate-500">{label}</span>
-    <span
-      className={cn(
-        'truncate text-[15px] font-bold tabular-nums',
-        tone === 'in' ? 'text-emerald-600' : tone === 'out' ? 'text-red-600' : 'text-slate-900'
-      )}
-    >
-      {children}
-    </span>
-  </div>
-)
-
 const MobileTransactionsPage = observer(() => {
   const t = useTranslations('Operations')
   const tm = useTranslations('Mobile')
@@ -149,38 +134,41 @@ const MobileTransactionsPage = observer(() => {
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       {/* Шапка и поиск */}
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader
-          title={tm('tabs.transactions')}
-          action={
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen(true)}
-              aria-label={tf('openFilters')}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-600 active:bg-slate-100"
-            >
-              <SlidersHorizontal size={18} aria-hidden="true" />
-              {filterCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0e73f6] px-1 text-[10px] font-semibold text-white">
-                  {filterCount}
-                </span>
-              )}
-            </button>
-          }
-        />
+        <MScreenHeader title={tm('tabs.transactions')} />
 
-        <div className="flex h-11 items-center gap-2 rounded-2xl bg-white px-3.5">
-          <Search size={17} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <input
-            value={operationFilterStore.searchQuery || ''}
-            onChange={(event) => operationFilterStore.setSearchQuery(event.target.value)}
-            placeholder={t('page.searchPlaceholder')}
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
-          />
-          {operationFilterStore.searchQuery && (
-            <button type="button" onClick={() => operationFilterStore.setSearchQuery('')} className="shrink-0 text-slate-400">
-              <X size={16} aria-hidden="true" />
-            </button>
-          )}
+        {/* Поиск и фильтры — одной строкой над лентой */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-2xl bg-white px-3.5">
+            <Search size={17} className="shrink-0 text-slate-400" aria-hidden="true" />
+            <input
+              value={operationFilterStore.searchQuery || ''}
+              onChange={(event) => operationFilterStore.setSearchQuery(event.target.value)}
+              placeholder={t('page.searchPlaceholder')}
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
+            />
+            {operationFilterStore.searchQuery && (
+              <button
+                type="button"
+                onClick={() => operationFilterStore.setSearchQuery('')}
+                className="shrink-0 text-slate-400"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen(true)}
+            aria-label={tf('openFilters')}
+            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-600 active:bg-slate-100"
+          >
+            <SlidersHorizontal size={18} aria-hidden="true" />
+            {filterCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#0e73f6] px-1 text-[10px] font-bold text-white">
+                {filterCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Быстрые фильтры */}
@@ -203,21 +191,38 @@ const MobileTransactionsPage = observer(() => {
           />
         </div>
 
-        {/* Итоги периода */}
+        {/* Итоги периода: сначала результат, под ним из чего он сложился */}
         {mounted && (
-          <div className="mt-2.5 grid grid-cols-2 gap-2.5">
-            <Tile label={t('footer.receipts')} tone="in">
-              <Money value={byType.receipt?.total_summa ?? 0} currency={currency} sign="+" />
-            </Tile>
-            <Tile label={t('footer.payments')} tone="out">
-              <Money value={byType.payment?.total_summa ?? 0} currency={currency} sign="−" />
-            </Tile>
-            <Tile label={t('footer.transfers')}>
-              <Money value={byType.transfer?.total_summa ?? 0} currency={currency} />
-            </Tile>
-            <Tile label={t('footer.total')} tone={net >= 0 ? 'in' : 'out'}>
-              <Money value={net} currency={currency} sign={net > 0 ? '+' : undefined} />
-            </Tile>
+          <div className="mt-2.5 rounded-[20px] bg-white px-4 py-3.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-[13px] text-slate-500">{t('footer.total')}</span>
+              <span
+                className={cn(
+                  'text-[20px] font-bold tabular-nums',
+                  net >= 0 ? 'text-emerald-600' : 'text-red-600'
+                )}
+              >
+                <Money value={net} currency={currency} sign={net > 0 ? '+' : undefined} />
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-3">
+              {[
+                { key: 'receipts', label: tm('reports.receipts'), value: byType.receipt?.total_summa ?? 0, count: byType.receipt?.count, tone: 'text-emerald-600' },
+                { key: 'payments', label: tm('reports.payments'), value: byType.payment?.total_summa ?? 0, count: byType.payment?.count, tone: 'text-red-600' },
+                { key: 'transfers', label: t('footer.transfers'), value: byType.transfer?.total_summa ?? 0, count: byType.transfer?.count, tone: 'text-slate-900' },
+              ].map((item, index) => (
+                <div key={item.key} className={cn('min-w-0 px-2', index === 0 && 'pl-0', index === 2 && 'pr-0')}>
+                  <div className="truncate text-[11px] text-slate-400">{item.label}</div>
+                  <div className={cn('mt-1 truncate text-[14px] font-bold tabular-nums', item.tone)}>
+                    <Money value={item.value} currency="" />
+                  </div>
+                  <div className="mt-0.5 truncate text-[11px] text-slate-400 tabular-nums">
+                    {t('summary.opsCount', { count: item.count ?? 0 })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

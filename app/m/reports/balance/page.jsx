@@ -1,5 +1,6 @@
 'use client'
 
+import ReportPeriodSheet from '@/components/mobile/ReportPeriodSheet'
 import { ReportTile } from '@/components/mobile/ReportTree'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import { balanceStore } from '@/components/reports/balance/balance.store'
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { buildPeriodPayload } from '@/utils/balancePeriods'
 import { readBalancePeriod } from '@/utils/balanceInsights'
 import { useQuery } from '@tanstack/react-query'
-import { Loader2, Scale } from 'lucide-react'
+import { CalendarDays, Loader2, Scale } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -70,6 +71,7 @@ const MobileBalancePage = observer(() => {
   const tm = useTranslations('Mobile')
   const router = useRouter()
   const [periodIndex, setPeriodIndex] = useState(null)
+  const [periodOpen, setPeriodOpen] = useState(false)
 
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount, periodType } =
     balanceStore
@@ -96,16 +98,37 @@ const MobileBalancePage = observer(() => {
     [periods, activeIndex]
   )
 
+  const groupingOptions = useMemo(
+    () => [
+      { value: 'daily', label: t('balance.grouping.daily') },
+      { value: 'monthly', label: t('balance.grouping.monthly') },
+      { value: 'quarterly', label: t('balance.grouping.quarterly') },
+      { value: 'yearly', label: t('balance.grouping.yearly') },
+      { value: 'total', label: t('balance.grouping.total') },
+    ],
+    [t]
+  )
+
   const currency = selectedCurrency
   const balanced = insight ? Math.abs(insight.difference) < 1 : false
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
-      <MScreenHeader
-        title={t('balance.title')}
-        subtitle={periods[activeIndex]?.as_of ? moment(periods[activeIndex].as_of).format('DD.MM.YYYY') : null}
-        onBack={() => router.push('/m/reports')}
-      />
+      <MScreenHeader title={t('balance.title')} onBack={() => router.push('/m/reports')} />
+
+      <button
+        type="button"
+        onClick={() => setPeriodOpen(true)}
+        className="flex w-full items-center gap-2 rounded-2xl bg-white px-4 py-3 text-left active:bg-slate-50"
+      >
+        <CalendarDays size={17} className="shrink-0 text-slate-400" aria-hidden="true" />
+        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-slate-900">
+          {periods[activeIndex]?.as_of ? moment(periods[activeIndex].as_of).format('DD.MM.YYYY') : '—'}
+        </span>
+        <span className="shrink-0 text-[13px] font-semibold text-[#0e73f6]">
+          {groupingOptions.find((option) => option.value === periodType)?.label}
+        </span>
+      </button>
 
       {isLoading && (
         <div className="flex justify-center py-16">
@@ -232,6 +255,20 @@ const MobileBalancePage = observer(() => {
           <p className="px-2 pt-3 text-[11px] leading-relaxed text-slate-400">{tm('reports.balanceHint')}</p>
         </>
       )}
+
+      <ReportPeriodSheet
+        open={periodOpen}
+        onClose={() => setPeriodOpen(false)}
+        start={dateRange?.start}
+        end={dateRange?.end}
+        grouping={periodType}
+        groupingOptions={groupingOptions}
+        onApply={({ start, end, grouping }) => {
+          balanceStore.setDateRange({ start, end })
+          balanceStore.setPeriodType(grouping)
+          setPeriodIndex(null)
+        }}
+      />
     </div>
   )
 })

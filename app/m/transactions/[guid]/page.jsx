@@ -26,6 +26,7 @@ import {
   Truck,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -142,7 +143,7 @@ const MobileOperationPage = observer(() => {
         >
           <ArrowLeft size={21} aria-hidden="true" />
         </button>
-        {(can('delete') || can('add')) && (
+        {can('delete') && (
           <button
             type="button"
             onClick={() => setMoreOpen(true)}
@@ -234,7 +235,10 @@ const MobileOperationPage = observer(() => {
           <GroupTitle>{tm('detail.service')}</GroupTitle>
           <MCard list>
             <Line label={tm('detail.legalEntity')} value={operation?.legal_entity_name} />
-            <Line label={tm('detail.created')} value={operation?.createdAt} />
+            <Line
+              label={tm('detail.created')}
+              value={operation?.createdAt ? moment(operation.createdAt).format('D MMMM YYYY, HH:mm') : null}
+            />
           </MCard>
         </>
       )}
@@ -242,19 +246,6 @@ const MobileOperationPage = observer(() => {
       {/* «Ещё»: здесь живёт удаление */}
       <BottomSheet open={moreOpen} onClose={() => setMoreOpen(false)} title={tm('detail.more')}>
         <div className="flex flex-col">
-          {can('add') && (
-            <button
-              type="button"
-              onClick={() => {
-                setMoreOpen(false)
-                router.push(`/m/transactions/new?type=${operation?.operationType}&copy=${guid}`)
-              }}
-              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
-            >
-              <TileIcon icon={Copy} />
-              <span className="text-[15px] font-semibold text-slate-900">{tc('copy')}</span>
-            </button>
-          )}
           {can('delete') && (
             <button
               type="button"
