@@ -2,6 +2,7 @@
 
 import { MCard, MRow, MScreenHeader } from '@/components/mobile/ui'
 import { BarChart3, Scale, TrendingUp } from 'lucide-react'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useTranslations } from 'next-intl'
 
 /**
@@ -14,9 +15,10 @@ import { useTranslations } from 'next-intl'
 const MobileReportsPage = () => {
   const t = useTranslations('Mobile')
   const tr = useTranslations('Reports')
+  const router = useRouter()
 
   const reports = [
-    { key: 'cashflow', icon: TrendingUp, title: tr('cashflow.title') },
+    { key: 'cashflow', icon: TrendingUp, title: tr('cashflow.title'), href: '/m/reports/cashflow' },
     { key: 'pnl', icon: BarChart3, title: tr('pnl.title') },
     { key: 'balance', icon: Scale, title: tr('balance.title') },
   ]
@@ -27,7 +29,14 @@ const MobileReportsPage = () => {
 
       <MCard list>
         {reports.map((report) => (
-          <MRow key={report.key} icon={report.icon} title={report.title} subtitle={t('profile.soon')} />
+          <MRow
+            key={report.key}
+            icon={report.icon}
+            title={report.title}
+            subtitle={report.href ? undefined : t('profile.soon')}
+            chevron={Boolean(report.href)}
+            onClick={report.href ? () => router.push(report.href) : undefined}
+          />
         ))}
       </MCard>
 
