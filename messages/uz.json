@@ -3740,8 +3740,12 @@
       "phone": "Telefon",
       "role": "Rol",
       "passwordRules": "Kamida 6 belgi, bosh va kichik harf hamda raqam bo‘lsin.",
-      "deleteAccount": "Hisobni o‘chirish",
-      "deleteAccountHint": "O‘chirish so‘rovini qanday yuborish"
+      "workspace": "Ish maydoni",
+      "workspaceHint": "Rol va filialni administrator tayinlaydi.",
+      "changePhoto": "Rasmni o‘zgartirish",
+      "photoTooBig": "Fayl 5 MB dan katta",
+      "photoFailed": "Rasmni yuklab bo‘lmadi",
+      "emailInvalid": "Pochta manzilini tekshiring"
     },
     "reports": {
       "hint": "Hisobotlar telefon uchun tayyorlanmoqda: raqamlar, diagrammalar va bir davrli jadval. Hozircha ular kompyuterda mavjud.",
@@ -3820,6 +3824,14 @@
       "remainingShipment": "Jo‘natish qoldi",
       "noProducts": "Tovar va xizmatlar yo‘q",
       "noOperations": "Amaliyotlar yo‘q"
+    },
+    "counterparties": {
+      "empty": "Hozircha kontragentlar yo‘q",
+      "noName": "Nomsiz",
+      "operations": "{count} ta amaliyot",
+      "owesUs": "bizga qarzdor",
+      "weOwe": "biz qarzdormiz",
+      "settled": "hisob-kitob yopiq"
     }
   }
 }

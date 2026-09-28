@@ -131,6 +131,7 @@ const MobileProfilePage = observer(() => {
           icon: Users,
           label: tNav('nav.counterparties'),
           can: permission?.directories?.counterparties?.read,
+          href: '/m/counterparties',
         },
         { key: 'plans', icon: ClipboardList, label: tNav('nav.plans'), can: true },
         { key: 'projects', icon: FolderTree, label: tNav('nav.projects'), can: appStore.projectActive },

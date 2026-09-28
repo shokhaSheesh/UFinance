@@ -121,7 +121,7 @@ const MobileDealsPage = observer(() => {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader title={t('pageTitle')} />
+        <MScreenHeader title={t('pageTitle')} onBack={() => router.push('/m/profile')} />
 
         {/* Метод учёта */}
         <div className="flex rounded-2xl bg-white p-1">

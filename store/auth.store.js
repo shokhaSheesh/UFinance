@@ -79,6 +79,18 @@ class AuthStore {
     this[tokenName] = token;
   }
 
+  /** Обновить свои данные после сохранения профиля. */
+  setUserData(patch) {
+    this.userData = { ...this.userData, ...patch };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userData', JSON.stringify(this.userData));
+      if (patch?.email) {
+        this.userEmail = patch.email;
+        localStorage.setItem('userEmail', this.userEmail);
+      }
+    }
+  }
+
   setCompanyId(companyId) {
     this.userData = { ...this.userData, company_id: companyId };
   }
