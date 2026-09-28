@@ -1,11 +1,10 @@
 'use client'
 
-import BottomSheet from '@/components/mobile/BottomSheet'
 import OperationFilters from '@/components/mobile/OperationFilters'
-import { FilterPill, MCard, MEmpty, MRow, MScreenHeader, MSkeleton, TileIcon } from '@/components/mobile/ui'
+import { FilterPill, MCard, MEmpty, MRow, MScreenHeader, MSkeleton } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { useDeleteOperation, useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useUcodeRequestInfinite } from '@/hooks/useDashboard'
 import { useRouter } from '@/hooks/useAppRouter'
 import useMounted from '@/hooks/useMounted'
 import { apiClient } from '@/lib/api/ucode/base'
@@ -13,21 +12,17 @@ import operationsDto from '@/lib/dtos/operationsDto'
 import { cn } from '@/lib/utils'
 import { useOperationsFilters } from '@/modules/operations/hooks/useOperationsFilters'
 import { useOperationFilterChips } from '@/modules/operations/list-page/useOperationFilterChips'
-import { appStore } from '@/store/app.store'
 import { operationFilterStore } from '@/store/operationFilter.store'
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   ArrowDownLeft,
   ArrowLeftRight,
   ArrowUpRight,
-  Copy,
   Loader2,
   PackageCheck,
-  Pencil,
   Scale,
   Search,
   SlidersHorizontal,
-  Trash2,
   Truck,
   X,
 } from 'lucide-react'
@@ -72,16 +67,12 @@ const Tile = ({ label, children, tone = 'neutral', className }) => (
 const MobileTransactionsPage = observer(() => {
   const t = useTranslations('Operations')
   const tm = useTranslations('Mobile')
-  const tc = useTranslations('Common')
   const tf = useTranslations('filters')
   const mounted = useMounted()
-  const queryClient = useQueryClient()
   const router = useRouter()
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [actionsFor, setActionsFor] = useState(null)
 
-  const permissions = appStore.permission.operations
   const { requestOperationFilters } = useOperationsFilters(t)
   const { chips: filterChips, count: filterCount } = useOperationFilterChips()
 
@@ -124,37 +115,6 @@ const MobileTransactionsPage = observer(() => {
     observer.observe(node)
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
-
-  const deleteOperation = useDeleteOperation()
-
-  const openForEdit = (operation) => {
-    setActionsFor(null)
-    router.push(`/m/transactions/new?guid=${operation.guid}`)
-  }
-
-  const openForCopy = (operation) => {
-    setActionsFor(null)
-    router.push(`/m/transactions/new?type=${operation.operationType}&copy=${operation.guid}`)
-  }
-
-  const removeOperation = async (operation) => {
-    setActionsFor(null)
-    await deleteOperation.mutateAsync({ guid: operation.guid })
-    queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
-    queryClient.invalidateQueries({ queryKey: ['get_operations_total'] })
-  }
-
-  const permissionFor = (operation, action) => {
-    const key = {
-      Поступление: 'income',
-      Выплата: 'payout',
-      Перемещение: 'transfer',
-      Начисление: 'accrual',
-      Отгрузка: 'shipment',
-      Поставка: 'shipment',
-    }[operation?.tip]
-    return Boolean(permissions?.[key]?.[action])
-  }
 
   const currency = mounted ? GlobalCurrency?.name : ''
   const byType = totalSummary?.by_type || {}
@@ -282,7 +242,7 @@ const MobileTransactionsPage = observer(() => {
                     tone={look.tone}
                     title={operation.counterparty || operation.tip}
                     subtitle={[operation.chartOfAccounts, operation.my_account_name].filter(Boolean).join(' · ')}
-                    onClick={() => setActionsFor(operation)}
+                    onClick={() => router.push(`/m/transactions/${operation.guid}`)}
                     value={
                       <Money
                         value={operation.summa}
@@ -309,55 +269,6 @@ const MobileTransactionsPage = observer(() => {
       </div>
 
       {/* Что сделать с операцией */}
-      <BottomSheet
-        open={Boolean(actionsFor)}
-        onClose={() => setActionsFor(null)}
-        title={actionsFor?.counterparty || actionsFor?.tip}
-        subtitle={[actionsFor?.chartOfAccounts, actionsFor?.operationDate].filter(Boolean).join(' · ')}
-      >
-        <div className="mb-3 flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3.5">
-          <span className="text-sm text-slate-500">{t('columns.amount')}</span>
-          <Money
-            value={actionsFor?.summa}
-            currency={actionsFor?.currency || currency}
-            className="text-[17px] font-bold text-slate-900"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          {permissionFor(actionsFor, 'edit') && (
-            <button
-              type="button"
-              onClick={() => openForEdit(actionsFor)}
-              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
-            >
-              <TileIcon icon={Pencil} />
-              <span className="text-sm font-semibold text-slate-900">{tc('edit')}</span>
-            </button>
-          )}
-          {permissionFor(actionsFor, 'add') && (
-            <button
-              type="button"
-              onClick={() => openForCopy(actionsFor)}
-              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
-            >
-              <TileIcon icon={Copy} />
-              <span className="text-sm font-semibold text-slate-900">{tc('copy')}</span>
-            </button>
-          )}
-          {permissionFor(actionsFor, 'delete') && (
-            <button
-              type="button"
-              onClick={() => removeOperation(actionsFor)}
-              className="flex items-center gap-3 py-3.5 text-left active:bg-red-50"
-            >
-              <TileIcon icon={Trash2} tone="out" />
-              <span className="text-sm font-semibold text-red-600">{tc('delete')}</span>
-            </button>
-          )}
-        </div>
-      </BottomSheet>
-
       <OperationFilters open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
     </div>
