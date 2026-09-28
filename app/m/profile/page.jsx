@@ -125,7 +125,7 @@ const MobileProfilePage = observer(() => {
       key: 'sections',
       title: t('profile.sections'),
       rows: [
-        { key: 'deals', icon: Briefcase, label: tNav('nav.deals'), can: permission?.deals?.read },
+        { key: 'deals', icon: Briefcase, label: tNav('nav.deals'), can: permission?.deals?.read, href: '/m/deals' },
         {
           key: 'counterparties',
           icon: Users,
@@ -235,7 +235,14 @@ const MobileProfilePage = observer(() => {
             <SectionHead title={section.title} />
             <MCard list>
               {rows.map((row) => (
-                <MRow key={row.key} icon={row.icon} title={row.label} subtitle={soon} />
+                <MRow
+                  key={row.key}
+                  icon={row.icon}
+                  title={row.label}
+                  subtitle={row.href ? undefined : soon}
+                  chevron={Boolean(row.href)}
+                  onClick={row.href ? () => router.push(row.href) : undefined}
+                />
               ))}
             </MCard>
           </div>

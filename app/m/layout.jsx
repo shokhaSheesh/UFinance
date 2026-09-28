@@ -47,9 +47,10 @@ const MobileAppLayout = observer(({ children }) => {
   const createTypes = CREATE_TYPES.filter(({ permission: key }) => permission?.operations?.[key]?.add)
 
   const isActive = (tab) => (tab.exact ? pathname === tab.href : pathname.startsWith(tab.href))
-  // На экране создания операции панель разделов не нужна: там своя кнопка
-  // внизу, и две полосы одна над другой мешают друг другу
-  const hideTabs = pathname.startsWith('/m/transactions/new')
+  // Экраны с собственной кнопкой внизу прячут панель разделов: иначе
+  // «таблетка» ложится поверх кнопки и до неё не дотянуться
+  const SELF_ACTION_ROUTES = ['/m/transactions/new', '/m/profile/edit']
+  const hideTabs = SELF_ACTION_ROUTES.some((route) => pathname.startsWith(route))
 
   return (
     <div className="relative flex h-[100dvh] w-full max-w-[100vw] min-w-0 flex-col overflow-hidden bg-[#f4f5f7]">

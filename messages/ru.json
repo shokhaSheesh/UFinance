@@ -3652,6 +3652,20 @@
       "accrual": "Начисление",
       "legalEntity": "Юрлицо",
       "created": "Создано"
+    },
+    "deals": {
+      "count": "Сделок",
+      "amount": "На сумму",
+      "profit": "Прибыль",
+      "received": "Поступило",
+      "shipped": "Отгружено",
+      "empty": "Сделок пока нет",
+      "status": "Статус",
+      "date": "Дата сделки",
+      "clientDebt": "Долг клиента",
+      "remainingShipment": "Осталось отгрузить",
+      "noProducts": "Товаров и услуг нет",
+      "noOperations": "Операций нет"
     }
   }
 }

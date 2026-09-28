@@ -3806,6 +3806,20 @@
       "accrual": "Hisoblanma",
       "legalEntity": "Yuridik shaxs",
       "created": "Yaratilgan"
+    },
+    "deals": {
+      "count": "Bitimlar",
+      "amount": "Summasi",
+      "profit": "Foyda",
+      "received": "Tushdi",
+      "shipped": "Jo‘natildi",
+      "empty": "Hozircha bitimlar yo‘q",
+      "status": "Holati",
+      "date": "Bitim sanasi",
+      "clientDebt": "Mijoz qarzi",
+      "remainingShipment": "Jo‘natish qoldi",
+      "noProducts": "Tovar va xizmatlar yo‘q",
+      "noOperations": "Amaliyotlar yo‘q"
     }
   }
 }
