@@ -331,7 +331,11 @@
     "saving": "Saqlanmoqda...",
     "actions": "Amallar",
     "tableOnly": "Faqat jadval",
-    "showSummary": "Yakunlarni ko'rsatish"
+    "showSummary": "Yakunlarni ko'rsatish",
+    "required": "Majburiy maydon",
+    "back": "Orqaga",
+    "saved": "Saqlandi",
+    "noData": "Hech nima topilmadi"
   },
   "Auth": {
     "title": {
@@ -738,7 +742,10 @@
       "save": "Saqlash",
       "cancel": "Bekor qilish",
       "project": "Loyiha",
-      "projectPlaceholder": "Loyihani tanlang"
+      "projectPlaceholder": "Loyihani tanlang",
+      "errors": {
+        "amountRequired": "Summani kiriting"
+      }
     },
     "splitAmount": {
       "cancelSplit": "Bo'lishni bekor qilish",
@@ -3712,6 +3719,28 @@
     },
     "reports": {
       "hint": "Hisobotlar telefon uchun tayyorlanmoqda: raqamlar, diagrammalar va bir davrli jadval. Hozircha ular kompyuterda mavjud."
+    },
+    "form": {
+      "created": "Amaliyot yaratildi",
+      "saveFailed": "Amaliyotni saqlab bo‘lmadi",
+      "choose": "Tanlang",
+      "fromAccount": "Qaysi hisobdan",
+      "toAccount": "Qaysi hisobga",
+      "debitArticle": "Hisobdan chiqim moddasi",
+      "creditArticle": "Hisobga kirim moddasi",
+      "confirmPayment": "To‘lovni tasdiqlash",
+      "confirmPaymentHint": "Pul hisobdan o‘tdi",
+      "confirmAccrual": "Hisoblanmani tasdiqlash",
+      "confirmAccrualHint": "Hisoblanma qayd etildi",
+      "purpose": "To‘lov maqsadi",
+      "purposePlaceholder": "Masalan: 12-son hisob bo‘yicha to‘lov",
+      "desktopOnly": "Summani moddalar bo‘yicha bo‘lish, takrorlar va loyihalar — kompyuterda."
+    },
+    "filters": {
+      "apply": "Ko‘rsatish",
+      "from": "Dan",
+      "to": "Gacha",
+      "desktopOnly": "Kontragentlar, moddalar va bitimlar — kompyuterdagi filtrlarda."
     }
   }
 }

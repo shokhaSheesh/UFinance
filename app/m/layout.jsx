@@ -98,7 +98,7 @@ const MobileAppLayout = observer(({ children }) => {
               type="button"
               onClick={() => {
                 setCreateOpen(false)
-                router.push(`/m/transactions?new=${type}`)
+                router.push(`/m/transactions/new?type=${type}`)
               }}
               className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
             >

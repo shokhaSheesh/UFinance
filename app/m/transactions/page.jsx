@@ -1,21 +1,21 @@
 'use client'
 
 import BottomSheet from '@/components/mobile/BottomSheet'
+import OperationFilters from '@/components/mobile/OperationFilters'
 import { MCard, MEmpty, MRow, MSkeleton, TileIcon } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useDeleteOperation, useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useRouter } from '@/hooks/useAppRouter'
 import useMounted from '@/hooks/useMounted'
 import { apiClient } from '@/lib/api/ucode/base'
-import operationDto from '@/lib/dtos/operationDto'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { cn } from '@/lib/utils'
 import { useOperationsFilters } from '@/modules/operations/hooks/useOperationsFilters'
-import { useShipmentActions } from '@/modules/operations/hooks/useShipmentActions'
 import { useOperationFilterChips } from '@/modules/operations/list-page/useOperationFilterChips'
 import { appStore } from '@/store/app.store'
 import { operationFilterStore } from '@/store/operationFilter.store'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowDownLeft,
   ArrowLeftRight,
@@ -33,13 +33,7 @@ import {
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
-import { useSearchParams } from 'next/navigation'
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-
-const OperationModal = lazy(() => import('@/components/operations/OperationModal/OperationModal'))
-const OperationsFiltersSidebar = lazy(() =>
-  import('@/components/operations/OperationsFiltersSidebar/OperationsFiltersSidebar')
-)
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 /**
  * Транзакции на телефоне.
@@ -82,25 +76,14 @@ const MobileTransactionsPage = observer(() => {
   const tf = useTranslations('filters')
   const mounted = useMounted()
   const queryClient = useQueryClient()
-  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [actionsFor, setActionsFor] = useState(null)
-  const [openModal, setOpenModal] = useState(null)
-  const [modalType, setModalType] = useState(null)
 
   const permissions = appStore.permission.operations
   const { requestOperationFilters } = useOperationsFilters(t)
   const { chips: filterChips, count: filterCount } = useOperationFilterChips()
-
-  // Создание из кнопки «плюс»: тип приходит адресом (?new=income)
-  useEffect(() => {
-    const type = searchParams.get('new')
-    if (!type) return
-    setModalType(type)
-    setOpenModal({ isNew: true })
-    window.history.replaceState(null, '', '/m/transactions')
-  }, [searchParams])
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useUcodeRequestInfinite({
     method: 'list_operations_by_query',
@@ -142,38 +125,16 @@ const MobileTransactionsPage = observer(() => {
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const { handleEditShipment } = useShipmentActions({
-    setOperationToDelete: () => {},
-    setIsShipmentDeleting: () => {},
-    setIsDeleteModalOpen: () => {},
-  })
-
-  const { mutateAsync: getOperation, isPending: isLoadingOperation } = useMutation({
-    mutationKey: ['get_operation'],
-    mutationFn: (payload) => apiClient.invokeFunction({ method: 'get_operation', data: payload }),
-  })
-
   const deleteOperation = useDeleteOperation()
-  const typeToModal = { income: 'income', payment: 'payment', transfer: 'transfer', accrual: 'accrual' }
 
-  const openForEdit = async (operation) => {
+  const openForEdit = (operation) => {
     setActionsFor(null)
-    const response = await getOperation({ guid: operation?.guid })
-    const full = operationDto(response?.data?.data)
-    if (full.tip === 'Отгрузка' || full.tip === 'Поставка') {
-      handleEditShipment(full)
-      return
-    }
-    setModalType(typeToModal[full.operationType] || 'income')
-    setOpenModal({ ...full, isNew: false })
+    router.push(`/m/transactions/new?guid=${operation.guid}`)
   }
 
-  const openForCopy = async (operation) => {
+  const openForCopy = (operation) => {
     setActionsFor(null)
-    const response = await getOperation({ guid: operation?.guid })
-    const full = operationDto(response?.data?.data)
-    setModalType(typeToModal[full.operationType] || 'income')
-    setOpenModal({ ...full, guid: undefined, isNew: true })
+    router.push(`/m/transactions/new?type=${operation.operationType}&copy=${operation.guid}`)
   }
 
   const removeOperation = async (operation) => {
@@ -375,26 +336,8 @@ const MobileTransactionsPage = observer(() => {
         </div>
       </BottomSheet>
 
-      {isLoadingOperation && (
-        <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/20">
-          <Loader2 size={26} className="animate-spin text-white" aria-hidden="true" />
-        </div>
-      )}
+      <OperationFilters open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
-      <Suspense fallback={null}>
-        {isFilterOpen && <OperationsFiltersSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />}
-        {openModal && (
-          <OperationModal
-            operation={openModal}
-            initialTab={modalType}
-            currentPage={1}
-            onClose={() => {
-              setOpenModal(null)
-              setModalType(null)
-            }}
-          />
-        )}
-      </Suspense>
     </div>
   )
 })

@@ -68,9 +68,9 @@ const MobileHomePage = observer(() => {
   )
 
   const quickActions = [
-    { key: 'income', label: tOps('modal.tabIncome'), icon: ArrowDownLeft, onClick: () => router.push('/m/transactions?new=income') },
-    { key: 'payment', label: tOps('modal.tabPayment'), icon: ArrowUpRight, onClick: () => router.push('/m/transactions?new=payment') },
-    { key: 'transfer', label: tOps('modal.tabTransfer'), icon: ArrowLeftRight, onClick: () => router.push('/m/transactions?new=transfer') },
+    { key: 'income', label: tOps('modal.tabIncome'), icon: ArrowDownLeft, onClick: () => router.push('/m/transactions/new?type=income') },
+    { key: 'payment', label: tOps('modal.tabPayment'), icon: ArrowUpRight, onClick: () => router.push('/m/transactions/new?type=payment') },
+    { key: 'transfer', label: tOps('modal.tabTransfer'), icon: ArrowLeftRight, onClick: () => router.push('/m/transactions/new?type=transfer') },
     { key: 'reports', label: t('tabs.reports'), icon: BarChart3, onClick: () => router.push('/m/reports') },
   ]
 

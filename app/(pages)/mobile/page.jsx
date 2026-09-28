@@ -35,7 +35,7 @@ export default function MobilePreviewPage() {
   const t = useTranslations('MobilePreview')
   const frameRef = useRef(null)
   const [device, setDevice] = useState('base')
-  const [route, setRoute] = useState('/operations')
+  const [route, setRoute] = useState('/m')
   // Перезагрузка кадра: меняем ключ, чтобы iframe создался заново
   const [reloadKey, setReloadKey] = useState(0)
 
