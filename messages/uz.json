@@ -3808,7 +3808,10 @@
       "groupMain": "Asosiy",
       "groupWhom": "Kimga va nima uchun",
       "groupArticles": "Moddalar",
-      "groupConfirm": "Tasdiqlashlar"
+      "groupConfirm": "Tasdiqlashlar",
+      "available": "Mavjud",
+      "swapAccounts": "Hisoblarni almashtirish",
+      "otherCurrency": "Boshqa valyuta — kirim summasini kiriting"
     },
     "filters": {
       "apply": "Ko‘rsatish",
@@ -3853,6 +3856,13 @@
       "owesUs": "bizga qarzdor",
       "weOwe": "biz qarzdormiz",
       "settled": "hisob-kitob yopiq"
+    },
+    "plans": {
+      "title": "Rejalar",
+      "empty": "Hozircha byudjetlar yo‘q",
+      "noAccess": "Bu bo‘limga ruxsat yo‘q",
+      "months": "{total} oydan {done} o‘tdi",
+      "hint": "Oylik rejani kompyuterda to‘ldiriladi: u moddalar va o‘n ikki ustunli jadval."
     }
   }
 }

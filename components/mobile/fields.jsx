@@ -3,7 +3,7 @@
 import BottomSheet from '@/components/mobile/BottomSheet'
 import CalendarSheet from '@/components/mobile/CalendarSheet'
 import { cn } from '@/lib/utils'
-import { CalendarDays, Check, ChevronRight, Eye, EyeOff, Loader2, Search, X } from 'lucide-react'
+import { CalendarDays, Check, ChevronDown, ChevronRight, Eye, EyeOff, Loader2, Search, X } from 'lucide-react'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
@@ -56,6 +56,7 @@ export function MSelectField({
   onChange,
   renderValue,
   avatars = false,
+  variant = 'row',
 }) {
   const t = useTranslations('Common')
   const [open, setOpen] = useState(false)
@@ -72,6 +73,18 @@ export function MSelectField({
 
   return (
     <>
+      {variant === 'pill' ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex max-w-[62%] shrink-0 items-center gap-1.5 rounded-full bg-slate-100 py-2 pr-2.5 pl-3 text-left active:bg-slate-200"
+        >
+          <span className="min-w-0 truncate text-[14px] font-semibold text-slate-900">
+            {selected ? renderValue?.(selected) || selected.label : placeholder}
+          </span>
+          <ChevronDown size={15} className="shrink-0 text-slate-400" aria-hidden="true" />
+        </button>
+      ) : (
       <MFieldRow label={label} required={required} error={error} onClick={() => setOpen(true)}>
         <span className="flex items-center justify-between gap-2">
           <span
@@ -85,6 +98,7 @@ export function MSelectField({
           <ChevronRight size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
         </span>
       </MFieldRow>
+      )}
 
       <BottomSheet open={open} onClose={() => setOpen(false)} title={label} className="h-[80vh]">
         {searchable && (

@@ -13,7 +13,7 @@ import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
 import { formatDecimal, StringtoNumber } from '@/utils/helpers'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Loader2, Scale } from 'lucide-react'
+import { ArrowDownLeft, ArrowDownUp, ArrowLeftRight, ArrowUpRight, Loader2, Scale } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -76,6 +76,7 @@ const MobileOperationFormPage = observer(() => {
 
   const [type, setType] = useState(searchParams.get('type') || 'income')
   const [amount, setAmount] = useState('')
+  const [toAmount, setToAmount] = useState('')
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
   const [account, setAccount] = useState('')
   const [toAccount, setToAccount] = useState('')
@@ -125,6 +126,7 @@ const MobileOperationFormPage = observer(() => {
         sub: [item?.legal_entity_name, item?.currenies_kod].filter(Boolean).join(' · '),
         currency: item?.currenies_id,
         currencyCode: item?.currenies_kod,
+        balance: Number(item?.balans_val) || 0,
       })),
     [accounts]
   )
@@ -147,6 +149,9 @@ const MobileOperationFormPage = observer(() => {
   )
 
   const selectedAccount = accountOptions.find((item) => item.value === account)
+  const targetAccount = accountOptions.find((item) => item.value === toAccount)
+  // при одинаковых валютах вторая сумма равна первой и не редактируется
+  const sameCurrency = !targetAccount || targetAccount.currency === selectedAccount?.currency
   const currencyCode = selectedAccount?.currencyCode || appStore.currency?.code || ''
 
   // ── Изменение существующей операции ───────────────────────────────────────
@@ -162,6 +167,7 @@ const MobileOperationFormPage = observer(() => {
     if (!editing) return
     setType(editing.operationType === 'payment' ? 'payment' : editing.operationType || 'income')
     setAmount(String(editing.summa ?? ''))
+    setToAmount(String(editing.to_amount ?? ''))
     setDate(moment(editing.data_operatsii).format('YYYY-MM-DD'))
     setAccount(editing.my_accounts_id || '')
     setToAccount(editing.my_accounts_id_2 || '')
@@ -209,7 +215,7 @@ const MobileOperationFormPage = observer(() => {
         payment_accrual: false,
         my_accounts_id: account,
         my_accounts_id_2: toAccount,
-        to_amount: summa,
+        to_amount: sameCurrency ? summa : formatDecimal(StringtoNumber(toAmount)),
         to_currenies_id: accountOptions.find((item) => item.value === toAccount)?.currency,
         opisanie: purpose,
       }
@@ -286,15 +292,93 @@ const MobileOperationFormPage = observer(() => {
           </div>
         )}
 
-        <MAmountField value={amount} onChange={setAmount} currency={currencyCode} error={errors.amount} />
+        {type === 'transfer' ? (
+          /* Перемещение: два счёта друг над другом и кнопка «поменять местами» */
+          <div className="relative">
+            <div className="rounded-[24px] bg-white px-4 py-4">
+              <div className="text-[12px] text-slate-500">{tm('form.fromAccount')}</div>
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value)}
+                  placeholder="0"
+                  className="min-w-0 flex-1 bg-transparent text-[30px] leading-none font-bold tracking-[-0.02em] tabular-nums text-slate-900 outline-none placeholder:text-slate-300"
+                />
+                <MSelectField
+                  variant="pill"
+                  label={tm('form.fromAccount')}
+                  placeholder={tm('form.choose')}
+                  value={account}
+                  onChange={setAccount}
+                  options={accountOptions}
+                  loading={loadingAccounts}
+                  avatars
+                />
+              </div>
+              {errors.account && <div className="mt-2 text-xs text-red-600">{errors.account}</div>}
+              {selectedAccount && (
+                <div className="mt-2 text-right text-[12px] text-slate-400">
+                  {tm('form.available')} {Math.round(selectedAccount.balance).toLocaleString('ru-RU')}{' '}
+                  {selectedAccount.currencyCode}
+                </div>
+              )}
+            </div>
+
+            <div className="relative z-10 -my-3 flex justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  // меняем счета местами — частый случай «перепутал направление»
+                  setAccount(toAccount)
+                  setToAccount(account)
+                }}
+                aria-label={tm('form.swapAccounts')}
+                className="flex h-11 w-11 items-center justify-center rounded-full border-4 border-[#f4f5f7] bg-[#0e73f6] text-white active:bg-[#0b5fd4]"
+              >
+                <ArrowDownUp size={17} aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="rounded-[24px] bg-white px-4 py-4">
+              <div className="text-[12px] text-slate-500">{tm('form.toAccount')}</div>
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  inputMode="decimal"
+                  value={sameCurrency ? amount : toAmount}
+                  onChange={(event) => setToAmount(event.target.value)}
+                  readOnly={sameCurrency}
+                  placeholder="0"
+                  className="min-w-0 flex-1 bg-transparent text-[30px] leading-none font-bold tracking-[-0.02em] tabular-nums text-slate-900 outline-none placeholder:text-slate-300"
+                />
+                <MSelectField
+                  variant="pill"
+                  label={tm('form.toAccount')}
+                  placeholder={tm('form.choose')}
+                  value={toAccount}
+                  onChange={setToAccount}
+                  options={accountOptions.filter((item) => item.value !== account)}
+                  loading={loadingAccounts}
+                  avatars
+                />
+              </div>
+              {errors.toAccount && <div className="mt-2 text-xs text-red-600">{errors.toAccount}</div>}
+              {!sameCurrency && targetAccount && (
+                <div className="mt-2 text-right text-[12px] text-slate-400">{tm('form.otherCurrency')}</div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <MAmountField value={amount} onChange={setAmount} currency={currencyCode} error={errors.amount} />
+        )}
 
         <GroupTitle>{tm('form.groupMain')}</GroupTitle>
         <div className="flex flex-col gap-2">
           <MDateField label={t('columns.date')} required value={date} onChange={setDate} />
 
-          {type !== 'accrual' && (
+          {type !== 'accrual' && type !== 'transfer' && (
             <MSelectField
-              label={type === 'transfer' ? tm('form.fromAccount') : t('columns.account')}
+              label={t('columns.account')}
               required
               placeholder={tm('form.choose')}
               value={account}
@@ -305,20 +389,6 @@ const MobileOperationFormPage = observer(() => {
               avatars
             />
           )}
-
-          {type === 'transfer' && (
-            <MSelectField
-              label={tm('form.toAccount')}
-              required
-              placeholder={tm('form.choose')}
-              value={toAccount}
-              onChange={setToAccount}
-              options={accountOptions.filter((item) => item.value !== account)}
-              loading={loadingAccounts}
-              error={errors.toAccount}
-            />
-          )}
-
         </div>
 
         {(type === 'income' || type === 'payment') && (
