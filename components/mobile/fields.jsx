@@ -23,17 +23,18 @@ export function MFieldRow({ label, required, error, children, onClick, className
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       className={cn(
-        'flex w-full flex-col gap-1 border-b border-slate-100 py-3 text-left last:border-b-0',
+        'flex w-full flex-col gap-0.5 rounded-2xl bg-white px-4 py-3 text-left',
+        error && 'ring-1 ring-red-300',
         onClick && 'active:bg-slate-50',
         className
       )}
     >
-      <span className="text-xs text-slate-500">
+      <span className="text-[11px] text-slate-500">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </span>
       {children}
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="pt-0.5 text-[11px] text-red-600">{error}</span>}
     </Tag>
   )
 }
@@ -72,13 +73,13 @@ export function MSelectField({
         <span className="flex items-center justify-between gap-2">
           <span
             className={cn(
-              'min-w-0 flex-1 truncate text-[15px]',
-              selected ? 'font-medium text-slate-900' : 'text-slate-400'
+              'min-w-0 flex-1 truncate text-[16px]',
+              selected ? 'font-semibold text-slate-900' : 'text-slate-400'
             )}
           >
             {selected ? renderValue?.(selected) || selected.label : placeholder}
           </span>
-          <ChevronRight size={17} className="shrink-0 text-slate-300" aria-hidden="true" />
+          <ChevronRight size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
         </span>
       </MFieldRow>
 
@@ -147,20 +148,21 @@ export function MSelectField({
 export function MAmountField({ value, onChange, currency, error, autoFocus }) {
   const t = useTranslations('Operations')
   return (
-    <div className="rounded-[20px] bg-white px-4 py-4">
-      <div className="text-xs text-slate-500">{t('columns.amount')}</div>
-      <div className="mt-1 flex items-baseline gap-2">
+    <div className="rounded-[24px] bg-white px-4 py-5 text-center">
+      <div className="text-[11px] font-semibold tracking-[0.06em] text-slate-400 uppercase">{t('columns.amount')}</div>
+      <div className="mt-2 flex items-baseline justify-center gap-2">
         <input
           autoFocus={autoFocus}
           inputMode="decimal"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="0"
-          className="min-w-0 flex-1 bg-transparent text-[30px] leading-tight font-bold tabular-nums text-slate-900 outline-none placeholder:text-slate-300"
+          className="min-w-0 max-w-full bg-transparent text-center text-[38px] leading-none font-bold tracking-[-0.02em] tabular-nums text-slate-900 outline-none placeholder:text-slate-300"
+          style={{ width: `${Math.max(String(value || '0').length, 1)}ch` }}
         />
-        <span className="shrink-0 text-base font-semibold text-slate-400">{currency}</span>
+        <span className="shrink-0 text-lg font-semibold text-slate-400">{currency}</span>
       </div>
-      {error && <div className="mt-1 text-xs text-red-600">{error}</div>}
+      {error && <div className="mt-2 text-xs text-red-600">{error}</div>}
     </div>
   )
 }
@@ -173,7 +175,7 @@ export function MDateField({ label, required, value, onChange, error }) {
         type="date"
         value={value || ''}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-transparent text-[15px] font-medium text-slate-900 outline-none"
+        className="w-full bg-transparent text-[16px] font-semibold text-slate-900 outline-none"
       />
     </MFieldRow>
   )
@@ -185,7 +187,7 @@ export function MSwitch({ label, hint, checked, onChange }) {
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0"
+      className="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3.5 text-left"
     >
       <span className="min-w-0">
         <span className="block text-sm font-medium text-slate-900">{label}</span>
@@ -217,7 +219,7 @@ export function MTextField({ label, required, value, onChange, placeholder, erro
         value={value || ''}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full resize-none bg-transparent text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
+        className="w-full resize-none bg-transparent text-[16px] text-slate-900 outline-none placeholder:text-slate-400"
       />
     </MFieldRow>
   )

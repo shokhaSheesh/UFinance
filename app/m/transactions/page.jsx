@@ -2,7 +2,7 @@
 
 import BottomSheet from '@/components/mobile/BottomSheet'
 import OperationFilters from '@/components/mobile/OperationFilters'
-import { MCard, MEmpty, MRow, MSkeleton, TileIcon } from '@/components/mobile/ui'
+import { FilterPill, MCard, MEmpty, MRow, MScreenHeader, MSkeleton, TileIcon } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useDeleteOperation, useUcodeRequestInfinite } from '@/hooks/useDashboard'
@@ -164,22 +164,24 @@ const MobileTransactionsPage = observer(() => {
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       {/* Шапка и поиск */}
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <div className="flex h-14 items-center justify-between gap-2">
-          <h1 className="truncate text-[21px] font-bold text-slate-900">{tm('tabs.transactions')}</h1>
-          <button
-            type="button"
-            onClick={() => setIsFilterOpen(true)}
-            aria-label={tf('openFilters')}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-600 active:bg-slate-100"
-          >
-            <SlidersHorizontal size={18} aria-hidden="true" />
-            {filterCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0e73f6] px-1 text-[10px] font-semibold text-white">
-                {filterCount}
-              </span>
-            )}
-          </button>
-        </div>
+        <MScreenHeader
+          title={tm('tabs.transactions')}
+          action={
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen(true)}
+              aria-label={tf('openFilters')}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-600 active:bg-slate-100"
+            >
+              <SlidersHorizontal size={18} aria-hidden="true" />
+              {filterCount > 0 && (
+                <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0e73f6] px-1 text-[10px] font-semibold text-white">
+                  {filterCount}
+                </span>
+              )}
+            </button>
+          }
+        />
 
         <div className="flex h-11 items-center gap-2 rounded-2xl bg-white px-3.5">
           <Search size={17} className="shrink-0 text-slate-400" aria-hidden="true" />
@@ -194,6 +196,26 @@ const MobileTransactionsPage = observer(() => {
               <X size={16} aria-hidden="true" />
             </button>
           )}
+        </div>
+
+        {/* Быстрые фильтры */}
+        <div className="mt-2.5 flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none]">
+          <FilterPill
+            label={t('filters.operationType')}
+            value={operationFilterStore.selectedFilters?.length || null}
+            active={Boolean(operationFilterStore.selectedFilters?.length)}
+            onClick={() => setIsFilterOpen(true)}
+          />
+          <FilterPill
+            label={t('filters.paymentDate')}
+            active={Boolean(operationFilterStore.selectedDatePaymentRange?.start)}
+            onClick={() => setIsFilterOpen(true)}
+          />
+          <FilterPill
+            label={t('columns.amount')}
+            active={Boolean(operationFilterStore.amountRange?.min || operationFilterStore.amountRange?.max)}
+            onClick={() => setIsFilterOpen(true)}
+          />
         </div>
 
         {/* Итоги периода */}

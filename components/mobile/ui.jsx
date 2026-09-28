@@ -2,7 +2,7 @@
 
 import Money from '@/components/shared/Money'
 import { cn } from '@/lib/utils'
-import { ChevronRight } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
 
 /**
  * Набор частей мобильного приложения.
@@ -27,6 +27,54 @@ export function TileIcon({ icon: Icon, tone = 'neutral', className }) {
     <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full', toneClass, className)}>
       <Icon size={19} aria-hidden="true" />
     </span>
+  )
+}
+
+/**
+ * Шапка экрана: стрелка и действие в одной строке, под ними крупный
+ * заголовок. Так делают банковские приложения: заголовок читается с
+ * расстояния и не жмётся между кнопками.
+ */
+export function MScreenHeader({ title, subtitle, onBack, action, className }) {
+  return (
+    <div className={cn('pt-1 pb-3', className)}>
+      {(onBack || action) && (
+        <div className="flex h-10 items-center justify-between">
+          {onBack ? (
+            <button
+              type="button"
+              onClick={onBack}
+              className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:bg-slate-200"
+            >
+              <ArrowLeft size={21} aria-hidden="true" />
+            </button>
+          ) : (
+            <span />
+          )}
+          {action}
+        </div>
+      )}
+      <h1 className="mt-1 text-[28px] leading-tight font-bold tracking-[-0.02em] text-slate-900">{title}</h1>
+      {subtitle && <p className="mt-1 text-[13px] text-slate-500">{subtitle}</p>}
+    </div>
+  )
+}
+
+/** Небольшая кнопка-«таблетка» над списком: тип, период, метод. */
+export function FilterPill({ label, value, active = false, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex shrink-0 items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-semibold',
+        active ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
+      )}
+    >
+      {label}
+      {value && <span className={cn('font-bold', active ? 'text-white' : 'text-slate-900')}>{value}</span>}
+      <ChevronDown size={14} aria-hidden="true" className={active ? 'text-white/80' : 'text-slate-400'} />
+    </button>
   )
 }
 
@@ -78,9 +126,16 @@ export function MRow({ icon, tone, title, subtitle, value, valueSub, chevron = f
 /** Надпись над разделом и ссылка справа: «СЧЕТА · Все». */
 export function SectionHead({ title, action, onAction, className }) {
   return (
-    <div className={cn('flex items-baseline justify-between gap-3 px-1 pt-6 pb-2.5', className)}>
-      <span className="text-[11px] font-semibold tracking-[0.06em] text-slate-400 uppercase">{title}</span>
-      {action && (
+    <div className={cn('flex items-center justify-between gap-3 px-1 pt-6 pb-2.5', className)}>
+      {onAction ? (
+        <button type="button" onClick={onAction} className="flex items-center gap-1 text-left">
+          <span className="text-[15px] font-bold text-slate-900">{title}</span>
+          <ChevronRight size={16} className="text-slate-400" aria-hidden="true" />
+        </button>
+      ) : (
+        <span className="text-[15px] font-bold text-slate-900">{title}</span>
+      )}
+      {action && onAction && (
         <button type="button" onClick={onAction} className="text-[13px] font-semibold text-[#0e73f6]">
           {action}
         </button>

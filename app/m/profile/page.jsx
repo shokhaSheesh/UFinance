@@ -1,6 +1,6 @@
 'use client'
 
-import { MCard, MRow, SectionHead } from '@/components/mobile/ui'
+import { MCard, MRow, MScreenHeader, SectionHead } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import useMounted from '@/hooks/useMounted'
 import { appStore } from '@/store/app.store'
@@ -54,7 +54,7 @@ const MobileProfilePage = observer(() => {
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
-      <h1 className="py-4 text-[21px] font-bold text-slate-900">{t('tabs.profile')}</h1>
+      <MScreenHeader title={t('tabs.profile')} />
 
       {/* Карточка пользователя */}
       <div className="flex items-center gap-3.5 rounded-[24px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-5 text-white">

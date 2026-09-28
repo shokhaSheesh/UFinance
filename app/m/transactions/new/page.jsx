@@ -1,7 +1,7 @@
 'use client'
 
 import { MAmountField, MDateField, MSelectField, MSwitch, MTextField } from '@/components/mobile/fields'
-import { MCard } from '@/components/mobile/ui'
+import { MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { apiClient } from '@/lib/api/ucode/base'
@@ -13,7 +13,7 @@ import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
 import { formatDecimal, StringtoNumber } from '@/utils/helpers'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { ArrowDownLeft, ArrowLeft, ArrowLeftRight, ArrowUpRight, Loader2, Scale } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Loader2, Scale } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
@@ -249,19 +249,11 @@ const MobileOperationFormPage = observer(() => {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Шапка со стрелкой назад */}
-      <div className="flex h-14 shrink-0 items-center gap-2 px-2 pt-[max(env(safe-area-inset-top),12px)]">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label={tc('back')}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:bg-slate-200"
-        >
-          <ArrowLeft size={20} aria-hidden="true" />
-        </button>
-        <h1 className="min-w-0 flex-1 truncate text-[17px] font-bold text-slate-900">
-          {editGuid ? t('modal.editTitle') : t('modal.createTitle')}
-        </h1>
+      <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
+        <MScreenHeader
+          title={editGuid ? t('modal.editTitle') : t('modal.createTitle')}
+          onBack={() => router.back()}
+        />
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
@@ -291,7 +283,7 @@ const MobileOperationFormPage = observer(() => {
 
         <MAmountField value={amount} onChange={setAmount} currency={currencyCode} error={errors.amount} />
 
-        <MCard list className="mt-2.5">
+        <div className="mt-2.5 flex flex-col gap-2">
           <MDateField label={t('columns.date')} required value={date} onChange={setDate} />
 
           {type !== 'accrual' && (
@@ -373,10 +365,10 @@ const MobileOperationFormPage = observer(() => {
               />
             </>
           )}
-        </MCard>
+        </div>
 
         {/* Подтверждения */}
-        <MCard list className="mt-2.5">
+        <div className="mt-2.5 flex flex-col gap-2">
           {type !== 'accrual' && (
             <MSwitch
               label={tm('form.confirmPayment')}
@@ -393,16 +385,16 @@ const MobileOperationFormPage = observer(() => {
               onChange={setConfirmAccrual}
             />
           )}
-        </MCard>
+        </div>
 
-        <MCard list className="mt-2.5">
+        <div className="mt-2.5 flex flex-col gap-2">
           <MTextField
             label={tm('form.purpose')}
             value={purpose}
             onChange={setPurpose}
             placeholder={tm('form.purposePlaceholder')}
           />
-        </MCard>
+        </div>
 
         {/* Что доступно только на большом экране */}
         <p className="px-2 pt-3 text-[11px] leading-relaxed text-slate-400">{tm('form.desktopOnly')}</p>
@@ -414,7 +406,7 @@ const MobileOperationFormPage = observer(() => {
           type="button"
           onClick={submit}
           disabled={busy}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0e73f6] text-[15px] font-semibold text-white active:bg-[#0b5fd4] disabled:opacity-60"
+          className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#0e73f6] py-4 text-[16px] font-semibold text-white active:bg-[#0b5fd4] disabled:opacity-60"
         >
           {busy && <Loader2 size={17} className="animate-spin" aria-hidden="true" />}
           {editGuid ? tc('save') : tc('create')}

@@ -1,6 +1,6 @@
 'use client'
 
-import { MCard, MRow } from '@/components/mobile/ui'
+import { MCard, MRow, MScreenHeader } from '@/components/mobile/ui'
 import { BarChart3, Scale, TrendingUp } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -23,7 +23,7 @@ const MobileReportsPage = () => {
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
-      <h1 className="py-4 text-[21px] font-bold text-slate-900">{t('tabs.reports')}</h1>
+      <MScreenHeader title={t('tabs.reports')} />
 
       <MCard list>
         {reports.map((report) => (
