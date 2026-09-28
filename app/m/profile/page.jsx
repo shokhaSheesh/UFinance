@@ -154,6 +154,7 @@ const MobileProfilePage = observer(() => {
           icon: ListTree,
           label: tNav('directories.transactionCategories'),
           can: permission?.directories?.transactionCategories?.read,
+          href: '/m/articles',
         },
         {
           key: 'entities',

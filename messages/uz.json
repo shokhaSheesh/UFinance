@@ -3847,7 +3847,8 @@
       "clientDebt": "Mijoz qarzi",
       "remainingShipment": "Jo‘natish qoldi",
       "noProducts": "Tovar va xizmatlar yo‘q",
-      "noOperations": "Amaliyotlar yo‘q"
+      "noOperations": "Amaliyotlar yo‘q",
+      "created": "Bitim yaratildi"
     },
     "counterparties": {
       "empty": "Hozircha kontragentlar yo‘q",
@@ -3862,7 +3863,10 @@
       "empty": "Hozircha byudjetlar yo‘q",
       "noAccess": "Bu bo‘limga ruxsat yo‘q",
       "months": "{total} oydan {done} o‘tdi",
-      "hint": "Oylik rejani kompyuterda to‘ldiriladi: u moddalar va o‘n ikki ustunli jadval."
+      "hint": "Oylik rejani kompyuterda to‘ldiriladi: u moddalar va o‘n ikki ustunli jadval.",
+      "periodStart": "Davr boshi",
+      "periodEnd": "Davr oxiri",
+      "periodInvalid": "Oxiri boshidan oldin"
     },
     "warehouse": {
       "positions": "Pozitsiyalar",
@@ -3871,6 +3875,9 @@
     "accounts": {
       "empty": "Hozircha hisoblar yo‘q",
       "operations": "Hisob bo‘yicha amaliyotlar"
+    },
+    "articles": {
+      "empty": "Moddalar yo‘q"
     }
   }
 }

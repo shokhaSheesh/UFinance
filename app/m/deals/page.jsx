@@ -1,18 +1,22 @@
 'use client'
 
+import BottomSheet from '@/components/mobile/BottomSheet'
+import DealFormSheet from '@/components/mobile/forms/DealFormSheet'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
 import { useRouter } from '@/hooks/useAppRouter'
-import { useUcodeRequestInfinite } from '@/hooks/useDashboard'
+import { useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { formatDeals } from '@/modules/deals/deals-list'
+import { queryClient } from '@/lib/queryClient'
+import { appStore } from '@/store/app.store'
 import { sealDeal } from '@/store/saleDeal.store'
 import { StringtoNumber } from '@/utils/helpers'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { Briefcase, Loader2, Search, X } from 'lucide-react'
+import { Briefcase, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -55,8 +59,15 @@ const Progress = ({ label, value, tone }) => {
 const MobileDealsPage = observer(() => {
   const t = useTranslations('Deals')
   const tm = useTranslations('Mobile')
+  const tc = useTranslations('Common')
   const router = useRouter()
   const mounted = useMounted()
+  const [formFor, setFormFor] = useState(null)
+  const [menuFor, setMenuFor] = useState(null)
+  const [deleteFor, setDeleteFor] = useState(null)
+
+  const permissions = appStore.permission?.deals?.sales || appStore.permission?.deals || {}
+  const { mutateAsync: removeDeal, isPending: deleting } = useUcodeRequestMutation()
 
   const { dealsMethod, search: searchValue, dateRange, amountFrom, amountTo, profitFrom, profitTo,
     selectedCounterparties, selectedProjects, status, setState } = sealDeal
@@ -121,7 +132,22 @@ const MobileDealsPage = observer(() => {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader title={t('pageTitle')} onBack={() => router.push('/m/profile')} />
+        <MScreenHeader
+          title={t('pageTitle')}
+          onBack={() => router.push('/m/profile')}
+          action={
+            permissions?.add && (
+              <button
+                type="button"
+                onClick={() => setFormFor({})}
+                aria-label={t('createDeal')}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0e73f6] text-white active:bg-[#0b5fd4]"
+              >
+                <Plus size={19} aria-hidden="true" />
+              </button>
+            )
+          }
+        />
 
         {/* Метод учёта */}
         <div className="flex rounded-2xl bg-white p-1">
@@ -213,13 +239,34 @@ const MobileDealsPage = observer(() => {
                       {deal.kontragent?.nazvanie}
                     </span>
                   </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block text-[15px] font-bold text-slate-900 tabular-nums">
-                      <Money value={deal.summa_sdelki} currency={currency} />
+                  <span className="flex shrink-0 items-start gap-1">
+                    <span className="text-right">
+                      <span className="block text-[15px] font-bold text-slate-900 tabular-nums">
+                        <Money value={deal.summa_sdelki} currency={currency} />
+                      </span>
+                      <span className="mt-0.5 block text-[11px] text-slate-400">
+                        {deal.data_nachala ? moment(deal.data_nachala).format('DD.MM.YYYY') : ''}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block text-[11px] text-slate-400">
-                      {deal.data_nachala ? moment(deal.data_nachala).format('DD.MM.YYYY') : ''}
-                    </span>
+                    {(permissions?.edit || permissions?.delete) && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setMenuFor(deal)
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.stopPropagation()
+                            setMenuFor(deal)
+                          }
+                        }}
+                        className="-mr-1 flex h-8 w-7 items-center justify-center rounded-lg text-slate-400"
+                      >
+                        <MoreHorizontal size={17} aria-hidden="true" />
+                      </span>
+                    )}
                   </span>
                 </div>
 
@@ -243,6 +290,76 @@ const MobileDealsPage = observer(() => {
           )}
         </div>
       </div>
+
+      {/* Что сделать со сделкой */}
+      <BottomSheet open={Boolean(menuFor)} onClose={() => setMenuFor(null)} title={menuFor?.nazvanie}>
+        <div className="flex flex-col">
+          {permissions?.edit && (
+            <button
+              type="button"
+              onClick={() => {
+                setFormFor(menuFor)
+                setMenuFor(null)
+              }}
+              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                <Pencil size={18} aria-hidden="true" />
+              </span>
+              <span className="text-[15px] font-semibold text-slate-900">{tc('edit')}</span>
+            </button>
+          )}
+          {permissions?.delete && (
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteFor(menuFor)
+                setMenuFor(null)
+              }}
+              className="flex items-center gap-3 py-3.5 text-left active:bg-red-50"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                <Trash2 size={18} aria-hidden="true" />
+              </span>
+              <span className="text-[15px] font-semibold text-red-600">{tc('delete')}</span>
+            </button>
+          )}
+        </div>
+      </BottomSheet>
+
+      <DealFormSheet open={Boolean(formFor)} deal={formFor?.guid ? formFor : null} onClose={() => setFormFor(null)} />
+
+      <BottomSheet
+        open={Boolean(deleteFor)}
+        onClose={() => setDeleteFor(null)}
+        title={tc('delete')}
+        footer={
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => setDeleteFor(null)}
+              className="h-12 flex-1 rounded-full bg-slate-100 text-[15px] font-semibold text-slate-700"
+            >
+              {tc('cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await removeDeal({ method: 'delete_sales_transaction', data: { guid: deleteFor.guid } })
+                queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
+                setDeleteFor(null)
+              }}
+              disabled={deleting}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-red-600 text-[15px] font-semibold text-white disabled:opacity-60"
+            >
+              {deleting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+              {tc('delete')}
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-600">{deleteFor?.nazvanie}</p>
+      </BottomSheet>
     </div>
   )
 })

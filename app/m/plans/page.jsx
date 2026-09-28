@@ -1,11 +1,13 @@
 'use client'
 
+import BottomSheet from '@/components/mobile/BottomSheet'
+import BudgetFormSheet from '@/components/mobile/forms/BudgetFormSheet'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { cn } from '@/lib/utils'
-import { useBudgets } from '@/modules/plans/hooks/useBudgets'
+import { useBudgets, useDeleteBudget } from '@/modules/plans/hooks/useBudgets'
 import { appStore } from '@/store/app.store'
-import { CalendarRange, ClipboardList, Loader2 } from 'lucide-react'
+import { CalendarRange, ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
@@ -55,11 +57,16 @@ const BAR_STYLE = {
 const MobilePlansPage = observer(() => {
   const t = useTranslations('Mobile')
   const tb = useTranslations('Plans.budgetList')
+  const tc = useTranslations('Common')
   const tPnl = useTranslations('Plans.incomeExpenseBudget')
   const tCash = useTranslations('Plans.cashFlowBudget')
   const router = useRouter()
 
   const [type, setType] = useState('pnl')
+  const [formFor, setFormFor] = useState(null)
+  const [menuFor, setMenuFor] = useState(null)
+  const [deleteFor, setDeleteFor] = useState(null)
+  const deleteMutation = useDeleteBudget(type)
   const { budgets, isLoading } = useBudgets(type)
 
   const permissions = appStore.permission.plans?.[type] || {}
@@ -81,7 +88,22 @@ const MobilePlansPage = observer(() => {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader title={t('plans.title')} onBack={() => router.push('/m/profile')} />
+        <MScreenHeader
+          title={t('plans.title')}
+          onBack={() => router.push('/m/profile')}
+          action={
+            permissions?.add && (
+              <button
+                type="button"
+                onClick={() => setFormFor({})}
+                aria-label={tc('create')}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0e73f6] text-white active:bg-[#0b5fd4]"
+              >
+                <Plus size={19} aria-hidden="true" />
+              </button>
+            )
+          }
+        />
 
         {/* Какой бюджет смотрим */}
         <div className="flex rounded-2xl bg-white p-1">
@@ -140,6 +162,16 @@ const MobilePlansPage = observer(() => {
                       {tb(`status.${status}`)}
                     </span>
                   )}
+                  {(permissions?.edit || permissions?.delete) && (
+                    <button
+                      type="button"
+                      onClick={() => setMenuFor(budget)}
+                      aria-label={tc('edit')}
+                      className="-mr-1 flex h-8 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400"
+                    >
+                      <MoreHorizontal size={17} aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Сколько месяцев периода прошло */}
@@ -163,6 +195,80 @@ const MobilePlansPage = observer(() => {
 
         <p className="px-2 pt-4 text-[11px] leading-relaxed text-slate-400">{t('plans.hint')}</p>
       </div>
+
+      {/* Что сделать с бюджетом */}
+      <BottomSheet open={Boolean(menuFor)} onClose={() => setMenuFor(null)} title={menuFor?.name}>
+        <div className="flex flex-col">
+          {permissions?.edit && (
+            <button
+              type="button"
+              onClick={() => {
+                setFormFor(menuFor)
+                setMenuFor(null)
+              }}
+              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                <Pencil size={18} aria-hidden="true" />
+              </span>
+              <span className="text-[15px] font-semibold text-slate-900">{tc('edit')}</span>
+            </button>
+          )}
+          {permissions?.delete && (
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteFor(menuFor)
+                setMenuFor(null)
+              }}
+              className="flex items-center gap-3 py-3.5 text-left active:bg-red-50"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                <Trash2 size={18} aria-hidden="true" />
+              </span>
+              <span className="text-[15px] font-semibold text-red-600">{tc('delete')}</span>
+            </button>
+          )}
+        </div>
+      </BottomSheet>
+
+      <BudgetFormSheet
+        open={Boolean(formFor)}
+        budget={formFor?.id ? formFor : null}
+        type={type}
+        onClose={() => setFormFor(null)}
+      />
+
+      <BottomSheet
+        open={Boolean(deleteFor)}
+        onClose={() => setDeleteFor(null)}
+        title={tc('delete')}
+        footer={
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => setDeleteFor(null)}
+              className="h-12 flex-1 rounded-full bg-slate-100 text-[15px] font-semibold text-slate-700"
+            >
+              {tc('cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await deleteMutation.mutateAsync(deleteFor.id)
+                setDeleteFor(null)
+              }}
+              disabled={deleteMutation.isPending}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-red-600 text-[15px] font-semibold text-white disabled:opacity-60"
+            >
+              {deleteMutation.isPending && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+              {tc('delete')}
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-600">{deleteFor?.name}</p>
+      </BottomSheet>
     </div>
   )
 })
