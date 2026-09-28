@@ -135,7 +135,7 @@ const MobileProfilePage = observer(() => {
         },
         { key: 'plans', icon: ClipboardList, label: tNav('nav.plans'), can: true, href: '/m/plans' },
         { key: 'projects', icon: FolderTree, label: tNav('nav.projects'), can: appStore.projectActive },
-        { key: 'warehouse', icon: Warehouse, label: tNav('nav.warehouse'), can: appStore.warehouseActive },
+        { key: 'warehouse', icon: Warehouse, label: tNav('nav.warehouse'), can: appStore.warehouseActive, href: '/m/warehouse' },
       ],
     },
     {

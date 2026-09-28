@@ -66,11 +66,11 @@ const MobileAppLayout = observer(({ children }) => {
           выглядит краем страницы */}
       {!hideTabs && (
       <nav className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
-        <div className="pointer-events-auto flex w-full max-w-[420px] items-stretch rounded-[26px] bg-white/95 px-1.5 shadow-[0_8px_28px_rgba(15,23,42,0.16)] backdrop-blur">
+        <div className="pointer-events-auto flex w-full max-w-[420px] items-center rounded-[28px] border border-slate-200/70 bg-white px-2 py-2 shadow-[0_8px_28px_rgba(15,23,42,0.12)]">
           {TABS.map((tab, index) => {
             if (tab.fab) {
               return (
-                <div key="fab" className="flex w-14 shrink-0 items-center justify-center">
+                <div key="fab" className="flex w-16 shrink-0 items-center justify-center">
                   <button
                     type="button"
                     onClick={() => setCreateOpen(true)}
@@ -92,13 +92,27 @@ const MobileAppLayout = observer(({ children }) => {
                 type="button"
                 onClick={() => router.push(tab.href)}
                 aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-[20px] px-1 py-2.5 text-[10px] font-semibold transition-colors',
-                  active ? 'bg-[#eaf2ff] text-[#0e73f6]' : 'text-slate-400'
-                )}
+                className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1"
               >
-                <Icon size={20} aria-hidden="true" />
-                <span className="max-w-full truncate">{t(`tabs.${tab.key}`)}</span>
+                {/* Выбранный раздел — значок в кружке: подложка по размеру
+                    значка, а не во всю ячейку, поэтому рядом нет пустых
+                    цветных прямоугольников */}
+                <span
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full transition-colors',
+                    active ? 'bg-[#e8f1ff] text-[#0e73f6]' : 'text-slate-400'
+                  )}
+                >
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+                <span
+                  className={cn(
+                    'max-w-full truncate text-[10px] font-semibold',
+                    active ? 'text-[#0e73f6]' : 'text-slate-400'
+                  )}
+                >
+                  {t(`tabs.${tab.key}`)}
+                </span>
               </button>
             )
           })}

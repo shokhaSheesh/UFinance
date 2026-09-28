@@ -3863,6 +3863,10 @@
       "noAccess": "Bu bo‘limga ruxsat yo‘q",
       "months": "{total} oydan {done} o‘tdi",
       "hint": "Oylik rejani kompyuterda to‘ldiriladi: u moddalar va o‘n ikki ustunli jadval."
+    },
+    "warehouse": {
+      "positions": "Pozitsiyalar",
+      "waiting": "kutilmoqda {count}"
     }
   }
 }
