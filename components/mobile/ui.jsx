@@ -107,7 +107,12 @@ export function MRow({ icon, tone, title, subtitle, value, valueSub, chevron = f
 
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-semibold text-slate-900">{title}</div>
-        {subtitle && <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div>}
+        {subtitle &&
+          (typeof subtitle === 'string' ? (
+            <div className="mt-0.5 truncate text-xs text-slate-500">{subtitle}</div>
+          ) : (
+            <div className="mt-0.5 min-w-0 text-xs text-slate-500">{subtitle}</div>
+          ))}
       </div>
 
       {value !== undefined && (

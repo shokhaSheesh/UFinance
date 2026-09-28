@@ -27,6 +27,7 @@ import {
   X,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -93,12 +94,36 @@ const MobileTransactionsPage = observer(() => {
   const allOperations = useMemo(() => data?.pages?.flatMap((page) => page?.data?.data || []) || [], [data])
 
   const sections = useMemo(() => {
-    const groups = [
-      { key: 'future', label: tm('transactions.planned'), rows: operationsDto(allOperations, 'future') },
-      { key: 'today', label: t('page.sectionToday'), rows: operationsDto(allOperations, 'today') },
-      { key: 'before', label: t('page.sectionBefore'), rows: operationsDto(allOperations, 'before') },
-    ]
-    return groups.filter((group) => group.rows.length > 0)
+    const rows = operationsDto(allOperations)
+    const byDay = new Map()
+
+    rows.forEach((operation) => {
+      const day = moment(operation.data_operatsii).format('YYYY-MM-DD')
+      if (!byDay.has(day)) byDay.set(day, [])
+      byDay.get(day).push(operation)
+    })
+
+    const today = moment().startOf('day')
+    const label = (day) => {
+      const date = moment(day)
+      if (date.isSame(today, 'day')) return t('page.sectionToday')
+      if (date.isSame(today.clone().subtract(1, 'day'), 'day')) return tm('transactions.yesterday')
+      if (date.isAfter(today, 'day')) return `${tm('transactions.planned')} · ${date.format('D MMMM')}`
+      return date.format('D MMMM YYYY')
+    }
+
+    // итог дня: поступления минус выплаты — сразу видно, чем день закрылся
+    const dayTotal = (list) =>
+      list.reduce((sum, operation) => {
+        const value = Number(operation.summa) || 0
+        if (operation.operationType === 'income') return sum + value
+        if (operation.operationType === 'payment') return sum - value
+        return sum
+      }, 0)
+
+    return Array.from(byDay.entries())
+      .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+      .map(([day, list]) => ({ key: day, label: label(day), rows: list, total: dayTotal(list) }))
   }, [allOperations, t, tm])
 
   // Подгрузка следующей страницы за экран до конца ленты
@@ -227,8 +252,18 @@ const MobileTransactionsPage = observer(() => {
 
         {sections.map((section) => (
           <section key={section.key}>
-            <div className="px-1 pt-5 pb-2 text-[11px] font-semibold tracking-[0.06em] text-slate-400 uppercase">
-              {section.label}
+            <div className="flex items-baseline justify-between gap-3 px-1 pt-5 pb-2">
+              <span className="text-[13px] font-semibold text-slate-500">{section.label}</span>
+              {section.total !== 0 && (
+                <span
+                  className={cn(
+                    'text-[13px] font-semibold tabular-nums',
+                    section.total > 0 ? 'text-emerald-600' : 'text-red-600'
+                  )}
+                >
+                  <Money value={section.total} currency={currency} sign={section.total > 0 ? '+' : '−'} />
+                </span>
+              )}
             </div>
             <MCard list>
               {section.rows.map((operation) => {
@@ -241,7 +276,19 @@ const MobileTransactionsPage = observer(() => {
                     icon={look.icon}
                     tone={look.tone}
                     title={operation.counterparty || operation.tip}
-                    subtitle={[operation.chartOfAccounts, operation.my_account_name].filter(Boolean).join(' · ')}
+                    subtitle={
+                      <span className="flex items-center gap-1.5">
+                        <span className="min-w-0 truncate">
+                          {[operation.chartOfAccounts, operation.my_account_name].filter(Boolean).join(' · ')}
+                        </span>
+                        {/* Неподтверждённая оплата — самая частая причина расхождений */}
+                        {!operation.payment_confirmed && (isIncome || isPayment) && (
+                          <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                            {tm('detail.notPaid')}
+                          </span>
+                        )}
+                      </span>
+                    }
                     onClick={() => router.push(`/m/transactions/${operation.guid}`)}
                     value={
                       <Money

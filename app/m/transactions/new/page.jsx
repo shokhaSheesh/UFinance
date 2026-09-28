@@ -58,6 +58,11 @@ const flattenArticles = (nodes = [], rootName, path = []) => {
   return result
 }
 
+/** Заголовок группы полей. */
+const GroupTitle = ({ children }) => (
+  <div className="px-1 pt-5 pb-2.5 text-[15px] font-bold text-slate-900">{children}</div>
+)
+
 const MobileOperationFormPage = observer(() => {
   const t = useTranslations('Operations')
   const tm = useTranslations('Mobile')
@@ -283,7 +288,8 @@ const MobileOperationFormPage = observer(() => {
 
         <MAmountField value={amount} onChange={setAmount} currency={currencyCode} error={errors.amount} />
 
-        <div className="mt-2.5 flex flex-col gap-2">
+        <GroupTitle>{tm('form.groupMain')}</GroupTitle>
+        <div className="flex flex-col gap-2">
           <MDateField label={t('columns.date')} required value={date} onChange={setDate} />
 
           {type !== 'accrual' && (
@@ -296,6 +302,7 @@ const MobileOperationFormPage = observer(() => {
               options={accountOptions}
               loading={loadingAccounts}
               error={errors.account}
+              avatars
             />
           )}
 
@@ -312,8 +319,12 @@ const MobileOperationFormPage = observer(() => {
             />
           )}
 
-          {(type === 'income' || type === 'payment') && (
-            <>
+        </div>
+
+        {(type === 'income' || type === 'payment') && (
+          <>
+            <GroupTitle>{tm('form.groupWhom')}</GroupTitle>
+            <div className="flex flex-col gap-2">
               <MSelectField
                 label={t('columns.counterparty')}
                 placeholder={tm('form.choose')}
@@ -321,6 +332,7 @@ const MobileOperationFormPage = observer(() => {
                 onChange={setCounterparty}
                 options={counterpartyOptions}
                 loading={loadingCounterparties}
+                avatars
               />
               <MSelectField
                 label={t('columns.statya')}
@@ -338,11 +350,14 @@ const MobileOperationFormPage = observer(() => {
                 options={dealOptions}
                 loading={loadingDeals}
               />
-            </>
-          )}
+            </div>
+          </>
+        )}
 
-          {type === 'accrual' && (
-            <>
+        {type === 'accrual' && (
+          <>
+            <GroupTitle>{tm('form.groupArticles')}</GroupTitle>
+            <div className="flex flex-col gap-2">
               <MSelectField
                 label={tm('form.debitArticle')}
                 required
@@ -363,12 +378,13 @@ const MobileOperationFormPage = observer(() => {
                 loading={loadingArticles}
                 error={errors.article2}
               />
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
 
         {/* Подтверждения */}
-        <div className="mt-2.5 flex flex-col gap-2">
+        <GroupTitle>{tm('form.groupConfirm')}</GroupTitle>
+        <div className="flex flex-col gap-2">
           {type !== 'accrual' && (
             <MSwitch
               label={tm('form.confirmPayment')}
@@ -387,7 +403,8 @@ const MobileOperationFormPage = observer(() => {
           )}
         </div>
 
-        <div className="mt-2.5 flex flex-col gap-2">
+        <GroupTitle>{tm('form.purpose')}</GroupTitle>
+        <div className="flex flex-col gap-2">
           <MTextField
             label={tm('form.purpose')}
             value={purpose}

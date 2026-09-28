@@ -3717,7 +3717,8 @@
     },
     "transactions": {
       "planned": "Rejalashtirilgan",
-      "emptyHint": "Filtrlarni o‘zgartiring yoki «plus» tugmasi bilan amaliyot yarating"
+      "emptyHint": "Filtrlarni o‘zgartiring yoki «plus» tugmasi bilan amaliyot yarating",
+      "yesterday": "Kecha"
     },
     "profile": {
       "sections": "Bo‘limlar",
@@ -3752,7 +3753,14 @@
       "confirmAccrualHint": "Hisoblanma qayd etildi",
       "purpose": "To‘lov maqsadi",
       "purposePlaceholder": "Masalan: 12-son hisob bo‘yicha to‘lov",
-      "desktopOnly": "Summani moddalar bo‘yicha bo‘lish, takrorlar va loyihalar — kompyuterda."
+      "desktopOnly": "Summani moddalar bo‘yicha bo‘lish, takrorlar va loyihalar — kompyuterda.",
+      "today": "Bugun",
+      "prevMonth": "Oldingi oy",
+      "nextMonth": "Keyingi oy",
+      "groupMain": "Asosiy",
+      "groupWhom": "Kimga va nima uchun",
+      "groupArticles": "Moddalar",
+      "groupConfirm": "Tasdiqlashlar"
     },
     "filters": {
       "apply": "Ko‘rsatish",
@@ -3766,7 +3774,15 @@
       "accrued": "Hisoblangan",
       "notAccrued": "Hisoblanmagan",
       "accrualDate": "Hisoblash sanasi",
-      "purpose": "To‘lov maqsadi"
+      "purpose": "To‘lov maqsadi",
+      "more": "Yana",
+      "status": "Holati",
+      "details": "Tafsilotlar",
+      "service": "Xizmat ma’lumotlari",
+      "payment": "To‘lov",
+      "accrual": "Hisoblanma",
+      "legalEntity": "Yuridik shaxs",
+      "created": "Yaratilgan"
     }
   }
 }

@@ -1,11 +1,11 @@
 'use client'
 
-import { MCard, MRow, MScreenHeader, TileIcon } from '@/components/mobile/ui'
 import BottomSheet from '@/components/mobile/BottomSheet'
+import { MCard, TileIcon } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { useRouter } from '@/hooks/useAppRouter'
 import { useDeleteOperation } from '@/hooks/useDashboard'
+import { useRouter } from '@/hooks/useAppRouter'
 import { apiClient } from '@/lib/api/ucode/base'
 import operationDto from '@/lib/dtos/operationDto'
 import { cn } from '@/lib/utils'
@@ -13,10 +13,12 @@ import { appStore } from '@/store/app.store'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowDownLeft,
+  ArrowLeft,
   ArrowLeftRight,
   ArrowUpRight,
   Copy,
   Loader2,
+  MoreHorizontal,
   PackageCheck,
   Pencil,
   Scale,
@@ -29,12 +31,12 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 /**
- * Операция целиком — отдельный экран.
+ * Операция целиком — экран выписки.
  *
- * В списке у строки помещаются три вещи: тип, контрагент и сумма. Всё
- * остальное — счёт, статья, сделка, даты, подтверждения, назначение —
- * живёт здесь, строками «подпись слева, значение справа», как в выписке
- * банковского приложения. Действия внизу, а не в меню из трёх точек.
+ * Сверху сумма со знаком и с кем операция: это то, ради чего строку
+ * открывают. Под ней два действия, дальше — состояние (оплачено ли,
+ * начислено ли) и подробности группами «подпись — значение». Удаление
+ * убрано под «…»: рядом с обычными действиями его слишком легко нажать.
  */
 
 const TYPE_LOOK = {
@@ -47,26 +49,34 @@ const TYPE_LOOK = {
 }
 
 /** Строка «подпись — значение». Пустые значения не показываем. */
-const Line = ({ label, value }) => {
+const Line = ({ label, value, valueClass }) => {
   if (value === null || value === undefined || value === '' || value === '-') return null
   return (
     <div className="flex items-start justify-between gap-4 border-b border-slate-100 py-3 last:border-b-0">
       <span className="shrink-0 text-[13px] text-slate-500">{label}</span>
-      <span className="min-w-0 text-right text-[14px] font-medium text-slate-900">{value}</span>
+      <span className={cn('min-w-0 text-right text-[14px] font-medium text-slate-900', valueClass)}>{value}</span>
     </div>
   )
 }
 
-/** Подтверждено или нет — словами и цветом, а не одной галочкой. */
-const StatusChip = ({ ok, labelOn, labelOff }) => (
-  <span
+/** Заголовок группы строк. */
+const GroupTitle = ({ children }) => (
+  <div className="px-1 pt-6 pb-2.5 text-[15px] font-bold text-slate-900">{children}</div>
+)
+
+/** Действие рядом с суммой: небольшая кнопка-«таблетка». */
+const ActionPill = ({ icon: Icon, label, onClick, primary = false }) => (
+  <button
+    type="button"
+    onClick={onClick}
     className={cn(
-      'rounded-full px-2.5 py-1 text-[12px] font-semibold',
-      ok ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+      'flex h-10 items-center gap-2 rounded-full px-4 text-[14px] font-semibold',
+      primary ? 'bg-[#0e73f6] text-white active:bg-[#0b5fd4]' : 'bg-white text-slate-700 active:bg-slate-100'
     )}
   >
-    {ok ? labelOn : labelOff}
-  </span>
+    <Icon size={16} aria-hidden="true" />
+    {label}
+  </button>
 )
 
 const MobileOperationPage = observer(() => {
@@ -77,6 +87,8 @@ const MobileOperationPage = observer(() => {
   const params = useParams()
   const queryClient = useQueryClient()
   const guid = params?.guid
+
+  const [moreOpen, setMoreOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const { data: operation, isLoading } = useQuery({
@@ -120,73 +132,144 @@ const MobileOperationPage = observer(() => {
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
-      <MScreenHeader title={operation?.tip || tm('tabs.transactions')} onBack={() => router.back()} />
-
-      {/* Сумма и стороны операции */}
-      <MCard className="flex flex-col items-center gap-2 text-center">
-        <TileIcon icon={look.icon} tone={look.tone} className="h-12 w-12" />
-        <div
-          className={cn(
-            'text-[30px] leading-none font-bold tracking-[-0.02em]',
-            isIncome ? 'text-emerald-600' : isPayment ? 'text-red-600' : 'text-slate-900'
-          )}
+      {/* Назад и «ещё» */}
+      <div className="flex h-10 items-center justify-between">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label={tc('back')}
+          className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:bg-slate-200"
         >
-          <Money value={operation?.summa} currency={currency} sign={isIncome ? '+' : isPayment ? '−' : ''} />
-        </div>
-        <div className="text-[13px] text-slate-500">{operation?.operationDate}</div>
-        {operation?.counterparty && (
-          <div className="text-[15px] font-semibold text-slate-900">{operation.counterparty}</div>
+          <ArrowLeft size={21} aria-hidden="true" />
+        </button>
+        {(can('delete') || can('add')) && (
+          <button
+            type="button"
+            onClick={() => setMoreOpen(true)}
+            aria-label={tm('detail.more')}
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-slate-700 active:bg-slate-200"
+          >
+            <MoreHorizontal size={20} aria-hidden="true" />
+          </button>
         )}
-        <div className="mt-1 flex flex-wrap justify-center gap-2">
-          <StatusChip
-            ok={operation?.payment_confirmed}
-            labelOn={tm('detail.paid')}
-            labelOff={tm('detail.notPaid')}
-          />
-          <StatusChip
-            ok={operation?.payment_accrual}
-            labelOn={tm('detail.accrued')}
-            labelOff={tm('detail.notAccrued')}
-          />
+      </div>
+
+      {/* Сумма и с кем операция */}
+      <div className="flex items-start justify-between gap-3 pt-3">
+        <div className="min-w-0">
+          <div
+            className={cn(
+              'text-[32px] leading-none font-bold tracking-[-0.02em]',
+              isIncome ? 'text-emerald-600' : isPayment ? 'text-red-600' : 'text-slate-900'
+            )}
+          >
+            <Money value={operation?.summa} currency={currency} sign={isIncome ? '+' : isPayment ? '−' : ''} />
+          </div>
+          <div className="mt-2 truncate text-[15px] font-semibold text-slate-900">
+            {operation?.counterparty || operation?.tip}
+          </div>
+          <div className="mt-0.5 text-[13px] text-slate-500">
+            {[operation?.tip, operation?.operationDate].filter(Boolean).join(' · ')}
+          </div>
         </div>
+        <TileIcon icon={look.icon} tone={look.tone} className="h-12 w-12" />
+      </div>
+
+      {/* Действия */}
+      <div className="flex gap-2 pt-4">
+        {can('edit') && (
+          <ActionPill
+            primary
+            icon={Pencil}
+            label={tc('edit')}
+            onClick={() => router.push(`/m/transactions/new?guid=${guid}`)}
+          />
+        )}
+        {can('add') && (
+          <ActionPill
+            icon={Copy}
+            label={tc('copy')}
+            onClick={() => router.push(`/m/transactions/new?type=${operation?.operationType}&copy=${guid}`)}
+          />
+        )}
+      </div>
+
+      {/* Состояние */}
+      <GroupTitle>{tm('detail.status')}</GroupTitle>
+      <MCard list>
+        <Line
+          label={tm('detail.payment')}
+          value={operation?.payment_confirmed ? tm('detail.paid') : tm('detail.notPaid')}
+          valueClass={operation?.payment_confirmed ? 'text-emerald-600' : 'text-amber-600'}
+        />
+        <Line
+          label={tm('detail.accrual')}
+          value={operation?.payment_accrual ? tm('detail.accrued') : tm('detail.notAccrued')}
+          valueClass={operation?.payment_accrual ? 'text-emerald-600' : 'text-amber-600'}
+        />
+        <Line label={tm('detail.accrualDate')} value={operation?.accrualDate} />
       </MCard>
 
       {/* Подробности */}
-      <MCard list className="mt-2.5">
+      <GroupTitle>{tm('detail.details')}</GroupTitle>
+      <MCard list>
         <Line label={t('columns.account')} value={operation?.my_account_name} />
         <Line label={tm('form.toAccount')} value={operation?.my_account_name2} />
         <Line label={t('columns.statya')} value={operation?.chartOfAccounts} />
         <Line label={tm('form.creditArticle')} value={operation?.chartOfAccounts2} />
         <Line
           label={t('columns.deal')}
-          value={operation?.sales_transaction_name || operation?.selling_deal_name || operation?.purchase_transaction_name}
+          value={
+            operation?.sales_transaction_name || operation?.selling_deal_name || operation?.purchase_transaction_name
+          }
         />
         <Line label={t('columns.project')} value={operation?.projectName} />
-        <Line label={tm('detail.accrualDate')} value={operation?.accrualDate} />
         <Line label={t('columns.paymentType')} value={operation?.paymentType} />
         <Line label={tm('detail.purpose')} value={operation?.opisanie || operation?.comment} />
       </MCard>
 
-      {/* Действия */}
-      <MCard list className="mt-2.5">
-        {can('edit') && (
-          <MRow
-            icon={Pencil}
-            title={tc('edit')}
-            onClick={() => router.push(`/m/transactions/new?guid=${guid}`)}
-          />
-        )}
-        {can('add') && (
-          <MRow
-            icon={Copy}
-            title={tc('copy')}
-            onClick={() => router.push(`/m/transactions/new?type=${operation?.operationType}&copy=${guid}`)}
-          />
-        )}
-        {can('delete') && (
-          <MRow icon={Trash2} tone="out" title={tc('delete')} onClick={() => setConfirmDelete(true)} />
-        )}
-      </MCard>
+      {/* Кто и когда завёл */}
+      {(operation?.createdAt || operation?.legal_entity_name) && (
+        <>
+          <GroupTitle>{tm('detail.service')}</GroupTitle>
+          <MCard list>
+            <Line label={tm('detail.legalEntity')} value={operation?.legal_entity_name} />
+            <Line label={tm('detail.created')} value={operation?.createdAt} />
+          </MCard>
+        </>
+      )}
+
+      {/* «Ещё»: здесь живёт удаление */}
+      <BottomSheet open={moreOpen} onClose={() => setMoreOpen(false)} title={tm('detail.more')}>
+        <div className="flex flex-col">
+          {can('add') && (
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false)
+                router.push(`/m/transactions/new?type=${operation?.operationType}&copy=${guid}`)
+              }}
+              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
+            >
+              <TileIcon icon={Copy} />
+              <span className="text-[15px] font-semibold text-slate-900">{tc('copy')}</span>
+            </button>
+          )}
+          {can('delete') && (
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false)
+                setConfirmDelete(true)
+              }}
+              className="flex items-center gap-3 py-3.5 text-left active:bg-red-50"
+            >
+              <TileIcon icon={Trash2} tone="out" />
+              <span className="text-[15px] font-semibold text-red-600">{tc('delete')}</span>
+            </button>
+          )}
+        </div>
+      </BottomSheet>
 
       <BottomSheet
         open={confirmDelete}
@@ -214,6 +297,10 @@ const MobileOperationPage = observer(() => {
         }
       >
         <p className="text-sm text-slate-600">{t('deleteModal.confirmation')}</p>
+        <div className="mt-3 flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+          <span className="text-[13px] text-slate-500">{t('columns.amount')}</span>
+          <Money value={operation?.summa} currency={currency} className="text-[15px] font-bold text-slate-900" />
+        </div>
       </BottomSheet>
     </div>
   )

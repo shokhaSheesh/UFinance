@@ -1,8 +1,10 @@
 'use client'
 
 import BottomSheet from '@/components/mobile/BottomSheet'
+import CalendarSheet from '@/components/mobile/CalendarSheet'
 import { cn } from '@/lib/utils'
-import { Check, ChevronRight, Loader2, Search, X } from 'lucide-react'
+import { CalendarDays, Check, ChevronRight, Loader2, Search, X } from 'lucide-react'
+import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
@@ -53,6 +55,7 @@ export function MSelectField({
   onSearch,
   onChange,
   renderValue,
+  avatars = false,
 }) {
   const t = useTranslations('Common')
   const [open, setOpen] = useState(false)
@@ -128,6 +131,11 @@ export function MSelectField({
                 }}
                 className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
               >
+                {avatars && (
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[14px] font-bold text-slate-500">
+                    {String(option.label || '?').trim().slice(0, 1).toUpperCase()}
+                  </span>
+                )}
                 <span className="min-w-0 flex-1">
                   <span className={cn('block truncate text-sm', active ? 'font-semibold text-[#0e73f6]' : 'text-slate-900')}>
                     {option.label}
@@ -167,17 +175,23 @@ export function MAmountField({ value, onChange, currency, error, autoFocus }) {
   )
 }
 
-/** Дата: родное поле телефона, но в оформлении строки формы. */
+/** Дата: строка формы, которая открывает календарь панелью снизу. */
 export function MDateField({ label, required, value, onChange, error }) {
+  const [open, setOpen] = useState(false)
+
   return (
-    <MFieldRow label={label} required={required} error={error}>
-      <input
-        type="date"
-        value={value || ''}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-transparent text-[16px] font-semibold text-slate-900 outline-none"
-      />
-    </MFieldRow>
+    <>
+      <MFieldRow label={label} required={required} error={error} onClick={() => setOpen(true)}>
+        <span className="flex items-center justify-between gap-2">
+          <span className="min-w-0 flex-1 truncate text-[16px] font-semibold text-slate-900">
+            {value ? moment(value).format('D MMMM YYYY') : '—'}
+          </span>
+          <CalendarDays size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
+        </span>
+      </MFieldRow>
+
+      <CalendarSheet open={open} onClose={() => setOpen(false)} value={value} onChange={onChange} title={label} />
+    </>
   )
 }
 
