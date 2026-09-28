@@ -49,7 +49,7 @@ const MobileAppLayout = observer(({ children }) => {
   const isActive = (tab) => (tab.exact ? pathname === tab.href : pathname.startsWith(tab.href))
   // Экраны с собственной кнопкой внизу прячут панель разделов: иначе
   // «таблетка» ложится поверх кнопки и до неё не дотянуться
-  const SELF_ACTION_ROUTES = ['/m/transactions/new', '/m/profile/edit']
+  const SELF_ACTION_ROUTES = ['/m/transactions/new', '/m/profile/account/edit', '/m/profile/account/phone', '/m/profile/account/password']
   const hideTabs = SELF_ACTION_ROUTES.some((route) => pathname.startsWith(route))
 
   return (

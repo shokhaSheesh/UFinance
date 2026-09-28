@@ -214,6 +214,18 @@
 	--sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Подсказка на ползунке подтверждения: кнопка покачивается вправо, пока
+   её не потянули — иначе непонятно, что элемент вообще двигается. */
+@keyframes m-nudge {
+	0%, 55%, 100% { transform: translateX(0); }
+	70% { transform: translateX(10px); }
+	85% { transform: translateX(3px); }
+}
+
+.m-nudge {
+	animation: m-nudge 2.6s ease-in-out infinite;
+}
+
 /* На телефоне бокового меню нет: страницы, сверстанные под настольную
    оболочку, не должны оставлять под него место. */
 @media (max-width: 767px) {

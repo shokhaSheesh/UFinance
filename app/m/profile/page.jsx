@@ -1,6 +1,7 @@
 'use client'
 
 import BottomSheet from '@/components/mobile/BottomSheet'
+import SlideToConfirm from '@/components/mobile/SlideToConfirm'
 import { MCard, MRow, MScreenHeader, SectionHead } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
@@ -21,7 +22,6 @@ import {
   Landmark,
   Languages,
   ListTree,
-  LogOut,
   Package,
   Settings,
   ShieldCheck,
@@ -188,7 +188,7 @@ const MobileProfilePage = observer(() => {
       {/* Кто вошёл — нажатие открывает «Мой профиль» */}
       <button
         type="button"
-        onClick={() => router.push('/m/profile/edit')}
+        onClick={() => router.push('/m/profile/account')}
         className="flex w-full items-center gap-3.5 rounded-[24px] bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] px-5 py-5 text-left text-white active:opacity-95"
       >
         <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-lg font-bold">
@@ -250,11 +250,9 @@ const MobileProfilePage = observer(() => {
         )
       })}
 
-      {/* Выход */}
+      {/* Выход: ползунок, а не кнопка — случайно не нажмёшь */}
       <div className="pt-6">
-        <MCard list>
-          <MRow icon={LogOut} tone="out" title={t('profile.logout')} onClick={() => setSheet('logout')} />
-        </MCard>
+        <SlideToConfirm label={t('profile.logoutSlide')} onConfirm={() => setSheet('logout')} />
       </div>
 
       <p className="pt-5 text-center text-[11px] text-slate-400">UFinance · {t('profile.mobileVersion')}</p>
