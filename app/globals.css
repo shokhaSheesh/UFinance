@@ -214,6 +214,14 @@
 	--sidebar-ring: oklch(0.708 0 0);
 }
 
+/* На телефоне бокового меню нет: страницы, сверстанные под настольную
+   оболочку, не должны оставлять под него место. */
+@media (max-width: 767px) {
+	:root {
+		--sidebar-w: 0px;
+	}
+}
+
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);

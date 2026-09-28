@@ -405,7 +405,9 @@
       "plans": "Rejalar",
       "warehouse": "Mening omborim",
       "projects": "Loyihalar",
-      "company": "Mening kompaniyam"
+      "company": "Mening kompaniyam",
+      "more": "Yana",
+      "mobile": "Mobil versiya"
     },
     "plans": {
       "cash_flow_budget": "Pul harakati byudjeti",
@@ -595,7 +597,8 @@
       "downloadErrorFile": "Xatoliklar faylini yuklab olish",
       "cancel": "Bekor qilish",
       "createManual": "Qo'lda kiritish",
-      "createImport": "Excel dan import qilish"
+      "createImport": "Excel dan import qilish",
+      "noCreatePermission": "Amaliyot yaratishga ruxsat yo‘q"
     },
     "columns": {
       "date": "Sana",
@@ -3561,7 +3564,8 @@
     "status": "Holati",
     "period": "Davr",
     "parameters": "Parametrlar",
-    "amounts": "Summalar"
+    "amounts": "Summalar",
+    "openFilters": "Filtrlar"
   },
   "Company": {
     "pageTitle": "Mening kompaniyam",
@@ -3655,6 +3659,24 @@
       "expenses": "Xarajat",
       "profit": "Sof foyda",
       "total": "Davr uchun jami"
+    }
+  },
+  "MobilePreview": {
+    "title": "Mobil versiya",
+    "device": "Ekran kengligi",
+    "reload": "Yangilash",
+    "openInTab": "Yangi oynada ochish",
+    "hintReady": "Ramka ichida maket emas, telefon kengligidagi haqiqiy dastur: bu yerda ishlagan narsa telefonda ham ishlaydi.",
+    "hintDesktopLayout": "Bu bo‘lim hali mobil ko‘rinishga o‘tkazilmagan — ramka ichida hozircha kompyuter sahifasi.",
+    "routes": {
+      "operations": "Amaliyotlar",
+      "company": "Mening kompaniyam",
+      "deals": "Bitimlar",
+      "indicators": "Ko‘rsatkichlar",
+      "counterparties": "Kontragentlar",
+      "reports": "Hisobotlar",
+      "warehouse": "Mening omborim",
+      "settings": "Sozlamalar"
     }
   }
 }

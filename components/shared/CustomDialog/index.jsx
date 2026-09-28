@@ -144,8 +144,16 @@ export function DialogFooter({ children, left, className }) {
  */
 export function FormRow({ label, required, hint, error, children, align = 'center', className }) {
   return (
-    <div className={cn('flex gap-4', align === 'start' ? 'items-start' : 'items-center', className)}>
-      <label className={cn('w-40 shrink-0 text-sm text-slate-700', align === 'start' && 'pt-2')}>
+    <div
+      className={cn(
+        'flex gap-4',
+        align === 'start' ? 'items-start' : 'items-center',
+        // на телефоне подпись шириной 160px съедала половину строки
+        'max-md:flex-col max-md:items-stretch max-md:gap-1.5',
+        className
+      )}
+    >
+      <label className={cn('w-40 shrink-0 text-sm text-slate-700 max-md:w-full max-md:pt-0', align === 'start' && 'pt-2')}>
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>

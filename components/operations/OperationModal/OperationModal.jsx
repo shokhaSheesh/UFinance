@@ -114,7 +114,7 @@ const OperationModal = observer(({
 	return createPortal(
 		<div
 			className={cn(
-				'fixed inset-y-0 left-0 right-[var(--ai-w,0px)] z-1000 flex items-center justify-center p-4 transition-opacity duration-200',
+				'fixed inset-y-0 left-0 right-[var(--ai-w,0px)] z-1000 flex items-center justify-center p-4 transition-opacity duration-200 max-md:p-0',
 				isClosing ? 'opacity-0' : 'opacity-100'
 			)}
 		>
@@ -125,6 +125,8 @@ const OperationModal = observer(({
 				aria-modal="true"
 				className={cn(
 					'relative flex h-[min(880px,92vh)] max-w-full overflow-hidden rounded-2xl bg-white shadow-[0_24px_64px_rgba(15,23,42,0.22)] transition-[width] duration-200',
+					// на телефоне окно занимает весь экран
+					'max-md:h-full max-md:w-full! max-md:rounded-none',
 					commentsOpen ? 'w-[1140px]' : 'w-[760px]'
 				)}
 			>

@@ -4,7 +4,7 @@ import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { authStore } from "@/store/auth.store";
-import { Briefcase, Building2, CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw, Warehouse } from 'lucide-react';
+import { Briefcase, Building2, CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw, Smartphone, Warehouse } from 'lucide-react';
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -291,6 +291,15 @@ export const Sidebar = observer(() => {
       href: "/warehouse",
       hasPage: true,
       canShow: appStore.warehouseActive && permissions?.warehouse?.read,
+    },
+    {
+      // Мобильная версия в рамке телефона: показать и проверить экраны
+      // телефона, не доставая телефон
+      icon: Smartphone,
+      label: t("nav.mobile"),
+      href: "/mobile",
+      hasPage: true,
+      canShow: true,
     },
     {
       icon: IoSettingsOutline,
