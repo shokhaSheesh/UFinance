@@ -1,31 +1,31 @@
 'use client'
 
 import ReportPeriodSheet from '@/components/mobile/ReportPeriodSheet'
-import { ReportTile } from '@/components/mobile/ReportTree'
+import PeriodBars from '@/components/mobile/PeriodBars'
+import { ReportTile, TreeRow } from '@/components/mobile/ReportTree'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import { balanceStore } from '@/components/reports/balance/balance.store'
 import Money from '@/components/shared/Money'
 import { useRouter } from '@/hooks/useAppRouter'
 import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
-import { buildColumns, buildPeriodPayload, collectInitialExpanded, formatCutoffTitle, mergePeriodRows } from '@/utils/balancePeriods'
+import { buildPeriodPayload, formatCutoffTitle, mergePeriodRows } from '@/utils/balancePeriods'
 import { readBalancePeriod, readBalanceSeries } from '@/utils/balanceInsights'
 import { AXIS_LABEL, SPLIT_LINE } from '@/components/Indicators/shared/chartTheme'
 import { formatValueLength } from '@/utils/helpers'
 import ReactECharts from 'echarts-for-react'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, ChevronDown, ChevronRight, LayoutGrid, Loader2, Rows3, Scale } from 'lucide-react'
+import { CalendarDays, LayoutGrid, Loader2, Rows3, Scale } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
-import { Fragment, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 /**
  * Баланс на телефоне — как на компьютере, двумя видами.
  *
- * «Таблица» — как на компьютере: статьи строками, у каждой даты (дня,
- * месяца, года) своя колонка; таблица прокручивается вбок, а колонка
- * статей закреплена слева. «Диаграммы» — состояние баланса:
+ * «Таблица» — как ОПиУ на телефоне: дата выбирается столбиками сверху,
+ * ниже статьи баланса деревом на эту дату — без прокрутки вбок. «Диаграммы» — состояние баланса:
  * итоги, равенство, коэффициенты, состав кольцами и динамика по срезам.
  * Данные одни и те же — balance_report_multi, как на компьютере.
  */
@@ -103,70 +103,6 @@ const CompositionDonut = ({ parts, total, colors, currency }) => {
   )
 }
 
-/**
- * Строки таблицы баланса: статья в закреплённой левой колонке, суммы — по
- * колонкам дат. Фоны непрозрачные: при прокрутке вбок цифры уходят под
- * колонку статей и не должны просвечивать сквозь неё.
- */
-const BalanceRows = ({ rows, level = 0, columns, expanded, onToggle }) =>
-  rows.map((row) => {
-    const children = row.children || []
-    const hasChildren = children.length > 0
-    const isRoot = level === 0
-    const isSection = level === 1
-    const path = row.uniquePath ?? row.id
-    const open = isRoot || expanded(path)
-    const rowBg = isRoot ? 'bg-slate-100' : isSection ? 'bg-slate-50' : 'bg-white'
-    const textTone = isRoot ? 'font-bold text-slate-900' : isSection ? 'font-semibold text-slate-800' : 'text-slate-600'
-
-    return (
-      <Fragment key={path}>
-        <tr className={cn('border-b', isRoot ? 'border-slate-200' : 'border-slate-100')}>
-          <td
-            className={cn(
-              'sticky left-0 z-10 w-[150px] min-w-[150px] border-r border-slate-200 py-2.5 pr-2 align-top text-[13px] leading-snug',
-              rowBg,
-              textTone,
-              isRoot && 'shadow-[inset_3px_0_0_#0e73f6]'
-            )}
-            style={{ paddingLeft: 10 + level * 12 }}
-          >
-            <button
-              type="button"
-              onClick={() => hasChildren && !isRoot && onToggle(path, !open)}
-              className="flex w-full items-start gap-1 text-left"
-            >
-              <span className="mt-px flex h-4 w-3.5 shrink-0 items-center justify-center text-slate-400">
-                {hasChildren && !isRoot && (open ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />)}
-              </span>
-              <span className="min-w-0">{row.name}</span>
-            </button>
-          </td>
-          {columns.map((column) => {
-            const value = Number(row.values?.[column.key]) || 0
-            return (
-              <td
-                key={column.key}
-                className={cn(
-                  'min-w-[112px] px-3 py-2.5 text-right align-top text-[13px] whitespace-nowrap tabular-nums',
-                  rowBg,
-                  textTone,
-                  value < 0 && 'text-red-600'
-                )}
-              >
-                {/* пустая статья — пусто, а не прочерк: как на компьютере */}
-                {value !== 0 && <Money value={value} currency="" />}
-              </td>
-            )
-          })}
-        </tr>
-        {hasChildren && open && (
-          <BalanceRows rows={children} level={level + 1} columns={columns} expanded={expanded} onToggle={onToggle} />
-        )}
-      </Fragment>
-    )
-  })
-
 const ASSET_COLORS = ['#0e73f6', '#38bdf8', '#818cf8', '#94a3b8', '#cbd5e1']
 const FINANCING_COLORS = ['#8b5cf6', '#f59e0b', '#f87171', '#94a3b8', '#cbd5e1']
 
@@ -179,7 +115,6 @@ const MobileBalancePage = observer(() => {
   const [periodOpen, setPeriodOpen] = useState(false)
   // Таблица или диаграммы — как переключатель на компьютере
   const [view, setView] = useState('table')
-  const [toggled, setToggled] = useState({})
 
   const { dateRange, selectedEntity, selectedCurrency, selectedCounterparties, selectedAccount, periodType } =
     balanceStore
@@ -208,11 +143,25 @@ const MobileBalancePage = observer(() => {
 
   // Таблица: срезы склеены в одно дерево, у каждой статьи значения по датам
   const rows = useMemo(() => mergePeriodRows(periods), [periods])
-  const initialExpanded = useMemo(() => collectInitialExpanded(rows), [rows])
-  const isExpanded = (path) => toggled[path] ?? initialExpanded.has(path)
+  // Дерево для TreeRow (как в ОПиУ): вложенные статьи — в details
+  const tree = useMemo(() => {
+    const toNode = (row) => ({ id: row.uniquePath ?? row.id, name: row.name, values: row.values, details: (row.children || []).map(toNode) })
+    return rows.map(toNode)
+  }, [rows])
 
-  // Колонки дат — те же, что в таблице на компьютере
-  const columns = useMemo(() => buildColumns(periods), [periods])
+  // Даты срезов: ключ периода — as_of, подпись — «30 сен»
+  const keys = useMemo(() => periods.map((period) => period.as_of), [periods])
+  const withYear = useMemo(() => new Set(periods.map((period) => String(period.as_of).slice(0, 4))).size > 1, [periods])
+  const activeKey = periods[activeIndex]?.as_of
+  // Столбики срезов — и выбор даты: активы вверх, обязательства рядом
+  const bars = useMemo(
+    () =>
+      periods.map((period) => {
+        const snapshot = readBalancePeriod(period?.data || [])
+        return { key: period.as_of, title: formatCutoffTitle(period.as_of, withYear), up: snapshot.assets, down: snapshot.liabilities }
+      }),
+    [periods, withYear]
+  )
 
   // Диаграммы: динамика активов, обязательств и капитала по срезам
   const series = useMemo(() => readBalanceSeries(periods), [periods])
@@ -322,59 +271,29 @@ const MobileBalancePage = observer(() => {
 
       {!isLoading && insight && (
         <>
-          {/* Срез на дату — для диаграмм; в таблице все даты колонками */}
-          {view === 'charts' && periods.length > 1 && (
-            <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-              {periods.map((period, index) => (
-                <button
-                  key={period.as_of || index}
-                  type="button"
-                  onClick={() => setPeriodIndex(index)}
-                  className={cn(
-                    'shrink-0 rounded-full px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap',
-                    activeIndex === index ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
-                  )}
-                >
-                  {moment(period.as_of).format('DD.MM.YY')}
-                </button>
-              ))}
+          {/* Дата среза: столбики, как в ОПиУ — касание выбирает дату */}
+          {periods.length > 1 && (
+            <div className="pt-3">
+              <PeriodBars
+                periods={bars}
+                value={activeKey}
+                onChange={(key) => setPeriodIndex(Math.max(0, keys.indexOf(key)))}
+              />
             </div>
           )}
 
-          {/* Таблица — как на компьютере: у каждой даты своя колонка,
-              таблица прокручивается вбок, колонка статей закреплена слева */}
+          {/* Таблица — как ОПиУ на телефоне: статьи на выбранную дату */}
           {view === 'table' && (
-            // isolate: закреплённая колонка поднимается только внутри таблицы,
-            // а не над панелью разделов внизу экрана
-            <div className="isolate mt-2.5 overflow-hidden rounded-[24px] bg-white">
-              <div className="overflow-x-auto overscroll-x-contain">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="sticky left-0 z-20 w-[150px] min-w-[150px] border-r border-slate-200 bg-white px-3 py-2.5 text-left text-[11px] font-semibold tracking-[0.04em] text-slate-400 uppercase">
-                        {t('balance.accountHeader')}
-                      </th>
-                      {columns.map((column) => (
-                        <th
-                          key={column.key}
-                          className="min-w-[112px] bg-white px-3 py-2.5 text-right text-[11px] font-semibold tracking-[0.04em] whitespace-nowrap text-slate-400 uppercase"
-                        >
-                          {column.title}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <BalanceRows
-                      rows={rows}
-                      columns={columns}
-                      expanded={isExpanded}
-                      onToggle={(path, open) => setToggled((prev) => ({ ...prev, [path]: open }))}
-                    />
-                  </tbody>
-                </table>
+            <>
+              <div className="px-1 pt-5 pb-2.5 text-[15px] font-bold text-slate-900">
+                {activeKey ? moment(activeKey).format('D MMMM YYYY') : ''}
               </div>
-            </div>
+              <MCard list>
+                {tree.map((row) => (
+                  <TreeRow key={row.id || row.name} row={row} periodKey={activeKey} keys={keys} currency={currency} />
+                ))}
+              </MCard>
+            </>
           )}
 
           {view === 'charts' && (

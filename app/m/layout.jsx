@@ -35,7 +35,7 @@ const TABS = [
 
 /** Звезда ассистента — та же, что у кнопки ИИ на компьютере. */
 const SparkIcon = () => (
-  <svg viewBox="0 0 24 24" width="23" height="23" fill="currentColor" aria-hidden="true">
+  <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
     <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
   </svg>
 )
@@ -77,13 +77,14 @@ const MobileAppLayout = observer(({ children }) => {
           {TABS.map((tab, index) => {
             if (tab.fab) {
               if (!aiOn) return null
+              // Ассистент — главная кнопка панели: крупнее остальных и приподнята над ней
               return (
-                <div key="fab" className="flex w-16 shrink-0 items-center justify-center">
+                <div key="fab" className="flex w-[76px] shrink-0 items-center justify-center">
                   <button
                     type="button"
                     onClick={() => aiChatStore.open()}
                     aria-label={tAi('buttonLabel')}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4f8bff] to-[#2f5bff] text-white shadow-[0_6px_16px_rgba(47,107,255,0.4)] active:brightness-95"
+                    className="-mt-7 flex h-[62px] w-[62px] items-center justify-center rounded-full bg-gradient-to-br from-[#4f8bff] to-[#2f5bff] text-white shadow-[0_10px_24px_rgba(47,107,255,0.45)] ring-[5px] ring-white transition-transform active:scale-95"
                   >
                     <SparkIcon />
                   </button>

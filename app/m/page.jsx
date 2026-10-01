@@ -285,7 +285,7 @@ const MobileHomePage = observer(() => {
         <button
           type="button"
           onClick={() => router.push('/m/profile')}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[15px] font-bold text-white"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0e73f6] via-[#0b5fd4] to-[#0a49a8] text-[15px] font-bold text-white"
         >
           {(mounted && userName ? userName : 'U').slice(0, 1).toUpperCase()}
         </button>
