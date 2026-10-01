@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import counterpartiesStore from '@/store/counterparties.store'
 import { useQuery } from '@tanstack/react-query'
-import { Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, Users, X } from 'lucide-react'
+import { UsersIcon } from '@/constants/icons'
+import { Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -160,7 +161,7 @@ const MobileCounterpartiesPage = observer(() => {
           </div>
         )}
 
-        {!isLoading && !counterparties.length && <MEmpty icon={Users} title={tm('counterparties.empty')} />}
+        {!isLoading && !counterparties.length && <MEmpty icon={UsersIcon} title={tm('counterparties.empty')} />}
 
         {counterparties.length > 0 && (
           <MCard list>

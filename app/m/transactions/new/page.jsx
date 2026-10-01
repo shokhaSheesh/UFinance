@@ -1,6 +1,7 @@
 'use client'
 
-import { MAmountField, MDateField, MSelectField, MSwitch, MTextField } from '@/components/mobile/fields'
+import { operationLook } from '@/constants/operationTypes'
+import { MAmountField, MDateField, MFieldRow, MSelectField, MSwitch, MTextField } from '@/components/mobile/fields'
 import { MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
@@ -80,10 +81,16 @@ const MobileOperationFormPage = observer(() => {
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'))
   const [account, setAccount] = useState('')
   const [toAccount, setToAccount] = useState('')
-  const [counterparty, setCounterparty] = useState('')
+  // Из сделки форма открывается уже привязанной к ней и к её контрагенту
+  const [counterparty, setCounterparty] = useState(searchParams.get('counterparty') || '')
   const [article, setArticle] = useState('')
   const [article2, setArticle2] = useState('')
-  const [deal, setDeal] = useState('')
+  const [deal, setDeal] = useState(searchParams.get('deal') || '')
+  // Выплата по закупке: у закупки своё поле, в списке сделок продаж её нет
+  const [purchaseDeal, setPurchaseDeal] = useState(searchParams.get('purchase') || '')
+  const purchaseName = searchParams.get('purchaseName') || ''
+  // Куда вернуться после сохранения — обратно в сделку, если пришли из неё
+  const backHref = searchParams.get('back')
   const [purpose, setPurpose] = useState('')
   const [confirmPayment, setConfirmPayment] = useState(true)
   const [confirmAccrual, setConfirmAccrual] = useState(true)
@@ -175,6 +182,7 @@ const MobileOperationFormPage = observer(() => {
     setArticle(editing.chart_of_accounts_id || '')
     setArticle2(editing.chart_of_accounts_id_2 || '')
     setDeal(editing.sales_transactions_id || '')
+    setPurchaseDeal(editing.purchase_transactions_id || '')
     setPurpose(editing.opisanie || editing.comment || '')
     setConfirmPayment(Boolean(editing.payment_confirmed))
     setConfirmAccrual(Boolean(editing.payment_accrual))
@@ -240,6 +248,7 @@ const MobileOperationFormPage = observer(() => {
       chart_of_accounts_id: article || null,
       counterparties_id: counterparty || null,
       sales_transactions_id: deal || null,
+      ...(purchaseDeal ? { purchase_transactions_id: purchaseDeal } : {}),
     }
   }
 
@@ -250,7 +259,9 @@ const MobileOperationFormPage = observer(() => {
       showSuccessNotification(editGuid ? tc('saved') : tm('form.created'))
       queryClient.invalidateQueries({ queryKey: ['list_operations_by_query'] })
       queryClient.invalidateQueries({ queryKey: ['get_operations_total'] })
-      router.push('/m/transactions')
+      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
+      queryClient.invalidateQueries({ queryKey: ['get_purchase_transaction_by_guid'] })
+      router.push(backHref && backHref.startsWith('/m') ? backHref : '/m/transactions')
     } catch (error) {
       showErrorNotification(error?.message || tm('form.saveFailed'))
     }
@@ -281,10 +292,11 @@ const MobileOperationFormPage = observer(() => {
                   onClick={() => setType(item.key)}
                   className={cn(
                     'flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13px] font-semibold',
-                    active ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
+                    // выбранный тип — заливкой своего цвета, остальные — цветным значком
+                    active ? operationLook(item.tip).solid : 'bg-white text-slate-600'
                   )}
                 >
-                  <Icon size={15} aria-hidden="true" />
+                  <Icon size={15} className={active ? undefined : operationLook(item.tip).text} aria-hidden="true" />
                   {t(item.label)}
                 </button>
               )
@@ -412,14 +424,20 @@ const MobileOperationFormPage = observer(() => {
                 options={articleOptions}
                 loading={loadingArticles}
               />
-              <MSelectField
-                label={t('columns.deal')}
-                placeholder={tm('form.choose')}
-                value={deal}
-                onChange={setDeal}
-                options={dealOptions}
-                loading={loadingDeals}
-              />
+              {purchaseDeal ? (
+                <MFieldRow label={tm('deals.deal')}>
+                  <span className="truncate text-[16px] font-semibold text-slate-900">{purchaseName || '—'}</span>
+                </MFieldRow>
+              ) : (
+                <MSelectField
+                  label={t('columns.deal')}
+                  placeholder={tm('form.choose')}
+                  value={deal}
+                  onChange={setDeal}
+                  options={dealOptions}
+                  loading={loadingDeals}
+                />
+              )}
             </div>
           </>
         )}

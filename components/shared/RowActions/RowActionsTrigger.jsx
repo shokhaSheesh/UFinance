@@ -14,7 +14,7 @@ import { forwardRef } from 'react'
  * таблицы пользователь не догадывается, что действия вообще есть, а с
  * клавиатуры и с тача до них не добраться. Кнопка видна всегда.
  *
- * Используется как триггер Radix-меню: <DropdownMenuTrigger asChild>.
+ * Используется как триггер меню: <DropdownMenuTrigger asChild> или <PopoverTrigger asChild>.
  */
 const RowActionsTrigger = forwardRef(function RowActionsTrigger(
   { className, size = 18, label, loading = false, disabled, ...props },
@@ -48,5 +48,9 @@ const RowActionsTrigger = forwardRef(function RowActionsTrigger(
     </button>
   )
 })
+
+// Для обёрток Base UI: компонент рисует настоящий <button>, и `nativeButton`
+// должен быть true — иначе в консоли предупреждение о несовпадении.
+RowActionsTrigger.rendersNativeButton = true
 
 export default RowActionsTrigger

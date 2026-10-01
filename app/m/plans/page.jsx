@@ -7,9 +7,10 @@ import { useRouter } from '@/hooks/useAppRouter'
 import { cn } from '@/lib/utils'
 import { useBudgets, useDeleteBudget } from '@/modules/plans/hooks/useBudgets'
 import { appStore } from '@/store/app.store'
-import { CalendarRange, ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { CalendarDays, CalendarRange, ChevronRight, ClipboardList, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 
 /**
@@ -17,8 +18,10 @@ import { useMemo, useState } from 'react'
  *
  * На большом экране это две страницы с таблицами. Здесь один экран с
  * переключателем вида бюджета: бюджет — карточка с периодом и полосой,
- * по которой видно, сколько месяцев уже прошло. Правка плана по месяцам
- * остаётся на компьютере: это таблица на двенадцать колонок.
+ * по которой видно, сколько месяцев уже прошло; касание открывает бюджет
+ * с планом и фактом по статьям. Сверху — вход в платёжный календарь.
+ * Вид бюджета хранится в адресе (?type=cashflow), чтобы «назад» из
+ * бюджета возвращал в тот же список.
  */
 
 /** Месяц в виде числа: год × 12 + месяц. */
@@ -60,9 +63,12 @@ const MobilePlansPage = observer(() => {
   const tc = useTranslations('Common')
   const tPnl = useTranslations('Plans.incomeExpenseBudget')
   const tCash = useTranslations('Plans.cashFlowBudget')
+  const tr = useTranslations('Reports')
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [type, setType] = useState('pnl')
+  const type = searchParams.get('type') === 'cashflow' ? 'cashflow' : 'pnl'
+  const setType = (next) => router.replace(next === 'cashflow' ? '/m/plans?type=cashflow' : '/m/plans')
   const [formFor, setFormFor] = useState(null)
   const [menuFor, setMenuFor] = useState(null)
   const [deleteFor, setDeleteFor] = useState(null)
@@ -105,8 +111,28 @@ const MobilePlansPage = observer(() => {
           }
         />
 
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2.5 pb-28">
+        {/* Платёжный календарь — не бюджет, а отчёт по периодам; отдельный вход */}
+        <button
+          type="button"
+          onClick={() => router.push('/m/plans/calendar')}
+          className="mb-2.5 flex w-full items-center gap-3 rounded-[24px] bg-white p-4 text-left active:bg-slate-50"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8f1ff] text-[#0e73f6]">
+            <CalendarDays size={18} aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-semibold text-slate-900">{tr('paymentCalendar.title')}</span>
+            <span className="mt-0.5 block truncate text-[12px] text-slate-500">{t('plans.calendarHint')}</span>
+          </span>
+          <ChevronRight size={18} className="shrink-0 text-slate-300" aria-hidden="true" />
+        </button>
+
+        <div className="px-1 pt-2 pb-2.5 text-[15px] font-bold text-slate-900">{t('plans.budgets')}</div>
         {/* Какой бюджет смотрим */}
-        <div className="flex rounded-2xl bg-white p-1">
+        <div className="mb-2.5 flex rounded-2xl bg-white p-1">
           {tabs.map((item) => (
             <button
               key={item.value}
@@ -121,9 +147,7 @@ const MobilePlansPage = observer(() => {
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2.5 pb-28">
         {isLoading && !items.length && (
           <div className="flex justify-center py-16">
             <Loader2 size={22} className="animate-spin text-slate-400" aria-hidden="true" />
@@ -141,7 +165,11 @@ const MobilePlansPage = observer(() => {
             const { status, done, total } = budget.timeline
             const percent = total ? Math.round((done / total) * 100) : 0
             return (
-              <MCard key={budget.id} className="p-4">
+              <MCard
+                key={budget.id}
+                className="cursor-pointer p-4 active:bg-slate-50"
+                onClick={() => router.push(`/m/plans/${type}/${budget.id}`)}
+              >
                 <div className="flex items-start gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
                     <CalendarRange size={18} aria-hidden="true" />
@@ -165,7 +193,10 @@ const MobilePlansPage = observer(() => {
                   {(permissions?.edit || permissions?.delete) && (
                     <button
                       type="button"
-                      onClick={() => setMenuFor(budget)}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        setMenuFor(budget)
+                      }}
                       aria-label={tc('edit')}
                       className="-mr-1 flex h-8 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400"
                     >

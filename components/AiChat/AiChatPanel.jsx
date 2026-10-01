@@ -418,7 +418,12 @@ const clampWidth = (w) => {
   return Math.max(Math.min(MIN_W, max), Math.min(w, max));
 };
 
-const AiChatPanel = observer(() => {
+/**
+ * @param {boolean} mobile  мобильное приложение (/m): чат во весь экран
+ *   телефона, без ручки ширины и без режима «развернуть» — разворачивать
+ *   некуда, экран и так целиком под чатом.
+ */
+const AiChatPanel = observer(({ mobile = false }) => {
   const t = useTranslations("AiChat");
   const mounted = useMounted();
   const queryClient = useQueryClient();
@@ -774,12 +779,12 @@ const AiChatPanel = observer(() => {
         />
       )}
       <aside
-        className={`${styles.panel} ${docked ? styles.docked : ""} ${expanded ? styles.expanded : ""} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
-        style={{ width: expanded ? "calc(100vw - var(--sidebar-w))" : panelWidth }}
+        className={`${styles.panel} ${docked ? styles.docked : ""} ${expanded ? styles.expanded : ""} ${mobile ? styles.mobile : ""} ${isOpen ? "" : styles.closed} ${resizing ? styles.resizing : ""}`}
+        style={mobile ? undefined : { width: expanded ? "calc(100vw - var(--sidebar-w))" : panelWidth }}
         aria-hidden={!isOpen}
       >
         {/* Ручка изменения ширины (левый край, по центру) — только в режиме панели */}
-        {!expanded && <div
+        {!expanded && !mobile && <div
           className={styles.resizeHandle}
           onPointerDown={startResize}
           role="separator"
@@ -808,16 +813,18 @@ const AiChatPanel = observer(() => {
             </div>
           </div>
           <div className={styles.headActions}>
-            <button
-              type="button"
-              className={`${styles.hicon} ${styles.tip}`}
-              data-tip={expanded ? t("collapse") : t("expand")}
-              onClick={() => setExpanded((value) => !value)}
-              aria-label={expanded ? t("collapse") : t("expand")}
-              aria-pressed={expanded}
-            >
-              {expanded ? <CollapseIcon /> : <ExpandIcon />}
-            </button>
+            {!mobile && (
+              <button
+                type="button"
+                className={`${styles.hicon} ${styles.tip}`}
+                data-tip={expanded ? t("collapse") : t("expand")}
+                onClick={() => setExpanded((value) => !value)}
+                aria-label={expanded ? t("collapse") : t("expand")}
+                aria-pressed={expanded}
+              >
+                {expanded ? <CollapseIcon /> : <ExpandIcon />}
+              </button>
+            )}
             <button
               type="button"
               className={`${styles.hicon} ${styles.tip}`}

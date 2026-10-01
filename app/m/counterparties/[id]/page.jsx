@@ -1,5 +1,10 @@
 'use client'
 
+import { OPERATION_TYPES } from '@/constants/operationTypes'
+import CounterpartyFilters, {
+  countCounterpartyFilters,
+  EMPTY_COUNTERPARTY_FILTERS,
+} from '@/components/mobile/CounterpartyFilters'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -9,36 +14,35 @@ import useMounted from '@/hooks/useMounted'
 import operationsDto from '@/lib/dtos/operationsDto'
 import { cn } from '@/lib/utils'
 import {
-  ArrowDownLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
   Loader2,
-  PackageCheck,
   Receipt,
-  Scale,
-  Truck,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
+import moment from 'moment'
 import { useParams } from 'next/navigation'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 /**
  * Контрагент на телефоне.
  *
- * Сверху — сколько он должен нам или мы ему, ниже реквизиты и лента его
- * операций. Фильтры по периоду и статьям остаются на большом экране: в
- * дороге открывают карточку, чтобы позвонить и свериться по долгу.
+ * Сверху — сколько он должен нам или мы ему, с дебиторкой и кредиторкой
+ * отдельно, ниже обороты по выбранному методу учёта (те же три, что на
+ * компьютере), реквизиты и лента операций. Фильтры — те же, что на
+ * компьютере (период, юрлица, статьи, сделки), панелью снизу.
  */
 
-const TYPE_LOOK = {
-  Поступление: { icon: ArrowDownLeft, tone: 'bg-emerald-50 text-emerald-600' },
-  Выплата: { icon: ArrowUpRight, tone: 'bg-red-50 text-red-600' },
-  Перемещение: { icon: ArrowLeftRight, tone: 'bg-slate-100 text-slate-500' },
-  Начисление: { icon: Scale, tone: 'bg-slate-100 text-slate-500' },
-  Отгрузка: { icon: Truck, tone: 'bg-slate-100 text-slate-500' },
-  Поставка: { icon: PackageCheck, tone: 'bg-slate-100 text-slate-500' },
-}
+/** Методы расчёта — те же значения, что у переключателя на компьютере. */
+const METHODS = [
+  { value: 'Cashflow', label: 'calculationShort.cashflow' },
+  { value: 'Cash', label: 'calculationShort.cash' },
+  { value: 'Calculation', label: 'calculationShort.calculation' },
+]
+
+// Вид типов — общий с компьютером: constants/operationTypes.js
+const TYPE_LOOK = OPERATION_TYPES
 
 /** Строка «подпись — значение». */
 const Line = ({ label, value }) => {
@@ -53,21 +57,42 @@ const Line = ({ label, value }) => {
 
 const MobileCounterpartyPage = observer(() => {
   const t = useTranslations('Directories.counterparty')
+  const tl = useTranslations('Directories.counterparty.list')
   const tm = useTranslations('Mobile')
+  const tf = useTranslations('filters')
   const router = useRouter()
   const params = useParams()
   const mounted = useMounted()
   const guid = params?.id
+  const [method, setMethod] = useState('Cashflow')
+  const isCashflow = method === 'Cashflow'
+  const [filters, setFilters] = useState(EMPTY_COUNTERPARTY_FILTERS)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const activeFilters = countCounterpartyFilters(filters)
 
+  // Тот же запрос, что у страницы контрагента на компьютере — цифры совпадут
   const { data, isLoading } = useUcodeRequestQuery({
     method: 'get_counterparty_by_id',
-    data: { counterparty_id: guid, guid, page: 1 },
+    data: {
+      guid,
+      operationDateStart: filters.start,
+      operationDateEnd: filters.end,
+      calculationMethod: method,
+      legal_entity_ids: filters.legalEntities,
+      chartOfAccountsIds: filters.chartOfAccounts,
+      sellingDealId: filters.deals,
+      purchaseDealId: filters.purchaseDeals,
+      page: 1,
+    },
     skip: !guid,
-    querySetting: { select: (response) => response?.data?.data, refetchOnWindowFocus: false },
+    querySetting: {
+      select: (response) => response?.data?.data,
+      refetchOnWindowFocus: false,
+      placeholderData: (previous) => previous,
+    },
   })
 
   const counterparty = data?.counterparty || null
-  const summary = data?.summary || null
   const operations = useMemo(() => operationsDto(data?.operations || []), [data])
 
   const receivable = Number(counterparty?.debitorka) || 0
@@ -88,7 +113,56 @@ const MobileCounterpartyPage = observer(() => {
       <MScreenHeader
         title={counterparty?.nazvanie || tm('counterparties.noName')}
         onBack={() => router.push('/m/counterparties')}
+        action={
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
+            aria-label={tf('openFilters')}
+            className={cn(
+              'relative flex h-10 w-10 items-center justify-center rounded-full',
+              activeFilters ? 'bg-[#0e73f6] text-white' : 'bg-white text-slate-600'
+            )}
+          >
+            <SlidersHorizontal size={18} aria-hidden="true" />
+            {activeFilters > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#f4f5f7] bg-red-500 px-1 text-[10px] font-bold text-white">
+                {activeFilters}
+              </span>
+            )}
+          </button>
+        }
       />
+
+      {/* Включённые фильтры — видно сразу, за какой период и по чему цифры */}
+      {activeFilters > 0 && (
+        <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+          {(filters.start || filters.end) && (
+            <span className="rounded-full bg-[#e8f1ff] px-3 py-1.5 text-[12px] font-semibold text-[#0e73f6]">
+              {[filters.start, filters.end].map((date) => (date ? moment(date).format('DD.MM.YY') : '…')).join(' — ')}
+            </span>
+          )}
+          {[
+            ['legalEntities', tf('legalEntities')],
+            ['chartOfAccounts', tf('chartOfAccounts')],
+            ['deals', tf('deals')],
+            ['purchaseDeals', tf('purchaseDeals')],
+          ]
+            .filter(([key]) => filters[key].length)
+            .map(([key, label]) => (
+              <span key={key} className="rounded-full bg-[#e8f1ff] px-3 py-1.5 text-[12px] font-semibold text-[#0e73f6]">
+                {label} · {filters[key].length}
+              </span>
+            ))}
+          <button
+            type="button"
+            onClick={() => setFilters(EMPTY_COUNTERPARTY_FILTERS)}
+            aria-label={tf('clearAll')}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-500"
+          >
+            <X size={14} aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {/* Долг: кто кому и сколько */}
       <MCard>
@@ -110,34 +184,62 @@ const MobileCounterpartyPage = observer(() => {
 
         <div className="mt-4 grid grid-cols-2 divide-x divide-slate-100 border-t border-slate-100 pt-3">
           <div className="min-w-0 pr-3">
-            <div className="truncate text-[11px] text-slate-400">{tm('home.receivables')}</div>
-            <div className="mt-1 truncate text-[14px] font-bold tabular-nums text-emerald-600">
+            <div className="truncate text-[12px] font-semibold text-slate-700">{t('detail.stats.receivables')}</div>
+            <div className="mt-1 truncate text-[16px] font-bold tabular-nums text-emerald-600">
               <Money value={receivable} currency="" />
+            </div>
+            <div className="mt-0.5 truncate text-[11px] text-slate-400">
+              {receivable ? tl('kpi.receivablesHint') : t('detail.stats.noDebt')}
             </div>
           </div>
           <div className="min-w-0 pl-3">
-            <div className="truncate text-[11px] text-slate-400">{tm('home.payables')}</div>
-            <div className="mt-1 truncate text-[14px] font-bold tabular-nums text-red-600">
+            <div className="truncate text-[12px] font-semibold text-slate-700">{t('detail.stats.payables')}</div>
+            <div className="mt-1 truncate text-[16px] font-bold tabular-nums text-red-600">
               <Money value={payable} currency="" />
+            </div>
+            <div className="mt-0.5 truncate text-[11px] text-slate-400">
+              {payable ? tl('kpi.payablesHint') : t('detail.stats.noDebt')}
             </div>
           </div>
         </div>
       </MCard>
 
-      {/* Обороты за период */}
-      {summary && (
-        <>
-          <div className="px-1 pt-6 pb-2.5 text-[15px] font-bold text-slate-900">{tm('home.period')}</div>
-          <MCard list>
-            <Line label={tm('reports.receipts')} value={<Money value={summary?.incoming ?? 0} currency={currency} />} />
-            <Line label={tm('reports.payments')} value={<Money value={summary?.outgoing ?? 0} currency={currency} />} />
-            <Line
-              label={tm('home.profit')}
-              value={<Money value={summary?.profit ?? 0} currency={currency} sign={summary?.profit > 0 ? '+' : undefined} />}
-            />
-          </MCard>
-        </>
-      )}
+      {/* Обороты по методу учёта — как пять карточек на компьютере */}
+      <div className="px-1 pt-6 pb-2.5 text-[15px] font-bold text-slate-900">{tl('methodLabel')}</div>
+      <div className="flex rounded-2xl bg-white p-1">
+        {METHODS.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => setMethod(item.value)}
+            aria-pressed={method === item.value}
+            className={cn(
+              'min-w-0 flex-1 truncate rounded-xl px-1 py-2.5 text-[12px] font-semibold',
+              method === item.value ? 'bg-[#0e73f6] text-white' : 'text-slate-500'
+            )}
+          >
+            {tl(item.label)}
+          </button>
+        ))}
+      </div>
+      <MCard list className="mt-2.5">
+        <Line
+          label={isCashflow ? t('detail.stats.receipts') : t('detail.stats.income')}
+          value={<Money value={Number(counterparty?.income) || 0} currency={currency} />}
+        />
+        <Line
+          label={isCashflow ? t('detail.stats.payments') : t('detail.stats.expenses')}
+          value={<Money value={Number(counterparty?.expense) || 0} currency={currency} />}
+        />
+        <Line
+          label={isCashflow ? t('detail.stats.difference') : t('detail.stats.profit')}
+          value={
+            <span className={cn(Number(counterparty?.difference) < 0 ? 'text-red-600' : 'text-slate-900')}>
+              <Money value={Number(counterparty?.difference) || 0} currency={currency} />
+            </span>
+          }
+        />
+      </MCard>
 
       {/* Реквизиты */}
       <div className="px-1 pt-6 pb-2.5 text-[15px] font-bold text-slate-900">{tm('detail.details')}</div>
@@ -194,6 +296,13 @@ const MobileCounterpartyPage = observer(() => {
           )
         })}
       </MCard>
+
+      <CounterpartyFilters
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={filters}
+        onApply={setFilters}
+      />
     </div>
   )
 })

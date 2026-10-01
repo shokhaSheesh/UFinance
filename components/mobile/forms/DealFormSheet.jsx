@@ -2,6 +2,8 @@
 
 import BottomSheet from '@/components/mobile/BottomSheet'
 import { MDateField, MFieldRow, MSelectField } from '@/components/mobile/fields'
+import { DEAL_KINDS } from '@/components/mobile/deals/dealKinds'
+import { useRouter } from '@/hooks/useAppRouter'
 import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { queryClient } from '@/lib/queryClient'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
@@ -15,17 +17,23 @@ import { useMemo, useState } from 'react'
 /**
  * Сделка: создание и правка.
  *
- * Поля те же, что в окне на большом экране: название, клиент, дата и
- * комментарий. Товары, поступления и отгрузки добавляются уже внутри
- * сделки — по одному действию за раз.
+ * Поля те же, что в окне на большом экране: название, клиент (у закупки —
+ * поставщик), дата и комментарий. Товары, поступления и отгрузки
+ * добавляются уже внутри сделки — по одному действию за раз.
+ *
+ * @param {'sale'|'purchase'} kind  вид сделки — от него методы и подписи
  */
-export default function DealFormSheet({ open, onClose, deal }) {
+export default function DealFormSheet({ open, onClose, deal, kind = 'sale' }) {
   if (!open) return null
-  return <DealForm onClose={onClose} deal={deal} />
+  return <DealForm onClose={onClose} deal={deal} kind={kind} />
 }
 
-function DealForm({ onClose, deal }) {
+function DealForm({ onClose, deal, kind }) {
   const t = useTranslations('Deals.createDealModal')
+  const tp = useTranslations('Purchases.createDealModal')
+  const router = useRouter()
+  const config = DEAL_KINDS[kind]
+  const isPurchase = kind === 'purchase'
   const tOps = useTranslations('Operations')
   const tc = useTranslations('Common')
   const tm = useTranslations('Mobile')
@@ -34,7 +42,7 @@ function DealForm({ onClose, deal }) {
   const [form, setForm] = useState({
     name: deal?.nazvanie || deal?.name || '',
     counterparty: deal?.counterparties_id || '',
-    date: deal?.data_nachala || deal?.sale_date || moment().format('YYYY-MM-DD'),
+    date: deal?.data_nachala || deal?.sale_date || deal?.deal_date || moment().format('YYYY-MM-DD'),
     comment: deal?.comment || deal?.commentary || '',
   })
   const [errors, setErrors] = useState({})
@@ -74,14 +82,16 @@ function DealForm({ onClose, deal }) {
     }
 
     try {
-      await saveDeal({
-        method: isEdit ? 'update_sales_transaction' : 'create_sales_transaction',
+      const response = await saveDeal({
+        method: isEdit ? config.updateMethod : config.createMethod,
         data: payload,
       })
-      queryClient.invalidateQueries({ queryKey: ['get_sales_list_simple'] })
-      queryClient.invalidateQueries({ queryKey: ['get_sales_transaction_by_guid'] })
-      showSuccessNotification(isEdit ? tc('saved') : tm('deals.created'))
+      config.invalidate.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }))
+      showSuccessNotification(isEdit ? tc('saved') : isPurchase ? tm('deals.purchaseCreated') : tm('deals.created'))
       onClose()
+      // Новую сделку сразу открываем — дальше в неё добавляют товары и деньги
+      const createdGuid = response?.data?.data?.guid
+      if (!isEdit && createdGuid) router.push(config.detailHref(createdGuid))
     } catch (error) {
       showErrorNotification(error?.message || tm('form.saveFailed'))
     }
@@ -91,7 +101,7 @@ function DealForm({ onClose, deal }) {
     <BottomSheet
       open
       onClose={onClose}
-      title={isEdit ? t('titleEdit') : t('titleNew')}
+      title={isPurchase ? (isEdit ? tp('titleEdit') : tp('titleNew')) : isEdit ? t('titleEdit') : t('titleNew')}
       className="h-[80vh]"
       footer={
         <button
@@ -117,7 +127,7 @@ function DealForm({ onClose, deal }) {
         </MFieldRow>
 
         <MSelectField
-          label={tOps('columns.counterparty')}
+          label={isPurchase ? tp('supplier') : tOps('columns.counterparty')}
           placeholder={tm('form.choose')}
           value={form.counterparty}
           onChange={(value) => set('counterparty', value)}

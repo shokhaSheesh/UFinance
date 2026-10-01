@@ -1,5 +1,7 @@
 'use client'
 
+import { OPERATION_TYPES } from '@/constants/operationTypes'
+import CreateOperationSheet, { allowedCreateTypes } from '@/components/mobile/CreateOperationSheet'
 import OperationFilters from '@/components/mobile/OperationFilters'
 import { FilterPill, MCard, MEmpty, MRow, MScreenHeader, MSkeleton } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
@@ -15,15 +17,11 @@ import { useOperationFilterChips } from '@/modules/operations/list-page/useOpera
 import { operationFilterStore } from '@/store/operationFilter.store'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
-  ArrowDownLeft,
   ArrowLeftRight,
-  ArrowUpRight,
   Loader2,
-  PackageCheck,
-  Scale,
+  Plus,
   Search,
   SlidersHorizontal,
-  Truck,
   X,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
@@ -41,14 +39,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
  */
 
 /** Значок и цвет по типу операции. */
-const TYPE_LOOK = {
-  Поступление: { icon: ArrowDownLeft, tone: 'in' },
-  Выплата: { icon: ArrowUpRight, tone: 'out' },
-  Перемещение: { icon: ArrowLeftRight, tone: 'neutral' },
-  Начисление: { icon: Scale, tone: 'neutral' },
-  Отгрузка: { icon: Truck, tone: 'neutral' },
-  Поставка: { icon: PackageCheck, tone: 'neutral' },
-}
+// Вид типов — общий с компьютером: constants/operationTypes.js
+const TYPE_LOOK = OPERATION_TYPES
 
 const MobileTransactionsPage = observer(() => {
   const t = useTranslations('Operations')
@@ -58,6 +50,7 @@ const MobileTransactionsPage = observer(() => {
   const router = useRouter()
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
 
   const { requestOperationFilters } = useOperationsFilters(t)
   const { chips: filterChips, count: filterCount } = useOperationFilterChips()
@@ -134,7 +127,22 @@ const MobileTransactionsPage = observer(() => {
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       {/* Шапка и поиск */}
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader title={tm('tabs.transactions')} />
+        <MScreenHeader
+          title={tm('tabs.transactions')}
+          action={
+            mounted &&
+            allowedCreateTypes().length > 0 && (
+              <button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                aria-label={t('page.create')}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0e73f6] text-white shadow-[0_4px_12px_rgba(14,115,246,0.35)] active:bg-[#0b5fd4]"
+              >
+                <Plus size={20} aria-hidden="true" />
+              </button>
+            )
+          }
+        />
 
         {/* Поиск и фильтры — одной строкой над лентой */}
         <div className="flex items-center gap-2">
@@ -323,6 +331,7 @@ const MobileTransactionsPage = observer(() => {
       {/* Что сделать с операцией */}
       <OperationFilters open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
+      <CreateOperationSheet open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   )
 })

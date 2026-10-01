@@ -10,23 +10,24 @@ import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
+import { DealIcon, UsersIcon } from '@/constants/icons'
 import { useMutation } from '@tanstack/react-query'
 import {
   Briefcase,
   Building2,
+  CalendarCheck,
+  CalendarDays,
   Check,
   ChevronRight,
-  ClipboardList,
   Coins,
-  FolderTree,
+  Wallet,
   Landmark,
   Languages,
   ListTree,
   Package,
-  Settings,
-  Users,
   Warehouse,
 } from 'lucide-react'
+import { IoSettingsOutline } from 'react-icons/io5'
 import { observer } from 'mobx-react-lite'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
@@ -50,6 +51,8 @@ const LOCALES = [
 const MobileProfilePage = observer(() => {
   const t = useTranslations('Mobile')
   const tNav = useTranslations('Sidebar')
+  const tPlans = useTranslations('Plans')
+  const tReports = useTranslations('Reports')
   const tc = useTranslations('Common')
   const router = useRouter()
   const mounted = useMounted()
@@ -124,17 +127,44 @@ const MobileProfilePage = observer(() => {
       key: 'sections',
       title: t('profile.sections'),
       rows: [
-        { key: 'deals', icon: Briefcase, label: tNav('nav.deals'), can: permission?.deals?.read, href: '/m/deals' },
+        { key: 'deals', icon: DealIcon, label: tNav('nav.deals'), can: permission?.deals?.read, href: '/m/deals' },
         {
           key: 'counterparties',
-          icon: Users,
+          icon: UsersIcon,
           label: tNav('nav.counterparties'),
           can: permission?.directories?.counterparties?.read,
           href: '/m/counterparties',
         },
-        { key: 'plans', icon: ClipboardList, label: tNav('nav.plans'), can: true, href: '/m/plans' },
-        { key: 'projects', icon: FolderTree, label: tNav('nav.projects'), can: appStore.projectActive, href: '/m/projects' },
+        { key: 'projects', icon: Briefcase, label: tNav('nav.projects'), can: appStore.projectActive, href: '/m/projects' },
         { key: 'warehouse', icon: Warehouse, label: tNav('nav.warehouse'), can: appStore.warehouseActive, href: '/m/warehouse' },
+      ],
+    },
+    {
+      // Планы — отдельным разделом: два вида бюджетов и платёжный календарь
+      key: 'plans',
+      title: tNav('nav.plans'),
+      rows: [
+        {
+          key: 'pnlBudget',
+          icon: CalendarCheck,
+          label: tPlans('incomeExpenseBudget.title'),
+          can: permission?.plans?.pnl?.read !== false,
+          href: '/m/plans',
+        },
+        {
+          key: 'cashflowBudget',
+          icon: Wallet,
+          label: tPlans('cashFlowBudget.title'),
+          can: permission?.plans?.cashflow?.read !== false,
+          href: '/m/plans?type=cashflow',
+        },
+        {
+          key: 'paymentCalendar',
+          icon: CalendarDays,
+          label: tReports('paymentCalendar.title'),
+          can: true,
+          href: '/m/plans/calendar',
+        },
       ],
     },
     {
@@ -175,7 +205,7 @@ const MobileProfilePage = observer(() => {
       key: 'settings',
       title: tNav('nav.settings'),
       rows: [
-        { key: 'settings', icon: Settings, label: t('profile.appSettings'), can: permission?.settings?.general?.read, href: '/m/settings' },
+        { key: 'settings', icon: IoSettingsOutline, label: t('profile.appSettings'), can: permission?.settings?.general?.read, href: '/m/settings' },
       ],
     },
   ]

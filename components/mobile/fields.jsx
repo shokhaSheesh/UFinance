@@ -279,3 +279,136 @@ export function MTextField({ label, required, value, onChange, placeholder, erro
     </MFieldRow>
   )
 }
+
+/**
+ * Выбор нескольких значений: юрлица, статьи, сделки в фильтрах.
+ *
+ * Строка показывает, сколько выбрано, а сам выбор — в панели снизу с
+ * поиском и галочками. Выбор применяется кнопкой «Готово», а не каждым
+ * касанием: иначе на каждую галочку уходил бы новый запрос.
+ */
+export function MMultiSelectField({ label, placeholder, value = [], options = [], loading = false, onChange }) {
+  const t = useTranslations('Common')
+  const tf = useTranslations('filters')
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [draft, setDraft] = useState(value)
+
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    if (!needle) return options
+    return options.filter((option) => String(option.label || '').toLowerCase().includes(needle))
+  }, [options, query])
+
+  const selectedLabels = options.filter((option) => value.includes(option.value)).map((option) => option.label)
+
+  const openSheet = () => {
+    setDraft(value)
+    setQuery('')
+    setOpen(true)
+  }
+
+  const toggle = (optionValue) =>
+    setDraft((prev) => (prev.includes(optionValue) ? prev.filter((item) => item !== optionValue) : [...prev, optionValue]))
+
+  return (
+    <>
+      <MFieldRow label={label} onClick={openSheet}>
+        <span className="flex items-center justify-between gap-2">
+          <span
+            className={cn(
+              'min-w-0 flex-1 truncate text-[16px]',
+              value.length ? 'font-semibold text-slate-900' : 'text-slate-400'
+            )}
+          >
+            {value.length === 0
+              ? placeholder || tf('all')
+              : value.length === 1
+                ? selectedLabels[0] || tf('selectedCount', { count: 1 })
+                : tf('selectedCount', { count: value.length })}
+          </span>
+          <ChevronRight size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
+        </span>
+      </MFieldRow>
+
+      <BottomSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={label}
+        className="h-[80vh]"
+        footer={
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => setDraft([])}
+              className="h-12 flex-1 rounded-full bg-slate-100 text-[15px] font-semibold text-slate-700"
+            >
+              {tf('reset')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onChange(draft)
+                setOpen(false)
+              }}
+              className="h-12 flex-1 rounded-full bg-[#0e73f6] text-[15px] font-semibold text-white"
+            >
+              {draft.length ? tf('doneWithCount', { count: draft.length }) : tf('done')}
+            </button>
+          </div>
+        }
+      >
+        <div className="mb-2 flex h-11 items-center gap-2 rounded-2xl bg-slate-100 px-3.5">
+          <Search size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t('search')}
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+          />
+          {query && (
+            <button type="button" onClick={() => setQuery('')} className="shrink-0 text-slate-400">
+              <X size={15} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {loading && (
+          <div className="flex justify-center py-8">
+            <Loader2 size={20} className="animate-spin text-slate-400" aria-hidden="true" />
+          </div>
+        )}
+        {!loading && visible.length === 0 && <p className="py-8 text-center text-sm text-slate-500">{t('noData')}</p>}
+
+        <div className="flex flex-col">
+          {visible.map((option) => {
+            const active = draft.includes(option.value)
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => toggle(option.value)}
+                className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
+              >
+                <span
+                  className={cn(
+                    'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2',
+                    active ? 'border-[#0e73f6] bg-[#0e73f6] text-white' : 'border-slate-300'
+                  )}
+                >
+                  {active && <Check size={13} strokeWidth={3} aria-hidden="true" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className={cn('block truncate text-sm', active ? 'font-semibold text-slate-900' : 'text-slate-800')}>
+                    {option.label}
+                  </span>
+                  {option.sub && <span className="mt-0.5 block truncate text-xs text-slate-500">{option.sub}</span>}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </BottomSheet>
+    </>
+  )
+}

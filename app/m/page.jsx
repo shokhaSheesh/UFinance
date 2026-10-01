@@ -1,5 +1,6 @@
 'use client'
 
+import { OPERATION_TYPES } from '@/constants/operationTypes'
 import HomeSettingsSheet from '@/components/mobile/HomeSettingsSheet'
 import { MCard, MEmpty, MSkeleton, QuickActions, SectionHead } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
@@ -21,12 +22,10 @@ import {
   BarChart3,
   Bell,
   Landmark,
-  PackageCheck,
-  Scale,
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
-  Truck,
+  Wallet,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -44,14 +43,8 @@ import { Fragment, useMemo, useState } from 'react'
  */
 
 /** Значок и цвет строки операции — те же, что в ленте транзакций. */
-const TYPE_LOOK = {
-  Поступление: { icon: ArrowDownLeft, tone: 'bg-emerald-50 text-emerald-600' },
-  Выплата: { icon: ArrowUpRight, tone: 'bg-red-50 text-red-600' },
-  Перемещение: { icon: ArrowLeftRight, tone: 'bg-slate-100 text-slate-500' },
-  Начисление: { icon: Scale, tone: 'bg-slate-100 text-slate-500' },
-  Отгрузка: { icon: Truck, tone: 'bg-slate-100 text-slate-500' },
-  Поставка: { icon: PackageCheck, tone: 'bg-slate-100 text-slate-500' },
-}
+// Вид типов — общий с компьютером: constants/operationTypes.js
+const TYPE_LOOK = OPERATION_TYPES
 
 /** Строка списка: круглый значок, две строки текста, значение справа. */
 const ListRow = ({ icon: Icon, tone, title, subtitle, value, valueSub, valueClass, onClick }) => {
@@ -243,8 +236,8 @@ const MobileHomePage = observer(() => {
           value={<Money value={data.pnl.expensesTotal} currency={currency} />}
         />
         <ListRow
-          icon={Scale}
-          tone="bg-slate-100 text-slate-500"
+          icon={Wallet}
+          tone="bg-indigo-50 text-indigo-600"
           title={t('home.profit')}
           valueClass={data.pnl.profitTotal >= 0 ? 'text-emerald-600!' : 'text-red-600!'}
           value={<Money value={data.pnl.profitTotal} currency={currency} />}

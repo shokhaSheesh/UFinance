@@ -6,6 +6,7 @@ import { Menu as MenuPrimitive } from "@base-ui/react/menu"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { rendersNativeButton } from "./native-button"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
@@ -22,7 +23,7 @@ function DropdownMenuTrigger({
   ...props
 }: MenuPrimitive.Trigger.Props & { asChild?: boolean }) {
   if (asChild && React.isValidElement(children)) {
-    const isNativeButton = (children as React.ReactElement).type === "button"
+    const isNativeButton = rendersNativeButton(children)
     return (
       <MenuPrimitive.Trigger
         data-slot="dropdown-menu-trigger"
@@ -111,7 +112,7 @@ function DropdownMenuItem({
     className
   )
   if (asChild && React.isValidElement(children)) {
-    const isNativeButton = (children as React.ReactElement).type === "button"
+    const isNativeButton = rendersNativeButton(children)
     return (
       <MenuPrimitive.Item
         data-slot="dropdown-menu-item"

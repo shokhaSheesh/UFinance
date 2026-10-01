@@ -22,8 +22,9 @@ export function TileIcon({ icon: Icon, tone = 'neutral', className }) {
     out: 'bg-red-50 text-red-600',
   }[tone]
 
+  // tone — имя оттенка или готовые классы (вид типа операции из OPERATION_TYPES)
   return (
-    <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full', toneClass, className)}>
+    <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full', toneClass ?? tone, className)}>
       <Icon size={19} aria-hidden="true" />
     </span>
   )

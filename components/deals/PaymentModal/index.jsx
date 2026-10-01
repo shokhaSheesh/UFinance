@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { showSuccessNotification } from "@/lib/utils/notifications";
 
 const PaymentModal = ({ open, onClose, dealId }) => {
   const t = useTranslations("Deals.detail.payment");

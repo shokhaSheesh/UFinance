@@ -1,5 +1,6 @@
 'use client'
 
+import { OPERATION_TYPES } from '@/constants/operationTypes'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -11,18 +12,12 @@ import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { keepPreviousData } from '@tanstack/react-query'
 import {
-  ArrowDownLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
   Banknote,
   CreditCard,
   Landmark,
   Loader2,
-  PackageCheck,
   Receipt,
-  Scale,
   Smartphone,
-  Truck,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -44,14 +39,8 @@ const TYPE_LOOK = {
   Электронный: { icon: Smartphone, tone: 'bg-amber-50 text-amber-600' },
 }
 
-const OPERATION_LOOK = {
-  Поступление: { icon: ArrowDownLeft, tone: 'bg-emerald-50 text-emerald-600' },
-  Выплата: { icon: ArrowUpRight, tone: 'bg-red-50 text-red-600' },
-  Перемещение: { icon: ArrowLeftRight, tone: 'bg-slate-100 text-slate-500' },
-  Начисление: { icon: Scale, tone: 'bg-slate-100 text-slate-500' },
-  Отгрузка: { icon: Truck, tone: 'bg-slate-100 text-slate-500' },
-  Поставка: { icon: PackageCheck, tone: 'bg-slate-100 text-slate-500' },
-}
+// Вид типов — общий с компьютером: constants/operationTypes.js
+const OPERATION_LOOK = OPERATION_TYPES
 
 /** Строка «подпись — значение». */
 const Line = ({ label, value }) => {

@@ -71,6 +71,29 @@ $red: #e5484d;
     }
   }
 
+  // мобильное приложение: весь экран телефона, отступы под вырез и
+  // полоску «домой», чтобы шапка и поле ввода не уходили под них
+  // и без выезда сбоку: чат открывается сразу, как любой другой экран
+  &.mobile {
+    width: 100vw;
+    height: 100dvh;
+    border-left: none;
+    transition: none;
+    box-shadow: none;
+
+    &.closed {
+      display: none;
+    }
+
+    .head {
+      padding-top: max(env(safe-area-inset-top), 16px);
+    }
+
+    .composer {
+      padding-bottom: max(env(safe-area-inset-bottom), 16px);
+    }
+  }
+
   // во время ресайза убираем переходы, чтобы не было рывков
   &.resizing {
     transition: none;

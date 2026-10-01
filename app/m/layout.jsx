@@ -1,23 +1,28 @@
 'use client'
 
-import BottomSheet from '@/components/mobile/BottomSheet'
-import { TileIcon } from '@/components/mobile/ui'
+import AiChatPanel from '@/components/AiChat/AiChatPanel'
 import { useRouter } from '@/hooks/useAppRouter'
+import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
+import { aiChatStore } from '@/store/aiChat.store'
 import { appStore } from '@/store/app.store'
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, BarChart3, Home, Plus, Scale, User } from 'lucide-react'
+import { languageStore } from '@/store/language.store'
+import { ArrowLeftRight, BarChart3, Home, User } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
+import moment from 'moment'
+import 'moment/locale/ru'
+import 'moment/locale/uz-latn'
 import { useTranslations } from 'next-intl'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
 
 /**
  * Мобильное приложение — отдельная ветка `/m`, а не настольные страницы,
  * ужатые до ширины телефона.
  *
- * Внизу пять мест: главная, транзакции, создание, отчёты и профиль. Всё
+ * Внизу пять мест: главная, транзакции, ассистент, отчёты и профиль. Всё
  * остальное — планы, проекты, склад, справочники, настройки — лежит в
  * профиле: на телефоне вглубь ходят редко, а эти пять открывают каждый день.
+ * Новая операция создаётся кнопкой «+» в разделе «Транзакции».
  */
 
 const TABS = [
@@ -28,23 +33,25 @@ const TABS = [
   { href: '/m/profile', key: 'profile', icon: User },
 ]
 
-/** Типы операции в кнопке «плюс». */
-const CREATE_TYPES = [
-  { type: 'income', label: 'modal.tabIncome', icon: ArrowDownLeft, tone: 'in', permission: 'income' },
-  { type: 'payment', label: 'modal.tabPayment', icon: ArrowUpRight, tone: 'out', permission: 'payout' },
-  { type: 'transfer', label: 'modal.tabTransfer', icon: ArrowLeftRight, tone: 'neutral', permission: 'transfer' },
-  { type: 'accrual', label: 'modal.tabAccrual', icon: Scale, tone: 'neutral', permission: 'accrual' },
-]
+/** Звезда ассистента — та же, что у кнопки ИИ на компьютере. */
+const SparkIcon = () => (
+  <svg viewBox="0 0 24 24" width="23" height="23" fill="currentColor" aria-hidden="true">
+    <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
+  </svg>
+)
 
 const MobileAppLayout = observer(({ children }) => {
   const t = useTranslations('Mobile')
-  const tOps = useTranslations('Operations')
+  const tAi = useTranslations('AiChat')
   const router = useRouter()
   const pathname = usePathname()
-  const [createOpen, setCreateOpen] = useState(false)
+  const mounted = useMounted()
 
-  const permission = appStore.permission
-  const createTypes = CREATE_TYPES.filter(({ permission: key }) => permission?.operations?.[key]?.add)
+  // Даты на телефоне — на языке интерфейса, а не «22 September»
+  moment.locale(languageStore.currentLanguage === 'uz' ? 'uz-latn' : 'ru')
+
+  // Ассистент включается флагом ia_active в общих настройках — как на компьютере
+  const aiOn = mounted && appStore.isAiActive
 
   const isActive = (tab) => (tab.exact ? pathname === tab.href : pathname.startsWith(tab.href))
   // Экраны с собственной кнопкой внизу прячут панель разделов: иначе
@@ -69,15 +76,16 @@ const MobileAppLayout = observer(({ children }) => {
         <div className="pointer-events-auto flex w-full max-w-[420px] items-center rounded-[28px] border border-slate-200/70 bg-white px-2 py-2 shadow-[0_8px_28px_rgba(15,23,42,0.12)]">
           {TABS.map((tab, index) => {
             if (tab.fab) {
+              if (!aiOn) return null
               return (
                 <div key="fab" className="flex w-16 shrink-0 items-center justify-center">
                   <button
                     type="button"
-                    onClick={() => setCreateOpen(true)}
-                    aria-label={tOps('page.create')}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0e73f6] text-white shadow-[0_6px_16px_rgba(14,115,246,0.4)] active:bg-[#0b5fd4]"
+                    onClick={() => aiChatStore.open()}
+                    aria-label={tAi('buttonLabel')}
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4f8bff] to-[#2f5bff] text-white shadow-[0_6px_16px_rgba(47,107,255,0.4)] active:brightness-95"
                   >
-                    <Plus size={23} aria-hidden="true" />
+                    <SparkIcon />
                   </button>
                 </div>
               )
@@ -120,27 +128,8 @@ const MobileAppLayout = observer(({ children }) => {
       </nav>
       )}
 
-      <BottomSheet open={createOpen} onClose={() => setCreateOpen(false)} title={tOps('page.create')}>
-        <div className="flex flex-col">
-          {createTypes.map(({ type, label, icon, tone }) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => {
-                setCreateOpen(false)
-                router.push(`/m/transactions/new?type=${type}`)
-              }}
-              className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
-            >
-              <TileIcon icon={icon} tone={tone} />
-              <span className="text-sm font-semibold text-slate-900">{tOps(label)}</span>
-            </button>
-          ))}
-          {createTypes.length === 0 && (
-            <p className="py-6 text-center text-sm text-slate-500">{tOps('page.noCreatePermission')}</p>
-          )}
-        </div>
-      </BottomSheet>
+      {/* Ассистент на телефоне — во весь экран поверх приложения */}
+      <AiChatPanel mobile />
     </div>
   )
 })

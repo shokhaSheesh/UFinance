@@ -6,6 +6,7 @@ import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { rendersNativeButton } from "./native-button"
 
 function Popover({ ...props }) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
@@ -15,10 +16,25 @@ type PopoverTriggerProps = React.ComponentProps<typeof PopoverPrimitive.Trigger>
   asChild?: boolean
 }
 
-function PopoverTrigger({ asChild, ...props }: PopoverTriggerProps) {
-  // asChild is intentionally destructured to prevent passing to DOM
-  void asChild
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+function PopoverTrigger({ asChild, children, ...props }: PopoverTriggerProps) {
+  // asChild: ребёнок сам становится триггером. Раньше флаг просто
+  // отбрасывался, и кнопка-ребёнок оказывалась внутри кнопки Base UI —
+  // <button> в <button>, ошибка гидратации.
+  if (asChild && React.isValidElement(children)) {
+    return (
+      <PopoverPrimitive.Trigger
+        data-slot="popover-trigger"
+        nativeButton={rendersNativeButton(children)}
+        render={children as React.ReactElement<Record<string, unknown>>}
+        {...props}
+      />
+    )
+  }
+  return (
+    <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props}>
+      {children}
+    </PopoverPrimitive.Trigger>
+  )
 }
 
 function PopoverContent({

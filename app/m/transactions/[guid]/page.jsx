@@ -1,5 +1,6 @@
 'use client'
 
+import { OPERATION_TYPES } from '@/constants/operationTypes'
 import BottomSheet from '@/components/mobile/BottomSheet'
 import { MCard, TileIcon } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
@@ -12,18 +13,12 @@ import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  ArrowDownLeft,
   ArrowLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
   Copy,
   Loader2,
   MoreHorizontal,
-  PackageCheck,
   Pencil,
-  Scale,
   Trash2,
-  Truck,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
@@ -40,14 +35,8 @@ import { useState } from 'react'
  * убрано под «…»: рядом с обычными действиями его слишком легко нажать.
  */
 
-const TYPE_LOOK = {
-  Поступление: { icon: ArrowDownLeft, tone: 'in' },
-  Выплата: { icon: ArrowUpRight, tone: 'out' },
-  Перемещение: { icon: ArrowLeftRight, tone: 'neutral' },
-  Начисление: { icon: Scale, tone: 'neutral' },
-  Отгрузка: { icon: Truck, tone: 'neutral' },
-  Поставка: { icon: PackageCheck, tone: 'neutral' },
-}
+// Вид типов — общий с компьютером: constants/operationTypes.js
+const TYPE_LOOK = OPERATION_TYPES
 
 /** Строка «подпись — значение». Пустые значения не показываем. */
 const Line = ({ label, value, valueClass }) => {
