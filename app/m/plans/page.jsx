@@ -120,7 +120,7 @@ const MobilePlansPage = observer(() => {
           onClick={() => router.push('/m/plans/calendar')}
           className="mb-2.5 flex w-full items-center gap-3 rounded-[24px] bg-white p-4 text-left active:bg-slate-50"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8f1ff] text-[#0e73f6]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500">
             <CalendarDays size={18} aria-hidden="true" />
           </span>
           <span className="min-w-0 flex-1">

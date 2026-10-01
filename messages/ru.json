@@ -3559,12 +3559,16 @@
       "customizeHint": "Что показывать и в каком порядке",
       "resetLayout": "По умолчанию",
       "moveUp": "Выше",
-      "moveDown": "Ниже"
+      "moveDown": "Ниже",
+      "createAccount": "Создать счёт",
+      "createAccountHint": "Касса, банк, карта или кошелёк"
     },
     "transactions": {
       "planned": "Запланировано",
       "emptyHint": "Измените фильтры или создайте операцию кнопкой «плюс»",
-      "yesterday": "Вчера"
+      "yesterday": "Вчера",
+      "totalForPeriod": "Итого за период",
+      "transfers": "Перемещения"
     },
     "profile": {
       "sections": "Разделы",

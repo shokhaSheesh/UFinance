@@ -3713,12 +3713,16 @@
       "customizeHint": "Nimani va qanday tartibda ko‘rsatish",
       "resetLayout": "Standart holat",
       "moveUp": "Yuqoriga",
-      "moveDown": "Pastga"
+      "moveDown": "Pastga",
+      "createAccount": "Hisob yaratish",
+      "createAccountHint": "Kassa, bank, karta yoki hamyon"
     },
     "transactions": {
       "planned": "Rejalashtirilgan",
       "emptyHint": "Filtrlarni o‘zgartiring yoki «plus» tugmasi bilan amaliyot yarating",
-      "yesterday": "Kecha"
+      "yesterday": "Kecha",
+      "totalForPeriod": "Davr uchun jami",
+      "transfers": "Ko'chirishlar"
     },
     "profile": {
       "sections": "Bo‘limlar",

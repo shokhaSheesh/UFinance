@@ -25,7 +25,8 @@ export function TileIcon({ icon: Icon, tone = 'neutral', className }) {
   // tone — имя оттенка или готовые классы (вид типа операции из OPERATION_TYPES)
   return (
     <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-full', toneClass ?? tone, className)}>
-      <Icon size={19} aria-hidden="true" />
+      {/* толщина 2 — как у значков lucide; свои значки (сделки, контрагенты) рисуются так же */}
+      <Icon size={19} strokeWidth={2} aria-hidden="true" />
     </span>
   )
 }

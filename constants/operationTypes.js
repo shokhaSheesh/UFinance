@@ -60,3 +60,29 @@ export const OPERATION_TYPES = {
 
 /** Вид типа по `tip`; неизвестный тип рисуется как начисление. */
 export const operationLook = (tip) => OPERATION_TYPES[tip] || OPERATION_TYPES['Начисление']
+
+/**
+ * Вид типов на телефоне — спокойнее, чем на компьютере.
+ *
+ * Цвет на телефоне значит только деньги: зелёный — пришли, красный — ушли.
+ * Перемещение, начисление, отгрузка и поставка — серые, их различает форма
+ * значка. Синий остаётся у выбранного типа в форме (это действие), а не у
+ * значков в лентах. Компьютер пока на OPERATION_TYPES — если на телефоне
+ * приживётся, перенесём и туда.
+ */
+const NEUTRAL = {
+  tone: 'bg-slate-100 text-slate-500',
+  text: 'text-slate-500',
+  solid: 'bg-[#0e73f6] text-white',
+  dot: 'bg-slate-400',
+}
+
+export const MOBILE_OPERATION_TYPES = Object.fromEntries(
+  Object.entries(OPERATION_TYPES).map(([tip, look]) => [
+    tip,
+    tip === 'Поступление' || tip === 'Выплата' ? look : { ...look, ...NEUTRAL },
+  ])
+)
+
+/** Вид типа по `tip` на телефоне; неизвестный тип — как начисление. */
+export const mobileOperationLook = (tip) => MOBILE_OPERATION_TYPES[tip] || MOBILE_OPERATION_TYPES['Начисление']

@@ -1,6 +1,6 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
 import CreateOperationSheet, { allowedCreateTypes } from '@/components/mobile/CreateOperationSheet'
 import OperationFilters from '@/components/mobile/OperationFilters'
 import { FilterPill, MCard, MEmpty, MRow, MScreenHeader, MSkeleton } from '@/components/mobile/ui'
@@ -39,8 +39,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
  */
 
 /** Значок и цвет по типу операции. */
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const TYPE_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const TYPE_LOOK = MOBILE_OPERATION_TYPES
 
 const MobileTransactionsPage = observer(() => {
   const t = useTranslations('Operations')
@@ -199,40 +199,6 @@ const MobileTransactionsPage = observer(() => {
           />
         </div>
 
-        {/* Итоги периода: сначала результат, под ним из чего он сложился */}
-        {mounted && (
-          <div className="mt-2.5 rounded-[20px] bg-white px-4 py-3.5">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-slate-500">{t('footer.total')}</span>
-              <span
-                className={cn(
-                  'text-[20px] font-bold tabular-nums',
-                  net >= 0 ? 'text-emerald-600' : 'text-red-600'
-                )}
-              >
-                <Money value={net} currency={currency} sign={net > 0 ? '+' : undefined} />
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-3">
-              {[
-                { key: 'receipts', label: tm('reports.receipts'), value: byType.receipt?.total_summa ?? 0, count: byType.receipt?.count, tone: 'text-emerald-600' },
-                { key: 'payments', label: tm('reports.payments'), value: byType.payment?.total_summa ?? 0, count: byType.payment?.count, tone: 'text-red-600' },
-                { key: 'transfers', label: t('footer.transfers'), value: byType.transfer?.total_summa ?? 0, count: byType.transfer?.count, tone: 'text-slate-900' },
-              ].map((item, index) => (
-                <div key={item.key} className={cn('min-w-0 px-2', index === 0 && 'pl-0', index === 2 && 'pr-0')}>
-                  <div className="truncate text-[11px] text-slate-400">{item.label}</div>
-                  <div className={cn('mt-1 truncate text-[14px] font-bold tabular-nums', item.tone)}>
-                    <Money value={item.value} currency="" />
-                  </div>
-                  <div className="mt-0.5 truncate text-[11px] text-slate-400 tabular-nums">
-                    {t('summary.opsCount', { count: item.count ?? 0 })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Включённые фильтры */}
         {filterChips.length > 0 && (
@@ -257,6 +223,65 @@ const MobileTransactionsPage = observer(() => {
 
       {/* Лента операций */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-28">
+        {/* Итоги периода — первым блоком ленты, уезжают при прокрутке. Результат крупно, под ним полоса «пришло / ушло»
+            и строки, из чего он сложился — цвета те же, что у типов операций */}
+        {mounted && (() => {
+          const receipts = Math.abs(Number(byType.receipt?.total_summa) || 0)
+          const payments = Math.abs(Number(byType.payment?.total_summa) || 0)
+          const flow = receipts + payments
+          const rows = [
+            { key: 'receipts', dot: 'bg-emerald-500', label: tm('reports.receipts'), value: receipts, count: byType.receipt?.count, tone: 'text-emerald-600' },
+            { key: 'payments', dot: 'bg-red-500', label: tm('reports.payments'), value: payments, count: byType.payment?.count, tone: 'text-red-600' },
+            { key: 'transfers', dot: 'bg-slate-400', label: tm('transactions.transfers'), value: Number(byType.transfer?.total_summa) || 0, count: byType.transfer?.count, tone: 'text-slate-900' },
+          ]
+          return (
+            <div className="mt-2.5 rounded-[20px] bg-white px-4 pt-4 pb-1.5">
+              <div className="text-[12px] font-medium text-slate-500">{tm('transactions.totalForPeriod')}</div>
+              <div
+                className={cn(
+                  'mt-1 truncate text-[26px] leading-tight font-bold tracking-[-0.02em] tabular-nums',
+                  net >= 0 ? 'text-emerald-600' : 'text-red-600'
+                )}
+              >
+                <Money value={net} currency={currency} sign={net > 0 ? '+' : undefined} />
+              </div>
+
+              {/* Сколько из оборота пришло и сколько ушло */}
+              {flow > 0 && (
+                <div className="mt-3 flex h-2 gap-0.5 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-emerald-500" style={{ width: `${(receipts / flow) * 100}%` }} />
+                  <div className="h-full rounded-full bg-red-500" style={{ width: `${(payments / flow) * 100}%` }} />
+                </div>
+              )}
+
+              <div className="mt-2">
+                {rows.map((row) => {
+                  const empty = !row.count && !row.value
+                  return (
+                    <div
+                      key={row.key}
+                      className={cn(
+                        'flex items-center gap-3 border-b border-slate-100 py-2.5 last:border-b-0',
+                        empty && 'opacity-50'
+                      )}
+                    >
+                      <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', row.dot)} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[14px] font-medium text-slate-800">{row.label}</span>
+                        <span className="block truncate text-[11px] text-slate-400 tabular-nums">
+                          {t('summary.opsCount', { count: row.count ?? 0 })}
+                        </span>
+                      </span>
+                      <span className={cn('shrink-0 text-[15px] font-bold tabular-nums', empty ? 'text-slate-400' : row.tone)}>
+                        <Money value={row.value} currency="" />
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
         {isLoading && !sections.length && <MSkeleton className="pt-4" rows={5} />}
 
         {!isLoading && !sections.length && (

@@ -1,6 +1,6 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
 import BottomSheet from '@/components/mobile/BottomSheet'
 import ProjectFormSheet from '@/components/mobile/forms/ProjectFormSheet'
 import ProjectFigures from '@/components/mobile/ProjectFigures'
@@ -43,8 +43,8 @@ import { useEffect, useRef, useState } from 'react'
 
 const STATUSES = ['planned', 'in_progress', 'completed']
 
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const TYPE_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const TYPE_LOOK = MOBILE_OPERATION_TYPES
 
 /** Готовые периоды — у дашборда проекта по умолчанию «этот год». */
 const PERIODS = {

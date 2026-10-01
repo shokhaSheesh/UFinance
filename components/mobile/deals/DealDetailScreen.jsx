@@ -713,7 +713,7 @@ const DealDetailScreen = observer(({ kind = 'sale', dealId }) => {
                   <span
                     className={cn(
                       'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                      isReturn ? 'bg-amber-50 text-amber-600' : 'bg-[#e8f1ff] text-[#0e73f6]'
+                      'bg-slate-100 text-slate-500'
                     )}
                   >
                     {isReturn ? <Undo2 size={18} aria-hidden="true" /> : <Truck size={18} aria-hidden="true" />}

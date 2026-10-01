@@ -86,7 +86,7 @@ const MobileProductsPage = observer(() => {
               <span
                 className={cn(
                   'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                  isService ? 'bg-violet-50 text-violet-600' : 'bg-slate-100 text-slate-500'
+                  'bg-slate-100 text-slate-500'
                 )}
               >
                 {isService ? <Wrench size={18} aria-hidden="true" /> : <Package size={18} aria-hidden="true" />}

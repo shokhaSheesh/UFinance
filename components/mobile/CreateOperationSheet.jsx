@@ -4,7 +4,7 @@ import BottomSheet from '@/components/mobile/BottomSheet'
 import { TileIcon } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { appStore } from '@/store/app.store'
-import { operationLook } from '@/constants/operationTypes'
+import { mobileOperationLook } from '@/constants/operationTypes'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 
@@ -45,7 +45,7 @@ const CreateOperationSheet = observer(({ open, onClose }) => {
             }}
             className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
           >
-            <TileIcon icon={operationLook(tip).icon} tone={operationLook(tip).tone} />
+            <TileIcon icon={mobileOperationLook(tip).icon} tone={mobileOperationLook(tip).tone} />
             <span className="text-sm font-semibold text-slate-900">{tOps(label)}</span>
           </button>
         ))}

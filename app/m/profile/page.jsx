@@ -240,6 +240,7 @@ const MobileProfilePage = observer(() => {
         {branches.length > 1 && (
           <MRow
             icon={Building2}
+            tone="brand"
             title={t('profile.branch')}
             value={<span className="text-[13px] text-slate-500">{authStore.selectBranch?.name}</span>}
             onClick={() => setSheet('branch')}
@@ -247,12 +248,14 @@ const MobileProfilePage = observer(() => {
         )}
         <MRow
           icon={Coins}
+          tone="brand"
           title={t('profile.currency')}
           value={<span className="text-[13px] text-slate-500">{currencyLabel}</span>}
           onClick={() => setSheet('currency')}
         />
         <MRow
           icon={Languages}
+          tone="brand"
           title={t('profile.language')}
           value={<span className="text-[13px] text-slate-500">{localeLabel}</span>}
           onClick={() => setSheet('locale')}
@@ -271,6 +274,7 @@ const MobileProfilePage = observer(() => {
                 <MRow
                   key={row.key}
                   icon={row.icon}
+                  tone="brand"
                   title={row.label}
                   subtitle={row.href ? undefined : soon}
                   chevron={Boolean(row.href)}

@@ -1,6 +1,6 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
 import CounterpartyFilters, {
   countCounterpartyFilters,
   EMPTY_COUNTERPARTY_FILTERS,
@@ -41,8 +41,8 @@ const METHODS = [
   { value: 'Calculation', label: 'calculationShort.calculation' },
 ]
 
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const TYPE_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const TYPE_LOOK = MOBILE_OPERATION_TYPES
 
 /** Строка «подпись — значение». */
 const Line = ({ label, value }) => {

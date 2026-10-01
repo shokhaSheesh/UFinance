@@ -1,6 +1,7 @@
 'use client'
 
 import BottomSheet from '@/components/mobile/BottomSheet'
+import AccountFormSheet from '@/components/mobile/forms/AccountFormSheet'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { useRouter } from '@/hooks/useAppRouter'
@@ -9,7 +10,7 @@ import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { keepPreviousData } from '@tanstack/react-query'
-import { Banknote, CreditCard, Landmark, Loader2, MoreHorizontal, Pencil, Search, Smartphone, Trash2, Wallet, X } from 'lucide-react'
+import { Landmark, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, Wallet, X } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
@@ -22,12 +23,9 @@ import { useMemo, useState } from 'react'
  * наличные, банковский, карта, электронный кошелёк.
  */
 
-const TYPE_LOOK = {
-  Наличный: { icon: Banknote, tone: 'bg-emerald-50 text-emerald-600' },
-  Безналичный: { icon: Landmark, tone: 'bg-[#e8f1ff] text-[#0e73f6]' },
-  'Карта физлица': { icon: CreditCard, tone: 'bg-violet-50 text-violet-600' },
-  Электронный: { icon: Smartphone, tone: 'bg-amber-50 text-amber-600' },
-}
+// Значок счёта один для всех типов, фирменный синий — как на главной
+// и у кнопки «Создать счёт»; тип подписан под названием
+const ACCOUNT_LOOK = { icon: Landmark, tone: 'bg-[#e8f1ff] text-[#0e73f6]' }
 
 const MobileAccountsPage = observer(() => {
   const t = useTranslations('Directories.account')
@@ -39,6 +37,7 @@ const MobileAccountsPage = observer(() => {
   const [search, setSearch] = useState('')
   const [menuFor, setMenuFor] = useState(null)
   const [deleteFor, setDeleteFor] = useState(null)
+  const [formFor, setFormFor] = useState(null)
 
   const permissions = appStore.permission?.directories?.accounts || {}
   const deleteMutation = useDeleteMyAccounts()
@@ -86,7 +85,22 @@ const MobileAccountsPage = observer(() => {
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden">
       <div className="shrink-0 px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <MScreenHeader title={t('pageTitle')} onBack={() => router.push('/m/profile')} />
+        <MScreenHeader
+          title={t('pageTitle')}
+          onBack={() => router.push('/m/profile')}
+          action={
+            permissions?.add && (
+              <button
+                type="button"
+                onClick={() => setFormFor({})}
+                aria-label={tm('home.createAccount')}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0e73f6] text-white active:bg-[#0b5fd4]"
+              >
+                <Plus size={19} aria-hidden="true" />
+              </button>
+            )
+          }
+        />
 
         {/* Сколько всего на счетах */}
         <div className="rounded-[24px] bg-white px-4 py-4 text-center">
@@ -126,7 +140,7 @@ const MobileAccountsPage = observer(() => {
             <div className="px-1 pt-4 pb-2 text-[13px] font-semibold text-slate-500">{group.name}</div>
             <MCard list>
               {group.accounts.map((account) => {
-                const look = TYPE_LOOK[account.type] || TYPE_LOOK['Безналичный']
+                const look = ACCOUNT_LOOK
                 return (
                   <div key={account.guid} className="flex items-center border-b border-slate-100 last:border-b-0">
                     <button
@@ -176,8 +190,8 @@ const MobileAccountsPage = observer(() => {
             <button
               type="button"
               onClick={() => {
+                setFormFor(menuFor.raw)
                 setMenuFor(null)
-                router.push(`/m/accounts/${menuFor.guid}?edit=1`)
               }}
               className="flex items-center gap-3 border-b border-slate-100 py-3.5 text-left active:bg-slate-50"
             >
@@ -235,6 +249,8 @@ const MobileAccountsPage = observer(() => {
       >
         <p className="text-sm text-slate-600">{t('deleteConfirmMessage', { name: deleteFor?.name || '' })}</p>
       </BottomSheet>
+
+      <AccountFormSheet open={Boolean(formFor)} account={formFor?.guid ? formFor : null} onClose={() => setFormFor(null)} />
     </div>
   )
 })

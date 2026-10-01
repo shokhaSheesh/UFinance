@@ -1,7 +1,9 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
+import AccountFormSheet from '@/components/mobile/forms/AccountFormSheet'
 import HomeSettingsSheet from '@/components/mobile/HomeSettingsSheet'
+import SwipeCards from '@/components/mobile/SwipeCards'
 import { MCard, MEmpty, MSkeleton, QuickActions, SectionHead } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -22,6 +24,7 @@ import {
   BarChart3,
   Bell,
   Landmark,
+  Plus,
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
@@ -36,15 +39,13 @@ import { Fragment, useMemo, useState } from 'react'
  *
  * Построена как экран счёта в банковском приложении: сверху — кто вошёл и
  * в каком филиале, затем деньги на счетах одним крупным числом с движением
- * за период, под ними четыре круглых действия, а дальше разделы списками —
- * счета, последние операции, доходы с расходами, взаиморасчёты. Цветная
- * карточка-плашка убрана: число и так самое крупное на экране, а цвет
- * нужнее там, где он что-то значит — в знаке суммы.
+ * за период, под ними четыре круглых действия, а дальше разделы — счета лентой, которая листается
+ * вбок, последние операции, доходы с расходами, взаиморасчёты плитками.
  */
 
 /** Значок и цвет строки операции — те же, что в ленте транзакций. */
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const TYPE_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const TYPE_LOOK = MOBILE_OPERATION_TYPES
 
 /** Строка списка: круглый значок, две строки текста, значение справа. */
 const ListRow = ({ icon: Icon, tone, title, subtitle, value, valueSub, valueClass, onClick }) => {
@@ -80,6 +81,8 @@ const MobileHomePage = observer(() => {
   const mounted = useMounted()
   const data = useCompanyData()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [accountFormOpen, setAccountFormOpen] = useState(false)
+  const canAddAccount = Boolean(appStore.permission?.directories?.accounts?.add)
 
   const currency = mounted ? GlobalCurrency?.name : ''
   const userName = authStore.userData?.name || authStore.userData?.login || ''
@@ -116,6 +119,7 @@ const MobileHomePage = observer(() => {
         guid: account?.guid,
         name: account?.nazvanie,
         entity: account?.legal_entity_name || '',
+        type: Array.isArray(account?.tip) ? account.tip[0] : account?.tip,
         balance: account?.balans_val,
         currency: account?.currenies_kod,
       }))
@@ -152,23 +156,44 @@ const MobileHomePage = observer(() => {
   const sectionBlocks = {
     accounts: (
       <>
-      {/* Счета */}
-      <SectionHead title={t('home.accounts')} />
+      {/* Счета — по одному на карточку почти во всю ширину; соседние видны
+          по краям, поэтому понятно, что ряд листается. В конце — «Создать счёт» */}
+      <SectionHead title={t('home.accounts')} action={t('home.all')} onAction={() => router.push('/m/accounts')} />
       {isLoadingAccounts && !accounts.length ? (
-        <MSkeleton rows={2} />
-      ) : accounts.length ? (
-        <MCard list>
-          {accounts.slice(0, 4).map((account) => (
-            <ListRow
-              key={account.guid}
-              icon={Landmark}
-              tone="bg-slate-100 text-slate-500"
-              title={account.name}
-              subtitle={account.entity}
-              value={<Money value={account.balance} currency={account.currency} />}
-            />
-          ))}
-        </MCard>
+        <MSkeleton rows={1} />
+      ) : accounts.length || canAddAccount ? (
+        <SwipeCards wide>
+          {[
+            ...accounts.map((account) => (
+              <MCard key={account.guid} list className="h-full [&>button]:py-5">
+                <ListRow
+                  icon={Landmark}
+                  tone="bg-[#e8f1ff] text-[#0e73f6]"
+                  title={account.name}
+                  subtitle={account.entity}
+                  value={<Money value={account.balance} currency={account.currency} />}
+                  onClick={() => router.push(`/m/accounts/${account.guid}`)}
+                />
+              </MCard>
+            )),
+            canAddAccount && (
+              <button
+                key="create"
+                type="button"
+                onClick={() => setAccountFormOpen(true)}
+                className="flex h-full w-full items-center gap-3 rounded-[24px] border-[1.5px] border-dashed border-slate-300 bg-white px-4 py-5 text-left active:bg-slate-50"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8f1ff] text-[#0e73f6]">
+                  <Plus size={19} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-semibold text-slate-900">{t('home.createAccount')}</span>
+                  <span className="mt-0.5 block truncate text-[12px] text-slate-500">{t('home.createAccountHint')}</span>
+                </span>
+              </button>
+            ),
+          ].filter(Boolean)}
+        </SwipeCards>
       ) : (
         <MCard>
           <MEmpty icon={Landmark} title={t('home.noAccounts')} />
@@ -237,7 +262,7 @@ const MobileHomePage = observer(() => {
         />
         <ListRow
           icon={Wallet}
-          tone="bg-indigo-50 text-indigo-600"
+          tone="bg-slate-100 text-slate-500"
           title={t('home.profit')}
           valueClass={data.pnl.profitTotal >= 0 ? 'text-emerald-600!' : 'text-red-600!'}
           value={<Money value={data.pnl.profitTotal} currency={currency} />}
@@ -248,32 +273,48 @@ const MobileHomePage = observer(() => {
     ),
     settlements: (
       <>
-      {/* Взаиморасчёты */}
+      {/* Взаиморасчёты — две плитки рядом; касание открывает долги в «Показателях» */}
       <SectionHead title={t('home.settlements')} />
-      <MCard list>
-        <ListRow
-          icon={ArrowDownLeft}
-          tone="bg-emerald-50 text-emerald-600"
-          title={t('home.receivables')}
-          subtitle={
-            data.receivablesOverdue
-              ? t('home.overdue', { amount: Math.round(data.receivablesOverdue).toLocaleString('ru-RU') })
-              : undefined
-          }
-          value={<Money value={data.receivables} currency={currency} />}
-        />
-        <ListRow
-          icon={ArrowUpRight}
-          tone="bg-red-50 text-red-600"
-          title={t('home.payables')}
-          subtitle={
-            data.payablesOverdue
-              ? t('home.overdue', { amount: Math.round(data.payablesOverdue).toLocaleString('ru-RU') })
-              : undefined
-          }
-          value={<Money value={data.payables} currency={currency} />}
-        />
-      </MCard>
+      <div className="grid grid-cols-2 gap-2.5">
+        {[
+          {
+            key: 'receivables',
+            icon: ArrowDownLeft,
+            tone: 'bg-emerald-50 text-emerald-600',
+            label: t('home.receivables'),
+            value: data.receivables,
+            overdue: data.receivablesOverdue,
+          },
+          {
+            key: 'payables',
+            icon: ArrowUpRight,
+            tone: 'bg-red-50 text-red-600',
+            label: t('home.payables'),
+            value: data.payables,
+            overdue: data.payablesOverdue,
+          },
+        ].map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => router.push('/m/indicators?section=debts')}
+            className="flex min-w-0 flex-col rounded-[24px] bg-white p-4 text-left active:bg-slate-50"
+          >
+            <span className={cn('flex h-10 w-10 items-center justify-center rounded-full', item.tone)}>
+              <item.icon size={18} aria-hidden="true" />
+            </span>
+            <span className="mt-3 block w-full truncate text-[12px] text-slate-500">{item.label}</span>
+            <span className="mt-0.5 block w-full truncate text-[16px] font-bold text-slate-900">
+              <Money value={item.value} currency={currency} />
+            </span>
+            {item.overdue > 0 && (
+              <span className="mt-1 block w-full truncate text-[11px] font-medium text-red-600">
+                {t('home.overdue', { amount: Math.round(item.overdue).toLocaleString('ru-RU') })}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
       </>
     ),
   }
@@ -344,6 +385,7 @@ const MobileHomePage = observer(() => {
       ))}
 
       <HomeSettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <AccountFormSheet open={accountFormOpen} onClose={() => setAccountFormOpen(false)} />
     </div>
   )
 })

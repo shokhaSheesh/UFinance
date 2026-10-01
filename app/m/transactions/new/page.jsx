@@ -1,6 +1,6 @@
 'use client'
 
-import { operationLook } from '@/constants/operationTypes'
+import { mobileOperationLook } from '@/constants/operationTypes'
 import { MAmountField, MDateField, MFieldRow, MSelectField, MSwitch, MTextField } from '@/components/mobile/fields'
 import { MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
@@ -293,10 +293,10 @@ const MobileOperationFormPage = observer(() => {
                   className={cn(
                     'flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-[13px] font-semibold',
                     // выбранный тип — заливкой своего цвета, остальные — цветным значком
-                    active ? operationLook(item.tip).solid : 'bg-white text-slate-600'
+                    active ? mobileOperationLook(item.tip).solid : 'bg-white text-slate-600'
                   )}
                 >
-                  <Icon size={15} className={active ? undefined : operationLook(item.tip).text} aria-hidden="true" />
+                  <Icon size={15} className={active ? undefined : mobileOperationLook(item.tip).text} aria-hidden="true" />
                   {t(item.label)}
                 </button>
               )

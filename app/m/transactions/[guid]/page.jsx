@@ -1,6 +1,6 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
 import BottomSheet from '@/components/mobile/BottomSheet'
 import { MCard, TileIcon } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
@@ -35,8 +35,8 @@ import { useState } from 'react'
  * убрано под «…»: рядом с обычными действиями его слишком легко нажать.
  */
 
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const TYPE_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const TYPE_LOOK = MOBILE_OPERATION_TYPES
 
 /** Строка «подпись — значение». Пустые значения не показываем. */
 const Line = ({ label, value, valueClass }) => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { OPERATION_TYPES } from '@/constants/operationTypes'
+import { MOBILE_OPERATION_TYPES } from '@/constants/operationTypes'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
@@ -12,12 +12,9 @@ import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { keepPreviousData } from '@tanstack/react-query'
 import {
-  Banknote,
-  CreditCard,
   Landmark,
   Loader2,
   Receipt,
-  Smartphone,
 } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
@@ -32,15 +29,12 @@ import { useMemo } from 'react'
  * строками «подпись — значение».
  */
 
-const TYPE_LOOK = {
-  Наличный: { icon: Banknote, tone: 'bg-emerald-50 text-emerald-600' },
-  Безналичный: { icon: Landmark, tone: 'bg-[#e8f1ff] text-[#0e73f6]' },
-  'Карта физлица': { icon: CreditCard, tone: 'bg-violet-50 text-violet-600' },
-  Электронный: { icon: Smartphone, tone: 'bg-amber-50 text-amber-600' },
-}
+// Значок счёта один для всех типов, фирменный синий — как на главной
+// и у кнопки «Создать счёт»; тип подписан под названием
+const ACCOUNT_LOOK = { icon: Landmark, tone: 'bg-[#e8f1ff] text-[#0e73f6]' }
 
-// Вид типов — общий с компьютером: constants/operationTypes.js
-const OPERATION_LOOK = OPERATION_TYPES
+// Вид типов на телефоне: цвет только у поступления и выплаты (constants/operationTypes.js)
+const OPERATION_LOOK = MOBILE_OPERATION_TYPES
 
 /** Строка «подпись — значение». */
 const Line = ({ label, value }) => {
@@ -93,7 +87,7 @@ const MobileAccountPage = observer(() => {
   const operations = useMemo(() => operationsDto(operationsData || []), [operationsData])
 
   const type = Array.isArray(account?.tip) ? account.tip[0] : account?.tip
-  const look = TYPE_LOOK[type] || TYPE_LOOK['Безналичный']
+  const look = ACCOUNT_LOOK
   const balance = Number(account?.balans_val) || 0
   const currency = account?.currenies_kod || (mounted ? GlobalCurrency?.name : '')
 
@@ -140,7 +134,7 @@ const MobileAccountPage = observer(() => {
       <MCard list>
         {operations.length === 0 && <MEmpty icon={Receipt} title={tOps('page.noData')} />}
         {operations.map((operation) => {
-          const operationLook = OPERATION_LOOK[operation.tip] || OPERATION_LOOK['Начисление']
+          const mobileOperationLook = OPERATION_LOOK[operation.tip] || OPERATION_LOOK['Начисление']
           const isIncome = operation.operationType === 'income'
           const isPayment = operation.operationType === 'payment'
           return (
@@ -150,8 +144,8 @@ const MobileAccountPage = observer(() => {
               onClick={() => router.push(`/m/transactions/${operation.guid}`)}
               className="flex w-full items-center gap-3 border-b border-slate-100 py-3.5 text-left last:border-b-0 active:bg-slate-50"
             >
-              <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', operationLook.tone)}>
-                <operationLook.icon size={18} aria-hidden="true" />
+              <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', mobileOperationLook.tone)}>
+                <mobileOperationLook.icon size={18} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-semibold text-slate-900">

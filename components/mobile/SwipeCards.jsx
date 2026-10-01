@@ -10,7 +10,8 @@ import { Children, useRef, useState } from 'react'
  * что ряд листается, без подсказок словами. Листание с привязкой: карточка
  * всегда встаёт по центру, а точки снизу показывают, какая открыта.
  */
-export default function SwipeCards({ children, className }) {
+/** @param {boolean} wide  карточка почти во всю ширину — соседние лишь выглядывают по краям */
+export default function SwipeCards({ children, className, wide = false }) {
   const items = Children.toArray(children)
   const trackRef = useRef(null)
   const [active, setActive] = useState(0)
@@ -33,10 +34,13 @@ export default function SwipeCards({ children, className }) {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="-mx-4 flex snap-x snap-mandatory items-stretch gap-2.5 overflow-x-auto px-[8%] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className={cn(
+          '-mx-4 flex snap-x snap-mandatory items-stretch overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          wide ? 'gap-2 px-[5%]' : 'gap-2.5 px-[8%]'
+        )}
       >
         {items.map((item, index) => (
-          <div key={item.key ?? index} className="w-[84%] shrink-0 snap-center">
+          <div key={item.key ?? index} className={cn('shrink-0 snap-center', wide ? 'w-[90%]' : 'w-[84%]')}>
             {item}
           </div>
         ))}

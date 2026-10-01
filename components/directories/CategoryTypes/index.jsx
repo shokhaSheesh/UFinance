@@ -20,11 +20,21 @@ export const CATEGORY_TYPES = [
 
 export const CATEGORY_TYPE_BY_KEY = Object.fromEntries(CATEGORY_TYPES.map((type) => [type.key, type]))
 
-/** Значок раздела в круге его цвета. */
-export function CategoryTypeIcon({ type, size = 'md', className }) {
+/**
+ * Спокойные цвета телефона: цвет только у денег — доходы зелёные, расходы
+ * красные, остальные разделы серые (см. MOBILE_OPERATION_TYPES).
+ */
+const CALM_TONES = {
+  income: 'bg-emerald-50 text-emerald-600',
+  expense: 'bg-red-50 text-red-600',
+}
+
+/** Значок раздела в круге его цвета. calm — палитра телефона. */
+export function CategoryTypeIcon({ type, size = 'md', className, calm = false }) {
   const config = CATEGORY_TYPE_BY_KEY[type]
   if (!config) return null
-  const { Icon, tone } = config
+  const { Icon } = config
+  const tone = calm ? CALM_TONES[type] || 'bg-slate-100 text-slate-500' : config.tone
   const box = size === 'sm' ? 'h-6 w-6' : 'h-7 w-7'
 
   return (

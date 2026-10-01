@@ -58,20 +58,20 @@ const MobileCompanyPage = observer(() => {
     {
       key: 'profit',
       icon: Wallet,
-      tone: 'bg-indigo-50 text-indigo-600',
+      tone: 'bg-slate-100 text-slate-500',
       label: t('kpi.profit'),
       hint: t('kpi.profitHint'),
       value: <Money value={pnl.profitTotal} currency={currency} />,
       valueClass: signedClass(pnl.profitTotal),
     },
-    { key: 'margin', icon: Percent, tone: 'bg-sky-50 text-sky-600', label: t('kpi.margin'), hint: t('kpi.marginHint'), value: percentText(pnl.margin), valueClass: signedClass(pnl.margin) },
+    { key: 'margin', icon: Percent, tone: 'bg-slate-100 text-slate-500', label: t('kpi.margin'), hint: t('kpi.marginHint'), value: percentText(pnl.margin), valueClass: signedClass(pnl.margin) },
   ]
 
   const moneyRows = [
-    { key: 'balance', icon: PiggyBank, tone: 'bg-[#e8f1ff] text-[#0e73f6]', label: t('kpi.balance'), hint: t('kpi.balanceHint'), value: <Money value={data.balance ?? 0} currency={currency} /> },
+    { key: 'balance', icon: PiggyBank, tone: 'bg-slate-100 text-slate-500', label: t('kpi.balance'), hint: t('kpi.balanceHint'), value: <Money value={data.balance ?? 0} currency={currency} /> },
     { key: 'receivables', icon: ArrowDownLeft, tone: 'bg-emerald-50 text-emerald-600', label: t('kpi.receivables'), hint: t('kpi.receivablesHint'), value: <Money value={data.receivables} currency={currency} /> },
     { key: 'payables', icon: ArrowUpRight, tone: 'bg-red-50 text-red-600', label: t('kpi.payables'), hint: t('kpi.payablesHint'), value: <Money value={data.payables} currency={currency} /> },
-    { key: 'roi', icon: Banknote, tone: 'bg-amber-50 text-amber-600', label: t('kpi.roi'), hint: t('kpi.roiHint'), value: percentText(data.averageRoi), valueClass: signedClass(data.averageRoi) },
+    { key: 'roi', icon: Banknote, tone: 'bg-slate-100 text-slate-500', label: t('kpi.roi'), hint: t('kpi.roiHint'), value: percentText(data.averageRoi), valueClass: signedClass(data.averageRoi) },
   ]
 
   // Карточки графиков с компьютера — в мобильном виде: без рамки, крупное скругление

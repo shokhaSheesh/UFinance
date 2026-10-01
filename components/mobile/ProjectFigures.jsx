@@ -24,7 +24,7 @@ export default function ProjectFigures({ income, expenses, profit, profitability
     {
       key: 'profit',
       icon: Wallet,
-      tone: 'bg-indigo-50 text-indigo-600',
+      tone: 'bg-slate-100 text-slate-500',
       label: td('profit'),
       value: <Money value={profitValue} currency={currency} />,
       valueClass: profitValue >= 0 ? 'text-emerald-600' : 'text-red-600',
@@ -32,7 +32,7 @@ export default function ProjectFigures({ income, expenses, profit, profitability
     {
       key: 'profitability',
       icon: Percent,
-      tone: 'bg-sky-50 text-sky-600',
+      tone: 'bg-slate-100 text-slate-500',
       label: td('profitability'),
       value: margin == null ? '—' : `${margin}%`,
       valueClass: margin == null ? 'text-slate-400' : margin >= 0 ? 'text-emerald-600' : 'text-red-600',
