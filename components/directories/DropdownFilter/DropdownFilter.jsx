@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { useEffect, useRef, useState } from 'react'
-import { FiCheck } from 'react-icons/fi'
+import { Check as FiCheck } from '@/components/icons'
 import styles from './DropdownFilter.module.scss'
 
 export function DropdownFilter({ label, options, selectedValues = [], onChange, placeholder = "Выберите...", grouped = false, disabled = false }) {

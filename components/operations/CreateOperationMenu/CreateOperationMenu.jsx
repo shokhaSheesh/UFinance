@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { appStore } from '@/store/app.store'
-import { ChevronDown, Loader2, Plus } from 'lucide-react'
+import { ChevronDown, Loader2, Plus } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

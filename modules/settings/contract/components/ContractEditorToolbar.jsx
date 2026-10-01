@@ -18,7 +18,7 @@ import {
   Strikethrough,
   Underline,
   Undo2,
-} from 'lucide-react'
+} from '@/components/icons'
 import { useEffect, useRef, useState } from 'react'
 
 const TEXT_COLORS = [

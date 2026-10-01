@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useRouter } from '@/hooks/useAppRouter'

@@ -6,9 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Download, FileSignature, Handshake, Trash2 } from 'lucide-react'
-import { IoCopyOutline } from 'react-icons/io5'
-import { MdOutlineModeEdit } from 'react-icons/md'
+import { Download, FileSignature, Handshake, Trash2 } from '@/components/icons'
+import { Copy as IoCopyOutline } from '@/components/icons'
+import { Pencil as MdOutlineModeEdit } from '@/components/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import ScreenLoader from '@/components/shared/ScreenLoader'

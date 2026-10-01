@@ -1,7 +1,7 @@
 'use client'
 
 import SelectCounterPartyGroup from '@/components/ReadyComponents/SelectCounterPartyGroup'
-import { Check, ChevronLeft, ChevronRight, Clock, Loader2, Search, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Clock, Loader2, Search, X } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'

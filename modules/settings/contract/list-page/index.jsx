@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'

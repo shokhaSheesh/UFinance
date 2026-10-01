@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { CalendarRange } from 'lucide-react'
+import { CalendarRange } from '@/components/icons'
 import { toJS } from 'mobx'
 import moment from 'moment'
 import { useLocale } from 'next-intl'

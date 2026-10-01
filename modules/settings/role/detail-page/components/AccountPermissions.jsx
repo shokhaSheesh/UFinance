@@ -1,7 +1,7 @@
 'use client'
 
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { Fragment } from 'react'
 import { getEntityCheckState } from '../utils/accountPermissionUtils'
 

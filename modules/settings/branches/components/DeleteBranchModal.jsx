@@ -1,7 +1,7 @@
 'use client'
 
 import CustomDialog, { ConfirmDetail, ConfirmDialog, DialogBody, DialogFooter, DialogHeader } from '@/components/shared/CustomDialog'
-import { AlertTriangle, Trash2 } from 'lucide-react'
+import { AlertTriangle, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 function DeleteBranchModal({ open, onClose, onConfirm, branch, loading }) {

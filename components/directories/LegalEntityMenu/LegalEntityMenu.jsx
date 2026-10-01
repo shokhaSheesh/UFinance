@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { appStore } from '../../../store/app.store'

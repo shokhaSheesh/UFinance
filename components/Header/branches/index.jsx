@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/hooks/useAppRouter'

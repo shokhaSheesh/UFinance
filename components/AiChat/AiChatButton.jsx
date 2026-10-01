@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { aiChatStore } from "@/store/aiChat.store";
 import { appStore } from "@/store/app.store";
 import { uiStore } from "@/store/ui.store";
-import { X } from "lucide-react";
+import { X } from '@/components/icons';
+import AiSparkIcon from '@/components/icons/AiSparkIcon';
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -99,9 +100,7 @@ const AiChatButton = observer(() => {
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6bff]"
         )}
       >
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
-          <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
-        </svg>
+        <AiSparkIcon size={24} strokeWidth={2} />
       </button>
     </div>
   );

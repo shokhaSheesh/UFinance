@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/helpers'
-import { Package } from 'lucide-react'
+import { Package } from '@/components/icons'
 
 const tdBase = 'px-3.5 py-3 border-b border-slate-100 whitespace-nowrap text-slate-700'
 const num = 'text-right tabular-nums'

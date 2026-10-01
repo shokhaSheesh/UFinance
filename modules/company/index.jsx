@@ -14,7 +14,7 @@ import {
   Scale,
   TrendingDown,
   TrendingUp,
-} from 'lucide-react'
+} from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { Block, ProjectsRoi, RankedList, RatioBar, TurnoverDays } from './components/CompanyBlocks'

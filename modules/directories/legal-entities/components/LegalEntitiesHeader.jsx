@@ -1,5 +1,5 @@
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 
 /**
  * Шапка справочника юрлиц: заголовок с количеством и создание.

@@ -10,7 +10,6 @@ import { apiClient } from '@/lib/api/ucode/base'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
-import { DealIcon, UsersIcon } from '@/constants/icons'
 import { useMutation } from '@tanstack/react-query'
 import {
   Briefcase,
@@ -26,8 +25,10 @@ import {
   ListTree,
   Package,
   Warehouse,
-} from 'lucide-react'
-import { IoSettingsOutline } from 'react-icons/io5'
+  CounterpartiesIcon,
+  DealsIcon,
+  Settings,
+} from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
@@ -117,7 +118,7 @@ const MobileProfilePage = observer(() => {
 
   const logout = () => {
     authStore.logout()
-    router.push('/auth')
+    router.push('/m/auth')
   }
 
   const soon = t('profile.soon')
@@ -127,10 +128,10 @@ const MobileProfilePage = observer(() => {
       key: 'sections',
       title: t('profile.sections'),
       rows: [
-        { key: 'deals', icon: DealIcon, label: tNav('nav.deals'), can: permission?.deals?.read, href: '/m/deals' },
+        { key: 'deals', icon: DealsIcon, label: tNav('nav.deals'), can: permission?.deals?.read, href: '/m/deals' },
         {
           key: 'counterparties',
-          icon: UsersIcon,
+          icon: CounterpartiesIcon,
           label: tNav('nav.counterparties'),
           can: permission?.directories?.counterparties?.read,
           href: '/m/counterparties',
@@ -205,7 +206,7 @@ const MobileProfilePage = observer(() => {
       key: 'settings',
       title: tNav('nav.settings'),
       rows: [
-        { key: 'settings', icon: IoSettingsOutline, label: t('profile.appSettings'), can: permission?.settings?.general?.read, href: '/m/settings' },
+        { key: 'settings', icon: Settings, label: t('profile.appSettings'), can: permission?.settings?.general?.read, href: '/m/settings' },
       ],
     },
   ]

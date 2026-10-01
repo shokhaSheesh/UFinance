@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from '@/components/icons'
 
 /** Меню строки списка бюджетов: «Редактировать» / «Удалить». */
 const BudgetRowMenu = ({ onEdit, onDelete, editLabel, deleteLabel, canEdit = true, canDelete = true }) => {

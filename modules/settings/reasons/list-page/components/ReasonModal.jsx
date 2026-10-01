@@ -2,7 +2,7 @@
 
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { useSaveReason } from '../hooks/useReasonsData'

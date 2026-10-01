@@ -2,7 +2,7 @@
 
 import FigureCard from '@/components/mobile/FigureCard'
 import Money from '@/components/shared/Money'
-import { Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { Percent, TrendingDown, TrendingUp, Wallet } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 
 /**

@@ -12,7 +12,7 @@ import {
 import { showErrorNotification } from '@/lib/utils/notifications'
 import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
-import { Building2, Loader2 } from 'lucide-react'
+import { Building2, Loader2 } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'

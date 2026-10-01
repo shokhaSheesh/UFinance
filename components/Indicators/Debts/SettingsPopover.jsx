@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import OperationCheckbox from '@/components/shared/Checkbox/operationCheckbox'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { indicators } from '@/store/indicatos.store'
-import { Settings } from 'lucide-react'
+import { Settings } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

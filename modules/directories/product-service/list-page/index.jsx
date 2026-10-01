@@ -11,7 +11,7 @@ import TableCard from "@/components/shared/Table/TableCard";
 import TableToolbar from "@/components/shared/Table/TableToolbar";
 import FixedContent from "@/layouts/FixedContent";
 import { appStore } from "@/store/app.store";
-import { Package, Search, Trash2 } from "lucide-react";
+import { Package, Search, Trash2 } from '@/components/icons';
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useMemo, useState } from "react";

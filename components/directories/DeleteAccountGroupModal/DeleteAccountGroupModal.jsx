@@ -1,5 +1,5 @@
 import { ConfirmDialog } from '@/components/shared/CustomDialog'
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 
 const DeleteAccountGroupModal = ({ isOpen, onClose, onConfirm, groupName, isDeleting }) => {
   return (

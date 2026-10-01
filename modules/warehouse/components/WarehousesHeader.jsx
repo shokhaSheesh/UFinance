@@ -1,7 +1,7 @@
 'use client'
 
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
-import { ArrowLeftRight, Plus } from 'lucide-react'
+import { ArrowLeftRight, Plus } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 /**

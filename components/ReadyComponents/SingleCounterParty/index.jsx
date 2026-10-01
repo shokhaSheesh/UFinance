@@ -1,7 +1,7 @@
 "use client";
 import CreateCounterpartyModal from "@/components/directories/CreateCounterpartyModal/CreateCounterpartyModal";
 import { debounce } from "lodash";
-import { Plus } from "lucide-react";
+import { Plus } from '@/components/icons';
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { useUcodeRequestQuery } from "../../../hooks/useDashboard";

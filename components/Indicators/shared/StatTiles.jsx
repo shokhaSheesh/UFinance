@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from '@/components/icons'
 
 /**
  * Итоги графика плитками над ним. Раньше итоги стояли узкой колонкой слева

@@ -1,7 +1,7 @@
 'use client'
 
 import { formatAmount } from '@/utils/helpers'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from '@/components/icons'
 import {
   Bar,
   CartesianGrid,

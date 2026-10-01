@@ -1,13 +1,14 @@
 'use client'
 
 import AiChatPanel from '@/components/AiChat/AiChatPanel'
+import AiSparkIcon from '@/components/icons/AiSparkIcon'
 import { useRouter } from '@/hooks/useAppRouter'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
 import { aiChatStore } from '@/store/aiChat.store'
 import { appStore } from '@/store/app.store'
 import { languageStore } from '@/store/language.store'
-import { ArrowLeftRight, BarChart3, Home, User } from 'lucide-react'
+import { ArrowLeftRight, BarChart3, Home, User } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import 'moment/locale/ru'
@@ -33,12 +34,6 @@ const TABS = [
   { href: '/m/profile', key: 'profile', icon: User },
 ]
 
-/** Звезда ассистента — та же, что у кнопки ИИ на компьютере. */
-const SparkIcon = () => (
-  <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
-    <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
-  </svg>
-)
 
 const MobileAppLayout = observer(({ children }) => {
   const t = useTranslations('Mobile')
@@ -61,6 +56,7 @@ const MobileAppLayout = observer(({ children }) => {
     '/m/profile/account/field',
     '/m/profile/account/phone',
     '/m/profile/account/password',
+    '/m/auth',
   ]
   const hideTabs = SELF_ACTION_ROUTES.some((route) => pathname.startsWith(route))
 
@@ -86,7 +82,7 @@ const MobileAppLayout = observer(({ children }) => {
                     aria-label={tAi('buttonLabel')}
                     className="-mt-7 flex h-[62px] w-[62px] items-center justify-center rounded-full bg-gradient-to-br from-[#4f8bff] to-[#2f5bff] text-white shadow-[0_10px_24px_rgba(47,107,255,0.45)] ring-[5px] ring-white transition-transform active:scale-95"
                   >
-                    <SparkIcon />
+                    <AiSparkIcon size={28} strokeWidth={2} />
                   </button>
                 </div>
               )

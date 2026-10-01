@@ -5,7 +5,7 @@ import { MSelectField, MSwitch } from '@/components/mobile/fields'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useGeneralSettings } from '@/modules/settings/general/hooks/useGeneralSettings'
 import useMounted from '@/hooks/useMounted'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

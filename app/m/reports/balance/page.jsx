@@ -15,7 +15,7 @@ import { AXIS_LABEL, SPLIT_LINE } from '@/components/Indicators/shared/chartThem
 import { formatValueLength } from '@/utils/helpers'
 import ReactECharts from 'echarts-for-react'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, LayoutGrid, Loader2, Rows3, Scale } from 'lucide-react'
+import { CalendarDays, LayoutGrid, Loader2, Rows3, Scale } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'

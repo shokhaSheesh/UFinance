@@ -4,7 +4,7 @@ import CustomDialog from '@/components/shared/CustomDialog'
 import Loader from '@/components/shared/Loader'
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { FormatDateRu } from '@/utils/helpers'
-import { X } from 'lucide-react'
+import { X } from '@/components/icons'
 
 // «Продажа» — плановые отгрузки, «Закупки» — плановые поставки
 const LIST_METHOD = {

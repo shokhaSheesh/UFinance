@@ -5,7 +5,7 @@ import Input from '@/components/shared/Input'
 import { apiClient } from '@/lib/api/ucode/base'
 import { queryClient } from '@/lib/queryClient'
 import { useMutation } from '@tanstack/react-query'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 

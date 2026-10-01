@@ -4,7 +4,7 @@ import BottomSheet from '@/components/mobile/BottomSheet'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { cn } from '@/lib/utils'
-import { Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

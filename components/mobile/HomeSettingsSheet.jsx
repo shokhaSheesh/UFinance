@@ -3,7 +3,7 @@
 import BottomSheet from '@/components/mobile/BottomSheet'
 import { cn } from '@/lib/utils'
 import { mobileHomeStore } from '@/store/mobileHome.store'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

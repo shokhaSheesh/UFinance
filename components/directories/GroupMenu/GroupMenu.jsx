@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 export function GroupMenu({ group, onEdit, onDelete, onCreateCounterparty }) {

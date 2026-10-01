@@ -39,17 +39,19 @@ const loadBranches = async (getMyBranches, attempts = 3) => {
  * доезжает (отменённый transition, ошибка RSC-запроса, гонка с proxy.js) —
  * тогда добиваем жёстким переходом, чтобы не залипнуть на форме входа.
  */
-const enterApp = (router) => {
-  router.replace("/operations");
+const enterApp = (router, to = "/operations") => {
+  router.replace(to);
   if (typeof window === "undefined") return;
   setTimeout(() => {
-    if (window.location.pathname.startsWith("/auth")) {
-      window.location.replace("/operations");
+    // и /auth на компьютере, и /m/auth на телефоне
+    if (/(^|\/)auth(\/|$)/.test(window.location.pathname)) {
+      window.location.replace(to);
     }
   }, 1200);
 };
 
-export function useLogin() {
+/** redirectTo — куда вести после входа: телефон открывает /m, компьютер — /operations */
+export function useLogin({ redirectTo } = {}) {
   const t = useTranslations("Auth");
   const router = useRouter();
 
@@ -142,7 +144,7 @@ export function useLogin() {
 
       queryClient.invalidateQueries({ queryKey: ["get_general_settings"] });
 
-      enterApp(router); // 7445
+      enterApp(router, redirectTo); // 7445
     },
     onError: () => {
       const errorMessage = t("notifications.loginError");
@@ -151,7 +153,7 @@ export function useLogin() {
   });
 }
 
-export function useRegister() {
+export function useRegister({ redirectTo } = {}) {
   const t = useTranslations("Auth");
   const router = useRouter();
   const locale = useLocale();
@@ -201,7 +203,7 @@ export function useRegister() {
       if (branches.length === 0)
         showErrorNotification(t("notifications.branchesError"));
       showSuccessNotification(t("notifications.registerSuccess"));
-      enterApp(router);
+      enterApp(router, redirectTo);
     },
     onError: (error) => {
       console.log("Register error:", error);

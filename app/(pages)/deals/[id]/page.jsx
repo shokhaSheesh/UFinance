@@ -33,15 +33,15 @@ import { appStore } from '@/store/app.store';
 import { sealDeal } from '@/store/saleDeal.store';
 import { calculatePercent, formatAmount, formatDateRu, formatNumber, formatTotalSumma } from '@/utils/helpers';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
-import { ChevronUp, CirclePlus, FileDown, Loader2, Pencil, Plus, Search, Trash, Undo2 } from 'lucide-react';
+import { ChevronUp, CirclePlus, FileDown, Loader2, Pencil, Plus, Search, Trash, Undo2 } from '@/components/icons';
 import { observer } from 'mobx-react-lite';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation'
 import { useRouter } from '@/hooks/useAppRouter';
 import { useMemo, useState } from 'react';
-import { HiOutlineDatabase } from "react-icons/hi";
-import { HiOutlineCreditCard } from "react-icons/hi2";
-import { PiDatabaseFill } from "react-icons/pi";
+import { Database as HiOutlineDatabase } from '@/components/icons';
+import { CreditCard as HiOutlineCreditCard } from '@/components/icons';
+import { DatabaseFill as PiDatabaseFill } from '@/components/icons';
 import styles from './deal-detail.module.scss';
 
 

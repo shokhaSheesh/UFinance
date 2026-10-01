@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { STATUS_COLORS } from '@/lib/api/ucode/projects'
-import { Check, ChevronDown, ChevronRight } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight } from '@/components/icons'
 import HintQuestion from '@/components/shared/HintQuestion'
 import moment from 'moment'
 import styles from '../projects.module.scss'

@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import counterpartiesStore from '@/store/counterparties.store'
 import { formatDate } from '@/utils/formatDate'
-import { ArrowLeft, FileDown, Loader2, PenLine, Trash2 } from 'lucide-react'
+import { ArrowLeft, FileDown, Loader2, PenLine, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 

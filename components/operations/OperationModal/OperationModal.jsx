@@ -2,7 +2,7 @@
 
 import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from '@/lib/utils'
-import { Clock, MessageSquareText, X } from 'lucide-react'
+import { Clock, MessageSquareText, X } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'

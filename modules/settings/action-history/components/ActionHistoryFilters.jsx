@@ -4,7 +4,7 @@ import NewDateRangeComponent from '@/components/directories/NewDateRangeComponen
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { ACTIONS, TABLE_SLUGS } from '@/modules/settings/action-history/utils/constants'
-import { Search, X } from 'lucide-react'
+import { Search, X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 const ActionHistoryFilters = ({

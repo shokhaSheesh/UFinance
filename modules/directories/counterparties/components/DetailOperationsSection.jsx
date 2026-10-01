@@ -5,7 +5,7 @@ import SelectLegelEntitties from '@/components/ReadyComponents/SelectLegelEntitt
 import OperationTableRow from '@/components/operations/TableRow/new'
 import { cn } from '@/lib/utils'
 import CreateOperationMenu from '@/components/operations/CreateOperationMenu/CreateOperationMenu'
-import { ChevronDown, ReceiptText, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, ReceiptText, SlidersHorizontal } from '@/components/icons'
 import { useState } from 'react'
 
 const DetailOperationsSection = ({

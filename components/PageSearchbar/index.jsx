@@ -1,7 +1,7 @@
 'use client';
 
 import { usePageSearch } from '@/hooks/usePageSearch';
-import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, X } from '@/components/icons';
 import { useEffect, useRef } from 'react';
 
 export function PageSearchBar({

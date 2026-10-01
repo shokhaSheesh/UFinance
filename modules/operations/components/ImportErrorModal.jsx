@@ -1,5 +1,5 @@
 // components/ImportErrorModal.jsx
-import { TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from '@/components/icons'
 import { DialogBody, DialogFooter, DialogHeader } from '@/components/shared/CustomDialog'
 import { handleDownload } from '@/utils/helpers'
 import { Suspense } from 'react'

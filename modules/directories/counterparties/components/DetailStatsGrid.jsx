@@ -1,6 +1,6 @@
 import KpiCard from '@/components/shared/KpiCard/KpiCard'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { ArrowDownLeft, ArrowUpRight, PenLine, Plus, Scale, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, PenLine, Plus, Scale, TrendingDown, TrendingUp } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

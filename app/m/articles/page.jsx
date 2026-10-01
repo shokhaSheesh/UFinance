@@ -9,7 +9,7 @@ import { useUcodeRequestMutation, useUcodeRequestQuery } from '@/hooks/useDashbo
 import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
-import { ChevronRight, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { ChevronRight, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'

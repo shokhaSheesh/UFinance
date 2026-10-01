@@ -15,7 +15,7 @@ import {
   Landmark,
   Loader2,
   Receipt,
-} from 'lucide-react'
+} from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'

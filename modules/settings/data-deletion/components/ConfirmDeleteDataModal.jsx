@@ -2,7 +2,7 @@
 
 import { ConfirmDialog } from '@/components/shared/CustomDialog'
 import PasswordInput from '@/modules/settings/profile/components/PasswordInput'
-import { TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 // Пароль спрашиваем в самом диалоге: delete_all_data требует его в object_data,

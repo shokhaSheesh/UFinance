@@ -8,9 +8,9 @@ import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { ExpendClose, ExpendOpen } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/utils/helpers";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from '@/components/icons';
 import React from "react";
-import { IoCopyOutline } from "react-icons/io5";
+import { Copy as IoCopyOutline } from '@/components/icons';
 
 const ProductServiceGroupRow = ({
   group,

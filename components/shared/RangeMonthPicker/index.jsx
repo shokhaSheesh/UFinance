@@ -4,7 +4,7 @@ import { useState } from "react";
 import DatePicker from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
 
-import { CalendarRange } from "lucide-react";
+import { CalendarRange } from '@/components/icons';
 import './month-picker.scss';
 
 const RangeMonthPicker = ({ value, onChange, format = "MMMM, YYYY", className, ...props }) => {

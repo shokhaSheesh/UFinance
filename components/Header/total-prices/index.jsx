@@ -8,7 +8,7 @@ import { formatDateTime } from "@/utils/formatDate";
 import Money from "@/components/shared/Money";
 import { formatAmount, formatNumber, formatTotalSumma } from "@/utils/helpers";
 import { keepPreviousData } from "@tanstack/react-query";
-import { ChevronDown, EllipsisVertical, Maximize2 } from "lucide-react";
+import { ChevronDown, EllipsisVertical, Maximize2 } from '@/components/icons';
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";

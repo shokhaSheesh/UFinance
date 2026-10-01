@@ -1,6 +1,6 @@
 import IconButton from "@/components/shared/Buttons/IconButton";
 import PageHeader from "@/components/shared/PageHeader/PageHeader";
-import { Download, Plus } from "lucide-react";
+import { Download, Plus } from '@/components/icons';
 import { useTranslations } from "next-intl";
 
 /**

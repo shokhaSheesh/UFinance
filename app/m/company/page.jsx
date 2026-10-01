@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { ProjectsRoi, RankedList, RatioBar, TurnoverDays } from '@/modules/company/components/CompanyBlocks'
 import { IncomeExpenseByPeriod, ProfitVsCashChart } from '@/modules/company/components/CompanyCharts'
 import { useCompanyData } from '@/modules/company/hooks/useCompanyData'
-import { ArrowDownLeft, ArrowUpRight, Banknote, Loader2, Percent, PiggyBank, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Banknote, Loader2, Percent, PiggyBank, TrendingDown, TrendingUp, Wallet } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

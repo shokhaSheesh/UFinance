@@ -13,7 +13,7 @@ import { useBudget, useBudgetPlan, useDeleteBudget, useSaveBudgetPlan } from '@/
 import { buildBudgetPeriod, buildBudgetRows, hiddenRowIdsFor } from '@/modules/plans/utils/budgetTree'
 import { deviation, formatDeviation, parseInputNumber, planExecution, toInputValue } from '@/modules/plans/utils/format'
 import { appStore } from '@/store/app.store'
-import { ChevronDown, ChevronRight, ClipboardList, Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, ClipboardList, Loader2, MoreHorizontal, Pencil, Trash2 } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'

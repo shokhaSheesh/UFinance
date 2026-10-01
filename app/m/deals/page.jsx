@@ -6,7 +6,6 @@ import DealFormSheet from '@/components/mobile/forms/DealFormSheet'
 import { MCard, MEmpty, MScreenHeader } from '@/components/mobile/ui'
 import Money from '@/components/shared/Money'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { DealIcon } from '@/constants/icons'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useUcodeRequestInfinite, useUcodeRequestMutation } from '@/hooks/useDashboard'
 import useMounted from '@/hooks/useMounted'
@@ -20,7 +19,7 @@ import { appStore } from '@/store/app.store'
 import { authStore } from '@/store/auth.store'
 import { sealDeal } from '@/store/saleDeal.store'
 import { StringtoNumber } from '@/utils/helpers'
-import { Check, ChevronDown, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { Check, DealsIcon, ChevronDown, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2, X } from '@/components/mobile/icons'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
@@ -286,7 +285,7 @@ const MobileDealsPage = observer(() => {
         )}
 
         {!isLoading && !deals.length && (
-          <MEmpty icon={DealIcon} title={isPurchase ? tm('deals.purchasesEmpty') : tm('deals.empty')} />
+          <MEmpty icon={DealsIcon} title={isPurchase ? tm('deals.purchasesEmpty') : tm('deals.empty')} />
         )}
 
         <div className="flex flex-col gap-2.5">

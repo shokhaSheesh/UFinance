@@ -5,7 +5,7 @@ import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import TextArea from '@/components/shared/TextArea'
 import { appStore } from '@/store/app.store'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/icons'
 import { useState } from 'react'
 import MonthRangePicker from './MonthRangePicker'
 

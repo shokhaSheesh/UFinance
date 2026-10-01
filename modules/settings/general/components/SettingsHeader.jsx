@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 const SettingsHeader = ({ hasChanges, isSaving, onSave, children }) => {

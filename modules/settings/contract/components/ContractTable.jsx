@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil } from 'lucide-react'
+import { Pencil } from '@/components/icons'
 
 const ContractTable = ({ contracts, onEdit, tco, tc }) => {
   return (

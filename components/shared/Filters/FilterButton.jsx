@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 /**

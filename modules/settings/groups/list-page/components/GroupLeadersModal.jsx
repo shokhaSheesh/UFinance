@@ -3,7 +3,7 @@
 import SelectUsers from '@/components/ReadyComponents/SelectUsers'
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Loader, Plus, Trash2, UserPlus } from 'lucide-react'
+import { Loader, Plus, Trash2, UserPlus } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { colorOf, initialsOf } from '../utils/avatar'

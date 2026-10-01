@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from "@/lib/utils";
-import { Copy, Pencil, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from '@/components/icons';
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";

@@ -1,4 +1,4 @@
-import { CalendarRange } from 'lucide-react'
+import { CalendarRange } from '@/components/icons'
 import moment from 'moment'
 import DatePicker from 'react-multi-date-picker'
 import './form-datepicker.scss'

@@ -3,7 +3,7 @@
 import useModalPresence from '@/hooks/useModalPresence'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
-import { RotateCcw, SlidersHorizontal, X } from 'lucide-react'
+import { RotateCcw, SlidersHorizontal, X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'

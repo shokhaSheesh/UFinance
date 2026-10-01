@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Download, FileSpreadsheet, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, FileSpreadsheet, Pencil, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/hooks/useAppRouter'
 

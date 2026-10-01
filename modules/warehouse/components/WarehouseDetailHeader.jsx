@@ -1,7 +1,7 @@
 'use client'
 
 import BackLink from '@/components/shared/BackLink/BackLink'
-import { ArrowLeftRight, ClipboardCheck, MapPin, PackageOpen, Truck, Warehouse as WarehouseIcon } from 'lucide-react'
+import { ArrowLeftRight, ClipboardCheck, MapPin, PackageOpen, Truck, Warehouse as WarehouseIcon } from '@/components/icons'
 
 /**
  * Шапка карточки склада: ссылка к списку, значок, название с отметкой

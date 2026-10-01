@@ -4,7 +4,7 @@ import CustomDialog, { DialogBody, DialogFooter, DialogHeader } from '@/componen
 import CustomDatePicker from '@/components/shared/DatePicker'
 import Input from '@/components/shared/Input'
 import { GlobalCurrency } from '@/constants/globalCurrency'
-import { Search } from 'lucide-react'
+import { Search } from '@/components/icons'
 
 /**
  * UI-only modal for attaching operations (payments) to a purchase deal.

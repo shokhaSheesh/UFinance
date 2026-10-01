@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight } from '@/components/icons'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BUDGET_TOKENS as T } from '@/modules/plans/utils/tokens'

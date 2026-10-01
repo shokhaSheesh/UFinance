@@ -1,7 +1,7 @@
 'use client'
 
 import CustomDialog from '@/components/shared/CustomDialog'
-import { Loader, Save } from 'lucide-react'
+import { Loader, Save } from '@/components/icons'
 import { useCallback, useState } from 'react'
 import { showErrorNotification } from '@/lib/utils/notifications'
 import ContractEditorToolbar from '@/modules/settings/contract/components/ContractEditorToolbar'

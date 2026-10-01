@@ -1,5 +1,5 @@
 'use client'
-import { MessageSquareText, Minimize2 } from 'lucide-react'
+import { MessageSquareText, Minimize2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'

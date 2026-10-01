@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Check, ChevronDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus } from '@/components/icons'
 import { useEffect, useRef, useState } from 'react'
 
 /**

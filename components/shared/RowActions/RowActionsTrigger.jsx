@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { EllipsisVertical, Loader2 } from 'lucide-react'
+import { EllipsisVertical, Loader2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { forwardRef } from 'react'
 

@@ -1,7 +1,8 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Landmark, PiggyBank, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { Landmark, PiggyBank, TrendingDown, TrendingUp, Wallet } from '@/components/icons'
+import * as MobileIcons from '@/components/mobile/icons'
 
 /**
  * Пять разделов плана счетов: доходы, расходы, активы, обязательства, капитал.
@@ -29,11 +30,20 @@ const CALM_TONES = {
   expense: 'bg-red-50 text-red-600',
 }
 
-/** Значок раздела в круге его цвета. calm — палитра телефона. */
+const CALM_ICONS = {
+  income: MobileIcons.TrendingUp,
+  expense: MobileIcons.TrendingDown,
+  assets: MobileIcons.Wallet,
+  liabilities: MobileIcons.Landmark,
+  capital: MobileIcons.PiggyBank,
+}
+
+/** Значок раздела в круге его цвета. calm — палитра и значки телефона. */
 export function CategoryTypeIcon({ type, size = 'md', className, calm = false }) {
   const config = CATEGORY_TYPE_BY_KEY[type]
   if (!config) return null
-  const { Icon } = config
+  // calm — телефон: значок из набора телефона (Phosphor) и спокойный цвет
+  const Icon = calm ? CALM_ICONS[type] || config.Icon : config.Icon
   const tone = calm ? CALM_TONES[type] || 'bg-slate-100 text-slate-500' : config.tone
   const box = size === 'sm' ? 'h-6 w-6' : 'h-7 w-7'
 

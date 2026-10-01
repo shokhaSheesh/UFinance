@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { ChevronsRight } from 'lucide-react'
+import { ChevronsRight } from '@/components/mobile/icons'
 import { useRef, useState } from 'react'
 
 /**
@@ -80,7 +80,8 @@ export default function SlideToConfirm({ label, onConfirm, tone = 'danger', clas
       {/* Подпись короткая: что делает, объясняет само движение кнопки */}
       <span
         className={cn(
-          'pointer-events-none absolute inset-0 flex items-center justify-center text-[15px] font-semibold',
+          // подпись слева, сразу за ползунком — как названия разделов профиля
+          'pointer-events-none absolute inset-0 flex items-center justify-start pl-[72px] text-[15px] font-semibold',
           danger ? 'text-red-600' : 'text-slate-700'
         )}
         style={{ opacity: 1 - progress * 1.6 }}

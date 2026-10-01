@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { getZoomAwareRect } from '@/utils/getZoomAwareRect'
-import { Check, ChevronUp, Loader2, Search, X } from 'lucide-react'
+import { Check, ChevronUp, Loader2, Search, X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'

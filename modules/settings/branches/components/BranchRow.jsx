@@ -1,6 +1,6 @@
 'use client'
 
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Pencil, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/hooks/useAppRouter'
 import { useEffect, useRef, useState } from 'react'

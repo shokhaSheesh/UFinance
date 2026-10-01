@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { keepPreviousData } from "@tanstack/react-query";
-import { MessageSquareText, TrashIcon, Truck, X } from "lucide-react";
+import { MessageSquareText, TrashIcon, Truck, X } from '@/components/icons';
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import moment from "moment";

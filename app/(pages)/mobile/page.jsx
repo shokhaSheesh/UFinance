@@ -3,7 +3,7 @@
 import Segmented from '@/components/shared/Segmented/Segmented'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { cn } from '@/lib/utils'
-import { BatteryFull, ExternalLink, RotateCcw, Signal, Wifi } from 'lucide-react'
+import { BatteryFull, ExternalLink, RotateCcw, Signal, Wifi } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -29,6 +29,7 @@ const ROUTES = [
   { value: '/m/transactions', key: 'transactions', ready: true },
   { value: '/m/reports', key: 'reports' },
   { value: '/m/profile', key: 'profile', ready: true },
+  { value: '/m/auth', key: 'auth', ready: true },
 ]
 
 export default function MobilePreviewPage() {

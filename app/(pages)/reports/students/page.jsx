@@ -17,7 +17,7 @@ import { defaultRangeMonth, student } from "@/store/student.store"
 import { formatStudentTableDate } from "@/utils/formatDate"
 import { formatNumber, handleDownload } from "@/utils/helpers"
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
-import { Download } from "lucide-react"
+import { Download } from '@/components/icons'
 import { observer } from "mobx-react-lite"
 import { useTranslations } from "next-intl"
 import { useCallback, useMemo, useState } from "react"

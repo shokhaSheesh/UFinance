@@ -8,7 +8,7 @@ import { useChartOfAccountsCategories } from "@/hooks/useChartOfAccountsCategori
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { operationFilterStore } from "@/store/operationFilter.store";
-import { CornerDownRight } from "lucide-react";
+import { CornerDownRight } from '@/components/icons';
 import OperationTypeIcon from "@/components/operations/OperationTypeIcon/OperationTypeIcon";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";

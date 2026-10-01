@@ -2,12 +2,12 @@
 
 import FixedContent from '@/layouts/FixedContent'
 import { appStore } from '@/store/app.store'
-import { Banknote, CalendarX, GitBranch, History, Settings as SettingsIcon, Shield, Trash2, User, Users } from 'lucide-react'
+import { Banknote, CalendarX, GitBranch, History, Settings as SettingsIcon, Shield, Trash2, User, Users } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TbContract } from 'react-icons/tb'
+import { FileSignature as TbContract } from '@/components/icons'
 
 
 export default observer(function SettingLayouts({ children }) {

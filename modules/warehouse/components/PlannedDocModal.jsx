@@ -12,7 +12,7 @@ import {
 } from '@/modules/warehouse/utils/stockCheck'
 import { appStore } from '@/store/app.store'
 import { FormatDateRu, formatNumber } from '@/utils/helpers'
-import { X } from 'lucide-react'
+import { X } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const includedPaths = ['auth', 'payment', 'delete-account']
+const includedPaths = ['auth', 'm/auth', 'payment', 'delete-account']
 
 // /:chatId/attendance — webview переклички для телеграм-бота, открывается без логина
 const publicPatterns = [/^\/[^/]+\/attendance(\/|$)/]
@@ -30,7 +30,9 @@ export function proxy(request) {
 
 
   if (!isAuthenticated) {
-    return NextResponse.redirect(new URL('/auth', request.url))
+    // телефонная версия ведёт на свой экран входа
+    const loginPath = pathname === '/m' || pathname.startsWith('/m/') ? '/m/auth' : '/auth'
+    return NextResponse.redirect(new URL(loginPath, request.url))
   }
 
   return NextResponse.next()

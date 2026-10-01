@@ -4,7 +4,7 @@ import CustomDialog from '@/components/shared/CustomDialog'
 import Loader from '@/components/shared/Loader'
 import { useWarehouseTransfers } from '@/hooks/useDashboard'
 import { FormatDateRu, formatNumber } from '@/utils/helpers'
-import { ChevronLeft, ChevronRight, Plus, Search, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Search, X } from '@/components/icons'
 import { useEffect, useState } from 'react'
 
 const LIMIT = 20

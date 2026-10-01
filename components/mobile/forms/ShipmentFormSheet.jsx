@@ -16,7 +16,7 @@ import { showErrorNotification, showSuccessNotification } from '@/lib/utils/noti
 import { appStore } from '@/store/app.store'
 import { formatDecimal } from '@/utils/helpers'
 import { useQueries, useQuery } from '@tanstack/react-query'
-import { Check, Loader2, Package, Undo2 } from 'lucide-react'
+import { Check, Loader2, Package, Undo2 } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'

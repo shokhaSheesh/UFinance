@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Search, Variable, X } from 'lucide-react'
+import { Check, Search, Variable, X } from '@/components/icons'
 import { useMemo, useRef, useState } from 'react'
 import {
   CONTRACT_VARIABLES_COUNT,

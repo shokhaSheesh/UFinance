@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import useMounted from '@/hooks/useMounted'
-import { ChevronDown, FolderPlus, Package, Plus, Wrench } from 'lucide-react'
+import { ChevronDown, FolderPlus, Package, Plus, Wrench } from '@/components/icons'
 
 /**
  * Шапка справочника товаров и услуг: заголовок с количеством позиций и

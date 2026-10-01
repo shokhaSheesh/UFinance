@@ -27,7 +27,7 @@ import {
   getPeriodLength,
 } from "@/utils/helpers";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import { Edit2, Eye, Loader2, Trash2 } from "lucide-react";
+import { Edit2, Eye, Loader2, Trash2 } from '@/components/icons';
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { useTranslations } from "next-intl";

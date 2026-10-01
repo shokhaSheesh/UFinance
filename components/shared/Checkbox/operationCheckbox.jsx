@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { LuCheck, LuMinus } from 'react-icons/lu'
+import { Check as LuCheck, Minus as LuMinus } from '@/components/icons'
 import styles from './operationCheckbox.module.scss'
 
 const OperationCheckbox = ({

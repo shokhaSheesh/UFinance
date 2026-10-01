@@ -10,7 +10,7 @@ import {
   Settings as SettingsIcon,
   Shield,
   User,
-} from 'lucide-react'
+} from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'

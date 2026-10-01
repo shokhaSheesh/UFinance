@@ -2,7 +2,7 @@
 import IconButton from '@/components/shared/Buttons/IconButton'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import { appStore } from '@/store/app.store'
-import { Download, Plus } from 'lucide-react'
+import { Download, Plus } from '@/components/icons'
 
 /**
  * Шапка страницы сделок: заголовок и действия.

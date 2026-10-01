@@ -10,7 +10,7 @@ import {
   ChevronDown,
   Download,
   Plus,
-} from 'lucide-react'
+} from '@/components/icons'
 import HintQuestion from '@/components/shared/HintQuestion'
 
 /**

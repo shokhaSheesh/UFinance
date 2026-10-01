@@ -1,5 +1,5 @@
-export { IoCloseOutline, IoCopyOutline } from "react-icons/io5";
-export { MdOutlineModeEdit } from "react-icons/md";
+// Прежние имена значков react-icons — теперь из общего набора Phosphor
+export { X as IoCloseOutline, Copy as IoCopyOutline, Pencil as MdOutlineModeEdit } from "@/components/icons";
 
 
 // wordmarkColor — цвет буквы «F». По умолчанию белый (логотип на тёмном

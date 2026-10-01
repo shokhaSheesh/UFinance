@@ -1,4 +1,4 @@
-import { Package } from 'lucide-react'
+import { Package } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 export default function EmptyState({ title, subtitle, onAdd, buttonLabel, canAdd = true, icon, buttonVariant = 'primary' }) {

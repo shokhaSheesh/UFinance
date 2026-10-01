@@ -7,7 +7,7 @@ import SelectCounterParties from '@/components/ReadyComponents/SelectCounterPart
 import SelectMyAccounts from '@/components/ReadyComponents/SelectMyAccounts'
 import OperationTableRow from '@/components/operations/TableRow/new'
 import { useSentinel } from '@/hooks/useSentinel'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from '@/components/icons'
 import { useState } from 'react'
 
 /**

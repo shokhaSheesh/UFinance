@@ -8,7 +8,7 @@ import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import CustomTooltip from '@/components/shared/Tooltip'
 import { cn } from '@/lib/utils'
 import { RESTRICTION_TYPES } from '@/utils/dataEditingRestriction'
-import { CalendarRange } from 'lucide-react'
+import { CalendarRange } from '@/components/icons'
 import moment from 'moment'
 
 /**

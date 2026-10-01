@@ -1,7 +1,7 @@
 "use client"
 
 import { ConfirmDetail, ConfirmDialog } from '@/components/shared/CustomDialog'
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 export function DeleteCategoryConfirmModal({ isOpen, category, onConfirm, onCancel, isDeleting = false }) {

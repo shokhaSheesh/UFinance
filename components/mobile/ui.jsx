@@ -1,7 +1,8 @@
 'use client'
 
+import EmptyArt from '@/components/mobile/EmptyArt'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight } from '@/components/mobile/icons'
 
 /**
  * Набор частей мобильного приложения.
@@ -171,17 +172,19 @@ export function QuickActions({ actions = [] }) {
   )
 }
 
-/** Пустое место экрана: значок, строка и объяснение. */
-export function MEmpty({ icon: Icon, title, subtitle, action }) {
+/**
+ * Пустое место экрана: общая иллюстрация, строка и объяснение.
+ *
+ * Иллюстрация одна на всё приложение (EmptyArt), поэтому проп icon больше
+ * не рисуется — он оставлен, чтобы не править вызовы на экранах.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function MEmpty({ icon, title, subtitle, action }) {
   return (
-    <div className="flex flex-col items-center gap-2 px-8 py-16 text-center">
-      {Icon && (
-        <span className="mb-1 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-          <Icon size={22} aria-hidden="true" />
-        </span>
-      )}
-      <span className="text-sm font-semibold text-slate-700">{title}</span>
-      {subtitle && <span className="text-xs text-slate-500">{subtitle}</span>}
+    <div className="flex flex-col items-center gap-1.5 px-8 py-12 text-center">
+      <EmptyArt size={128} className="mb-2" />
+      <span className="text-[15px] font-semibold text-slate-800">{title}</span>
+      {subtitle && <span className="max-w-[260px] text-[13px] leading-snug text-slate-500">{subtitle}</span>}
       {action}
     </div>
   )

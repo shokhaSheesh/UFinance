@@ -29,7 +29,7 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
-} from 'lucide-react'
+} from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { Fragment, useMemo, useState } from 'react'
@@ -348,8 +348,8 @@ const MobileHomePage = observer(() => {
         </button>
         <button
           type="button"
-          onClick={() => router.push('/m/transactions')}
-          aria-label={t('tabs.transactions')}
+          onClick={() => router.push('/m/notifications')}
+          aria-label={t('notifications.title')}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 active:bg-slate-100"
         >
           <Bell size={18} aria-hidden="true" />

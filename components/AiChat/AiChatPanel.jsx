@@ -20,14 +20,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import AiSparkIcon from "@/components/icons/AiSparkIcon";
 import styles from "./aiChat.module.scss";
 
 // ─── Иконки (из макета uf_ai_chat_13.html) ──────────────────────────────
-const StarIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z" />
-  </svg>
-);
+// значок ИИ — тот же, что на кнопке
+const StarIcon = () => <AiSparkIcon strokeWidth={2.1} />;
 
 const SendIcon = () => (
   <svg viewBox="0 0 24 24">

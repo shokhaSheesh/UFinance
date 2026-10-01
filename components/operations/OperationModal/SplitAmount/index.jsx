@@ -9,7 +9,7 @@ import { CalendarCellIcon, CalendarIcon, CreditIcon, DebitIcon, MergeArrowsIcon,
 import { appStore } from '@/store/app.store'
 import { isFuture } from '@/utils/formatDate'
 import { formatAmount, formatAmountInput, formatDateRu, formatNumber } from '@/utils/helpers'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'

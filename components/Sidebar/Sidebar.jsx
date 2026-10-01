@@ -1,17 +1,17 @@
 "use client";
 
-import { AppLogo, DealIcon, UsersIcon } from "@/constants/icons";
+import { AppLogo } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { authStore } from "@/store/auth.store";
-import { Briefcase, Building2, CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw, Smartphone, Warehouse } from 'lucide-react';
+import { Briefcase, Building2, CalendarCheck, ChartLine, ClipboardList, Library, RefreshCw, Smartphone, Warehouse , CounterpartiesIcon, DealsIcon } from '@/components/icons';
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { IoSettingsOutline } from "react-icons/io5";
+import { Settings as IoSettingsOutline } from '@/components/icons';
 
 // Тестовый баланс показываем только этой компании
 const BALANCE_TEST_COMPANY_ID = "212f6816-b0ef-42de-802b-c9738f0e8cd1";
@@ -109,14 +109,14 @@ export const Sidebar = observer(() => {
         permissions?.operations?.shipment?.read,
     },
     {
-      icon: UsersIcon,
+      icon: CounterpartiesIcon,
       label: t("nav.counterparties"),
       href: "/directories/counterparties",
       hasPage: true,
       canShow: permissions?.directories?.counterparties?.read,
     },
     {
-      icon: DealIcon,
+      icon: DealsIcon,
       label: t("nav.deals"),
       href: "/deals",
       hasPage: true,

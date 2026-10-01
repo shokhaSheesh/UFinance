@@ -9,7 +9,7 @@ import { showErrorNotification, showSuccessNotification } from '@/lib/utils/noti
 import { authStore } from '@/store/auth.store'
 import { formatPhoneNumber } from '@/utils/helpers'
 import { useMutation } from '@tanstack/react-query'
-import { ChevronRight, Loader2, Pencil } from 'lucide-react'
+import { ChevronRight, Loader2, Pencil } from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'

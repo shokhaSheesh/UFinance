@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from '@/components/icons';
 import { useCallback, useMemo, useState } from "react";
 import {
   deviation,

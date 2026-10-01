@@ -2,7 +2,7 @@
 import { useUcodeRequestQuery } from '@/hooks/useDashboard'
 import { keepPreviousData } from '@tanstack/react-query'
 import { debounce } from 'lodash'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import { CreateDealModal } from '../../deals/CreateDealModal/CreateDealModal'

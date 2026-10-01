@@ -1,7 +1,7 @@
 'use client'
 
 import { ConfirmDialog } from '@/components/shared/CustomDialog'
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 
 const DeleteUserModal = ({ user, onClose, onConfirm, isPending, tb, tc }) => {
   return (

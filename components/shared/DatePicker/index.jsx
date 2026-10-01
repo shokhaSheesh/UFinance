@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { CalendarRange } from "lucide-react";
+import { CalendarRange } from '@/components/icons';
 import { useMemo } from "react";
 import DatePicker from "react-multi-date-picker";
 import './style.scss';

@@ -7,7 +7,7 @@ import { formatNumber, formatTotalSumma, formatValueLength } from '@/utils/helpe
 import { formatCutoffTitle } from '@/utils/balancePeriods'
 import { readBalancePeriod, readBalanceSeries } from '@/utils/balanceInsights'
 import ReactECharts from 'echarts-for-react'
-import { Boxes, CheckCircle2, Coins, Gauge, Layers, Percent, Scale, TriangleAlert, Wallet } from 'lucide-react'
+import { Boxes, CheckCircle2, Coins, Gauge, Layers, Percent, Scale, TriangleAlert, Wallet } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 

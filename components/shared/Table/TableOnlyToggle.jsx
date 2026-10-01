@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Maximize2, Minimize2 } from 'lucide-react'
+import { Maximize2, Minimize2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useState } from 'react'
 

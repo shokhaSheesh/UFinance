@@ -1,7 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Loader2 } from '@/components/icons'
 import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"

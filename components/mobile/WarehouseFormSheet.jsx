@@ -3,7 +3,7 @@
 import BottomSheet from '@/components/mobile/BottomSheet'
 import { MFieldRow, MSwitch } from '@/components/mobile/fields'
 import { useCreateWarehouse, useUpdateWarehouse } from '@/hooks/useDashboard'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

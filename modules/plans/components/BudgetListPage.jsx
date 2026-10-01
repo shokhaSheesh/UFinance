@@ -25,7 +25,7 @@ import {
   Plus,
   Rows3,
   Search,
-} from 'lucide-react'
+} from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/hooks/useAppRouter'

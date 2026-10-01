@@ -1,7 +1,7 @@
 'use client'
 
 import { appStore } from '@/store/app.store'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'

@@ -2,7 +2,7 @@
 
 import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from '@/lib/utils'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'

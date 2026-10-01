@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@/components/icons'
 
 const PagerButton = ({ disabled, onClick, label, children }) => (
   <button

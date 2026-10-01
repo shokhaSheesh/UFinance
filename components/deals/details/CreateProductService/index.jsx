@@ -1,7 +1,7 @@
 'use client'
 import CustomDialog from '@/components/shared/CustomDialog';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Check } from 'lucide-react';
+import { Check } from '@/components/icons';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useUcodeDefaultApiQuery, useUcodeRequestMutation, useUcodeRequestQuery } from '../../../../hooks/useDashboard';

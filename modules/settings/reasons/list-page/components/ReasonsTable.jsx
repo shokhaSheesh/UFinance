@@ -1,7 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { CalendarX, Pencil, Plus, Trash2 } from 'lucide-react'
+import { CalendarX, Pencil, Plus, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 function TableHead({ tr }) {

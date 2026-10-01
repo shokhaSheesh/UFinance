@@ -3,7 +3,7 @@
 import Money from '@/components/shared/Money'
 import useMounted from '@/hooks/useMounted'
 import { cn } from '@/lib/utils'
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Hash, Sigma } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Hash, Sigma } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import { GlobalCurrency } from '../../../constants/globalCurrency'

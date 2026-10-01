@@ -5,7 +5,7 @@ import { MScreenHeader } from '@/components/mobile/ui'
 import { useRouter } from '@/hooks/useAppRouter'
 import { showErrorNotification, showSuccessNotification } from '@/lib/utils/notifications'
 import { useResetPassword } from '@/modules/settings/profile/hooks/useProfileData'
-import { Loader2, ShieldCheck } from 'lucide-react'
+import { Loader2, ShieldCheck } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

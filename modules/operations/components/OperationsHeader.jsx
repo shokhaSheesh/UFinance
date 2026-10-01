@@ -3,7 +3,7 @@ import CreateOperationMenu from '@/components/operations/CreateOperationMenu/Cre
 import IconButton from '@/components/shared/Buttons/IconButton'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Download, FileSpreadsheet, Loader2 } from 'lucide-react'
+import { Download, FileSpreadsheet, Loader2 } from '@/components/icons'
 
 /**
  * Шапка страницы операций: заголовок и действия.

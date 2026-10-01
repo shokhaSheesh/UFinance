@@ -11,7 +11,7 @@ import {
   useDialogLayer,
 } from "@/components/ui/dialog-layer"
 import { cn } from "@/lib/utils"
-import { XIcon } from "lucide-react"
+import { XIcon } from '@/components/icons'
 
 function Dialog({ open, ...rest }: DialogPrimitive.Root.Props) {
   const layer = useDialogLayer(open)

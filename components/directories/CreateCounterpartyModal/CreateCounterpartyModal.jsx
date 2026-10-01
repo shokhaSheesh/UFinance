@@ -5,7 +5,7 @@ import SinglSelectStatiya from "@/components/ReadyComponents/SingleSelectStatiya
 import { DeleteGroupConfirmModal } from "@/components/directories/DeleteGroupConfirmModal/DeleteGroupConfirmModal";
 import EditCounterpartyGroupModal from "@/components/directories/EditCounterpartyGroupModal/EditCounterpartyGroupModal";
 import OperationCheckbox from "@/components/shared/Checkbox/operationCheckbox";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from '@/components/icons';
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from "@/components/shared/CustomDialog";
 import Input from "@/components/shared/Input";
 import TextArea from "@/components/shared/TextArea";
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { appStore } from "@/store/app.store";
 import { includeNumber } from "@/utils/helpers";
 import { useQueryClient } from "@tanstack/react-query";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2 } from '@/components/icons';
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";

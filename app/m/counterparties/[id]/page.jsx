@@ -18,7 +18,7 @@ import {
   Receipt,
   SlidersHorizontal,
   X,
-} from 'lucide-react'
+} from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 import moment from 'moment'

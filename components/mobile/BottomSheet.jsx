@@ -2,7 +2,7 @@
 
 import useModalPresence from '@/hooks/useModalPresence'
 import { cn } from '@/lib/utils'
-import { X } from 'lucide-react'
+import { X } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'

@@ -5,7 +5,7 @@ import ActionHistoryPagination from '@/modules/settings/action-history/component
 import ActionHistoryTable from '@/modules/settings/action-history/components/ActionHistoryTable'
 import { useActionHistory } from '@/modules/settings/action-history/hooks/useActionHistory'
 import { appStore } from '@/store/app.store'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'
 

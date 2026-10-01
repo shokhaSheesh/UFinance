@@ -13,7 +13,7 @@ import { useWarehouseStockProducts } from '@/modules/warehouse/hooks/useWarehous
 import { appStore } from '@/store/app.store'
 import { formatAmountInput, formatDecimal, StringtoNumber } from '@/utils/helpers'
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
-import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeftRight, Plus, Trash2 } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'

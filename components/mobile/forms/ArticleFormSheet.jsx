@@ -8,7 +8,7 @@ import { queryClient } from '@/lib/queryClient'
 import { cn } from '@/lib/utils'
 import { showErrorNotification } from '@/lib/utils/notifications'
 import { authStore } from '@/store/auth.store'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

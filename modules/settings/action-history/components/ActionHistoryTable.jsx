@@ -2,7 +2,7 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ACTION_STYLES } from '@/modules/settings/action-history/utils/constants'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 

@@ -4,7 +4,7 @@ import CustomDialog from '@/components/shared/CustomDialog'
 import Loader from '@/components/shared/Loader'
 import { useWarehouseTransfer } from '@/hooks/useDashboard'
 import { FormatDateRu, formatNumber } from '@/utils/helpers'
-import { X } from 'lucide-react'
+import { X } from '@/components/icons'
 import moment from 'moment'
 import { useMemo } from 'react'
 

@@ -3,7 +3,7 @@
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import Input from '@/components/shared/Input'
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 

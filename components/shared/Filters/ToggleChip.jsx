@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Check } from 'lucide-react'
+import { Check } from '@/components/icons'
 
 /**
  * Переключатель-«пилюля» вместо чекбокса в окне фильтров.

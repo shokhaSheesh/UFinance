@@ -4,7 +4,7 @@ import ToggleChip from "@/components/shared/Filters/ToggleChip";
 import Segmented from "@/components/shared/Segmented/Segmented";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { COLUMN_DEFS, GROUPING_OPTIONS } from "@/modules/plans/utils/tokens";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from '@/components/icons';
 import { useTranslations } from "next-intl";
 
 const Labelled = ({ label, children }) => (

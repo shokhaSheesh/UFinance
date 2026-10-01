@@ -4,7 +4,7 @@ import LocaleSwitcher from "@/components/shared/LocaleSwitcher/LocaleSwitcher"
 import { AuthLogo } from "@/constants/icons"
 import { authStore } from "@/store/auth.store"
 import { clearAllSiteData, clearWebStorageSync } from "@/utils/clearSiteData"
-import { LogOut } from "lucide-react"
+import { LogOut } from '@/components/icons'
 import { useTranslations } from "next-intl"
 
 // Почта поддержки для запросов на разблокировку аккаунта

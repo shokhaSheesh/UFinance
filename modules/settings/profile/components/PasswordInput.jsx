@@ -1,6 +1,6 @@
 'use client'
 import Input from '@/components/shared/Input'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from '@/components/icons'
 import { useState } from 'react'
 
 const PasswordInput = ({ label, value, onChange, placeholder, error }) => {

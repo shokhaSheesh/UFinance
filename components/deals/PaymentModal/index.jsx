@@ -10,7 +10,7 @@ import {
   Mail,
   Send,
   X,
-} from "lucide-react";
+} from '@/components/icons';
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { showSuccessNotification } from "@/lib/utils/notifications";

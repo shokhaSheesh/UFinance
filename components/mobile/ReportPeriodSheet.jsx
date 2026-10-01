@@ -3,7 +3,7 @@
 import BottomSheet from '@/components/mobile/BottomSheet'
 import CalendarSheet from '@/components/mobile/CalendarSheet'
 import { cn } from '@/lib/utils'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays } from '@/components/mobile/icons'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'

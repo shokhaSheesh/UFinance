@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from '@/components/icons'
 import { useRouter } from '@/hooks/useAppRouter'
 import { formatRoleDate } from '../utils/formatDate'
 

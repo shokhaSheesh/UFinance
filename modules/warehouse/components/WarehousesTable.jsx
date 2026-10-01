@@ -3,7 +3,7 @@
 import WarehouseMenu from '@/components/warehouse/WarehouseMenu/WarehouseMenu'
 import { cn } from '@/lib/utils'
 import { useRouter } from '@/hooks/useAppRouter'
-import { ChevronRight, MapPin, Warehouse as WarehouseIcon } from 'lucide-react'
+import { ChevronRight, MapPin, Warehouse as WarehouseIcon } from '@/components/icons'
 
 const thBase =
   'sticky top-0 z-10 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500 px-4 py-2.5 border-b border-slate-200 whitespace-nowrap'

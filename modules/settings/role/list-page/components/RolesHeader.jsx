@@ -1,7 +1,7 @@
 'use client'
 
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 /** Шапка списка ролей: заголовок слева, создание — справа. */

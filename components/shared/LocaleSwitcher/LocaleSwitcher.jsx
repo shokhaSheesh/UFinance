@@ -1,7 +1,7 @@
 "use client"
 
 import { useLocaleSwitcher } from '@/hooks/useLocaleSwitcher'
-import { ChevronDown, Globe } from 'lucide-react'
+import { ChevronDown, Globe } from '@/components/icons'
 
 
 export default function LocaleSwitcher({ className = '' }) {

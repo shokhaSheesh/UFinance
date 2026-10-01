@@ -10,7 +10,7 @@ import { STATUS_COLORS } from '@/lib/api/ucode/projects'
 import { cn } from '@/lib/utils'
 import { formatDateFormat } from '@/utils/formatDate'
 import { formatAmount } from '@/utils/helpers'
-import { FolderKanban, Pencil, Trash2 } from 'lucide-react'
+import { FolderKanban, Pencil, Trash2 } from '@/components/icons'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 // Суммы показываем целыми — как в карточках проекта, копейки тут не нужны

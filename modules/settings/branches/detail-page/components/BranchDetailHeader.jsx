@@ -2,7 +2,7 @@
 
 import BackLink from '@/components/shared/BackLink/BackLink'
 import PageHeader from '@/components/shared/PageHeader/PageHeader'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 
 /** Шапка карточки филиала: заголовок слева, добавление сотрудника — справа. */
 const BranchDetailHeader = ({ branchName, onCreate, tb, tc }) => {

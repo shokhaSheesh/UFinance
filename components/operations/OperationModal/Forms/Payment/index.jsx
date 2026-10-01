@@ -25,7 +25,7 @@ import TextArea from '../../../../shared/TextArea'
 import SplitAmount from '../../SplitAmount'
 
 // Icons
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/icons'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'

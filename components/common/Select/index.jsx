@@ -1,5 +1,5 @@
 import ReactSelect, { components } from 'react-select'
-import { Check } from 'lucide-react'
+import { Check } from '@/components/icons'
 
 const customStyles = {
   control: (base, state) => ({

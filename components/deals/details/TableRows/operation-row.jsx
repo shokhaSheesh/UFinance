@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react'
-import { BsCurrencyDollar } from 'react-icons/bs'
-import { TbCurrencyRubel } from 'react-icons/tb'
-import { PiCurrencyKztDuotone } from 'react-icons/pi'
+import { CurrencyDollar as BsCurrencyDollar } from '@/components/icons'
+import { CurrencyRub as TbCurrencyRubel } from '@/components/icons'
+import { CurrencyKztDuotone as PiCurrencyKztDuotone } from '@/components/icons'
 import { formatAmount } from '@/utils/helpers'
 
 /* ─── helpers ─────────────────────────────────────────────── */

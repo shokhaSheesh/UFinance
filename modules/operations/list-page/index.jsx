@@ -35,7 +35,7 @@ import ScreenLoader from "@/components/shared/ScreenLoader";
 import FixedContent from "@/layouts/FixedContent";
 import operationDto from "@/lib/dtos/operationDto";
 import ImportErrorModal from "../components/ImportErrorModal";
-import { Search } from "lucide-react";
+import { Search } from '@/components/icons';
 import FilterButton from "@/components/shared/Filters/FilterButton";
 import FilterChips from "@/components/shared/Filters/FilterChips";
 import { OperationsSummary } from "@/components/operations/OperationsSummary/OperationsSummary";

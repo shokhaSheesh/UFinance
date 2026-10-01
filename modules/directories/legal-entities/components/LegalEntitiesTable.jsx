@@ -1,6 +1,6 @@
 import LegalEntityMenu from '@/components/directories/LegalEntityMenu/LegalEntityMenu'
 import { cn } from '@/lib/utils'
-import { Building2 } from 'lucide-react'
+import { Building2 } from '@/components/icons'
 
 const th =
   'sticky top-0 z-10 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500 px-4 py-2.5 border-b border-slate-200 whitespace-nowrap'

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 const ActionHistoryPagination = ({ page, totalPages, total, onChange, isFetching }) => {

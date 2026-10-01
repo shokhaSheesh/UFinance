@@ -2,7 +2,7 @@
 
 import { MCard, TileIcon } from '@/components/mobile/ui'
 import { cn } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/mobile/icons'
 
 /**
  * Несколько связанных цифр одной карточкой: строка — значок, подпись,

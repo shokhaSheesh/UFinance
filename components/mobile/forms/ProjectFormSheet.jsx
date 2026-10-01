@@ -4,7 +4,7 @@ import BottomSheet from '@/components/mobile/BottomSheet'
 import { MFieldRow, MSelectField } from '@/components/mobile/fields'
 import { showSuccessNotification } from '@/lib/utils/notifications'
 import { useCreateProject, useProjectGroups, useUpdateProject } from '@/modules/projects/hooks/useProjectsData'
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/mobile/icons'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 

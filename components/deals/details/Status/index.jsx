@@ -1,6 +1,6 @@
 import { useUcodeDefaultApiMutation, useUcodeDefaultApiQuery } from '@/hooks/useDashboard'
 import { useQueryClient } from '@tanstack/react-query'
-import { Check, ChevronUp, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { Check, ChevronUp, Loader2, Pencil, Trash2 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './style.module.scss'

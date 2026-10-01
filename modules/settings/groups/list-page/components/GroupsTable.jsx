@@ -1,7 +1,7 @@
 'use client'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { ChevronRight, Users } from 'lucide-react'
+import { ChevronRight, Users } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { colorOf, initialsOf } from '../utils/avatar'
 

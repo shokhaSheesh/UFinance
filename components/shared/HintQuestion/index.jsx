@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { appStore } from '@/store/app.store'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 
 /**

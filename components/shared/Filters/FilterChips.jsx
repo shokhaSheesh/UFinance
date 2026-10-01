@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { X } from 'lucide-react'
+import { X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 
 /**

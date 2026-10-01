@@ -3679,7 +3679,8 @@
       "home": "Asosiy",
       "transactions": "Amaliyotlar",
       "reports": "Hisobotlar",
-      "profile": "Profil"
+      "profile": "Profil",
+      "auth": "Kirish"
     }
   },
   "Mobile": {
@@ -3767,7 +3768,7 @@
       "resend": "Qayta yuborish",
       "resendIn": "Qayta yuborish {seconds} dan keyin",
       "phoneChanged": "Raqam o‘zgartirildi",
-      "logoutSlide": "Chiqish",
+      "logoutSlide": "Hisobdan chiqish",
       "photoChanged": "Rasm yangilandi",
       "nameHint": "Hamkasblar sizni amaliyot va hisobotlarda shunday ko‘radi.",
       "emailHint": "Bu manzilga kirish va parol o‘zgarishi haqidagi xatlar keladi."
@@ -3945,6 +3946,39 @@
       "paymentHint": "Amaliyotlarda to‘lov turini ko‘rsatish",
       "accrualHint": "Bitim tanlanganda «Hisoblash sanasi» maydoni",
       "desktopOnly": "Foydalanuvchilar, rollar, filiallar, valyutalar va shartnomalar kompyuterda sozlanadi."
+    },
+    "notifications": {
+      "title": "Bildirishnomalar",
+      "emptyTitle": "Hozircha bildirishnomalar yo'q",
+      "emptyHint": "Bu yerda tushumlar, muddati o‘tgan qarzlar va bitimlardagi o‘zgarishlar paydo bo‘ladi"
+    },
+    "auth": {
+      "welcomeTitle": "Kompaniya moliyasi nazorat ostida",
+      "welcomeHint": "Pul, bitimlar va hisobotlar — bitta ilovada",
+      "createAccount": "Hisob yaratish",
+      "login": "Kirish",
+      "continue": "Davom etish",
+      "step": "{total} dan {n}-qadam",
+      "emailTitle": "Hisobga kirish",
+      "emailHint": "Ro‘yxatdan o‘tgan emailingizni kiriting",
+      "passwordTitle": "Parolni kiriting",
+      "passwordHint": "{email} hisobi",
+      "forgot": "Parolni unutdingizmi?",
+      "forgotTitle": "Parolni tiklash",
+      "forgotHint": "Tiklash bo‘yicha yo‘riqnomani shu emailga yuboramiz",
+      "send": "Yuborish",
+      "companyTitle": "Kompaniya qanday nomlanadi?",
+      "companyHint": "Nomni siz taklif qilgan xodimlar ko‘radi",
+      "nameTitle": "Ismingiz nima?",
+      "nameHint": "Ism va familiya — hujjatlardagidek",
+      "regEmailTitle": "Emailingiz",
+      "regEmailHint": "U hisobga kirish uchun kerak bo‘ladi",
+      "phoneTitle": "Telefon raqami",
+      "phoneHint": "Hisob bo‘yicha yordam kerak bo‘lsa, shu raqamga bog‘lanamiz",
+      "register": "Ro‘yxatdan o‘tish",
+      "hasAccount": "Hisobingiz bormi?",
+      "noAccount": "Hali hisobingiz yo‘qmi?",
+      "back": "Orqaga"
     }
   }
 }

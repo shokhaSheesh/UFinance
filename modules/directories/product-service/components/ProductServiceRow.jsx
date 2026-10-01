@@ -7,8 +7,8 @@ import {
 import RowActionsTrigger from '@/components/shared/RowActions/RowActionsTrigger'
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/utils/helpers";
-import { Pencil, Trash2 } from "lucide-react";
-import { IoCopyOutline } from "react-icons/io5";
+import { Pencil, Trash2 } from '@/components/icons';
+import { Copy as IoCopyOutline } from '@/components/icons';
 
 const ProductServiceRow = ({
   item,

@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 import BranchUserRow from './BranchUserRow'
 
 const BranchUsersTable = ({ usersList, isLoading, onEdit, onDelete, tb }) => {

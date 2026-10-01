@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react';
-import { HiOutlinePause } from "react-icons/hi2";
+import { Pause as HiOutlinePause } from '@/components/icons';
 
 const MIN_GAP = 0; // ← was 5. Set to 0 to let thumbs touch, or 0.5 for a hair of separation
 

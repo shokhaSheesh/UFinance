@@ -1,4 +1,5 @@
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, PackageCheck, Scale, Truck } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, PackageCheck, Scale, Truck } from '@/components/icons'
+import * as MobileIcons from '@/components/mobile/icons'
 
 /**
  * Вид типов операций — один на весь продукт: таблица операций, окна и
@@ -77,10 +78,23 @@ const NEUTRAL = {
   dot: 'bg-slate-400',
 }
 
+// Значки телефона — из набора Phosphor (components/mobile/icons)
+const MOBILE_ICONS = {
+  Поступление: MobileIcons.ArrowDownLeft,
+  Выплата: MobileIcons.ArrowUpRight,
+  Перемещение: MobileIcons.ArrowLeftRight,
+  Начисление: MobileIcons.Scale,
+  Отгрузка: MobileIcons.Truck,
+  Поставка: MobileIcons.Package,
+}
+
 export const MOBILE_OPERATION_TYPES = Object.fromEntries(
   Object.entries(OPERATION_TYPES).map(([tip, look]) => [
     tip,
-    tip === 'Поступление' || tip === 'Выплата' ? look : { ...look, ...NEUTRAL },
+    {
+      ...(tip === 'Поступление' || tip === 'Выплата' ? look : { ...look, ...NEUTRAL }),
+      icon: MOBILE_ICONS[tip] || look.icon,
+    },
   ])
 )
 

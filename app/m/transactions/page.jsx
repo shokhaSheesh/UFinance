@@ -23,7 +23,7 @@ import {
   Search,
   SlidersHorizontal,
   X,
-} from 'lucide-react'
+} from '@/components/mobile/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'

@@ -2,7 +2,7 @@
 
 import Segmented from '@/components/shared/Segmented/Segmented'
 import { cn } from '@/lib/utils'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw } from '@/components/icons'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useTranslations } from 'next-intl'

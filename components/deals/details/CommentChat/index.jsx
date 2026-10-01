@@ -1,6 +1,6 @@
 'use client';
 import { useSaleComments } from '@/hooks/useSaleComments';
-import { Check, Download, Loader2, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react';
+import { Check, Download, Loader2, Paperclip, Pencil, Send, Trash2, X } from '@/components/icons';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 

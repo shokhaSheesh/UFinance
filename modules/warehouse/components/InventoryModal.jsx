@@ -13,7 +13,7 @@ import { showErrorNotification, showSuccessNotification } from '@/lib/utils/noti
 import { formatAmountInput, formatDecimal, StringtoNumber } from '@/utils/helpers'
 import CustomDialog, { DialogBody, DialogFooter, DialogHeader, FormRow } from '@/components/shared/CustomDialog'
 import Segmented from '@/components/shared/Segmented/Segmented'
-import { ClipboardCheck, Plus, Trash2 } from 'lucide-react'
+import { ClipboardCheck, Plus, Trash2 } from '@/components/icons'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'

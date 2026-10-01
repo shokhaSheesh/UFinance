@@ -3,7 +3,7 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { Check, ChevronRight, Clock, X } from 'lucide-react'
+import { Check, ChevronRight, Clock, X } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { buildAttendanceMap } from '../hooks/useAttendanceReport'

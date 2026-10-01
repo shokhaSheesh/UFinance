@@ -2,7 +2,7 @@ import CreateCounterpartyModal from '@/components/directories/CreateCounterparty
 import SingleSelect from '@/components/shared/Selects/SingleSelect'
 import { useCounterpartiesGroupsPlanFact } from '@/hooks/useDashboard'
 import { debounce } from 'lodash'
-import { Plus } from 'lucide-react'
+import { Plus } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import MultiSelect from '../../shared/Selects/MultiSelect'

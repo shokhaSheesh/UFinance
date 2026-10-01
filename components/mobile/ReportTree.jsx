@@ -2,7 +2,7 @@
 
 import Money from '@/components/shared/Money'
 import { cn } from '@/lib/utils'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from '@/components/mobile/icons'
 import { useState } from 'react'
 
 /**
