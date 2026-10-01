@@ -72,7 +72,7 @@ const MobileAppLayout = observer(({ children }) => {
           финансовых приложениях: экран под ней продолжается, и панель не
           выглядит краем страницы */}
       {!hideTabs && (
-      <nav className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
+      <nav className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
         <div className="pointer-events-auto flex w-full max-w-[420px] items-center rounded-[28px] border border-slate-200/70 bg-white px-2 py-2 shadow-[0_8px_28px_rgba(15,23,42,0.12)]">
           {TABS.map((tab, index) => {
             if (tab.fab) {

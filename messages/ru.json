@@ -3631,7 +3631,10 @@
       "presetMonth": "Этот месяц",
       "presetQuarter": "Квартал",
       "presetYear": "Год",
-      "presetLastMonth": "Прошлый месяц"
+      "presetLastMonth": "Прошлый месяц",
+      "analytics": "Аналитика",
+      "reportsSection": "Отчёты",
+      "indicatorsHint": "Прибыль, деньги, клиенты и долги графиками"
     },
     "form": {
       "created": "Операция создана",

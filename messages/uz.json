@@ -3785,7 +3785,10 @@
       "presetMonth": "Shu oy",
       "presetQuarter": "Chorak",
       "presetYear": "Yil",
-      "presetLastMonth": "O‘tgan oy"
+      "presetLastMonth": "O‘tgan oy",
+      "analytics": "Tahlil",
+      "reportsSection": "Hisobotlar",
+      "indicatorsHint": "Foyda, pul, mijozlar va qarzlar grafiklarda"
     },
     "form": {
       "created": "Amaliyot yaratildi",

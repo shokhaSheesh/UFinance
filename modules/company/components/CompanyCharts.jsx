@@ -31,9 +31,10 @@ const baseTooltip = {
 /**
  * Карточка графика: заголовок, легенда, сам график.
  */
-export function ChartCard({ title, subtitle, series = [], option, height = 260, header, children }) {
+export function ChartCard({ title, subtitle, series = [], option, height = 260, header, children, className }) {
+  // className — для мобильного приложения: там карточки без рамки и крупнее скругление
   return (
-    <div className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5">
+    <div className={cn('flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5', className)}>
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
@@ -66,7 +67,7 @@ export function ChartCard({ title, subtitle, series = [], option, height = 260, 
  * здесь сразу видно, чем период закрылся и насколько расходы «съели» доход.
  * Итоги периода — в шапке карточки.
  */
-export function IncomeExpenseByPeriod({ pnl }) {
+export function IncomeExpenseByPeriod({ pnl, className, height = 320 }) {
   const t = useTranslations('Company')
   const locale = useLocale()
   const shortValue = useShortFormatter()
@@ -173,7 +174,8 @@ export function IncomeExpenseByPeriod({ pnl }) {
       title={t('byPeriod.title')}
       subtitle={t('byPeriod.subtitle')}
       option={option}
-      height={320}
+      height={height}
+      className={className}
       header={
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {totals.map((item) => (
@@ -198,7 +200,7 @@ export function IncomeExpenseByPeriod({ pnl }) {
  * фактический денежный поток. Расхождение показывает, сколько заработанного
  * ещё не стало деньгами; на «Показателях» такого сравнения нет.
  */
-export function ProfitVsCashChart({ pnl, cash }) {
+export function ProfitVsCashChart({ pnl, cash, className }) {
   const t = useTranslations('Company')
   const locale = useLocale()
   const shortValue = useShortFormatter()
@@ -299,7 +301,7 @@ export function ProfitVsCashChart({ pnl, cash }) {
   )
 
   return (
-    <ChartCard title={t('cumulative.title')} subtitle={t('cumulative.subtitle')} series={series} option={option} height={220}>
+    <ChartCard title={t('cumulative.title')} subtitle={t('cumulative.subtitle')} series={series} option={option} height={220} className={className}>
       <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/60 px-4 py-2.5">
         <span className="min-w-0 text-sm text-slate-600" title={t('cumulative.gapHint')}>{t('cumulative.gap')}</span>
         <span className={cn('shrink-0 text-lg font-semibold tabular-nums', gap > 0 ? 'text-amber-600' : 'text-emerald-700')}>

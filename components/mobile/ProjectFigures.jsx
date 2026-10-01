@@ -1,9 +1,8 @@
 'use client'
 
-import { MCard, TileIcon } from '@/components/mobile/ui'
+import FigureCard from '@/components/mobile/FigureCard'
 import Money from '@/components/shared/Money'
-import { cn } from '@/lib/utils'
-import { Loader2, Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 /**
@@ -40,17 +39,5 @@ export default function ProjectFigures({ income, expenses, profit, profitability
     },
   ]
 
-  return (
-    <MCard list>
-      {rows.map((row) => (
-        <div key={row.key} className="flex items-center gap-3 border-b border-slate-100 py-3.5 last:border-b-0">
-          <TileIcon icon={row.icon} tone={row.tone} />
-          <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-slate-900">{row.label}</span>
-          <span className={cn('shrink-0 text-[15px] font-bold tabular-nums text-slate-900', row.valueClass)}>
-            {loading ? <Loader2 size={16} className="animate-spin text-slate-300" aria-hidden="true" /> : row.value}
-          </span>
-        </div>
-      ))}
-    </MCard>
-  )
+  return <FigureCard rows={rows} loading={loading} />
 }

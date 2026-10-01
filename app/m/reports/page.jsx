@@ -11,14 +11,17 @@ import { cn } from '@/lib/utils'
 import { readBalancePeriod } from '@/utils/balanceInsights'
 import { buildPeriodPayload } from '@/utils/balancePeriods'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart3, ChevronRight, Scale, TrendingUp } from 'lucide-react'
+import { findRow as findIndicatorRow, useIndicatorProfit } from '@/components/Indicators/shared/indicatorQueries'
+import { GlobalCurrency } from '@/constants/globalCurrency'
+import { BarChart3, Building2, ChartLine as LineChart, ChevronRight, Scale, TrendingUp } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import moment from 'moment'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 
 /**
- * Отчёты: три карточки с главной цифрой каждого отчёта.
+ * Отчёты: три карточки с главной цифрой каждого отчёта, а ниже — раздел
+ * «Аналитика» с дашбордом «Моя компания».
  *
  * Список из трёх названий ничего не сообщает о делах компании, поэтому на
  * карточке сразу стоит ответ: сколько денег осталось от движения, сколько
@@ -73,6 +76,8 @@ const ReportCard = ({ icon: Icon, title, subtitle, value, currency, tone, onClic
 const MobileReportsPage = observer(() => {
   const t = useTranslations('Mobile')
   const tr = useTranslations('Reports')
+  const tCompany = useTranslations('Company')
+  const tNav = useTranslations('Sidebar')
   const router = useRouter()
 
   // ── Движение денег ────────────────────────────────────────────────────────
@@ -161,6 +166,14 @@ const MobileReportsPage = observer(() => {
     return readBalancePeriod(periods[periods.length - 1]?.data || []).assets
   }, [balanceData])
 
+  // ── Моя компания: чистая прибыль за период «Показателей» ────────────────
+  const { data: indicatorProfit } = useIndicatorProfit()
+  const companyProfit = useMemo(() => {
+    const keys = (indicatorProfit?.legend || []).map((item) => item.key)
+    const row = findIndicatorRow(indicatorProfit?.rows || [], 'net-profit')
+    return row ? sumRow(row, keys) : null
+  }, [indicatorProfit])
+
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-[max(env(safe-area-inset-top),12px)] pb-28">
       <MScreenHeader title={t('tabs.reports')} />
@@ -194,7 +207,26 @@ const MobileReportsPage = observer(() => {
         />
       </div>
 
-      <p className="px-2 pt-4 text-[11px] leading-relaxed text-slate-400">{t('reports.tableHint')}</p>
+      {/* Аналитика — дашборды поверх отчётов */}
+      <div className="px-1 pt-6 pb-2.5 text-[15px] font-bold text-slate-900">{t('reports.analytics')}</div>
+      <div className="flex flex-col gap-2.5">
+        <ReportCard
+          icon={Building2}
+          title={tCompany('pageTitle')}
+          subtitle={t('home.profit')}
+          value={companyProfit}
+          currency={GlobalCurrency?.name}
+          tone={companyProfit >= 0 ? 'in' : 'out'}
+          onClick={() => router.push('/m/company')}
+        />
+
+        <ReportCard
+          icon={LineChart}
+          title={tNav('nav.indicators')}
+          subtitle={t('reports.indicatorsHint')}
+          onClick={() => router.push('/m/indicators')}
+        />
+      </div>
     </div>
   )
 })
