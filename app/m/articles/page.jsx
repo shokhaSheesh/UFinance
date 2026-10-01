@@ -179,7 +179,7 @@ const MobileArticlesPage = observer(() => {
                 section === key ? 'bg-white text-slate-900 shadow-[0_1px_3px_rgba(15,23,42,0.1)]' : 'bg-white/60 text-slate-500'
               )}
             >
-              <CategoryTypeIcon type={key} size="sm" calm />
+              <CategoryTypeIcon type={key} size="sm" />
               {t(`tabs.${key}`)}
             </button>
           ))}

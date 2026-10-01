@@ -2,49 +2,31 @@
 
 import { cn } from '@/lib/utils'
 import { Landmark, PiggyBank, TrendingDown, TrendingUp, Wallet } from '@/components/icons'
-import * as MobileIcons from '@/components/mobile/icons'
 
 /**
  * Пять разделов плана счетов: доходы, расходы, активы, обязательства, капитал.
  *
- * Значок и цвет у раздела один на всё приложение — как у типов операций
- * (OperationTypeIcon). Раньше разделы были просто подчёркнутыми надписями,
- * одинаковыми на вид, и в списке, и в окне создания приходилось вчитываться.
+ * Значок и цвет у раздела один на всё приложение — по тому же правилу, что
+ * у типов операций: цвет только у денег — доходы зелёные, расходы красные,
+ * остальные разделы серые и различаются значком.
  */
+const NEUTRAL_TONE = 'bg-slate-100 text-slate-500'
+
 export const CATEGORY_TYPES = [
   { key: 'income', Icon: TrendingUp, tone: 'bg-emerald-50 text-emerald-600' },
-  { key: 'expense', Icon: TrendingDown, tone: 'bg-rose-50 text-rose-600' },
-  { key: 'assets', Icon: Wallet, tone: 'bg-amber-50 text-amber-600' },
-  { key: 'liabilities', Icon: Landmark, tone: 'bg-orange-50 text-orange-600' },
-  { key: 'capital', Icon: PiggyBank, tone: 'bg-violet-50 text-violet-600' },
+  { key: 'expense', Icon: TrendingDown, tone: 'bg-red-50 text-red-600' },
+  { key: 'assets', Icon: Wallet, tone: NEUTRAL_TONE },
+  { key: 'liabilities', Icon: Landmark, tone: NEUTRAL_TONE },
+  { key: 'capital', Icon: PiggyBank, tone: NEUTRAL_TONE },
 ]
 
 export const CATEGORY_TYPE_BY_KEY = Object.fromEntries(CATEGORY_TYPES.map((type) => [type.key, type]))
 
-/**
- * Спокойные цвета телефона: цвет только у денег — доходы зелёные, расходы
- * красные, остальные разделы серые (см. MOBILE_OPERATION_TYPES).
- */
-const CALM_TONES = {
-  income: 'bg-emerald-50 text-emerald-600',
-  expense: 'bg-red-50 text-red-600',
-}
-
-const CALM_ICONS = {
-  income: MobileIcons.TrendingUp,
-  expense: MobileIcons.TrendingDown,
-  assets: MobileIcons.Wallet,
-  liabilities: MobileIcons.Landmark,
-  capital: MobileIcons.PiggyBank,
-}
-
-/** Значок раздела в круге его цвета. calm — палитра и значки телефона. */
-export function CategoryTypeIcon({ type, size = 'md', className, calm = false }) {
+/** Значок раздела в круге его цвета. */
+export function CategoryTypeIcon({ type, size = 'md', className }) {
   const config = CATEGORY_TYPE_BY_KEY[type]
   if (!config) return null
-  // calm — телефон: значок из набора телефона (Phosphor) и спокойный цвет
-  const Icon = calm ? CALM_ICONS[type] || config.Icon : config.Icon
-  const tone = calm ? CALM_TONES[type] || 'bg-slate-100 text-slate-500' : config.tone
+  const { Icon, tone } = config
   const box = size === 'sm' ? 'h-6 w-6' : 'h-7 w-7'
 
   return (
